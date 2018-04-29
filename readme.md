@@ -135,19 +135,15 @@ This seems like a better way to structure our data.
           india: true,
         }
       }
-
     },
     reading: {
-      resourceId: {
-        value: {
-          r1: {
-            value: 12.4,
-            datetime: 2018-01-01...
-            latLng:
-            groups: {
-              village
-            }
-          }
+      r1: {
+        resourceId: one
+        value: 12.4,
+        datetime: 2018-01-01...
+        latLng:
+        groups: {
+          village1: true
         }
       }
     }
@@ -175,10 +171,14 @@ TODO:
   getReadingsForGroup(group) [done]
   getReadingsForResource() [done]
   getResourcesForGroup() []
-  getAverageForGroup(group, resourceType, startTime, endTime) []
+
+  queries for graph data?
+  - getAverageForGroup(group, resourceType, startTime, endTime) []
+  - others?
 
 
+- getResourcesNearLocation(lat, lng, distance) [done]
 
-- getResourcesNearLocation(lat, lng, distance)
 - write down proper type definitions and figure out typescript
 - start working on fast static group/resource detail page?
+- investigate legacy id compatability

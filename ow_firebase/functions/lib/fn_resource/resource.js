@@ -126,6 +126,61 @@ module.exports = (functions, admin) => {
         })
             .catch(err => next(err));
     });
+    /**
+     * getResourceNearLocationValidation
+     *
+     * Returns all the resources near a given location.
+     * Basic geoquery, creates a square bounding box (sorry, nothing too fancy here).
+     *
+     * Currently, the cloudstore database only filters by latitude, and not longitude.
+     * So this endpoint queries based on latitude, and then manually filters.
+     * See: https://github.com/invertase/react-native-firebase/issues/561,
+     *  and https://gist.github.com/zirinisp/e5cf5d9c33cb0bd815993900618eafe0
+     *
+     * It seems if we want more advanced geo queries, we will have to implement that ourselves. Some people sync
+     * their data to Algolia, which allows them to peform these complex queries. That could work in the future,
+     * but for now, this will do.
+     *
+     * @param {number} latitude  - the Latitude of the centre point
+     * @param {number} longitude - the Longitude of the centre point
+     * @param {float}  distance  - between 0 & 1, how far the search should go. Min x m, Max 10km (approximate)
+     */
+    const getResourceNearLocationValidation = {
+        options: {
+            allowUnknownBody: false,
+        },
+        query: {
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required(),
+            distance: Joi.number().max(1).min(0).required(),
+        }
+    };
+    app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => {
+        const { latitude, longitude, distance } = req.query;
+        const { orgId } = req.params;
+        const distanceMultiplier = 10; //TODO: tune this value based on the queries we are getting back once we can see it a map
+        const minLat = latitude - distanceMultiplier * distance;
+        const minLng = longitude - distanceMultiplier * distance;
+        const maxLat = latitude + distanceMultiplier * distance;
+        const maxLng = longitude + distanceMultiplier * distance;
+        console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+        const readingsRef = fs.collection(`/org/${orgId}/resource`)
+            .where('coords', '>=', new fb.firestore.GeoPoint(minLat, minLng))
+            .where('coords', '<=', new fb.firestore.GeoPoint(maxLat, maxLng)).get()
+            .then(snapshot => {
+            const resources = [];
+            snapshot.forEach(doc => {
+                const resource = doc.data();
+                // Filter based on longitude. TODO: remove this once google fixes this query
+                if (resource.coords._longitude < minLng || resource.coords._longitude > maxLng) {
+                    return;
+                }
+                resources.push(resource);
+            });
+            res.json(resources);
+        })
+            .catch(err => next(err));
+    });
     return functions.https.onRequest(app);
 };
 //# sourceMappingURL=resource.js.map

@@ -81,29 +81,6 @@ module.exports = (functions, admin) => {
         })
             .catch(err => next(err));
     });
-    /**
-     * getReadingsForGroup
-     *
-     * Returns all the readings for a given group. May need to be paginated
-     */
-    // const getReadingsForGroupValidation = {
-    //   options: {
-    //     allowUnknownBody: false,
-    //   },
-    //   query: {
-    //     type: Joi.valid('well', 'raingauge', 'checkdam').optional(),
-    //   }
-    // };
-    // app.get('/:orgId/group/:groupId/reading', (req, res, next) => {
-    //   const { type } = req.query;
-    //   const { orgId, groupId } = req.params;
-    //   // // Create a reference to the cities collection
-    //   // var citiesRef = db.collection('cities');
-    //   // // Create a query against the collection
-    //   // var queryRef = citiesRef.where('state', '==', 'CA');
-    //   const readingsRef = fs.collection(`/org/${orgId}/reading`);
-    //   const queryRef = readingsRef.where("groups", "==", "")
-    // });
     return functions.https.onRequest(app);
 };
 //# sourceMappingURL=group.js.map
