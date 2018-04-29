@@ -154,6 +154,10 @@ This seems like a better way to structure our data.
   }
 }
 
+//Maybe instead of nesting:
+org/orgId/reading/resourceId/value/readingId, we should have a resourceId field on reading...
+
+
 
 ```
 
@@ -165,9 +169,16 @@ challenges with this approach:
 
 
 TODO: 
-- finish data restructure and test
-- add listeners and updates:
-  - groups on resources and readings
-  - lastValue on resource
 
 - endpoints for group based queries
+  
+  getReadingsForGroup(group) [done]
+  getReadingsForResource() [done]
+  getResourcesForGroup() []
+  getAverageForGroup(group, resourceType, startTime, endTime) []
+
+
+
+- getResourcesNearLocation(lat, lng, distance)
+- write down proper type definitions and figure out typescript
+- start working on fast static group/resource detail page?

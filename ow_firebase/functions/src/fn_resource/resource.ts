@@ -101,6 +101,7 @@ module.exports = (functions, admin) => {
 
     //Add default lastReading
     req.body.lastValue = 0;
+    req.body.lastReadingDatetime = new Date(0);
 
     //Ensure the orgId exists
     const orgRef = fs.collection('org').doc(orgId)
@@ -113,6 +114,43 @@ module.exports = (functions, admin) => {
       //TODO: standardize all these refs
       .then(() => fs.collection(`/org/${orgId}/resource`).add(req.body))
       .then(result => res.json({ resource: result.id }))
+      .catch(err => next(err));
+  });
+
+  /**
+   * getReadingsForResource
+   * 
+   * Returns all the readings for a given resource, optionally filtering by type.
+   * May need 
+   */
+  const getReadingsForResourceValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    query: {
+      type: Joi.valid('well', 'raingauge', 'checkdam').optional(),
+    }
+  };
+
+  app.get('/:orgId/:resourceId/reading', validate(getReadingsForResourceValidation), (req, res, next) => {
+    const { type } = req.query;
+    const { orgId, resourceId } = req.params;
+
+    // // Create a reference to the cities collection
+    // var citiesRef = db.collection('cities');
+
+    // // Create a query against the collection
+    // var queryRef = citiesRef.where('state', '==', 'CA');
+
+    //TODO: implement optional type filter
+    const readingsRef = fs.collection(`/org/${orgId}/reading`)
+      .where(`resourceId`, '==', resourceId).get()
+      .then(snapshot => {
+        console.log("snapshot", snapshot);
+        const resources = []
+        snapshot.forEach(doc => resources.push(doc.data()));
+        res.json(resources);
+      })
       .catch(err => next(err));
   });
 

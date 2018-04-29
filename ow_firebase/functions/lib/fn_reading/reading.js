@@ -37,11 +37,13 @@ module.exports = (functions, admin) => {
         }
     };
     app.post('/:orgId/:resourceId/reading', validate(createReadingValidation), (req, res, next) => {
-        const orgId = req.params.orgId;
-        const resourceId = req.params.resourceId;
+        const { orgId, resourceId } = req.params;
         //Convert string date to firestore date
         req.body.datetime = new Date(req.body.datetime);
+        //Add the resourceId to the body
+        req.body.resourceId = resourceId;
         //TODO: custom validate depending on resource type
+        //Date can't be in the future
         //Ensure the orgId + resource exists
         const resourceRef = fs.collection('org').doc(orgId).collection('resource').doc(resourceId);
         return resourceRef.get()
@@ -51,8 +53,8 @@ module.exports = (functions, admin) => {
             }
         })
             //TODO: standardize all these refs
-            .then(() => fs.collection(`/org/${orgId}/reading/${resourceId}/value`).add(req.body))
-            .then(result => res.json({ resource: result.id }))
+            .then(() => fs.collection(`/org/${orgId}/reading/`).add(req.body))
+            .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));
     });
     return functions.https.onRequest(app);
