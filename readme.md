@@ -182,3 +182,13 @@ TODO:
 - write down proper type definitions and figure out typescript
 - start working on fast static group/resource detail page?
 - investigate legacy id compatability
+
+
+- secure the endpoints
+- when registering a new resource, allow user to select from a number of groups
+- when registering a new resource, add extra fields for each resource type. Eg. Well.maxDepth
+- ow_admin: list resources by groups
+
+
+Authentication example:
+https://github.com/firebase/functions-samples/tree/master/authorized-https-endpoint

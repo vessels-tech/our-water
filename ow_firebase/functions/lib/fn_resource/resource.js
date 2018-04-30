@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -9,6 +10,10 @@ module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());
     const fs = admin.firestore();
+    /* CORS Configuration */
+    const openCors = cors({ origin: '*' });
+    app.use(openCors);
+    // app.options('/', openCors) // enable pre-flight request for DELETE request
     //TODO: fix this error handler
     // app.use(defaultErrorHandler);
     app.use(function (err, req, res, next) {
@@ -40,6 +45,8 @@ module.exports = (functions, admin) => {
             .catch(err => next(err));
     });
     /**
+     * createResource
+     *
      *  Example:
      *  {
      *    "coords": {"latitude":13.2, "longitude":45.4},
@@ -56,31 +63,36 @@ module.exports = (functions, admin) => {
             allowUnknownBody: false,
         },
         body: {
-            coords: Joi.object().keys({
-                latitude: Joi.number().required(),
-                longitude: Joi.number().required(),
-            }).required(),
-            //TODO: make proper enums
-            owner: Joi.object().keys({
-                name: Joi.string().required(),
-            }),
-            groups: Joi.object().optional(),
-            imageUrl: Joi.string().optional(),
-            //We will create an index on this to make this backwards compatible with MyWell
-            legacyId: Joi.string().optional(),
-            type: Joi.valid('well', 'raingauge', 'checkdam').required(),
+            //This is annoying...
+            data: {
+                coords: Joi.object().keys({
+                    latitude: Joi.number().required(),
+                    longitude: Joi.number().required(),
+                }).required(),
+                //TODO: make proper enums
+                owner: Joi.object().keys({
+                    name: Joi.string().required(),
+                }),
+                groups: Joi.object().optional(),
+                imageUrl: Joi.string().optional(),
+                //We will create an index on this to make this backwards compatible with MyWell
+                legacyId: Joi.string().optional(),
+                type: Joi.valid('well', 'raingauge', 'checkdam').required()
+            },
         }
     };
     app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
+        // app.post('/:orgId/', (req, res, next) => {
+        console.log('body is', req.body);
         const orgId = req.params.orgId;
         //Ensure geopoints get added properly
-        const oldCoords = req.body.coords;
+        const oldCoords = req.body.data.coords;
         const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
-        req.body.coords = newCoords;
+        req.body.data.coords = newCoords;
         console.log("org id:", orgId);
         //Add default lastReading
-        req.body.lastValue = 0;
-        req.body.lastReadingDatetime = new Date(0);
+        req.body.data.lastValue = 0;
+        req.body.data.lastReadingDatetime = new Date(0);
         //Ensure the orgId exists
         const orgRef = fs.collection('org').doc(orgId);
         return orgRef.get()
@@ -90,7 +102,7 @@ module.exports = (functions, admin) => {
             }
         })
             //TODO: standardize all these refs
-            .then(() => fs.collection(`/org/${orgId}/resource`).add(req.body))
+            .then(() => fs.collection(`/org/${orgId}/resource`).add(req.body.data))
             .then(result => res.json({ resource: result.id }))
             .catch(err => next(err));
     });
@@ -170,12 +182,12 @@ module.exports = (functions, admin) => {
             .then(snapshot => {
             const resources = [];
             snapshot.forEach(doc => {
-                const resource = doc.data();
+                const data = doc.data();
                 // Filter based on longitude. TODO: remove this once google fixes this query
-                if (resource.coords._longitude < minLng || resource.coords._longitude > maxLng) {
+                if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
                     return;
                 }
-                resources.push(resource);
+                resources.push(data);
             });
             res.json(resources);
         })

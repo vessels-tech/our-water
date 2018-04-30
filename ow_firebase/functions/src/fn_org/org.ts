@@ -9,14 +9,7 @@ module.exports = (functions, admin) => {
   app.use(bodyParser.json());
   const fs = admin.firestore();
 
-
-  // const defaultErrorHandler = require('../common/defaultErrorHandler');
-
-  //TODO: fix this error handler
-  // app.use(defaultErrorHandler);
-
   app.get('/', (req, res) => res.send("TODO"));
-
 
   const createOrgValidation = {
     options: {
