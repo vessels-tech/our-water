@@ -9,7 +9,8 @@
   "dependencies": {
     "react": "16.3.1",
     "react-native": "0.55.3",
-    "react-native-maps": "https://github.com/lewisdaly/react-native-maps.git#7142cc618bd8fcc5df24221cb2c1fb64d5880750"
+    "react-native-firebase": "^4.0.6",
+    "react-native-maps": "0.20.1"
   },
   "devDependencies": {
     "babel-jest": "22.4.3",

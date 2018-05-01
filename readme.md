@@ -206,3 +206,15 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 ```
+
+remote debugger
+https://stackoverflow.com/questions/40898934/unable-to-connect-with-remote-debugger
+
+
+
+`I solved it doing adb reverse tcp:8081 tcp:8081 and then reload on my phone.`
+
+
+
+point to our react-native-maps
+"react-native-maps": "https://github.com/lewisdaly/react-native-maps.git#7142cc618bd8fcc5df24221cb2c1fb64d5880750",
