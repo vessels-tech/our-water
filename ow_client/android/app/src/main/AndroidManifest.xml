@@ -11,10 +11,14 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme">
 
+     <!-- Metadata -->
       <meta-data 
-        android:name="com.google.androud.geo.API_KEY"
+        android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyCdTWq73oQd_x7XUhb_7riCPH3RLCv7Fu0"
       />
+
+      <!-- Permissions -->
+      <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
 
       <activity
         android:name=".MainActivity"
