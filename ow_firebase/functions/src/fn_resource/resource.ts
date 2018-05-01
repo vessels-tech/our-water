@@ -171,7 +171,7 @@ module.exports = (functions, admin) => {
 
 
   /**
-   * getResourceNearLocationValidation
+   * getResourceNearLocation
    * 
    * Returns all the resources near a given location.
    * Basic geoquery, creates a square bounding box (sorry, nothing too fancy here).

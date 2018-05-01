@@ -12,20 +12,45 @@ import {
   View
 } from 'react-native';
 import MapView from 'react-native-maps';
+import firebase from 'react-native-firebase';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+
+import FirebaseApi from './api/FirebaseApi';
+
+import Config from 'react-native-config'
+const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
 export default class App extends Component<Props> {
+  
+
+  constructor(props) {
+    super(props);
+    this.fs = firebase.firestore();
+    console.log(Config.REACT_APP_ORG_ID);
+
+    FirebaseApi.getResourcesForOrg({orgId});
+  }
+
+  componentWillMount() {
+
+    //TODO: get from user
+    const coords = {
+      latitude: 24.345,
+      longitude: 55.44,
+    };
+
+    FirebaseApi.getResourceNearLocation({orgId, ...coords, distance: 1})
+    .then(result => {
+      console.log(result);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
 
   
   render() {
-    console.log("HELLO WORLD");
 
     return (
       <View style={styles.container}>

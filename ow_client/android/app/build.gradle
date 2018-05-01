@@ -142,28 +142,30 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-config')
     implementation(project(':react-native-firebase')) {
         transitive = false
     }
-    // compile project(':react-native-maps')
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:23.0.1"
     implementation "com.facebook.react:react-native:+"  // From node_modules
     
-    // implementation project(':react-native-maps')
+    //react-native-maps
     implementation(project(':react-native-maps')){
         exclude group: 'com.google.android.gms', module: 'play-services-base'
         exclude group: 'com.google.android.gms', module: 'play-services-maps'
     }
 
-    // implementation 'com.google.android.gms:play-services-base:10.0.1'
     implementation 'com.google.android.gms:play-services-maps:15.0.0'
-    // com.google.android.gms:play-services-maps:11.4.2
-
-    // Firebase dependencies
-    implementation "com.google.firebase:firebase-core:15.0.0"
-
     implementation "com.google.android.gms:play-services-base:15.0.0"
+
+    //react-native-firebase
+    implementation "com.google.firebase:firebase-core:15.0.0"
+    implementation "com.google.firebase:firebase-firestore:15.0.0"
+
+
+
 }
 
 // Run this once to be able to run the application with BUCK
@@ -174,5 +176,8 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 
-//Needed for react-native-firebase
+//react-native-firebase
 apply plugin: 'com.google.gms.google-services'
+
+//react-native-config
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"

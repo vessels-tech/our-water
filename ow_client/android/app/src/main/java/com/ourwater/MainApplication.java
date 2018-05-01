@@ -3,14 +3,18 @@ package com.ourwater;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import io.invertase.firebase.RNFirebasePackage;
-import com.airbnb.android.react.maps.MapsPackage;
+import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 
+//react-native-maps
 import com.airbnb.android.react.maps.MapsPackage;
+
+//react-native-firebase
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,8 +31,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativeConfigPackage(),
+          new MapsPackage(),
           new RNFirebasePackage(),
-          new MapsPackage()
+          new RNFirebaseFirestorePackage()
       );
     }
 
