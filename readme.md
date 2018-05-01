@@ -192,3 +192,17 @@ TODO:
 
 Authentication example:
 https://github.com/firebase/functions-samples/tree/master/authorized-https-endpoint
+
+Simple example for multiple sites on single firebase hosting
+https://medium.com/@michael.warneke/hosting-multiple-angular-apps-on-firebase-fb15e2a9dda9
+
+
+
+
+## Android react-native setup
+
+```
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+```

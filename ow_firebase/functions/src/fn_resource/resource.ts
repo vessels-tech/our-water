@@ -62,6 +62,8 @@ module.exports = (functions, admin) => {
   /**
    * createResource
    * 
+   * Creates a new resource for a given org
+   * 
    *  Example:
    *  {
    *    "coords": {"latitude":13.2, "longitude":45.4},
@@ -99,8 +101,6 @@ module.exports = (functions, admin) => {
   };
 
   app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
-  // app.post('/:orgId/', (req, res, next) => {
-    console.log('body is', req.body);
 
     const orgId = req.params.orgId;
 
@@ -125,7 +125,10 @@ module.exports = (functions, admin) => {
       })
       //TODO: standardize all these refs
       .then(() => fs.collection(`/org/${orgId}/resource`).add(req.body.data))
-      .then(result => res.json({ resource: result.id }))
+      .then(result => {
+        console.log(JSON.stringify({resourceId: result.id}));
+        return res.json({ resource: result.id })
+      })
       .catch(err => next(err));
   });
 
