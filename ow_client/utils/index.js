@@ -27,9 +27,39 @@ const appendUrlParameters = (url, qs) => {
   return `${url}?${QueryString.stringify(qs)}`;
 }
 
+const formatCoords = (fbCoords) => {
+  return {
+    latitude: fbCoords._latitude,
+    longitude: fbCoords._longitude,
+  };
+}
+
+const getLocation = () => {
+  console.log(navigator.geolocation);
+
+  return new Promise((resolve, reject) => {
+    return navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
+  });
+}
+
+const pinColorForResourceType = (resourceType) => {
+
+  switch(resourceType) {
+    case 'well':
+      return "#2CCCE4";
+    case 'raingauge':
+      return "#37D67A";
+    case 'checkdam':
+      return "#FF6767";
+  }
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
   rejectRequestWithError,
-  showAlert
+  showAlert,
+  formatCoords,
+  pinColorForResourceType,
+  getLocation,
 };

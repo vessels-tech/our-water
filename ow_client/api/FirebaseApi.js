@@ -39,12 +39,9 @@ class FirebaseApi {
   static getResourceNearLocation({orgId, latitude, longitude, distance}) {
     console.log("HELLO");
 
-    const resourceUrl = `${baseUrl}/${orgId}/nearLocation`;
+    const resourceUrl = `${baseUrl}/resource/${orgId}/nearLocation`;
     const url = appendUrlParameters(resourceUrl, {latitude, longitude, distance});
-    // const call = functions
-    //   .httpsCallable(`resource/${orgId}/nearLocation?latitude=${latitude}&longitude=${longitude}&distance=${distance}`);
     
-    // return call();
     const options = {
       timeout,
       method: 'GET',
@@ -63,9 +60,7 @@ class FirebaseApi {
 
         return response.json();
       })
-      .then(body => { 
-        console.log(body);
-      });
+      .catch(err => console.log(err));
   }
 
   static createNewResource({ orgId, resourceData }) {

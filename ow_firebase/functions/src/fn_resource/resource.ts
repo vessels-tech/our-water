@@ -221,6 +221,7 @@ module.exports = (functions, admin) => {
         const resources = []
         snapshot.forEach(doc => {
           const data = doc.data();
+          data.id = doc.id;
 
           // Filter based on longitude. TODO: remove this once google fixes this query
           if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {

@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ourwater">
 
+      <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -11,14 +13,12 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme">
 
-     <!-- Metadata -->
+     <!-- Metadata, injected by react-native-config! -->
       <meta-data 
         android:name="com.google.android.geo.API_KEY"
         android:value="@string/GOOGLE_MAPS_ANDROID_API_KEY"
       />
 
-      <!-- Permissions -->
-      <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
 
       <activity
         android:name=".MainActivity"
