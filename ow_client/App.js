@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import firebase from 'react-native-firebase';
+import { Button } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import SearchBar from './components/SearchBar';
 
@@ -115,6 +117,7 @@ export default class App extends Component<Props> {
         backgroundColor: 'blue',
       }}>
         <MapView
+          // liteMode //should we enable this?
           style={styles.map}
           onPress={e => this.onMapPressed(e.nativeEvent)}
           initialRegion={{
@@ -140,6 +143,27 @@ export default class App extends Component<Props> {
             />
           ))}
         </MapView>
+        <View style={{
+          position: 'absolute',
+          width: '92%',
+          height: 50,
+          top: '4%',
+          left: '4%',
+        }}>
+        {this.getSearchBar()}
+        </View>
+
+        <View style={{
+          backgroundColor:'red',
+          position: 'absolute',
+          width: '100%',
+          height: 50,
+          bottom: '4%',
+          left: '0%',
+        }}>
+          {this.getMapButtons()}
+        </View>
+
       </View>
     );
   }
@@ -157,6 +181,26 @@ export default class App extends Component<Props> {
         />
       </View>
     )
+  }
+
+  getMapButtons() {
+    return (
+      <View style={{
+        flexDirection:'row'
+      }}>
+        <Button
+          icon={
+            <Icon
+              name='arrow-right'
+              size={15}
+              color='white'
+            />
+          }
+        />
+        <Button></Button>
+        <Button></Button>
+      </View>
+    );
   }
 
   getFavouritesList() {
@@ -179,7 +223,6 @@ export default class App extends Component<Props> {
         //TODO: change this back at some stage
         height:700
       }}>
-        {this.getSearchBar()}
         {this.getFavouritesList()}
       </View>
     );
@@ -240,9 +283,5 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 400,
-    // top: 0,
-    // left: 0,
-    // right: 0,
-    // bottom: 0,
   },
 });

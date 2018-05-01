@@ -27,7 +27,7 @@ class SearchBar extends Component<Props> {
         style={{flexDirection:'row', width:'100%', flex:1}}
       >
         <TextInput
-          style={{flex:1,  height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={{flex:1, borderColor: 'gray', borderWidth: 1 }}
           onChangeText={(text) => this.setState({ text })}
           onEndEditing={() => this.props.onEndEditing(this.state.text)}
           value={this.state.text}
