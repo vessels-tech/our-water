@@ -54,6 +54,24 @@ const pinColorForResourceType = (resourceType) => {
   }
 }
 
+const getSelectedResourceFromCoords = (resources, coords) => {
+  const filtered = resources.filter(res => {
+    return coords.latitude === res.coords._latitude && 
+      coords.longitude === res.coords._longitude;
+  });
+
+  if (filtered.length === 0) {
+    console.warn("Could not find any resource at coords");
+    return null;
+  }
+
+  if (filtered.length > 1) {
+    console.warn("Found more than 1 resource for coords. returning just the first");
+  }
+
+  return filtered[0];
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
@@ -62,4 +80,5 @@ export {
   formatCoords,
   pinColorForResourceType,
   getLocation,
+  getSelectedResourceFromCoords,
 };

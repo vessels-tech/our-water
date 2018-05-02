@@ -173,7 +173,7 @@ module.exports = (functions, admin) => {
     app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => {
         const { latitude, longitude, distance } = req.query;
         const { orgId } = req.params;
-        const distanceMultiplier = 10; //TODO: tune this value based on the queries we are getting back once we can see it a map
+        const distanceMultiplier = 100; //TODO: tune this value based on the queries we are getting back once we can see it a map
         const minLat = latitude - distanceMultiplier * distance;
         const minLng = longitude - distanceMultiplier * distance;
         const maxLat = latitude + distanceMultiplier * distance;

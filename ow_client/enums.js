@@ -11,8 +11,16 @@ const MapStateOptions = {
   fullscreen: 2
 };
 
+const ResourceTypes = {
+  well: 'well',
+  raingauge: 'raingauge',
+  checkdam: 'checkdam',
+  custom: 'custom',
+}
+
 
 export {
   MapHeightOptions,
   MapStateOptions,
+  ResourceTypes,
 }

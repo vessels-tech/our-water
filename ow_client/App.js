@@ -21,17 +21,21 @@ import SearchBar from './components/SearchBar';
 import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
+import ResourceDetailSection from './components/ResourceDetailSection';
+import ResoureMarker from './components/common/ResourceMarker';
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
   formatCoords, 
   pinColorForResourceType,
   getLocation,
+  getSelectedResourceFromCoords,
 } from './utils';
 
 import {
   MapHeightOptions, 
-  MapStateOptions
+  MapStateOptions,
+  ResourceTypes
 } from './enums';
 
 import Config from 'react-native-config'
@@ -54,21 +58,25 @@ export default class App extends Component<Props> {
         latitude: 23.345,
         longitude: 23.44,
         // TODO: fine tune these numbers
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.25,
       },
       userRegion: {
         latitude: 23.345,
         longitude: 23.44,
         // TODO: fine tune these numbers
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.25,
       },
       droppedPin: false,
       droppedPinCoords: {},
       hasSavedReadings: true,
+      
       mapHeight: MapHeightOptions.default,
       mapState: MapStateOptions.default,
+
+      hasSelectedResource: false,
+      selectedResource: {},
     };
   }
 
@@ -80,10 +88,10 @@ export default class App extends Component<Props> {
     getLocation()
     .then(location => {
       this.updateGeoLocation(location);
-      return FirebaseApi.getResourceNearLocation({orgId, ...location.coords, distance: 1});
+      return FirebaseApi.getResourceNearLocation({orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
-      console.log(resources);
+      console.log('resources', resources);
       this.setState({
         loading: false,
         resources
@@ -95,6 +103,17 @@ export default class App extends Component<Props> {
   }
 
   onMapPressed({coordinate}) {
+    const { mapState } = this.state;
+
+    //Don't drop a marker if the map is in small mode, just make the map bigger
+    if (mapState === MapStateOptions.small) {
+      this.setState({
+        mapState: MapStateOptions.default,
+        mapHeight: MapHeightOptions.default,
+      });
+
+      return;
+    }
 
     this.setState({
       droppedPin: true,
@@ -117,13 +136,46 @@ export default class App extends Component<Props> {
         key='droppedPin'
         coordinate={droppedPinCoords}
         title='Your Pin'
-        pinColor="#D9E3F0"
+        image={require('./assets/my_pin.png')}
       />
     );
   }
 
   onRegionChange(region) {
     this.setState({ region });
+  }
+
+  imageForResourceType(type) {
+    switch (type) {
+      case ResourceTypes.checkdam:
+        return require('./assets/checkdam_pin.png');
+      case ResourceTypes.raingauge:
+        return require('./assets/raingauge_pin.png');
+      case ResourceTypes.well:
+        return require('./assets/well_pin.png');
+      case ResourceTypes.custom:
+        return require('./assets/other_pin.png')
+    }
+  }
+
+  /**
+   * When user clicks on a resource, make the map small, 
+   * scroll to the top of the view, and display the resource details
+   * 
+   * @param {*} param0 
+   */
+  focusResource({coordinate, position}) {
+    console.log("resource pressed", coordinate);
+
+    const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
+
+    this.setState({
+      mapHeight: MapHeightOptions.small,
+      mapState: MapStateOptions.small,
+      hasSelectedResource: true,
+      resource
+    });
+
   }
 
   getMap() {
@@ -150,7 +202,7 @@ export default class App extends Component<Props> {
             key='geoLocation'
             coordinate={{ latitude: userRegion.latitude, longitude: userRegion.longitude}}
             title='Me'
-            pinColor="#4A90E2"
+            image={require('./assets/my_location.png')}
           />
           {this.getDroppedPin()}
           {resources.map(resource => (
@@ -159,7 +211,8 @@ export default class App extends Component<Props> {
               coordinate={formatCoords(resource.coords)}
               title={resource.id}
               description={resource.type}
-              pinColor={pinColorForResourceType(resource.type)}
+              image={this.imageForResourceType(resource.type)}
+              onPress={(e) => this.focusResource(e.nativeEvent)}
             />
           ))}
         </MapView>
@@ -247,6 +300,12 @@ export default class App extends Component<Props> {
   getMapButtons() {
     const { mapHeight, mapState } = this.state;
 
+    //Hide these buttons when the map is in small mode
+    if (mapState === MapStateOptions.small) {
+      //TODO: fade out nicely
+      return null;
+    }
+
     let fullscreenIcon = 'fullscreen';
     if (mapState === MapStateOptions.fullscreen) {
       fullscreenIcon = 'fullscreen-exit';
@@ -288,13 +347,19 @@ export default class App extends Component<Props> {
   }
 
   getResourceView() {
+    const {hasSelectedResource, selectedResource} = this.state;
+
+    if (!hasSelectedResource) {
+      return null;
+    }
+
     return (
       <View style={{
         backgroundColor: '#D9E3F0',
         //TODO: change this back at some stage
         height:700
       }}>
-        {this.getFavouritesList()}
+        <ResourceDetailSection/>
       </View>
     );
   }
@@ -336,6 +401,7 @@ export default class App extends Component<Props> {
       <ScrollView style={styles.container}>
         {this.getMap()}
         {this.getResourceView()}
+        {this.getFavouritesList()}
         {this.getSavedReadingsButton()}
       </ScrollView>
     );
