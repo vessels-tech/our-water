@@ -18,6 +18,7 @@ import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import SearchBar from './components/SearchBar';
+import LoadLocationButton from './components/LoadLocationButton';
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
@@ -25,6 +26,11 @@ import {
   pinColorForResourceType,
   getLocation,
 } from './utils';
+
+import {
+  MapHeightOptions, 
+  MapStateOptions
+} from './enums';
 
 import Config from 'react-native-config'
 const orgId = Config.REACT_APP_ORG_ID;
@@ -42,29 +48,36 @@ export default class App extends Component<Props> {
 
     this.state = {
       loading: true,
-      coords: {
+      region: {
         latitude: 23.345,
         longitude: 23.44,
+        // TODO: fine tune these numbers
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      },
+      userRegion: {
+        latitude: 23.345,
+        longitude: 23.44,
+        // TODO: fine tune these numbers
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
       },
       droppedPin: false,
       droppedPinCoords: {},
       hasSavedReadings: true,
+      mapHeight: MapHeightOptions.default,
+      mapState: MapStateOptions.default,
     };
   }
 
   componentWillMount() {
-    const { coords } = this.state;
+    let { region } = this.state;
 
     this.setState({loading: true});
 
     getLocation()
     .then(location => {
-      console.log('location', location);
-
-      this.setState({
-        coords: location.coords,
-      });
-
+      this.updateGeoLocation(location);
       return FirebaseApi.getResourceNearLocation({orgId, ...location.coords, distance: 1});
     })
     .then(resources => {
@@ -87,12 +100,11 @@ export default class App extends Component<Props> {
     });
 
     //TODO: reload the resources based on pin drop + zoom level
+    //TODO: move the map to center on the pin drop
   }
 
   getDroppedPin() {
     const { droppedPin, droppedPinCoords } = this.state;
-
-    console.log("dropped pin?", droppedPin);
 
     if (!droppedPin) {
       return false;
@@ -108,8 +120,14 @@ export default class App extends Component<Props> {
     );
   }
 
+  onRegionChange(region) {
+    this.setState({ region });
+  }
+
   getMap() {
-    const { coords, loading, resources } = this.state;
+    const { userRegion, region, loading, resources, mapHeight } = this.state;
+
+    console.log('region:', region);
 
     return (
       <View style={{
@@ -117,18 +135,18 @@ export default class App extends Component<Props> {
         backgroundColor: 'blue',
       }}>
         <MapView
-          // liteMode //should we enable this?
-          style={styles.map}
-          onPress={e => this.onMapPressed(e.nativeEvent)}
-          initialRegion={{
-            ...coords,
-            latitudeDelta: 10,
-            longitudeDelta: 10,
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: mapHeight
           }}
+          onPress={e => this.onMapPressed(e.nativeEvent)}
+          region={region}
+          onRegionChangeComplete={(region) => this.onRegionChange(region)}
         >
           <Marker
             key='geoLocation'
-            coordinate={coords}
+            coordinate={{ latitude: userRegion.latitude, longitude: userRegion.longitude}}
             title='Me'
             pinColor="#4A90E2"
           />
@@ -145,20 +163,19 @@ export default class App extends Component<Props> {
         </MapView>
         <View style={{
           position: 'absolute',
-          width: '92%',
+          width: '100%',
           height: 50,
-          top: '4%',
-          left: '4%',
+          top: '0%',
+          left: '0%',
         }}>
         {this.getSearchBar()}
         </View>
 
         <View style={{
-          backgroundColor:'red',
           position: 'absolute',
           width: '100%',
-          height: 50,
-          bottom: '4%',
+          height: 40,
+          bottom: '5%',
           left: '0%',
         }}>
           {this.getMapButtons()}
@@ -170,35 +187,94 @@ export default class App extends Component<Props> {
 
   getSearchBar() {
     return (
-      <View style={{
-        backgroundColor: '#D9E3F0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 1,
-      }}>
-        <SearchBar
-          onEndEditing={(text) => console.log("TODO: search, ", text)}
-        />
-      </View>
-    )
+      <SearchBar
+        onEndEditing={(text) => console.log("TODO: search, ", text)}
+      />
+    );
+  }
+
+  updateGeoLocation(location) {
+    let region = {...this.state.region};
+    let userRegion = { ...this.state.userRegion};
+    
+    //Move the pin to the user's location, 
+    //and move the map back to where the user is
+    //TODO: chang the zoom level?
+    region.latitude = location.coords.latitude;
+    region.longitude = location.coords.longitude;
+    userRegion.latitude = location.coords.latitude;
+    userRegion.longitude = location.coords.longitude;
+
+    console.log("updating geolocation", region, userRegion);
+    
+    this.setState({
+      region,
+      userRegion,
+    });
+  }
+
+  //Don't know if this will work...
+  //TODO: figure out how to animate?
+  toggleFullscreenMap() {
+    const { mapHeight, mapState } = this.state;
+
+    let newMapState = MapStateOptions.default;
+    let newMapHeight = MapHeightOptions.default;
+    
+    if (mapState === MapStateOptions.default) {
+      newMapState = MapStateOptions.fullscreen;
+      newMapHeight = MapHeightOptions.fullscreen;
+    }
+
+    this.setState({
+      mapState: newMapState,
+      mapHeight: newMapHeight,
+    });
+  }
+
+  clearDroppedPin() {
+
+    this.setState({
+      droppedPin: false,
+      droppedPinCoords: {},
+    });
+
+    //TODO: should we re-do the search for the user?
   }
 
   getMapButtons() {
+    const { mapHeight, mapState } = this.state;
+
+    let fullscreenIcon = 'fullscreen';
+    if (mapState === MapStateOptions.fullscreen) {
+      fullscreenIcon = 'fullscreen-exit';
+    }
+
     return (
       <View style={{
-        flexDirection:'row'
+        flexDirection:'row',
+        justifyContent:'space-around',
       }}>
-        <Button
-          icon={
-            <Icon
-              name='arrow-right'
-              size={15}
-              color='white'
-            />
-          }
+        <LoadLocationButton
+          onComplete={location => this.updateGeoLocation(location)}
         />
-        <Button></Button>
-        <Button></Button>
+        <Button
+          title={null}
+          icon={{ name: fullscreenIcon }}
+          // iconContainerStyle={{ marginLeft: 20 }}
+          buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 0.5)', borderRadius: 5 }}
+          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+          onPress={() => this.toggleFullscreenMap()}
+          underlayColor="transparent"
+        />
+        <Button
+          title={null}
+          icon={{ name: 'clear' }}
+          buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 0.5)', borderRadius: 5 }}
+          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+          onPress={() => this.clearDroppedPin()}
+          underlayColor="transparent"
+        />
       </View>
     );
   }
@@ -278,10 +354,5 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 0,
     flex: 1
-  },
-  map: {
-    position: 'relative',
-    width: '100%',
-    height: 400,
-  },
+  }
 });
