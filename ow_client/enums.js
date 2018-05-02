@@ -2,7 +2,7 @@ const MapHeightOptions = {
   default: 400,
   small: 200,
   //TODO: change to 100%?
-  fullscreen: 600,
+  fullscreen: '100%',
 };
 
 const MapStateOptions = {

@@ -1,6 +1,5 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * Main OurWater App
  * @flow
  */
 
@@ -43,34 +42,28 @@ const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
 export default class App extends Component<Props> {
-  
 
   constructor(props) {
     super(props);
     this.fs = firebase.firestore();
-    console.log(Config.REACT_APP_ORG_ID);
-
-    FirebaseApi.getResourcesForOrg({orgId});
 
     this.state = {
       loading: true,
       region: {
         latitude: 23.345,
         longitude: 23.44,
-        // TODO: fine tune these numbers
         latitudeDelta: 0.5,
         longitudeDelta: 0.25,
       },
       userRegion: {
         latitude: 23.345,
         longitude: 23.44,
-        // TODO: fine tune these numbers
         latitudeDelta: 0.5,
         longitudeDelta: 0.25,
       },
       droppedPin: false,
       droppedPinCoords: {},
-      hasSavedReadings: true,
+      hasSavedReadings: false,
       
       mapHeight: MapHeightOptions.default,
       mapState: MapStateOptions.default,
@@ -105,11 +98,14 @@ export default class App extends Component<Props> {
   onMapPressed({coordinate}) {
     const { mapState } = this.state;
 
-    //Don't drop a marker if the map is in small mode, just make the map bigger
+    //Don't drop a marker if the map is in small mode, 
+    //just make the map bigger, and deselect the resource
     if (mapState === MapStateOptions.small) {
       this.setState({
         mapState: MapStateOptions.default,
         mapHeight: MapHeightOptions.default,
+        selectedResource: {},
+        hasSelectedResource: false,
       });
 
       return;
@@ -121,7 +117,6 @@ export default class App extends Component<Props> {
     });
 
     //TODO: reload the resources based on pin drop + zoom level
-    //TODO: move the map to center on the pin drop
   }
 
   getDroppedPin() {
@@ -165,8 +160,6 @@ export default class App extends Component<Props> {
    * @param {*} param0 
    */
   focusResource({coordinate, position}) {
-    console.log("resource pressed", coordinate);
-
     const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
 
     this.setState({
@@ -185,7 +178,6 @@ export default class App extends Component<Props> {
 
     return (
       <View style={{
-        flex: 3,
         backgroundColor: 'blue',
       }}>
         <MapView
@@ -234,6 +226,7 @@ export default class App extends Component<Props> {
           left: '0%',
         }}>
           {this.getMapButtons()}
+          {this.getUpButton()}
         </View>
 
       </View>
@@ -241,6 +234,13 @@ export default class App extends Component<Props> {
   }
 
   getSearchBar() {
+    const { mapState } = this.state;
+
+    //Hide this when the map is small
+    if (mapState === MapStateOptions.small) {
+      return null;
+    }
+
     return (
       <SearchBar
         onEndEditing={(text) => console.log("TODO: search, ", text)}
@@ -297,6 +297,16 @@ export default class App extends Component<Props> {
     //TODO: should we re-do the search for the user?
   }
 
+  clearSelectedResource() {
+
+    this.setState({
+      mapState: MapStateOptions.default,
+      mapHeight:MapHeightOptions.default,
+      hasSelectedResource: false,
+      selectedResource: {},
+    });
+  }
+
   getMapButtons() {
     const { mapHeight, mapState } = this.state;
 
@@ -334,6 +344,12 @@ export default class App extends Component<Props> {
   }
 
   getFavouritesList() {
+    const { hasSelectedResource } = this.state;
+
+    if(hasSelectedResource) {
+      return null;
+    }
+
     return (
       <View style={{
         backgroundColor: '#D9E3F0',
@@ -344,6 +360,29 @@ export default class App extends Component<Props> {
         <Text>Recents</Text>
       </View>
     )
+  }
+
+  //A button for the user to deselect a resource, and exit out
+  //of small map mode
+  getUpButton() {
+    const { hasSelectedResource, selectedResource } = this.state;
+
+    if (!hasSelectedResource) {
+      return null;
+    }
+
+    return (
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+      }}>
+      <IconButton
+        name="clear"
+        onPress={() => this.clearSelectedResource()}
+        color="#FF6767"
+      />
+      </View>
+    );
   }
 
   getResourceView() {
@@ -357,9 +396,15 @@ export default class App extends Component<Props> {
       <View style={{
         backgroundColor: '#D9E3F0',
         //TODO: change this back at some stage
-        height:700
+        // height:1000
       }}>
-        <ResourceDetailSection/>
+        <ResourceDetailSection
+          resource={selectedResource}
+          onMorePressed={() => console.log('onMorePressed')}
+          onAddToFavourites={() => console.log('onAddToFavourites')}
+          onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
+          onAddReadingPressed={() => console.log('onAddReadingPressed')}  
+        />
       </View>
     );
   }
@@ -398,12 +443,17 @@ export default class App extends Component<Props> {
     }
 
     return (
-      <ScrollView style={styles.container}>
+      <View style={{
+        marginTop: 0,
+        flex: 1
+      }}>
         {this.getMap()}
-        {this.getResourceView()}
-        {this.getFavouritesList()}
-        {this.getSavedReadingsButton()}
-      </ScrollView>
+        <ScrollView style={styles.container}>
+          {this.getResourceView()}
+          {this.getFavouritesList()}
+          {this.getSavedReadingsButton()}
+        </ScrollView>
+      </View>
     );
   }
 }
