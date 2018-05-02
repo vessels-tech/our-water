@@ -19,6 +19,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import SearchBar from './components/SearchBar';
 import LoadLocationButton from './components/LoadLocationButton';
+import IconButton from './components/IconButton';
+import Loading from './components/Loading';
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
@@ -258,22 +260,15 @@ export default class App extends Component<Props> {
         <LoadLocationButton
           onComplete={location => this.updateGeoLocation(location)}
         />
-        <Button
-          title={null}
-          icon={{ name: fullscreenIcon }}
-          // iconContainerStyle={{ marginLeft: 20 }}
-          buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 0.5)', borderRadius: 5 }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+        <IconButton 
+          name={fullscreenIcon}
           onPress={() => this.toggleFullscreenMap()}
-          underlayColor="transparent"
+          color="#FF6767"
         />
-        <Button
-          title={null}
-          icon={{ name: 'clear' }}
-          buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 0.5)', borderRadius: 5 }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+        <IconButton 
+          name="clear"
           onPress={() => this.clearDroppedPin()}
-          underlayColor="transparent"
+          color="#FF6767"
         />
       </View>
     );
@@ -332,10 +327,7 @@ export default class App extends Component<Props> {
           alignItems: 'center',
           flex: 1
         }}>
-          <Text style={{
-          }}>
-            Loading...
-          </Text>
+          <Loading/>
         </View>
       );
     }

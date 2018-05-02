@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   Text,
   View,
   TextInput
 } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 
 import {
@@ -29,7 +30,6 @@ class LoadLocationButton extends Component<Props> {
     return getLocation()
     .then(location => {
       this.setState({loading: false});
-
       this.props.onComplete(location);
     })
     .catch(err => {
@@ -42,15 +42,30 @@ class LoadLocationButton extends Component<Props> {
   render() {
 
     return (
-      <Button
-        title={null}
-        loading={this.state.loading}
-        icon={{ name: 'near-me' }}
-        buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 0.5)', borderRadius: 5 }}
-        titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-        onPress={() => this.updateGeoLocation()}
-        underlayColor="transparent"
-      />
+    
+      <View style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "#FF6767",
+        borderRadius: 20,
+        width:40,
+        height:40,
+      }}>
+        {this.state.loading ? 
+          <ActivityIndicator 
+            size="small" 
+            color="#697689"
+            />:
+          <Icon 
+            reverse
+            raised
+            size={15}
+            name={"near-me"}
+            onPress={() => this.updateGeoLocation()}
+            color={"#FF6767"}
+          />
+        }
+      </View>
     );
   }
 
