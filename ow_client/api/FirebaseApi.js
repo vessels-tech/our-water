@@ -8,14 +8,36 @@ import {
 import Config from 'react-native-config';
 
 const fs = firebase.firestore();
+const auth = firebase.auth();
+
 const baseUrl = Config.REACT_APP_BASE_URL;
 
 const timeout = 1000 * 10;
 
 class FirebaseApi {
 
+  static signIn() {
+    return auth.signInAnonymouslyAndRetrieveData();
+  }
+
+  static addFavouriteResource({orgId, resourceId, userId}) {
+    return null;
+  }
+
+  static removeFavouriteResource({ orgId, resourceId, userId}) {
+    return null;
+  }
+
+  static addRecentResource({ orgId, resourceId, userId}) {
+    const recentResources = [resourceId];
+    //TODO: get the recent resources first
+    //TODO: only keep the last 5 
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentResources})
+      .then(result => console.log(result))
+      .catch(err => console.log(err))
+  }
+
   static getResourcesForOrg({ orgId }) {
-    console.log('id is', orgId);
     return fs.collection('org').doc(orgId).collection('resource').get()
       .then(sn => {
         const resources = [];

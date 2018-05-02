@@ -70,6 +70,9 @@ export default class App extends Component<Props> {
 
       hasSelectedResource: false,
       selectedResource: {},
+
+      isAuthenticated: false,
+      userId: ''
     };
   }
 
@@ -78,7 +81,19 @@ export default class App extends Component<Props> {
 
     this.setState({loading: true});
 
-    getLocation()
+    FirebaseApi.signIn()
+    .then(siginData => {
+      this.setState({ 
+        isAuthenticated: true,
+        userId: siginData._user.uid,
+      });
+      return getLocation();
+    })
+    .catch(err => {
+      console.log("error signing in", err);
+      this.setState({ isAuthenticated: false });
+      return getLocation();
+    })
     .then(location => {
       this.updateGeoLocation(location);
       return FirebaseApi.getResourceNearLocation({orgId, ...location.coords, distance: 0.1});
@@ -169,6 +184,9 @@ export default class App extends Component<Props> {
       resource
     });
 
+    //Do in the background - we don't care when
+    //TODO: we need to set up a watch on this path, to get updates etc.
+    FirebaseApi.addRecentResource({orgId, resourceId: resource.id, userId: this.state.userId});
   }
 
   getMap() {

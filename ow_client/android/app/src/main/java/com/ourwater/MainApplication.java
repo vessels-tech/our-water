@@ -16,6 +16,7 @@ import com.airbnb.android.react.maps.MapsPackage;
 //react-native-firebase
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
+import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,11 +33,12 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new VectorIconsPackage(),
-            new ReactNativeConfigPackage(),
+          new VectorIconsPackage(),
+          new ReactNativeConfigPackage(),
           new MapsPackage(),
           new RNFirebasePackage(),
-          new RNFirebaseFirestorePackage()
+          new RNFirebaseFirestorePackage(),
+          new RNFirebaseAuthPackage()
       );
     }
 
