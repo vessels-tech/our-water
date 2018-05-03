@@ -430,9 +430,11 @@ export default class App extends Component<Props> {
           }}
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
-          onAddReadingPressed={() => {
-            console.log('onAddReadingPressed');
-            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {});
+          onAddReadingPressed={resource => {
+            console.log('onAddReadingPressed', resource);
+            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
+              resource, 
+            });
           }} 
         />
       </View>
