@@ -7,6 +7,7 @@ import {
   View,
   TextInput,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -137,20 +138,32 @@ class NewReadingScreen extends Component<Props> {
   }
 
   render() {
-    console.log("HEYTHERE");
 
     return (
-      <View style={{
-        flex: 1,
-        flexDirection: 'column',
-        backgroundColor: '#D9E3F0',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        width: '100%'
-      }}>
-        {this.getForm()}
-        {this.getButton()}
-      </View>
+      <TouchableOpacity 
+        style={{
+          flex: 1,
+          flexDirection: 'column',  
+          width: '100%',
+          height: '100%'
+        }}
+        onPress={() => {
+          console.log("user touched me");
+          return false;
+        }}
+      >
+        <View style={{
+          flex: 1,
+          flexDirection: 'column',
+          backgroundColor: '#D9E3F0',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          width: '100%'
+        }}>
+          {this.getForm()}
+          {this.getButton()}
+        </View>
+      </TouchableOpacity>
     );
   }
 }

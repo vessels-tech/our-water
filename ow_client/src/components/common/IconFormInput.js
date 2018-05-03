@@ -17,6 +17,12 @@ import {
   FormValidationMessage,
   Button
 } from 'react-native-elements';
+import DatePicker from 'react-native-datepicker';
+import moment from 'moment';
+
+import {
+  getMinAndMaxReadingDates,
+} from '../../utils'
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -25,6 +31,8 @@ const InputTypes = {
   fieldInput: 0,
   dateTimeInput: 1,
 };
+
+const dateFormat = 'MMMM Do YYYY, h: mm: ss a'
 
 class IconFormInput extends Component<Props> {
   shouldDisplayErrorMessage() {
@@ -53,7 +61,7 @@ class IconFormInput extends Component<Props> {
    * instead of a keyboard
    * 
    */
-  getFormInputCalendar() {
+  dep_getFormInputCalendar() {
     const {
       value 
     } = this.props;
@@ -77,11 +85,52 @@ class IconFormInput extends Component<Props> {
           }}
           onPress={() => {
             console.log('present cal');
+            return false; //stop propagation?
           }}
           underlayColor="transparent"
         />
       </View>
     );
+  }
+  
+  getFormInputCalendar() {
+    const { minDate, maxDate } = getMinAndMaxReadingDates(dateFormat);
+
+    return (
+      <DatePicker
+        style={{ 
+          // width: 200 
+          flex: 5,
+          borderWidth: 0,
+        }}
+        showIcon={false}
+        date={this.props.value}
+        mode="datetime"
+        placeholder="select date"
+        format={dateFormat}
+        minDate={minDate}
+        maxDate={maxDate}
+        //TODO: translate
+        confirmBtnText="Confirm"
+        cancelBtnText="Cancel"
+        customStyles={{
+          dateInput: {
+            // marginLeft: 36
+            borderWidth: 0,
+          }
+        }}
+        modalOnResponderTerminationRequest={() => {
+          console.log('modalOnResponderTerminationRequest');
+          return false;
+        }}
+        onDateChange={(date) => { this.setState({ date: date }) }}
+        onOpenModal={() => {
+          console.log('onOpenModal');
+          return false;
+        }}
+        onCloseModal={() => console.log('onCloseModal')}
+      />
+    )
   }
 
   getFormInputField() {

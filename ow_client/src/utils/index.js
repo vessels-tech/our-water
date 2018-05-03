@@ -1,4 +1,5 @@
 import { Alert } from 'react-native';
+import moment from 'moment';
 import QueryString from 'query-string';
 
 
@@ -83,6 +84,16 @@ const navigateTo = (props, screen, title, passProps) => {
   });
 }
 
+const getMinAndMaxReadingDates = (momentFormat) => {
+  const today = moment();
+  const twoWeeksAgo = moment().subtract(14, 'days');
+
+  return {
+    minDate: twoWeeksAgo.format(momentFormat),
+    maxDate: today.format(momentFormat),
+  }
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
@@ -92,5 +103,6 @@ export {
   pinColorForResourceType,
   getLocation,
   getSelectedResourceFromCoords,
-  navigateTo
+  navigateTo,
+  getMinAndMaxReadingDates,
 };
