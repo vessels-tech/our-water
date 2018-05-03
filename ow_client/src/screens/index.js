@@ -1,12 +1,11 @@
 import { Navigation } from 'react-native-navigation';
 
 import App from '../App';
-// import SecondTabScreen from './SecondTabScreen';
-// import PushedScreen from './PushedScreen';
+import NewReadingScreen from './NewReadingScreen';
+import ResourceDetailScreen from './ResourceDetailScreen';
 
-// register all screens of the app (including internal ones)
 export function registerScreens() {
   Navigation.registerComponent('example.FirstTabScreen', () => App);
-  // Navigation.registerComponent('example.SecondTabScreen', () => SecondTabScreen);
-  // Navigation.registerComponent('example.PushedScreen', () => PushedScreen);
+  Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen);
+  Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
 }
