@@ -72,6 +72,17 @@ const getSelectedResourceFromCoords = (resources, coords) => {
   return filtered[0];
 }
 
+const navigateTo = (props, screen, title, passProps) => {
+  props.navigator.push({
+    screen,
+    title,
+    passProps,
+    navigatorStyle: {}, // override the navigator style for the screen, see "Styling the navigator" below (optional)
+    navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
+    animationType: 'slide-horizontal'
+  });
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
@@ -81,4 +92,5 @@ export {
   pinColorForResourceType,
   getLocation,
   getSelectedResourceFromCoords,
+  navigateTo
 };

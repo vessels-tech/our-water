@@ -218,3 +218,17 @@ https://stackoverflow.com/questions/40898934/unable-to-connect-with-remote-debug
 
 point to our react-native-maps
 "react-native-maps": "https://github.com/lewisdaly/react-native-maps.git#7142cc618bd8fcc5df24221cb2c1fb64d5880750",
+
+
+## launch avd from command line
+
+```bash
+cd ~/Library/Android/sdk/tools/bin/
+./avdmanager list avd
+
+#look for name: Nexus_5X_API_P
+
+cd ../../emulator
+./emulator -avd Nexus_5X_API_P
+
+```

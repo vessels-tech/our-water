@@ -2,6 +2,8 @@ package com.ourwater;
 
 import android.app.Application;
 
+import com.reactnativenavigation.NavigationApplication;
+
 import com.facebook.react.ReactApplication;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
@@ -21,18 +23,19 @@ import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends NavigationApplication {
 
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-    @Override
-    public boolean getUseDeveloperSupport() {
+  @Override
+  public boolean isDebug() {
+      // Make sure you are using BuildConfig from your own application
       return BuildConfig.DEBUG;
-    }
+  }
 
-    @Override
-    protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
+  protected List<ReactPackage> getPackages() {
+      // Add additional packages you require here
+      // No need to add RnnPackage and MainReactPackage
+        return Arrays.<ReactPackage>asList(
+          // new MainReactPackage(),
           new VectorIconsPackage(),
           new ReactNativeConfigPackage(),
           new MapsPackage(),
@@ -40,22 +43,51 @@ public class MainApplication extends Application implements ReactApplication {
           new RNFirebaseFirestorePackage(),
           new RNFirebaseAuthPackage()
       );
-    }
-
-    @Override
-    protected String getJSMainModuleName() {
-      return "index";
-    }
-  };
+  }
 
   @Override
-  public ReactNativeHost getReactNativeHost() {
-    return mReactNativeHost;
+  public List<ReactPackage> createAdditionalReactPackages() {
+      return getPackages();
   }
+
+  @Override
+  public String getJSMainModuleName() {
+      return "index";
+  }
+
+  // @Override
+  // public ReactNativeHost getReactNativeHost() {
+  //   return mReactNativeHost;
+  // }
 
   @Override
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
+
+  // private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+  //   @Override
+  //   public boolean getUseDeveloperSupport() {
+  //     return BuildConfig.DEBUG;
+  //   }
+
+  //   @Override
+  //   protected List<ReactPackage> getPackages() {
+  //     return Arrays.<ReactPackage>asList(
+  //         new MainReactPackage(),
+  //         new VectorIconsPackage(),
+  //         new ReactNativeConfigPackage(),
+  //         new MapsPackage(),
+  //         new RNFirebasePackage(),
+  //         new RNFirebaseFirestorePackage(),
+  //         new RNFirebaseAuthPackage()
+  //     );
+  //   }
+
+  //   @Override
+  //   protected String getJSMainModuleName() {
+  //     return "index";
+  //   }
+  // };
 }

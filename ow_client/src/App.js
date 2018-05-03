@@ -15,6 +15,8 @@ import MapView, { Marker } from 'react-native-maps';
 import firebase from 'react-native-firebase';
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Navigation } from 'react-native-navigation';
+
 
 import SearchBar from './components/SearchBar';
 import LoadLocationButton from './components/LoadLocationButton';
@@ -29,6 +31,7 @@ import {
   pinColorForResourceType,
   getLocation,
   getSelectedResourceFromCoords,
+  navigateTo,
 } from './utils';
 
 import {
@@ -91,6 +94,7 @@ export default class App extends Component<Props> {
     })
     .catch(err => {
       console.log("error signing in", err);
+      console.warn("error signing in", err);
       this.setState({ isAuthenticated: false });
       return getLocation();
     })
@@ -181,7 +185,7 @@ export default class App extends Component<Props> {
       mapHeight: MapHeightOptions.small,
       mapState: MapStateOptions.small,
       hasSelectedResource: true,
-      resource
+      selectedResource: resource
     });
 
     //Do in the background - we don't care when
@@ -191,8 +195,6 @@ export default class App extends Component<Props> {
 
   getMap() {
     const { userRegion, region, loading, resources, mapHeight } = this.state;
-
-    console.log('region:', region);
 
     return (
       <View style={{
@@ -410,6 +412,8 @@ export default class App extends Component<Props> {
       return null;
     }
 
+    console.log("getResourceView selected resource", selectedResource);
+
     return (
       <View style={{
         backgroundColor: '#D9E3F0',
@@ -418,10 +422,18 @@ export default class App extends Component<Props> {
       }}>
         <ResourceDetailSection
           resource={selectedResource}
-          onMorePressed={() => console.log('onMorePressed')}
+          onMorePressed={resource => {
+            console.log('onMorePressed', resource);
+            navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
+              legacyId: resource.legacyId,
+            });
+          }}
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
-          onAddReadingPressed={() => console.log('onAddReadingPressed')}  
+          onAddReadingPressed={() => {
+            console.log('onAddReadingPressed');
+            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {});
+          }} 
         />
       </View>
     );

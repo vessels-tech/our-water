@@ -47,7 +47,25 @@ class ResourceDetailSection extends Component<Props> {
     console.log("toggle favs");
   }
 
+  getMoreButton() {
+    const { resource: { legacyId } } = this.props;
+
+    if(!legacyId || legacyId === '') {
+      return null;
+    }
+
+    return (
+      <Button
+        title='More'
+        onPress={() => this.props.onMorePressed(this.props.resource)}
+      />
+    );
+  }
+
   render() {
+    console.log('resource is', this.props.resource);
+
+    
 
     return (
       <View style={{
@@ -61,16 +79,13 @@ class ResourceDetailSection extends Component<Props> {
         }}>
           <Button 
             title='New reading'
-            onPress={() => this.props.onAddReadingPressed()}
+            onPress={() => this.props.onAddReadingPressed(this.props.resource)}
           />
-          <Button 
-            title='More'
-            onPress={() => this.props.onMorePressed()}
-          />
+          {this.getMoreButton()}
           <IconButton
             // use star-outlined when not a fav
             name="star"
-            onPress={() => this.toggleFavourites()}
+            onPress={() => this.toggleFavourites(this.props.resource)}
             color="yellow"
           />
         </View>
