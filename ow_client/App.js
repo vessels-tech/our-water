@@ -91,6 +91,7 @@ export default class App extends Component<Props> {
     })
     .catch(err => {
       console.log("error signing in", err);
+      console.warn("error signing in", err);
       this.setState({ isAuthenticated: false });
       return getLocation();
     })

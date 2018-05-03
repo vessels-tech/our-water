@@ -94,8 +94,8 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "26.0.1"
 
     //TODO: remove this - just trying to get firebase to work
     lintOptions {
@@ -111,6 +111,9 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+        // use this when code gets too big
+        // ref: https://github.com/wix/react-native-navigation/issues/1925
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -121,6 +124,10 @@ android {
         }
     }
     buildTypes {
+        // debug {
+        //     minifyEnabled true
+        //     proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        // }
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -166,6 +173,9 @@ dependencies {
     implementation "com.google.firebase:firebase-firestore:15.0.0"
     implementation "com.google.firebase:firebase-auth:15.0.0"
 
+
+    //react-native-navigation
+    implementation project(':react-native-navigation')
 
 
 }
