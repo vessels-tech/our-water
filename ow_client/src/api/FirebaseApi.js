@@ -1,3 +1,4 @@
+import { NetInfo } from 'react-native';
 import firebase from 'react-native-firebase';
 import { default as ftch } from 'react-native-fetch-polyfill';
 import Config from 'react-native-config';
@@ -19,29 +20,97 @@ const timeout = 1000 * 10;
 
 class FirebaseApi {
 
+  /**
+   * call this before everything, to make sure we're turning firestore off and on
+   */
+  static checkNetworkAndToggleFirestore() {
+    return NetInfo.isConnected.fetch()
+    .then(isConnected => {
+      console.log('isConnected', isConnected);
+      if (isConnected) {
+        return fs.enableNetwork().then(() => true);
+      }
+
+      return fs.disableNetwork().then(() => false);
+    });
+  }
+
+  
   static signIn() {
     return auth.signInAnonymouslyAndRetrieveData();
   }
 
   static addFavouriteResource({orgId, resourceId, userId}) {
-    return null;
+    return this.getFavouriteResources({orgId, userId})
+    .then(favouriteResources => {
+      favouriteResources[resourceId] = true;
+
+      return this.updateFavouriteResources({orgId, userId, favouriteResources});
+    });
   }
 
   static removeFavouriteResource({ orgId, resourceId, userId}) {
-    return null;
+    return this.getFavouriteResources({ orgId, userId })
+    .then(favouriteResources => {
+      delete favouriteResources[resourceId];
+
+      return this.updateFavouriteResources({ orgId, userId, favouriteResources });
+    });  
+  }
+
+  static updateFavouriteResources({orgId, userId, favouriteResources}) {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources });
+  }
+
+  static getFavouriteResources({ orgId, userId }) {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
+      .then(sn => {
+        if (!sn || !sn.data() || !sn.data().favouriteResources) {
+          return {};
+        }
+
+        return sn.data().favouriteResources;
+      })
+  }
+
+  static getRecentResources({orgId, userId}) {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
+      .then(sn => {
+        console.log("snapshot", sn);
+
+        if (!sn || !sn.data() || !sn.data().recentResources) {
+          return [];
+        }
+
+        return sn.data().recentResources;
+      })
   }
 
   static addRecentResource({ orgId, resourceId, userId}) {
-    const recentResources = [resourceId];
-    //TODO: get the recent resources first
-    //TODO: only keep the last 5 
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentResources})
-      .then(result => console.log(result))
-      .catch(err => console.log(err))
+
+    return this.getRecentResources({orgId, userId})
+    .then(recentResources => {
+      console.log(recentResources);
+
+      //only keep the last 5 resources
+      recentResources.unshift(resourceId);
+      
+      //remove this resource from later on if it already exists
+      const dedupDict = {};
+      recentResources.forEach(id => {dedupDict[id] = true});
+      const dedupList = Object.keys(dedupDict);
+
+      while (dedupList.length > 5) {
+        dedupList.pop();
+      }
+
+      return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList })
+    });
   }
 
   static getResourcesForOrg({ orgId }) {
-    return fs.collection('org').doc(orgId).collection('resource').get()
+    return this.checkNetworkAndToggleFirestore()
+    .then(() => fs.collection('org').doc(orgId).collection('resource').get())
       .then(sn => {
         const resources = [];
         sn.forEach((doc) => {
@@ -94,9 +163,10 @@ class FirebaseApi {
    * We use this instead of the get request, as it will default to the cache if we're offline
    * @param {*} param0 
    */
-  static getResourceNearLocation({ orgId, latitude, longitude, distance }) {
+  static getResourceNearLocation(networkApi, { orgId, latitude, longitude, distance }) {
     const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords({longitude, latitude, distance});
 
+    return this.checkNetworkAndToggleFirestore()
     .then(() => {
       return fs.collection('org').doc(orgId).collection('resource')
         .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
@@ -133,6 +203,33 @@ class FirebaseApi {
 
 
   /**
+   * saveReadingPossiblyOffline
+   * 
+   * saves a reading, Promise resolves when the reading appears in local cache, 
+   * and not actually commited to the server
+   */
+  static saveReadingPossiblyOffline({orgId, reading}) {
+    return new Promise((resolve, reject) => {
+
+      this.pendingReadingsListener({orgId})
+      .then(snapshot => {
+
+        //Resolve once the pending reading is saved
+        resolve(true);
+      });
+
+      this.saveReading({orgId, reading})
+      //Don't resolve this - as if we are offline, it will take a long time
+      .then(result => console.log('saveReading result', result))
+      .catch(err => {
+        console.log('saveReading Err', err);
+        reject(err);
+      });
+    });
+  }
+
+
+  /**
    * saveReading
    * submits a new reading for a given resource
    * 
@@ -152,22 +249,13 @@ class FirebaseApi {
    */
 
   static saveReading({orgId, reading}) {
-    console.log('save reading');
     return validateReading(reading)
     .then(validReading => {
-      console.log('validReading', validReading);
-      return fs.collection('org').doc(orgId)
-        .collection('reading').add(validReading);
 
-      // return fs.collection('org').doc(orgId).set({
-      //   reading: validReading,
-      // }, {merge: true})
-    })
-    //This only resolves when the reading is actually written
-    //we need a way to use the pendingReadingsListener here...
-    .then(result => {
-      console.log('saved reading of id', result.id);
-      return result;
+      //Don't return this promise. Indicate success or failure based on watching
+      //the snapshot 
+      fs.collection('org').doc(orgId)
+        .collection('reading').add(validReading);
     })
     .catch(err => { 
       console.log('error is', err);
@@ -177,12 +265,44 @@ class FirebaseApi {
 
 
   static pendingReadingsListener({orgId}) {
-    return fs.collection('org').doc(orgId).collection('reading')
-    .onSnapshot(
-      (thing) => console.log("thing1", thing), //optionsOrObserverOrOnNext
-      (thing) => console.log("thing2", thing), //observerOrOnNextOrOnError
-      (error) => console.log("error", error),  //onError
-      (thing) => console.log('onCompletion'), //onCompletion
+    return new Promise((resolve, reject) => {
+      fs.collection('org').doc(orgId).collection('reading')
+        .onSnapshot(
+          //optionsOrObserverOrOnNext
+          (sn) => {
+            if (sn.docChanges.length > 0) {
+              return resolve(sn);
+            }
+            reject(new Error('recieved snapshot with no changes'))
+          },
+          (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
+          //onError
+          (error) => {
+            console.log("error", error);
+            return reject(error);
+          },
+          (sn) => console.log('onCompletion', sn), //onCompletion
+      );
+    });
+  }
+
+
+  static listenForPendingReadings({orgId}, callback) {
+    fs.collection('org').doc(orgId).collection('reading')
+      .onSnapshot(
+        {
+          includeQueryMetadataChanges: true,
+        },
+        //optionsOrObserverOrOnNext
+        (sn) => {
+          callback(sn);
+        },
+        //onError
+        (error) => {
+          console.log("error", error);
+          return reject(error);
+        },
+        (sn) => console.log('onCompletion', sn), //onCompletion
     );
   }
 }

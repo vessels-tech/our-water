@@ -229,7 +229,7 @@ IconFormInput.propTypes = {
   placeholder: PropTypes.string,
   errorMessage: PropTypes.string,
   keyboardType: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.any,
   onChangeText: PropTypes.func,
   onSubmitEditing: PropTypes.func,
   fieldType: PropTypes.number,

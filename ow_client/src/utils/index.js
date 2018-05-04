@@ -67,7 +67,7 @@ const getSelectedResourceFromCoords = (resources, coords) => {
   }
 
   if (filtered.length > 1) {
-    console.warn("Found more than 1 resource for coords. returning just the first");
+    console.log("Found more than 1 resource for coords. returning just the first");
   }
 
   return filtered[0];

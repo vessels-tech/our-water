@@ -60,7 +60,7 @@ class NewReadingScreen extends Component<Props> {
       userId: "12345", //TODO get the userId
     };
 
-    return FirebaseApi.saveReading({orgId, reading})
+    return FirebaseApi.saveReadingPossiblyOffline({orgId, reading})
     .then(result => {
       console.log(result);
       //TODO: display toast or something
@@ -72,7 +72,7 @@ class NewReadingScreen extends Component<Props> {
 
       displayAlert({
         title: 'Success',
-        message: `Reading: ${result.id} saved.`,
+        message: `Reading saved.`,
         buttons: [
           { text: 'One More', onPress: () => console.log('continue pressed') },
           { text: 'Done', onPress: () => this.props.navigator.pop() },
@@ -132,7 +132,6 @@ class NewReadingScreen extends Component<Props> {
         width: SCREEN_WIDTH - 30,
         flexDirection: 'column'
       }}>
-
         <IconFormInput
           iconName='calendar'
           iconColor='#FF6767'
