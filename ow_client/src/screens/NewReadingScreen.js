@@ -16,14 +16,16 @@ import {
   Input,
   FormLabel,
   FormValidationMessage, 
-  // Button 
+  Button 
 } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker'
 import Config from 'react-native-config';
+import moment from 'moment';
 
 
 import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
+import { displayAlert } from '../utils';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -34,18 +36,25 @@ class NewReadingScreen extends Component<Props> {
   constructor(props) {
     super(props);
 
+    const listener = FirebaseApi.pendingReadingsListener({orgId});
+
     this.state = {
       enableSubmitButton: false,
-      date: new Date(),
-      measurementString: '',
+      date: moment(),
+      measurementString: '12',
+      isLoading: false,
     };
   }
 
   saveReading() {
+    
     const {date, measurementString} = this.state;
     const { resource: { id } } = this.props;
+
+    this.setState({isLoading: true});
+
     const reading = {
-      datetime: date,
+      datetime: moment(date).format(), //converts to iso string
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
       userId: "12345", //TODO get the userId
@@ -55,15 +64,35 @@ class NewReadingScreen extends Component<Props> {
     .then(result => {
       console.log(result);
       //TODO: display toast or something
-
       this.setState({
-        date: new Date(),
+        date: moment(),
         measurementString: '',
+        isLoading: false
+      });
+
+      displayAlert({
+        title: 'Success',
+        message: `Reading: ${result.id} saved.`,
+        buttons: [
+          { text: 'One More', onPress: () => console.log('continue pressed') },
+          { text: 'Done', onPress: () => this.props.navigator.pop() },
+        ]
       });
     })
     .catch(err => {
       console.log(err);
       //TODO: display error
+      this.setState({
+        isLoading: false
+      });
+
+      displayAlert({
+        title: 'Error',
+        message: `Couldn't save your reading. Please try again.`,
+        buttons: [
+          { text: 'OK', onPress: () => console.log('continue pressed') },
+        ]
+      });
     });
   }
 
@@ -133,7 +162,9 @@ class NewReadingScreen extends Component<Props> {
   }
 
   shouldDisableSubmitButton() {
-    return !this.isDateValid() || !this.isMeasurementValid();
+    return this.state.isLoading ||
+           !this.isDateValid() ||
+           !this.isMeasurementValid();
   }
 
   getButton() {
@@ -143,7 +174,7 @@ class NewReadingScreen extends Component<Props> {
         title='Save'
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
-        loading={false}
+        loading={this.state.isLoading}
         loadingProps={{ size: 'small', color: 'white' }}
         buttonStyle={{ width: SCREEN_WIDTH - 30, backgroundColor: 'rgba(111, 202, 186, 1)', borderRadius: 5 }}
         titleStyle={{ fontWeight: 'bold', fontSize: 23 }}

@@ -10,13 +10,16 @@ const validateReading = (reading) => {
     isLegacy: Joi.boolean().default(false),
   });
 
-  const result = Joi.validate(reading, schema);
+  return new Promise((resolve, reject) => {
+    const result = Joi.validate(reading, schema);
+    
+    if (result.error !== null) {
+      console.log('error', result.error);
+      return reject(result.error);
+    }
 
-  if (result.error) {
-    throw result
-  }
-
-  return result.value;
+    resolve(result.value);
+  });
 }
 
 export {

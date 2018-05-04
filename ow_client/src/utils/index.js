@@ -94,6 +94,34 @@ const getMinAndMaxReadingDates = (momentFormat) => {
   }
 }
 
+const displayAlert = ({title, message, buttons}) => {
+
+  Alert.alert(title, message, buttons,
+    { cancelable: false }
+  );
+}
+
+/**
+ * Create a bounding box from lat, lng and distance multiplier
+ * distance must be a float between 0-1
+ * @param {*} param0 
+ */
+const boundingBoxForCoords = ({latitude, longitude, distance}) => {
+  if (distance < 0 || distance > 1) {
+    throw new Error("Distance must be a float between 0 and 1");
+  }
+
+  const distanceMultiplier = 100; //TODO: tune this value based on the queries we are getting back once we can see it a map
+  const minLat = latitude - distanceMultiplier * distance;
+  const minLng = longitude - distanceMultiplier * distance;
+  const maxLat = latitude + distanceMultiplier * distance;
+  const maxLng = longitude + distanceMultiplier * distance;
+
+  return {
+    minLat, minLng, maxLat, maxLng
+  };
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
@@ -105,4 +133,6 @@ export {
   getSelectedResourceFromCoords,
   navigateTo,
   getMinAndMaxReadingDates,
+  displayAlert,
+  boundingBoxForCoords
 };

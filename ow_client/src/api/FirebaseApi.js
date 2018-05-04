@@ -8,12 +8,13 @@ import {
 } from '../utils';
 import { validateReading } from './ValidationApi';
 
+import {
+  boundingBoxForCoords
+} from '../utils';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
-
 const baseUrl = Config.REACT_APP_BASE_URL;
-
 const timeout = 1000 * 10;
 
 class FirebaseApi {
@@ -58,11 +59,11 @@ class FirebaseApi {
    * functions.httpsCallable is not yet available for react-native-firebase
    * instead, we can just use fetch
    * 
+   * Use the firebase api, otherwise we don't get the caching tools
+   * 
    * @param {*} param0 
    */
-  static getResourceNearLocation({orgId, latitude, longitude, distance}) {
-    console.log("HELLO");
-
+  static dep_getResourceNearLocation({orgId, latitude, longitude, distance}) {
     const resourceUrl = `${baseUrl}/resource/${orgId}/nearLocation`;
     const url = appendUrlParameters(resourceUrl, {latitude, longitude, distance});
     
@@ -85,6 +86,39 @@ class FirebaseApi {
         return response.json();
       })
       .catch(err => console.log(err));
+  }
+
+  /**
+   * Local implementation of getResourceNearLocation
+   * 
+   * We use this instead of the get request, as it will default to the cache if we're offline
+   * @param {*} param0 
+   */
+  static getResourceNearLocation({ orgId, latitude, longitude, distance }) {
+    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords({longitude, latitude, distance});
+
+    .then(() => {
+      return fs.collection('org').doc(orgId).collection('resource')
+        .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
+        .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+    })
+    .then(snapshot => {
+      const resources = []
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        data.id = doc.id;
+
+        // Filter based on longitude. TODO: remove this once google fixes the above query
+        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+          return;
+        }
+
+        resources.push(data);
+      });
+
+      return resources;
+    })
+    .catch(err => console.log(err));
   }
 
   static createNewResource({ orgId, resourceData }) {
@@ -118,21 +152,38 @@ class FirebaseApi {
    */
 
   static saveReading({orgId, reading}) {
-    //TODO: validate
-    reading = validateReading(reading);
+    console.log('save reading');
+    return validateReading(reading)
+    .then(validReading => {
+      console.log('validReading', validReading);
+      return fs.collection('org').doc(orgId)
+        .collection('reading').add(validReading);
 
-    return fs.collection('org').doc(orgId)
-      .collection('reading').set(reading)
-      .then(result => {
-        console.log(result);
-        
-        //TODO: test offline stuff
+      // return fs.collection('org').doc(orgId).set({
+      //   reading: validReading,
+      // }, {merge: true})
+    })
+    //This only resolves when the reading is actually written
+    //we need a way to use the pendingReadingsListener here...
+    .then(result => {
+      console.log('saved reading of id', result.id);
+      return result;
+    })
+    .catch(err => { 
+      console.log('error is', err);
+      return Promise.reject(err);
+    });
+  }
 
-      })
-      .catch(err => { 
-        console.log(err);
-        return Promise.reject(err);
-      });
+
+  static pendingReadingsListener({orgId}) {
+    return fs.collection('org').doc(orgId).collection('reading')
+    .onSnapshot(
+      (thing) => console.log("thing1", thing), //optionsOrObserverOrOnNext
+      (thing) => console.log("thing2", thing), //observerOrOnNextOrOnError
+      (error) => console.log("error", error),  //onError
+      (thing) => console.log('onCompletion'), //onCompletion
+    );
   }
 }
 
