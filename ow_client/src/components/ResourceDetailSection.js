@@ -43,8 +43,7 @@ class ResourceDetailSection extends Component<Props> {
       loading: true
     });
 
-    //TODO: register favourites
-
+    //TODO: we need to reload this when changing resources.
     return Promise.all([
       FirebaseApi.isInFavourites({orgId, userId, resourceId: id})
     ])
@@ -57,12 +56,17 @@ class ResourceDetailSection extends Component<Props> {
     });
   }
 
+  componentWillUpdate() {
+    console.log('willUpdate');
+  }
+
   // componentWillUnmount() {
 
   // }
 
   getReadingsView() {
     const { loading } = this.state;
+    const { resource: { lastValue } } = this.props;
 
     const viewStyle = {
       justifyContent: 'center',
@@ -84,7 +88,7 @@ class ResourceDetailSection extends Component<Props> {
       <View style={viewStyle}>
         <StatCard
           title="Latest Reading"
-          value={'23.5 m'}
+          value={lastValue}
         />
         {/* <StatCard
           title="Village Average"

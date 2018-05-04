@@ -66,7 +66,7 @@ class FirebaseApi {
   }
 
   static updateFavouriteResources({orgId, userId, favouriteResources}) {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources });
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true});
   }
 
   static getFavouriteResources({ orgId, userId }) {
@@ -111,7 +111,7 @@ class FirebaseApi {
         dedupList.pop();
       }
 
-      return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList })
+      return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList }, {merge: true});
     });
   }
 

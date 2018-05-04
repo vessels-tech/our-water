@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react';
 import {
+  BackHandler,
   Platform,
   StyleSheet,
   ScrollView,
@@ -86,6 +87,8 @@ export default class App extends Component<Props> {
   componentWillMount() {
     let { region } = this.state;
 
+    this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
+
     this.setState({loading: true});
 
     FirebaseApi.signIn()
@@ -114,6 +117,15 @@ export default class App extends Component<Props> {
     .catch(err => {
       console.log(err);
     });
+  }
+
+  hardwareBackPressed() {
+    if (this.state.hasSelectedResource) {
+      this.clearSelectedResource();
+      return true;
+    }
+
+    return false;
   }
 
   onMapPressed({coordinate}) {
@@ -420,7 +432,7 @@ export default class App extends Component<Props> {
   }
 
   getResourceView() {
-    const {hasSelectedResource, selectedResource} = this.state;
+    const {hasSelectedResource, selectedResource, userId} = this.state;
 
     if (!hasSelectedResource) {
       return null;
@@ -433,6 +445,7 @@ export default class App extends Component<Props> {
         // height:1000
       }}>
         <ResourceDetailSection
+          userId={userId}
           resource={selectedResource}
           onMorePressed={resource => {
             navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
@@ -490,7 +503,12 @@ export default class App extends Component<Props> {
         flex: 1
       }}>
         {this.getMap()}
-        <ScrollView style={styles.container}>
+        <ScrollView style={{
+            backgroundColor: '#D9E3F0',
+            marginTop: 0,
+            flex: 1
+          }}
+        >
           {this.getResourceView()}
           {this.getFavouritesList()}
           {this.getSavedReadingsButton()}
