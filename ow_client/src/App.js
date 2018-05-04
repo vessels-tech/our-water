@@ -25,6 +25,7 @@ import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import ResoureMarker from './components/common/ResourceMarker';
 import PendingChangesBanner from './components/PendingChangesBanner';
+import FavouriteResourceList from './components/FavouriteResourceList';
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
@@ -105,7 +106,6 @@ export default class App extends Component<Props> {
       return FirebaseApi.getResourceNearLocation(this.networkApi, {orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
-      console.log('resources', resources);
       this.setState({
         loading: false,
         resources
@@ -140,7 +140,6 @@ export default class App extends Component<Props> {
     //TODO: should probably present a 'mini loading indicator'
     return FirebaseApi.getResourceNearLocation(this.networkApi, { orgId, ...coordinate, distance: 0.1 })
       .then(resources => {
-        console.log('resources', resources);
         this.setState({
           loading: false,
           resources
@@ -193,7 +192,10 @@ export default class App extends Component<Props> {
    */
   focusResource({coordinate, position}) {
     const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
+    this.selectResource(resource);
+  }
 
+  selectResource(resource) {
     this.setState({
       mapHeight: MapHeightOptions.small,
       mapState: MapStateOptions.small,
@@ -202,8 +204,7 @@ export default class App extends Component<Props> {
     });
 
     //Do in the background - we don't care when
-    //TODO: we need to set up a watch on this path, to get updates etc.
-    FirebaseApi.addRecentResource({orgId, resourceId: resource.id, userId: this.state.userId});
+    FirebaseApi.addRecentResource({ orgId, resource, userId: this.state.userId });
   }
 
   getMap() {
@@ -377,22 +378,22 @@ export default class App extends Component<Props> {
   }
 
   getFavouritesList() {
-    const { hasSelectedResource } = this.state;
+    const { userId, hasSelectedResource } = this.state;
 
-    if(hasSelectedResource) {
+    //Hide when we are looking at a resource
+    if (hasSelectedResource) {
       return null;
     }
 
-    return (
-      <View style={{
-        backgroundColor: '#D9E3F0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 5,
-      }}>
-        <Text>Recents</Text>
-      </View>
-    )
+    return (  
+      <FavouriteResourceList
+        userId={this.state.userId}
+        onResourceCellPressed={(resource) => {
+          //TODO: move the map to select this resource
+          this.selectResource(resource);
+        }}
+      />
+    );
   }
 
   //A button for the user to deselect a resource, and exit out
@@ -425,8 +426,6 @@ export default class App extends Component<Props> {
       return null;
     }
 
-    console.log("getResourceView selected resource", selectedResource);
-
     return (
       <View style={{
         backgroundColor: '#D9E3F0',
@@ -436,7 +435,6 @@ export default class App extends Component<Props> {
         <ResourceDetailSection
           resource={selectedResource}
           onMorePressed={resource => {
-            console.log('onMorePressed', resource);
             navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
               legacyId: resource.legacyId,
             });
@@ -444,7 +442,6 @@ export default class App extends Component<Props> {
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
           onAddReadingPressed={resource => {
-            console.log('onAddReadingPressed', resource);
             navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
               resource, 
             });

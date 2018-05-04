@@ -122,6 +122,35 @@ const boundingBoxForCoords = ({latitude, longitude, distance}) => {
   };
 }
 
+const prettyColors = [
+  "#FF6767",
+  "#8AD7B4",
+  "#F5A623",
+  "#B8E986",
+];
+
+const randomPrettyColorForId = (resourceId) => {
+  const idNumber = Math.abs(hashCode(resourceId))
+  const index = idNumber % prettyColors.length - 1;
+
+  return prettyColors[index];
+}
+
+const hashCode = (str) => {
+  var hash = 0;
+  if (str.length == 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+const getShortId = (str) => {
+  return Math.abs(hashCode(str));
+}
+
 export {
   appendUrlParameters,
   getHashForReading,
@@ -134,5 +163,7 @@ export {
   navigateTo,
   getMinAndMaxReadingDates,
   displayAlert,
-  boundingBoxForCoords
+  boundingBoxForCoords,
+  randomPrettyColorForId,
+  getShortId,
 };

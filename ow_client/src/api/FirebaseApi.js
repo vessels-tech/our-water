@@ -40,10 +40,10 @@ class FirebaseApi {
     return auth.signInAnonymouslyAndRetrieveData();
   }
 
-  static addFavouriteResource({orgId, resourceId, userId}) {
+  static addFavouriteResource({orgId, resource, userId}) {
     return this.getFavouriteResources({orgId, userId})
     .then(favouriteResources => {
-      favouriteResources[resourceId] = true;
+      favouriteResources[resource.id] = resource;
 
       return this.updateFavouriteResources({orgId, userId, favouriteResources});
     });
@@ -56,6 +56,13 @@ class FirebaseApi {
 
       return this.updateFavouriteResources({ orgId, userId, favouriteResources });
     });  
+  }
+
+  static isInFavourites({ orgId, resourceId, userId }) {
+    return this.getFavouriteResources({ orgId, userId })
+    .then(favouriteResources => {
+      return resourceId in favouriteResources;
+    });
   }
 
   static updateFavouriteResources({orgId, userId, favouriteResources}) {
@@ -86,19 +93,19 @@ class FirebaseApi {
       })
   }
 
-  static addRecentResource({ orgId, resourceId, userId}) {
+  static addRecentResource({ orgId, resource, userId}) {
 
     return this.getRecentResources({orgId, userId})
     .then(recentResources => {
       console.log(recentResources);
 
       //only keep the last 5 resources
-      recentResources.unshift(resourceId);
+      recentResources.unshift(resource);
       
       //remove this resource from later on if it already exists
       const dedupDict = {};
-      recentResources.forEach(id => {dedupDict[id] = true});
-      const dedupList = Object.keys(dedupDict);
+      recentResources.forEach(res => { dedupDict[res.id] = res});
+      const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
 
       while (dedupList.length > 5) {
         dedupList.pop();
@@ -304,6 +311,13 @@ class FirebaseApi {
         },
         (sn) => console.log('onCompletion', sn), //onCompletion
     );
+  }
+
+  static listenForUpdatedUser({orgId, userId}, cb) {
+    const ref = fs.collection('org').doc(orgId)
+        .collection('user').doc(userId);
+
+    return ref.onSnapshot(cb);
   }
 }
 

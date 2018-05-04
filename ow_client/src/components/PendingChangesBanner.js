@@ -38,8 +38,7 @@ class PendingChangesBanner extends Component<Props> {
   }
 
   pendingReadingsCallback(sn) {
-    console.log("pendingReadingsCallback", sn);
-
+    
     this.setState({
       hasPendingWrites: sn.metadata.hasPendingWrites,
     });
