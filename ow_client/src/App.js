@@ -78,6 +78,8 @@ export default class App extends Component<Props> {
 
       hasSelectedResource: false,
       selectedResource: {},
+      
+      isSearching: false,
 
       isAuthenticated: false,
       userId: ''
@@ -261,7 +263,7 @@ export default class App extends Component<Props> {
           top: '0%',
           left: '0%',
         }}>
-        {this.getSearchBar()}
+          {this.getSearchBar()}
         </View>
 
         <View style={{

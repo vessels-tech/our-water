@@ -116,8 +116,7 @@ class FirebaseApi {
   }
 
   static getResourcesForOrg({ orgId }) {
-    return this.checkNetworkAndToggleFirestore()
-    .then(() => fs.collection('org').doc(orgId).collection('resource').get())
+    return fs.collection('org').doc(orgId).collection('resource').get()
       .then(sn => {
         const resources = [];
         sn.forEach((doc) => {
@@ -318,6 +317,20 @@ class FirebaseApi {
         .collection('user').doc(userId);
 
     return ref.onSnapshot(cb);
+  }
+
+  /**
+   * Do a basic search, where we filter by resourceId
+   * This is suboptimal, as we have to load all resources first. 
+   * 
+   * Searching is a little tricky, we need to figure out by which fields that
+   * the user is likely to search by first (eg. groupName, )
+   */
+  static performBasicSearch({orgId, text}) {
+    return this.getResourcesForOrg({orgId})
+      .then(resources => {
+        return resources.filter(resource => resource.id.indexOf(text) > 0);
+      });
   }
 }
 
