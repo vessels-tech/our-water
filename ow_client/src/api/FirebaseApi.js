@@ -1,11 +1,13 @@
 import firebase from 'react-native-firebase';
 import { default as ftch } from 'react-native-fetch-polyfill';
+import Config from 'react-native-config';
 
 import { 
   appendUrlParameters, 
   rejectRequestWithError 
 } from '../utils';
-import Config from 'react-native-config';
+import { validateReading } from './ValidationApi';
+
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -94,6 +96,44 @@ class FirebaseApi {
         // Read result of the Cloud Function.
       })
   };
+
+
+  /**
+   * saveReading
+   * submits a new reading for a given resource
+   * 
+   * We use the Cloudstore Api instead of doing a POST for two reasons:
+   * (1) we want to benefit fro Firebase's offline features, and
+   * (2) it will likely be easier to implement security on this later on
+   * 
+   * format:
+   * reading: {
+   *  resourceId: string    
+   *  datetime:   string    #must be iso date format
+   *  value:      float     
+   *  isLegacy:   boolean   #set to true to stop the resource's lastValue from being updated
+   *  userId:     string    #id of the user creating the reading. In the future, this will be inferred from the session
+   * }
+   * 
+   */
+
+  static saveReading({orgId, reading}) {
+    //TODO: validate
+    reading = validateReading(reading);
+
+    return fs.collection('org').doc(orgId)
+      .collection('reading').set(reading)
+      .then(result => {
+        console.log(result);
+        
+        //TODO: test offline stuff
+
+      })
+      .catch(err => { 
+        console.log(err);
+        return Promise.reject(err);
+      });
+  }
 }
 
 export default FirebaseApi;

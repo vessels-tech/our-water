@@ -7,7 +7,7 @@ import {
   View,
   TextInput,
   Dimensions,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -16,14 +16,18 @@ import {
   Input,
   FormLabel,
   FormValidationMessage, 
-  Button 
+  // Button 
 } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker'
+import Config from 'react-native-config';
+
 
 import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
+import FirebaseApi from '../api/FirebaseApi';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const orgId = Config.REACT_APP_ORG_ID;
 
 class NewReadingScreen extends Component<Props> {
 
@@ -33,20 +37,60 @@ class NewReadingScreen extends Component<Props> {
     this.state = {
       enableSubmitButton: false,
       date: new Date(),
-      dateString: 'Today',
       measurementString: '',
     };
   }
 
+  saveReading() {
+    const {date, measurementString} = this.state;
+    const { resource: { id } } = this.props;
+    const reading = {
+      datetime: date,
+      resourceId: id,
+      value: measurementString, //joi will take care of conversions for us
+      userId: "12345", //TODO get the userId
+    };
+
+    return FirebaseApi.saveReading({orgId, reading})
+    .then(result => {
+      console.log(result);
+      //TODO: display toast or something
+
+      this.setState({
+        date: new Date(),
+        measurementString: '',
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      //TODO: display error
+    });
+  }
+
   isDateValid() {
-    return false;
+    //Date is controlled by date picker, can't really be valid
+    return true;
   }
 
   isMeasurementValid() {
-    const { measurementString } = this.props;
+    const { measurementString } = this.state;
+
+    let isValid = true;
+    
+    try {
+      let measurement = parseFloat(measurementString);
+      console.log(measurementString, measurement);
+
+      if (isNaN(measurement)) {
+        isValid = false;
+      }
+    } catch(err) {
+      isValid = false;
+    }
 
     //TODO: custom validation, eg. well depth
-    return true;
+  
+    return isValid;
   }
 
   getForm() {
@@ -56,12 +100,7 @@ class NewReadingScreen extends Component<Props> {
 
     return (
       <View style={{
-        // backgroundColor: 'white',
         width: SCREEN_WIDTH - 30,
-        // borderRadius: 10,
-        // paddingTop: 32,
-        // paddingBottom: 32,
-        // alignItems: 'center',
         flexDirection: 'column'
       }}>
 
@@ -79,44 +118,22 @@ class NewReadingScreen extends Component<Props> {
           iconName='pencil'
           iconColor='#FF6767'
           placeholder={`Measurement in ${units}`}
-          errorMessage={this.isMeasurementValid() ? null : 'Invalid Measurement'}
-          //TODO: fix
+          errorMessage={
+            measurementString.length > 0 && !this.isMeasurementValid() ? 
+              'Invalid Measurement' : null
+          }
           onChangeText={measurementString => this.setState({ measurementString})}
           onSubmitEditing={() => console.log('on submit editing')}
           keyboardType='numeric'
           fieldType={InputTypes.fieldInput}
           value={measurementString}
         />
-
-        {/* <FormInput
-          icon="date"
-          value={value}
-          keyboardAppearance='light'
-          autoFocus={false}
-          autoCapitalize='none'
-          autoCorrect={false}
-          keyboardType='email-address'
-          returnKeyType='done'
-          inputStyle={{
-            borderBottomColor: 'rgba(110, 120, 170, 1)',
-            borderBottomWidth: 1,
-            height: 45,
-            marginVertical: 10,
-          }}
-          placeholder={`Reading (${units})`}
-          containerStyle={{ marginTop: 15, borderBottomColor: 'rgba(0, 0, 0, 0.38)' }}
-          ref={input => this.valueInput = input}
-          onChangeText={value => this.setState({ value })}
-          // errorMessage={isEmailValid ? null : 'Please enter a valid email address'}
-        /> */}
       </View>
     );
   }
 
   shouldDisableSubmitButton() {
-    const { date, measurement } = this.state;
-
-    return true;
+    return !this.isDateValid() || !this.isMeasurementValid();
   }
 
   getButton() {
@@ -131,7 +148,7 @@ class NewReadingScreen extends Component<Props> {
         buttonStyle={{ width: SCREEN_WIDTH - 30, backgroundColor: 'rgba(111, 202, 186, 1)', borderRadius: 5 }}
         titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
         containerStyle={{ marginVertical: 10, height: 50, width: SCREEN_WIDTH - 30 }}
-        onPress={() => console.log('aye')}
+        onPress={() => this.saveReading()}
         underlayColor="transparent"
       />
     );
@@ -140,7 +157,10 @@ class NewReadingScreen extends Component<Props> {
   render() {
 
     return (
-      <TouchableOpacity 
+      /*
+      Wrap in a touchable to stop events propagating to the parent screen
+      */
+      <TouchableWithoutFeedback 
         style={{
           flex: 1,
           flexDirection: 'column',  
@@ -163,7 +183,7 @@ class NewReadingScreen extends Component<Props> {
           {this.getForm()}
           {this.getButton()}
         </View>
-      </TouchableOpacity>
+      </TouchableWithoutFeedback>
     );
   }
 }
