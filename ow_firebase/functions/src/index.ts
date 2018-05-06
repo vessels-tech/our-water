@@ -83,35 +83,47 @@ export const copyResourceFields = functions.firestore
  * when doing bulk uploads, add a field: `isLegacy:true` to the readings, which will bypass this function
  */
 export const updateLastValue = functions.firestore
-  .document('org/{orgId}/{reading}/{readingId}')
-  .onCreate((snapshot, context) => {
-    //Get the corresponding resource
-    const { orgId, resourceId, readingId } = context.params;
-    const newReading = snapshot.data();
+.document('org/{orgId}/{reading}/{readingId}')
+.onCreate((snapshot, context) => {
+  //Get the corresponding resource
+  const { orgId, resourceId, readingId } = context.params;
+  const newReading = snapshot.data();
 
-    //If this reading is a legacyReading, then don't update
-    if (newReading.isLegacy === true) {
-      console.log("reading marked as legacy reading. Not updating");
-      return;
-    }
+  //If this reading is a legacyReading, then don't update
+  if (newReading.isLegacy === true) {
+    console.log("reading marked as legacy reading. Not updating");
+    return;
+  }
 
-    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-      .then(doc => {
-        const res = doc.data();
+  return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+    .then(doc => {
+      const res = doc.data();
 
-        if (res.lastReadingDatetime 
-          && res.lastReadingDatetime > newReading.datetime) {
-          console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
-          return true;
-        }
+      if (res.lastReadingDatetime 
+        && res.lastReadingDatetime > newReading.datetime) {
+        console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
+        return true;
+      }
 
-        const latestReadingMetadata = {
-          lastReadingDatetime: newReading.datetime,
-          lastValue: newReading.value,
-        };
-        return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
-      });
-  });
+      const latestReadingMetadata = {
+        lastReadingDatetime: newReading.datetime,
+        lastValue: newReading.value,
+      };
+      return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
+    });
+});
+
+
+/*
+
+  TODO: watches for syncs
+
+  - when a new resource is created, lookup the necessary syncs, and call `push` for each relevant one
+  - when a new reading is created, lookup the necessary syncs, and call `push` for each relevant one
+
+*/
+
+
 
 
 //TODO: on creation of a resource, send an email or sms

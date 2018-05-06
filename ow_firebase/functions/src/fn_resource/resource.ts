@@ -17,7 +17,6 @@ module.exports = (functions, admin) => {
   /* CORS Configuration */
   const openCors = cors({origin: '*'});
   app.use(openCors);
-  // app.options('/', openCors) // enable pre-flight request for DELETE request
 
 
   //TODO: fix this error handler
