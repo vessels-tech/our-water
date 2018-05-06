@@ -19,21 +19,5 @@ Navigation.startSingleScreenApp({
       navBarHidden: true,
     }, // override the navigator style for the screen, see "Styling the navigator" below (optional)
     navigatorButtons: {} // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
-  },
-  // tabs: [
-  //   {
-  //     label: 'One',
-  //     screen: 'example.FirstTabScreen', // this is a registered name for a screen
-  //     icon: require('./assets/blue_marker.png'),
-  //     // selectedIcon: require('../img/one_selected.png'), // iOS only
-  //     title: 'Screen One'
-  //   },
-    // {
-    //   label: 'Two',
-    //   screen: 'example.SecondTabScreen',
-    //   icon: require('../img/two.png'),
-    //   selectedIcon: require('../img/two_selected.png'), // iOS only
-    //   title: 'Screen Two'
-    // }
-  // ]
+  }
 });

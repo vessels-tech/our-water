@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react';
 import {
+  BackHandler,
   Platform,
   StyleSheet,
   ScrollView,
@@ -24,6 +25,8 @@ import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import ResoureMarker from './components/common/ResourceMarker';
+import PendingChangesBanner from './components/PendingChangesBanner';
+import FavouriteResourceList from './components/FavouriteResourceList';
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
@@ -41,6 +44,7 @@ import {
 } from './enums';
 
 import Config from 'react-native-config'
+import NetworkApi from './api/NetworkApi';
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -49,6 +53,7 @@ export default class App extends Component<Props> {
   constructor(props) {
     super(props);
     this.fs = firebase.firestore();
+    this.networkApi = new NetworkApi();
 
     this.state = {
       loading: true,
@@ -73,6 +78,8 @@ export default class App extends Component<Props> {
 
       hasSelectedResource: false,
       selectedResource: {},
+      
+      isSearching: false,
 
       isAuthenticated: false,
       userId: ''
@@ -82,28 +89,28 @@ export default class App extends Component<Props> {
   componentWillMount() {
     let { region } = this.state;
 
+    this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
+
     this.setState({loading: true});
 
     FirebaseApi.signIn()
     .then(siginData => {
       this.setState({ 
         isAuthenticated: true,
-        userId: siginData._user.uid,
+        userId: siginData.user.uid,
       });
       return getLocation();
     })
     .catch(err => {
       console.log("error signing in", err);
-      console.warn("error signing in", err);
       this.setState({ isAuthenticated: false });
       return getLocation();
     })
     .then(location => {
       this.updateGeoLocation(location);
-      return FirebaseApi.getResourceNearLocation({orgId, ...location.coords, distance: 0.1});
+      return FirebaseApi.getResourceNearLocation(this.networkApi, {orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
-      console.log('resources', resources);
       this.setState({
         loading: false,
         resources
@@ -112,6 +119,15 @@ export default class App extends Component<Props> {
     .catch(err => {
       console.log(err);
     });
+  }
+
+  hardwareBackPressed() {
+    if (this.state.hasSelectedResource) {
+      this.clearSelectedResource();
+      return true;
+    }
+
+    return false;
   }
 
   onMapPressed({coordinate}) {
@@ -135,7 +151,17 @@ export default class App extends Component<Props> {
       droppedPinCoords: coordinate,
     });
 
-    //TODO: reload the resources based on pin drop + zoom level
+    //TODO: should probably present a 'mini loading indicator'
+    return FirebaseApi.getResourceNearLocation(this.networkApi, { orgId, ...coordinate, distance: 0.1 })
+      .then(resources => {
+        this.setState({
+          loading: false,
+          resources
+        });
+      })
+      .catch (err => {
+        console.log(err);
+      });
   }
 
   getDroppedPin() {
@@ -180,7 +206,10 @@ export default class App extends Component<Props> {
    */
   focusResource({coordinate, position}) {
     const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
+    this.selectResource(resource);
+  }
 
+  selectResource(resource) {
     this.setState({
       mapHeight: MapHeightOptions.small,
       mapState: MapStateOptions.small,
@@ -189,8 +218,7 @@ export default class App extends Component<Props> {
     });
 
     //Do in the background - we don't care when
-    //TODO: we need to set up a watch on this path, to get updates etc.
-    FirebaseApi.addRecentResource({orgId, resourceId: resource.id, userId: this.state.userId});
+    FirebaseApi.addRecentResource({ orgId, resource, userId: this.state.userId });
   }
 
   getMap() {
@@ -235,7 +263,7 @@ export default class App extends Component<Props> {
           top: '0%',
           left: '0%',
         }}>
-        {this.getSearchBar()}
+          {this.getSearchBar()}
         </View>
 
         <View style={{
@@ -364,22 +392,22 @@ export default class App extends Component<Props> {
   }
 
   getFavouritesList() {
-    const { hasSelectedResource } = this.state;
+    const { userId, hasSelectedResource } = this.state;
 
-    if(hasSelectedResource) {
+    //Hide when we are looking at a resource
+    if (hasSelectedResource) {
       return null;
     }
 
-    return (
-      <View style={{
-        backgroundColor: '#D9E3F0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 5,
-      }}>
-        <Text>Recents</Text>
-      </View>
-    )
+    return (  
+      <FavouriteResourceList
+        userId={this.state.userId}
+        onResourceCellPressed={(resource) => {
+          //TODO: move the map to select this resource
+          this.selectResource(resource);
+        }}
+      />
+    );
   }
 
   //A button for the user to deselect a resource, and exit out
@@ -406,13 +434,11 @@ export default class App extends Component<Props> {
   }
 
   getResourceView() {
-    const {hasSelectedResource, selectedResource} = this.state;
+    const {hasSelectedResource, selectedResource, userId} = this.state;
 
     if (!hasSelectedResource) {
       return null;
     }
-
-    console.log("getResourceView selected resource", selectedResource);
 
     return (
       <View style={{
@@ -421,18 +447,19 @@ export default class App extends Component<Props> {
         // height:1000
       }}>
         <ResourceDetailSection
+          userId={userId}
           resource={selectedResource}
           onMorePressed={resource => {
-            console.log('onMorePressed', resource);
             navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
               legacyId: resource.legacyId,
             });
           }}
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
-          onAddReadingPressed={() => {
-            console.log('onAddReadingPressed');
-            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {});
+          onAddReadingPressed={resource => {
+            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
+              resource, 
+            });
           }} 
         />
       </View>
@@ -478,11 +505,17 @@ export default class App extends Component<Props> {
         flex: 1
       }}>
         {this.getMap()}
-        <ScrollView style={styles.container}>
+        <ScrollView style={{
+            backgroundColor: '#D9E3F0',
+            marginTop: 0,
+            flex: 1
+          }}
+        >
           {this.getResourceView()}
           {this.getFavouritesList()}
           {this.getSavedReadingsButton()}
         </ScrollView>
+        <PendingChangesBanner/>
       </View>
     );
   }
