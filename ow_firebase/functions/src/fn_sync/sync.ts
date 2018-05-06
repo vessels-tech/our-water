@@ -89,19 +89,23 @@ module.exports = (functions, admin) => {
 
    app.get('/:orgId/run/:syncId', (req, res, next) => {
     const {orgId, syncId} = req.params;
+    const {method} = req.query;
 
     return Sync.getSync({orgId, id: syncId, fs})
     .then((sync: Sync) => {
-
-      //TODO: configure the run
-      const run: SyncRun = new SyncRun();
-
+      //TODO: put in proper email addresses
+      const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
       return run.create(fs);
     })
-    .then((syncSaveResult) => {
-      //TODO run the sync, and return the id of the run.
+    .then((run: SyncRun) => {
+      //run the sync, and return the id of the run.
+      run.run({fs}); //TODO: catch any errors here?
 
-      return res.send(syncSaveResult.id);
+      return res.send(run.id);
+    })
+    .catch(err => {
+      console.log('error in runSync:', err);
+      return next(err);
     });
    });
 };

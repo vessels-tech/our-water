@@ -30,6 +30,8 @@ export class Sync {
     //TODO: we probably need to serialize this properly
 
     return fs.collection('org').doc(this.orgId).collection('sync').add(this);
+
+    //todo: return an actual sync object
   }
 
 
@@ -40,5 +42,6 @@ export class Sync {
    */
   static async getSync({orgId, id, fs}) {
     return fs.collection('org').doc(orgId).collection('syncRun').doc(id);
+    //TODO: inject the id
   }
 }
