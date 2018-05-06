@@ -7,7 +7,7 @@ enum DatasourceType {
 export interface Datasource {
   type: DatasourceType
 
-  getDataFromDatasource();
+  pullDataFromDataSource();
   pushDataToDataSource();
   
 }
@@ -16,7 +16,7 @@ class ApiDatasource implements Datasource {
   type: DatasourceType.ApiDatasource;
   baseUrl: string;
 
-  getDataFromDatasource() {
+  pullDataFromDataSource() {
     return null;
   }
 
@@ -74,7 +74,7 @@ class LegacyMyWellDatasource extends ApiDatasource {
 
   }
 
-  public async getDataFromDatasource() {
+  public async pullDataFromDataSource() {
     const groups = await this.getGroupData();
     const resources = await this.getResourcesData();
     const readings = await this.getReadingsData();

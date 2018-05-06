@@ -1,4 +1,7 @@
-import * as Joi from 'joi';
+// import * as Joi from 'joi';
+
+const Joi = require('joi');
+
 
 export enum SyncMethod {
   validate = 'validate',

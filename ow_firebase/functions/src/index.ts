@@ -123,11 +123,19 @@ export const updateLastValue = functions.firestore
 
 */
 
+/*
+
+TODO: watches for SyncRuns:
+
+- when a SyncRun changes state to success, update the Sync lastRunDate
+- when a SyncRun changes state to failed, send error to subscribers
+
+*/
+
 
 
 
 //TODO: on creation of a resource, send an email or sms
-
 //These aren't so pressing...
 //TODO: change group name, propagate to all resources and readings
 //TODO: add or remove group from resource, propagate to existing readings

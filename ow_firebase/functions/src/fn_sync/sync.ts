@@ -10,6 +10,8 @@ const Joi = require('joi');
 const fb = require('firebase-admin')
 
 import { SyncMethodValidation } from '../common/enums/SyncMethod';
+import { Sync } from '../common/models/Sync';
+import { SyncRun } from '../common/models/SyncRun';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -80,20 +82,26 @@ module.exports = (functions, admin) => {
    */
 
    const runSyncValidation = {
-     params: {
+     query: {
        method: SyncMethodValidation.required()
      }
    }
 
    app.get('/:orgId/run/:syncId', (req, res, next) => {
+    const {orgId, syncId} = req.params;
 
-    //load the sync
-    //run the sync,
-    //return a runId (org/orgId/sync/syncId/run/runId), that will identify this run
-    //that way, this can be run without timeout
-    //depending on the type, call getDataFromDatasource, and/or pushData
-    //update the date of the sync.
+    return Sync.getSync({orgId, id: syncId, fs})
+    .then((sync: Sync) => {
 
+      //TODO: configure the run
+      const run: SyncRun = new SyncRun();
 
+      return run.create(fs);
+    })
+    .then((syncSaveResult) => {
+      //TODO run the sync, and return the id of the run.
+
+      return res.send(syncSaveResult.id);
+    });
    });
 };
