@@ -152,21 +152,28 @@ class LegacyMyWellDatasource {
      *
      */
     getReadingsData(orgId, fs) {
-        const uriReadings = `${this.baseUrl}/api/resources`; //TODO: add filter
+        const token = 'FkhEG7gl7WctHe43KJxMqLOal1Wpgev6sbVCHbJe8taBZZzrpzFDKZCmVhhjJC4d'; //TODO: not sure why we need this
+        const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${token}`; //TODO: add filter for testing purposes
+        // const uriReadings = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',
             uri: uriReadings,
             json: true,
         };
-        let readings = null;
+        let readings = [];
         //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
         //This will enable us to easily map
         //We also need to have the groups first
         return request(options)
             .then((legacyReadings) => {
             legacyReadings.forEach(r => {
+                if (typeof r.value === undefined) {
+                    console.log("warning: found reading with no value", r);
+                    return;
+                }
                 //TODO: add missing fields
                 // const resourceType = resourceTypeFromString(r);
+                console.log('original reading is', r);
                 const newReading = new Reading_1.Reading(orgId, null, null, null, null, moment(r.createdAt).toDate(), r.value);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
@@ -183,13 +190,15 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
-            // const villageGroups = await this.getGroupData(orgId, fs);
-            // const pincodeGroups = await this.getPincodeData(orgId, fs)
+            const villageGroups = yield this.getGroupData(orgId, fs);
+            const pincodeGroups = yield this.getPincodeData(orgId, fs);
             const resources = yield this.getResourcesData(orgId, fs);
-            // const readings = await this.getReadingsData(orgId, fs);
+            const readings = yield this.getReadingsData(orgId, fs);
             return {
-                // groups: [],
+                villageGroups,
+                pincodeGroups,
                 resources,
+                readings
             };
         });
     }
