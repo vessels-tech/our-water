@@ -24,7 +24,8 @@ export default class LegacyMyWellDatasource implements Datasource {
   /**
    * Iterates through pincodes and villages from MyWell datasource
    * 
-   * As villages don't have 
+   * As villages have only a single point, we create our own
+   * imaginary bounding box for the new group
    * 
    */
   public getGroupData(orgId: string, fs): Promise<Array<Group>> {
@@ -60,6 +61,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       })
 
+      //TODO: return errors as well
       return savedGroups;
     });
 

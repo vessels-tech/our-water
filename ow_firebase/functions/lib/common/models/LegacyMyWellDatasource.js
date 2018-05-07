@@ -21,7 +21,8 @@ class LegacyMyWellDatasource {
     /**
      * Iterates through pincodes and villages from MyWell datasource
      *
-     * As villages don't have
+     * As villages have only a single point, we create our own
+     * imaginary bounding box for the new group
      *
      */
     getGroupData(orgId, fs) {
@@ -51,6 +52,7 @@ class LegacyMyWellDatasource {
                     errors.push(err);
                 });
             });
+            //TODO: return errors as well
             return savedGroups;
         });
         //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village

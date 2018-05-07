@@ -60,7 +60,7 @@ describe('SyncAPI', function () {
         .then(response => {
           // syncIds.push(response.syncId);
           syncId = response.syncId;
-          syncIds.push(syncId);
+          // syncIds.push(syncId);
 
           const runSyncOptions = {
             method: 'GET',
@@ -75,7 +75,7 @@ describe('SyncAPI', function () {
           sleep(1000);
 
           syncRunId = response.syncRunId;
-          syncRunIds.push(syncRunId)
+          // syncRunIds.push(syncRunId)
           return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get();
         })
         .then(sn => {

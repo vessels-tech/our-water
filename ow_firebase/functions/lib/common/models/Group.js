@@ -21,8 +21,9 @@ class Group {
             return this;
         });
     }
-    // public static bulkGroup(fs, groups: Array<Group>): Promise<Array<Group>> {
-    // }
+    static saveBulkGroup(fs, groups) {
+        return Promise.resolve([]);
+    }
     serialize() {
         return {
             id: this.id,

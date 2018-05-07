@@ -36,10 +36,10 @@ export class Group {
       });
   }
 
-  // public static bulkGroup(fs, groups: Array<Group>): Promise<Array<Group>> {
+  public static saveBulkGroup(fs, groups: Array<Group>): Promise<Array<Group>> {
 
-
-  // }
+    return Promise.resolve([]);
+  }
 
   public serialize(): any {
     return {
