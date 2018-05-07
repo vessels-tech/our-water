@@ -117,7 +117,7 @@ module.exports = (functions, admin) => {
     .then((run: SyncRun) => {
       //run the sync, and return the id of the run.
       run.run({fs}); //TODO: catch any errors here?
-      return res.json({syncRunId: run.id});
+      return res.json({ syncRunId: run.id });
     })
     .catch(err => {
       console.log('error in runSync:', err);

@@ -73,22 +73,23 @@ describe('SyncAPI', function () {
       
       return request(options);
     })
-    .then(response => {
-      syncRunIds.push(response.syncRunId);
-    });
+    .then(response => JSON.parse(response)) //json:true only applies to posts I think 
+    .then(response => syncRunIds.push(response.syncRunId));
   });
 
 
 
   //Cleanup all created resources
   after(function() {
-    console.log(`     cleaning up ${syncIds.length} syncs`);
+    console.log("     Clean Up:");
+
+    console.log(`      cleaning up ${syncIds.length} syncs`);
     syncIds.forEach(syncId => {
       return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
         .delete();
     });
 
-    console.log(`     cleaning up ${syncRunIds.length} syncRuns`);
+    console.log(`      cleaning up ${syncRunIds.length} syncRuns`);
     syncRunIds.forEach(syncRunId => {
       return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
         .delete();

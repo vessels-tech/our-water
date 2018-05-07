@@ -110,7 +110,7 @@ class SyncRun {
             //But I think that we need to keep track of separate dates depending on the
             //method used. We will leave that for later.
             if (this.errors.length > 0) {
-                return this.abortSync;
+                return this.abortSync({ fs });
             }
             return this.finishSync({ fs });
         });
@@ -135,17 +135,21 @@ class SyncRun {
      * Create a new SyncRun in FireStore
      */
     create({ fs }) {
-        const newSyncRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
-        this.id = newSyncRef.id;
+        const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
+        this.id = newRef.id;
         return this.save({ fs });
     }
     save({ fs }) {
         //TODO: do we want this to merge?
-        return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id).set(this.serialize())
+        return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
+            .set(this.serialize())
             .then(ref => {
             return this;
         });
     }
+    /**
+     * Serialize the SyncRun for saving or transmission
+     */
     serialize() {
         return {
             id: this.id,
@@ -162,12 +166,29 @@ class SyncRun {
         };
     }
     /**
+     * deserialize from a firestore snapshot
+     * @param sn
+     */
+    static deserialize(sn) {
+        const { id, orgId, syncId, syncMethod, subscribers, startedAt, finishedAt, status, results, warnings, errors, } = sn.data();
+        //TODO not sure the enums will des properly
+        const des = new SyncRun(orgId, syncId, syncMethod, subscribers);
+        des.id = id;
+        des.startedAt = startedAt;
+        des.finishedAt = finishedAt;
+        des.status = status;
+        des.results = results;
+        des.warnings = warnings;
+        des.errors = errors;
+        return des;
+    }
+    /**
      * Get the sync run for the given id
      * @param param0
      */
     static getSyncRun({ orgId, id, fs }) {
-        return fs.collection('org').doc(orgId).collection('syncRun').doc(id);
-        //TODO: deserialize into actual SyncRun object
+        return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+            .then(sn => SyncRun.deserialize(sn));
     }
 }
 exports.SyncRun = SyncRun;

@@ -1,10 +1,12 @@
-import {ApiDatasource} from './Datasource';
+import Datasource, {ApiDatasource} from './Datasource';
 import { DatasourceType } from '../enums/DatasourceType';
 
-export default class LegacyMyWellDatasource extends ApiDatasource {
+export default class LegacyMyWellDatasource implements Datasource {
+  baseUrl: string
+  type: DatasourceType;
 
   constructor(baseUrl: string) {
-    super(baseUrl);
+    this.baseUrl = baseUrl;
     this.type = DatasourceType.LegacyMyWellDatasource;
   }
 
@@ -39,6 +41,7 @@ export default class LegacyMyWellDatasource extends ApiDatasource {
 
     //GET resources
     //convert legacy MyWell resources into OW resources
+    //define new group relationships somehow (this will be tricky)
     //return
 
     return [];
@@ -74,5 +77,12 @@ export default class LegacyMyWellDatasource extends ApiDatasource {
     console.log("Implementation not required. MyWell Data source is readonly for now.");
 
     return true;
+  }
+
+  serialize() {
+    return {
+      baseUrl: this.baseUrl,
+      type: this.type.toString(),
+    };
   }
 }

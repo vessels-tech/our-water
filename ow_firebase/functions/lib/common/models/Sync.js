@@ -19,18 +19,21 @@ class Sync {
         this.selectedDatatypes = selectedDatatypes;
     }
     /**
-    * //TODO: use the create and save from SyncRun
     * Create a new Sync in FireStore
     */
     create({ fs }) {
-        return fs.collection('org').doc(this.orgId)
-            .collection('sync').add(this.serialize());
-        //TODO: once created, add in the id, and perform a save
+        const newRef = fs.collection('org').doc(this.orgId)
+            .collection('sync').doc();
+        this.id = newRef.id;
+        return this.save({ fs });
     }
     save({ fs }) {
-        //TODO: does this merge?
-        return fs.collection('org').doc(this.orgId)
-            .collection('sync').doc(this.id).save(this.serialize());
+        //TODO: should this merge?
+        return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
+            .set(this.serialize())
+            .then(ref => {
+            return this;
+        });
     }
     serialize() {
         return {
@@ -47,12 +50,12 @@ class Sync {
      * @param sn
      */
     static deserialize(sn) {
-        const id = sn.id;
         const { isOneTime, datasource, orgId, methods, lastSyncDate, selectedDatatypes, } = sn.data();
         const syncMethods = []; //TODO deserialize somehow
         const des = new Sync(isOneTime, Datasource_1.deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);
         //private vars
         des.lastSyncDate = lastSyncDate;
+        des.id = sn.id;
         return des;
     }
     /**

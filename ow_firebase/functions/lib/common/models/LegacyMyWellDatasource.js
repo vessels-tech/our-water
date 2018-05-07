@@ -8,11 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Datasource_1 = require("./Datasource");
 const DatasourceType_1 = require("../enums/DatasourceType");
-class LegacyMyWellDatasource extends Datasource_1.ApiDatasource {
+class LegacyMyWellDatasource {
     constructor(baseUrl) {
-        super(baseUrl);
+        this.baseUrl = baseUrl;
         this.type = DatasourceType_1.DatasourceType.LegacyMyWellDatasource;
     }
     /**
@@ -40,6 +39,7 @@ class LegacyMyWellDatasource extends Datasource_1.ApiDatasource {
         const uriResources = `${this.baseUrl}/resources`;
         //GET resources
         //convert legacy MyWell resources into OW resources
+        //define new group relationships somehow (this will be tricky)
         //return
         return [];
     }
@@ -70,6 +70,12 @@ class LegacyMyWellDatasource extends Datasource_1.ApiDatasource {
     pushDataToDataSource() {
         console.log("Implementation not required. MyWell Data source is readonly for now.");
         return true;
+    }
+    serialize() {
+        return {
+            baseUrl: this.baseUrl,
+            type: this.type.toString(),
+        };
     }
 }
 exports.default = LegacyMyWellDatasource;

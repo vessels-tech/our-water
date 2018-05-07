@@ -24,24 +24,27 @@ export class Sync {
   }
 
   /**
-  * //TODO: use the create and save from SyncRun
   * Create a new Sync in FireStore
   */
-  public create({ fs }) {
-    return fs.collection('org').doc(this.orgId)
-      .collection('sync').add(this.serialize());
+  public create({ fs }): Promise<Sync> {
+    const newRef = fs.collection('org').doc(this.orgId)
+      .collection('sync').doc();
+      this.id = newRef.id;
 
-    //TODO: once created, add in the id, and perform a save
+      return this.save({fs});
   }
 
-  public save({ fs }) {
-    //TODO: does this merge?
-    return fs.collection('org').doc(this.orgId)
-      .collection('sync').doc(this.id).save(this.serialize());
+  public save({ fs }): Promise<Sync> {
+    //TODO: should this merge?
+    return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
+      .set(this.serialize())
+      .then(ref => {
+        return this;
+      });
   }
 
 
-  public serialize() {
+  public serialize(): any {
     return {
       isOneTime: this.isOneTime,
       datasource: this.datasource.serialize(),
@@ -56,8 +59,7 @@ export class Sync {
    * Deserialize from a snapshot
    * @param sn 
    */
-  public static deserialize(sn) {
-    const id = sn.id;
+  public static deserialize(sn): Sync {
     const {
       isOneTime,
       datasource,
@@ -72,6 +74,7 @@ export class Sync {
 
     //private vars
     des.lastSyncDate = lastSyncDate;
+    des.id = sn.id;
 
     return des;
   }
@@ -81,7 +84,7 @@ export class Sync {
    * 
    * Gets the sync from the organization and sync id
    */
-  static async getSync({orgId, id, fs}) {
+  static async getSync({ orgId, id, fs }): Promise<Sync> {
     return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
       .then(sn => Sync.deserialize(sn));
   }

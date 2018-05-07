@@ -48,7 +48,7 @@ export class SyncRun {
    * Run the syncRun
    * @param param0 
    */
-  public async run({fs}) {
+  public async run({ fs }): Promise<SyncRun> {
     if (this.status !== SyncRunStatus.pending) {
       throw new Error(`SyncRun can only be run when in a pending state. Found state: ${this.status}`);
     }
@@ -124,13 +124,13 @@ export class SyncRun {
     //method used. We will leave that for later.
 
     if (this.errors.length > 0) {
-      return this.abortSync;
+      return this.abortSync({fs});
     }
 
     return this.finishSync({fs});
   }
 
-  private async abortSync({fs}) {
+  private async abortSync({ fs }): Promise<SyncRun> {
     console.warn("aborting sync with errors:", this.errors);
 
     this.status = SyncRunStatus.failed;
@@ -139,7 +139,7 @@ export class SyncRun {
     return this.save({fs});
   }
 
-  private async finishSync({fs}) {
+  private async finishSync({ fs }): Promise<SyncRun> {
     console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
     this.finishedAt = moment().unix();
@@ -150,22 +150,26 @@ export class SyncRun {
   /**
    * Create a new SyncRun in FireStore
    */
-  public create({fs}) {
-    const newSyncRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
-    this.id = newSyncRef.id;
+  public create({fs}): SyncRun {
+    const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
+    this.id = newRef.id;
     
     return this.save({fs});
   }
   
-  public save({fs}) {
+  public save({fs}): SyncRun {
     //TODO: do we want this to merge?
-    return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id).set(this.serialize())
+    return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
+      .set(this.serialize())
       .then(ref => {
         return this;
       });
   }
 
-  public serialize() {
+  /**
+   * Serialize the SyncRun for saving or transmission
+   */
+  public serialize(): any {
     return {
       id: this.id,
       orgId: this.orgId,
@@ -182,12 +186,44 @@ export class SyncRun {
   }
 
   /**
+   * deserialize from a firestore snapshot
+   * @param sn 
+   */
+  public static deserialize(sn): SyncRun {
+    const {
+      id,
+      orgId,
+      syncId,
+      syncMethod,
+      subscribers,
+      startedAt,
+      finishedAt,
+      status,
+      results,
+      warnings,
+      errors,
+    } = sn.data();
+
+    //TODO not sure the enums will des properly
+    const des: SyncRun = new SyncRun(orgId, syncId, syncMethod, subscribers);
+    des.id = id;
+    des.startedAt = startedAt;
+    des.finishedAt = finishedAt;
+    des.status = status;
+    des.results = results;
+    des.warnings = warnings;
+    des.errors = errors;
+
+    return des;
+  }
+
+  /**
    * Get the sync run for the given id
    * @param param0 
    */
-  static getSyncRun({orgId, id, fs}) {
-    return fs.collection('org').doc(orgId).collection('syncRun').doc(id);
-    //TODO: deserialize into actual SyncRun object
+  static getSyncRun({ orgId, id, fs }): Promise<SyncRun> {
+    return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+    .then(sn => SyncRun.deserialize(sn));
   }
 
 
