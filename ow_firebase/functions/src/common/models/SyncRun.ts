@@ -143,19 +143,36 @@ export class SyncRun {
   }
 
   /**
-   * Create a new sync in FireStore
+   * Create a new SyncRun in FireStore
    */
   public create({fs}) {
-    return fs.collection('org').doc(this.orgId)
-      .collection('syncRun').add(this);
-
-    //TODO: once created, add in the id, and perform a save
+    const newSyncRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
+    this.id = newSyncRef.id;
+    
+    return this.save({fs});
   }
   
   public save({fs}) {
-    //TODO: does this merge?
-    return fs.collection('org').doc(this.orgId)
-      .collection('syncRun').doc(this.id).save(this);
+    //TODO: do we want this to merge?
+    return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id).set(this.serialize())
+      .then(ref => {
+        return this;
+      });
+  }
+
+  public serialize() {
+    return {
+      id: this.id,
+      orgId: this.orgId,
+      syncId: this.syncId,
+      syncMethod: this.syncMethod.toString(),
+      subscribers: this.subscribers,
+      startedAt: new Date(this.startedAt),
+      finishedAt: new Date(this.finishedAt),
+      status: this.status.toString(),
+      results: this.results,
+      errors: this.errors,
+    };
   }
 
   /**

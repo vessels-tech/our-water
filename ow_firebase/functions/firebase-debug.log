@@ -1,49 +1,40 @@
-[debug] [2018-04-29T22:58:16.517Z] ----------------------------------------------------------------------
-[debug] [2018-04-29T22:58:16.519Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
-[debug] [2018-04-29T22:58:16.520Z] CLI Version:   3.18.4
-[debug] [2018-04-29T22:58:16.520Z] Platform:      darwin
-[debug] [2018-04-29T22:58:16.520Z] Node Version:  v6.11.5
-[debug] [2018-04-29T22:58:16.521Z] Time:          Mon Apr 30 2018 08:28:16 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:16.521Z] ----------------------------------------------------------------------
+[debug] [2018-05-07T00:16:14.979Z] ----------------------------------------------------------------------
+[debug] [2018-05-07T00:16:14.981Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
+[debug] [2018-05-07T00:16:14.981Z] CLI Version:   3.18.4
+[debug] [2018-05-07T00:16:14.981Z] Platform:      darwin
+[debug] [2018-05-07T00:16:14.981Z] Node Version:  v8.11.1
+[debug] [2018-05-07T00:16:14.982Z] Time:          Mon May 07 2018 09:46:14 GMT+0930 (ACST)
+[debug] [2018-05-07T00:16:14.982Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2018-04-29T22:58:16.536Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-04-29T22:58:16.536Z] > authorizing via signed-in user
-[debug] [2018-04-29T22:58:16.539Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2018-04-29T22:58:16.539Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
- { refresh_token: '1/KXFYwvSfSkMbnUkzpwdPWHb1GMSJbOBiuTHk6zHiYoA',
-  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
-  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
-  grant_type: 'refresh_token',
-  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
- Mon Apr 30 2018 08:28:16 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:17.172Z] <<< HTTP RESPONSE 200
-[debug] [2018-04-29T22:58:17.190Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+[debug] [2018-05-07T00:16:14.991Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-05-07T00:16:14.992Z] > authorizing via signed-in user
+[debug] [2018-05-07T00:16:14.993Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
   
- Mon Apr 30 2018 08:28:17 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:18.679Z] <<< HTTP RESPONSE 200
-[debug] [2018-04-29T22:58:18.680Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+ Mon May 07 2018 09:46:14 GMT+0930 (ACST)
+[debug] [2018-05-07T00:16:16.082Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-07T00:16:16.083Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
   
- Mon Apr 30 2018 08:28:18 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:19.543Z] <<< HTTP RESPONSE 200
-[debug] [2018-04-29T22:58:19.545Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+ Mon May 07 2018 09:46:16 GMT+0930 (ACST)
+[debug] [2018-05-07T00:16:16.885Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-07T00:16:16.886Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
   
- Mon Apr 30 2018 08:28:19 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:21.316Z] <<< HTTP RESPONSE 200
+ Mon May 07 2018 09:46:16 GMT+0930 (ACST)
+[debug] [2018-05-07T00:16:18.326Z] <<< HTTP RESPONSE 200
 [info] 
 [info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
 [info] 
 [info] i  functions: Preparing to emulate functions.
-[debug] [2018-04-29T22:58:22.142Z] Fetching environment
-[debug] [2018-04-29T22:58:22.145Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+[debug] [2018-05-07T00:16:18.832Z] Fetching environment
+[debug] [2018-05-07T00:16:18.834Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
   
- Mon Apr 30 2018 08:28:22 GMT+0930 (ACST)
-[debug] [2018-04-29T22:58:23.682Z] <<< HTTP RESPONSE 200
-[debug] [2018-04-29T22:58:23.682Z] Starting @google-cloud/functions-emulator
-[debug] [2018-04-29T22:58:25.249Z] Parsing function triggers
+ Mon May 07 2018 09:46:18 GMT+0930 (ACST)
+[debug] [2018-05-07T00:16:20.246Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-07T00:16:20.247Z] Starting @google-cloud/functions-emulator
+[debug] [2018-05-07T00:16:21.810Z] Parsing function triggers
 [info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
 [info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
-[info] ✔  functions: test: http://localhost:5000/our-water/us-central1/test
 [info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
-[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
 [info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
+[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
+[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
 [info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading

@@ -1,7 +1,7 @@
 
 export enum SyncRunStatus {
-  pending,
-  running,
-  finished,
-  failed,
+  pending = 'pending',
+  running = 'running',
+  finished = 'finished',
+  failed = 'failed',
 }

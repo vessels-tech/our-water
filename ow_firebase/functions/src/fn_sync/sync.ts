@@ -9,9 +9,11 @@ const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin')
 
-import { SyncMethodValidation } from '../common/enums/SyncMethod';
+import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
 import { Sync } from '../common/models/Sync';
 import { SyncRun } from '../common/models/SyncRun';
+import { LegacyMyWellDatasource } from '../common/models/Datasource';
+import { METHODS } from 'http';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -37,12 +39,7 @@ module.exports = (functions, admin) => {
    * createSync
    * 
    * Creates a new sync with the given settings
-   * 
-   * Example:
-   
-
-
-   */
+   */ 
   const createSyncValidation = {
     options: {
       allowUnknownBody: false,
@@ -53,13 +50,35 @@ module.exports = (functions, admin) => {
         datasource: Joi.object().keys({
           //TODO: add more to this later
           type: Joi.string().required(),
+          //TODO: ensure url type
           url: Joi.string().required(),
         }).required(),
         type: Joi.string().required(),
-        selectedDatatypes: Joi.ar
+        selectedDatatypes: Joi.array().items(Joi.string()).required()
       } 
     }
   }
+
+  app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
+    const { orgId } = req.params;
+    const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
+
+    //TODO: init based on type
+    const ds = new LegacyMyWellDatasource(datasource.url);
+    const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], selectedDatatypes);
+
+    console.log(ds, sync);
+
+    return sync.create({fs})
+    .then((createdSync: Sync) => {
+      console.log("created sync: ", createdSync);
+      return res.json({syncId: createdSync.id});
+    })
+    .catch(err => {
+      console.log(err);
+      return next(err);
+    });
+  });
 
 
   //TODO: implementation
@@ -87,25 +106,28 @@ module.exports = (functions, admin) => {
      }
    }
 
-   app.get('/:orgId/run/:syncId', (req, res, next) => {
+  app.get('/:orgId/run/:syncId', validate(runSyncValidation), (req, res, next) => {
     const {orgId, syncId} = req.params;
     const {method} = req.query;
 
     return Sync.getSync({orgId, id: syncId, fs})
     .then((sync: Sync) => {
+
       //TODO: put in proper email addresses
       const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
-      return run.create(fs);
+      return run.create({fs});
     })
     .then((run: SyncRun) => {
       //run the sync, and return the id of the run.
       run.run({fs}); //TODO: catch any errors here?
-
-      return res.send(run.id);
+      return res.json({syncRunId: run.id});
     })
     .catch(err => {
       console.log('error in runSync:', err);
       return next(err);
     });
    });
+
+   
+  return functions.https.onRequest(app);
 };

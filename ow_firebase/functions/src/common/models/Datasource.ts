@@ -1,6 +1,7 @@
 
 enum DatasourceType {
-  ApiDatasource,
+  ApiDatasource = 'ApiDatasource',
+  LegacyMyWellDatasource = 'LegacyMyWellDatasource',
 }
 
 
@@ -9,12 +10,18 @@ export interface Datasource {
 
   pullDataFromDataSource();
   pushDataToDataSource();
+
+  serialize();
   
 }
 
 class ApiDatasource implements Datasource {
-  type: DatasourceType.ApiDatasource;
+  type: DatasourceType;
   baseUrl: string;
+
+  constructor( baseUrl: string) {
+    this.baseUrl = baseUrl;
+  }
 
   pullDataFromDataSource() {
     return null;
@@ -24,9 +31,21 @@ class ApiDatasource implements Datasource {
     return null;
   }
 
+  serialize() {
+    return {
+      type: this.type.toString(),
+      baseUrl: this.baseUrl,
+    }
+  }
+
 }
 
-class LegacyMyWellDatasource extends ApiDatasource {
+export class LegacyMyWellDatasource extends ApiDatasource {
+
+  constructor(baseUrl: string) {
+    super(baseUrl);
+    this.type = DatasourceType.LegacyMyWellDatasource;
+  }
   
   /**
    * Iterates through pincodes and villages from MyWell datasource

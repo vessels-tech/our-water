@@ -1,16 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-exports.test = functions.https.onRequest((request, response) => {
-    console.log("registering org");
-    response.send("registered org: 1234");
-});
 const admin = require('firebase-admin');
 admin.initializeApp();
 //Org Api
@@ -21,16 +11,8 @@ exports.group = require('./fn_group/group')(functions, admin);
 exports.resource = require('./fn_resource/resource')(functions, admin);
 //Reading Api
 exports.reading = require('./fn_reading/reading')(functions, admin);
-// export const createUser = functions.firestore
-//   .document('users/{userId}')
-//   .onCreate((snap, context) => {
-//     // Get an object representing the document
-//     // e.g. {'name': 'Marie', 'age': 66}
-//     const newValue = snap.data();
-//     // access a particular field as you would any JS property
-//     const name = newValue.name;
-//     // perform desired operations ...
-//   });
+//Sync Api
+exports.sync = require('./fn_sync/sync')(functions, admin);
 //TODO: move these functions to new doc
 const fs = admin.firestore();
 /**
@@ -87,6 +69,22 @@ exports.updateLastValue = functions.firestore
         return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
     });
 });
+/*
+
+  TODO: watches for syncs
+
+  - when a new resource is created, lookup the necessary syncs, and call `push` for each relevant one
+  - when a new reading is created, lookup the necessary syncs, and call `push` for each relevant one
+
+*/
+/*
+
+TODO: watches for SyncRuns:
+
+- when a SyncRun changes state to success, update the Sync lastRunDate
+- when a SyncRun changes state to failed, send error to subscribers
+
+*/
 //TODO: on creation of a resource, send an email or sms
 //These aren't so pressing...
 //TODO: change group name, propagate to all resources and readings
