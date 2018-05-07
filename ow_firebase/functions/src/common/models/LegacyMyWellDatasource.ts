@@ -1,5 +1,7 @@
 import Datasource, {ApiDatasource} from './Datasource';
 import { DatasourceType } from '../enums/DatasourceType';
+import * as request from 'request-promise-native';
+import { Group } from './Group';
 
 export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
@@ -16,16 +18,27 @@ export default class LegacyMyWellDatasource implements Datasource {
    * As villages don't have 
    * 
    */
-  public getGroupData() {
+  public getGroupData(): Promise<Array<Group>> {
     const uriVillage = `${this.baseUrl}/villages`;
 
-    //Get villages using simple get request
-    //convert villages into groups
-    //return groups
+    const options = {
+      method: 'GET',
+      uri: uriVillage,
+      json: true,
+    };
+
+    return request(options)
+    .then(villages => {
+      console.log("villages", villages);
+
+      //TODO: convert into groups in bulk
+
+      return [];
+    });
+
+   
 
     //TODO: I'm not sure how we will get pincodes. Perhaps they need to be manual for now
-
-    return [];
   }
 
 

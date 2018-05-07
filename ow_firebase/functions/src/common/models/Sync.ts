@@ -46,6 +46,7 @@ export class Sync {
 
   public serialize(): any {
     return {
+      id: this.id,
       isOneTime: this.isOneTime,
       datasource: this.datasource.serialize(),
       orgId: this.orgId,

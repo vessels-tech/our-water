@@ -37,6 +37,7 @@ class Sync {
     }
     serialize() {
         return {
+            id: this.id,
             isOneTime: this.isOneTime,
             datasource: this.datasource.serialize(),
             orgId: this.orgId,

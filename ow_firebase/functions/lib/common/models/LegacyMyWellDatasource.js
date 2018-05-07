@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const DatasourceType_1 = require("../enums/DatasourceType");
+const request = require("request-promise-native");
 class LegacyMyWellDatasource {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
@@ -22,11 +23,18 @@ class LegacyMyWellDatasource {
      */
     getGroupData() {
         const uriVillage = `${this.baseUrl}/villages`;
-        //Get villages using simple get request
-        //convert villages into groups
-        //return groups
+        const options = {
+            method: 'GET',
+            uri: uriVillage,
+            json: true,
+        };
+        return request(options)
+            .then(villages => {
+            console.log("villages", villages);
+            //TODO: convert into groups in bulk
+            return [];
+        });
         //TODO: I'm not sure how we will get pincodes. Perhaps they need to be manual for now
-        return [];
     }
     /**
      * get all resources from MyWell
