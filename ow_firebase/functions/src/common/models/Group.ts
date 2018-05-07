@@ -28,7 +28,7 @@ export class Group {
 
   public save({ fs }): Promise<Group> {
     this.updatedAt = new Date();
-
+    
     return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
       .set(this.serialize())
       .then(ref => {

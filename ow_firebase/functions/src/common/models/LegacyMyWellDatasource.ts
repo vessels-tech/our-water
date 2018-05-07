@@ -3,9 +3,10 @@ import { DatasourceType } from '../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from './Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
+import * as moment from 'moment';
 
 import { createDiamondFromLatLng } from '../utils';
-import { lang } from 'moment';
+import { lang, isMoment } from 'moment';
 import LegacyVillage from '../types/LegacyVillage';
 import { GroupType } from '../enums/GroupType';
 import LegacyResource from '../types/LegacyResource';
@@ -99,8 +100,11 @@ export default class LegacyMyWellDatasource implements Datasource {
     .then((villages: Array<LegacyVillage>) => {
       //group the villages by id
       villages.forEach(v => {
-        const groupList = pincodeIds[v.postcode] || [];
-        groupList.append(v);
+        let groupList = pincodeIds[v.postcode];
+        if (!groupList) {
+          groupList = [];
+        }
+        groupList.push(v);
         pincodeIds[v.postcode] = groupList;
       });
 
@@ -117,8 +121,11 @@ export default class LegacyMyWellDatasource implements Datasource {
       let savedGroups = [];
       pincodeGroups.forEach(group => {
         return group.create({fs})
-        .then(savedGroup => savedGroups.push(savedGroup))
-        .catch(err => errors.push(err));
+          .then(savedGroup => savedGroups.push(savedGroup))
+          .catch(err => {
+            console.log("err", err);
+            errors.push(err)}
+          );
       });
 
       return pincodeGroups;
@@ -142,7 +149,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       json: true,
     };
 
-    let resources: Array<Resource> = null;
+    let resources: Array<Resource> = [];
 
     return request(options)
     .then((legacyRes: Array<LegacyResource>) => {
@@ -160,7 +167,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       let savedResources: Array<Resource> = [];
       resources.forEach(res => {
         return res.create({ fs })
-          .then(savedRes => savedResources.push(savedRes))
+          .then((savedRes: Resource) => savedResources.push(savedRes))
           .catch(err => errors.push(err));
       });
 
@@ -188,19 +195,18 @@ export default class LegacyMyWellDatasource implements Datasource {
 
     let readings: Array<Reading> = null;
 
+    //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
+    //This will enable us to easily map
+    //We also need to have the groups first
+
     return request(options)
       .then((legacyReadings: Array<LegacyReading>) => {
         legacyReadings.forEach(r => {
-          //TODO: convert legacy reading to new reading
+          //TODO: add missing fields
 
-          // const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
-          // const coords = new GeoPoint(r.geo.lat, r.geo.lng);
-          // const resourceType = resourceTypeFromString(r.type);
-          // const owner: ResourceOwnerType = { name: r.owner, createdByUserId: 'default' };
-
-          // const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner);
-
-          //TODO: we need to get the new readings to point to the new resourceIds
+          // const resourceType = resourceTypeFromString(r);
+          const newReading: Reading = new Reading(orgId, null, null, null, null, moment(r.createdAt).toDate(), r.value);
+          newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
           readings.push(newReading);
         });
 
@@ -208,7 +214,7 @@ export default class LegacyMyWellDatasource implements Datasource {
         let savedReadings: Array<Reading> = [];
         readings.forEach(res => {
           return res.create({ fs })
-            .then(savedRes => savedReadings.push(savedRes))
+            .then((savedRes: Reading) => savedReadings.push(savedRes))
             .catch(err => errors.push(err));
         });
 
@@ -218,15 +224,15 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pullDataFromDataSource(orgId: string, fs) {
-    const villageGroups = await this.getGroupData(orgId, fs);
-    const pincodeGroups = await this.getPincodeData(orgId, fs)
+    // const villageGroups = await this.getGroupData(orgId, fs);
+    // const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
-    const readings = await this.getReadingsData(orgId, fs);
+    // const readings = await this.getReadingsData(orgId, fs);
 
     return {
-      groups: villageGroups + pincodeGroups,
+      // groups: [],
       resources,
-      readings
+      // readings
     };
   }
 

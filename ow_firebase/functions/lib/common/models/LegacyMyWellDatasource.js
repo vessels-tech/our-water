@@ -12,11 +12,13 @@ const DatasourceType_1 = require("../enums/DatasourceType");
 const request = require("request-promise-native");
 const Group_1 = require("./Group");
 const firestore_1 = require("@google-cloud/firestore");
+const moment = require("moment");
 const utils_1 = require("../utils");
 const GroupType_1 = require("../enums/GroupType");
 const Resource_1 = require("./Resource");
 const ResourceIdType_1 = require("../types/ResourceIdType");
 const ResourceType_1 = require("../enums/ResourceType");
+const Reading_1 = require("./Reading");
 class LegacyMyWellDatasource {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
@@ -79,8 +81,11 @@ class LegacyMyWellDatasource {
             .then((villages) => {
             //group the villages by id
             villages.forEach(v => {
-                const groupList = pincodeIds[v.postcode] || [];
-                groupList.append(v);
+                let groupList = pincodeIds[v.postcode];
+                if (!groupList) {
+                    groupList = [];
+                }
+                groupList.push(v);
                 pincodeIds[v.postcode] = groupList;
             });
             //Now go through each pincode group, and create a single group
@@ -95,7 +100,10 @@ class LegacyMyWellDatasource {
             pincodeGroups.forEach(group => {
                 return group.create({ fs })
                     .then(savedGroup => savedGroups.push(savedGroup))
-                    .catch(err => errors.push(err));
+                    .catch(err => {
+                    console.log("err", err);
+                    errors.push(err);
+                });
             });
             return pincodeGroups;
         });
@@ -114,7 +122,7 @@ class LegacyMyWellDatasource {
             uri: uriResources,
             json: true,
         };
-        let resources = null;
+        let resources = [];
         return request(options)
             .then((legacyRes) => {
             legacyRes.forEach(r => {
@@ -129,7 +137,7 @@ class LegacyMyWellDatasource {
             let savedResources = [];
             resources.forEach(res => {
                 return res.create({ fs })
-                    .then(savedRes => savedResources.push(savedRes))
+                    .then((savedRes) => savedResources.push(savedRes))
                     .catch(err => errors.push(err));
             });
             return savedResources;
@@ -151,23 +159,23 @@ class LegacyMyWellDatasource {
             json: true,
         };
         let readings = null;
+        //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
+        //This will enable us to easily map
+        //We also need to have the groups first
         return request(options)
             .then((legacyReadings) => {
             legacyReadings.forEach(r => {
-                //TODO: convert legacy reading to new reading
-                // const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
-                // const coords = new GeoPoint(r.geo.lat, r.geo.lng);
-                // const resourceType = resourceTypeFromString(r.type);
-                // const owner: ResourceOwnerType = { name: r.owner, createdByUserId: 'default' };
-                // const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner);
-                //TODO: we need to get the new readings to point to the new resourceIds
+                //TODO: add missing fields
+                // const resourceType = resourceTypeFromString(r);
+                const newReading = new Reading_1.Reading(orgId, null, null, null, null, moment(r.createdAt).toDate(), r.value);
+                newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });
             let errors = [];
             let savedReadings = [];
             readings.forEach(res => {
                 return res.create({ fs })
-                    .then(savedRes => savedReadings.push(savedRes))
+                    .then((savedRes) => savedReadings.push(savedRes))
                     .catch(err => errors.push(err));
             });
             return savedReadings;
@@ -175,14 +183,13 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
-            const villageGroups = yield this.getGroupData(orgId, fs);
-            const pincodeGroups = yield this.getPincodeData(orgId, fs);
+            // const villageGroups = await this.getGroupData(orgId, fs);
+            // const pincodeGroups = await this.getPincodeData(orgId, fs)
             const resources = yield this.getResourcesData(orgId, fs);
-            const readings = yield this.getReadingsData(orgId, fs);
+            // const readings = await this.getReadingsData(orgId, fs);
             return {
-                groups: villageGroups + pincodeGroups,
+                // groups: [],
                 resources,
-                readings
             };
         });
     }

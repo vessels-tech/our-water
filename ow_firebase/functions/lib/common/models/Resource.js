@@ -5,6 +5,8 @@ class Resource extends FirestoreDoc_1.default {
     constructor(orgId, externalIds, coords, resourceType, owner) {
         super();
         this.docName = 'resource';
+        this.lastValue = 0;
+        this.lastReadingDatetime = new Date(0);
         this.orgId = orgId;
         this.externalIds = externalIds;
         this.coords = coords;
