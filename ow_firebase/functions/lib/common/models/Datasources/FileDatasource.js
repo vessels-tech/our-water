@@ -1,12 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const LegacyMyWellDatasource_1 = require("./LegacyMyWellDatasource");
-const DatasourceType_1 = require("../enums/DatasourceType");
-exports.deserializeDatasource = (ser) => {
-    //TODO: this is kinda crappy
-    //Deserialize based on type somehow
-    return new LegacyMyWellDatasource_1.default(ser.baseUrl);
-};
+const DatasourceType_1 = require("../../enums/DatasourceType");
 /**
  * Defines a datasource which parses information from a file
  * for now, we will implement readings only, but eventually
@@ -43,4 +37,4 @@ class FileDatasource {
     }
 }
 exports.FileDatasource = FileDatasource;
-//# sourceMappingURL=Datasource.js.map
+//# sourceMappingURL=FileDatasource.js.map

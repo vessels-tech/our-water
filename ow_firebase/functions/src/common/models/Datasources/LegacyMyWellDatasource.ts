@@ -1,22 +1,22 @@
-import Datasource, {ApiDatasource} from './Datasource';
-import { DatasourceType } from '../enums/DatasourceType';
+import Datasource from './Datasource';
+import { DatasourceType } from '../../enums/DatasourceType';
 import * as request from 'request-promise-native';
-import { Group } from './Group';
+import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng } from '../utils';
+import { createDiamondFromLatLng } from '../../utils';
 import { lang, isMoment } from 'moment';
-import LegacyVillage from '../types/LegacyVillage';
-import { GroupType } from '../enums/GroupType';
-import LegacyResource from '../types/LegacyResource';
-import { resource } from '../..';
-import { Resource } from './Resource';
-import ResourceIdType from '../types/ResourceIdType';
-import { ResourceType, resourceTypeFromString } from '../enums/ResourceType';
-import ResourceOwnerType from '../types/ResourceOwnerType';
-import { Reading } from './Reading';
-import LegacyReading from '../types/LegacyReading';
+import LegacyVillage from '../../types/LegacyVillage';
+import { GroupType } from '../../enums/GroupType';
+import LegacyResource from '../../types/LegacyResource';
+import { Resource } from '../Resource';
+import ResourceIdType from '../../types/ResourceIdType';
+import { ResourceType, resourceTypeFromString } from '../../enums/ResourceType';
+import ResourceOwnerType from '../../types/ResourceOwnerType';
+import { Reading } from '../Reading';
+import LegacyReading from '../../types/LegacyReading';
+import SyncRunResult from '../../types/SyncRunResult';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -230,24 +230,27 @@ export default class LegacyMyWellDatasource implements Datasource {
 
   }
 
-  public async pullDataFromDataSource(orgId: string, fs) {
+  public async pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
+    //TODO: restructure to return errors, warnings and results
     const villageGroups = await this.getGroupData(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
     const readings = await this.getReadingsData(orgId, fs);
 
-    return {
-      villageGroups,
-      pincodeGroups,
-      resources,
-      readings
-    };
+    // return {
+    //   villageGroups,
+    //   pincodeGroups,
+    //   resources,
+    //   readings
+    // };
+
+    return null;
   }
 
-  public pushDataToDataSource() {
+  public pushDataToDataSource(): Promise<SyncRunResult> {
     console.log("Implementation not required. MyWell Data source is readonly for now.");
 
-    return true;
+    return null
   }
 
   serialize() {

@@ -8,17 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const DatasourceType_1 = require("../enums/DatasourceType");
+const DatasourceType_1 = require("../../enums/DatasourceType");
 const request = require("request-promise-native");
-const Group_1 = require("./Group");
+const Group_1 = require("../Group");
 const firestore_1 = require("@google-cloud/firestore");
 const moment = require("moment");
-const utils_1 = require("../utils");
-const GroupType_1 = require("../enums/GroupType");
-const Resource_1 = require("./Resource");
-const ResourceIdType_1 = require("../types/ResourceIdType");
-const ResourceType_1 = require("../enums/ResourceType");
-const Reading_1 = require("./Reading");
+const utils_1 = require("../../utils");
+const GroupType_1 = require("../../enums/GroupType");
+const Resource_1 = require("../Resource");
+const ResourceIdType_1 = require("../../types/ResourceIdType");
+const ResourceType_1 = require("../../enums/ResourceType");
+const Reading_1 = require("../Reading");
 class LegacyMyWellDatasource {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
