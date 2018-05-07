@@ -23,6 +23,7 @@ describe('SyncAPI', function () {
 
   //Objects to clean up later
   let syncIds = [];
+  let syncRunIds = [];
 
   it('should create a new Sync', () => {
 
@@ -71,18 +72,25 @@ describe('SyncAPI', function () {
       };
       
       return request(options);
+    })
+    .then(response => {
+      syncRunIds.push(response.syncRunId);
     });
   });
 
 
-  it('should run the SyncRun');
 
   //Cleanup all created resources
   after(function() {
-    console.log(`cleaning up ${syncIds.length} syncs`);
-
+    console.log(`     cleaning up ${syncIds.length} syncs`);
     syncIds.forEach(syncId => {
       return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
+        .delete();
+    });
+
+    console.log(`     cleaning up ${syncRunIds.length} syncRuns`);
+    syncRunIds.forEach(syncRunId => {
+      return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
         .delete();
     });
   

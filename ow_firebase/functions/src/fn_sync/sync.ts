@@ -12,7 +12,7 @@ const fb = require('firebase-admin')
 import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
 import { Sync } from '../common/models/Sync';
 import { SyncRun } from '../common/models/SyncRun';
-import { LegacyMyWellDatasource } from '../common/models/Datasource';
+import LegacyMyWellDatasource from '../common/models/LegacyMyWellDatasource';
 import { METHODS } from 'http';
 
 module.exports = (functions, admin) => {
@@ -66,12 +66,9 @@ module.exports = (functions, admin) => {
     //TODO: init based on type
     const ds = new LegacyMyWellDatasource(datasource.url);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], selectedDatatypes);
-
-    console.log(ds, sync);
-
+    
     return sync.create({fs})
     .then((createdSync: Sync) => {
-      console.log("created sync: ", createdSync);
       return res.json({syncId: createdSync.id});
     })
     .catch(err => {

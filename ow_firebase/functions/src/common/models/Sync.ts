@@ -1,5 +1,5 @@
 
-import { Datasource } from './Datasource';
+import Datasource, { deserializeDatasource } from './Datasource';
 import { SyncMethod } from '../enums/SyncMethod';
 
 export class Sync {
@@ -9,8 +9,9 @@ export class Sync {
   datasource: Datasource
   orgId: string
   methods: Array<SyncMethod>
-  lastSyncDate: number = 0 //unix timestamp 
   selectedDatatypes: Array<string>
+
+  lastSyncDate: number = 0 //unix timestamp 
 
   constructor(isOneTime: boolean, datasource: Datasource, orgId: string,
     methods: Array<SyncMethod>, selectedDatatypes: Array<string>
@@ -23,6 +24,7 @@ export class Sync {
   }
 
   /**
+  * //TODO: use the create and save from SyncRun
   * Create a new Sync in FireStore
   */
   public create({ fs }) {
@@ -56,11 +58,22 @@ export class Sync {
    */
   public static deserialize(sn) {
     const id = sn.id;
-    const syncData = sn.data();
+    const {
+      isOneTime,
+      datasource,
+      orgId,
+      methods,
+      lastSyncDate,
+      selectedDatatypes,
+    } = sn.data();
+    
+    const syncMethods: Array<SyncMethod> = []; //TODO deserialize somehow
+    const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);
 
-    //TODO: format
-    console.log('deserialize Sync', id, syncData);
-    return {id, ...syncData};
+    //private vars
+    des.lastSyncDate = lastSyncDate;
+
+    return des;
   }
 
   /**
@@ -69,7 +82,7 @@ export class Sync {
    * Gets the sync from the organization and sync id
    */
   static async getSync({orgId, id, fs}) {
-    return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+    return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
       .then(sn => Sync.deserialize(sn));
   }
 }

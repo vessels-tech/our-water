@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Datasource_1 = require("./Datasource");
 class Sync {
     constructor(isOneTime, datasource, orgId, methods, selectedDatatypes) {
         this.lastSyncDate = 0; //unix timestamp 
@@ -18,6 +19,7 @@ class Sync {
         this.selectedDatatypes = selectedDatatypes;
     }
     /**
+    * //TODO: use the create and save from SyncRun
     * Create a new Sync in FireStore
     */
     create({ fs }) {
@@ -46,10 +48,12 @@ class Sync {
      */
     static deserialize(sn) {
         const id = sn.id;
-        const syncData = sn.data();
-        //TODO: format
-        console.log('deserialize Sync', id, syncData);
-        return Object.assign({ id }, syncData);
+        const { isOneTime, datasource, orgId, methods, lastSyncDate, selectedDatatypes, } = sn.data();
+        const syncMethods = []; //TODO deserialize somehow
+        const des = new Sync(isOneTime, Datasource_1.deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);
+        //private vars
+        des.lastSyncDate = lastSyncDate;
+        return des;
     }
     /**
      * getSync
@@ -58,7 +62,7 @@ class Sync {
      */
     static getSync({ orgId, id, fs }) {
         return __awaiter(this, void 0, void 0, function* () {
-            return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+            return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
                 .then(sn => Sync.deserialize(sn));
         });
     }

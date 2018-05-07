@@ -30,6 +30,7 @@ export class SyncRun {
   finishedAt: number = 0 //unix timestamp
   status: SyncRunStatus = SyncRunStatus.pending
   results: Array<string> = []
+  warnings: Array<string> = []
   errors: Array<string> = []
 
 
@@ -55,6 +56,8 @@ export class SyncRun {
     this.startedAt = moment().unix();
     this.status = SyncRunStatus.running;
     const sync: Sync = await Sync.getSync({orgId: this.orgId, id: this.syncId, fs });
+
+    console.log("running sync:", sync);
 
     if (!sync) {
       this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
@@ -120,7 +123,6 @@ export class SyncRun {
     //But I think that we need to keep track of separate dates depending on the
     //method used. We will leave that for later.
 
-
     if (this.errors.length > 0) {
       return this.abortSync;
     }
@@ -129,6 +131,8 @@ export class SyncRun {
   }
 
   private async abortSync({fs}) {
+    console.warn("aborting sync with errors:", this.errors);
+
     this.status = SyncRunStatus.failed;
     this.finishedAt = moment().unix();
 
@@ -136,6 +140,7 @@ export class SyncRun {
   }
 
   private async finishSync({fs}) {
+    console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
     this.finishedAt = moment().unix();
 
@@ -171,6 +176,7 @@ export class SyncRun {
       finishedAt: new Date(this.finishedAt),
       status: this.status.toString(),
       results: this.results,
+      warnings: this.warnings,
       errors: this.errors,
     };
   }

@@ -32,6 +32,7 @@ class SyncRun {
         this.finishedAt = 0; //unix timestamp
         this.status = SyncRunStatus_1.SyncRunStatus.pending;
         this.results = [];
+        this.warnings = [];
         this.errors = [];
         this.orgId = orgId;
         this.syncId = syncId;
@@ -50,6 +51,7 @@ class SyncRun {
             this.startedAt = moment().unix();
             this.status = SyncRunStatus_1.SyncRunStatus.running;
             const sync = yield Sync_1.Sync.getSync({ orgId: this.orgId, id: this.syncId, fs });
+            console.log("running sync:", sync);
             if (!sync) {
                 this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
                 return this.abortSync({ fs });
@@ -115,6 +117,7 @@ class SyncRun {
     }
     abortSync({ fs }) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.warn("aborting sync with errors:", this.errors);
             this.status = SyncRunStatus_1.SyncRunStatus.failed;
             this.finishedAt = moment().unix();
             return this.save({ fs });
@@ -122,6 +125,7 @@ class SyncRun {
     }
     finishSync({ fs }) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
             this.finishedAt = moment().unix();
             return this.save({ fs });
@@ -153,6 +157,7 @@ class SyncRun {
             finishedAt: new Date(this.finishedAt),
             status: this.status.toString(),
             results: this.results,
+            warnings: this.warnings,
             errors: this.errors,
         };
     }

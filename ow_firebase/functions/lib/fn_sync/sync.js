@@ -9,7 +9,7 @@ const fb = require('firebase-admin');
 const SyncMethod_1 = require("../common/enums/SyncMethod");
 const Sync_1 = require("../common/models/Sync");
 const SyncRun_1 = require("../common/models/SyncRun");
-const Datasource_1 = require("../common/models/Datasource");
+const LegacyMyWellDatasource_1 = require("../common/models/LegacyMyWellDatasource");
 module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());
@@ -51,12 +51,10 @@ module.exports = (functions, admin) => {
         const { orgId } = req.params;
         const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
         //TODO: init based on type
-        const ds = new Datasource_1.LegacyMyWellDatasource(datasource.url);
+        const ds = new LegacyMyWellDatasource_1.default(datasource.url);
         const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate], selectedDatatypes);
-        console.log(ds, sync);
         return sync.create({ fs })
             .then((createdSync) => {
-            console.log("created sync: ", createdSync);
             return res.json({ syncId: createdSync.id });
         })
             .catch(err => {
