@@ -2,12 +2,15 @@ import Datasource, {ApiDatasource} from './Datasource';
 import { DatasourceType } from '../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from './Group';
-import { GeoPoint } from '@google-cloud/firestore';
+import { GeoPoint, Firestore } from '@google-cloud/firestore';
 
 import { createDiamondFromLatLng } from '../utils';
 import { lang } from 'moment';
 import LegacyVillage from '../types/LegacyVillage';
 import { GroupType } from '../enums/GroupType';
+import { Resource } from 'firebase-functions';
+import LegacyResource from '../types/LegacyResource';
+import { resource } from '../..';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -70,6 +73,53 @@ export default class LegacyMyWellDatasource implements Datasource {
 
   }
 
+  /**
+   * Create groups based on inferred pincode data
+   * 
+   */  
+  public getPincodeData(orgId: string, fs: Firestore): Promise<Array<Group>> {
+    //Get all villages, and for each village within a pincode, create a bounding box based on the center
+    const uriVillage = `${this.baseUrl}/api/villages`;
+
+    const options = {
+      method: 'GET',
+      uri: uriVillage,
+      json: true,
+    };
+
+    let pincodeGroups: Array<Group> = null;
+    const pincodeIds = {};
+
+    return request(options)
+    .then((villages: Array<LegacyVillage>) => {
+      //group the villages by id
+      villages.forEach(v => {
+        const groupList = pincodeIds[v.postcode] || [];
+        groupList.append(v);
+        pincodeIds[v.postcode] = groupList;
+      });
+
+      //Now go through each pincode group, and create a single group
+      pincodeGroups = Object.keys(pincodeIds).map(pincode => {
+        const villages: Array<LegacyVillage> = pincodeIds[pincode];
+        //TODO: the only issue with this approach is that the coordinates aren't in order.
+        const coords = villages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
+
+        return new Group(pincode, orgId, GroupType.Pincode, coords);
+      });
+
+      let errors = [];
+      let savedGroups = [];
+      pincodeGroups.forEach(group => {
+        return group.create({fs})
+        .then(savedGroup => savedGroups.push(savedGroup))
+        .catch(err => errors.push(err));
+      });
+
+      return pincodeGroups;
+    });    
+  }
+
 
   /**
    * get all resources from MyWell
@@ -79,7 +129,23 @@ export default class LegacyMyWellDatasource implements Datasource {
    * return
    */
   public getResourcesData() {
-    const uriResources = `${this.baseUrl}/resources`;
+    const uriResources = `${this.baseUrl}/api/resources`;
+
+    const options = {
+      method: 'GET',
+      uri: uriResources,
+      json: true,
+    };
+
+    let resources: Array<Resource> = null;
+
+    return request(options)
+    .then((resources: Array<LegacyResource>) => {
+      resources.forEach(r => {
+        const newResource: Resource = new Resource
+      })
+    })
+
 
     //GET resources
     //convert legacy MyWell resources into OW resources

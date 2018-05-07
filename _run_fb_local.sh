@@ -13,4 +13,5 @@ export NVM_DIR="$HOME/.nvm"
 node --version
 cd "$DIR"/ow_firebase/functions/
 export NODE_ENV=local
+yarn watch &
 firebase serve --only functions

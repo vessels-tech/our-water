@@ -1,0 +1,1 @@
+//# sourceMappingURL=LegactResource.js.map
