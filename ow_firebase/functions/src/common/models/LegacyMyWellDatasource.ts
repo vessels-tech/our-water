@@ -8,9 +8,14 @@ import { createDiamondFromLatLng } from '../utils';
 import { lang } from 'moment';
 import LegacyVillage from '../types/LegacyVillage';
 import { GroupType } from '../enums/GroupType';
-import { Resource } from 'firebase-functions';
 import LegacyResource from '../types/LegacyResource';
 import { resource } from '../..';
+import { Resource } from './Resource';
+import ResourceIdType from '../types/ResourceIdType';
+import { ResourceType, resourceTypeFromString } from '../enums/ResourceType';
+import ResourceOwnerType from '../types/ResourceOwnerType';
+import { Reading } from './Reading';
+import LegacyReading from '../types/LegacyReading';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -128,7 +133,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * convert legacy MyWell resources into OW resources
    * return
    */
-  public getResourcesData() {
+  public getResourcesData(orgId: string, fs: Firestore): Promise<Array<Resource>> {
     const uriResources = `${this.baseUrl}/api/resources`;
 
     const options = {
@@ -140,42 +145,86 @@ export default class LegacyMyWellDatasource implements Datasource {
     let resources: Array<Resource> = null;
 
     return request(options)
-    .then((resources: Array<LegacyResource>) => {
-      resources.forEach(r => {
-        const newResource: Resource = new Resource
-      })
-    })
+    .then((legacyRes: Array<LegacyResource>) => {
+      legacyRes.forEach(r => {
+        const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
+        const coords = new GeoPoint(r.geo.lat, r.geo.lng);
+        const resourceType = resourceTypeFromString(r.type);
+        const owner: ResourceOwnerType = {name: r.owner, createdByUserId: 'default'};
 
+        const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner);
+        resources.push(newResource);
+      });
 
-    //GET resources
-    //convert legacy MyWell resources into OW resources
-    //define new group relationships somehow (this will be tricky)
-    //return
+      let errors = [];
+      let savedResources: Array<Resource> = [];
+      resources.forEach(res => {
+        return res.create({ fs })
+          .then(savedRes => savedResources.push(savedRes))
+          .catch(err => errors.push(err));
+      });
 
-    return [];
+      return savedResources;
+    });
+
+    //TODO: define new group relationships somehow (this will be tricky - I've had too much wine)
   }
 
   /**
    * Get all readings from MyWell
    * 
-   * This also doesn't require pagination
+   * This also doesn't require pagination, but is expensive.
+   * Perhaps we should test with just a small number of readings for now
    * 
    */
-  public getReadingsData() {
+  public getReadingsData(orgId: string, fs: Firestore) {
+    const uriReadings = `${this.baseUrl}/api/resources`; //TODO: add filter
 
-    //GET readings
-    //convert legacy MyWell Readings to OW readings
-    //return
-    return [];
+    const options = {
+      method: 'GET',
+      uri: uriReadings,
+      json: true,
+    };
+
+    let readings: Array<Reading> = null;
+
+    return request(options)
+      .then((legacyReadings: Array<LegacyReading>) => {
+        legacyReadings.forEach(r => {
+          //TODO: convert legacy reading to new reading
+
+          // const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
+          // const coords = new GeoPoint(r.geo.lat, r.geo.lng);
+          // const resourceType = resourceTypeFromString(r.type);
+          // const owner: ResourceOwnerType = { name: r.owner, createdByUserId: 'default' };
+
+          // const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner);
+
+          //TODO: we need to get the new readings to point to the new resourceIds
+          readings.push(newReading);
+        });
+
+        let errors = [];
+        let savedReadings: Array<Reading> = [];
+        readings.forEach(res => {
+          return res.create({ fs })
+            .then(savedRes => savedReadings.push(savedRes))
+            .catch(err => errors.push(err));
+        });
+
+        return savedReadings;
+      });
+
   }
 
   public async pullDataFromDataSource(orgId: string, fs) {
-    const groups = await this.getGroupData(orgId, fs);
-    const resources = await this.getResourcesData();
-    const readings = await this.getReadingsData();
+    const villageGroups = await this.getGroupData(orgId, fs);
+    const pincodeGroups = await this.getPincodeData(orgId, fs)
+    const resources = await this.getResourcesData(orgId, fs);
+    const readings = await this.getReadingsData(orgId, fs);
 
     return {
-      groups,
+      groups: villageGroups + pincodeGroups,
       resources,
       readings
     };
