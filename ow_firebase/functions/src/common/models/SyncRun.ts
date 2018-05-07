@@ -53,7 +53,8 @@ export class SyncRun {
       throw new Error(`SyncRun can only be run when in a pending state. Found state: ${this.status}`);
     }
 
-    this.startedAt = moment().unix();
+    this.startedAt = moment().valueOf();
+    console.log("startedAt", this.startedAt);
     this.status = SyncRunStatus.running;
     const sync: Sync = await Sync.getSync({orgId: this.orgId, id: this.syncId, fs });
 
@@ -72,12 +73,12 @@ export class SyncRun {
       //call the datasource methods, but don't commit anything to the database
       case SyncMethod.validate:
         try {
-          const result = await sync.datasource.pullDataFromDataSource();
+          const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
           this.results.push(result);
 
         } catch (error) {
-          console.log('error', error);
-          this.errors.push(error);
+          console.log('error', error.message);
+          this.errors.push(error.message);
         }
 
         try {
@@ -85,8 +86,8 @@ export class SyncRun {
           this.results.push(result);
 
         } catch (error) {
-          console.log('error', error);
-          this.errors.push(error);
+          console.log('error', error.message);
+          this.errors.push(error.message);
         }
       break;
 
@@ -94,12 +95,12 @@ export class SyncRun {
       case SyncMethod.pullFrom:
         try {
           //TODO: first get some data to push...
-          const result = await sync.datasource.pullDataFromDataSource();
+          const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
           //TODO: do something with this result
           this.results.push(result);
         } catch (error) {
-          console.log('error', error);
-          this.errors.push(error);
+          console.log('error', error.message);
+          this.errors.push(error.message);
         }
       break;
 
@@ -110,8 +111,8 @@ export class SyncRun {
           const result = await sync.datasource.pushDataToDataSource();
           this.results.push(result);
         } catch (error) {
-          console.log('error', error);
-          this.errors.push(error);
+          console.log('error', error.message);
+          this.errors.push(error.message);
         }
       break;
 
@@ -134,7 +135,7 @@ export class SyncRun {
     console.warn("aborting sync with errors:", this.errors);
 
     this.status = SyncRunStatus.failed;
-    this.finishedAt = moment().unix();
+    this.finishedAt = moment().valueOf();
 
     return this.save({fs});
   }
@@ -142,7 +143,7 @@ export class SyncRun {
   private async finishSync({ fs }): Promise<SyncRun> {
     console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
-    this.finishedAt = moment().unix();
+    this.finishedAt = moment().valueOf();
 
     return this.save({fs});
   }
@@ -176,8 +177,8 @@ export class SyncRun {
       syncId: this.syncId,
       syncMethod: this.syncMethod.toString(),
       subscribers: this.subscribers,
-      startedAt: new Date(this.startedAt),
-      finishedAt: new Date(this.finishedAt),
+      startedAt: moment(this.startedAt).toDate(),
+      finishedAt: moment(this.finishedAt).toDate(),
       status: this.status.toString(),
       results: this.results,
       warnings: this.warnings,

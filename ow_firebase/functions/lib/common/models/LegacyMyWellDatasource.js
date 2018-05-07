@@ -10,6 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const DatasourceType_1 = require("../enums/DatasourceType");
 const request = require("request-promise-native");
+const Group_1 = require("./Group");
+const utils_1 = require("../utils");
+const GroupType_1 = require("../enums/GroupType");
 class LegacyMyWellDatasource {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
@@ -21,20 +24,36 @@ class LegacyMyWellDatasource {
      * As villages don't have
      *
      */
-    getGroupData() {
-        const uriVillage = `${this.baseUrl}/villages`;
+    getGroupData(orgId, fs) {
+        // https://mywell-server.vessels.tech/api/villages
+        const uriVillage = `${this.baseUrl}/api/villages`;
         const options = {
             method: 'GET',
             uri: uriVillage,
             json: true,
         };
         return request(options)
-            .then(villages => {
-            console.log("villages", villages);
-            //TODO: convert into groups in bulk
-            return [];
+            .then((villages) => {
+            //TODO: save using bulk method
+            const newGroups = villages.map(village => {
+                const coords = utils_1.createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
+                return new Group_1.Group(village.name, orgId, GroupType_1.GroupType.Village, coords);
+            });
+            const errors = [];
+            const savedGroups = [];
+            newGroups.forEach(group => {
+                return group.create({ fs })
+                    .then(savedGroup => {
+                    savedGroups.push(savedGroup);
+                })
+                    .catch(err => {
+                    console.log('error saving new group', err);
+                    errors.push(err);
+                });
+            });
+            return savedGroups;
         });
-        //TODO: I'm not sure how we will get pincodes. Perhaps they need to be manual for now
+        //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
     }
     /**
      * get all resources from MyWell
@@ -63,9 +82,9 @@ class LegacyMyWellDatasource {
         //return
         return [];
     }
-    pullDataFromDataSource() {
+    pullDataFromDataSource(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
-            const groups = yield this.getGroupData();
+            const groups = yield this.getGroupData(orgId, fs);
             const resources = yield this.getResourcesData();
             const readings = yield this.getReadingsData();
             return {

@@ -10,9 +10,11 @@ class Group {
     create({ fs }) {
         const newRef = fs.collection('org').doc(this.orgId).collection('group').doc();
         this.id = newRef.id;
+        this.createdAt = new Date();
         return this.save({ fs });
     }
     save({ fs }) {
+        this.updatedAt = new Date();
         return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
             .set(this.serialize())
             .then(ref => {
@@ -27,6 +29,8 @@ class Group {
             name: this.name,
             type: this.type,
             coords: this.coords,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
         };
     }
 }

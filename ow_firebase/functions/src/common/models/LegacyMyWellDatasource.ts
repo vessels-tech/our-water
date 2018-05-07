@@ -2,6 +2,13 @@ import Datasource, {ApiDatasource} from './Datasource';
 import { DatasourceType } from '../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from './Group';
+import { GeoPoint } from '@google-cloud/firestore';
+
+import { createDiamondFromLatLng } from '../utils';
+import { lang } from 'moment';
+import LegacyVillage from '../types/LegacyVillage';
+import { GroupType } from '../enums/GroupType';
+
 
 export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
@@ -12,14 +19,17 @@ export default class LegacyMyWellDatasource implements Datasource {
     this.type = DatasourceType.LegacyMyWellDatasource;
   }
 
+ 
+
   /**
    * Iterates through pincodes and villages from MyWell datasource
    * 
    * As villages don't have 
    * 
    */
-  public getGroupData(): Promise<Array<Group>> {
-    const uriVillage = `${this.baseUrl}/villages`;
+  public getGroupData(orgId: string, fs): Promise<Array<Group>> {
+    // https://mywell-server.vessels.tech/api/villages
+    const uriVillage = `${this.baseUrl}/api/villages`;
 
     const options = {
       method: 'GET',
@@ -28,17 +38,34 @@ export default class LegacyMyWellDatasource implements Datasource {
     };
 
     return request(options)
-    .then(villages => {
-      console.log("villages", villages);
+    .then((villages: Array<LegacyVillage>) => {
+      //TODO: save using bulk method
+      const newGroups = villages.map(village => {
+        const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
+        
+        return new Group(village.name, orgId, GroupType.Village, coords);
+      });
 
-      //TODO: convert into groups in bulk
+      const errors = [];
+      const savedGroups = [];
+      newGroups.forEach(group => {
+        return group.create({ fs })
+          .then(savedGroup => {
+            savedGroups.push(savedGroup);
+          })
+          .catch(err => {
+            console.log('error saving new group', err);
+            errors.push(err);
+          });
 
-      return [];
+      })
+
+      return savedGroups;
     });
 
    
+    //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
 
-    //TODO: I'm not sure how we will get pincodes. Perhaps they need to be manual for now
   }
 
 
@@ -74,8 +101,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     return [];
   }
 
-  public async pullDataFromDataSource() {
-    const groups = await this.getGroupData();
+  public async pullDataFromDataSource(orgId: string, fs) {
+    const groups = await this.getGroupData(orgId, fs);
     const resources = await this.getResourcesData();
     const readings = await this.getReadingsData();
 

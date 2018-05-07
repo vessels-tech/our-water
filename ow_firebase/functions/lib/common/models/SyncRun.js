@@ -48,7 +48,8 @@ class SyncRun {
             if (this.status !== SyncRunStatus_1.SyncRunStatus.pending) {
                 throw new Error(`SyncRun can only be run when in a pending state. Found state: ${this.status}`);
             }
-            this.startedAt = moment().unix();
+            this.startedAt = moment().valueOf();
+            console.log("startedAt", this.startedAt);
             this.status = SyncRunStatus_1.SyncRunStatus.running;
             const sync = yield Sync_1.Sync.getSync({ orgId: this.orgId, id: this.syncId, fs });
             console.log("running sync:", sync);
@@ -62,33 +63,33 @@ class SyncRun {
                 //call the datasource methods, but don't commit anything to the database
                 case SyncMethod_1.SyncMethod.validate:
                     try {
-                        const result = yield sync.datasource.pullDataFromDataSource();
+                        const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
                         this.results.push(result);
                     }
                     catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error);
+                        console.log('error', error.message);
+                        this.errors.push(error.message);
                     }
                     try {
                         const result = yield sync.datasource.pushDataToDataSource();
                         this.results.push(result);
                     }
                     catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error);
+                        console.log('error', error.message);
+                        this.errors.push(error.message);
                     }
                     break;
                 //Pull from the external datasource, and save to db
                 case SyncMethod_1.SyncMethod.pullFrom:
                     try {
                         //TODO: first get some data to push...
-                        const result = yield sync.datasource.pullDataFromDataSource();
+                        const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
                         //TODO: do something with this result
                         this.results.push(result);
                     }
                     catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error);
+                        console.log('error', error.message);
+                        this.errors.push(error.message);
                     }
                     break;
                 //Get data from somewhere, and push to external datasource
@@ -99,8 +100,8 @@ class SyncRun {
                         this.results.push(result);
                     }
                     catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error);
+                        console.log('error', error.message);
+                        this.errors.push(error.message);
                     }
                     break;
                 default:
@@ -119,7 +120,7 @@ class SyncRun {
         return __awaiter(this, void 0, void 0, function* () {
             console.warn("aborting sync with errors:", this.errors);
             this.status = SyncRunStatus_1.SyncRunStatus.failed;
-            this.finishedAt = moment().unix();
+            this.finishedAt = moment().valueOf();
             return this.save({ fs });
         });
     }
@@ -127,7 +128,7 @@ class SyncRun {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
-            this.finishedAt = moment().unix();
+            this.finishedAt = moment().valueOf();
             return this.save({ fs });
         });
     }
@@ -157,8 +158,8 @@ class SyncRun {
             syncId: this.syncId,
             syncMethod: this.syncMethod.toString(),
             subscribers: this.subscribers,
-            startedAt: new Date(this.startedAt),
-            finishedAt: new Date(this.finishedAt),
+            startedAt: moment(this.startedAt).toDate(),
+            finishedAt: moment(this.finishedAt).toDate(),
             status: this.status.toString(),
             results: this.results,
             warnings: this.warnings,

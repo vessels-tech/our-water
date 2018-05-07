@@ -13,7 +13,7 @@ export const deserializeDatasource = (ser) => {
 export default interface Datasource {
   type: DatasourceType
 
-  pullDataFromDataSource();
+  pullDataFromDataSource(orgId: string, fs);
   pushDataToDataSource();
 
   serialize();  
