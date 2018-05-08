@@ -38,13 +38,14 @@ const createNewSync = () => {
     });
 };
 
-// const createNewGroup = ({orgId, fs}) => {
-//   const newGroup
+const getSyncRun = ({orgId, fs, syncRunId}) => {
+  return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get()
+    .then(sn => sn.data());
+}
 
-// }
 
 
 module.exports = {
   createNewSync,
-  // createNewGroup,
+  getSyncRun,
 }

@@ -19,10 +19,19 @@ exports.createDiamondFromLatLng = (lat, lng, delta) => {
  *     a dict where key=legacyid (pincode, or pincode.villageId), value=new group
  * @param fs Firestore database
  */
-exports.getLegacyGroups = (orgId, fs) => {
-    // return fs.collection('org').doc(orgId).collection('group')
-    // .where('externalIds')
-    return null;
+exports.getLegacyMyWellGroups = (orgId, fs) => {
+    const mappedGroups = new Map();
+    //TODO: this would be more optimal if it looked at the externalIds object on a group, but that's a little tricky right now
+    return fs.collection('org').doc(orgId).collection('group').get()
+        .then(sn => {
+        const groups = [];
+        sn.forEach(result => groups.push(result.data()));
+        groups.forEach(group => {
+            //Groups should only have 1 mywellId, but let's be safe
+            Object.keys(group.externalIds).forEach(externalId => mappedGroups.set(externalId, group));
+        });
+        return mappedGroups;
+    });
 };
 /**
  * Looks up a new group membership for a legacy resource
@@ -41,5 +50,14 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
     memberships.set(villageGroup.id, true);
     memberships.set(pincodeGroup.id, true);
     return memberships;
+};
+exports.serializeMap = (input) => {
+    return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});
+};
+exports.anyToMap = (input) => {
+    return Object.keys(input).reduce((acc, key) => {
+        const value = input[key];
+        return acc.set(key, value);
+    }, new Map());
 };
 //# sourceMappingURL=utils.js.map

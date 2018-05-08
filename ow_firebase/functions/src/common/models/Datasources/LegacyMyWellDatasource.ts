@@ -5,8 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyGroups } from '../../utils';
-import { lang, isMoment } from 'moment';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -111,9 +110,9 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       //Now go through each pincode group, and create a single group
       pincodeGroups = Object.keys(pincodeIds).map(pincode => {
-        const villages: Array<LegacyVillage> = pincodeIds[pincode];
+        const legacyVillages: Array<LegacyVillage> = pincodeIds[pincode];
         //TODO: the only issue with this approach is that the coordinates aren't in order.
-        const coords = villages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
+        const coords = legacyVillages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
         const externalIds = new Map<string, boolean>();
         externalIds.set(`mywell.${pincode}`, true);
 
@@ -155,7 +154,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
     let resources: Array<Resource> = [];
     let legacyGroups = null;
-    return getLegacyGroups(orgId, fs)
+    return getLegacyMyWellGroups(orgId, fs)
     .then(_legacyGroups => legacyGroups = _legacyGroups)
     .then(() => request(options))
     .then((legacyRes: Array<LegacyResource>) => {
@@ -243,14 +242,23 @@ export default class LegacyMyWellDatasource implements Datasource {
     // const readings = await this.getReadingsData(orgId, fs);
 
     //TODO: return proper SyncRunResult
-
-    return null;
+    const result = {
+      results: [],
+      warnings: [],
+      errors: []
+    }
+    return result;
   }
 
   public pushDataToDataSource(): Promise<SyncRunResult> {
     console.log("Implementation not required. MyWell Data source is readonly for now.");
 
-    return null
+    const result = {
+      results: [],
+      warnings: [],
+      errors: []
+    }
+    return Promise.resolve(result);
   }
 
   serialize() {

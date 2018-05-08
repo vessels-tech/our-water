@@ -92,9 +92,9 @@ class LegacyMyWellDatasource {
             });
             //Now go through each pincode group, and create a single group
             pincodeGroups = Object.keys(pincodeIds).map(pincode => {
-                const villages = pincodeIds[pincode];
+                const legacyVillages = pincodeIds[pincode];
                 //TODO: the only issue with this approach is that the coordinates aren't in order.
-                const coords = villages.map(v => new firestore_1.GeoPoint(v.coordinates.lat, v.coordinates.lng));
+                const coords = legacyVillages.map(v => new firestore_1.GeoPoint(v.coordinates.lat, v.coordinates.lng));
                 const externalIds = new Map();
                 externalIds.set(`mywell.${pincode}`, true);
                 return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords, externalIds);
@@ -129,7 +129,7 @@ class LegacyMyWellDatasource {
         };
         let resources = [];
         let legacyGroups = null;
-        return utils_1.getLegacyGroups(orgId, fs)
+        return utils_1.getLegacyMyWellGroups(orgId, fs)
             .then(_legacyGroups => legacyGroups = _legacyGroups)
             .then(() => request(options))
             .then((legacyRes) => {
@@ -204,12 +204,22 @@ class LegacyMyWellDatasource {
             const resources = yield this.getResourcesData(orgId, fs);
             // const readings = await this.getReadingsData(orgId, fs);
             //TODO: return proper SyncRunResult
-            return null;
+            const result = {
+                results: [],
+                warnings: [],
+                errors: []
+            };
+            return result;
         });
     }
     pushDataToDataSource() {
         console.log("Implementation not required. MyWell Data source is readonly for now.");
-        return null;
+        const result = {
+            results: [],
+            warnings: [],
+            errors: []
+        };
+        return Promise.resolve(result);
     }
     serialize() {
         return {

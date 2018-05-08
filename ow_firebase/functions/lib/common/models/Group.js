@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("../utils");
 class Group {
     constructor(name, orgId, type, coords, externalIds) {
         this.name = name;
@@ -16,7 +17,6 @@ class Group {
     }
     save({ fs }) {
         this.updatedAt = new Date();
-        console.log("serialized", this.serialize());
         return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
             .set(this.serialize())
             .then(ref => {
@@ -33,7 +33,7 @@ class Group {
             type: this.type,
             coords: this.coords,
             //this is just placeholder to see if we can get this to work.
-            externalIds: Array.from(this.externalIds).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {}),
+            externalIds: utils_1.serializeMap(this.externalIds),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };

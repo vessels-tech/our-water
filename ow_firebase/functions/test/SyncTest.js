@@ -2,7 +2,7 @@ const assert = require('assert');
 const request = require('request-promise-native');
 const sleep = require('thread-sleep');
 
-const { createNewSync } = require('./TestUtils');
+const { createNewSync, getSyncRun } = require('./TestUtils');
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
@@ -75,10 +75,9 @@ module.exports = ({fs}) => {
 
             syncRunId = response.syncRunId;
             // syncRunIds.push(syncRunId)
-            return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get();
+            return getSyncRun({orgId, fs, syncRunId});
           })
-          .then(sn => {
-            const syncRun = sn.data();
+          .then(syncRun => {
             console.log('syncRun: ', syncRun);
           });
       });
@@ -119,8 +118,9 @@ module.exports = ({fs}) => {
       });
     });
 
-    it('should create and run the sync', () => {
+    it.only('should create and run the sync', () => {
 
+      let syncRunId = null;
       return createNewSync()
       .then(syncId => {
         syncIds.push(syncId);
@@ -133,8 +133,17 @@ module.exports = ({fs}) => {
         return request(options);
       })
       .then(response => JSON.parse(response)) //json:true only applies to posts I think 
-      .then(response => syncRunIds.push(response.syncRunId));
-    });
+      .then(response => {
+        syncRunIds.push(response.syncRunId);
+        syncRunId = syncRunId;
+      })
+      //Wait for the sync to finish
+      .then(() => sleep(10000))
+      .then(() => getSyncRun({orgId, fs, syncRunId}))
+      .then(syncRun => {
+        assert(syncRun.status, 'finished');
+      })
+    });;
 
     //Cleanup all created resources
     after(function() {

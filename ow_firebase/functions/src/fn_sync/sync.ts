@@ -73,7 +73,7 @@ module.exports = (functions, admin) => {
     })
     .catch(err => {
       console.log(err);
-      return next(err);
+      next(err);
     });
   });
 
@@ -116,12 +116,15 @@ module.exports = (functions, admin) => {
     })
     .then((run: SyncRun) => {
       //run the sync, and return the id of the run.
-      run.run({fs}); //TODO: catch any errors here?
+      //We don't return the result of this promise. User can look up the results later on
+      run.run({fs})
+      .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
+    
       return res.json({ syncRunId: run.id });
     })
     .catch(err => {
       console.log('error in runSync:', err);
-      return next(err);
+      next(err);
     });
    });
 

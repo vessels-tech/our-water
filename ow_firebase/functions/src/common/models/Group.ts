@@ -1,6 +1,7 @@
 import { GroupType } from "../enums/GroupType";
 import { GeoPoint } from "@google-cloud/firestore";
 import { org } from "../..";
+import { serializeMap } from "../utils";
 
 export class Group {
   id: string
@@ -30,9 +31,7 @@ export class Group {
 
   public save({ fs }): Promise<Group> {
     this.updatedAt = new Date();
-    
-    console.log("serialized", this.serialize());
-
+  
     return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
       .set(this.serialize())
       .then(ref => {
@@ -52,7 +51,7 @@ export class Group {
       type: this.type,
       coords: this.coords,
       //this is just placeholder to see if we can get this to work.
-      externalIds: Array.from(this.externalIds).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {}),
+      externalIds: serializeMap(this.externalIds),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
