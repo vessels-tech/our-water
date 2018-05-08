@@ -19,7 +19,7 @@ module.exports = ({fs}) => {
 
 
   describe('SyncAPI', function () {
-    this.timeout(10000);
+    this.timeout(30000);
 
     //Objects to clean up later
     let syncIds = [];
@@ -84,7 +84,6 @@ module.exports = ({fs}) => {
     });
 
     it('should create a new Sync', () => {
-
       const data = {
         isOneTime: false,
         datasource: {
@@ -135,13 +134,14 @@ module.exports = ({fs}) => {
       .then(response => JSON.parse(response)) //json:true only applies to posts I think 
       .then(response => {
         syncRunIds.push(response.syncRunId);
-        syncRunId = syncRunId;
+        syncRunId = response.syncRunId;
       })
       //Wait for the sync to finish
-      .then(() => sleep(10000))
+      .then(() => sleep(20000))
       .then(() => getSyncRun({orgId, fs, syncRunId}))
       .then(syncRun => {
-        assert(syncRun.status, 'finished');
+        console.log("syncRun is:", syncRun);
+        assert.equal(syncRun.status, 'finished');
       })
     });;
 

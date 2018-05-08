@@ -57,12 +57,16 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
  * }
  */
 export const findGroupMembershipsForResource = (legacyResource: LegacyResource, groups: Map<string, Group> ): Map<string, boolean> => {
-  const villageGroup: Group = groups[`mywell.${legacyResource.postcode}.${legacyResource.villageId}`];
-  const pincodeGroup: Group = groups[`mywell.${legacyResource.postcode}`];
-
   const memberships = new Map<string, boolean>();
-  memberships.set(villageGroup.id, true);
-  memberships.set(pincodeGroup.id, true);
+  const villageGroup: Group = groups.get(`mywell.${legacyResource.postcode}.${legacyResource.villageId}`);
+  if (villageGroup) {
+    memberships.set(villageGroup.id, true);
+  }
+
+  const pincodeGroup: Group = groups.get(`mywell.${legacyResource.postcode}`);
+  if (pincodeGroup) {
+    memberships.set(pincodeGroup.id, true);
+  }
   
   return memberships;
 }

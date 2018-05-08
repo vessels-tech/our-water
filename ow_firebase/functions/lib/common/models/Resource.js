@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const FirestoreDoc_1 = require("./FirestoreDoc");
+const utils_1 = require("../utils");
 class Resource extends FirestoreDoc_1.default {
     constructor(orgId, externalIds, coords, resourceType, owner, groups) {
         super();
@@ -23,7 +24,7 @@ class Resource extends FirestoreDoc_1.default {
             resourceType: this.resourceType,
             //TODO: this may cause trouble
             owner: this.owner,
-            groups: this.groups,
+            groups: utils_1.serializeMap(this.groups),
             lastValue: this.lastValue,
             lastReadingDatetime: this.lastReadingDatetime,
             createdAt: this.createdAt,

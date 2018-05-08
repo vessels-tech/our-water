@@ -73,12 +73,12 @@ export class SyncRun {
       //call the datasource methods, but don't commit anything to the database
       case SyncMethod.validate:
         try {
-          //TODO: change this to use the validate method instead
+          //TODO: change this to use the a validate method instead
           const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
           this.results = result.results;
 
         } catch (error) {
-          console.log('error', error.message);
+          console.log('error', error);
           this.errors.push(error.message);
         }
 
@@ -87,7 +87,7 @@ export class SyncRun {
           this.results = result.results;
 
         } catch (error) {
-          console.log('error', error.message);
+          console.log('error', error);
           this.errors.push(error.message);
         }
       break;
@@ -100,7 +100,7 @@ export class SyncRun {
           //TODO: do something with this result
           this.results = result.results;
         } catch (error) {
-          console.log('error', error.message);
+          console.log('error', error);
           this.errors.push(error.message);
         }
       break;
@@ -112,7 +112,7 @@ export class SyncRun {
           const result = await sync.datasource.pushDataToDataSource();
           this.results = result.results;
         } catch (error) {
-          console.log('error', error.message);
+          console.log('error', error);
           this.errors.push(error.message);
         }
       break;

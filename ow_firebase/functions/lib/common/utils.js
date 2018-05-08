@@ -44,11 +44,15 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
  * }
  */
 exports.findGroupMembershipsForResource = (legacyResource, groups) => {
-    const villageGroup = groups[`mywell.${legacyResource.postcode}.${legacyResource.villageId}`];
-    const pincodeGroup = groups[`mywell.${legacyResource.postcode}`];
     const memberships = new Map();
-    memberships.set(villageGroup.id, true);
-    memberships.set(pincodeGroup.id, true);
+    const villageGroup = groups.get(`mywell.${legacyResource.postcode}.${legacyResource.villageId}`);
+    if (villageGroup) {
+        memberships.set(villageGroup.id, true);
+    }
+    const pincodeGroup = groups.get(`mywell.${legacyResource.postcode}`);
+    if (pincodeGroup) {
+        memberships.set(pincodeGroup.id, true);
+    }
     return memberships;
 };
 exports.serializeMap = (input) => {

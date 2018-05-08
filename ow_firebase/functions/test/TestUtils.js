@@ -43,8 +43,6 @@ const getSyncRun = ({orgId, fs, syncRunId}) => {
     .then(sn => sn.data());
 }
 
-
-
 module.exports = {
   createNewSync,
   getSyncRun,
