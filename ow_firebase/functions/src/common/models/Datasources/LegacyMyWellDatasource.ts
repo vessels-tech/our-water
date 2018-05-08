@@ -166,6 +166,8 @@ export default class LegacyMyWellDatasource implements Datasource {
         const groups: Map<string, boolean> = findGroupMembershipsForResource(r, legacyGroups);
 
         const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups);
+        newResource.lastReadingDatetime = moment(r.last_date).toDate();
+        newResource.lastValue = r.last_value;
         resources.push(newResource);
       });
 

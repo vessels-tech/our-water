@@ -140,6 +140,8 @@ class LegacyMyWellDatasource {
                 const owner = { name: r.owner, createdByUserId: 'default' };
                 const groups = utils_1.findGroupMembershipsForResource(r, legacyGroups);
                 const newResource = new Resource_1.Resource(orgId, externalIds, coords, resourceType, owner, groups);
+                newResource.lastReadingDatetime = moment(r.last_date).toDate();
+                newResource.lastValue = r.last_value;
                 resources.push(newResource);
             });
             let errors = [];

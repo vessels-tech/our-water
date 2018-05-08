@@ -22,7 +22,6 @@ class Resource extends FirestoreDoc_1.default {
             externalIds: this.externalIds.serialize(),
             coords: this.coords,
             resourceType: this.resourceType,
-            //TODO: this may cause trouble
             owner: this.owner,
             groups: utils_1.serializeMap(this.groups),
             lastValue: this.lastValue,

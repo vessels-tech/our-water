@@ -40,7 +40,6 @@ export class Resource extends FirestoreDoc {
       externalIds: this.externalIds.serialize(),
       coords: this.coords,
       resourceType: this.resourceType,
-      //TODO: this may cause trouble
       owner: this.owner,
       groups: serializeMap(this.groups),
       lastValue: this.lastValue,
