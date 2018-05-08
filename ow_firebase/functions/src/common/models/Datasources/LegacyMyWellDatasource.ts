@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -50,9 +50,8 @@ export default class LegacyMyWellDatasource implements Datasource {
       //TODO: save using bulk method
       const newGroups = villages.map(village => {
         const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
-        const externalIds = new Map<string, boolean>();
-        externalIds.set(`mywell.${village.postcode}.${village.id}`, true);
-        
+        const externalIds = ResourceIdType.fromLegacyVillageId(village.postcode, village.id);
+      
         return new Group(village.name, orgId, GroupType.Village, coords, externalIds);
       });
 
@@ -113,8 +112,7 @@ export default class LegacyMyWellDatasource implements Datasource {
         const legacyVillages: Array<LegacyVillage> = pincodeIds[pincode];
         //TODO: the only issue with this approach is that the coordinates aren't in order.
         const coords = legacyVillages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
-        const externalIds = new Map<string, boolean>();
-        externalIds.set(`mywell.${pincode}`, true);
+        const externalIds = ResourceIdType.fromLegacyPincode(pincode);
 
         return new Group(pincode, orgId, GroupType.Pincode, coords, externalIds);
       });
@@ -209,8 +207,14 @@ export default class LegacyMyWellDatasource implements Datasource {
     //This will enable us to easily map
     //We also need to have the groups first
 
-    return getLegacyMyWellResources(orgId, fs)
-    .then(_legacyResources => legacyResources)
+    return Promise.all([
+      getLegacyMyWellResources(orgId, fs),
+      getLegacyMyWellGroups(orgId, fs)
+    ])
+    .then(([_legacyResources, _legacyGroups]) => {
+      legacyResources = _legacyResources;
+      legacyGroups = _legacyGroups;
+    })
     .then(() => request(options))
     .then((legacyReadings: Array<LegacyReading>) => {
       legacyReadings.forEach(r => {
@@ -218,12 +222,14 @@ export default class LegacyMyWellDatasource implements Datasource {
           console.log("warning: found reading with no value", r);
           return;
         }
-        //TODO: add group field
+
+        //get metadata that didn't exist on original reading
         const resource: Resource = findResourceMembershipsForResource(r, legacyResources);
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id);
-        resource.externalIds = externalIds;
+        const groups: Map<string, boolean> = findGroupMembershipsForReading(r, legacyGroups);
 
-        const newReading: Reading = new Reading(orgId, resource.id, resource.coords, resource.resourceType, null, moment(r.createdAt).toDate(), r.value);
+        const newReading: Reading = new Reading(orgId, resource.id, resource.coords, 
+          resource.resourceType, groups, moment(r.createdAt).toDate(), r.value, externalIds);
         newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
         readings.push(newReading);
       });

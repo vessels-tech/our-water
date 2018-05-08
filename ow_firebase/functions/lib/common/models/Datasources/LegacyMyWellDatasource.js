@@ -44,8 +44,7 @@ class LegacyMyWellDatasource {
             //TODO: save using bulk method
             const newGroups = villages.map(village => {
                 const coords = utils_1.createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
-                const externalIds = new Map();
-                externalIds.set(`mywell.${village.postcode}.${village.id}`, true);
+                const externalIds = ResourceIdType_1.default.fromLegacyVillageId(village.postcode, village.id);
                 return new Group_1.Group(village.name, orgId, GroupType_1.GroupType.Village, coords, externalIds);
             });
             const errors = [];
@@ -95,8 +94,7 @@ class LegacyMyWellDatasource {
                 const legacyVillages = pincodeIds[pincode];
                 //TODO: the only issue with this approach is that the coordinates aren't in order.
                 const coords = legacyVillages.map(v => new firestore_1.GeoPoint(v.coordinates.lat, v.coordinates.lng));
-                const externalIds = new Map();
-                externalIds.set(`mywell.${pincode}`, true);
+                const externalIds = ResourceIdType_1.default.fromLegacyPincode(pincode);
                 return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords, externalIds);
             });
             let errors = [];
@@ -176,8 +174,14 @@ class LegacyMyWellDatasource {
         //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
         //This will enable us to easily map
         //We also need to have the groups first
-        return utils_1.getLegacyMyWellResources(orgId, fs)
-            .then(_legacyResources => legacyResources)
+        return Promise.all([
+            utils_1.getLegacyMyWellResources(orgId, fs),
+            utils_1.getLegacyMyWellGroups(orgId, fs)
+        ])
+            .then(([_legacyResources, _legacyGroups]) => {
+            legacyResources = _legacyResources;
+            legacyGroups = _legacyGroups;
+        })
             .then(() => request(options))
             .then((legacyReadings) => {
             legacyReadings.forEach(r => {
@@ -185,11 +189,11 @@ class LegacyMyWellDatasource {
                     console.log("warning: found reading with no value", r);
                     return;
                 }
-                //TODO: add group field
+                //get metadata that didn't exist on original reading
                 const resource = utils_1.findResourceMembershipsForResource(r, legacyResources);
                 const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id);
-                resource.externalIds = externalIds;
-                const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, null, moment(r.createdAt).toDate(), r.value);
+                const groups = utils_1.findGroupMembershipsForReading(r, legacyGroups);
+                const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, moment(r.createdAt).toDate(), r.value, externalIds);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });

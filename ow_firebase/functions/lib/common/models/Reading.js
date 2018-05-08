@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FirestoreDoc_1 = require("./FirestoreDoc");
 const utils_1 = require("../utils");
 class Reading extends FirestoreDoc_1.default {
-    constructor(orgId, resourceId, coords, resourceType, groups, datetime, value) {
+    constructor(orgId, resourceId, coords, resourceType, groups, datetime, value, externalIds) {
         super();
         this.docName = 'reading';
         this.orgId = orgId;
@@ -13,6 +13,7 @@ class Reading extends FirestoreDoc_1.default {
         this.groups = groups;
         this.datetime = datetime;
         this.value = value;
+        this.externalIds = externalIds;
     }
     serialize() {
         return {

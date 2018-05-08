@@ -18,7 +18,9 @@ export class Reading extends FirestoreDoc {
   isLegacy: boolean
 
   constructor(orgId: string, resourceId: string, coords: GeoPoint,
-  resourceType: ResourceType, groups, datetime: Date, value: number) {
+    resourceType: ResourceType, groups, datetime: Date, value: number,
+    externalIds: ResourceIdType) {
+    
     super();
 
     this.orgId = orgId;
@@ -28,6 +30,7 @@ export class Reading extends FirestoreDoc {
     this.groups = groups;
     this.datetime = datetime;
     this.value = value;
+    this.externalIds = externalIds;
   }
 
   serialize() {

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("../utils");
 class Group {
     constructor(name, orgId, type, coords, externalIds) {
         this.name = name;
@@ -33,7 +32,7 @@ class Group {
             type: this.type,
             coords: this.coords,
             //this is just placeholder to see if we can get this to work.
-            externalIds: utils_1.serializeMap(this.externalIds),
+            externalIds: this.externalIds.serialize(),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };

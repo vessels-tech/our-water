@@ -4,6 +4,7 @@ import LegacyVillage from "./types/LegacyVillage";
 import { Group } from "./models/Group";
 import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
+import { resource } from "..";
 
 
 /**
@@ -29,18 +30,15 @@ export const createDiamondFromLatLng = (lat: number, lng: number, delta: number)
  * @param fs Firestore database
  */
 export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map<string, Group>> => {
-
   const mappedGroups = new Map<string, Group>();
 
-  //TODO: this would be more optimal if it looked at the externalIds object on a group, but that's a little tricky right now
-  return fs.collection('org').doc(orgId).collection('group').get()
+  return fs.collection('org').doc(orgId).collection('group').where('externalIds.legacyMyWellId', '>', '0').get()
   .then(sn => {
     const groups = [];
     sn.forEach(result => groups.push(result.data()));
 
-    groups.forEach(group => {
-      //Groups should only have 1 mywellId, but let's be safe
-      Object.keys(group.externalIds).forEach(externalId => mappedGroups.set(externalId, group));
+    groups.forEach((group: Group) => {
+      mappedGroups.set(group.externalIds.legacyMyWellId, resource);
     });
 
     return mappedGroups;
@@ -55,15 +53,13 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
 export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<Map<string, Resource>> => {
   const mappedResources = new Map<string, Resource>();
 
-  //TODO: this would be more optimal if it looked at the externalIds object on a group, but that's a little tricky right now
   return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()
   .then(sn => {
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
 
-    resources.forEach(resource => {
-      console.log("getLegacyMyWellResources resource is", resource);
-      mappedResources.set(resource.externalId.legacyMyWellId, resource);
+    resources.forEach((resource: Resource) => {
+      mappedResources.set(resource.externalIds.legacyMyWellId, resource);
       //resources should only have 1 mywellId, but let's be safe
       // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
     });
@@ -86,12 +82,12 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
  */
 export const findGroupMembershipsForResource = (legacyResource: LegacyResource, groups: Map<string, Group> ): Map<string, boolean> => {
   const memberships = new Map<string, boolean>();
-  const villageGroup: Group = groups.get(`mywell.${legacyResource.postcode}.${legacyResource.villageId}`);
+  const villageGroup: Group = groups.get(`${legacyResource.postcode}.${legacyResource.villageId}`);
   if (villageGroup) {
     memberships.set(villageGroup.id, true);
   }
 
-  const pincodeGroup: Group = groups.get(`mywell.${legacyResource.postcode}`);
+  const pincodeGroup: Group = groups.get(`${legacyResource.postcode}`);
   if (pincodeGroup) {
     memberships.set(pincodeGroup.id, true);
   }
@@ -117,7 +113,34 @@ export const findResourceMembershipsForResource = (legacyReading: LegacyReading,
 }
 
 
+/**
+ * Looks up a new Group membership for a legacy reading
+ * 
+ * @param legacyReading
+ * @param resources - a dict where key=legacyid, value=new resource
+ * @returns a single Resource
+ */
+export const findGroupMembershipsForReading = (legacyReading: LegacyReading, groups: Map<string, Group>): Map<string, boolean> => {
+  const memberships = new Map<string, boolean>();
+  const villageGroup: Group = groups.get(`mywell.${legacyReading.postcode}.${legacyReading.villageId}`);
+  if (villageGroup) {
+    memberships.set(villageGroup.id, true);
+  }
+
+  const pincodeGroup: Group = groups.get(`mywell.${legacyReading.postcode}`);
+  if (pincodeGroup) {
+    memberships.set(pincodeGroup.id, true);
+  }
+
+  return memberships;
+}
+
+
 export const serializeMap = (input: Map<any, any>): any => {
+  if (!input) {
+    return {};
+  }
+
   return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});
 }
 

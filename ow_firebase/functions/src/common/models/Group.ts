@@ -2,6 +2,7 @@ import { GroupType } from "../enums/GroupType";
 import { GeoPoint } from "@google-cloud/firestore";
 import { org } from "../..";
 import { serializeMap } from "../utils";
+import ResourceIdType from "../types/ResourceIdType";
 
 export class Group {
   id: string
@@ -9,11 +10,12 @@ export class Group {
   name: string
   type: GroupType
   coords: Array<GeoPoint>
-  externalIds: Map<string, boolean> 
+  externalIds: ResourceIdType
   createdAt: Date
   updatedAt: Date
 
-  constructor(name: string, orgId: string, type: GroupType, coords: Array<GeoPoint>, externalIds: Map<string, boolean>) {
+  constructor(name: string, orgId: string, type: GroupType,
+     coords: Array<GeoPoint>, externalIds: ResourceIdType) {
     this.name = name;
     this.orgId = orgId;
     this.type = type;
@@ -51,7 +53,7 @@ export class Group {
       type: this.type,
       coords: this.coords,
       //this is just placeholder to see if we can get this to work.
-      externalIds: serializeMap(this.externalIds),
+      externalIds: this.externalIds.serialize(),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
