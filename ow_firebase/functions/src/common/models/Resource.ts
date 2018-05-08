@@ -18,7 +18,6 @@ export class Resource extends FirestoreDoc {
 
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
-  
 
   constructor(orgId: string, externalIds: ResourceIdType, coords: GeoPoint,
     resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>) {

@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -202,37 +202,42 @@ export default class LegacyMyWellDatasource implements Datasource {
     };
 
     let readings: Array<Reading> = [];
+    let legacyResources = null;
+    let legacyGroups = null;
 
     //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
     //This will enable us to easily map
     //We also need to have the groups first
 
-    return request(options)
-      .then((legacyReadings: Array<LegacyReading>) => {
-        legacyReadings.forEach(r => {
-          if (typeof r.value === undefined) {
-            console.log("warning: found reading with no value", r);
-            return;
-          }
-          //TODO: add missing fields
+    return getLegacyMyWellResources(orgId, fs)
+    .then(_legacyResources => legacyResources)
+    .then(() => request(options))
+    .then((legacyReadings: Array<LegacyReading>) => {
+      legacyReadings.forEach(r => {
+        if (typeof r.value === undefined) {
+          console.log("warning: found reading with no value", r);
+          return;
+        }
+        //TODO: add group field
+        const resource: Resource = findResourceMembershipsForResource(r, legacyResources);
+        const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id);
+        resource.externalIds = externalIds;
 
-          // const resourceType = resourceTypeFromString(r);
-          console.log('original reading is', r);
-          const newReading: Reading = new Reading(orgId, null, null, null, null, moment(r.createdAt).toDate(), r.value);
-          newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
-          readings.push(newReading);
-        });
-
-        let errors = [];
-        let savedReadings: Array<Reading> = [];
-        readings.forEach(res => {
-          return res.create({ fs })
-            .then((savedRes: Reading) => savedReadings.push(savedRes))
-            .catch(err => errors.push(err));
-        });
-
-        return savedReadings;
+        const newReading: Reading = new Reading(orgId, resource.id, resource.coords, resource.resourceType, null, moment(r.createdAt).toDate(), r.value);
+        newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
+        readings.push(newReading);
       });
+
+      let errors = [];
+      let savedReadings: Array<Reading> = [];
+      readings.forEach(res => {
+        return res.create({ fs })
+          .then((savedRes: Reading) => savedReadings.push(savedRes))
+          .catch(err => errors.push(err));
+      });
+
+      return savedReadings;
+    });
 
   }
 
@@ -241,7 +246,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     const villageGroups = await this.getGroupData(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
-    // const readings = await this.getReadingsData(orgId, fs);
+    const readings = await this.getReadingsData(orgId, fs);
 
     //TODO: return proper SyncRunResult
     const result = {

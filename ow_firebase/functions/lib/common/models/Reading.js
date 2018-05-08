@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const FirestoreDoc_1 = require("./FirestoreDoc");
+const utils_1 = require("../utils");
 class Reading extends FirestoreDoc_1.default {
     constructor(orgId, resourceId, coords, resourceType, groups, datetime, value) {
         super();
@@ -15,15 +16,16 @@ class Reading extends FirestoreDoc_1.default {
     }
     serialize() {
         return {
+            id: this.id,
             docName: this.docName,
             orgId: this.orgId,
-            id: this.id,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             resourceId: this.resourceId,
+            externalIds: this.externalIds.serialize(),
             coords: this.coords,
             resourceType: this.resourceType,
-            groups: this.groups,
+            groups: utils_1.serializeMap(this.groups),
             datetime: this.datetime,
             value: this.value,
             isLegacy: this.isLegacy,

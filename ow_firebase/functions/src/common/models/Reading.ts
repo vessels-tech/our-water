@@ -1,15 +1,18 @@
 import { GeoPoint } from "@google-cloud/firestore";
 import { ResourceType } from "../enums/ResourceType";
 import FirestoreDoc from "./FirestoreDoc";
+import { serializeMap } from "../utils";
+import ResourceIdType from "../types/ResourceIdType";
 
 export class Reading extends FirestoreDoc {
   docName = 'reading';
   
+  id: string
   resourceId: string
-
+  externalIds: ResourceIdType
   coords: GeoPoint
   resourceType: ResourceType
-  groups: object
+  groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   datetime: Date
   value: number
   isLegacy: boolean
@@ -29,15 +32,16 @@ export class Reading extends FirestoreDoc {
 
   serialize() {
     return {
+      id: this.id,
       docName: this.docName,
       orgId: this.orgId,
-      id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       resourceId: this.resourceId,
+      externalIds: this.externalIds.serialize(),
       coords: this.coords,
       resourceType: this.resourceType,
-      groups: this.groups,
+      groups: serializeMap(this.groups),
       datetime: this.datetime,
       value: this.value,
       isLegacy: this.isLegacy,

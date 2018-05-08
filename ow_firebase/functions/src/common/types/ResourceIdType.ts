@@ -9,6 +9,13 @@ export default class ResourceIdType {
     return legacyId
   }
 
+  static fromLegacyReadingId(id: number): ResourceIdType {
+    const legacyId = new ResourceIdType();
+    legacyId.legacyMyWellId = `${id}`;
+
+    return legacyId
+  }
+
   public serialize(): any {
     return {
       legacyMyWellId: this.legacyMyWellId,

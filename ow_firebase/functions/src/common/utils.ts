@@ -2,6 +2,8 @@ import { GeoPoint, Firestore } from "@google-cloud/firestore";
 import LegacyResource from "./types/LegacyResource";
 import LegacyVillage from "./types/LegacyVillage";
 import { Group } from "./models/Group";
+import { Resource } from "./models/Resource";
+import LegacyReading from "./types/LegacyReading";
 
 
 /**
@@ -45,6 +47,32 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
   });
 }
 
+/**
+ * Get all of the resources that contain legacyIds, and format them as:
+ *     a dict where key=legacyid (pincode, or pincode.villageId), value=new resource
+ * @param fs Firestore database
+ */
+export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<Map<string, Resource>> => {
+  const mappedResources = new Map<string, Resource>();
+
+  //TODO: this would be more optimal if it looked at the externalIds object on a group, but that's a little tricky right now
+  return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()
+  .then(sn => {
+    const resources = [];
+    sn.forEach(result => resources.push(result.data()));
+
+    resources.forEach(resource => {
+      console.log("getLegacyMyWellResources resource is", resource);
+      mappedResources.set(resource.externalId.legacyMyWellId, resource);
+      //resources should only have 1 mywellId, but let's be safe
+      // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
+    });
+
+    return mappedResources;
+  });
+}
+
+
 
 /**
  * Looks up a new group membership for a legacy resource
@@ -67,8 +95,25 @@ export const findGroupMembershipsForResource = (legacyResource: LegacyResource, 
   if (pincodeGroup) {
     memberships.set(pincodeGroup.id, true);
   }
-  
+
   return memberships;
+}
+
+/**
+ * Looks up a new Resource membership for a legacy resource
+ * 
+ * @param legacyReading
+ * @param resources - a dict where key=legacyid, value=new resource
+ * @returns a single Resource
+ */
+export const findResourceMembershipsForResource = (legacyReading: LegacyReading, resources: Map<string, Resource>): Resource => {
+  const resource: Resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+  if (!resource) {
+    console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
+    throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
+  } 
+
+  return resource;
 }
 
 

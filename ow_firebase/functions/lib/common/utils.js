@@ -34,6 +34,27 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
     });
 };
 /**
+ * Get all of the resources that contain legacyIds, and format them as:
+ *     a dict where key=legacyid (pincode, or pincode.villageId), value=new resource
+ * @param fs Firestore database
+ */
+exports.getLegacyMyWellResources = (orgId, fs) => {
+    const mappedResources = new Map();
+    //TODO: this would be more optimal if it looked at the externalIds object on a group, but that's a little tricky right now
+    return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()
+        .then(sn => {
+        const resources = [];
+        sn.forEach(result => resources.push(result.data()));
+        resources.forEach(resource => {
+            console.log("getLegacyMyWellResources resource is", resource);
+            mappedResources.set(resource.externalId.legacyMyWellId, resource);
+            //resources should only have 1 mywellId, but let's be safe
+            // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
+        });
+        return mappedResources;
+    });
+};
+/**
  * Looks up a new group membership for a legacy resource
  *
  * @param legacyResource
@@ -54,6 +75,21 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
         memberships.set(pincodeGroup.id, true);
     }
     return memberships;
+};
+/**
+ * Looks up a new Resource membership for a legacy resource
+ *
+ * @param legacyReading
+ * @param resources - a dict where key=legacyid, value=new resource
+ * @returns a single Resource
+ */
+exports.findResourceMembershipsForResource = (legacyReading, resources) => {
+    const resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+    if (!resource) {
+        console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
+        throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
+    }
+    return resource;
 };
 exports.serializeMap = (input) => {
     return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});

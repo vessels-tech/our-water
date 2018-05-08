@@ -171,20 +171,25 @@ class LegacyMyWellDatasource {
             json: true,
         };
         let readings = [];
+        let legacyResources = null;
+        let legacyGroups = null;
         //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
         //This will enable us to easily map
         //We also need to have the groups first
-        return request(options)
+        return utils_1.getLegacyMyWellResources(orgId, fs)
+            .then(_legacyResources => legacyResources)
+            .then(() => request(options))
             .then((legacyReadings) => {
             legacyReadings.forEach(r => {
                 if (typeof r.value === undefined) {
                     console.log("warning: found reading with no value", r);
                     return;
                 }
-                //TODO: add missing fields
-                // const resourceType = resourceTypeFromString(r);
-                console.log('original reading is', r);
-                const newReading = new Reading_1.Reading(orgId, null, null, null, null, moment(r.createdAt).toDate(), r.value);
+                //TODO: add group field
+                const resource = utils_1.findResourceMembershipsForResource(r, legacyResources);
+                const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id);
+                resource.externalIds = externalIds;
+                const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, null, moment(r.createdAt).toDate(), r.value);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });
@@ -204,7 +209,7 @@ class LegacyMyWellDatasource {
             const villageGroups = yield this.getGroupData(orgId, fs);
             const pincodeGroups = yield this.getPincodeData(orgId, fs);
             const resources = yield this.getResourcesData(orgId, fs);
-            // const readings = await this.getReadingsData(orgId, fs);
+            const readings = yield this.getReadingsData(orgId, fs);
             //TODO: return proper SyncRunResult
             const result = {
                 results: [],
