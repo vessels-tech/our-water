@@ -43,8 +43,8 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
-        resources.forEach((resource) => {
-            mappedResources.set(resource.externalIds.legacyMyWellId, resource);
+        resources.forEach((res) => {
+            mappedResources.set(__1.resource.externalIds.legacyMyWellId, res);
             //resources should only have 1 mywellId, but let's be safe
             // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
         });
@@ -81,12 +81,12 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
  * @returns a single Resource
  */
 exports.findResourceMembershipsForResource = (legacyReading, resources) => {
-    const resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
-    if (!resource) {
+    const res = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+    if (!res) {
         console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
         throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
     }
-    return resource;
+    return res;
 };
 /**
  * Looks up a new Group membership for a legacy reading

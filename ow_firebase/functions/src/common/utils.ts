@@ -58,8 +58,8 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
 
-    resources.forEach((resource: Resource) => {
-      mappedResources.set(resource.externalIds.legacyMyWellId, resource);
+    resources.forEach((res: Resource) => {
+      mappedResources.set(resource.externalIds.legacyMyWellId, res);
       //resources should only have 1 mywellId, but let's be safe
       // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
     });
@@ -103,13 +103,13 @@ export const findGroupMembershipsForResource = (legacyResource: LegacyResource, 
  * @returns a single Resource
  */
 export const findResourceMembershipsForResource = (legacyReading: LegacyReading, resources: Map<string, Resource>): Resource => {
-  const resource: Resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
-  if (!resource) {
+  const res: Resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+  if (!res) {
     console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
     throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
   } 
 
-  return resource;
+  return res;
 }
 
 
