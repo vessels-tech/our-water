@@ -1,0 +1,1 @@
+{"version":3,"file":"FileDatasourceOptions.js","sourceRoot":"","sources":["../../../src/common/models/FileDatasourceOptions.ts"],"names":[],"mappings":";;AAEA;IAAA;QACE,qBAAgB,GAAY,IAAI,CAAA;QAChC,wBAAmB,GAAY,KAAK,CAAA;IAQtC,CAAC;IANC,SAAS;QACP,OAAO;YACL,gBAAgB,EAAE,IAAI,CAAC,gBAAgB;YACvC,mBAAmB,EAAE,IAAI,CAAC,mBAAmB;SAC9C,CAAA;IACH,CAAC;CACF;AAVD,wCAUC"}

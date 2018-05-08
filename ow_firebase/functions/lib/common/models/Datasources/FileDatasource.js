@@ -15,12 +15,16 @@ const DatasourceType_1 = require("../../enums/DatasourceType");
  *
  */
 class FileDatasource {
-    constructor(fileUrl, dataType, options) {
+    constructor(fileUrl, dataType, fileFormat, options) {
         this.type = DatasourceType_1.DatasourceType.FileDatasource;
         this.fileUrl = fileUrl;
         this.dataType = dataType;
+        this.fileFormat = fileFormat;
+        this.options = options;
     }
     validate(orgId, fs) {
+        //Download the file to local
+        //parse and don't save
         return null;
     }
     pullDataFromDataSource(orgId, fs) {
@@ -35,7 +39,7 @@ class FileDatasource {
         return {
             fileUrl: this.fileUrl,
             dataType: this.dataType,
-            options: this.options,
+            options: this.options.serialize(),
             type: this.type.toString(),
         };
     }

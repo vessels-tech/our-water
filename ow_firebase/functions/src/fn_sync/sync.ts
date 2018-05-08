@@ -14,6 +14,10 @@ import { Sync } from '../common/models/Sync';
 import { SyncRun } from '../common/models/SyncRun';
 import LegacyMyWellDatasource from '../common/models/Datasources/LegacyMyWellDatasource';
 import { METHODS } from 'http';
+import Datasource from '../common/models/Datasources/Datasource';
+import { DatasourceType } from '../common/enums/DatasourceType';
+import { FileDatasource } from '../common/models/Datasources/FileDatasource';
+import { SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION } from 'constants';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -50,8 +54,15 @@ module.exports = (functions, admin) => {
         datasource: Joi.object().keys({
           //TODO: add more to this later
           type: Joi.string().required(),
-          //TODO: ensure url type
-          url: Joi.string().required(),
+          
+          //TODO: legacy options only
+          url: Joi.string(),
+
+          //TODO: file options:
+          fileUrl: Joi.string(),
+          dataType: Joi.string(),
+          fileFormat: Joi.string(),
+          options: Joi.object(),
         }).required(),
         type: Joi.string().required(),
         selectedDatatypes: Joi.array().items(Joi.string()).required()
@@ -59,12 +70,25 @@ module.exports = (functions, admin) => {
     }
   }
 
+  const initDatasourceWithOptions = (datasource): Datasource => {
+    switch(datasource.type) {
+      case DatasourceType.LegacyMyWellDatasource:
+        return new LegacyMyWellDatasource(datasource.url);
+        
+      case DatasourceType.FileDatasource:
+        const {fileUrl, dataType, fileFormat, options} = datasource;
+        return new FileDatasource(fileUrl, dataType, fileFormat, options);
+
+      default:
+        throw new Error(`Tried to initialize Datasource of unknown type: ${datasource.type}`)
+    }
+  };
+
   app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
     const { orgId } = req.params;
     const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
 
-    //TODO: init based on type
-    const ds = new LegacyMyWellDatasource(datasource.url);
+    const ds = initDatasourceWithOptions(datasource);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], selectedDatatypes);
     
     return sync.create({fs})
@@ -76,9 +100,6 @@ module.exports = (functions, admin) => {
       next(err);
     });
   });
-
-
-  //TODO: implementation
 
 
   /**

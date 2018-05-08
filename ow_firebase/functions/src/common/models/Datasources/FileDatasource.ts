@@ -1,6 +1,8 @@
 import Datasource from "./Datasource";
 import { DatasourceType } from "../../enums/DatasourceType";
 import SyncRunResult from "../../types/SyncRunResult";
+import { DataType, FileFormat } from "../../enums/FileDatasourceTypes";
+import FileDatasourceOptions from "../FileDatasourceOptions";
 
 /**
  * Defines a datasource which parses information from a file
@@ -16,19 +18,25 @@ import SyncRunResult from "../../types/SyncRunResult";
  *
  */
 export class FileDatasource implements Datasource {
-  fileUrl: string;
-  dataType: string; //TODO: define
-  options: any; //TODO: define
-
-
   type = DatasourceType.FileDatasource;
 
-  constructor(fileUrl: string, dataType: string, options) {
+  fileUrl: string;
+  dataType: DataType;
+  fileFormat: FileFormat;
+  options: FileDatasourceOptions;
+
+  constructor(fileUrl: string, dataType: DataType, 
+  fileFormat: FileFormat, options: FileDatasourceOptions) {
     this.fileUrl = fileUrl;
     this.dataType = dataType;
+    this.fileFormat = fileFormat;
+    this.options = options;
   }
 
   validate(orgId: string, fs): Promise<SyncRunResult> {
+    //Download the file to local
+    //parse and don't save
+
     return null;
   }
 
@@ -47,7 +55,7 @@ export class FileDatasource implements Datasource {
     return {
       fileUrl: this.fileUrl,
       dataType: this.dataType,
-      options: this.options,
+      options: this.options.serialize(),
       type: this.type.toString(),
     };
   }
