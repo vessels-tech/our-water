@@ -63,8 +63,9 @@ class SyncRun {
                 //call the datasource methods, but don't commit anything to the database
                 case SyncMethod_1.SyncMethod.validate:
                     try {
+                        //TODO: change this to use the validate method instead
                         const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
-                        this.results.push(result);
+                        this.results = result.results;
                     }
                     catch (error) {
                         console.log('error', error.message);
@@ -72,7 +73,7 @@ class SyncRun {
                     }
                     try {
                         const result = yield sync.datasource.pushDataToDataSource();
-                        this.results.push(result);
+                        this.results = result.results;
                     }
                     catch (error) {
                         console.log('error', error.message);
@@ -85,7 +86,7 @@ class SyncRun {
                         //TODO: first get some data to push...
                         const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
                         //TODO: do something with this result
-                        this.results.push(result);
+                        this.results = result.results;
                     }
                     catch (error) {
                         console.log('error', error.message);
@@ -97,7 +98,7 @@ class SyncRun {
                     try {
                         //TODO: first get some data to push...
                         const result = yield sync.datasource.pushDataToDataSource();
-                        this.results.push(result);
+                        this.results = result.results;
                     }
                     catch (error) {
                         console.log('error', error.message);

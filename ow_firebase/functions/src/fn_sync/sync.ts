@@ -12,7 +12,7 @@ const fb = require('firebase-admin')
 import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
 import { Sync } from '../common/models/Sync';
 import { SyncRun } from '../common/models/SyncRun';
-import LegacyMyWellDatasource from '../common/models/LegacyMyWellDatasource';
+import LegacyMyWellDatasource from '../common/models/Datasources/LegacyMyWellDatasource';
 import { METHODS } from 'http';
 
 module.exports = (functions, admin) => {

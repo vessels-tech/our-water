@@ -20,6 +20,9 @@ class FileDatasource {
         this.fileUrl = fileUrl;
         this.dataType = dataType;
     }
+    validate(orgId, fs) {
+        return null;
+    }
     pullDataFromDataSource(orgId, fs) {
         //download the file to local
         //deserialize based on some settings
@@ -32,6 +35,7 @@ class FileDatasource {
         return {
             fileUrl: this.fileUrl,
             dataType: this.dataType,
+            options: this.options,
             type: this.type.toString(),
         };
     }

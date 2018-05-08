@@ -28,6 +28,10 @@ export class FileDatasource implements Datasource {
     this.dataType = dataType;
   }
 
+  validate(orgId: string, fs): Promise<SyncRunResult> {
+    return null;
+  }
+
   pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
     //download the file to local
     //deserialize based on some settings
@@ -43,6 +47,7 @@ export class FileDatasource implements Datasource {
     return {
       fileUrl: this.fileUrl,
       dataType: this.dataType,
+      options: this.options,
       type: this.type.toString(),
     };
   }

@@ -14,4 +14,32 @@ exports.createDiamondFromLatLng = (lat, lng, delta) => {
     //I suppose we should assume indexes 0 and -1 line up
     return [minLat, maxLng, maxLat, minLng];
 };
+/**
+ * Get all of the groups that contain legacyIds, and format them as:
+ *     a dict where key=legacyid (pincode, or pincode.villageId), value=new group
+ * @param fs Firestore database
+ */
+exports.getLegacyGroups = (orgId, fs) => {
+    // return fs.collection('org').doc(orgId).collection('group')
+    // .where('externalIds')
+    return null;
+};
+/**
+ * Looks up a new group membership for a legacy resource
+ *
+ * @param legacyResource
+ * @param legacyGroups - a dict where key=legacyid (pincode, or pincode.villageId), value=new group
+ * @returns any - of shape: for each groupId (that the resource is in.)
+ * {
+ *  groupId: 'true'
+ * }
+ */
+exports.findGroupMembershipsForResource = (legacyResource, groups) => {
+    const villageGroup = groups[`mywell.${legacyResource.postcode}.${legacyResource.villageId}`];
+    const pincodeGroup = groups[`mywell.${legacyResource.postcode}`];
+    const memberships = new Map();
+    memberships.set(villageGroup.id, true);
+    memberships.set(pincodeGroup.id, true);
+    return memberships;
+};
 //# sourceMappingURL=utils.js.map

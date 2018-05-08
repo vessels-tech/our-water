@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Datasource_1 = require("./Datasource");
+const Datasource_1 = require("./Datasources/Datasource");
 class Sync {
     constructor(isOneTime, datasource, orgId, methods, selectedDatatypes) {
         this.lastSyncDate = 0; //unix timestamp 

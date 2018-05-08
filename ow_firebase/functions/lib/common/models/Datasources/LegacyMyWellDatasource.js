@@ -44,7 +44,9 @@ class LegacyMyWellDatasource {
             //TODO: save using bulk method
             const newGroups = villages.map(village => {
                 const coords = utils_1.createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
-                return new Group_1.Group(village.name, orgId, GroupType_1.GroupType.Village, coords);
+                const externalIds = new Map();
+                externalIds.set(`mywell.${village.postcode}.${village.id}`, true);
+                return new Group_1.Group(village.name, orgId, GroupType_1.GroupType.Village, coords, externalIds);
             });
             const errors = [];
             const savedGroups = [];
@@ -93,7 +95,9 @@ class LegacyMyWellDatasource {
                 const villages = pincodeIds[pincode];
                 //TODO: the only issue with this approach is that the coordinates aren't in order.
                 const coords = villages.map(v => new firestore_1.GeoPoint(v.coordinates.lat, v.coordinates.lng));
-                return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords);
+                const externalIds = new Map();
+                externalIds.set(`mywell.${pincode}`, true);
+                return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords, externalIds);
             });
             let errors = [];
             let savedGroups = [];
@@ -116,21 +120,26 @@ class LegacyMyWellDatasource {
      * return
      */
     getResourcesData(orgId, fs) {
-        const uriResources = `${this.baseUrl}/api/resources`;
+        const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
+        // const uriResources = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',
             uri: uriResources,
             json: true,
         };
         let resources = [];
-        return request(options)
+        let legacyGroups = null;
+        return utils_1.getLegacyGroups(orgId, fs)
+            .then(_legacyGroups => legacyGroups = _legacyGroups)
+            .then(() => request(options))
             .then((legacyRes) => {
             legacyRes.forEach(r => {
                 const externalIds = ResourceIdType_1.default.fromLegacyMyWellId(r.postcode, r.id);
                 const coords = new firestore_1.GeoPoint(r.geo.lat, r.geo.lng);
                 const resourceType = ResourceType_1.resourceTypeFromString(r.type);
                 const owner = { name: r.owner, createdByUserId: 'default' };
-                const newResource = new Resource_1.Resource(orgId, externalIds, coords, resourceType, owner);
+                const groups = utils_1.findGroupMembershipsForResource(r, legacyGroups);
+                const newResource = new Resource_1.Resource(orgId, externalIds, coords, resourceType, owner, groups);
                 resources.push(newResource);
             });
             let errors = [];
@@ -142,7 +151,6 @@ class LegacyMyWellDatasource {
             });
             return savedResources;
         });
-        //TODO: define new group relationships somehow (this will be tricky - I've had too much wine)
     }
     /**
      * Get all readings from MyWell
@@ -194,13 +202,8 @@ class LegacyMyWellDatasource {
             const villageGroups = yield this.getGroupData(orgId, fs);
             const pincodeGroups = yield this.getPincodeData(orgId, fs);
             const resources = yield this.getResourcesData(orgId, fs);
-            const readings = yield this.getReadingsData(orgId, fs);
-            // return {
-            //   villageGroups,
-            //   pincodeGroups,
-            //   resources,
-            //   readings
-            // };
+            // const readings = await this.getReadingsData(orgId, fs);
+            //TODO: return proper SyncRunResult
             return null;
         });
     }

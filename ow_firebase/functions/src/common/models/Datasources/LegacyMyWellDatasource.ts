@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyGroups } from '../../utils';
 import { lang, isMoment } from 'moment';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
@@ -29,7 +29,6 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
  
-
   /**
    * Iterates through pincodes and villages from MyWell datasource
    * 
@@ -52,8 +51,10 @@ export default class LegacyMyWellDatasource implements Datasource {
       //TODO: save using bulk method
       const newGroups = villages.map(village => {
         const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
+        const externalIds = new Map<string, boolean>();
+        externalIds.set(`mywell.${village.postcode}.${village.id}`, true);
         
-        return new Group(village.name, orgId, GroupType.Village, coords);
+        return new Group(village.name, orgId, GroupType.Village, coords, externalIds);
       });
 
       const errors = [];
@@ -113,8 +114,10 @@ export default class LegacyMyWellDatasource implements Datasource {
         const villages: Array<LegacyVillage> = pincodeIds[pincode];
         //TODO: the only issue with this approach is that the coordinates aren't in order.
         const coords = villages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
+        const externalIds = new Map<string, boolean>();
+        externalIds.set(`mywell.${pincode}`, true);
 
-        return new Group(pincode, orgId, GroupType.Pincode, coords);
+        return new Group(pincode, orgId, GroupType.Pincode, coords, externalIds);
       });
 
       let errors = [];
@@ -141,7 +144,8 @@ export default class LegacyMyWellDatasource implements Datasource {
    * return
    */
   public getResourcesData(orgId: string, fs: Firestore): Promise<Array<Resource>> {
-    const uriResources = `${this.baseUrl}/api/resources`;
+    const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
+    // const uriResources = `${this.baseUrl}/api/resources`;
 
     const options = {
       method: 'GET',
@@ -150,16 +154,19 @@ export default class LegacyMyWellDatasource implements Datasource {
     };
 
     let resources: Array<Resource> = [];
-
-    return request(options)
+    let legacyGroups = null;
+    return getLegacyGroups(orgId, fs)
+    .then(_legacyGroups => legacyGroups = _legacyGroups)
+    .then(() => request(options))
     .then((legacyRes: Array<LegacyResource>) => {
       legacyRes.forEach(r => {
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
         const coords = new GeoPoint(r.geo.lat, r.geo.lng);
         const resourceType = resourceTypeFromString(r.type);
         const owner: ResourceOwnerType = {name: r.owner, createdByUserId: 'default'};
+        const groups: Map<string, boolean> = findGroupMembershipsForResource(r, legacyGroups);
 
-        const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner);
+        const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups);
         resources.push(newResource);
       });
 
@@ -173,8 +180,6 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       return savedResources;
     });
-
-    //TODO: define new group relationships somehow (this will be tricky - I've had too much wine)
   }
 
   /**
@@ -235,14 +240,9 @@ export default class LegacyMyWellDatasource implements Datasource {
     const villageGroups = await this.getGroupData(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
-    const readings = await this.getReadingsData(orgId, fs);
+    // const readings = await this.getReadingsData(orgId, fs);
 
-    // return {
-    //   villageGroups,
-    //   pincodeGroups,
-    //   resources,
-    //   readings
-    // };
+    //TODO: return proper SyncRunResult
 
     return null;
   }

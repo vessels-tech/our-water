@@ -1,5 +1,4 @@
-
-import Datasource, { deserializeDatasource } from './Datasource';
+import Datasource, { deserializeDatasource } from './Datasources/Datasource';
 import { SyncMethod } from '../enums/SyncMethod';
 
 export class Sync {

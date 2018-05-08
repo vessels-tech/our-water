@@ -9,7 +9,7 @@ const fb = require('firebase-admin');
 const SyncMethod_1 = require("../common/enums/SyncMethod");
 const Sync_1 = require("../common/models/Sync");
 const SyncRun_1 = require("../common/models/SyncRun");
-const LegacyMyWellDatasource_1 = require("../common/models/LegacyMyWellDatasource");
+const LegacyMyWellDatasource_1 = require("../common/models/Datasources/LegacyMyWellDatasource");
 module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());

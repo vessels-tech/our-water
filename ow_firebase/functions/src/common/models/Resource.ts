@@ -3,6 +3,7 @@ import { ResourceType } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
+import { GroupType } from "../enums/GroupType";
 
 export class Resource extends FirestoreDoc {
   docName = 'resource';
@@ -12,13 +13,14 @@ export class Resource extends FirestoreDoc {
   coords: GeoPoint
   resourceType: ResourceType
   owner: ResourceOwnerType
+  groups: any //simple dict with key of GroupId, value of true
 
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
   
 
   constructor(orgId: string, externalIds: ResourceIdType, coords: GeoPoint,
-    resourceType: ResourceType, owner: ResourceOwnerType) {
+    resourceType: ResourceType, owner: ResourceOwnerType, groups: any) {
     super();
     
     this.orgId = orgId;
@@ -26,6 +28,7 @@ export class Resource extends FirestoreDoc {
     this.coords = coords;
     this.resourceType = resourceType;
     this.owner = owner;
+    this.groups = groups;
   }
 
 
@@ -38,6 +41,7 @@ export class Resource extends FirestoreDoc {
       resourceType: this.resourceType,
       //TODO: this may cause trouble
       owner: this.owner,
+      groups: this.groups,
       lastValue: this.lastValue,
       lastReadingDatetime: this.lastReadingDatetime,
       createdAt: this.createdAt,

@@ -1,4 +1,5 @@
 const request = require('request-promise-native');
+const Group = require('../lib/common/models/Group');
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
@@ -37,7 +38,13 @@ const createNewSync = () => {
     });
 };
 
+// const createNewGroup = ({orgId, fs}) => {
+//   const newGroup
+
+// }
+
 
 module.exports = {
   createNewSync,
+  // createNewGroup,
 }

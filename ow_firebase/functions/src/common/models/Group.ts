@@ -8,14 +8,16 @@ export class Group {
   name: string
   type: GroupType
   coords: Array<GeoPoint>
+  externalIds: Map<string, boolean> 
   createdAt: Date
   updatedAt: Date
 
-  constructor(name: string, orgId: string, type: GroupType, coords: Array<GeoPoint>) {
+  constructor(name: string, orgId: string, type: GroupType, coords: Array<GeoPoint>, externalIds: Map<string, boolean>) {
     this.name = name;
     this.orgId = orgId;
     this.type = type;
     this.coords = coords;
+    this.externalIds = externalIds;
   }
 
   public create({ fs }): Promise<Group> {
@@ -29,6 +31,8 @@ export class Group {
   public save({ fs }): Promise<Group> {
     this.updatedAt = new Date();
     
+    console.log("serialized", this.serialize());
+
     return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
       .set(this.serialize())
       .then(ref => {
@@ -47,6 +51,8 @@ export class Group {
       name: this.name,
       type: this.type,
       coords: this.coords,
+      //this is just placeholder to see if we can get this to work.
+      externalIds: Array.from(this.externalIds).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {}),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
