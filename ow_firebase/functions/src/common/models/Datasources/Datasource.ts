@@ -20,6 +20,7 @@ export const deserializeDatasource = (ser) => {
 export default interface Datasource {
   type: DatasourceType
 
+  validate(orgId: string, fs): Promise<SyncRunResult>;
   pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult>;
   pushDataToDataSource(): Promise<SyncRunResult>;
 

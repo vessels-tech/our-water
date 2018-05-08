@@ -225,7 +225,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
         //get metadata that didn't exist on original reading
         const resource: Resource = findResourceMembershipsForResource(r, legacyResources);
-        const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id);
+        const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
         const groups: Map<string, boolean> = findGroupMembershipsForReading(r, legacyGroups);
 
         const newReading: Reading = new Reading(orgId, resource.id, resource.coords, 
@@ -245,6 +245,11 @@ export default class LegacyMyWellDatasource implements Datasource {
       return savedReadings;
     });
 
+  }
+
+  public async validate(orgId: string, fs): Promise<SyncRunResult> {
+    //TODO: restructure to return errors, warnings and results
+    throw new Error("validate not implemented for this data source");
   }
 
   public async pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {

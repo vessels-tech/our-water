@@ -191,7 +191,7 @@ class LegacyMyWellDatasource {
                 }
                 //get metadata that didn't exist on original reading
                 const resource = utils_1.findResourceMembershipsForResource(r, legacyResources);
-                const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id);
+                const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
                 const groups = utils_1.findGroupMembershipsForReading(r, legacyGroups);
                 const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, moment(r.createdAt).toDate(), r.value, externalIds);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
@@ -205,6 +205,12 @@ class LegacyMyWellDatasource {
                     .catch(err => errors.push(err));
             });
             return savedReadings;
+        });
+    }
+    validate(orgId, fs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //TODO: restructure to return errors, warnings and results
+            throw new Error("validate not implemented for this data source");
         });
     }
     pullDataFromDataSource(orgId, fs) {

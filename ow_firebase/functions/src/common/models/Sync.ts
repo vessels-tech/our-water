@@ -34,7 +34,7 @@ export class Sync {
   }
 
   public save({ fs }): Promise<Sync> {
-    //TODO: should this merge?
+
     return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
       .set(this.serialize())
       .then(ref => {

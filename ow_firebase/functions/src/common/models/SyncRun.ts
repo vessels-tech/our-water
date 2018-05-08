@@ -74,7 +74,7 @@ export class SyncRun {
       case SyncMethod.validate:
         try {
           //TODO: change this to use the a validate method instead
-          const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
+          const result = await sync.datasource.validate(this.orgId, fs);
           this.results = result.results;
 
         } catch (error) {

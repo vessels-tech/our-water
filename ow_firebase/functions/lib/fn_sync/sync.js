@@ -12,6 +12,7 @@ const SyncRun_1 = require("../common/models/SyncRun");
 const LegacyMyWellDatasource_1 = require("../common/models/Datasources/LegacyMyWellDatasource");
 const DatasourceType_1 = require("../common/enums/DatasourceType");
 const FileDatasource_1 = require("../common/models/Datasources/FileDatasource");
+const FileDatasourceOptions_1 = require("../common/models/FileDatasourceOptions");
 module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());
@@ -55,12 +56,13 @@ module.exports = (functions, admin) => {
         }
     };
     const initDatasourceWithOptions = (datasource) => {
+        console.log("datasource", datasource.type);
         switch (datasource.type) {
             case DatasourceType_1.DatasourceType.LegacyMyWellDatasource:
                 return new LegacyMyWellDatasource_1.default(datasource.url);
             case DatasourceType_1.DatasourceType.FileDatasource:
                 const { fileUrl, dataType, fileFormat, options } = datasource;
-                return new FileDatasource_1.FileDatasource(fileUrl, dataType, fileFormat, options);
+                return new FileDatasource_1.FileDatasource(fileUrl, dataType, fileFormat, FileDatasourceOptions_1.default.deserialize(options));
             default:
                 throw new Error(`Tried to initialize Datasource of unknown type: ${datasource.type}`);
         }

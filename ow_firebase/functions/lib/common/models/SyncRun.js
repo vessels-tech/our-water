@@ -64,7 +64,7 @@ class SyncRun {
                 case SyncMethod_1.SyncMethod.validate:
                     try {
                         //TODO: change this to use the a validate method instead
-                        const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
+                        const result = yield sync.datasource.validate(this.orgId, fs);
                         this.results = result.results;
                     }
                     catch (error) {

@@ -28,7 +28,6 @@ class Sync {
         return this.save({ fs });
     }
     save({ fs }) {
-        //TODO: should this merge?
         return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
             .set(this.serialize())
             .then(ref => {

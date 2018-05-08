@@ -50,7 +50,7 @@ export class FileDatasource implements Datasource {
         } 
 
         return rows.map((row, idx) => {
-          if (options.hasHeaderRow && idx === 0) {
+          if (options.includesHeadings && idx === 0) {
             return null;
           }
 
@@ -80,26 +80,38 @@ export class FileDatasource implements Datasource {
     //parse and don't save
 
     //TODO: return this
-    downloadAndParseCSV(this.fileUrl)
+    return downloadAndParseCSV(this.fileUrl)
     .then(rows => {
       const modelsToSave = this.convertRowsToModels(orgId, rows, this.dataType, this.options);
-      console.log("models to save are", modelsToSave);
     })
-
-    
-
-    return null;
+    .then(() => {
+      //TODO: return proper SyncRunResult
+      const result = {
+        results: [],
+        warnings: [],
+        errors: []
+      }
+      return result;
+    });
   }
 
   pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
     //download the file to local
     //deserialize based on some settings
+    //if no errors, 
+    //  Save the rows in a batch job
+    //  run a batch job which adds group and resource metadata to readings
 
-    return null
+    const result = {
+      results: [],
+      warnings: [],
+      errors: []
+    };
+    return Promise.resolve(result);  
   }
 
   pushDataToDataSource(): Promise<SyncRunResult> {
-    return null;
+    throw new Error("not implemented for this datasource");
   }
 
   serialize() {

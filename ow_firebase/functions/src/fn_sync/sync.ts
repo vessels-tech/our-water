@@ -13,11 +13,10 @@ import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
 import { Sync } from '../common/models/Sync';
 import { SyncRun } from '../common/models/SyncRun';
 import LegacyMyWellDatasource from '../common/models/Datasources/LegacyMyWellDatasource';
-import { METHODS } from 'http';
 import Datasource from '../common/models/Datasources/Datasource';
 import { DatasourceType } from '../common/enums/DatasourceType';
 import { FileDatasource } from '../common/models/Datasources/FileDatasource';
-import { SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION } from 'constants';
+import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -71,13 +70,15 @@ module.exports = (functions, admin) => {
   }
 
   const initDatasourceWithOptions = (datasource): Datasource => {
+    console.log("datasource", datasource.type);
     switch(datasource.type) {
       case DatasourceType.LegacyMyWellDatasource:
         return new LegacyMyWellDatasource(datasource.url);
         
       case DatasourceType.FileDatasource:
         const {fileUrl, dataType, fileFormat, options} = datasource;
-        return new FileDatasource(fileUrl, dataType, fileFormat, options);
+
+        return new FileDatasource(fileUrl, dataType, fileFormat, FileDatasourceOptions.deserialize(options));
 
       default:
         throw new Error(`Tried to initialize Datasource of unknown type: ${datasource.type}`)

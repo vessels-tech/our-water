@@ -20,8 +20,8 @@ module.exports = ({fs}) => {
     describe('csv utils', function() {
       this.timeout(10000);
 
-      it.only('downloads and parses file', () => {
-        const url = https://firebasestorage.googleapis.com/v0/b/our-water.appspot.com/o/MywelluploadDharta2017.xlsx%20-%20B-Well.tsv?alt=media&token=1e17d48f-5404-4f27-90f3-fb6a76a6dc45'
+      it('downloads and parses file', () => {
+        const url = 'https://firebasestorage.googleapis.com/v0/b/our-water.appspot.com/o/MywelluploadDharta2017.xlsx%20-%20B-Well.tsv?alt=media&token=1e17d48f-5404-4f27-90f3-fb6a76a6dc45';
         return utils.downloadAndParseCSV(url);
       });
     });

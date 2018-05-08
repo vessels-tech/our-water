@@ -35,7 +35,7 @@ class FileDatasource {
                     throw new Error('only legacy readings implemented for the Reading DataType');
                 }
                 return rows.map((row, idx) => {
-                    if (options.hasHeaderRow && idx === 0) {
+                    if (options.includesHeadings && idx === 0) {
                         return null;
                     }
                     //TODO: support other formats
@@ -54,20 +54,35 @@ class FileDatasource {
         //Download the file to local
         //parse and don't save
         //TODO: return this
-        utils_1.downloadAndParseCSV(this.fileUrl)
+        return utils_1.downloadAndParseCSV(this.fileUrl)
             .then(rows => {
             const modelsToSave = this.convertRowsToModels(orgId, rows, this.dataType, this.options);
-            console.log("models to save are", modelsToSave);
+        })
+            .then(() => {
+            //TODO: return proper SyncRunResult
+            const result = {
+                results: [],
+                warnings: [],
+                errors: []
+            };
+            return result;
         });
-        return null;
     }
     pullDataFromDataSource(orgId, fs) {
         //download the file to local
         //deserialize based on some settings
-        return null;
+        //if no errors, 
+        //  Save the rows in a batch job
+        //  run a batch job which adds group and resource metadata to readings
+        const result = {
+            results: [],
+            warnings: [],
+            errors: []
+        };
+        return Promise.resolve(result);
     }
     pushDataToDataSource() {
-        return null;
+        throw new Error("not implemented for this datasource");
     }
     serialize() {
         return {
