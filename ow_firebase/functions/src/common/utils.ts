@@ -36,8 +36,14 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
   .then(sn => {
     const groups = [];
     sn.forEach(result => groups.push(result.data()));
+    console.log(`Found: ${groups.length} groups.`);
 
     groups.forEach((group: Group) => {
+      if (!group.externalIds) {
+        console.log("group is missing externalIds", group);
+        return;
+      }
+      
       mappedGroups.set(group.externalIds.legacyMyWellId, resource);
     });
 
@@ -57,8 +63,14 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
   .then(sn => {
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
+    console.log(`Found: ${resources.length} resources.`);
 
     resources.forEach((res: Resource) => {
+      if (!resource.externalIds) {
+        console.log("resource is missing externalIds", resource);
+        return;
+      }
+
       mappedResources.set(resource.externalIds.legacyMyWellId, res);
       //resources should only have 1 mywellId, but let's be safe
       // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));

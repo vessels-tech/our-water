@@ -26,7 +26,12 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
         .then(sn => {
         const groups = [];
         sn.forEach(result => groups.push(result.data()));
+        console.log(`Found: ${groups.length} groups.`);
         groups.forEach((group) => {
+            if (!group.externalIds) {
+                console.log("group is missing externalIds", group);
+                return;
+            }
             mappedGroups.set(group.externalIds.legacyMyWellId, __1.resource);
         });
         return mappedGroups;
@@ -43,7 +48,12 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
+        console.log(`Found: ${resources.length} resources.`);
         resources.forEach((res) => {
+            if (!__1.resource.externalIds) {
+                console.log("resource is missing externalIds", __1.resource);
+                return;
+            }
             mappedResources.set(__1.resource.externalIds.legacyMyWellId, res);
             //resources should only have 1 mywellId, but let's be safe
             // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
