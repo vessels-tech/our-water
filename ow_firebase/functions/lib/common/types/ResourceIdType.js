@@ -17,15 +17,20 @@ class ResourceIdType {
         legacyId.legacyMyWellId = `${postcode}.${resourceId}`;
         return legacyId;
     }
-    static fromLegacyReadingId(id) {
+    static fromLegacyReadingId(id, postcode, resourceId) {
         const legacyId = new ResourceIdType();
-        legacyId.legacyMyWellId = `${id}`;
+        legacyId.legacyMyWellId = `${id}`; //identifies this specific reading
+        legacyId.legacyMyWellResourceId = `${postcode}.${resourceId}`; //identifies the reading's resource id
         return legacyId;
     }
     serialize() {
-        return {
+        const serialized = {
             legacyMyWellId: this.legacyMyWellId,
         };
+        if (this.legacyMyWellResourceId) {
+            serialized['legacyMyWellResourceId'] = this.legacyMyWellResourceId;
+        }
+        return serialized;
     }
 }
 exports.default = ResourceIdType;

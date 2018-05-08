@@ -3,6 +3,13 @@ import { DatasourceType } from "../../enums/DatasourceType";
 import SyncRunResult from "../../types/SyncRunResult";
 import { DataType, FileFormat } from "../../enums/FileDatasourceTypes";
 import FileDatasourceOptions from "../FileDatasourceOptions";
+import * as Papa from 'papaparse';
+import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId } from "../../utils";
+import FirestoreDoc from "../FirestoreDoc";
+import { Reading } from "../Reading";
+import * as moment from 'moment';
+import ResourceIdType from "../../types/ResourceIdType";
+import { Resource } from "../Resource";
 
 /**
  * Defines a datasource which parses information from a file
@@ -33,9 +40,53 @@ export class FileDatasource implements Datasource {
     this.options = options;
   }
 
+  //TODO: move elsewhere
+  convertRowsToModels(orgId: string, rows: any, dataType: DataType, options: FileDatasourceOptions): Array<FirestoreDoc>{
+
+    switch(dataType) {
+      case DataType.Reading:
+        if (!options.usesLegacyMyWellIds) {
+          throw new Error('only legacy readings implemented for the Reading DataType');
+        } 
+
+        return rows.map((row, idx) => {
+          if (options.hasHeaderRow && idx === 0) {
+            return null;
+          }
+
+          //TODO: support other formats
+          let [dateStr, pincode, legacyResourceId, valueStr] = row;
+          const resourceType = resourceTypeForLegacyResourceId(legacyResourceId);
+          const newReading: Reading = Reading.legacyReading(
+            orgId, 
+            resourceType,
+            moment(dateStr).toDate(),
+            Number(valueStr), 
+            ResourceIdType.fromLegacyReadingId(null, pincode, legacyResourceId)
+          );
+
+          return newReading;
+        });
+
+      case DataType.Group:
+      case DataType.Resource:
+      default:
+        throw new Error('ConvertRowsToModels not yet implemented for these DataTypes')
+    }
+  }
+
   validate(orgId: string, fs): Promise<SyncRunResult> {
     //Download the file to local
     //parse and don't save
+
+    //TODO: return this
+    downloadAndParseCSV(this.fileUrl)
+    .then(rows => {
+      const modelsToSave = this.convertRowsToModels(orgId, rows, this.dataType, this.options);
+      console.log("models to save are", modelsToSave);
+    })
+
+    
 
     return null;
   }

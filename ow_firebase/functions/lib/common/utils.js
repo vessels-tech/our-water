@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const firestore_1 = require("@google-cloud/firestore");
 const __1 = require("..");
+const Papa = require("papaparse");
+const request = require("request-promise-native");
+const ResourceType_1 = require("./enums/ResourceType");
 /**
  * Create a diamond shape from a latlng
  * use this to easily convert from a legacy village into a Group
@@ -128,5 +131,32 @@ exports.anyToMap = (input) => {
         const value = input[key];
         return acc.set(key, value);
     }, new Map());
+};
+exports.downloadAndParseCSV = (url) => {
+    //TODO: this is not optimal, we should use streaming, and not read everything into memory first.
+    //but it's late, and I'm tired
+    return request(url)
+        .then(result => {
+        return new Promise((resolve, reject) => {
+            Papa.parse(result, {
+                error: function (err) {
+                    console.log("Error parsing CSV");
+                    reject(err);
+                },
+                complete: function (res) {
+                    resolve(res.data);
+                }
+            });
+        });
+    });
+};
+exports.resourceTypeForLegacyResourceId = (legacyResourceId) => {
+    if (legacyResourceId.startsWith('117')) {
+        return ResourceType_1.ResourceType.Raingauge;
+    }
+    if (legacyResourceId.startsWith('118')) {
+        return ResourceType_1.ResourceType.Checkdam;
+    }
+    return ResourceType_1.ResourceType.Well;
 };
 //# sourceMappingURL=utils.js.map

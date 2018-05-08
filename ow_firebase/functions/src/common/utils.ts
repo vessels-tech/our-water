@@ -5,6 +5,10 @@ import { Group } from "./models/Group";
 import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
 import { resource } from "..";
+import * as Papa from 'papaparse';
+import * as request from 'request-promise-native';
+import * as filestore from 'fs';
+import { ResourceType } from "./enums/ResourceType";
 
 
 /**
@@ -162,4 +166,37 @@ export const anyToMap = (input: any) => {
     const value = input[key];
     return acc.set(key, value);
   }, new Map());
+}
+
+
+export const downloadAndParseCSV = (url) => {
+  //TODO: this is not optimal, we should use streaming, and not read everything into memory first.
+  //but it's late, and I'm tired
+  return request(url)
+  .then(result => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(result, {
+        error: function(err) {
+          console.log("Error parsing CSV");
+          reject(err);
+        },
+        complete: function (res) {
+          resolve(res.data);
+        }
+      });
+    });
+  });
+}
+
+export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceType => {
+
+  if (legacyResourceId.startsWith('117')) {
+    return ResourceType.Raingauge;
+  }
+
+  if (legacyResourceId.startsWith('118')) {
+    return ResourceType.Checkdam;
+  }
+
+  return ResourceType.Well;
 }

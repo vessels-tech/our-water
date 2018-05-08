@@ -11,7 +11,7 @@ export const deserializeDatasource = (ser) => {
     case DatasourceType.LegacyMyWellDatasource:
       return new LegacyMyWellDatasource(ser.baseUrl);
     case DatasourceType.FileDatasource:
-      return new FileDatasource(ser.fileUrl, ser.dataType, ser.options);
+      return new FileDatasource(ser.fileUrl, ser.dataType, ser.fileFormat, ser.options);
     default: 
       throw new Error(`Tried to deserialize datasource of type: ${ser.type}`);
   }

@@ -8,7 +8,7 @@ exports.deserializeDatasource = (ser) => {
         case DatasourceType_1.DatasourceType.LegacyMyWellDatasource:
             return new LegacyMyWellDatasource_1.default(ser.baseUrl);
         case DatasourceType_1.DatasourceType.FileDatasource:
-            return new FileDatasource_1.FileDatasource(ser.fileUrl, ser.dataType, ser.options);
+            return new FileDatasource_1.FileDatasource(ser.fileUrl, ser.dataType, ser.fileFormat, ser.options);
         default:
             throw new Error(`Tried to deserialize datasource of type: ${ser.type}`);
     }

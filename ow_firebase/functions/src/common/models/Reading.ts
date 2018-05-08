@@ -33,22 +33,54 @@ export class Reading extends FirestoreDoc {
     this.externalIds = externalIds;
   }
 
+  /**
+   * Create a reading from legacy data
+   * we put in empty fields, as they will be filled in later by a batch job
+   */
+  public static legacyReading(orgId: string, resourceType: ResourceType, datetime: Date, value: number, externalIds: ResourceIdType) {
+    const resourceId = '-1';
+    const coords = null;
+    const reading = new Reading(orgId, null, null, resourceType, null, datetime, value, externalIds);
+    reading.isLegacy = true;
+
+    return reading;
+  }
+
   serialize() {
-    return {
+    //Required fields:
+    const serialized = {
       id: this.id,
       docName: this.docName,
       orgId: this.orgId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      resourceId: this.resourceId,
-      externalIds: this.externalIds.serialize(),
-      coords: this.coords,
       resourceType: this.resourceType,
-      groups: serializeMap(this.groups),
       datetime: this.datetime,
       value: this.value,
-      isLegacy: this.isLegacy,
     }
+
+    //optional params
+    if (this.resourceId) {
+      serialized['resourceId'] = this.resourceId;
+    }
+
+    if (this.externalIds) {
+      serialized['externalIds'] = this.externalIds.serialize();
+    }
+
+    if (this.coords) {
+      serialized['coords'] = this.coords;
+    }
+
+    if (this.groups) {
+      serialized['groups'] = serializeMap(this.groups);
+    }
+
+    if (this.isLegacy) {
+      serialized['isLegacy'] = this.isLegacy;
+    }
+
+    return serialized;
   }
 
 

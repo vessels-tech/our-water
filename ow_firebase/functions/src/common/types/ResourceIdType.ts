@@ -1,5 +1,6 @@
 export default class ResourceIdType {
   legacyMyWellId: string | null
+  legacyMyWellResourceId: string | null
   //We can add other bits and pieces here
 
 
@@ -24,17 +25,24 @@ export default class ResourceIdType {
     return legacyId
   }
 
-  static fromLegacyReadingId(id: number): ResourceIdType {
+  static fromLegacyReadingId(id: number, postcode:number, resourceId: number): ResourceIdType {
     const legacyId = new ResourceIdType();
-    legacyId.legacyMyWellId = `${id}`;
+    legacyId.legacyMyWellId = `${id}`; //identifies this specific reading
+    legacyId.legacyMyWellResourceId = `${postcode}.${resourceId}`; //identifies the reading's resource id
 
     return legacyId
   }
 
   public serialize(): any {
-    return {
+    const serialized = {
       legacyMyWellId: this.legacyMyWellId,
     };
+
+    if (this.legacyMyWellResourceId) {
+      serialized['legacyMyWellResourceId'] = this.legacyMyWellResourceId;
+    }
+
+    return serialized;
   }
 
 }
