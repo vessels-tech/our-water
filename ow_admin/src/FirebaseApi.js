@@ -1,15 +1,14 @@
+import UUID from 'simply-uuid';
 
-import { fs, functions } from './utils/Firebase';
+import { fs, functions, storage } from './utils/Firebase';
 
 class FirebaseApi {
 
   static getResourcesForOrg({orgId}) {
-    console.log('id is', orgId);
     return fs.collection('org').doc(orgId).collection('resource').get()
     .then(sn => {
-      console.log(sn);
       const resources = [];
-      sn.forEach((doc) => {
+      sn.forEach(doc => {
         //Get each document, put in the id
         const data = doc.data();
         data.id = doc.id;
@@ -22,13 +21,57 @@ class FirebaseApi {
 
   static createNewResource({orgId, resourceData}) {
     const resource = functions.httpsCallable(`resource/${orgId}`);
-  
-    //TODO: cors, figure out how to set the path here.
+
     return resource(resourceData)
       .then(result => {
         // Read result of the Cloud Function.
       })
   };
+
+  /**
+   * Upload the file to firebase, and return the path
+   */
+  static uploadFile({orgId, file}) {
+    const newFileRef = storage.ref().child(`${orgId}/fileSync/${UUID.generate()}`);
+
+    return newFileRef.put(file)
+    .then(sn =>  {
+      console.log('snapshot', sn);
+      return sn.ref.getDownloadURL();
+    });
+  }
+
+  /**
+   * Create a 'Sync' for uploading a file
+   * 
+   * returns a syncId
+   */
+  static createFileUploadSync({orgId, fileUrl}) {
+    const resource = functions.httpsCallable(`resource/${orgId}`);
+
+    return resource(resourceData)
+    .then(result => {
+      // Read result of the Cloud Function.
+    })
+  }
+
+  /**
+   * Run a sync of a given id with a few extra options
+   * 
+   * returns the id of the 'syncRun'.
+   */
+  static runFileUploadSync({orgId, syncId, validateOnly}) {
+
+  }
+
+
+  static getSyncRun({orgId, syncRunId}) {
+
+  }
+
+
+
+
 }
 
 export default FirebaseApi;

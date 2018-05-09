@@ -7,7 +7,7 @@ const config = {
   authDomain: process.env.REACT_APP_FB_AUTH_DOMAIN,
   databaseURL: process.env.REACT_APP_FB_DATABASE_URL,
   projectId: process.env.REACT_APP_FB_PROJECT_ID,
-  // storageBucket: '',
+  storageBucket: process.env.REACT_APP_FB_STORAGE_BUCKET,
   // messagingSenderId: YOUR_MESSAGING_SENDER_ID,
 };
 
@@ -21,9 +21,11 @@ const auth = firebase.auth();
 const functions = firebase.functions();
 //Firestore database
 const fs = firebase.firestore();
+const storage = firebase.storage();
 
 export {
   auth,
   fs,
   functions,
+  storage,
 };

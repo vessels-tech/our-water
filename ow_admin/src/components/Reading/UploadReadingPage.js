@@ -23,12 +23,10 @@ class UploadReadingPage extends Component {
   /* Event Handlers */
 
   handleFileDrop(files) {
+    //TODO: allow only one file at a time
     const { filesToUpload } = this.state;
 
-    console.log('files', files);
-
     files.forEach(file => filesToUpload.push(file));
-
     this.setState({
       filesToUpload
     });
@@ -41,7 +39,24 @@ class UploadReadingPage extends Component {
       validationStatus: FileUploadValidationResults.pending,
     });
 
-    //TODO: upload file
+    return Promise.all(
+      filesToUpload.map(file => {
+        return FirebaseApi.uploadFile({orgId, file})
+      })
+    )
+    .then(uploadedPaths => {
+      console.log('uploadedPaths:', uploadedPaths);
+      
+
+      //TODO: now create and run the sync
+    })
+    .catch(err => {
+      console.log('error uploading files', err);
+
+      this.setState({
+        validationStatus: FileUploadValidationResults.failed,
+      });
+    });
   }
 
   process() {
