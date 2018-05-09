@@ -17,6 +17,12 @@ class UploadReadingPage extends Component {
     this.state = {
       filesToUpload: [],
       validationStatus: FileUploadValidationResults.notStarted,
+      syncId: null,
+      validateRetries: [10000, 20000, 40000, 80000, 160000],
+      syncRetries: [10000, 20000, 40000, 80000, 160000],
+      validationMessages:[],
+      errorMessages: [],
+      successMessages: [],
     };
   }
 
@@ -33,10 +39,10 @@ class UploadReadingPage extends Component {
   }
 
   uploadAndValidate() {
-    const { filesToUpload } = this.state;
+    const { filesToUpload, validateRetries } = this.state;
 
     this.setState({
-      validationStatus: FileUploadValidationResults.pending,
+      validationStatus: FileUploadValidationResults.uploadingFiles,
     });
 
     return Promise.all(
@@ -45,30 +51,133 @@ class UploadReadingPage extends Component {
       })
     )
     .then(uploadedPaths => {
-      console.log('uploadedPaths:', uploadedPaths);
-      
-
-      //TODO: now create and run the sync
+      const fileUrl = uploadedPaths[0];
+      //Just for testing now
+      // const fileUrl = 'https://firebasestorage.googleapis.com/v0/b/our-water.appspot.com/o/YccAYRrMjdwa0VFuwjVi%2FfileSync%2Ff9abc637-5fe3-4598-8db1-446b8c7b269d?alt=media&token=aad829b0-4836-479a-9f64-273b98a44782';
+      return FirebaseApi.createFileUploadSync({ orgId, fileUrl });
     })
-    .catch(err => {
-      console.log('error uploading files', err);
+    .then(result => {
+      console.log("sync", result);
+      const syncId = result.syncId;
+      this.setState({
+        syncId,
+        validationStatus: FileUploadValidationResults.validatingFiles,
+      });
+
+      return FirebaseApi.runFileUploadSync({orgId, syncId, validateOnly: true});
+    })
+    .then(result => FirebaseApi.pollForSyncRunStatus({
+       orgId, 
+       syncRunId: result.syncRunId, 
+       retries: validateRetries 
+    }))
+    .then(syncRun => {
+      console.log("finshed polling syncRun", syncRun);
+      this.setState({
+        validationStatus: FileUploadValidationResults.validationSuccess,
+        successMessages: syncRun.results,
+        validationMessages: syncRun.warnings,
+        errors: syncRun.errors
+      });
+    })
+    .catch(syncRun => {
+      console.log('error uploading files', syncRun);
 
       this.setState({
         validationStatus: FileUploadValidationResults.failed,
+        successMessages: syncRun.results,
+        validationMessages: syncRun.warnings,
+        errors: syncRun.errors
       });
     });
   }
 
   process() {
-    //TODO: get the SyncId, and run without validate option
+    const { syncId, syncRetries } = this.state;
     
     this.setState({
-      validationStatus: FileUploadValidationResults.pending,
+      validationStatus: FileUploadValidationResults.uploadingFiles,
     });
 
+    return FirebaseApi.runFileUploadSync({ orgId, syncId, validateOnly: false })
+    .then(result => {
+      this.setState({
+        validationStatus: FileUploadValidationResults.processingSync,
+      });
+
+      return FirebaseApi.pollForSyncRunStatus({ orgId, syncRunId: result.syncRunId, retries: syncRetries})
+    })
+    .then(syncRun => {
+      console.log("finshed polling syncRun", syncRun); 
+      this.setState({
+        validationStatus: FileUploadValidationResults.success,
+      });
+    })
+    .catch(syncRun => {
+      console.log("sync run failed or timed out", syncRun);
+
+      let validationStatus = FileUploadValidationResults.failed;
+      if (syncRun.status === 'running') {
+        validationStatus = FileUploadValidationResults.timedOut;
+      }
+
+      this.setState({
+        validationStatus,
+      });
+    });
   }
 
   /* Render Extensions */
+
+  getStatusMessage() {
+    const { validationStatus } = this.state;
+
+    if (validationStatus === FileUploadValidationResults.notStarted) {
+      return null;
+    }
+
+    let statusText = "";
+    let statusTextColor = 'black'
+
+    switch (validationStatus) {
+      case FileUploadValidationResults.uploadingFiles:
+        statusText = 'Uploading Files.';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.validatingFiles:
+        statusText = 'Validating Files';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.processingSync:
+        statusText = 'Processing Sync';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.validationSuccess:
+        statusText = 'Validation was successful.';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.failed:
+        statusText = 'Validation or Sync Failed.';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.success:
+        statusText = 'Sync success!';
+        statusTextColor = 'black';
+      break;
+      case FileUploadValidationResults.timedOut:
+        statusText = 'Sync timed out.';
+        statusTextColor = 'black';
+      break;
+      default:
+        statusText = "Unknown status.";
+    }
+
+    return (
+      <div>
+        <h3>{statusText}</h3>
+      </div>
+    )
+  }
 
   getFileDrop() {
     const { filesToUpload } = this.state;
@@ -112,18 +221,38 @@ class UploadReadingPage extends Component {
     );
   }
 
-  getValidationDialog() {
-    const { validationStatus } = this.state;
+  getValidationMessages() {
+    const { validationStatus, validationMessages, errorMessages } = this.state;
 
-    if (validationStatus === FileUploadValidationResults.failed) {
+    if (validationMessages.length > 0) {
       return (
         <div>
-          Validation failed for the following reasons:
+          Validation Messages:
+          <ul>
+            {validationMessages.map(message => <li key={message}>{message}</li>)}
+          </ul>
         </div>
       );
     }
 
     return null;
+  }
+
+  getErrorMessages() {
+    const { errorMessages } = this.state;
+
+    if (errorMessages.length === 0) {
+      return null;
+    }
+
+    return (
+      <div>
+        Error Messages:
+          <ul>
+          {errorMessages.map(message => <li key={message}>{message}</li>)}
+        </ul>
+      </div>
+    );
   }
 
   getButtons() {
@@ -146,7 +275,9 @@ class UploadReadingPage extends Component {
       onClick = () => this.uploadAndValidate();
     }
 
-    if (validationStatus === FileUploadValidationResults.pending) {
+    if (validationStatus === FileUploadValidationResults.uploadingFiles 
+      || validationStatus === FileUploadValidationResults.validatingFiles
+      || validationStatus === FileUploadValidationResults.processingSync) {
       disabled = true;
       loading = true;
     }
@@ -176,10 +307,12 @@ class UploadReadingPage extends Component {
 
     return (
       <div>
+        {this.getStatusMessage()}
         {this.getFileDrop()}
         {this.getPendingFiles()}
         {this.getSettingsForm()}
-        {this.getValidationDialog()}
+        {this.getValidationMessages()}
+        {this.getErrorMessages()}
         {this.getButtons()}
 
       </div>

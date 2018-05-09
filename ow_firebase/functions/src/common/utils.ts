@@ -200,3 +200,15 @@ export const resourceTypeForLegacyResourceId = (legacyResourceId: string): Resou
 
   return ResourceType.Well;
 }
+
+export const isNullOrEmpty = (stringOrNull: string): boolean => {
+  if (!stringOrNull) {
+    return true;
+  }
+
+  if (stringOrNull === '') {
+    return true;
+  }
+
+  return false;
+}

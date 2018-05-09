@@ -4,7 +4,7 @@ import SyncRunResult from "../../types/SyncRunResult";
 import { DataType, FileFormat } from "../../enums/FileDatasourceTypes";
 import FileDatasourceOptions from "../FileDatasourceOptions";
 import * as Papa from 'papaparse';
-import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId } from "../../utils";
+import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId, isNullOrEmpty } from "../../utils";
 import FirestoreDoc from "../FirestoreDoc";
 import { Reading } from "../Reading";
 import * as moment from 'moment';
@@ -54,13 +54,28 @@ export class FileDatasource implements Datasource {
             return null;
           }
 
-          //TODO: support other formats
+          //TODO: support other row orders
           let [dateStr, pincode, legacyResourceId, valueStr] = row;
+          if (isNullOrEmpty(dateStr) ||
+              isNullOrEmpty(pincode) ||
+              isNullOrEmpty(legacyResourceId) ||
+              isNullOrEmpty(valueStr)
+          ) {
+            console.log("Found row with missing data:", row);
+            return null;
+          }
+
+          const date = moment(dateStr);
+          if (!date.isValid()) {
+            console.log("Row has invalid date:", row, dateStr);
+            return null;
+          }
+
           const resourceType = resourceTypeForLegacyResourceId(legacyResourceId);
           const newReading: Reading = Reading.legacyReading(
             orgId, 
             resourceType,
-            moment(dateStr).toDate(),
+            date.toDate(),
             Number(valueStr), 
             ResourceIdType.fromLegacyReadingId(null, pincode, legacyResourceId)
           );
@@ -81,17 +96,24 @@ export class FileDatasource implements Datasource {
 
     //TODO: return this
     return downloadAndParseCSV(this.fileUrl)
-    .then(rows => {
-      const modelsToSave = this.convertRowsToModels(orgId, rows, this.dataType, this.options);
-    })
-    .then(() => {
-      //TODO: return proper SyncRunResult
+    .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+    .then(modelsAndNulls => {
+      const models = modelsAndNulls.filter(model => model !== null);
+      const nulls = modelsAndNulls.filter(model => model === null);
+
       const result = {
-        results: [],
-        warnings: [],
+        results: [`Validated ${models.length} readings.`],
+        warnings: [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`],
         errors: []
       }
       return result;
+    })
+    .catch(err => {
+      return {
+        results: [],
+        warnings: [],
+        errors: [err]
+      }
     });
   }
 
@@ -102,11 +124,26 @@ export class FileDatasource implements Datasource {
     //  Save the rows in a batch job
     //  run a batch job which adds group and resource metadata to readings
 
-    const result = {
+    let result = {
       results: [],
       warnings: [],
       errors: []
     };
+    //TODO: return this
+    downloadAndParseCSV(this.fileUrl)
+    .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+    .then(modelsAndNulls => {
+      const models = modelsAndNulls.filter(model => model !== null);
+      const nulls = modelsAndNulls.filter(model => model === null);
+      
+      result.results = [`Validated ${models.length} readings.`];
+      result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
+
+      //TODO: batch save
+
+    });
+
+    
     return Promise.resolve(result);  
   }
 

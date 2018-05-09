@@ -2,7 +2,15 @@
 
 export const FileUploadValidationResults = {
   notStarted: 'notStarted',
-  pending: 'pending',
+
+  uploadingFiles: 'uploadingFiles',
+  validatingFiles: 'validatingFiles',
+  processingSync: 'processingSync',
+
+  validationSuccess: 'validationSuccess', 
+  
+  
   failed: 'failed',
   success: 'success',
+  timedOut: 'timedOut',
 }

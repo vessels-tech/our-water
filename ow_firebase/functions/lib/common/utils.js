@@ -159,4 +159,13 @@ exports.resourceTypeForLegacyResourceId = (legacyResourceId) => {
     }
     return ResourceType_1.ResourceType.Well;
 };
+exports.isNullOrEmpty = (stringOrNull) => {
+    if (!stringOrNull) {
+        return true;
+    }
+    if (stringOrNull === '') {
+        return true;
+    }
+    return false;
+};
 //# sourceMappingURL=utils.js.map

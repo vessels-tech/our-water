@@ -66,14 +66,8 @@ class SyncRun {
                         //TODO: change this to use the a validate method instead
                         const result = yield sync.datasource.validate(this.orgId, fs);
                         this.results = result.results;
-                    }
-                    catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error.message);
-                    }
-                    try {
-                        const result = yield sync.datasource.pushDataToDataSource();
-                        this.results = result.results;
+                        this.warnings = result.warnings;
+                        console.log("result is: ", result);
                     }
                     catch (error) {
                         console.log('error', error);

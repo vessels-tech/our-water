@@ -1,4 +1,6 @@
 import UUID from 'simply-uuid';
+import sleep from './utils/Sleep';
+
 
 import { fs, functions, storage } from './utils/Firebase';
 
@@ -47,12 +49,31 @@ class FirebaseApi {
    * returns a syncId
    */
   static createFileUploadSync({orgId, fileUrl}) {
-    const resource = functions.httpsCallable(`resource/${orgId}`);
+    const createSync = functions.httpsCallable(`sync/${orgId}`);
+    const data = {
+      isOneTime: true,
+      datasource: {
+        type: "FileDatasource",
+        fileUrl,
+        dataType: 'Reading',
+        fileFormat: 'TSV', //ignored for now
+        options: {
+          includesHeadings: true,
+          usesLegacyMyWellIds: true,
+        }
+      },
+      type: "unknown",
+      selectedDatatypes: [
+        'reading',
+      ]
+    };
 
-    return resource(resourceData)
-    .then(result => {
-      // Read result of the Cloud Function.
-    })
+    return createSync(data)
+    .then(result => result.data)
+    .catch(err => {
+      console.log(err);
+      return Promise.reject(err);
+    });
   }
 
   /**
@@ -61,16 +82,59 @@ class FirebaseApi {
    * returns the id of the 'syncRun'.
    */
   static runFileUploadSync({orgId, syncId, validateOnly}) {
+    let method = 'pullFrom';
+    if (validateOnly) {
+      method = 'validate';
+    }
+    const runSync = functions.httpsCallable(`sync/${orgId}/run/${syncId}?method=${method}`);
 
+    return runSync()
+    .then(result => result.data)
+    .catch(err => {
+      console.log(err);
+      return Promise.reject(err);
+    });
   }
 
 
   static getSyncRun({orgId, syncRunId}) {
-
+    return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get()
+    .then(sn => {
+      return sn.data();
+    });
   }
 
+  /**
+   * Loop through retries, waiting until the sync is finished
+   * @param {*} param0 
+   */
+  static pollForSyncRunStatus({orgId, syncRunId, retries}) {
+    return new Promise((resolve, reject) => {
+      retries.some((retryTime, idx) => {
+        sleep(retryTime)
+        .then(() => FirebaseApi.getSyncRun({ orgId, syncRunId }))
+        .then(syncRun => {
+          console.log("syncRun:", syncRun);
 
+          if (syncRun.status === 'finished') {
+            return resolve(syncRun);
+          }
 
+          if (syncRun.status === 'failed') {
+            return reject(syncRun);
+          }
+
+          //Final run, no result
+          console.log('idx', idx);
+          if (idx === retries.length - 1) {
+            console.log('sync timed out');
+            return reject(syncRun);
+          }
+        });
+      });
+
+    });
+  }
 
 }
 

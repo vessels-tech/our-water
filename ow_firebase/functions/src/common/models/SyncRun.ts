@@ -69,27 +69,21 @@ export class SyncRun {
     await this.save({fs});
 
     switch(this.syncMethod) {
-
       //call the datasource methods, but don't commit anything to the database
       case SyncMethod.validate:
         try {
           //TODO: change this to use the a validate method instead
           const result = await sync.datasource.validate(this.orgId, fs);
           this.results = result.results;
+          this.warnings = result.warnings;
+          
+          console.log("result is: ", result);
 
         } catch (error) {
           console.log('error', error);
           this.errors.push(error.message);
         }
 
-        try {
-          const result = await sync.datasource.pushDataToDataSource();
-          this.results = result.results;
-
-        } catch (error) {
-          console.log('error', error);
-          this.errors.push(error.message);
-        }
       break;
 
       //Pull from the external datasource, and save to db

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
+const moment = require("moment");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -74,7 +75,7 @@ module.exports = (functions, admin) => {
         const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate], selectedDatatypes);
         return sync.create({ fs })
             .then((createdSync) => {
-            return res.json({ syncId: createdSync.id });
+            return res.json({ data: { syncId: createdSync.id } });
         })
             .catch(err => {
             console.log(err);
@@ -101,21 +102,27 @@ module.exports = (functions, admin) => {
             method: SyncMethod_1.SyncMethodValidation.required()
         }
     };
-    app.get('/:orgId/run/:syncId', validate(runSyncValidation), (req, res, next) => {
+    //TODO: this should probably be get, but httpsCallable seems to only want to do POST
+    //refer to this: https://github.com/firebase/firebase-js-sdk/blob/d59b72493fc89ff89c8a17bf142f58517de4c566/packages/functions/src/api/service.ts
+    app.post('/:orgId/run/:syncId', validate(runSyncValidation), (req, res, next) => {
         const { orgId, syncId } = req.params;
         const { method } = req.query;
         return Sync_1.Sync.getSync({ orgId, id: syncId, fs })
             .then((sync) => {
+            if (sync.isOneTime && moment(sync.lastSyncDate).unix() !== 0) {
+                throw new Error(`Cannot run sync twice. Sync is marked as one time only`);
+            }
             //TODO: put in proper email addresses
             const run = new SyncRun_1.SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
             return run.create({ fs });
         })
             .then((run) => {
+            //TODO:when the sync run finishes, set the sync.lastSyncDate
             //run the sync, and return the id of the run.
             //We don't return the result of this promise. User can look up the results later on
             run.run({ fs })
                 .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
-            return res.json({ syncRunId: run.id });
+            return res.json({ data: { syncRunId: run.id } });
         })
             .catch(err => {
             console.log('error in runSync:', err);

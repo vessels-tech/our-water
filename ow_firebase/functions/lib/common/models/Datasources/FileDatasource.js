@@ -40,6 +40,15 @@ class FileDatasource {
                     }
                     //TODO: support other formats
                     let [dateStr, pincode, legacyResourceId, valueStr] = row;
+                    console.log("row is: ", row);
+                    console.log(dateStr, pincode, legacyResourceId, valueStr);
+                    if (utils_1.isNullOrEmpty(dateStr) ||
+                        utils_1.isNullOrEmpty(pincode) ||
+                        utils_1.isNullOrEmpty(legacyResourceId) ||
+                        utils_1.isNullOrEmpty(valueStr)) {
+                        console.log("Found row with missing data:", row);
+                        return null;
+                    }
                     const resourceType = utils_1.resourceTypeForLegacyResourceId(legacyResourceId);
                     const newReading = Reading_1.Reading.legacyReading(orgId, resourceType, moment(dateStr).toDate(), Number(valueStr), ResourceIdType_1.default.fromLegacyReadingId(null, pincode, legacyResourceId));
                     return newReading;
@@ -55,17 +64,24 @@ class FileDatasource {
         //parse and don't save
         //TODO: return this
         return utils_1.downloadAndParseCSV(this.fileUrl)
-            .then(rows => {
-            const modelsToSave = this.convertRowsToModels(orgId, rows, this.dataType, this.options);
-        })
-            .then(() => {
-            //TODO: return proper SyncRunResult
+            .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+            .then(modelsAndNulls => {
+            console.log('models and nulls', modelsAndNulls);
+            const models = modelsAndNulls.filter(model => model !== null);
+            const nulls = modelsAndNulls.filter(model => model === null);
             const result = {
-                results: [],
-                warnings: [],
+                results: [`Validated ${models.length} readings.`],
+                warnings: [`A total of ${nulls.length} readings were invalid, and filtered out.`],
                 errors: []
             };
             return result;
+        })
+            .catch(err => {
+            return {
+                results: [],
+                warnings: [],
+                errors: [err]
+            };
         });
     }
     pullDataFromDataSource(orgId, fs) {
