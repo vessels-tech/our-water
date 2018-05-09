@@ -4,6 +4,14 @@ import PropTypes from 'prop-types';
 class Loading extends Component {
 
   render() {
+    if(this.props.type === 'small') {
+      return (
+        <div>
+          Loading...
+        </div>
+      );
+    }
+
     if(this.props.type === 'card') {
       return (
         <div
