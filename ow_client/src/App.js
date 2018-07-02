@@ -18,7 +18,6 @@ import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Navigation } from 'react-native-navigation';
 
-
 import SearchBar from './components/SearchBar';
 import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
@@ -291,7 +290,7 @@ export default class App extends Component<Props> {
 
     return (
       <SearchBar
-        onEndEditing={(text) => console.log("TODO: search, ", text)}
+        onEndEditing={() => console.log("TODO: dismiss and finish search")}
       />
     );
   }

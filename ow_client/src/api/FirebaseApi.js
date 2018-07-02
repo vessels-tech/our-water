@@ -329,7 +329,9 @@ class FirebaseApi {
   static performBasicSearch({orgId, text}) {
     return this.getResourcesForOrg({orgId})
       .then(resources => {
-        return resources.filter(resource => resource.id.indexOf(text) > 0);
+        return resources.filter(resource => {
+          return resource.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
+        });
       });
   }
 }

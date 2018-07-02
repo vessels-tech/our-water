@@ -220,6 +220,9 @@ point to our react-native-maps
 
 ## handy
 ```bash
+#allow tunnel
+adb reverse tcp:8081 tcp:8081
+
 #present devtools menu
 adb shell input keyevent 82
 ```
@@ -238,3 +241,9 @@ cd ../../emulator
 ```
 
 https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a4147802405c
+
+
+## TODO:
+
+- fix glitchy maps
+- improve search to use more than just ids
