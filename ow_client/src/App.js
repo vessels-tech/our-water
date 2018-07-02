@@ -261,8 +261,10 @@ export default class App extends Component<Props> {
           height: 50,
           top: '0%',
           left: '0%',
+          flexDirection: 'row'
         }}>
           {this.getSearchBar()}
+          {this.getSettingsButton()}
         </View>
 
         <View style={{
@@ -280,6 +282,22 @@ export default class App extends Component<Props> {
     );
   }
 
+  getSettingsButton() {
+
+    return (
+      <IconButton
+        style={{
+          flex: 10
+        }}
+        name="settings"
+        onPress={() => {
+          navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
+        }}
+        color="#FF6767"
+      />
+    )
+  }
+
   getSearchBar() {
     const { mapState } = this.state;
 
@@ -290,6 +308,10 @@ export default class App extends Component<Props> {
 
     return (
       <SearchBar
+// TODO: fix the width
+        style={{
+          flex: 1
+        }}
         onEndEditing={() => console.log("TODO: dismiss and finish search")}
       />
     );

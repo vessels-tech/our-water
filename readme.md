@@ -245,5 +245,21 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 ## TODO:
 
+### Design:
+
+- figure out how to nicely display random IDs
+- figure out detail screen design
+- fix colours
+
+
+
+
 - fix glitchy maps
 - improve search to use more than just ids
+
+
+### GGMN
+
+- Add login/settings screen 
+- add new reading sync indicator
+
