@@ -252,9 +252,8 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 - fix colours
 
 
-
-
-- fix glitchy maps
+- translations
+- fix glitchy maps, drag end event
 - improve search to use more than just ids
 
 
@@ -262,4 +261,5 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 - Add login/settings screen 
 - add new reading sync indicator
+- firebase config 
 

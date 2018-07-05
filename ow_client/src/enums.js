@@ -18,9 +18,12 @@ const ResourceTypes = {
   custom: 'custom',
 }
 
+const ResourceTypeArray = Object.values(ResourceTypes);
+
 
 export {
   MapHeightOptions,
   MapStateOptions,
   ResourceTypes,
+  ResourceTypeArray,
 }

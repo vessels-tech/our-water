@@ -34,6 +34,7 @@ import {
   getLocation,
   getSelectedResourceFromCoords,
   navigateTo,
+  getShortId,
 } from './utils';
 
 import {
@@ -244,16 +245,18 @@ export default class App extends Component<Props> {
             image={require('./assets/my_location.png')}
           />
           {this.getDroppedPin()}
-          {resources.map(resource => (
-            <Marker
-              key={resource.id}
-              coordinate={formatCoords(resource.coords)}
-              title={resource.id}
-              description={resource.type}
-              image={this.imageForResourceType(resource.type)}
-              onPress={(e) => this.focusResource(e.nativeEvent)}
-            />
-          ))}
+          {resources.map(resource => {
+              const shortId = getShortId(resource.id);
+              return <Marker
+              key={shortId}
+                coordinate={formatCoords(resource.coords)}
+                title={`${shortId}`}
+                description={resource.type}
+                image={this.imageForResourceType(resource.type)}
+                onPress={(e) => this.focusResource(e.nativeEvent)}
+              />
+            }
+          )}
         </MapView>
         <View style={{
           position: 'absolute',
@@ -263,8 +266,8 @@ export default class App extends Component<Props> {
           left: '0%',
           flexDirection: 'row'
         }}>
-          {this.getSearchBar()}
           {this.getSettingsButton()}
+          {this.getSearchBar()}
         </View>
 
         <View style={{
@@ -283,13 +286,19 @@ export default class App extends Component<Props> {
   }
 
   getSettingsButton() {
+    const { mapState } = this.state;
+
+    //Hide this when the map is small
+    if (mapState === MapStateOptions.small) {
+      return null;
+    }
 
     return (
       <IconButton
         style={{
           flex: 10
         }}
-        name="settings"
+        name="menu"
         onPress={() => {
           navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
         }}
@@ -308,9 +317,10 @@ export default class App extends Component<Props> {
 
     return (
       <SearchBar
-// TODO: fix the width
-        style={{
-          flex: 1
+      // TODO: fix the width
+        containerStyle={{
+          flex: 1,
+          width: '100%'
         }}
         onEndEditing={() => console.log("TODO: dismiss and finish search")}
       />
@@ -377,7 +387,7 @@ export default class App extends Component<Props> {
   }
 
   getMapButtons() {
-    const { mapHeight, mapState } = this.state;
+    const { mapHeight, mapState, droppedPin } = this.state;
 
     //Hide these buttons when the map is in small mode
     if (mapState === MapStateOptions.small) {
@@ -403,11 +413,13 @@ export default class App extends Component<Props> {
           onPress={() => this.toggleFullscreenMap()}
           color="#FF6767"
         />
-        <IconButton 
-          name="clear"
-          onPress={() => this.clearDroppedPin()}
-          color="#FF6767"
-        />
+        {droppedPin ? 
+          <IconButton 
+            name="clear"
+            onPress={() => this.clearDroppedPin()}
+            color="#FF6767"
+          />
+          : null }
       </View>
     );
   }

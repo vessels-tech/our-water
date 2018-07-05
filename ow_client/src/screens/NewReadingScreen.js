@@ -41,7 +41,7 @@ class NewReadingScreen extends Component<Props> {
     this.state = {
       enableSubmitButton: false,
       date: moment(),
-      measurementString: '12',
+      measurementString: '',
       isLoading: false,
     };
   }

@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import PropTypes from 'prop-types';
 import FirebaseApi from '../api/FirebaseApi';
-import { randomPrettyColorForId } from '../utils';
+import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
 
@@ -81,7 +81,7 @@ class FavouriteResourceList extends Component<Props> {
       >
         <Button
           key={resource.id}
-          title={resource.id}
+          title={getShortId(resource.id)}
           buttonStyle={{
             backgroundColor, 
             borderRadius: 5 
