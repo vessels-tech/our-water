@@ -247,16 +247,28 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 ### ow_client
 
+#### Functionality
+
+- save readings for a resource
+- display groups on the map
+- group together resources when zoomed out
+- add and remove favourites not working
+- map markers not on map
+- register a new resource
+
+
 #### Design:
 
-- figure out how to nicely display random IDs
 - figure out detail screen design
+- figure out how to nicely display random IDs
 
 
+#### Other:
+
+- hide search 'x' when not editing search bar
 - translations
 - fix glitchy maps, drag end event
 - improve search to use more than just ids
-- fix navigation issues
 
 
 ### ow_firebase

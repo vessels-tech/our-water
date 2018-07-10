@@ -19,6 +19,7 @@ import {
 } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
 import moment from 'moment';
+import { primary, primaryDark } from '../../utils/Colors';
 
 
 class StatCard extends Component<Props> {
@@ -28,14 +29,14 @@ class StatCard extends Component<Props> {
     let { highlightColor } = this.props;
 
     if (!highlightColor || highlightColor === '') {
-      highlightColor = "#FF6767"
+      highlightColor = primaryDark;
     }
 
     return (
       <View style={{
         flexDirection: 'column',
         width: 200,
-        height: 100,
+        height: 75,
         justifyContent: 'center',
         alignItems: 'center',
 

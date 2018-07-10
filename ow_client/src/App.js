@@ -483,8 +483,6 @@ export default class App extends Component<Props> {
     return (
       <View style={{
         backgroundColor: bgLight,
-        //TODO: change this back at some stage
-        // height:1000
       }}>
         <ResourceDetailSection
           userId={userId}

@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import {
   ActivityIndicator,
   View,
-  TextInput
+  TextInput,
+  ViewPagerAndroid
 } from 'react-native';
 import { 
-  Button, 
+  Avatar,
+  Button,
+  Card, 
   Icon,
   Text,
 } from 'react-native-elements';
@@ -19,7 +22,7 @@ import {
 } from '../utils';
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
-import { primary, textDark } from '../utils/Colors';
+import { primary, textDark, bgMed } from '../utils/Colors';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -73,8 +76,9 @@ class ResourceDetailSection extends Component<Props> {
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
-      marginTop: 40,
-      height: 175,
+      marginTop: 10,
+      height: 260,
+      backgroundColor: bgMed,
     };
 
     if(loading) {
@@ -86,16 +90,61 @@ class ResourceDetailSection extends Component<Props> {
     }
 
     return (
-      <View style={viewStyle}>
-        <StatCard
-          title="Latest Reading"
-          value={lastValue}
-        />
-        {/* <StatCard
-          title="Village Average"
-          value={'23.5 m'}
-        />  */}
-      </View>
+      // <View style={viewStyle}>
+        <ViewPagerAndroid
+          style={{
+            flex: 1,
+            ...viewStyle
+          }}
+          initialPage={0}
+        >
+          <View key="1" style={{
+              alignItems: 'center',
+            }}>
+            <Card
+              containerStyle={{
+                width: '90%',
+                height: '90%',
+                alignItems: 'center',
+              }}
+              title="At a Glance">
+              <StatCard
+                title="Latest Reading"
+                value={lastValue}
+              />
+              <StatCard
+                title="Village Average"
+                value={'23.5 m'}
+              /> 
+            </Card>
+          </View>
+
+          <View key="2" style={{
+            alignItems: 'center',
+          }}>
+            <Card
+              containerStyle={{
+                width: '90%',
+                height: '90%',
+                alignItems: 'center',
+              }}
+              title="Past Readings">
+            </Card>
+          </View>
+
+          <View key="3" style={{
+            alignItems: 'center',
+          }}>
+            <Card
+              containerStyle={{
+                width: '90%',
+                height: '90%',
+                alignItems: 'center',
+              }}
+              title="Rainfall">
+            </Card>
+          </View>
+        </ViewPagerAndroid>
     );
   }
 
@@ -211,11 +260,32 @@ class ResourceDetailSection extends Component<Props> {
     return (
       <View style={{
         flexDirection: 'column',
-        marginVertical: 20,
-        marginHorizontal: 20
+        alignContent: 'center',
+        // marginVertical: 20,
+        // marginHorizontal: 20
       }}>
-        <Text h3>{`Id: ${getShortId(id)}`}</Text>
-        <Text h4>{name}</Text>
+        <View style={{
+          flexDirection: 'row',
+          paddingTop: 10
+        }}>
+          <Avatar
+            containerStyle={{ 
+              marginTop: 20,
+              marginLeft: 20,
+             }}
+            size="large"
+            // rounded
+            title="RG"
+            activeOpacity={0.7}
+          />
+          <View style={{
+            paddingLeft: 20,
+          }}>
+            <Text h3>{`Id: ${getShortId(id)}`}</Text>
+            <Text h4>{name}</Text>
+          </View>
+        </View>
+      
         {this.getReadingsView()}
         {this.getButtonsView()}
       </View>

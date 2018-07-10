@@ -131,8 +131,8 @@ const boundingBoxForCoords = ({latitude, longitude, distance}) => {
 }
 
 const prettyColors = [
-  "#e1bee7",
   "#d1c4e9",
+  "#e1bee7",
   "#c5cae9",
   "#b2dfdb",
   "#c8e6c9",
@@ -144,7 +144,6 @@ const prettyColors = [
 const randomPrettyColorForId = (resourceId) => {
   const idNumber = Math.abs(hashCode(resourceId))
   const index = (idNumber % prettyColors.length);
-  console.log("index is:", index);
 
   return prettyColors[index];
 }
