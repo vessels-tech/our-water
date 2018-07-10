@@ -31,6 +31,8 @@ class EditResourceScreen extends Component<Props> {
     };
   }
 
+  //TODO: load the resource if we already have the id
+
   getForm() {
     const { lat, lng, resourceType, ownerName} = this.state;
 

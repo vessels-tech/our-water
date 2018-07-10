@@ -1,9 +1,6 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
-import { gzipSync } from 'zlib';
-import { deepStrictEqual } from 'assert';
-import { resource } from '..';
 import * as moment from 'moment';
 
 const bodyParser = require('body-parser');
@@ -27,7 +24,6 @@ module.exports = (functions, admin) => {
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);
-
 
   app.use(function (err, req, res, next) {
     console.log("error", err);

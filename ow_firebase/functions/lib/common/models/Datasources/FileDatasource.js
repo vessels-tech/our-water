@@ -38,10 +38,8 @@ class FileDatasource {
                     if (options.includesHeadings && idx === 0) {
                         return null;
                     }
-                    //TODO: support other formats
+                    //TODO: support other row orders
                     let [dateStr, pincode, legacyResourceId, valueStr] = row;
-                    console.log("row is: ", row);
-                    console.log(dateStr, pincode, legacyResourceId, valueStr);
                     if (utils_1.isNullOrEmpty(dateStr) ||
                         utils_1.isNullOrEmpty(pincode) ||
                         utils_1.isNullOrEmpty(legacyResourceId) ||
@@ -49,8 +47,13 @@ class FileDatasource {
                         console.log("Found row with missing data:", row);
                         return null;
                     }
+                    const date = moment(dateStr);
+                    if (!date.isValid()) {
+                        console.log("Row has invalid date:", row, dateStr);
+                        return null;
+                    }
                     const resourceType = utils_1.resourceTypeForLegacyResourceId(legacyResourceId);
-                    const newReading = Reading_1.Reading.legacyReading(orgId, resourceType, moment(dateStr).toDate(), Number(valueStr), ResourceIdType_1.default.fromLegacyReadingId(null, pincode, legacyResourceId));
+                    const newReading = Reading_1.Reading.legacyReading(orgId, resourceType, date.toDate(), Number(valueStr), ResourceIdType_1.default.fromLegacyReadingId(null, pincode, legacyResourceId));
                     return newReading;
                 });
             case FileDatasourceTypes_1.DataType.Group:
@@ -66,12 +69,11 @@ class FileDatasource {
         return utils_1.downloadAndParseCSV(this.fileUrl)
             .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
             .then(modelsAndNulls => {
-            console.log('models and nulls', modelsAndNulls);
             const models = modelsAndNulls.filter(model => model !== null);
             const nulls = modelsAndNulls.filter(model => model === null);
             const result = {
                 results: [`Validated ${models.length} readings.`],
-                warnings: [`A total of ${nulls.length} readings were invalid, and filtered out.`],
+                warnings: [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`],
                 errors: []
             };
             return result;
@@ -90,11 +92,21 @@ class FileDatasource {
         //if no errors, 
         //  Save the rows in a batch job
         //  run a batch job which adds group and resource metadata to readings
-        const result = {
+        let result = {
             results: [],
             warnings: [],
             errors: []
         };
+        //TODO: return this
+        utils_1.downloadAndParseCSV(this.fileUrl)
+            .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+            .then(modelsAndNulls => {
+            const models = modelsAndNulls.filter(model => model !== null);
+            const nulls = modelsAndNulls.filter(model => model === null);
+            result.results = [`Validated ${models.length} readings.`];
+            result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
+            //TODO: batch save
+        });
         return Promise.resolve(result);
     }
     pushDataToDataSource() {

@@ -64,7 +64,7 @@ module.exports = ({fs}) => {
             syncIds.push(syncId);
 
             const runSyncOptions = {
-              method: 'GET',
+              method: 'POST',
               uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=validate`
             }
 
@@ -180,14 +180,13 @@ module.exports = ({fs}) => {
     });
 
     it('should create and run the sync', () => {
-
       let syncRunId = null;
       return createNewSync()
       .then(syncId => {
         syncIds.push(syncId);
 
         const options = {
-          method: 'GET',
+          method: 'POST',
           uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=validate`
         };
         
@@ -208,22 +207,22 @@ module.exports = ({fs}) => {
     });;
 
     //Cleanup all created resources
-    after(function() {
-      console.log("     Clean Up:");
+    // after(function() {
+    //   console.log("     Clean Up:");
 
-      console.log(`      cleaning up ${syncIds.length} syncs`);
-      syncIds.forEach(syncId => {
-        return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
-          .delete();
-      });
+    //   console.log(`      cleaning up ${syncIds.length} syncs`);
+    //   syncIds.forEach(syncId => {
+    //     return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
+    //       .delete();
+    //   });
 
-      console.log(`      cleaning up ${syncRunIds.length} syncRuns`);
-      syncRunIds.forEach(syncRunId => {
-        return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
-          .delete();
-      });
+    //   console.log(`      cleaning up ${syncRunIds.length} syncRuns`);
+    //   syncRunIds.forEach(syncRunId => {
+    //     return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
+    //       .delete();
+    //   });
     
-    });
+    // });
   });
 
 }

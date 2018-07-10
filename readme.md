@@ -245,7 +245,9 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 ## TODO:
 
-### Design:
+### ow_client
+
+#### Design:
 
 - figure out how to nicely display random IDs
 - figure out detail screen design
@@ -255,6 +257,15 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 - translations
 - fix glitchy maps, drag end event
 - improve search to use more than just ids
+
+
+### ow_firebase
+
+- sync readings with MyWell
+- sync resources with MyWell
+
+
+
 
 
 ### GGMN

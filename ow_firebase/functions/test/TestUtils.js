@@ -30,7 +30,9 @@ const createNewSync = () => {
 
   return request(options)
     .then(response => {
-      return response.syncId;
+      console.log("createNewSync response, ", response);
+
+      return response.data.syncId;
     })
     .catch(err => {
       console.log('err', err);
