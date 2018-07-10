@@ -74,6 +74,14 @@ const getSelectedResourceFromCoords = (resources, coords) => {
 }
 
 const navigateTo = (props, screen, title, passProps) => {
+  //TODO: only navigate if we aren't already here!
+
+  props.navigator.toggleDrawer({
+    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
+    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
+    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
+  });
+
   props.navigator.push({
     screen,
     title,
@@ -131,12 +139,12 @@ const prettyColors = [
   "#dcedc8",
   "#f0f4c3",
   "#fff9c4",
-
 ];
 
 const randomPrettyColorForId = (resourceId) => {
   const idNumber = Math.abs(hashCode(resourceId))
-  const index = idNumber % prettyColors.length - 1;
+  const index = (idNumber % prettyColors.length);
+  console.log("index is:", index);
 
   return prettyColors[index];
 }

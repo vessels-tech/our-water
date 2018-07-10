@@ -264,7 +264,7 @@ export default class App extends Component<Props> {
           position: 'absolute',
           width: '100%',
           height: 40,
-          bottom: '5%',
+          bottom: '10%',
           left: '0%',
         }}>
           {this.getMapButtons()}
@@ -285,7 +285,7 @@ export default class App extends Component<Props> {
 
     return (
       <View style={{
-        backgroundColor: bgDark2,
+        backgroundColor: bgLight,
         width: '100%',
         height: 50,
         flexDirection: 'row'
@@ -304,15 +304,20 @@ export default class App extends Component<Props> {
         size={30}
         name="menu"
         onPress={() => {
-          navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
+          // navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
+          console.log("opening drawer?", this.props.navigator);
+
+          this.props.navigator.toggleDrawer({
+            side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
+            animated: true, // does the toggle have transition animation or does it happen immediately (optional)
+            to: 'open' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
+          });
         }}
         iconStyle={{
           color: textDark,
         }}
         underlayColor='transparent'
         containerStyle={{
-          // backgroundColor: 'transparent',
-
           marginLeft: 10
         }}
       />
@@ -540,6 +545,7 @@ export default class App extends Component<Props> {
         marginTop: 0,
         flex: 1,
         backgroundColor: bgLight,
+        // marginBottom: 20,
       }}>
         {this.getTopBar()}
         {this.getMap()}

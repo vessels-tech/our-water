@@ -15,7 +15,7 @@ import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
-import { textDark } from '../utils/Colors';
+import { textDark, primary } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -71,6 +71,8 @@ class FavouriteResourceList extends Component<Props> {
     //Ideally, we would display the resource image + 
     //if we don't have the image, pick a random color from a nice set maybe?
     const backgroundColor = randomPrettyColorForId(resource.id);
+    console.log("background color is:", backgroundColor);
+    // const backgroundColor = primary;
 
     return (
       <View style={{

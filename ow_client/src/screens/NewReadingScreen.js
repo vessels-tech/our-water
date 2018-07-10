@@ -26,6 +26,7 @@ import moment from 'moment';
 import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert } from '../utils';
+import { bgLight, primary, textDark, primaryDark, textMed } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -129,12 +130,14 @@ class NewReadingScreen extends Component<Props> {
 
     return (
       <View style={{
-        width: SCREEN_WIDTH - 30,
+        flex: 1,
+        width: '100%',
+        paddingHorizontal: 20,
         flexDirection: 'column'
       }}>
         <IconFormInput
           iconName='calendar'
-          iconColor='#FF6767'
+          iconColor={textMed}
           placeholder='Reading Date'
           errorMessage={this.isDateValid() ? null : 'Invalid Date'}
           onChangeText={date => this.setState({date})}
@@ -144,7 +147,7 @@ class NewReadingScreen extends Component<Props> {
         />
         <IconFormInput
           iconName='pencil'
-          iconColor='#FF6767'
+          iconColor={textMed}
           placeholder={`Measurement in ${units}`}
           errorMessage={
             measurementString.length > 0 && !this.isMeasurementValid() ? 
@@ -167,17 +170,33 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getButton() {
-
     return (
       <Button
         title='Save'
+        raised
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
         loading={this.state.isLoading}
         loadingProps={{ size: 'small', color: 'white' }}
-        buttonStyle={{ width: SCREEN_WIDTH - 30, backgroundColor: 'rgba(111, 202, 186, 1)', borderRadius: 5 }}
-        titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-        containerStyle={{ marginVertical: 10, height: 50, width: SCREEN_WIDTH - 30 }}
+        buttonStyle={{ 
+          backgroundColor: primary,
+          // borderRadius: 5,
+          width: SCREEN_WIDTH - 20,
+          // marginBottn: 20
+        }}
+        // disabledStyle={{
+        //   backgroundColor: primaryDark, 
+        // }}
+        titleStyle={{ 
+          fontWeight: 'bold',
+          fontSize: 23,
+        }}
+        containerStyle={{ 
+
+          // height: 50,
+          // width: '100%',
+          // paddingHorizontal: 20,
+        }}
         onPress={() => this.saveReading()}
         underlayColor="transparent"
       />
@@ -205,10 +224,11 @@ class NewReadingScreen extends Component<Props> {
         <View style={{
           flex: 1,
           flexDirection: 'column',
-          backgroundColor: '#D9E3F0',
-          justifyContent: 'space-around',
+          backgroundColor: bgLight,
+          // justifyContent: 'space-around',
           alignItems: 'center',
-          width: '100%'
+          width: '100%',
+          marginBottom: 40,
         }}>
           {this.getForm()}
           {this.getButton()}

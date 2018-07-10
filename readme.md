@@ -251,7 +251,6 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 - figure out how to nicely display random IDs
 - figure out detail screen design
-- fix colours
 
 
 - translations
@@ -275,3 +274,33 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 - add new reading sync indicator
 - firebase config 
 
+
+## Material design guide:
+
+https://material.io/tools/color/#!/?view.left=0&view.right=0&primary.color=BBDEFB&primary.text.color=212121
+
+
+## Samples:
+
+
+### Good button with icon
+```jsx
+ <Button
+  buttonStyle={{
+    flex: 1,
+    backgroundColor: bgLight,
+    height: 50,
+    width: '100%'
+  }}
+  large
+  icon={{
+    name: 'cached',
+    color: textDark,
+  }}
+  color={textDark}
+  underlayColor={bgLightHighlight}
+  titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+  title='Language'
+  onPress={() => console.log("language pressed")}
+/>
+```

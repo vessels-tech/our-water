@@ -9,13 +9,15 @@ import {
 } from 'react-native';
 import {
   Button,
-  Icon,
   Text,
+  ListItem,
 } from 'react-native-elements';
+// import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import {
   navigateTo,
 } from '../utils';
+import { primary, primaryDark, bgLight, textDark, bgLightHighlight } from '../utils/Colors';
 
 class SettingsScreen extends Component<Props> {
 
@@ -24,54 +26,63 @@ class SettingsScreen extends Component<Props> {
     return (
       <View style={{
         flexDirection: 'column',
-        marginTop: 20,
-        justifyContent: 'space-around',
+        // justifyContent: 'space-around',
         backgroundColor: 'white',
         height: '100%',
         width: '100%'
       }}>
-        {/* TODO: display conditionally, use firebase remote config */}
-        <Button
-          buttonStyle={{
-            backgroundColor: '#FF6767',
-            borderRadius: 5,
-            flex: 1,
-            padding: 30,
-            // marginBottom: 20
-          }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-          title='Connect to GGMN'
+        <View style={{
+          width: '100%',
+          height: 150,
+          backgroundColor: primaryDark,
+        }}>
+          <View style={{
+            alignSelf: 'center',
+            marginTop: 25,
+            width: 100,
+            height: 100,
+            backgroundColor: primary,
+          }}/>
+        </View>
+
+        <ListItem
+          title="Connect to GGMN"
           onPress={() => console.log("GGMN pressed")}
-        />
-        <Button
-          buttonStyle={{
-            backgroundColor: '#FF6767',
-            borderRadius: 5,
-            flex: 1,
-            padding: 30,
-            // marginBottom: 20
+          leftIcon={{
+            name: 'account-circle',
+            color: textDark,
           }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-          title='Register a new Resource'
-          onPress={() => 
+          hideChevron
+          disabled
+        />
+        <ListItem
+          title="Register a resource"
+          onPress={() =>
+            //TODO: dismiss the sidebar
             navigateTo(this.props, 'screen.EditResourceScreen', 'New Resource', {})
           }
-        />
-        <Button
-          style={{
-            marginBottom: 20          
+          leftIcon={{
+            name: 'create',
+            color: textDark,
           }}
-          buttonStyle={{
-            backgroundColor: '#FF6767',
-            borderRadius: 5,
-            flex: 1,
-            padding: 30,
-            // marginBottom: 20
-          }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-          title='Language'
-          onPress={() => console.log("language pressed")}
+          hideChevron
         />
+        <ListItem
+          title="Language"
+          onPress={() => console.log("GGMN pressed")}
+          leftIcon={{
+            name: 'language',
+            color: textDark,
+          }}
+          hideChevron
+          disabled
+        />
+
+      
+    
+
+        {/* TODO: display conditionally, use firebase remote config */}
+       
       </View>
     );
   }

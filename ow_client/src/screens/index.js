@@ -10,6 +10,6 @@ export function registerScreens() {
   Navigation.registerComponent('example.FirstTabScreen', () => App);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen);
   Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
-  Navigation.registerComponent('screen.SettingsScreen', () => SettingsScreen);
+  Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
 }
