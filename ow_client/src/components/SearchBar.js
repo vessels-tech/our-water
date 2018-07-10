@@ -20,6 +20,7 @@ import Loading from './Loading';
 import FirebaseApi from '../api/FirebaseApi';
 
 import Config from 'react-native-config'
+import { bgDark2, textLight, textDark } from '../utils/Colors';
 const orgId = Config.REACT_APP_ORG_ID;
 
 
@@ -142,16 +143,18 @@ class SearchPanel extends Component<Props> {
         <SB
           lightTheme
           containerStyle={{ 
-            backgroundColor: backgroundColor,
+            backgroundColor: 'transparent',
             borderWidth:0,
             borderTopWidth:0,
             borderBottomWidth:0,
-            width: '100%',
+            width: 300,
             marginHorizontal: 0,
             paddingHorizontal: 0,
             marginBottom: 0,
           }}
           inputStyle={{
+            backgroundColor: 'transparent',
+            color: textDark,
             // marginHorizontal: 0,
             // paddingLeft: 20,
           }}
@@ -163,7 +166,8 @@ class SearchPanel extends Component<Props> {
             this.performSearch(text);
           }}
           clearIcon={{
-            color: '#86939e', name: 'close' 
+            color: textDark, 
+            name: 'close' 
           }}
           // TODO: dismiss the keyboard as well
           onClearText={() => {
@@ -171,7 +175,11 @@ class SearchPanel extends Component<Props> {
             this.props.onEndEditing();
           }}
           clearIconName
-          icon={{ type: 'font-awesome', name: 'search' }}
+          icon={{ 
+            type: 'font-awesome', 
+            name: 'search',
+            color: textDark,
+          }}
           onEndEditing={() => this.props.onEndEditing(this.state.text)}
           placeholder='Search...' 
         />

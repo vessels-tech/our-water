@@ -14,8 +14,7 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import firebase from 'react-native-firebase';
-import { Button } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { Button, Icon } from 'react-native-elements';
 import { Navigation } from 'react-native-navigation';
 
 import SearchBar from './components/SearchBar';
@@ -45,7 +44,7 @@ import {
 
 import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
-import { bgLight, primary, bgDark, bgMed } from './utils/Colors';
+import { bgLight, primary, bgDark, bgMed, bgDark2, textDark } from './utils/Colors';
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -264,18 +263,6 @@ export default class App extends Component<Props> {
         <View style={{
           position: 'absolute',
           width: '100%',
-          height: 50,
-          top: '0%',
-          left: '0%',
-          flexDirection: 'row'
-        }}>
-          {this.getSettingsButton()}
-          {this.getSearchBar()}
-        </View>
-
-        <View style={{
-          position: 'absolute',
-          width: '100%',
           height: 40,
           bottom: '5%',
           left: '0%',
@@ -288,7 +275,7 @@ export default class App extends Component<Props> {
     );
   }
 
-  getSettingsButton() {
+  getTopBar() {
     const { mapState } = this.state;
 
     //Hide this when the map is small
@@ -297,32 +284,48 @@ export default class App extends Component<Props> {
     }
 
     return (
-      <IconButton
-        style={{
-          flex: 10
-        }}
+      <View style={{
+        backgroundColor: bgDark2,
+        width: '100%',
+        height: 50,
+        flexDirection: 'row'
+      }}>
+        {this.getMenuButton()}
+        {this.getSearchBar()}
+      </View>
+    );
+  }
+
+  getMenuButton() {
+    const { mapState } = this.state;
+
+    return (
+      <Icon
+        size={30}
         name="menu"
         onPress={() => {
           navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
         }}
+        iconStyle={{
+          color: textDark,
+        }}
+        underlayColor='transparent'
+        containerStyle={{
+          // backgroundColor: 'transparent',
+
+          marginLeft: 10
+        }}
       />
-    )
+    );
   }
 
   getSearchBar() {
-    const { mapState } = this.state;
-
-    //Hide this when the map is small
-    if (mapState === MapStateOptions.small) {
-      return null;
-    }
-
     return (
       <SearchBar
-      // TODO: fix the width
         containerStyle={{
           flex: 1,
-          width: '100%'
+          width: '100%',
+          backgroundColor: 'transparent'
         }}
         onEndEditing={() => console.log("TODO: dismiss and finish search")}
       />
@@ -524,7 +527,8 @@ export default class App extends Component<Props> {
         <View style={{
           justifyContent: 'center',
           alignItems: 'center',
-          flex: 1
+          flex: 1,
+          backgroundColor: bgLight,
         }}>
           <Loading/>
         </View>
@@ -537,6 +541,7 @@ export default class App extends Component<Props> {
         flex: 1,
         backgroundColor: bgLight,
       }}>
+        {this.getTopBar()}
         {this.getMap()}
         <ScrollView style={{
             marginTop: 0,

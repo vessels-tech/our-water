@@ -19,6 +19,7 @@ import {
 } from '../utils';
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
+import { primary, textDark } from '../utils/Colors';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -115,7 +116,7 @@ class ResourceDetailSection extends Component<Props> {
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites(this.props.resource)}
-        color="#FF6767"
+        color={primary}
       />
     );
   }
@@ -128,12 +129,16 @@ class ResourceDetailSection extends Component<Props> {
         marginTop: 20,
       }}>
         <Button
+          color={textDark}
           buttonStyle={{
-            backgroundColor: '#FF6767',
+            backgroundColor: primary,
             borderRadius: 5,
             flex: 1
           }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+          titleStyle={{ 
+            fontWeight: 'bold', 
+            fontSize: 23,
+          }}
           title='New reading'
           onPress={() => this.props.onAddReadingPressed(this.props.resource)}
         />
@@ -190,7 +195,7 @@ class ResourceDetailSection extends Component<Props> {
       <Button
         title='More'
         buttonStyle={{
-          backgroundColor: '#FF6767',
+          backgroundColor: primary,
           borderRadius: 5,
           flex: 1
         }}

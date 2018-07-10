@@ -4,6 +4,7 @@ import {
   View
 } from 'react-native';
 import PropTypes from 'prop-types';
+import { primary } from '../utils/Colors';
 
 
 /**
@@ -16,7 +17,7 @@ class Loading extends Component<Props> {
     return (
       <ActivityIndicator 
         size="large" 
-        color="#697689"
+        color={primary}
       />
     );
   }

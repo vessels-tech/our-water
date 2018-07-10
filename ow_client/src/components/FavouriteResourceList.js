@@ -15,6 +15,7 @@ import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
+import { textDark } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -81,14 +82,15 @@ class FavouriteResourceList extends Component<Props> {
       >
         <Button
           key={resource.id}
-          title={getShortId(resource.id)}
+          title={`${getShortId(resource.id)}`}
+          color={textDark}
           buttonStyle={{
             backgroundColor, 
-            borderRadius: 5 
+            borderRadius: 5,
           }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-          containerStyle={{ 
- 
+          titleStyle={{
+            fontWeight: 'bold', 
+            fontSize: 23,
           }}
           onPress={() => this.props.onResourceCellPressed(resource)}
           underlayColor="transparent"
