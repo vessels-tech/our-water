@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
+import { primary, textDark } from '../utils/Colors';
 
 class IconButton extends Component<Props> {
 
@@ -39,19 +40,21 @@ class IconButton extends Component<Props> {
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: this.props.color,
-        borderRadius: 20,
-        width: 40,
-        height: 40,
+        borderRadius: 50,
+        width: 45,
+        height: 45,
       }}>
         <Icon
           reverse
           raised
-          size={15}
+          size={20}
           name={this.props.name}
           onPress={() => this.props.onPress()}
-          color={this.props.color}
-        />
+          color={this.props.color ? this.props.color : primary}
+          iconStyle={{
+            color: textDark,
+          }}
+      />
       </View>
     );
   }

@@ -174,11 +174,13 @@ class FirebaseApi {
 
     return this.checkNetworkAndToggleFirestore()
     .then(() => {
+      console.log("getResourceNearLocation ");
       return fs.collection('org').doc(orgId).collection('resource')
         .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     })
     .then(snapshot => {
+      console.log("got snapshot?");
       const resources = []
       snapshot.forEach(doc => {
         const data = doc.data();

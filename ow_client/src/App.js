@@ -45,6 +45,7 @@ import {
 
 import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
+import { bgLight, primary, bgDark, bgMed } from './utils/Colors';
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -88,6 +89,7 @@ export default class App extends Component<Props> {
 
   componentWillMount() {
     let { region } = this.state;
+    console.log("IS MOUNTING");
 
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
 
@@ -111,6 +113,7 @@ export default class App extends Component<Props> {
       return FirebaseApi.getResourceNearLocation(this.networkApi, {orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
+      console.log("Done loading?");
       this.setState({
         loading: false,
         resources
@@ -226,7 +229,7 @@ export default class App extends Component<Props> {
 
     return (
       <View style={{
-        backgroundColor: 'blue',
+        backgroundColor: bgMed,
       }}>
         <MapView
           style={{
@@ -302,7 +305,6 @@ export default class App extends Component<Props> {
         onPress={() => {
           navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
         }}
-        color="#FF6767"
       />
     )
   }
@@ -411,13 +413,11 @@ export default class App extends Component<Props> {
         <IconButton 
           name={fullscreenIcon}
           onPress={() => this.toggleFullscreenMap()}
-          color="#FF6767"
         />
         {droppedPin ? 
           <IconButton 
             name="clear"
             onPress={() => this.clearDroppedPin()}
-            color="#FF6767"
           />
           : null }
       </View>
@@ -460,7 +460,6 @@ export default class App extends Component<Props> {
       <IconButton
         name="clear"
         onPress={() => this.clearSelectedResource()}
-        color="#FF6767"
       />
       </View>
     );
@@ -475,7 +474,7 @@ export default class App extends Component<Props> {
 
     return (
       <View style={{
-        backgroundColor: '#D9E3F0',
+        backgroundColor: bgLight,
         //TODO: change this back at some stage
         // height:1000
       }}>
@@ -535,11 +534,11 @@ export default class App extends Component<Props> {
     return (
       <View style={{
         marginTop: 0,
-        flex: 1
+        flex: 1,
+        backgroundColor: bgLight,
       }}>
         {this.getMap()}
         <ScrollView style={{
-            backgroundColor: '#D9E3F0',
             marginTop: 0,
             flex: 1
           }}

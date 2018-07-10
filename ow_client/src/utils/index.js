@@ -123,10 +123,15 @@ const boundingBoxForCoords = ({latitude, longitude, distance}) => {
 }
 
 const prettyColors = [
-  "#FF6767",
-  "#8AD7B4",
-  "#F5A623",
-  "#B8E986",
+  "#e1bee7",
+  "#d1c4e9",
+  "#c5cae9",
+  "#b2dfdb",
+  "#c8e6c9",
+  "#dcedc8",
+  "#f0f4c3",
+  "#fff9c4",
+
 ];
 
 const randomPrettyColorForId = (resourceId) => {

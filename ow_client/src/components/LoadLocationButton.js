@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import {
   getLocation,
 } from '../utils';
+import { textDark, primary } from '../utils/Colors';
 
 class LoadLocationButton extends Component<Props> {
 
@@ -46,23 +47,26 @@ class LoadLocationButton extends Component<Props> {
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "#FF6767",
-        borderRadius: 20,
-        width:40,
-        height:40,
+        backgroundColor: primary,
+        borderRadius: 50,
+        width:45,
+        height:45,
       }}>
         {this.state.loading ? 
           <ActivityIndicator 
-            size="small" 
-            color="#697689"
+            size="large" 
+            color={textDark}
             />:
           <Icon 
             reverse
             raised
-            size={15}
+            size={20}
             name={"near-me"}
             onPress={() => this.updateGeoLocation()}
-            color={"#FF6767"}
+            iconStyle={{
+              color: textDark,
+            }}
+            color={primary}
           />
         }
       </View>

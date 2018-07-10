@@ -172,7 +172,7 @@ class FavouriteResourceList extends Component<Props> {
 
     return (
       <View style={{
-          backgroundColor: '#D9E3F0',
+          // backgroundColor: '#D9E3F0',
           justifyContent: 'center',
           alignItems: 'center',
           flex: 5,

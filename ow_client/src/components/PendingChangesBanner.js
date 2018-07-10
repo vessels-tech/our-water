@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import Config from 'react-native-config'
 
 import FirebaseApi from '../api/FirebaseApi';
+import { bgDark2, textLight } from '../utils/Colors';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -52,14 +53,14 @@ class PendingChangesBanner extends Component<Props> {
     return (
       <View
         style={{
-          backgroundColor: 'black',
+          backgroundColor: bgDark2,
           width: '100%',
           height: 20,
         }}
       >
         <Text
           style={{
-            color: 'white',
+            color: textLight,
             textAlign: 'center',
           }}
         >

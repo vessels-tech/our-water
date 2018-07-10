@@ -257,6 +257,7 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 - translations
 - fix glitchy maps, drag end event
 - improve search to use more than just ids
+- fix navigation issues
 
 
 ### ow_firebase
