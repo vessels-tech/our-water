@@ -189,7 +189,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * 
    */
   public getReadingsData(orgId: string, fs: Firestore) {
-    const token = 'FkhEG7gl7WctHe43KJxMqLOal1Wpgev6sbVCHbJe8taBZZzrpzFDKZCmVhhjJC4d'; //TODO: not sure why we need this
+    const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
     const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${token}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
 

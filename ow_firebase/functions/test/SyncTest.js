@@ -6,6 +6,7 @@ const { createNewSync, getSyncRun } = require('./TestUtils');
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
+const mywellLegacyAccessToken = process.env.MYWELL_LEGACY_ACCESS_TOKEN;
 
 module.exports = ({fs}) => {
   
@@ -60,7 +61,7 @@ module.exports = ({fs}) => {
 
         return request(createSyncOptions)
           .then(response => {
-            syncId = response.syncId;
+            syncId = response.data.syncId;
             syncIds.push(syncId);
 
             const runSyncOptions = {
@@ -75,7 +76,7 @@ module.exports = ({fs}) => {
             //TODO: we might need to wait a little while 
             sleep(1000);
 
-            syncRunId = response.syncRunId;
+            syncRunId = response.data.syncRunId;
             syncRunIds.push(syncRunId)
             return getSyncRun({ orgId, fs, syncRunId });
           })
@@ -120,11 +121,11 @@ module.exports = ({fs}) => {
 
         return request(createSyncOptions)
           .then(response => {
-            syncId = response.syncId;
+            syncId = response.data.syncId;
             syncIds.push(syncId);
 
             const runSyncOptions = {
-              method: 'GET',
+              method: 'POST',
               uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=pullFrom`
             }
 
@@ -135,7 +136,7 @@ module.exports = ({fs}) => {
             //TODO: we might need to wait a little while 
             sleep(1000);
 
-            syncRunId = response.syncRunId;
+            syncRunId = response.data.syncRunId;
             syncRunIds.push(syncRunId)
             return getSyncRun({orgId, fs, syncRunId});
           })
@@ -171,7 +172,7 @@ module.exports = ({fs}) => {
 
       return request(options)
       .then(response => {
-        syncIds.push(response.syncId);
+        syncIds.push(response.data.syncId);
       })
       .catch(err => {
         console.log('err', err);
@@ -179,7 +180,7 @@ module.exports = ({fs}) => {
       });
     });
 
-    it('should create and run the sync', () => {
+    it.only('should create and run the sync', () => {
       let syncRunId = null;
       return createNewSync()
       .then(syncId => {
@@ -187,15 +188,15 @@ module.exports = ({fs}) => {
 
         const options = {
           method: 'POST',
-          uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=validate`
+          uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=pullFrom`
         };
         
         return request(options);
       })
       .then(response => JSON.parse(response)) //json:true only applies to posts I think 
       .then(response => {
-        syncRunIds.push(response.syncRunId);
-        syncRunId = response.syncRunId;
+        syncRunIds.push(response.data.syncRunId);
+        syncRunId = response.data.syncRunId;
       })
       //Wait for the sync to finish
       .then(() => sleep(20000))
@@ -206,7 +207,7 @@ module.exports = ({fs}) => {
       })
     });;
 
-    //Cleanup all created resources
+    // Cleanup all created resources
     // after(function() {
     //   console.log("     Clean Up:");
 

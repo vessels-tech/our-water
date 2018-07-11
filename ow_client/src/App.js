@@ -12,7 +12,7 @@ import {
   Text,
   View
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { Marker } from 'react-native-maps';
 import firebase from 'react-native-firebase';
 import { Button, Icon } from 'react-native-elements';
 import { Navigation } from 'react-native-navigation';
@@ -44,7 +44,8 @@ import {
 
 import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
-import { bgLight, primary, bgDark, bgMed, bgDark2, textDark } from './utils/Colors';
+import { bgLight, primary, bgDark, bgMed, bgDark2, textDark, textLight, primaryDark } from './utils/Colors';
+import ClusteredMapView from './components/common/ClusteredMapView';
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -181,6 +182,7 @@ export default class App extends Component<Props> {
   }
 
   onRegionChange(region) {
+    console.log("new region is:", region);
     this.setState({ region });
   }
 
@@ -229,27 +231,33 @@ export default class App extends Component<Props> {
       <View style={{
         backgroundColor: bgMed,
       }}>
-        <MapView
+        <ClusteredMapView
           style={{
             position: 'relative',
             width: '100%',
             height: mapHeight
           }}
+          clustering={true}
+          // radius={10}
+          clusterColor={primaryDark}
+          clusterTextColor={textLight}
+          clusterBorderColor={textLight}
           onPress={e => this.onMapPressed(e.nativeEvent)}
           region={region}
           onRegionChangeComplete={(region) => this.onRegionChange(region)}
         >
-          <Marker
+        {/* TODO: enable these without the clustering */}
+          {/* <Marker
             key='geoLocation'
             coordinate={{ latitude: userRegion.latitude, longitude: userRegion.longitude}}
             title='Me'
             image={require('./assets/my_location.png')}
-          />
-          {this.getDroppedPin()}
+          /> */}
+          {/* {this.getDroppedPin()} */}
           {resources.map(resource => {
               const shortId = getShortId(resource.id);
               return <Marker
-              key={shortId}
+                key={shortId}
                 coordinate={formatCoords(resource.coords)}
                 title={`${shortId}`}
                 description={resource.type}
@@ -258,7 +266,7 @@ export default class App extends Component<Props> {
               />
             }
           )}
-        </MapView>
+        </ClusteredMapView>
         <View style={{
           position: 'absolute',
           width: '100%',

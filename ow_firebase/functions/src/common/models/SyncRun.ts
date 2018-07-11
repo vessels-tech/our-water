@@ -127,7 +127,8 @@ export class SyncRun {
   }
 
   private async abortSync({ fs }): Promise<SyncRun> {
-    console.warn("aborting sync with errors:", this.errors);
+    // console.warn("aborting sync with errors:", this.errors);
+    console.warn("aborting sync with errors:");
 
     this.status = SyncRunStatus.failed;
     this.finishedAt = moment().valueOf();

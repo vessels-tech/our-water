@@ -113,7 +113,8 @@ class SyncRun {
     }
     abortSync({ fs }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.warn("aborting sync with errors:", this.errors);
+            // console.warn("aborting sync with errors:", this.errors);
+            console.warn("aborting sync with errors:");
             this.status = SyncRunStatus_1.SyncRunStatus.failed;
             this.finishedAt = moment().valueOf();
             return this.save({ fs });
