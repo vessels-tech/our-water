@@ -545,7 +545,7 @@ export default class App extends Component<Props> {
         backgroundColor: bgLight,
         // marginBottom: 20,
       }}>
-        {this.getTopBar()}
+        {/* {this.getTopBar()} */}
         {this.getMap()}
         <ScrollView style={{
             marginTop: 0,

@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import moment from 'moment';
 import QueryString from 'query-string';
+import { textDark, bgDark2, bgLight } from './Colors';
 
 
 
@@ -86,7 +87,7 @@ const navigateTo = (props, screen, title, passProps) => {
     screen,
     title,
     passProps,
-    navigatorStyle: {}, // override the navigator style for the screen, see "Styling the navigator" below (optional)
+    navigatorStyle: defaultNavigatorStyle,
     navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
     animationType: 'slide-horizontal'
   });
@@ -163,8 +164,20 @@ const getShortId = (str) => {
   return Math.abs(hashCode(str));
 }
 
+const defaultNavigatorStyle = {
+  navBarHidden: false,
+  navBarTextColor: textDark, // change the text color of the title (remembered across pushes)
+  navBarBackgroundColor: bgLight,
+  statusBarColor: bgLight,
+  statusBarTextColorScheme: 'dark',
+  screenBackgroundColor: bgLight,
+  //Bottom nav bar, android only
+  navigationBarColor: bgDark2,
+}
+
 export {
   appendUrlParameters,
+  defaultNavigatorStyle,
   getHashForReading,
   rejectRequestWithError,
   showAlert,

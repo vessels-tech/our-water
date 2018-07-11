@@ -254,13 +254,7 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 - group together resources when zoomed out
 - add and remove favourites not working
 - map markers not on map
-- register a new resource
-
-
-#### Design:
-
-- figure out detail screen design
-- figure out how to nicely display random IDs
+- attach geolocation and image to a reading
 
 
 #### Other:
@@ -278,13 +272,13 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 
 
-
-
 ### GGMN
-
+- hide/show ggmn settings per build
 - Add login/settings screen 
 - add new reading sync indicator
 - firebase config 
+- register a new resource
+
 
 
 ## Material design guide:

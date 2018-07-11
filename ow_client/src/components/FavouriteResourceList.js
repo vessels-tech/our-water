@@ -83,12 +83,13 @@ class FavouriteResourceList extends Component<Props> {
         key={resource.id}
       >
         <Button
+          raised
           key={resource.id}
           title={`${getShortId(resource.id)}`}
           color={textDark}
           buttonStyle={{
             backgroundColor, 
-            borderRadius: 5,
+            // borderRadius: 5,
           }}
           titleStyle={{
             fontWeight: 'bold', 
