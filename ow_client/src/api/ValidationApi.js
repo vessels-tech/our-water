@@ -8,6 +8,11 @@ const validateReading = (reading) => {
     userId: Joi.string().required(),
     resourceId: Joi.string().required(),
     isLegacy: Joi.boolean().default(false),
+    coords: Joi.object().keys({
+      latitude: Joi.number(),
+      longitude: Joi.number(),
+    }),
+    imageUrl: Joi.string().uri(),
   });
 
   return new Promise((resolve, reject) => {

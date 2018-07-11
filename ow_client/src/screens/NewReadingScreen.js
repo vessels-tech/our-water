@@ -26,7 +26,7 @@ import moment from 'moment';
 
 import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
-import { displayAlert } from '../utils';
+import { displayAlert, getLocation } from '../utils';
 import { bgLight, primary, textDark, primaryDark, textMed, primaryLight } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -45,7 +45,22 @@ class NewReadingScreen extends Component<Props> {
       date: moment(),
       measurementString: '',
       isLoading: false,
+      coords: {},
     };
+  }
+
+  componentWillMount() {
+    //Load the users location - don't inform user
+    getLocation()
+    .then(location => {
+      this.setState({coords: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      }});
+    })
+    .catch(err => {
+      console.log("could not get location");
+    })
   }
 
   takeImage() {
@@ -53,8 +68,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   saveReading() {
-    
-    const {date, measurementString} = this.state;
+    const {date, measurementString, coords} = this.state;
     const { resource: { id } } = this.props;
 
     this.setState({isLoading: true});
@@ -64,11 +78,12 @@ class NewReadingScreen extends Component<Props> {
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
       userId: "12345", //TODO get the userId
+      imageUrl: "http://placekitten.com/g/200/300",
+      coords
     };
 
     return FirebaseApi.saveReadingPossiblyOffline({orgId, reading})
     .then(result => {
-      console.log(result);
       //TODO: display toast or something
       this.setState({
         date: moment(),
