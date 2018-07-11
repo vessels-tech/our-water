@@ -88,10 +88,7 @@ export default class App extends Component<Props> {
 
   componentWillMount() {
     let { region } = this.state;
-    console.log("IS MOUNTING");
-
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
-
     this.setState({loading: true});
 
     FirebaseApi.signIn()
@@ -225,6 +222,8 @@ export default class App extends Component<Props> {
 
   getMap() {
     const { userRegion, region, loading, resources, mapHeight } = this.state;
+
+    console.log("resources are: ", resources);
 
     return (
       <View style={{
@@ -543,9 +542,7 @@ export default class App extends Component<Props> {
         marginTop: 0,
         flex: 1,
         backgroundColor: bgLight,
-        // marginBottom: 20,
       }}>
-        {/* {this.getTopBar()} */}
         {this.getMap()}
         <ScrollView style={{
             marginTop: 0,

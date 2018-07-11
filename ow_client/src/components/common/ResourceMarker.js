@@ -27,7 +27,7 @@ class ResourceMarker extends Component<Props> {
   render() {
     return (
       <Image
-        source={require('../../assets/blue_marker.svg')}
+        source={require('../../assets/blue_marker.png')}
       />
     );
   }

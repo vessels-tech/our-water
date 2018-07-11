@@ -71,8 +71,6 @@ class FavouriteResourceList extends Component<Props> {
     //Ideally, we would display the resource image + 
     //if we don't have the image, pick a random color from a nice set maybe?
     const backgroundColor = randomPrettyColorForId(resource.id);
-    console.log("background color is:", backgroundColor);
-    // const backgroundColor = primary;
 
     return (
       <View style={{
