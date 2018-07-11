@@ -56,38 +56,37 @@ const fs = admin.firestore();
  * 
  * when doing bulk uploads, add a field: `isLegacy:true` to the readings, which will bypass this function
  */
+export const updateLastValue = functions.firestore
+.document('org/{orgId}/{reading}/{readingId}')
+.onCreate((snapshot, context) => {
+  //Get the corresponding resource
+  const { orgId, readingId } = context.params;
+  const newReading = snapshot.data();
+  const { resourceId } = newReading;
 
-//TODO: reenable disabled for now because this is getting called too much
-// export const updateLastValue = functions.firestore
-// .document('org/{orgId}/{reading}/{readingId}')
-// .onCreate((snapshot, context) => {
-//   //Get the corresponding resource
-//   const { orgId, resourceId, readingId } = context.params;
-//   const newReading = snapshot.data();
+  //If this reading is a legacyReading, then don't update
+  if (newReading.isLegacy === true) {
+    console.log("reading marked as legacy reading. Not updating");
+    return;
+  }
 
-//   //If this reading is a legacyReading, then don't update
-//   if (newReading.isLegacy === true) {
-//     console.log("reading marked as legacy reading. Not updating");
-//     return;
-//   }
+  return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+    .then(doc => {
+      const res = doc.data();
 
-//   return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-//     .then(doc => {
-//       const res = doc.data();
+      if (res.lastReadingDatetime 
+        && res.lastReadingDatetime > newReading.datetime) {
+        console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
+        return true;
+      }
 
-//       if (res.lastReadingDatetime 
-//         && res.lastReadingDatetime > newReading.datetime) {
-//         console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
-//         return true;
-//       }
-
-//       const latestReadingMetadata = {
-//         lastReadingDatetime: newReading.datetime,
-//         lastValue: newReading.value,
-//       };
-//       return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
-//     });
-// });
+      const latestReadingMetadata = {
+        lastReadingDatetime: newReading.datetime,
+        lastValue: newReading.value,
+      };
+      return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
+    });
+});
 
 
 /*

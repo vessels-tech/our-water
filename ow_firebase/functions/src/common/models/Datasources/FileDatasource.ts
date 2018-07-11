@@ -129,6 +129,7 @@ export class FileDatasource implements Datasource {
       warnings: [],
       errors: []
     };
+    
     //TODO: return this
     downloadAndParseCSV(this.fileUrl)
     .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))

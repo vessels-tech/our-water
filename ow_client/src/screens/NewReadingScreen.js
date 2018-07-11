@@ -3,6 +3,7 @@ import {
   Platform,
   StyleSheet,
   ScrollView,
+  KeyboardAvoidingView,
   Text,
   View,
   TextInput,
@@ -26,7 +27,7 @@ import moment from 'moment';
 import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert } from '../utils';
-import { bgLight, primary, textDark, primaryDark, textMed } from '../utils/Colors';
+import { bgLight, primary, textDark, primaryDark, textMed, primaryLight } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -45,6 +46,10 @@ class NewReadingScreen extends Component<Props> {
       measurementString: '',
       isLoading: false,
     };
+  }
+
+  takeImage() {
+    console.log("displaying image dialog");
   }
 
   saveReading() {
@@ -123,6 +128,36 @@ class NewReadingScreen extends Component<Props> {
     return isValid;
   }
 
+  getImageSection() {
+    return (
+      <View style={{
+        height: 150,
+        backgroundColor: primaryDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Button
+          title="Add an Image"
+          raised
+          icon={{ name: 'camera' }}
+          buttonStyle={{
+            backgroundColor: primary,
+          }}
+
+          titleStyle={{
+            fontWeight: 'bold',
+            fontSize: 23,
+          }}
+          containerStyle={{
+          }}
+          onPress={() => this.takeImage()}
+          underlayColor="transparent"
+        />
+
+      </View>
+    );
+  }
+
   getForm() {
     //TODO: get units from reading.metadata
     const units = 'metres';
@@ -133,8 +168,10 @@ class NewReadingScreen extends Component<Props> {
         flex: 1,
         width: '100%',
         paddingHorizontal: 20,
+        marginTop: 10,
         flexDirection: 'column'
       }}>
+        {this.getImageSection()}
         <IconFormInput
           iconName='calendar'
           iconColor={textMed}
@@ -221,18 +258,18 @@ class NewReadingScreen extends Component<Props> {
           return false;
         }}
       >
-        <View style={{
+        <ScrollView style={{
           flex: 1,
           flexDirection: 'column',
           backgroundColor: bgLight,
           // justifyContent: 'space-around',
-          alignItems: 'center',
+          // alignItems: 'center',
           width: '100%',
           marginBottom: 40,
         }}>
           {this.getForm()}
           {this.getButton()}
-        </View>
+        </ScrollView>
       </TouchableWithoutFeedback>
     );
   }
