@@ -164,40 +164,6 @@ challenges with this approach:
 
 
 
-TODO: 
-
-- endpoints for group based queries
-  
-  getReadingsForGroup(group) [done]
-  getReadingsForResource() [done]
-  getResourcesForGroup() []
-
-  queries for graph data?
-  - getAverageForGroup(group, resourceType, startTime, endTime) []
-  - others?
-
-
-- getResourcesNearLocation(lat, lng, distance) [done]
-
-- write down proper type definitions and figure out typescript
-- start working on fast static group/resource detail page?
-- investigate legacy id compatability
-
-
-- secure the endpoints
-- when registering a new resource, allow user to select from a number of groups
-- when registering a new resource, add extra fields for each resource type. Eg. Well.maxDepth
-- ow_admin: list resources by groups
-
-
-Authentication example:
-https://github.com/firebase/functions-samples/tree/master/authorized-https-endpoint
-
-Simple example for multiple sites on single firebase hosting
-https://medium.com/@michael.warneke/hosting-multiple-angular-apps-on-firebase-fb15e2a9dda9
-
-
-
 
 ## Android react-native setup
 
@@ -251,9 +217,10 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 - save readings for a resource
 - display groups on the map
-- group together resources when zoomed out
+  - display conditionally based on the zoom level
+- remove the "drop pin", load/show resources based on the map location
+- add a loading indicator and refresh button to map
 - add and remove favourites not working
-- map markers not on map
 - attach geolocation and image to a reading
 
 
@@ -269,6 +236,39 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 - sync readings with MyWell
 - sync resources with MyWell
+
+
+- endpoints for group based queries
+  
+  getReadingsForGroup(group) [done]
+  getReadingsForResource() [done]
+  getResourcesForGroup() []
+
+  queries for graph data?
+  - getAverageForGroup(group, resourceType, startTime, endTime) []
+  - others?
+
+
+- getResourcesNearLocation(lat, lng, distance) [done]
+
+- write down proper type definitions and figure out typescript
+- start working on fast static group/resource detail page?
+- investigate legacy id compatability
+
+
+- secure the endpoints
+- when registering a new resource, allow user to select from a number of groups
+- when registering a new resource, add extra fields for each resource type. Eg. Well.maxDepth
+- ow_admin: list resources by groups
+
+
+Authentication example:
+https://github.com/firebase/functions-samples/tree/master/authorized-https-endpoint
+
+Simple example for multiple sites on single firebase hosting
+https://medium.com/@michael.warneke/hosting-multiple-angular-apps-on-firebase-fb15e2a9dda9
+
+
 
 
 

@@ -130,6 +130,7 @@ export default class App extends Component<Props> {
     return false;
   }
 
+  //Change to when the map is moved
   onMapPressed({coordinate}) {
     const { mapState } = this.state;
 
@@ -164,11 +165,12 @@ export default class App extends Component<Props> {
       });
   }
 
+  //TODO: replace this with just the map view. When the map is moved, load the new markers
   getDroppedPin() {
     const { droppedPin, droppedPinCoords } = this.state;
 
     if (!droppedPin) {
-      return false;
+      return null;
     }
 
     return (
@@ -187,6 +189,8 @@ export default class App extends Component<Props> {
   }
 
   imageForResourceType(type) {
+    console.log("type", type);
+
     switch (type) {
       case ResourceTypes.checkdam:
         return require('./assets/checkdam_pin.png');
@@ -247,21 +251,25 @@ export default class App extends Component<Props> {
           onRegionChangeComplete={(region) => this.onRegionChange(region)}
         >
         {/* TODO: enable these without the clustering */}
-          {/* <Marker
+          <Marker
             key='geoLocation'
             coordinate={{ latitude: userRegion.latitude, longitude: userRegion.longitude}}
             title='Me'
             image={require('./assets/my_location.png')}
-          /> */}
-          {/* {this.getDroppedPin()} */}
+          />
+          {this.getDroppedPin()}
+          {/* TODO: Hide and show different groups at different levels */}
+          {/* Pincode */}
+          {/* Villages */}
           {resources.map(resource => {
               const shortId = getShortId(resource.id);
               return <Marker
+                collapsable={true}
                 key={shortId}
                 coordinate={formatCoords(resource.coords)}
                 title={`${shortId}`}
-                description={resource.type}
-                image={this.imageForResourceType(resource.type)}
+                description={resource.resourceType}
+                image={this.imageForResourceType(resource.resourceType)}
                 onPress={(e) => this.focusResource(e.nativeEvent)}
               />
             }

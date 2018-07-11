@@ -53,7 +53,11 @@ class ClusteredMapView extends Component {
     const otherChildren = [];
 
     React.Children.forEach(this.props.children, (marker) => {
-      if (marker.props && marker.props.coordinate) {
+      if (!marker) {
+        return
+      }
+
+      if (marker.props && marker.props.coordinate && marker.props.collapsable) {
         markers.push({
           marker,
           properties: { point_count: 0 },
@@ -123,7 +127,6 @@ class ClusteredMapView extends Component {
     if (this.props.clustering && this.superCluster) {
       const bBox = this.calculateBBox(this.state.currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
-      console.log("calculateClustersForMap, zoom is", zoom);
       const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
 
       clusteredMarkers = clusters.map(cluster => (<CustomMarker

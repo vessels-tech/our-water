@@ -80,6 +80,11 @@ class FirebaseApi {
       })
   }
 
+  static getResourceListener({orgId, resourceId, onSnapshot}) {
+    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId)
+    .onSnapshot(sn => onSnapshot(sn.data()));
+  }
+
   static getRecentResources({orgId, userId}) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {

@@ -34,6 +34,9 @@ class ResourceDetailSection extends Component<Props> {
 
     this.state = {
       loading: false,
+      resource: {
+        lastValue: '',
+      }
     }
   }
 
@@ -46,6 +49,9 @@ class ResourceDetailSection extends Component<Props> {
     this.setState({
       loading: true
     });
+  
+    //Listen to updates from Firebase
+    this.unsubscribe = FirebaseApi.getResourceListener({orgId, resourceId: id, onSnapshot: (data) => this.onSnapshot(data)});
 
     //TODO: we need to reload this when changing resources.
     return Promise.all([
@@ -60,17 +66,22 @@ class ResourceDetailSection extends Component<Props> {
     });
   }
 
+  onSnapshot(data) {
+    this.setState({
+      resource: data,
+    });
+  }
+
   componentWillUpdate() {
     console.log('willUpdate');
   }
 
-  // componentWillUnmount() {
-
-  // }
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   getReadingsView() {
-    const { loading } = this.state;
-    const { resource: { lastValue } } = this.props;
+    const { loading, resource: { lastValue } } = this.state;
 
     const viewStyle = {
       justifyContent: 'center',
