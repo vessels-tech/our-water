@@ -9,6 +9,23 @@ import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
 import * as filestore from 'fs';
 import { ResourceType } from "./enums/ResourceType";
+import SyncRunResult from "./types/SyncRunResult";
+
+
+
+/**
+ * Concatenate a list of results together, keeping the results, warnings, errors
+ * format
+ */
+export const concatSaveResults = (resultList: Array<SyncRunResult>): SyncRunResult => {
+  return resultList.reduce((acc, curr) => {
+    acc.results.concat(curr.results);
+    acc.warnings.concat(curr.warnings);
+    acc.errors.concat(curr.errors);
+
+    return acc;
+  }, {results: [], warnings:[], errors:[]});
+}
 
 
 /**

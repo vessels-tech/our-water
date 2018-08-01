@@ -6,6 +6,18 @@ const Papa = require("papaparse");
 const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
 /**
+ * Concatenate a list of results together, keeping the results, warnings, errors
+ * format
+ */
+exports.concatSaveResults = (resultList) => {
+    return resultList.reduce((acc, curr) => {
+        acc.results.concat(curr.results);
+        acc.warnings.concat(curr.warnings);
+        acc.errors.concat(curr.errors);
+        return acc;
+    }, { results: [], warnings: [], errors: [] });
+};
+/**
  * Create a diamond shape from a latlng
  * use this to easily convert from a legacy village into a Group
  */

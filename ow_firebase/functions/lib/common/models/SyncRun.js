@@ -83,7 +83,7 @@ class SyncRun {
                         this.results = result.results;
                     }
                     catch (error) {
-                        console.log('error', error);
+                        console.log('SyncMethod.pullFrom error', error);
                         this.errors.push(error.message);
                     }
                     break;

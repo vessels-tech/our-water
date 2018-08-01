@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -18,6 +18,9 @@ import LegacyReading from '../../types/LegacyReading';
 import SyncRunResult from '../../types/SyncRunResult';
 
 import {mywellLegacyAccessToken} from '../../env';
+import GroupSaveResult from '../../types/GroupSaveResult';
+import ResourceSaveResult from '../../types/ResourceSaveResult';
+import ReadingSaveResult from '../../types/ReadingSaveResult';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -37,7 +40,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * imaginary bounding box for the new group
    * 
    */
-  public getGroupData(orgId: string, fs): Promise<Array<Group>> {
+  public getGroupData(orgId: string, fs): Promise<GroupSaveResult> {
     // https://mywell-server.vessels.tech/api/villages
     const uriVillage = `${this.baseUrl}/api/villages`;
 
@@ -58,7 +61,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       });
 
       const errors = [];
-      const savedGroups = [];
+      const savedGroups: Group[] = [] ;
       newGroups.forEach(group => {
         return group.create({ fs })
           .then(savedGroup => {
@@ -71,20 +74,22 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       })
 
-      //TODO: return errors as well
-      return savedGroups;
+      return {
+        results: savedGroups,
+        warnings: [],
+        errors,
+      };
     });
 
    
     //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
-
   }
 
   /**
    * Create groups based on inferred pincode data
    * 
    */  
-  public getPincodeData(orgId: string, fs: Firestore): Promise<Array<Group>> {
+  public getPincodeData(orgId: string, fs: Firestore): Promise<GroupSaveResult> {
     //Get all villages, and for each village within a pincode, create a bounding box based on the center
     const uriVillage = `${this.baseUrl}/api/villages`;
 
@@ -130,7 +135,11 @@ export default class LegacyMyWellDatasource implements Datasource {
           );
       });
 
-      return pincodeGroups;
+      return {
+        results: pincodeGroups,
+        warnings: [],
+        errors,
+      };
     });    
   }
 
@@ -142,7 +151,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * convert legacy MyWell resources into OW resources
    * return
    */
-  public getResourcesData(orgId: string, fs: Firestore): Promise<Array<Resource>> {
+  public getResourcesData(orgId: string, fs: Firestore): Promise<ResourceSaveResult> {
     const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     // const uriResources = `${this.baseUrl}/api/resources`;
 
@@ -179,7 +188,11 @@ export default class LegacyMyWellDatasource implements Datasource {
           .catch(err => errors.push(err));
       });
 
-      return savedResources;
+      return {
+        results: savedResources,
+        warnings: [],
+        errors,
+      };
     });
   }
 
@@ -190,7 +203,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * Perhaps we should test with just a small number of readings for now
    * 
    */
-  public getReadingsData(orgId: string, fs: Firestore) {
+  public getReadingsData(orgId: string, fs: Firestore): Promise<ReadingSaveResult>  {
     // const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
     const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
@@ -244,7 +257,11 @@ export default class LegacyMyWellDatasource implements Datasource {
           .catch(err => errors.push(err));
       });
 
-      return savedReadings;
+      return {
+        results: savedReadings,
+        warnings: [],
+        errors,
+      };
     });
 
   }
@@ -255,19 +272,17 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
-    //TODO: restructure to return errors, warnings and results
-    const villageGroups = await this.getGroupData(orgId, fs);
+    const villageGroupResult = await this.getGroupData(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
     const readings = await this.getReadingsData(orgId, fs);
 
-    //TODO: return proper SyncRunResult
-    const result = {
-      results: [],
-      warnings: [],
-      errors: []
-    }
-    return result;
+    return concatSaveResults([
+      villageGroupResult,
+      pincodeGroups,
+      resources,
+      readings,
+    ]);
   }
 
   public pushDataToDataSource(): Promise<SyncRunResult> {

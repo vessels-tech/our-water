@@ -92,7 +92,7 @@ module.exports = ({fs}) => {
 
     describe('MyWell Pull', () => {
 
-      it.only('creates a new legacy sync, and pulls the data correctly', () => {
+      it('creates a new legacy sync, and pulls the data correctly', () => {
 
         let syncId = null;
         let syncRunId = null;
@@ -106,8 +106,8 @@ module.exports = ({fs}) => {
           type: "unknown",
           selectedDatatypes: [
             'group',
-            // 'resource',
-            // 'reading',
+            'resource',
+            'reading',
           ]
         };
 
@@ -182,7 +182,7 @@ module.exports = ({fs}) => {
       });
     });
 
-    it('should create and run the sync', () => {
+    it.only('should create and run the sync', () => {
       let syncRunId = null;
       return createNewSync()
       .then(syncId => {
@@ -201,7 +201,7 @@ module.exports = ({fs}) => {
         syncRunId = response.data.syncRunId;
       })
       //Wait for the sync to finish
-      .then(() => sleep(20000))
+      .then(() => sleep(30000))
       .then(() => getSyncRun({orgId, fs, syncRunId}))
       .then(syncRun => {
         console.log("syncRun is:", syncRun);

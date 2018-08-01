@@ -94,7 +94,7 @@ export class SyncRun {
           //TODO: do something with this result
           this.results = result.results;
         } catch (error) {
-          console.log('error', error);
+          console.log('SyncMethod.pullFrom error', error);
           this.errors.push(error.message);
         }
       break;

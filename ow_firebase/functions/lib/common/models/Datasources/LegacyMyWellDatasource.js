@@ -60,8 +60,11 @@ class LegacyMyWellDatasource {
                     errors.push(err);
                 });
             });
-            //TODO: return errors as well
-            return savedGroups;
+            return {
+                results: savedGroups,
+                warnings: [],
+                errors,
+            };
         });
         //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
     }
@@ -108,7 +111,11 @@ class LegacyMyWellDatasource {
                     errors.push(err);
                 });
             });
-            return pincodeGroups;
+            return {
+                results: pincodeGroups,
+                warnings: [],
+                errors,
+            };
         });
     }
     /**
@@ -150,7 +157,11 @@ class LegacyMyWellDatasource {
                     .then((savedRes) => savedResources.push(savedRes))
                     .catch(err => errors.push(err));
             });
-            return savedResources;
+            return {
+                results: savedResources,
+                warnings: [],
+                errors,
+            };
         });
     }
     /**
@@ -205,7 +216,11 @@ class LegacyMyWellDatasource {
                     .then((savedRes) => savedReadings.push(savedRes))
                     .catch(err => errors.push(err));
             });
-            return savedReadings;
+            return {
+                results: savedReadings,
+                warnings: [],
+                errors,
+            };
         });
     }
     validate(orgId, fs) {
@@ -216,18 +231,16 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
-            //TODO: restructure to return errors, warnings and results
-            const villageGroups = yield this.getGroupData(orgId, fs);
+            const villageGroupResult = yield this.getGroupData(orgId, fs);
             const pincodeGroups = yield this.getPincodeData(orgId, fs);
             const resources = yield this.getResourcesData(orgId, fs);
             const readings = yield this.getReadingsData(orgId, fs);
-            //TODO: return proper SyncRunResult
-            const result = {
-                results: [],
-                warnings: [],
-                errors: []
-            };
-            return result;
+            return utils_1.concatSaveResults([
+                villageGroupResult,
+                pincodeGroups,
+                resources,
+                readings,
+            ]);
         });
     }
     pushDataToDataSource() {
