@@ -47,7 +47,6 @@ class Group {
             catch (_a) {
             }
         }
-        console.log("base is:", base);
         return base;
     }
 }

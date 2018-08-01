@@ -126,8 +126,8 @@ class LegacyMyWellDatasource {
      * return
      */
     getResourcesData(orgId, fs) {
-        const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
-        // const uriResources = `${this.baseUrl}/api/resources`;
+        // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
+        const uriResources = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',
             uri: uriResources,
@@ -172,7 +172,7 @@ class LegacyMyWellDatasource {
      *
      */
     getReadingsData(orgId, fs) {
-        const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+        const uriReadings = `${this.baseUrl}/api/readings?access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
         // const uriReadings = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',
@@ -195,20 +195,28 @@ class LegacyMyWellDatasource {
         })
             .then(() => request(options))
             .then((legacyReadings) => {
+            let errors = [];
+            let warnings = [];
             legacyReadings.forEach(r => {
                 if (typeof r.value === undefined) {
                     console.log("warning: found reading with no value", r);
                     return;
                 }
                 //get metadata that didn't exist on original reading
-                const resource = utils_1.findResourceMembershipsForResource(r, legacyResources);
+                let resource;
+                try {
+                    resource = utils_1.findResourceMembershipsForResource(r, legacyResources);
+                }
+                catch (err) {
+                    warnings.push(err.message);
+                    return;
+                }
                 const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
                 const groups = utils_1.findGroupMembershipsForReading(r, legacyGroups);
                 const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, moment(r.createdAt).toDate(), r.value, externalIds);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });
-            let errors = [];
             let savedReadings = [];
             readings.forEach(res => {
                 return res.create({ fs })
@@ -217,7 +225,7 @@ class LegacyMyWellDatasource {
             });
             return {
                 results: savedReadings,
-                warnings: [],
+                warnings,
                 errors,
             };
         })

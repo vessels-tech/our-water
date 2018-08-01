@@ -71,8 +71,6 @@ export class Group {
       }
     }
 
-    console.log("base is:", base);
-
     return base;
   }
 }

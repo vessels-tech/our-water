@@ -7,7 +7,6 @@ import LegacyReading from "./types/LegacyReading";
 import { resource } from "..";
 import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
-import * as filestore from 'fs';
 import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
 
@@ -65,7 +64,7 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
         return;
       }
       
-      mappedGroups.set(group.externalIds.legacyMyWellId, resource);
+      mappedGroups.set(group.externalIds.legacyMyWellId, group);
     });
 
     return mappedGroups;
@@ -84,20 +83,23 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
   .then(sn => {
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
-    console.log(`Found: ${resources.length} resources.`);
+    console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
 
     resources.forEach((res: Resource) => {
-      if (!resource.externalIds) {
+      if (!res.externalIds) {
         //TODO: not sure what to do here. This should probably be a warning
-        // console.log("resource is missing externalIds", resource);
+        console.log("resource is missing externalIds", res.id);
         return;
       }
 
-      mappedResources.set(resource.externalIds.legacyMyWellId, res);
+      mappedResources[res.externalIds.legacyMyWellId] = res;
       //resources should only have 1 mywellId, but let's be safe
       // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
     });
 
+
+    console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);
+    console.log(Object.keys(mappedResources));
     return mappedResources;
   });
 }
@@ -114,8 +116,9 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
  *  groupId: 'true'
  * }
  */
-export const findGroupMembershipsForResource = (legacyResource: LegacyResource, groups: Map<string, Group> ): Map<string, boolean> => {
+export const findGroupMembershipsForResource = (legacyResource: LegacyResource, groups: Map<string, Group>): Map<string, boolean> => {
   const memberships = new Map<string, boolean>();
+  // console.log("findGroupMembershipsForResource Groups:", groups);
   const villageGroup: Group = groups.get(`${legacyResource.postcode}.${legacyResource.villageId}`);
   if (villageGroup) {
     memberships.set(villageGroup.id, true);
@@ -126,6 +129,7 @@ export const findGroupMembershipsForResource = (legacyResource: LegacyResource, 
     memberships.set(pincodeGroup.id, true);
   }
 
+  // console.log("findGroupMembershipsForResource, ", memberships);
   return memberships;
 }
 
@@ -137,7 +141,7 @@ export const findGroupMembershipsForResource = (legacyResource: LegacyResource, 
  * @returns a single Resource
  */
 export const findResourceMembershipsForResource = (legacyReading: LegacyReading, resources: Map<string, Resource>): Resource => {
-  const res: Resource = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+  const res: Resource = resources[`${legacyReading.postcode}.${legacyReading.resourceId}`];
   if (!res) {
     console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
     throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
@@ -156,7 +160,7 @@ export const findResourceMembershipsForResource = (legacyReading: LegacyReading,
  */
 export const findGroupMembershipsForReading = (legacyReading: LegacyReading, groups: Map<string, Group>): Map<string, boolean> => {
   const memberships = new Map<string, boolean>();
-  const villageGroup: Group = groups.get(`mywell.${legacyReading.postcode}.${legacyReading.villageId}`);
+  const villageGroup: Group = groups[`mywell.${legacyReading.postcode}.${legacyReading.villageId}`];
   if (villageGroup) {
     memberships.set(villageGroup.id, true);
   }

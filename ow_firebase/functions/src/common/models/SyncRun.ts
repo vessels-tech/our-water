@@ -41,7 +41,6 @@ export class SyncRun {
     this.syncId = syncId;
     this.syncMethod = syncMethod;
     this.subscribers = subscribers;
-
   }
 
   /**
@@ -73,11 +72,11 @@ export class SyncRun {
       case SyncMethod.validate:
         try {
           //TODO: change this to use the a validate method instead
-          const result = await sync.datasource.validate(this.orgId, fs);
-          this.results = result.results;
-          this.warnings = result.warnings;
+          const validationResult = await sync.datasource.validate(this.orgId, fs);
+          this.results = validationResult.results;
+          this.warnings = validationResult.warnings;
           
-          console.log("result is: ", result);
+          console.log("result is: ", validationResult);
 
         } catch (error) {
           console.log('error', error);
@@ -88,18 +87,18 @@ export class SyncRun {
 
       //Pull from the external datasource, and save to db
       case SyncMethod.pullFrom:
-        const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
-        this.results = [`Pulled ${result.results.length} items from dataSource`];
-        this.warnings = result.warnings;
-        this.errors = result.errors;
+        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
+        this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
+        this.warnings = pullFromResult.warnings;
+        this.errors = pullFromResult.errors;
       break;
 
       //Get data from somewhere, and push to external datasource
       case SyncMethod.pushTo:
         try {
           //TODO: first get some data to push...
-          const result = await sync.datasource.pushDataToDataSource();
-          this.results = result.results;
+          const pushToResult = await sync.datasource.pushDataToDataSource();
+          this.results = pushToResult.results;
         } catch (error) {
           console.log('error', error);
           this.errors.push(error.message);
@@ -122,8 +121,7 @@ export class SyncRun {
   }
 
   private async abortSync({ fs }): Promise<SyncRun> {
-    // console.warn("aborting sync with errors:", this.errors);
-    console.warn("aborting sync with errors:");
+    console.warn("aborting sync with errors:", this.errors);
 
     this.status = SyncRunStatus.failed;
     this.finishedAt = moment().valueOf();
@@ -173,7 +171,7 @@ export class SyncRun {
       status: this.status.toString(),
       results: this.results,
       warnings: this.warnings,
-      errors: this.errors,
+      errors: this.errors.toString(),
     };
   }
 

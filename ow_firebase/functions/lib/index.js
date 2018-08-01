@@ -18,27 +18,26 @@ const fs = admin.firestore();
 /**
  * Add metadata to readings when created
  */
-//TODO: reenable disabled for now because this is getting called too much
-// export const copyResourceFields = functions.firestore
-//   .document('org/{orgId}/{reading}/{readingId}')
-//   .onCreate((snapshot, context) => {
-//     //Get the corresponding resource
-//     const {orgId, readingId} = context.params;
-//     const newReading = snapshot.data();
-//     const resourceId = newReading.resourceId;
-//     return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-//     .then(doc => {
-//       const data = doc.data();
-//       return {
-//         //TODO: double check format
-//         coords: data.coords,
-//         groups: data.groups,
-//       };
-//     })
-//     .then(readingMetadata => fs.collection('org').doc(orgId)
-//                                .collection('reading').doc(readingId).update(readingMetadata))
-//     .then(() => console.log(`added metadata to /org/${orgId}/reading/${readingId}`))
-//   });
+exports.copyResourceFields = functions.firestore
+    .document('org/{orgId}/{reading}/{readingId}')
+    .onCreate((snapshot, context) => {
+    //Get the corresponding resource
+    const { orgId, readingId } = context.params;
+    const newReading = snapshot.data();
+    const resourceId = newReading.resourceId;
+    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+        .then(doc => {
+        const data = doc.data();
+        return {
+            //TODO: double check format
+            coords: data.coords,
+            groups: data.groups,
+        };
+    })
+        .then(readingMetadata => fs.collection('org').doc(orgId)
+        .collection('reading').doc(readingId).update(readingMetadata))
+        .then(() => console.log(`added metadata to /org/${orgId}/reading/${readingId}`));
+});
 /**
  * Update the last value on resource when there is a new reading
  *

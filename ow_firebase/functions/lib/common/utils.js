@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const firestore_1 = require("@google-cloud/firestore");
-const __1 = require("..");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
@@ -48,7 +47,7 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
                 console.log("group is missing externalIds", group);
                 return;
             }
-            mappedGroups.set(group.externalIds.legacyMyWellId, __1.resource);
+            mappedGroups.set(group.externalIds.legacyMyWellId, group);
         });
         return mappedGroups;
     });
@@ -64,17 +63,19 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
-        console.log(`Found: ${resources.length} resources.`);
+        console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
         resources.forEach((res) => {
-            if (!__1.resource.externalIds) {
+            if (!res.externalIds) {
                 //TODO: not sure what to do here. This should probably be a warning
-                // console.log("resource is missing externalIds", resource);
+                console.log("resource is missing externalIds", res.id);
                 return;
             }
-            mappedResources.set(__1.resource.externalIds.legacyMyWellId, res);
+            mappedResources[res.externalIds.legacyMyWellId] = res;
             //resources should only have 1 mywellId, but let's be safe
             // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
         });
+        console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);
+        console.log(Object.keys(mappedResources));
         return mappedResources;
     });
 };
@@ -90,6 +91,7 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
  */
 exports.findGroupMembershipsForResource = (legacyResource, groups) => {
     const memberships = new Map();
+    // console.log("findGroupMembershipsForResource Groups:", groups);
     const villageGroup = groups.get(`${legacyResource.postcode}.${legacyResource.villageId}`);
     if (villageGroup) {
         memberships.set(villageGroup.id, true);
@@ -98,6 +100,7 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
     if (pincodeGroup) {
         memberships.set(pincodeGroup.id, true);
     }
+    // console.log("findGroupMembershipsForResource, ", memberships);
     return memberships;
 };
 /**
@@ -108,7 +111,7 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
  * @returns a single Resource
  */
 exports.findResourceMembershipsForResource = (legacyReading, resources) => {
-    const res = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
+    const res = resources[`${legacyReading.postcode}.${legacyReading.resourceId}`];
     if (!res) {
         console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
         throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
@@ -124,7 +127,7 @@ exports.findResourceMembershipsForResource = (legacyReading, resources) => {
  */
 exports.findGroupMembershipsForReading = (legacyReading, groups) => {
     const memberships = new Map();
-    const villageGroup = groups.get(`mywell.${legacyReading.postcode}.${legacyReading.villageId}`);
+    const villageGroup = groups[`mywell.${legacyReading.postcode}.${legacyReading.villageId}`];
     if (villageGroup) {
         memberships.set(villageGroup.id, true);
     }

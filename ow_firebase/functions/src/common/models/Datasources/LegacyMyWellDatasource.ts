@@ -152,8 +152,8 @@ export default class LegacyMyWellDatasource implements Datasource {
    * return
    */
   public getResourcesData(orgId: string, fs: Firestore): Promise<ResourceSaveResult> {
-    const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
-    // const uriResources = `${this.baseUrl}/api/resources`;
+    // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
+    const uriResources = `${this.baseUrl}/api/resources`;
 
     const options = {
       method: 'GET',
@@ -204,7 +204,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * 
    */
   public getReadingsData(orgId: string, fs: Firestore): Promise<ReadingSaveResult>  {
-    const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+    const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
 
     const options = {
@@ -231,6 +231,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     })
     .then(() => request(options))
     .then((legacyReadings: Array<LegacyReading>) => {
+      let errors = [];
+      let warnings = [];
       legacyReadings.forEach(r => {
         if (typeof r.value === undefined) {
           console.log("warning: found reading with no value", r);
@@ -238,7 +240,13 @@ export default class LegacyMyWellDatasource implements Datasource {
         }
 
         //get metadata that didn't exist on original reading
-        const resource: Resource = findResourceMembershipsForResource(r, legacyResources);
+        let resource: Resource;
+        try {
+          resource = findResourceMembershipsForResource(r, legacyResources);
+        } catch (err) {
+          warnings.push(err.message);
+          return;
+        }
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
         const groups: Map<string, boolean> = findGroupMembershipsForReading(r, legacyGroups);
 
@@ -248,7 +256,6 @@ export default class LegacyMyWellDatasource implements Datasource {
         readings.push(newReading);
       });
 
-      let errors = [];
       let savedReadings: Array<Reading> = [];
       readings.forEach(res => {
         return res.create({ fs })
@@ -258,7 +265,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       return {
         results: savedReadings,
-        warnings: [],
+        warnings,
         errors,
       };
     })

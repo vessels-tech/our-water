@@ -64,10 +64,10 @@ class SyncRun {
                 case SyncMethod_1.SyncMethod.validate:
                     try {
                         //TODO: change this to use the a validate method instead
-                        const result = yield sync.datasource.validate(this.orgId, fs);
-                        this.results = result.results;
-                        this.warnings = result.warnings;
-                        console.log("result is: ", result);
+                        const validationResult = yield sync.datasource.validate(this.orgId, fs);
+                        this.results = validationResult.results;
+                        this.warnings = validationResult.warnings;
+                        console.log("result is: ", validationResult);
                     }
                     catch (error) {
                         console.log('error', error);
@@ -76,17 +76,17 @@ class SyncRun {
                     break;
                 //Pull from the external datasource, and save to db
                 case SyncMethod_1.SyncMethod.pullFrom:
-                    const result = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
-                    this.results = [`Pulled ${result.results.length} items from dataSource`];
-                    this.warnings = result.warnings;
-                    this.errors = result.errors;
+                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
+                    this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
+                    this.warnings = pullFromResult.warnings;
+                    this.errors = pullFromResult.errors;
                     break;
                 //Get data from somewhere, and push to external datasource
                 case SyncMethod_1.SyncMethod.pushTo:
                     try {
                         //TODO: first get some data to push...
-                        const result = yield sync.datasource.pushDataToDataSource();
-                        this.results = result.results;
+                        const pushToResult = yield sync.datasource.pushDataToDataSource();
+                        this.results = pushToResult.results;
                     }
                     catch (error) {
                         console.log('error', error);
@@ -107,8 +107,7 @@ class SyncRun {
     }
     abortSync({ fs }) {
         return __awaiter(this, void 0, void 0, function* () {
-            // console.warn("aborting sync with errors:", this.errors);
-            console.warn("aborting sync with errors:");
+            console.warn("aborting sync with errors:", this.errors);
             this.status = SyncRunStatus_1.SyncRunStatus.failed;
             this.finishedAt = moment().valueOf();
             return this.save({ fs });
@@ -153,7 +152,7 @@ class SyncRun {
             status: this.status.toString(),
             results: this.results,
             warnings: this.warnings,
-            errors: this.errors,
+            errors: this.errors.toString(),
         };
     }
     /**
