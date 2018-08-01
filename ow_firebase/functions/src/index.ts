@@ -23,31 +23,33 @@ export const sync = require('./fn_sync/sync')(functions, admin);
 
 const fs = admin.firestore();
 
+//TODO: REENABLE
+
 /**
  * Add metadata to readings when created
  */
-export const copyResourceFields = functions.firestore
-  .document('org/{orgId}/{reading}/{readingId}')
-  .onCreate((snapshot, context) => {
-    //Get the corresponding resource
-    const {orgId, readingId} = context.params;
-    const newReading = snapshot.data();
-    const resourceId = newReading.resourceId;
+// export const copyResourceFields = functions.firestore
+//   .document('org/{orgId}/{reading}/{readingId}')
+//   .onCreate((snapshot, context) => {
+//     //Get the corresponding resource
+//     const {orgId, readingId} = context.params;
+//     const newReading = snapshot.data();
+//     const resourceId = newReading.resourceId;
 
-    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-    .then(doc => {
-      const data = doc.data();
+//     return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+//     .then(doc => {
+//       const data = doc.data();
 
-      return {
-        //TODO: double check format
-        coords: data.coords,
-        groups: data.groups,
-      };
-    })
-    .then(readingMetadata => fs.collection('org').doc(orgId)
-                               .collection('reading').doc(readingId).update(readingMetadata))
-    .then(() => console.log(`added metadata to /org/${orgId}/reading/${readingId}`))
-  });
+//       return {
+//         //TODO: double check format
+//         coords: data.coords,
+//         groups: data.groups,
+//       };
+//     })
+//     .then(readingMetadata => fs.collection('org').doc(orgId)
+//                                .collection('reading').doc(readingId).update(readingMetadata))
+//     .then(() => console.log(`added metadata to /org/${orgId}/reading/${readingId}`))
+//   });
 
 
 /**
@@ -55,37 +57,37 @@ export const copyResourceFields = functions.firestore
  * 
  * when doing bulk uploads, add a field: `isLegacy:true` to the readings, which will bypass this function
  */
-export const updateLastValue = functions.firestore
-.document('org/{orgId}/{reading}/{readingId}')
-.onCreate((snapshot, context) => {
-  //Get the corresponding resource
-  const { orgId, readingId } = context.params;
-  const newReading = snapshot.data();
-  const { resourceId } = newReading;
+// export const updateLastValue = functions.firestore
+// .document('org/{orgId}/{reading}/{readingId}')
+// .onCreate((snapshot, context) => {
+//   //Get the corresponding resource
+//   const { orgId, readingId } = context.params;
+//   const newReading = snapshot.data();
+//   const { resourceId } = newReading;
 
-  //If this reading is a legacyReading, then don't update
-  if (newReading.isLegacy === true) {
-    console.log("reading marked as legacy reading. Not updating");
-    return;
-  }
+//   //If this reading is a legacyReading, then don't update
+//   if (newReading.isLegacy === true) {
+//     console.log("reading marked as legacy reading. Not updating");
+//     return;
+//   }
 
-  return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-    .then(doc => {
-      const res = doc.data();
+//   return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+//     .then(doc => {
+//       const res = doc.data();
 
-      if (res.lastReadingDatetime 
-        && res.lastReadingDatetime > newReading.datetime) {
-        console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
-        return true;
-      }
+//       if (res.lastReadingDatetime 
+//         && res.lastReadingDatetime > newReading.datetime) {
+//         console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
+//         return true;
+//       }
 
-      const latestReadingMetadata = {
-        lastReadingDatetime: newReading.datetime,
-        lastValue: newReading.value,
-      };
-      return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
-    });
-});
+//       const latestReadingMetadata = {
+//         lastReadingDatetime: newReading.datetime,
+//         lastValue: newReading.value,
+//       };
+//       return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
+//     });
+// });
 
 
 /*

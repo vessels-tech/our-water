@@ -97,9 +97,7 @@ export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<
       // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
     });
 
-
     console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);
-    console.log(Object.keys(mappedResources));
     return mappedResources;
   });
 }

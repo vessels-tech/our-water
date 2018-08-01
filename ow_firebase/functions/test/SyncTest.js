@@ -182,7 +182,7 @@ module.exports = ({fs}) => {
       });
     });
 
-    it.only('should create and run the sync', () => {
+    it('should create and run the sync', () => {
       let syncRunId = null;
       return createNewSync()
       .then(syncId => {

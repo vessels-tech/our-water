@@ -78,7 +78,7 @@ class SyncRun {
                 case SyncMethod_1.SyncMethod.pullFrom:
                     const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
                     this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
-                    this.warnings = pullFromResult.warnings;
+                    this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
                     this.errors = pullFromResult.errors;
                     break;
                 //Get data from somewhere, and push to external datasource
@@ -115,6 +115,7 @@ class SyncRun {
     }
     finishSync({ fs }) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("finished sync with results:", this.results);
             console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
             this.finishedAt = moment().valueOf();
@@ -130,10 +131,12 @@ class SyncRun {
         return this.save({ fs });
     }
     save({ fs }) {
+        console.log("saving SyncRun");
         //TODO: do we want this to merge?
         return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
             .set(this.serialize())
             .then(ref => {
+            console.log('Finished saving SyncRun: ', this.id);
             return this;
         });
     }
@@ -152,7 +155,7 @@ class SyncRun {
             status: this.status.toString(),
             results: this.results,
             warnings: this.warnings,
-            errors: this.errors.toString(),
+            errors: this.errors,
         };
     }
     /**

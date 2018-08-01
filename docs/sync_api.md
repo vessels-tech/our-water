@@ -71,6 +71,16 @@ In order to allow other data sources to write to OW, we will also implement the 
 These methods will provide a consistent API for others to integrate with us.
 
 
+## 2 Way Sync Resources
+
+In order to best design and test the sync design, we will start by making the mechanism for syncing new readings between LegacyMyWell and OurWater.
+
+The process will look roughly like:
+1. Check the last sync date
+2. Pull readings from LegacyMyWell created after the last sync date, saving them to OurWater
+2. Look at all the readings created in OurWater after the last sync date, filtering for external readings, and push them to LegacyMyWell
+
+
 ## Questions
 
 - How do we handle 2 way sync? 
