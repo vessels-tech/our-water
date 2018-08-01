@@ -201,7 +201,7 @@ module.exports = ({fs}) => {
         syncRunId = response.data.syncRunId;
       })
       //Wait for the sync to finish
-      .then(() => sleep(30000))
+      .then(() => sleep(20000))
       .then(() => getSyncRun({orgId, fs, syncRunId}))
       .then(syncRun => {
         console.log("syncRun is:", syncRun);
@@ -210,20 +210,28 @@ module.exports = ({fs}) => {
     });;
 
     // Cleanup all created resources
-    // after(function() {
-    //   console.log("     Clean Up:");
+    after(function() {
+      if (process.env.SKIP_CLEANUP === 'true') {
+        console.log("      Skipping Cleanup, as SKIP_CLEANUP is true");
+        console.log(`        orgId is: ${orgId}`);
+        return;
+      }
 
-    //   console.log(`      cleaning up ${syncIds.length} syncs`);
-    //   syncIds.forEach(syncId => {
-    //     return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
-    //       .delete();
-    //   });
+      console.log("     Clean Up:");
+      console.log(`       Deleting document org/${orgId}`);
+      return fs.collection('org').doc(orgId).delete();
 
-    //   console.log(`      cleaning up ${syncRunIds.length} syncRuns`);
-    //   syncRunIds.forEach(syncRunId => {
-    //     return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
-    //       .delete();
-    //   });
-    // });
+      // console.log(`      cleaning up ${syncIds.length} syncs`);
+      // syncIds.forEach(syncId => {
+      //   return fs.collection('org').doc(orgId).collection('sync').doc(syncId)
+      //     .delete();
+      // });
+
+      // console.log(`      cleaning up ${syncRunIds.length} syncRuns`);
+      // syncRunIds.forEach(syncRunId => {
+      //   return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
+      //     .delete();
+      // });
+    });
   });
 }

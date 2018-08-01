@@ -172,7 +172,6 @@ class LegacyMyWellDatasource {
      *
      */
     getReadingsData(orgId, fs) {
-        // const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
         const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
         // const uriReadings = `${this.baseUrl}/api/resources`;
         const options = {
@@ -220,6 +219,15 @@ class LegacyMyWellDatasource {
                 results: savedReadings,
                 warnings: [],
                 errors,
+            };
+        })
+            //Catch fatal errors here
+            .catch(err => {
+            console.log("getReadingsData error, ", err.message);
+            return {
+                results: [],
+                warnings: [],
+                errors: [err.message]
             };
         });
     }

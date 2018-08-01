@@ -3,13 +3,15 @@ const Group = require('../lib/common/models/Group');
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
+const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
+
 
 const createNewSync = () => {
   const data = {
     isOneTime: false,
     datasource: {
       type: "LegacyMyWellDatasource",
-      url: "https://mywell-server.vessels.tech",
+      url: mywellLegacyBaseUrl,
     },
     type: "unknown",
     selectedDatatypes: [

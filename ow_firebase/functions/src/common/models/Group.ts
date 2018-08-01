@@ -3,6 +3,7 @@ import { GeoPoint } from "@google-cloud/firestore";
 import { org } from "../..";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
+import { isNullOrUndefined } from "util";
 
 export class Group {
   id: string
@@ -47,15 +48,31 @@ export class Group {
   }
 
   public serialize(): any {
-    return {
+
+    const base = {
       id: this.id, 
       name: this.name,
       type: this.type,
       coords: this.coords,
-      //this is just placeholder to see if we can get this to work.
-      externalIds: this.externalIds.serialize(),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
+
+    //TODO: this is less than ideal
+    if (this.externalIds) {
+      let serializedExternalId = null;
+      try {
+        serializedExternalId = this.externalIds.serialize();
+        if (!isNullOrUndefined(serializedExternalId.legacyMyWellId)) {
+          base['externalIds'] = serializedExternalId;
+        }
+      } catch {
+
+      }
+    }
+
+    console.log("base is:", base);
+
+    return base;
   }
 }

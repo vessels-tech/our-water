@@ -11,10 +11,11 @@ const ResourceType_1 = require("./enums/ResourceType");
  */
 exports.concatSaveResults = (resultList) => {
     return resultList.reduce((acc, curr) => {
-        acc.results.concat(curr.results);
-        acc.warnings.concat(curr.warnings);
-        acc.errors.concat(curr.errors);
-        return acc;
+        return {
+            results: acc.results.concat(curr.results),
+            warnings: acc.warnings.concat(curr.warnings),
+            errors: acc.errors.concat(curr.errors),
+        };
     }, { results: [], warnings: [], errors: [] });
 };
 /**
@@ -66,7 +67,8 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         console.log(`Found: ${resources.length} resources.`);
         resources.forEach((res) => {
             if (!__1.resource.externalIds) {
-                console.log("resource is missing externalIds", __1.resource);
+                //TODO: not sure what to do here. This should probably be a warning
+                // console.log("resource is missing externalIds", resource);
                 return;
             }
             mappedResources.set(__1.resource.externalIds.legacyMyWellId, res);

@@ -11,5 +11,6 @@ DATE=`date '+%Y%m%dT%H%M%S'`
 export ORG_ID="test_$DATE"
 #TODO: change to a test project
 export GOOGLE_CLOUD_PROJECT='our-water'
+export SKIP_CLEANUP='true'
 
 ./node_modules/mocha/bin/mocha

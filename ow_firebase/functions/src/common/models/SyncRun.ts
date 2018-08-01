@@ -88,15 +88,10 @@ export class SyncRun {
 
       //Pull from the external datasource, and save to db
       case SyncMethod.pullFrom:
-        try {
-          //TODO: first get some data to push...
-          const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
-          //TODO: do something with this result
-          this.results = result.results;
-        } catch (error) {
-          console.log('SyncMethod.pullFrom error', error);
-          this.errors.push(error.message);
-        }
+        const result = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
+        this.results = [`Pulled ${result.results.length} items from dataSource`];
+        this.warnings = result.warnings;
+        this.errors = result.errors;
       break;
 
       //Get data from somewhere, and push to external datasource

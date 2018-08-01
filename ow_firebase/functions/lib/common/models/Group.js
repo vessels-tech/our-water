@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = require("util");
 class Group {
     constructor(name, orgId, type, coords, externalIds) {
         this.name = name;
@@ -26,16 +27,28 @@ class Group {
         return Promise.resolve([]);
     }
     serialize() {
-        return {
+        const base = {
             id: this.id,
             name: this.name,
             type: this.type,
             coords: this.coords,
-            //this is just placeholder to see if we can get this to work.
-            externalIds: this.externalIds.serialize(),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
+        //TODO: this is less than ideal
+        if (this.externalIds) {
+            let serializedExternalId = null;
+            try {
+                serializedExternalId = this.externalIds.serialize();
+                if (!util_1.isNullOrUndefined(serializedExternalId.legacyMyWellId)) {
+                    base['externalIds'] = serializedExternalId;
+                }
+            }
+            catch (_a) {
+            }
+        }
+        console.log("base is:", base);
+        return base;
     }
 }
 exports.Group = Group;
