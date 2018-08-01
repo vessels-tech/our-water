@@ -17,6 +17,8 @@ import { Reading } from '../Reading';
 import LegacyReading from '../../types/LegacyReading';
 import SyncRunResult from '../../types/SyncRunResult';
 
+import {mywellLegacyAccessToken} from '../../env';
+
 
 export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
@@ -189,8 +191,8 @@ export default class LegacyMyWellDatasource implements Datasource {
    * 
    */
   public getReadingsData(orgId: string, fs: Firestore) {
-    const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
-    const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${token}`; //TODO: add filter for testing purposes
+    // const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
+    const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
 
     const options = {

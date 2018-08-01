@@ -19,6 +19,7 @@ const Resource_1 = require("../Resource");
 const ResourceIdType_1 = require("../../types/ResourceIdType");
 const ResourceType_1 = require("../../enums/ResourceType");
 const Reading_1 = require("../Reading");
+const env_1 = require("../../env");
 class LegacyMyWellDatasource {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
@@ -160,8 +161,8 @@ class LegacyMyWellDatasource {
      *
      */
     getReadingsData(orgId, fs) {
-        const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
-        const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${token}`; //TODO: add filter for testing purposes
+        // const token = 'C2HFhgVoUMSxNYtsF61b9V4I8feHbbugm8Y8eQTErjIx6T5iGjKDgl48iWyDWQKR'; //TODO: not sure why we need this
+        const uriReadings = `${this.baseUrl}/api/readings?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D&access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
         // const uriReadings = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',

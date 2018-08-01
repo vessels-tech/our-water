@@ -7,6 +7,7 @@ const { createNewSync, getSyncRun } = require('./TestUtils');
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
 const mywellLegacyAccessToken = process.env.MYWELL_LEGACY_ACCESS_TOKEN;
+const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
 
 module.exports = ({fs}) => {
   
@@ -74,7 +75,7 @@ module.exports = ({fs}) => {
           .then(response => JSON.parse(response)) //json:true only applies to posts I think 
           .then(response => {
             //TODO: we might need to wait a little while 
-            sleep(1000);
+            sleep(10000);
 
             syncRunId = response.data.syncRunId;
             syncRunIds.push(syncRunId)
@@ -91,7 +92,7 @@ module.exports = ({fs}) => {
 
     describe('MyWell Pull', () => {
 
-      it('creates a new legacy sync, and pulls the data correctly', () => {
+      it.only('creates a new legacy sync, and pulls the data correctly', () => {
 
         let syncId = null;
         let syncRunId = null;
@@ -100,13 +101,13 @@ module.exports = ({fs}) => {
           isOneTime: false,
           datasource: {
             type: "LegacyMyWellDatasource",
-            url: "https://mywell-server.vessels.tech",
+            url: mywellLegacyBaseUrl,
           },
           type: "unknown",
           selectedDatatypes: [
             'group',
-            'resource',
-            'reading',
+            // 'resource',
+            // 'reading',
           ]
         };
 
@@ -134,7 +135,7 @@ module.exports = ({fs}) => {
           .then(response => JSON.parse(response)) //json:true only applies to posts I think 
           .then(response => {
             //TODO: we might need to wait a little while 
-            sleep(1000);
+            sleep(20000);
 
             syncRunId = response.data.syncRunId;
             syncRunIds.push(syncRunId)
@@ -142,6 +143,7 @@ module.exports = ({fs}) => {
           })
           .then(syncRun => {
             console.log('syncRun: ', syncRun);
+            assert.equal(syncRun.status, 'finished');
           });
       });
     });
@@ -151,7 +153,7 @@ module.exports = ({fs}) => {
         isOneTime: false,
         datasource: {
           type: "LegacyMyWellDatasource",
-          url: "https://mywell-server.vessels.tech",
+          url: mywellLegacyBaseUrl,
         },
         type: "unknown",
         selectedDatatypes: [
@@ -180,7 +182,7 @@ module.exports = ({fs}) => {
       });
     });
 
-    it.only('should create and run the sync', () => {
+    it('should create and run the sync', () => {
       let syncRunId = null;
       return createNewSync()
       .then(syncId => {
@@ -222,8 +224,6 @@ module.exports = ({fs}) => {
     //     return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId)
     //       .delete();
     //   });
-    
     // });
   });
-
 }

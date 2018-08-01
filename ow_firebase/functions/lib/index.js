@@ -51,7 +51,6 @@ exports.updateLastValue = functions.firestore
     const { orgId, readingId } = context.params;
     const newReading = snapshot.data();
     const { resourceId } = newReading;
-    console.log("orgId, resourceId, readingId", orgId, resourceId, readingId);
     //If this reading is a legacyReading, then don't update
     if (newReading.isLegacy === true) {
         console.log("reading marked as legacy reading. Not updating");

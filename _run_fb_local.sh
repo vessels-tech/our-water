@@ -9,9 +9,12 @@ export NVM_DIR="$HOME/.nvm"
 # nvm use v6.11.5
 
 
+
 ## start the local firebase server
 node --version
 cd "$DIR"/ow_firebase/functions/
 export NODE_ENV=local
+firebase functions:config:get > .runtimeconfig.json
+
 yarn watch &
 firebase serve --only functions

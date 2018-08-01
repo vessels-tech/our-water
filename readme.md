@@ -215,18 +215,20 @@ https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a41478024
 
 #### Functionality
 
-- save readings for a resource
 - display groups on the map
   - display conditionally based on the zoom level
 - remove the "drop pin", load/show resources based on the map location
 - add a loading indicator and refresh button to map
 - add and remove favourites not working
-- attach geolocation and image to a reading
+- take image from new reading page, and upload in background
+- implement resource detail graphs
+- add metadata to a resource, and inform the reading 
+- edit and create new resource page
 
 
 #### Other:
 
-- hide search 'x' when not editing search bar
+- implement search with new top bar
 - translations
 - fix glitchy maps, drag end event
 - improve search to use more than just ids
