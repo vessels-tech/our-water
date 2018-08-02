@@ -87,7 +87,7 @@ export class SyncRun {
 
       //Pull from the external datasource, and save to db
       case SyncMethod.pullFrom:
-        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, fs);
+        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, fs, {filterAfterDate: sync.lastSyncDate});
         this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
         this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
         this.errors = pullFromResult.errors;
@@ -97,7 +97,7 @@ export class SyncRun {
       case SyncMethod.pushTo:
         try {
           //TODO: first get some data to push...
-          const pushToResult = await sync.datasource.pushDataToDataSource();
+          const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
           this.results = pushToResult.results;
         } catch (error) {
           console.log('error', error);

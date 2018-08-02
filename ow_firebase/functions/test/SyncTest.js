@@ -20,7 +20,7 @@ module.exports = ({fs}) => {
   });
 
 
-  describe('SyncAPI', function () {
+  describe('SyncAPI', function() {
     this.timeout(30000);
 
     //Objects to clean up later
@@ -92,7 +92,7 @@ module.exports = ({fs}) => {
 
     describe('MyWell Pull', () => {
 
-      it('creates a new legacy sync, and pulls the data correctly', () => {
+      it.only('creates a new legacy sync, and pulls the data correctly', () => {
 
         let syncId = null;
         let syncRunId = null;

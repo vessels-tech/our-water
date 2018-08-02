@@ -2,7 +2,7 @@ import Datasource from './Datasource';
 import { DatasourceType } from '../../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from '../Group';
-import { GeoPoint, Firestore } from '@google-cloud/firestore';
+import { GeoPoint, Firestore, QuerySnapshot } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
 import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults } from '../../utils';
@@ -21,6 +21,7 @@ import {mywellLegacyAccessToken} from '../../env';
 import GroupSaveResult from '../../types/GroupSaveResult';
 import ResourceSaveResult from '../../types/ResourceSaveResult';
 import ReadingSaveResult from '../../types/ReadingSaveResult';
+import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -283,10 +284,11 @@ export default class LegacyMyWellDatasource implements Datasource {
 
   public async validate(orgId: string, fs): Promise<SyncRunResult> {
     //TODO: restructure to return errors, warnings and results
+    //TODO: get the api key and check that its valid
     throw new Error("validate not implemented for this data source");
   }
 
-  public async pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
+  public async pullDataFromDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     const villageGroupResult = await this.getGroupData(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
@@ -300,8 +302,35 @@ export default class LegacyMyWellDatasource implements Datasource {
     ]);
   }
 
-  public pushDataToDataSource(): Promise<SyncRunResult> {
-    console.log("Implementation not required. MyWell Data source is readonly for now.");
+  /**
+   * Get readings from OurWater that are eligible to be saved into LegacyMyWell
+   */
+  public getNewReadings(orgId: string, fs: Firestore, filterAfterDate: number): Promise<Array<Reading>> {
+
+    return fs.collection('org').doc(orgId).collection('reading')
+    //TODO: we need to make this 'hasLegacyMyWellResourceId' field for 
+      .where('externalIds.hasLegacyMyWellResourceId', '==', true)
+      .where('createdAt', '>=', filterAfterDate)
+      .get()
+      .then((sn: QuerySnapshot) => {
+        const readings: Array<any> = [];
+        sn.forEach(doc => {
+          //Get each document, put in the id
+          const data = doc.data();
+          data.id = doc.id;
+          readings.push(data);
+        });
+
+        return readings;
+      });
+  }
+
+  public pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+    console.log("Warning! Push to LegacyMyWell currently only supports readings");
+
+    //TODO: get all readings from after the last sync date, that also have a legacy resourceId
+
+
 
     const result = {
       results: [],

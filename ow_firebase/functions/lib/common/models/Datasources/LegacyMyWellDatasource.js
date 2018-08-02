@@ -242,10 +242,11 @@ class LegacyMyWellDatasource {
     validate(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: restructure to return errors, warnings and results
+            //TODO: get the api key and check that its valid
             throw new Error("validate not implemented for this data source");
         });
     }
-    pullDataFromDataSource(orgId, fs) {
+    pullDataFromDataSource(orgId, fs, options) {
         return __awaiter(this, void 0, void 0, function* () {
             const villageGroupResult = yield this.getGroupData(orgId, fs);
             const pincodeGroups = yield this.getPincodeData(orgId, fs);
@@ -259,8 +260,29 @@ class LegacyMyWellDatasource {
             ]);
         });
     }
-    pushDataToDataSource() {
-        console.log("Implementation not required. MyWell Data source is readonly for now.");
+    /**
+     * Get readings from OurWater that are eligible to be saved into LegacyMyWell
+     */
+    getNewReadings(orgId, fs, filterAfterDate) {
+        return fs.collection('org').doc(orgId).collection('reading')
+            //TODO: we need to make this 'hasLegacyMyWellResourceId' field for 
+            .where('externalIds.hasLegacyMyWellResourceId', '==', true)
+            .where('createdAt', '>=', filterAfterDate)
+            .get()
+            .then((sn) => {
+            const readings = [];
+            sn.forEach(doc => {
+                //Get each document, put in the id
+                const data = doc.data();
+                data.id = doc.id;
+                readings.push(data);
+            });
+            return readings;
+        });
+    }
+    pushDataToDataSource(orgId, fs, options) {
+        console.log("Warning! Push to LegacyMyWell currently only supports readings");
+        //TODO: get all readings from after the last sync date, that also have a legacy resourceId
         const result = {
             results: [],
             warnings: [],

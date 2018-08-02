@@ -76,7 +76,7 @@ class SyncRun {
                     break;
                 //Pull from the external datasource, and save to db
                 case SyncMethod_1.SyncMethod.pullFrom:
-                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs);
+                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
                     this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
                     this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
                     this.errors = pullFromResult.errors;
@@ -85,7 +85,7 @@ class SyncRun {
                 case SyncMethod_1.SyncMethod.pushTo:
                     try {
                         //TODO: first get some data to push...
-                        const pushToResult = yield sync.datasource.pushDataToDataSource();
+                        const pushToResult = yield sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
                         this.results = pushToResult.results;
                     }
                     catch (error) {

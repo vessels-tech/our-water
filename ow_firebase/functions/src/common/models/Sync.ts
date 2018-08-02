@@ -1,5 +1,6 @@
 import Datasource, { deserializeDatasource } from './Datasources/Datasource';
 import { SyncMethod } from '../enums/SyncMethod';
+import SyncDataSourceOptions from '../types/SyncDataSourceOptions';
 
 export class Sync {
 
@@ -9,7 +10,7 @@ export class Sync {
   orgId: string
   methods: Array<SyncMethod>
   selectedDatatypes: Array<string>
-
+  
   lastSyncDate: number = 0 //unix timestamp 
 
   constructor(isOneTime: boolean, datasource: Datasource, orgId: string,
