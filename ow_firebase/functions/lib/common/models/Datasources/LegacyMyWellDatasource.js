@@ -262,6 +262,11 @@ class LegacyMyWellDatasource {
     }
     /**
      * Get readings from OurWater that are eligible to be saved into LegacyMyWell
+     *
+     * Filters based on the following properties:
+     * - createdAt: when the reading was created (not the datetime of the reading), and
+     * - externalIds.hasLegacyMyWellResourceId: a boolean flag indicating that the reading
+     *     has a relationship to an external data source
      */
     getNewReadings(orgId, fs, filterAfterDate) {
         return fs.collection('org').doc(orgId).collection('reading')
@@ -270,6 +275,7 @@ class LegacyMyWellDatasource {
             .where('createdAt', '>=', filterAfterDate)
             .get()
             .then((sn) => {
+            console.log("snapshot", sn);
             const readings = [];
             sn.forEach(doc => {
                 //Get each document, put in the id

@@ -304,6 +304,11 @@ export default class LegacyMyWellDatasource implements Datasource {
 
   /**
    * Get readings from OurWater that are eligible to be saved into LegacyMyWell
+   * 
+   * Filters based on the following properties:
+   * - createdAt: when the reading was created (not the datetime of the reading), and
+   * - externalIds.hasLegacyMyWellResourceId: a boolean flag indicating that the reading
+   *     has a relationship to an external data source
    */
   public getNewReadings(orgId: string, fs: Firestore, filterAfterDate: number): Promise<Array<Reading>> {
 
@@ -313,6 +318,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       .where('createdAt', '>=', filterAfterDate)
       .get()
       .then((sn: QuerySnapshot) => {
+        console.log("snapshot", sn);
         const readings: Array<any> = [];
         sn.forEach(doc => {
           //Get each document, put in the id

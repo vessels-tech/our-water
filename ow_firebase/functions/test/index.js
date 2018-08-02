@@ -1,8 +1,17 @@
 
 const admin = require('firebase-admin');
-admin.initializeApp(); //Don't know why this stopped working
+admin.initializeApp();
 const fs = admin.firestore();
 
-const SyncTest = require('./SyncTest')({fs: fs});
-const MiscTest = require('./MiscTest')({fs: fs});
+/**
+ * Using the real Firestore API
+ * TODO: rename these to be integration tests
+ */
+const SyncTest = require('./SyncTest')({fs});
+const MiscTest = require('./MiscTest')({fs});
 
+
+/**
+ * Using the mock Firestore API
+ */
+const LegacyMyWellDatasoureTest = require('./common/models/Datasources/LegacyMyWellDatasourceTest')({fs});

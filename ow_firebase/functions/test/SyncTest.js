@@ -91,8 +91,7 @@ module.exports = ({fs}) => {
 
 
     describe('MyWell Pull', () => {
-
-      it.only('creates a new legacy sync, and pulls the data correctly', () => {
+      it('creates a new legacy sync, and pulls the data correctly', () => {
 
         let syncId = null;
         let syncRunId = null;
