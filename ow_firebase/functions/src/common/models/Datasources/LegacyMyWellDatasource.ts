@@ -313,7 +313,6 @@ export default class LegacyMyWellDatasource implements Datasource {
   public getNewReadings(orgId: string, fs: Firestore, filterAfterDate: number): Promise<Array<Reading>> {
 
     return fs.collection('org').doc(orgId).collection('reading')
-    //TODO: we need to make this 'hasLegacyMyWellResourceId' field for 
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
       .get()
@@ -331,10 +330,20 @@ export default class LegacyMyWellDatasource implements Datasource {
       });
   }
 
+  public saveReadingsToLegacyMyWell(readings: Array<Reading>): Promise<SyncRunResult> {
+
+    //TODO: transform readings to a format that LegacyMyWell likes
+    //TODO: save readings in bulk - should we make a proper webclient that we can mock out?
+    //TODO: transform result into a SyncRunResult
+
+    return null;
+  }
+
   public pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     console.log("Warning! Push to LegacyMyWell currently only supports readings");
 
     //TODO: get all readings from after the last sync date, that also have a legacy resourceId
+    const readings = this.getNewReadings(orgId, fs, options.filterAfterDate);
 
 
 

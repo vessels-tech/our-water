@@ -270,7 +270,6 @@ class LegacyMyWellDatasource {
      */
     getNewReadings(orgId, fs, filterAfterDate) {
         return fs.collection('org').doc(orgId).collection('reading')
-            //TODO: we need to make this 'hasLegacyMyWellResourceId' field for 
             .where('externalIds.hasLegacyMyWellResourceId', '==', true)
             .where('createdAt', '>=', filterAfterDate)
             .get()
@@ -286,9 +285,16 @@ class LegacyMyWellDatasource {
             return readings;
         });
     }
+    saveReadingsToLegacyMyWell(readings) {
+        //TODO: transform readings to a format that LegacyMyWell likes
+        //TODO: save readings in bulk - should we make a proper webclient that we can mock out?
+        //TODO: transform result into a SyncRunResult
+        return null;
+    }
     pushDataToDataSource(orgId, fs, options) {
         console.log("Warning! Push to LegacyMyWell currently only supports readings");
         //TODO: get all readings from after the last sync date, that also have a legacy resourceId
+        const readings = this.getNewReadings(orgId, fs, options.filterAfterDate);
         const result = {
             results: [],
             warnings: [],
