@@ -1989,9 +1989,9 @@ mocha@^5.1.1:
     mkdirp "0.5.1"
     supports-color "4.4.0"
 
-mock-cloud-firestore@^0.4.0:
+"mock-cloud-firestore@https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174":
   version "0.4.0"
-  resolved "https://registry.yarnpkg.com/mock-cloud-firestore/-/mock-cloud-firestore-0.4.0.tgz#04ff62e5ff4cb14e8ac0e074dec4dd9ec1622e90"
+  resolved "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174"
 
 modelo@^4.2.0:
   version "4.2.3"

@@ -23,7 +23,7 @@
     "firebase-app": "^0.0.1",
     "firebase-functions": "^1.0.1",
     "joi": "^13.2.0",
-    "mock-cloud-firestore": "^0.4.0",
+    "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
     "moment": "^2.22.1",
     "papaparse": "^4.4.0",
     "request": "^2.85.0",
