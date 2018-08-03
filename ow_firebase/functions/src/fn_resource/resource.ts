@@ -44,8 +44,6 @@ module.exports = (functions, admin) => {
 
       const resources = [];
       snapshot.forEach(function (doc) {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
         resources.push(doc.data());
       });
     

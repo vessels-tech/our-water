@@ -47,7 +47,7 @@ module.exports = (functions, admin) => {
         const { orgId, resourceId } = req.params;
         const data = formatNewReading(req.body.data, resourceId);
         //TODO: custom validate depending on resource type
-        //Date can't be in the future
+        //e.g. Date can't be in the future
         //Ensure the orgId + resource exists
         const resourceRef = fs.collection('org').doc(orgId).collection('resource').doc(resourceId);
         return resourceRef.get()

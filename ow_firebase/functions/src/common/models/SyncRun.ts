@@ -96,6 +96,7 @@ export class SyncRun {
       //Get data from somewhere, and push to external datasource
       case SyncMethod.pushTo:
         try {
+          console.log("running pushTo sync");
           //TODO: first get some data to push...
           const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
           this.results = pushToResult.results;

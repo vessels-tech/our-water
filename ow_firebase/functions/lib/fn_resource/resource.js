@@ -32,8 +32,6 @@ module.exports = (functions, admin) => {
             .then(snapshot => {
             const resources = [];
             snapshot.forEach(function (doc) {
-                // doc.data() is never undefined for query doc snapshots
-                console.log(doc.id, " => ", doc.data());
                 resources.push(doc.data());
             });
             //Sadly this doesn't give us the nested reading.
