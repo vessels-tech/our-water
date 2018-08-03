@@ -4,6 +4,7 @@ import * as cors from 'cors';
 import { gzipSync } from 'zlib';
 import { deepStrictEqual } from 'assert';
 import { resource } from '..';
+import { GeoPoint } from '@google-cloud/firestore';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -212,8 +213,8 @@ module.exports = (functions, admin) => {
     console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
     
     const readingsRef = fs.collection(`/org/${orgId}/resource`)
-      .where('coords', '>=', new fb.firestore.GeoPoint(minLat, minLng))
-      .where('coords', '<=', new fb.firestore.GeoPoint(maxLat, maxLng)).get()
+      .where('coords', '>=', new GeoPoint(minLat, minLng))
+      .where('coords', '<=', new GeoPoint(maxLat, maxLng)).get()
       .then(snapshot => {
         const resources = []
         snapshot.forEach(doc => {

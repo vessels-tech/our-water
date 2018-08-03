@@ -1,7 +1,5 @@
 import { GroupType } from "../enums/GroupType";
 import { GeoPoint } from "@google-cloud/firestore";
-import { org } from "../..";
-import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
 import { isNullOrUndefined } from "util";
 
