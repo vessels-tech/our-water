@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = require("util");
 class ResourceIdType {
     //We can add other bits and pieces here
     static none() {
@@ -26,6 +27,35 @@ class ResourceIdType {
         legacyId.hasLegacyMyWellResourceId = true; //identified that the reading is linked to an external datasource
         legacyId.legacyMyWellResourceId = `${postcode}.${resourceId}`; //identifies the reading's resource id
         return legacyId;
+    }
+    /**
+    * Parse the legacyMyWellResourceId, get the resourceId
+    * throws if there is no legacyMyWellResourceId
+    */
+    getResourceId() {
+        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
+            throw new Error('tried to getResourceId, but could not find legacyMyWellResourceId.');
+        }
+        return parseInt(this.legacyMyWellResourceId.split('.')[1]);
+    }
+    /**
+     * Parse the legacyMyWellResourceId, get the villageId
+     * throws if there is no legacyMyWellResourceId
+     */
+    getVillageId() {
+        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
+            throw new Error('tried to getVillageId, but could not find legacyMyWellResourceId.');
+        }
+        return parseInt(this.legacyMyWellResourceId.split('.')[1].substring(0, 2));
+    }
+    /**
+     * Parse the legacyMyWellResourceId, get postcode
+     */
+    getPostcode() {
+        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
+            throw new Error('tried to getPostcode, but could not find legacyMyWellResourceId.');
+        }
+        return parseInt(this.legacyMyWellResourceId.split('.')[0]);
     }
     serialize() {
         const serialized = {};

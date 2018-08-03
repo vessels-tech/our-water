@@ -232,3 +232,15 @@ export const isNullOrEmpty = (stringOrNull: string): boolean => {
 
   return false;
 }
+
+/**
+ * return a sync run result with just one error
+ */
+
+export const resultWithError = (error: Error): SyncRunResult => {
+  return {
+    results: [],
+    warnings: [],
+    errors: [error]
+  };
+}

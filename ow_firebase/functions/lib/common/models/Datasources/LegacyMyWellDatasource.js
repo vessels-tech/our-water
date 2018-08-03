@@ -274,7 +274,6 @@ class LegacyMyWellDatasource {
             .where('createdAt', '>=', filterAfterDate)
             .get()
             .then((sn) => {
-            console.log("snapshot", sn);
             const readings = [];
             sn.forEach(doc => {
                 //Get each document, put in the id
@@ -285,22 +284,51 @@ class LegacyMyWellDatasource {
             return readings;
         });
     }
+    static transformReadingsToLegacyMyWell(readings) {
+        return readings.map(reading => {
+            return {
+                date: moment(reading.datetime).toISOString(),
+                value: reading.value,
+                villageId: reading.externalIds.getVillageId(),
+                postcode: reading.externalIds.getPostcode(),
+                resourceId: reading.externalIds.getResourceId(),
+                createdAt: moment(reading.createdAt).toISOString(),
+                updatedAt: moment(reading.updatedAt).toISOString(),
+            };
+        });
+    }
     saveReadingsToLegacyMyWell(readings) {
-        //TODO: transform readings to a format that LegacyMyWell likes
-        //TODO: save readings in bulk - should we make a proper webclient that we can mock out?
-        //TODO: transform result into a SyncRunResult
-        return null;
+        //TODO: Eventually make this a proper, mockable web client
+        const uriReadings = `${this.baseUrl}/api/readings?access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+        const options = {
+            method: 'POST',
+            uri: uriReadings,
+            json: true,
+            body: readings
+        };
+        return request(options)
+            .then((res) => {
+            console.log('result is', res);
+            const results = res.map(resource => resource.id);
+            return {
+                results,
+                warnings: [],
+                errors: [],
+            };
+        })
+            .catch(err => utils_1.resultWithError(err.message));
     }
     pushDataToDataSource(orgId, fs, options) {
-        console.log("Warning! Push to LegacyMyWell currently only supports readings");
-        //TODO: get all readings from after the last sync date, that also have a legacy resourceId
-        const readings = this.getNewReadings(orgId, fs, options.filterAfterDate);
-        const result = {
-            results: [],
-            warnings: [],
-            errors: []
-        };
-        return Promise.resolve(result);
+        return __awaiter(this, void 0, void 0, function* () {
+            const readings = yield this.getNewReadings(orgId, fs, options.filterAfterDate);
+            const legacyReadings = yield LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
+            const result = {
+                results: [],
+                warnings: [],
+                errors: []
+            };
+            return Promise.resolve(result);
+        });
     }
     serialize() {
         return {

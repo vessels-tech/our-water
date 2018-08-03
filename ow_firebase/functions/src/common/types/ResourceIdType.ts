@@ -1,3 +1,5 @@
+import { isNullOrUndefined } from "util";
+
 export default class ResourceIdType {
   legacyMyWellId: string | null
   legacyMyWellResourceId: string | null
@@ -36,6 +38,41 @@ export default class ResourceIdType {
     legacyId.legacyMyWellResourceId = `${postcode}.${resourceId}`; //identifies the reading's resource id
 
     return legacyId
+  }
+
+   /**
+   * Parse the legacyMyWellResourceId, get the resourceId
+   * throws if there is no legacyMyWellResourceId
+   */
+  public getResourceId() {
+    if (isNullOrUndefined(this.legacyMyWellResourceId)) {
+      throw new Error('tried to getResourceId, but could not find legacyMyWellResourceId.');
+    }
+
+    return parseInt(this.legacyMyWellResourceId.split('.')[1]);
+  }
+
+  /**
+   * Parse the legacyMyWellResourceId, get the villageId
+   * throws if there is no legacyMyWellResourceId
+   */
+  public getVillageId() {
+    if (isNullOrUndefined(this.legacyMyWellResourceId)) {
+      throw new Error('tried to getVillageId, but could not find legacyMyWellResourceId.');
+    }
+
+    return parseInt(this.legacyMyWellResourceId.split('.')[1].substring(0,2));
+  }
+  
+  /**
+   * Parse the legacyMyWellResourceId, get postcode
+   */
+  public getPostcode() {
+    if (isNullOrUndefined(this.legacyMyWellResourceId)) {
+      throw new Error('tried to getPostcode, but could not find legacyMyWellResourceId.');
+    }
+
+    return parseInt(this.legacyMyWellResourceId.split('.')[0]);
   }
 
   public serialize(): any {

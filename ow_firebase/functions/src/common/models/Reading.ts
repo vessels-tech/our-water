@@ -32,7 +32,7 @@ export class Reading extends FirestoreDoc {
     this.value = value;
     this.externalIds = externalIds;
   }
-
+  
   /**
    * Create a reading from legacy data
    * we put in empty fields, as they will be filled in later by a batch job

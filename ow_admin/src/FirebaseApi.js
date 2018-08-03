@@ -38,7 +38,6 @@ class FirebaseApi {
 
     return newFileRef.put(file)
     .then(sn =>  {
-      console.log('snapshot', sn);
       return sn.ref.getDownloadURL();
     });
   }

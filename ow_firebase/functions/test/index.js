@@ -15,3 +15,4 @@ const MiscTest = require('./MiscTest')({fs});
  * Using the mock Firestore API
  */
 const LegacyMyWellDatasoureTest = require('./common/models/Datasources/LegacyMyWellDatasourceTest')({fs});
+const ResourceIdTypeTest = require('./common/models/types/ResourceIdTypeTest')();

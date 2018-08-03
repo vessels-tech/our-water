@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import { GeoPoint, Firestore, QuerySnapshot } from '@google-cloud/firestore';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -22,6 +22,7 @@ import GroupSaveResult from '../../types/GroupSaveResult';
 import ResourceSaveResult from '../../types/ResourceSaveResult';
 import ReadingSaveResult from '../../types/ReadingSaveResult';
 import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
+import { LegacyMyWellReading } from '../LegacyMyWellReading';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -317,7 +318,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       .where('createdAt', '>=', filterAfterDate)
       .get()
       .then((sn: QuerySnapshot) => {
-        console.log("snapshot", sn);
+
         const readings: Array<any> = [];
         sn.forEach(doc => {
           //Get each document, put in the id
@@ -330,28 +331,55 @@ export default class LegacyMyWellDatasource implements Datasource {
       });
   }
 
-  public saveReadingsToLegacyMyWell(readings: Array<Reading>): Promise<SyncRunResult> {
+  public static transformReadingsToLegacyMyWell(readings: Array<Reading>): Array<LegacyMyWellReading> {
 
-    //TODO: transform readings to a format that LegacyMyWell likes
-    //TODO: save readings in bulk - should we make a proper webclient that we can mock out?
-    //TODO: transform result into a SyncRunResult
+    return readings.map(reading => {
+      return {
+        date: moment(reading.datetime).toISOString(),
+        value: reading.value,
+        villageId: reading.externalIds.getVillageId(),
+        postcode: reading.externalIds.getPostcode(),
+        resourceId: reading.externalIds.getResourceId(),
+        createdAt: moment(reading.createdAt).toISOString(),
+        updatedAt: moment(reading.updatedAt).toISOString(),
+      }
+    });
 
-    return null;
   }
 
-  public pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    console.log("Warning! Push to LegacyMyWell currently only supports readings");
+  public saveReadingsToLegacyMyWell(readings: Array<LegacyMyWellReading>): Promise<SyncRunResult> {
+    //TODO: Eventually make this a proper, mockable web client
+    const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
 
-    //TODO: get all readings from after the last sync date, that also have a legacy resourceId
-    const readings = this.getNewReadings(orgId, fs, options.filterAfterDate);
+    const options = {
+      method: 'POST',
+      uri: uriReadings,
+      json: true,
+      body: readings
+    };
 
+    return request(options)
+    .then((res: Array<LegacyMyWellReading>) => {
+      console.log('result is', res);
+      const results = res.map(resource => resource.id);
+      return {
+        results,
+        warnings: [],
+        errors: [],
+      };
+    })
+    .catch(err => resultWithError(err.message));
+  }
 
+  public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+    const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
+    const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
 
     const result = {
       results: [],
       warnings: [],
       errors: []
-    }
+    };
     return Promise.resolve(result);
   }
 

@@ -184,4 +184,14 @@ exports.isNullOrEmpty = (stringOrNull) => {
     }
     return false;
 };
+/**
+ * return a sync run result with just one error
+ */
+exports.resultWithError = (error) => {
+    return {
+        results: [],
+        warnings: [],
+        errors: [error]
+    };
+};
 //# sourceMappingURL=utils.js.map
