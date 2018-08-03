@@ -15,6 +15,7 @@ import Datasource from '../common/models/Datasources/Datasource';
 import { DatasourceType } from '../common/enums/DatasourceType';
 import { FileDatasource } from '../common/models/Datasources/FileDatasource';
 import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
+import { resolve } from 'path';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -125,29 +126,30 @@ module.exports = (functions, admin) => {
   //TODO: this should probably be get, but httpsCallable seems to only want to do POST
   //refer to this: https://github.com/firebase/firebase-js-sdk/blob/d59b72493fc89ff89c8a17bf142f58517de4c566/packages/functions/src/api/service.ts
   app.post('/:orgId/run/:syncId', validate(runSyncValidation), (req, res, next) => {
+    console.log("starting /:orgId/run/:syncId");
     const {orgId, syncId} = req.params;
     const {method} = req.query;
 
+    console.log("getting sync", orgId, syncId);
     return Sync.getSync({orgId, id: syncId, fs})
     .then((sync: Sync) => {
+      console.log("got sync", sync);
       if (sync.isOneTime && moment(sync.lastSyncDate).unix() !== 0) {
         throw new Error(`Cannot run sync twice. Sync is marked as one time only`);
       }
 
       //TODO: put in proper email addresses
+      console.log("init new SyncRun");
       const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
       return run.create({fs});
     })
     .then((run: SyncRun) => {
-      //TODO:when the sync run finishes, set the sync.lastSyncDate
+      //Resolve before we actually process the run
+      console.log("resolving /:orgId/run/:syncId");
+      res.json({data: {syncRunId: run.id}});
 
-      //run the sync, and return the id of the run.
-      //We don't return the result of this promise. User can look up the results later on
-      run.run({fs})
-      .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
-    
-      return res.json({data:{ syncRunId: run.id }});
-      // return res.json({data:{ syncRunId: '12345' }});
+      return run.run({fs})
+        .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
     })
     .catch(err => {
       console.log('error in runSync:', err);

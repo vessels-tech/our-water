@@ -57,7 +57,7 @@ export class SyncRun {
     this.status = SyncRunStatus.running;
     const sync: Sync = await Sync.getSync({orgId: this.orgId, id: this.syncId, fs });
 
-    console.log("running sync:", sync);
+    console.log("SyncRun.run: running sync:", sync);
 
     if (!sync) {
       this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
@@ -76,8 +76,6 @@ export class SyncRun {
           this.results = validationResult.results;
           this.warnings = validationResult.warnings;
           
-          console.log("result is: ", validationResult);
-
         } catch (error) {
           console.log('error', error);
           this.errors.push(error.message);
@@ -87,6 +85,8 @@ export class SyncRun {
 
       //Pull from the external datasource, and save to db
       case SyncMethod.pullFrom:
+        console.log("SyncRun.run running pullFrom sync");
+
         const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, fs, {filterAfterDate: sync.lastSyncDate});
         this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
         this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
@@ -95,15 +95,11 @@ export class SyncRun {
 
       //Get data from somewhere, and push to external datasource
       case SyncMethod.pushTo:
-        try {
-          console.log("running pushTo sync");
-          //TODO: first get some data to push...
-          const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
-          this.results = pushToResult.results;
-        } catch (error) {
-          console.log('error', error);
-          this.errors.push(error.message);
-        }
+        console.log("SyncRun.run running pushTo sync");
+        const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
+        this.results = pushToResult.results;
+        this.warnings = pushToResult.warnings;
+        this.errors = pushToResult.errors;
       break;
 
       default:
@@ -143,6 +139,7 @@ export class SyncRun {
    * Create a new SyncRun in FireStore
    */
   public create({fs}): SyncRun {
+    console.log('SyncRun.create');
     const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
     this.id = newRef.id;
     

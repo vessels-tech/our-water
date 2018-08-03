@@ -373,13 +373,9 @@ export default class LegacyMyWellDatasource implements Datasource {
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
     const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
+    const result = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
-    const result = {
-      results: [],
-      warnings: [],
-      errors: []
-    };
-    return Promise.resolve(result);
+    return result;
   }
 
   serialize() {

@@ -4,6 +4,12 @@
  * 
  * 
  */
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+const fs = admin.firestore();
+
+
 const assert = require('assert');
 const request = require('request-promise-native');
 const sleep = require('thread-sleep');
@@ -52,14 +58,13 @@ const createSync = () => {
 const runSync = (syncId, method) => {
   const runSyncOptions = {
     method: 'POST',
-    uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=pullFrom`
+    uri: `${baseUrl}/sync/${orgId}/run/${syncId}?method=${method}`
   };
 
   return request(runSyncOptions)
   .then(response => JSON.parse(response)) //json:true only applies to posts I think 
   .then(response => {
-    //we might need to wait a little while, we should probably poll instead
-    sleep(20000);
+    console.log("running sync with id:", response.data.syncRunId);
     return response.data.syncRunId;
   });
 }
@@ -93,6 +98,18 @@ const insertReadings = (resourceId) => {
   return request(options);
 }
 
+/**
+ * Cleanup by deleting the orgId
+ */
+const cleanup = () => {
+  console.log(`deleting: org/${orgId}`);
+  return fs.collection('org').doc(orgId).delete();
+}
+
+
+const getSync = (orgId, syncId) => {
+  return fs.collection('org').doc(orgId).collection('sync').doc(syncId).get()
+}
 
 let syncId;
 
@@ -103,6 +120,8 @@ return createSync()
   return runSync(syncId, 'pullFrom');
 })
 .then(syncRunId => {
+  //we might need to wait a little while, we should probably poll instead
+  sleep(20000);
   console.log("hopefully finished running sync with id:", syncRunId);
 })
 .then(() => getResources())
@@ -116,4 +135,10 @@ return createSync()
   console.log("saved reading");
   console.log("running pushTo sync");
 })
-.then(() => runSync(syncId, 'pushTo'));
+.then(() => runSync(syncId, 'pushTo'))
+.then(() => cleanup())
+.catch((err) => {
+  console.log("Error with Test:", err);
+  return cleanup()
+  .then(() => {throw err});
+});

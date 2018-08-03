@@ -61,6 +61,7 @@ export class Sync {
    * @param sn 
    */
   public static deserialize(sn): Sync {
+    console.log("deser Sync");
     const {
       isOneTime,
       datasource,
@@ -85,7 +86,8 @@ export class Sync {
    * 
    * Gets the sync from the organization and sync id
    */
-  static async getSync({ orgId, id, fs }): Promise<Sync> {
+  static getSync({ orgId, id, fs }): Promise<Sync> {
+    //TODO: This hangs on the 2nd time for some reason...
     return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
       .then(sn => Sync.deserialize(sn));
   }

@@ -52,7 +52,7 @@ class SyncRun {
             console.log("startedAt", this.startedAt);
             this.status = SyncRunStatus_1.SyncRunStatus.running;
             const sync = yield Sync_1.Sync.getSync({ orgId: this.orgId, id: this.syncId, fs });
-            console.log("running sync:", sync);
+            console.log("SyncRun.run: running sync:", sync);
             if (!sync) {
                 this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
                 return this.abortSync({ fs });
@@ -67,7 +67,6 @@ class SyncRun {
                         const validationResult = yield sync.datasource.validate(this.orgId, fs);
                         this.results = validationResult.results;
                         this.warnings = validationResult.warnings;
-                        console.log("result is: ", validationResult);
                     }
                     catch (error) {
                         console.log('error', error);
@@ -76,6 +75,7 @@ class SyncRun {
                     break;
                 //Pull from the external datasource, and save to db
                 case SyncMethod_1.SyncMethod.pullFrom:
+                    console.log("SyncRun.run running pullFrom sync");
                     const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
                     this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
                     this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
@@ -83,16 +83,11 @@ class SyncRun {
                     break;
                 //Get data from somewhere, and push to external datasource
                 case SyncMethod_1.SyncMethod.pushTo:
-                    try {
-                        console.log("running pushTo sync");
-                        //TODO: first get some data to push...
-                        const pushToResult = yield sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
-                        this.results = pushToResult.results;
-                    }
-                    catch (error) {
-                        console.log('error', error);
-                        this.errors.push(error.message);
-                    }
+                    console.log("SyncRun.run running pushTo sync");
+                    const pushToResult = yield sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
+                    this.results = pushToResult.results;
+                    this.warnings = pushToResult.warnings;
+                    this.errors = pushToResult.errors;
                     break;
                 default:
                     console.error("Other SyncMethods not implemented yet.");
@@ -127,6 +122,7 @@ class SyncRun {
      * Create a new SyncRun in FireStore
      */
     create({ fs }) {
+        console.log('SyncRun.create');
         const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
         this.id = newRef.id;
         return this.save({ fs });
