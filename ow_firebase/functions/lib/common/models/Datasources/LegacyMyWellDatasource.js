@@ -321,12 +321,8 @@ class LegacyMyWellDatasource {
         return __awaiter(this, void 0, void 0, function* () {
             const readings = yield this.getNewReadings(orgId, fs, options.filterAfterDate);
             const legacyReadings = yield LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
-            const result = {
-                results: [],
-                warnings: [],
-                errors: []
-            };
-            return Promise.resolve(result);
+            const result = yield this.saveReadingsToLegacyMyWell(legacyReadings);
+            return result;
         });
     }
     serialize() {

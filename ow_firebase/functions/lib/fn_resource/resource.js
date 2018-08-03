@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
+const firestore_1 = require("@google-cloud/firestore");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -177,8 +178,8 @@ module.exports = (functions, admin) => {
         const maxLng = longitude + distanceMultiplier * distance;
         console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
         const readingsRef = fs.collection(`/org/${orgId}/resource`)
-            .where('coords', '>=', new fb.firestore.GeoPoint(minLat, minLng))
-            .where('coords', '<=', new fb.firestore.GeoPoint(maxLat, maxLng)).get()
+            .where('coords', '>=', new firestore_1.GeoPoint(minLat, minLng))
+            .where('coords', '<=', new firestore_1.GeoPoint(maxLat, maxLng)).get()
             .then(snapshot => {
             const resources = [];
             snapshot.forEach(doc => {

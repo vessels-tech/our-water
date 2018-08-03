@@ -6,8 +6,11 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const settings = {/* your settings... */ timestampsInSnapshots: true };
+
 admin.initializeApp();
 const fs = admin.firestore();
+fs.settings(settings);
 
 
 const assert = require('assert');
