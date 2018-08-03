@@ -308,7 +308,6 @@ class LegacyMyWellDatasource {
         };
         return request(options)
             .then((res) => {
-            console.log('result is', res);
             const results = res.map(resource => resource.id);
             return {
                 results,

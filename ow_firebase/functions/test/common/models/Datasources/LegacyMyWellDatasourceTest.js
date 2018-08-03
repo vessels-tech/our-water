@@ -13,7 +13,7 @@ module.exports = ({fs}) => {
   describe('pushDataToDataSource', function() {
 
     //TODO: test using mocks instead, and move this to integration test section
-    describe('saveReadingsToLegacyMyWell', function() {
+    describe.skip('saveReadingsToLegacyMyWell', function() {
       this.timeout(15000);
       const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
 
@@ -38,7 +38,7 @@ module.exports = ({fs}) => {
         assert.equal(1, result.errors.length);
       });
 
-      it.only('saves a list of readings to LegacyMyWell', async () => {
+      it('saves a list of readings to LegacyMyWell', async () => {
         //Arrange
         const legacyReadings = [{
           date: '2018-08-03T00:57:47.957Z',

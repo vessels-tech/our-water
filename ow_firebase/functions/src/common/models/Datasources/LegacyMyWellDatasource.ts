@@ -360,7 +360,6 @@ export default class LegacyMyWellDatasource implements Datasource {
 
     return request(options)
     .then((res: Array<LegacyMyWellReading>) => {
-      console.log('result is', res);
       const results = res.map(resource => resource.id);
       return {
         results,

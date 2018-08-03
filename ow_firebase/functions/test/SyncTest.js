@@ -90,7 +90,7 @@ module.exports = ({fs}) => {
     });
 
 
-    describe('MyWell Pull', () => {
+    describe.skip('MyWell Pull', () => {
       it('creates a new legacy sync, and pulls the data correctly', () => {
 
         let syncId = null;
