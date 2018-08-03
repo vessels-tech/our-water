@@ -147,6 +147,7 @@ module.exports = (functions, admin) => {
       .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
     
       return res.json({data:{ syncRunId: run.id }});
+      // return res.json({data:{ syncRunId: '12345' }});
     })
     .catch(err => {
       console.log('error in runSync:', err);
