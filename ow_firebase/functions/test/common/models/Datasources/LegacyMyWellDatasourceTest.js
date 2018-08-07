@@ -70,9 +70,44 @@ module.exports = ({fs}) => {
        * 
        * We mainly want to test that the GeoPoint is being saved correctly
        */
-      it.skip('[INT] saves new Group Data', () => {
+      it.skip('[INT] saves new Group Data', async function() {
+        this.timeout(5000);
+
+        //Arrange
+        const { lat, lng } = { lat: 34.54, lng: -115.4342 };
+        const delta = 0.1;
+        const legacyVillages = [
+          {
+            id: 12345,
+            name: 'Hinta',
+            postcode: 5000,
+            coordinates: { lat, lng },
+            createdAt: moment().toISOString,
+            updatedAt: moment().toISOString,
+          }
+        ];
+        const groups = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
+
+        //Act
+        const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
+        const result = await datasource.saveGroups(orgId, fs, groups);
+
+        //Assert
+        assert.equal(1, result.results.length);   
+        assert.equal(0, result.warnings.length);   
+        assert.equal(0, result.errors.length);   
+      });
+
+      it.only('uses the correct GeoPoint library', async () => {
+
+        const GeoPoint2 = fs.GeoPoint;
+        console.log(GeoPoint2);
+
+        const point2 = new GeoPoint2(34.54, 114);
+
 
       });
+
     });
   });
 

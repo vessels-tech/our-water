@@ -53,10 +53,26 @@ class LegacyMyWellDatasource {
             return response;
         });
     }
+    saveGroups(orgId, fs, groups) {
+        const errors = [];
+        const savedGroups = [];
+        return Promise.all(groups.map(group => {
+            return group.create({ fs })
+                .then(savedGroup => savedGroups.push(savedGroup))
+                .catch(err => errors.push(err));
+        })).then(() => {
+            return {
+                results: savedGroups,
+                warnings: [],
+                errors,
+            };
+        });
+    }
     getGroupAndSave(orgId, fs) {
         return __awaiter(this, void 0, void 0, function* () {
             const legacyVillages = yield this.getGroupData();
-            return null;
+            const newGroups = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
+            return yield this.saveGroups(orgId, fs, newGroups);
         });
     }
     /**

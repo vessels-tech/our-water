@@ -67,14 +67,31 @@ export default class LegacyMyWellDatasource implements Datasource {
       return response;
     });
   }
+
+  public saveGroups(orgId, fs: Firestore, groups: Array<Group>): Promise<GroupSaveResult> {
+    const errors = [];
+    const savedGroups: Group[] = [];
+
+    return Promise.all(
+      groups.map(group => {
+        return group.create({ fs })
+          .then(savedGroup => savedGroups.push(savedGroup))
+          .catch(err => errors.push(err))
+      })
+    ).then(() => {
+      return {
+        results: savedGroups,
+        warnings: [],
+        errors,
+      };
+    });
+  }
   
-
-  public async getGroupAndSave(orgId: string, fs: Firestore) {
+  public async getGroupAndSave(orgId: string, fs: Firestore): Promise<GroupSaveResult>  {
     const legacyVillages: Array<LegacyVillage> = await this.getGroupData();
-
-
-    return null;
-
+    const newGroups: Array<Group> = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
+    
+    return await this.saveGroups(orgId, fs, newGroups);
   }
 
   /**
