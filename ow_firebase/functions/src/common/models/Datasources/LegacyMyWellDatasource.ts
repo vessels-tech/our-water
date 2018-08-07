@@ -324,7 +324,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
       //TODO: we need to set a maximum on this, and paginate properly
-      .limit(1)
+      .limit(50)
       .get()
       .then((sn) => {
         const readings: Array<Reading> = [];
@@ -336,8 +336,6 @@ export default class LegacyMyWellDatasource implements Datasource {
   public static transformReadingsToLegacyMyWell(readings: Array<Reading>): Array<LegacyMyWellReading> {
 
     return readings.map(reading => {
-      console.log("reading is:", reading);
-
       return {
         date: moment(reading.datetime).toISOString(),
         value: reading.value,
@@ -375,8 +373,6 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    console.log("LegacyMyWellDatasource pushDataToDataSource()");
-
     const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
     console.log(`pushDataToDataSource, found ${readings.length} new readings`);
     const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);

@@ -9,7 +9,6 @@ class FirestoreDoc {
     }
     save({ fs }) {
         this.updatedAt = new Date();
-        // console.log("serializing: ", this.serialize());
         return fs.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
             .set(this.serialize())
             .then(ref => { return this; });

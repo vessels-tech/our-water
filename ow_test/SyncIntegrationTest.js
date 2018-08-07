@@ -112,40 +112,39 @@ const cleanup = () => {
 
 
 const getSync = (orgId, syncId) => {
-  return fs.collection('org').doc(orgId).collection('sync').doc(syncId).get()
+  return fs.collection('org').doc(orgId).collection('sync').doc(syncId).get();
 }
 
-// let syncId;
-let syncId = '0kq8vdGzd4SQrCAs5XkT';
+const getSyncRun = (orgId, syncRunId) => {
+  return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get();
+}
 
-// console.log('[01] createSync()');
-// return createSync()
-// .then(_syncId => {
-//   syncId = _syncId;
-//   console.log("createdSync with id:", syncId);
-//   console.log('[02] runSync()');
-//   return runSync(syncId, 'pullFrom');
-// })
-// .then(syncRunId => {
-//   console.log("running syncRun:", syncRunId);
-//   //we might need to wait a little while, we should probably poll instead
-//   sleep(20000);
-//   console.log("hopefully finished running sync with id:", syncRunId);
-//   console.log('[03] getResources()');
+let syncId;
 
-// })
-// .then(() => getResources())
-// console.log('[03] getResources()');
-// return getResources()
-// .then(res => {
-//   console.log("getResources found: ", res.length);
-//   console.log('Creating new reading for resource:', res[0]);
+console.log('[01] createSync()');
+return createSync()
+.then(_syncId => {
+  syncId = _syncId;
+  console.log("createdSync with id:", syncId);
+  console.log('[02] runSync()');
+  return runSync(syncId, 'pullFrom');
+})
+.then(syncRunId => {
+  console.log("running syncRun:", syncRunId);
+  //we might need to wait a little while, we should probably poll instead
+  sleep(20000);
+  console.log("hopefully finished running sync with id:", syncRunId);
+  console.log('[03] getResources()');
+  return getResources();
+})
+.then(res => {
+  console.log("getResources found: ", res.length);
+  console.log('Creating new reading for resource:', res[0]);
   
-//   console.log('[04] insertReadings()')
-//   return res[0].id;
-// })
-// .then(resourceId => insertReadings(resourceId))
-return insertReadings('00RvDZoKJR6D9pbr1cQa')
+  console.log('[04] insertReadings()')
+  return res[0].id;
+})
+.then(resourceId => insertReadings(resourceId))
 .then(() => {
   console.log("saved reading");
   console.log("running pushTo sync");
@@ -157,7 +156,9 @@ return insertReadings('00RvDZoKJR6D9pbr1cQa')
   console.log("running syncRun:", syncRunId);
   sleep(20000);
   console.log("hopefully finished running sync with id:", syncRunId);
+  return getSyncRun(syncRunId)
 })
+.then(syncRun => console.log(syncRun));
 // .then(() => cleanup())
 // .catch((err) => {
 //   console.log("Error with Test:", err);

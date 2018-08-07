@@ -145,7 +145,6 @@ module.exports = (functions, admin) => {
         const readingsRef = fs.collection(`/org/${orgId}/reading`)
             .where(`resourceId`, '==', resourceId).get()
             .then(snapshot => {
-            console.log("snapshot", snapshot);
             const resources = [];
             snapshot.forEach(doc => resources.push(doc.data()));
             res.json(resources);

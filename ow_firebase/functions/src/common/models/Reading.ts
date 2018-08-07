@@ -89,7 +89,6 @@ export class Reading extends FirestoreDoc {
     * @param sn 
     */
   public static deserialize(doc): Reading {
-    console.log("deser Reading", doc);
     const {
       docName,
       orgId,
