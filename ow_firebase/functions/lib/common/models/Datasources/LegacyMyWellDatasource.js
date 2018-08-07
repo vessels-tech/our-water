@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const DatasourceType_1 = require("../../enums/DatasourceType");
 const request = require("request-promise-native");
 const Group_1 = require("../Group");
-const firestore_1 = require("@google-cloud/firestore");
+const OWGeoPoint_1 = require("../../models/OWGeoPoint");
 const moment = require("moment");
 const utils_1 = require("../../utils");
 const GroupType_1 = require("../../enums/GroupType");
@@ -104,7 +104,7 @@ class LegacyMyWellDatasource {
             pincodeGroups = Object.keys(pincodeIds).map(pincode => {
                 const legacyVillages = pincodeIds[pincode];
                 //TODO: the only issue with this approach is that the coordinates aren't in order.
-                const coords = legacyVillages.map(v => new firestore_1.GeoPoint(v.coordinates.lat, v.coordinates.lng));
+                const coords = legacyVillages.map(v => new OWGeoPoint_1.default(v.coordinates.lat, v.coordinates.lng));
                 const externalIds = ResourceIdType_1.default.fromLegacyPincode(pincode);
                 return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords, externalIds);
             });
@@ -148,7 +148,7 @@ class LegacyMyWellDatasource {
             .then((legacyRes) => {
             legacyRes.forEach(r => {
                 const externalIds = ResourceIdType_1.default.fromLegacyMyWellId(r.postcode, r.id);
-                const coords = new firestore_1.GeoPoint(r.geo.lat, r.geo.lng);
+                const coords = new OWGeoPoint_1.default(r.geo.lat, r.geo.lng);
                 const resourceType = ResourceType_1.resourceTypeFromString(r.type);
                 const owner = { name: r.owner, createdByUserId: 'default' };
                 const groups = utils_1.findGroupMembershipsForResource(r, legacyGroups);

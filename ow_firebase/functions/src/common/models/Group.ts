@@ -1,20 +1,21 @@
 import { GroupType } from "../enums/GroupType";
-import { GeoPoint } from "@google-cloud/firestore";
 import ResourceIdType from "../types/ResourceIdType";
 import { isNullOrUndefined } from "util";
+import OWGeoPoint from '../models/OWGeoPoint';
+
 
 export class Group {
   id: string
   orgId: string
   name: string
   type: GroupType
-  coords: Array<GeoPoint>
+  coords: Array<OWGeoPoint>
   externalIds: ResourceIdType
   createdAt: Date
   updatedAt: Date
 
   constructor(name: string, orgId: string, type: GroupType,
-     coords: Array<GeoPoint>, externalIds: ResourceIdType) {
+    coords: Array<OWGeoPoint>, externalIds: ResourceIdType) {
     this.name = name;
     this.orgId = orgId;
     this.type = type;
@@ -31,6 +32,9 @@ export class Group {
   }
 
   public save({ fs }): Promise<Group> {
+    if (!this.id) {
+      throw new Error('Tried to save, but object has not been created yet. Use create() instead.');
+    }
     this.updatedAt = new Date();
   
     return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)

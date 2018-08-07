@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
-const firestore_1 = require("@google-cloud/firestore");
+const Group_1 = require("../common/models/Group");
+const GroupType_1 = require("../common/enums/GroupType");
+const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -41,6 +43,17 @@ module.exports = (functions, admin) => {
             return res.json(resources);
         })
             .catch(err => next(err));
+    });
+    app.get('/:orgId/test', (req, res, next) => {
+        console.log("running TEST function");
+        const orgId = req.params.orgId;
+        // Try saving a new group
+        const coords = [
+            new OWGeoPoint_1.default(34.34, -115.67),
+        ];
+        const group = new Group_1.Group('5000', orgId, GroupType_1.GroupType.Pincode, coords, null);
+        return group.create({ fs })
+            .then((saved) => res.json(saved));
     });
     /**
      * createResource
@@ -178,8 +191,8 @@ module.exports = (functions, admin) => {
         const maxLng = longitude + distanceMultiplier * distance;
         console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
         const readingsRef = fs.collection(`/org/${orgId}/resource`)
-            .where('coords', '>=', new firestore_1.GeoPoint(minLat, minLng))
-            .where('coords', '<=', new firestore_1.GeoPoint(maxLat, maxLng)).get()
+            .where('coords', '>=', new OWGeoPoint_1.default(minLat, minLng))
+            .where('coords', '<=', new OWGeoPoint_1.default(maxLat, maxLng)).get()
             .then(snapshot => {
             const resources = [];
             snapshot.forEach(doc => {

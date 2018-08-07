@@ -1,4 +1,4 @@
-import { GeoPoint, Firestore } from "@google-cloud/firestore";
+import OWGeoPoint from '../common/models/OWGeoPoint';
 import LegacyResource from "./types/LegacyResource";
 import LegacyVillage from "./types/LegacyVillage";
 import { Group } from "./models/Group";
@@ -31,13 +31,13 @@ export const concatSaveResults = (resultList: Array<SyncRunResult>): SyncRunResu
  * Create a diamond shape from a latlng
  * use this to easily convert from a legacy village into a Group
  */
-export const createDiamondFromLatLng = (lat: number, lng: number, delta: number): Array<GeoPoint> => {
-  let minLat: GeoPoint, maxLng: GeoPoint, maxLat: GeoPoint, minLng: GeoPoint = null;
+export const createDiamondFromLatLng = (lat: number, lng: number, delta: number): Array<OWGeoPoint> => {
+  let minLat: OWGeoPoint, maxLng: OWGeoPoint, maxLat: OWGeoPoint, minLng: OWGeoPoint = null;
 
-  minLat = new GeoPoint(lat - delta, lng);
-  maxLng = new GeoPoint(lat, lng + delta);
-  maxLat = new GeoPoint(lat + delta, lng);
-  minLng = new GeoPoint(lat, lng - delta);
+  minLat = new OWGeoPoint(lat - delta, lng);
+  maxLng = new OWGeoPoint(lat, lng + delta);
+  maxLat = new OWGeoPoint(lat + delta, lng);
+  minLng = new OWGeoPoint(lat, lng - delta);
 
   //I suppose we should assume indexes 0 and -1 line up
   return [minLat, maxLng, maxLat, minLng];
@@ -49,7 +49,7 @@ export const createDiamondFromLatLng = (lat: number, lng: number, delta: number)
  *     a dict where key=legacyid (pincode, or pincode.villageId), value=new group
  * @param fs Firestore database
  */
-export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map<string, Group>> => {
+export const getLegacyMyWellGroups = (orgId: string, fs): Promise<Map<string, Group>> => {
   const mappedGroups = new Map<string, Group>();
 
   return fs.collection('org').doc(orgId).collection('group').where('externalIds.legacyMyWellId', '>', '0').get()
@@ -76,7 +76,7 @@ export const getLegacyMyWellGroups = (orgId: string, fs: Firestore): Promise<Map
  *     a dict where key=legacyid (pincode, or pincode.villageId), value=new resource
  * @param fs Firestore database
  */
-export const getLegacyMyWellResources = (orgId: string, fs: Firestore): Promise<Map<string, Resource>> => {
+export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string, Resource>> => {
   const mappedResources = new Map<string, Resource>();
 
   return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()

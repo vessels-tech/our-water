@@ -1,7 +1,9 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
-import { GeoPoint } from '@google-cloud/firestore';
+import { Group } from '../common/models/Group';
+import { GroupType } from '../common/enums/GroupType';
+import OWGeoPoint from '../common/models/OWGeoPoint';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -51,6 +53,20 @@ module.exports = (functions, admin) => {
       return res.json(resources);
     })
     .catch(err => next(err));
+  });
+
+  app.get('/:orgId/test', (req, res, next) => {
+    console.log("running TEST function");
+    const orgId = req.params.orgId;
+
+    // Try saving a new group
+    const coords = [
+      new OWGeoPoint(34.34, -115.67),
+    ];
+
+    const group = new Group('5000', orgId, GroupType.Pincode, coords, null);
+    return group.create({fs})
+    .then((saved) => res.json(saved));
   });
 
 
@@ -210,8 +226,8 @@ module.exports = (functions, admin) => {
     console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
     
     const readingsRef = fs.collection(`/org/${orgId}/resource`)
-      .where('coords', '>=', new GeoPoint(minLat, minLng))
-      .where('coords', '<=', new GeoPoint(maxLat, maxLng)).get()
+      .where('coords', '>=', new OWGeoPoint(minLat, minLng))
+      .where('coords', '<=', new OWGeoPoint(maxLat, maxLng)).get()
       .then(snapshot => {
         const resources = []
         snapshot.forEach(doc => {

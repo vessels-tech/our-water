@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
-const firestore_1 = require("@google-cloud/firestore");
+const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions, admin) => {
@@ -38,7 +38,7 @@ module.exports = (functions, admin) => {
     app.post('/:orgId/', validate(createGroupValidation), (req, res, next) => {
         const orgId = req.params.orgId;
         //Ensure geopoints get added properly
-        const newCoords = req.body.coords.map(c => new firestore_1.GeoPoint(c.latitude, c.longitude));
+        const newCoords = req.body.coords.map(c => new OWGeoPoint_1.default(c.latitude, c.longitude));
         req.body.coords = newCoords;
         console.log("org id:", orgId);
         //Ensure the orgId exists

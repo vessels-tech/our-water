@@ -5,7 +5,6 @@ const { Reading } = require('../../../../lib/common/models/Reading');
 const LegacyMyWellDatasource = require('../../../../lib/common/models/Datasources/LegacyMyWellDatasource').default;
 const ResourceIdType = require('../../../../lib/common/types/ResourceIdType').default;
 const { createDiamondFromLatLng } = require('../../../../lib/common/utils');
-const { GeoPoint } = require('@google-cloud/firestore');
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -96,16 +95,6 @@ module.exports = ({fs}) => {
         assert.equal(1, result.results.length);   
         assert.equal(0, result.warnings.length);   
         assert.equal(0, result.errors.length);   
-      });
-
-      it.only('uses the correct GeoPoint library', async () => {
-
-        const GeoPoint2 = fs.GeoPoint;
-        console.log(GeoPoint2);
-
-        const point2 = new GeoPoint2(34.54, 114);
-
-
       });
 
     });

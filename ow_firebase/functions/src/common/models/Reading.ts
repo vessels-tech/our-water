@@ -1,8 +1,9 @@
-import { GeoPoint } from "@google-cloud/firestore";
 import { ResourceType } from "../enums/ResourceType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
+import OWGeoPoint from '../models/OWGeoPoint';
+
 
 export class Reading extends FirestoreDoc {
   docName = 'reading';
@@ -10,14 +11,14 @@ export class Reading extends FirestoreDoc {
   id: string
   resourceId: string
   externalIds: ResourceIdType
-  coords: GeoPoint
+  coords: OWGeoPoint
   resourceType: ResourceType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   datetime: Date
   value: number
   isLegacy: boolean
 
-  constructor(orgId: string, resourceId: string, coords: GeoPoint,
+  constructor(orgId: string, resourceId: string, coords: OWGeoPoint,
     resourceType: ResourceType, groups, datetime: Date, value: number,
     externalIds: ResourceIdType) {
     

@@ -16,6 +16,9 @@ class Group {
         return this.save({ fs });
     }
     save({ fs }) {
+        if (!this.id) {
+            throw new Error('Tried to save, but object has not been created yet. Use create() instead.');
+        }
         this.updatedAt = new Date();
         return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
             .set(this.serialize())

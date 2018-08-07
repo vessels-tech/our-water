@@ -1,9 +1,9 @@
-import { GeoPoint } from "@google-cloud/firestore";
+
 import { ResourceType } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
-import { GroupType } from "../enums/GroupType";
+import OWGeoPoint from '../models/OWGeoPoint';
 import { serializeMap } from "../utils";
 
 export class Resource extends FirestoreDoc {
@@ -11,7 +11,7 @@ export class Resource extends FirestoreDoc {
 
   id: string
   externalIds: ResourceIdType
-  coords: GeoPoint
+  coords: OWGeoPoint
   resourceType: ResourceType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
@@ -19,7 +19,7 @@ export class Resource extends FirestoreDoc {
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
 
-  constructor(orgId: string, externalIds: ResourceIdType, coords: GeoPoint,
+  constructor(orgId: string, externalIds: ResourceIdType, coords: OWGeoPoint,
     resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>) {
     super();
     

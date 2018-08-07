@@ -2,7 +2,7 @@ import Datasource from './Datasource';
 import { DatasourceType } from '../../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from '../Group';
-import { GeoPoint, Firestore, QuerySnapshot } from '@google-cloud/firestore';
+import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
 import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError } from '../../utils';
@@ -37,7 +37,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
   public static transformLegacyVillagesToGroups(orgId: string, villages: Array<LegacyVillage>): Array<Group> {
     return villages.map(village => {
-      const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lng, 0.1);
+      const coords: Array<OWGeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lng, 0.1);
       const externalIds = ResourceIdType.fromLegacyVillageId(village.postcode, village.id);
 
       return new Group(village.name, orgId, GroupType.Village, coords, externalIds);
@@ -68,7 +68,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     });
   }
 
-  public saveGroups(orgId, fs: Firestore, groups: Array<Group>): Promise<GroupSaveResult> {
+  public saveGroups(orgId, fs, groups: Array<Group>): Promise<GroupSaveResult> {
     const errors = [];
     const savedGroups: Group[] = [];
 
@@ -87,7 +87,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     });
   }
   
-  public async getGroupAndSave(orgId: string, fs: Firestore): Promise<GroupSaveResult>  {
+  public async getGroupAndSave(orgId: string, fs): Promise<GroupSaveResult>  {
     const legacyVillages: Array<LegacyVillage> = await this.getGroupData();
     const newGroups: Array<Group> = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
     
@@ -98,7 +98,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * Create groups based on inferred pincode data
    * 
    */  
-  public getPincodeData(orgId: string, fs: Firestore): Promise<GroupSaveResult> {
+  public getPincodeData(orgId: string, fs): Promise<GroupSaveResult> {
     //Get all villages, and for each village within a pincode, create a bounding box based on the center
     const uriVillage = `${this.baseUrl}/api/villages`;
 
@@ -127,7 +127,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       pincodeGroups = Object.keys(pincodeIds).map(pincode => {
         const legacyVillages: Array<LegacyVillage> = pincodeIds[pincode];
         //TODO: the only issue with this approach is that the coordinates aren't in order.
-        const coords = legacyVillages.map(v => new GeoPoint(v.coordinates.lat, v.coordinates.lng));
+        const coords = legacyVillages.map(v => new OWGeoPoint(v.coordinates.lat, v.coordinates.lng));
         const externalIds = ResourceIdType.fromLegacyPincode(pincode);
 
         return new Group(pincode, orgId, GroupType.Pincode, coords, externalIds);
@@ -160,7 +160,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * convert legacy MyWell resources into OW resources
    * return
    */
-  public getResourcesData(orgId: string, fs: Firestore): Promise<ResourceSaveResult> {
+  public getResourcesData(orgId: string, fs): Promise<ResourceSaveResult> {
     // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     const uriResources = `${this.baseUrl}/api/resources`;
 
@@ -178,7 +178,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     .then((legacyRes: Array<LegacyResource>) => {
       legacyRes.forEach(r => {
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
-        const coords = new GeoPoint(r.geo.lat, r.geo.lng);
+        const coords = new OWGeoPoint(r.geo.lat, r.geo.lng);
         const resourceType = resourceTypeFromString(r.type);
         const owner: ResourceOwnerType = {name: r.owner, createdByUserId: 'default'};
         const groups: Map<string, boolean> = findGroupMembershipsForResource(r, legacyGroups);
@@ -212,7 +212,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * Perhaps we should test with just a small number of readings for now
    * 
    */
-  public getReadingsData(orgId: string, fs: Firestore): Promise<ReadingSaveResult>  {
+  public getReadingsData(orgId: string, fs): Promise<ReadingSaveResult>  {
     const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
 
@@ -318,13 +318,13 @@ export default class LegacyMyWellDatasource implements Datasource {
    * - externalIds.hasLegacyMyWellResourceId: a boolean flag indicating that the reading
    *     has a relationship to an external data source
    */
-  public getNewReadings(orgId: string, fs: Firestore, filterAfterDate: number): Promise<Array<Reading>> {
+  public getNewReadings(orgId: string, fs, filterAfterDate: number): Promise<Array<Reading>> {
 
     return fs.collection('org').doc(orgId).collection('reading')
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
       .get()
-      .then((sn: QuerySnapshot) => {
+      .then((sn) => {
 
         const readings: Array<any> = [];
         sn.forEach(doc => {

@@ -1,8 +1,7 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
-import { gzipSync } from 'zlib';
-import { deepStrictEqual } from 'assert';
-import { GeoPoint } from '@google-cloud/firestore';
+import OWGeoPoint from '../common/models/OWGeoPoint';
+
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -52,7 +51,7 @@ module.exports = (functions, admin) => {
     const orgId = req.params.orgId;
 
     //Ensure geopoints get added properly
-    const newCoords = req.body.coords.map(c => new GeoPoint(c.latitude, c.longitude));
+    const newCoords = req.body.coords.map(c => new OWGeoPoint(c.latitude, c.longitude));
     req.body.coords = newCoords;
 
     console.log("org id:", orgId );
