@@ -51,7 +51,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * imaginary bounding box for the new group
    * 
    */
-  public getGroupData(orgId: string, fs): Promise<GroupSaveResult> {
+  public getGroupData(): Promise<Array<LegacyVillage>> {
     // https://mywell-server.vessels.tech/api/villages
     //TODO proper Legacy Api Client
     const uriVillage = `${this.baseUrl}/api/villages`;
@@ -63,32 +63,18 @@ export default class LegacyMyWellDatasource implements Datasource {
     };
 
     return request(options)
-    .then((villages: Array<LegacyVillage>) => {
-      //TODO: save using bulk method
-      const newGroups = this.transformLegacyVillagesToGroups(orgId, villages);
-
-      const errors = [];
-      const savedGroups: Group[] = [] ;
-      newGroups.forEach(group => {
-        return group.create({ fs })
-          .then(savedGroup => {
-            savedGroups.push(savedGroup);
-          })
-          .catch(err => {
-            console.log('error saving new group', err);
-            errors.push(err);
-          });
-      });
-
-      return {
-        results: savedGroups,
-        warnings: [],
-        errors,
-      };
+    .then((response: Array<LegacyVillage>) => {
+      return response;
     });
+  }
+  
 
-   
-    //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
+  public async getGroupAndSave(orgId: string, fs: Firestore) {
+    const legacyVillages: Array<LegacyVillage> = await this.getGroupData();
+
+
+    return null;
+
   }
 
   /**
@@ -294,7 +280,7 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pullDataFromDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    const villageGroupResult = await this.getGroupData(orgId, fs);
+    const villageGroupResult = await this.getGroupAndSave(orgId, fs);
     const pincodeGroups = await this.getPincodeData(orgId, fs)
     const resources = await this.getResourcesData(orgId, fs);
     const readings = await this.getReadingsData(orgId, fs);

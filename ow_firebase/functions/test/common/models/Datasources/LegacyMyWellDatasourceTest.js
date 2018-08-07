@@ -34,7 +34,7 @@ module.exports = ({fs}) => {
         assert.deepEqual(coords, expected);
       });
 
-      it.only('transformsLegacyVillagesToGroups', () => {
+      it('transformsLegacyVillagesToGroups', () => {
         //Arrange
         const { lat, lng } = { lat: 34.54, lng: -115.4342 };
         const delta = 0.1;
@@ -67,6 +67,8 @@ module.exports = ({fs}) => {
 
       /**
        * Integration Test Only
+       * 
+       * We mainly want to test that the GeoPoint is being saved correctly
        */
       it.skip('[INT] saves new Group Data', () => {
 

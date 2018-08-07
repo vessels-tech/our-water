@@ -39,7 +39,7 @@ class LegacyMyWellDatasource {
      * imaginary bounding box for the new group
      *
      */
-    getGroupData(orgId, fs) {
+    getGroupData() {
         // https://mywell-server.vessels.tech/api/villages
         //TODO proper Legacy Api Client
         const uriVillage = `${this.baseUrl}/api/villages`;
@@ -49,28 +49,15 @@ class LegacyMyWellDatasource {
             json: true,
         };
         return request(options)
-            .then((villages) => {
-            //TODO: save using bulk method
-            const newGroups = this.transformLegacyVillagesToGroups(orgId, villages);
-            const errors = [];
-            const savedGroups = [];
-            newGroups.forEach(group => {
-                return group.create({ fs })
-                    .then(savedGroup => {
-                    savedGroups.push(savedGroup);
-                })
-                    .catch(err => {
-                    console.log('error saving new group', err);
-                    errors.push(err);
-                });
-            });
-            return {
-                results: savedGroups,
-                warnings: [],
-                errors,
-            };
+            .then((response) => {
+            return response;
         });
-        //TODO: get pincodes by inferring from above villages. Draw coords from centre of each village
+    }
+    getGroupAndSave(orgId, fs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const legacyVillages = yield this.getGroupData();
+            return null;
+        });
     }
     /**
      * Create groups based on inferred pincode data
@@ -252,7 +239,7 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, fs, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const villageGroupResult = yield this.getGroupData(orgId, fs);
+            const villageGroupResult = yield this.getGroupAndSave(orgId, fs);
             const pincodeGroups = yield this.getPincodeData(orgId, fs);
             const resources = yield this.getResourcesData(orgId, fs);
             const readings = yield this.getReadingsData(orgId, fs);
