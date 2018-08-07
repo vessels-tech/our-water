@@ -9,7 +9,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "unit": "mocha -r ts-node/register src/**/*.unit.ts",
+    "service": "mocha -r ts-node/register src/**/*.service.ts"
   },
   "main": "lib/index.js",
   "dependencies": {
