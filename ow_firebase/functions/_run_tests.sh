@@ -13,4 +13,4 @@ export ORG_ID="test_$DATE"
 export GOOGLE_CLOUD_PROJECT='our-water'
 export SKIP_CLEANUP='true'
 
-./node_modules/mocha/bin/mocha
+yarn run test

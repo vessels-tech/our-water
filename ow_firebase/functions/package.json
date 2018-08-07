@@ -8,7 +8,8 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -30,9 +31,13 @@
     "request-promise-native": "^1.0.5"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
     "assert": "^1.4.1",
+    "chai": "^4.1.2",
     "mocha": "^5.1.1",
     "thread-sleep": "^2.0.0",
+    "ts-node": "^7.0.0",
     "tslint": "^5.8.0",
     "typescript": "^2.5.3"
   },
