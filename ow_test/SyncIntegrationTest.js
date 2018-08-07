@@ -135,16 +135,17 @@ let syncId = '0kq8vdGzd4SQrCAs5XkT';
 
 // })
 // .then(() => getResources())
-console.log('[03] getResources()');
-return getResources()
-.then(res => {
-  console.log("getResources found: ", res.length);
-  console.log('Creating new reading for resource:', res[0]);
+// console.log('[03] getResources()');
+// return getResources()
+// .then(res => {
+//   console.log("getResources found: ", res.length);
+//   console.log('Creating new reading for resource:', res[0]);
   
-  console.log('[04] insertReadings()')
-  return res[0].id;
-})
-.then(resourceId => insertReadings(resourceId))
+//   console.log('[04] insertReadings()')
+//   return res[0].id;
+// })
+// .then(resourceId => insertReadings(resourceId))
+return insertReadings('00RvDZoKJR6D9pbr1cQa')
 .then(() => {
   console.log("saved reading");
   console.log("running pushTo sync");

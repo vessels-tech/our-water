@@ -1,4 +1,4 @@
-import { ResourceType } from "../enums/ResourceType";
+import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
@@ -82,6 +82,43 @@ export class Reading extends FirestoreDoc {
     }
 
     return serialized;
+  }
+
+  /**
+    * Deserialize from a document
+    * @param sn 
+    */
+  public static deserialize(doc): Reading {
+    console.log("deser Reading", doc);
+    const {
+      docName,
+      orgId,
+      createdAt,
+      updatedAt,
+      datetime,
+      value,
+      resourceId,
+      groups,
+      isLegacy,
+      resourceType,
+      externalIds,
+      coords,
+    } = doc.data();
+
+    //nested variables
+    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    const externalIdsObj = ResourceIdType.deserialize(externalIds);
+    const des: Reading = new Reading(orgId, resourceId, coords, resourceTypeObj, 
+      groups, datetime, value, externalIdsObj);
+
+    //private vars
+    des.id = des.id;
+    des.docName = docName;
+    des.createdAt = createdAt;
+    des.updatedAt = updatedAt;
+    des.isLegacy = isLegacy;
+
+    return des;
   }
 
 

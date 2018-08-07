@@ -70,6 +70,13 @@ class ResourceIdType {
         }
         return serialized;
     }
+    static deserialize(obj) {
+        let resourceIdType = new ResourceIdType();
+        Object.keys(obj).forEach(key => {
+            resourceIdType[key] = obj[key];
+        });
+        return resourceIdType;
+    }
 }
 exports.default = ResourceIdType;
 //# sourceMappingURL=ResourceIdType.js.map

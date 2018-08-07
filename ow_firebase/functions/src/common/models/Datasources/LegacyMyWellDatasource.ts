@@ -323,18 +323,12 @@ export default class LegacyMyWellDatasource implements Datasource {
     return fs.collection('org').doc(orgId).collection('reading')
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
+      //TODO: we need to set a maximum on this, and paginate properly
       .limit(1)
       .get()
       .then((sn) => {
-
-        const readings: Array<any> = [];
-        sn.forEach(doc => {
-          //Get each document, put in the id
-          const data = doc.data();
-          data.id = doc.id;
-          readings.push(data);
-        });
-
+        const readings: Array<Reading> = [];
+        sn.forEach(doc => readings.push(Reading.deserialize(doc)))
         return readings;
       });
   }
@@ -342,6 +336,8 @@ export default class LegacyMyWellDatasource implements Datasource {
   public static transformReadingsToLegacyMyWell(readings: Array<Reading>): Array<LegacyMyWellReading> {
 
     return readings.map(reading => {
+      console.log("reading is:", reading);
+
       return {
         date: moment(reading.datetime).toISOString(),
         value: reading.value,
@@ -382,7 +378,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     console.log("LegacyMyWellDatasource pushDataToDataSource()");
 
     const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
-    console.log(`pushDataToDataSource, found ${readings} new readings`);
+    console.log(`pushDataToDataSource, found ${readings.length} new readings`);
     const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
     const result = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
