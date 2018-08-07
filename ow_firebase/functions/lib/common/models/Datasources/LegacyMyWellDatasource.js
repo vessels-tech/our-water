@@ -276,9 +276,11 @@ class LegacyMyWellDatasource {
      *     has a relationship to an external data source
      */
     getNewReadings(orgId, fs, filterAfterDate) {
+        console.log("Getting new readings: TODO: this index might be wrong...");
         return fs.collection('org').doc(orgId).collection('reading')
             .where('externalIds.hasLegacyMyWellResourceId', '==', true)
             .where('createdAt', '>=', filterAfterDate)
+            .limit(1)
             .get()
             .then((sn) => {
             const readings = [];
@@ -326,7 +328,9 @@ class LegacyMyWellDatasource {
     }
     pushDataToDataSource(orgId, fs, options) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("LegacyMyWellDatasource pushDataToDataSource()");
             const readings = yield this.getNewReadings(orgId, fs, options.filterAfterDate);
+            console.log(`pushDataToDataSource, found ${readings} new readings`);
             const legacyReadings = yield LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
             const result = yield this.saveReadingsToLegacyMyWell(legacyReadings);
             return result;

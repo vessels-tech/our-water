@@ -2,6 +2,12 @@ import * as functions from 'firebase-functions';
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+// /*
+// const firestore = new Firestore();
+// const settings = {/* your settings... */ timestampsInSnapshots: true };
+// firestore.settings(settings)
+// */
+
 //Org Api
 export const org = require('./fn_org/org')(functions, admin);
 
@@ -22,6 +28,8 @@ export const sync = require('./fn_sync/sync')(functions, admin);
 //TODO: move these functions to new doc
 
 const fs = admin.firestore();
+fs.settings({timestampsInSnapshots: true});
+
 
 //TODO: REENABLE
 

@@ -42,7 +42,7 @@ class Sync {
      * @param sn
      */
     static deserialize(sn) {
-        console.log("deser Sync");
+        console.log("deser Sync", sn);
         const { isOneTime, datasource, orgId, methods, lastSyncDate, selectedDatatypes, } = sn.data();
         const syncMethods = []; //TODO deserialize somehow
         const des = new Sync(isOneTime, Datasource_1.deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);

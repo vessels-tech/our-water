@@ -61,7 +61,7 @@ export class Sync {
    * @param sn 
    */
   public static deserialize(sn): Sync {
-    console.log("deser Sync");
+    console.log("deser Sync", sn);
     const {
       isOneTime,
       datasource,

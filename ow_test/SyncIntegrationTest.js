@@ -7,7 +7,7 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const settings = {/* your settings... */ timestampsInSnapshots: true };
+const settings = { timestampsInSnapshots: true };
 
 admin.initializeApp();
 const fs = admin.firestore();
@@ -115,39 +115,51 @@ const getSync = (orgId, syncId) => {
   return fs.collection('org').doc(orgId).collection('sync').doc(syncId).get()
 }
 
-let syncId;
+// let syncId;
+let syncId = '0kq8vdGzd4SQrCAs5XkT';
 
-return createSync()
-.then(_syncId => {
-  syncId = _syncId;
-  console.log("createdSync with id:", syncId);
-  return runSync(syncId, 'pullFrom');
-})
-.then(syncRunId => {
-  //we might need to wait a little while, we should probably poll instead
-  sleep(20000);
-  console.log("hopefully finished running sync with id:", syncRunId);
-})
-.then(() => getResources())
+// console.log('[01] createSync()');
+// return createSync()
+// .then(_syncId => {
+//   syncId = _syncId;
+//   console.log("createdSync with id:", syncId);
+//   console.log('[02] runSync()');
+//   return runSync(syncId, 'pullFrom');
+// })
+// .then(syncRunId => {
+//   console.log("running syncRun:", syncRunId);
+//   //we might need to wait a little while, we should probably poll instead
+//   sleep(20000);
+//   console.log("hopefully finished running sync with id:", syncRunId);
+//   console.log('[03] getResources()');
+
+// })
+// .then(() => getResources())
+console.log('[03] getResources()');
+return getResources()
 .then(res => {
   console.log("getResources found: ", res.length);
   console.log('Creating new reading for resource:', res[0]);
+  
+  console.log('[04] insertReadings()')
   return res[0].id;
 })
 .then(resourceId => insertReadings(resourceId))
 .then(() => {
   console.log("saved reading");
   console.log("running pushTo sync");
+  console.log('[05] runSync()')
+
 })
 .then(() => runSync(syncId, 'pushTo'))
 .then(syncRunId => {
   console.log("running syncRun:", syncRunId);
   sleep(20000);
   console.log("hopefully finished running sync with id:", syncRunId);
-});
-.then(() => cleanup())
-.catch((err) => {
-  console.log("Error with Test:", err);
-  return cleanup()
-  .then(() => {throw err});
-});
+})
+// .then(() => cleanup())
+// .catch((err) => {
+//   console.log("Error with Test:", err);
+//   return cleanup()
+//   .then(() => {throw err});
+// });

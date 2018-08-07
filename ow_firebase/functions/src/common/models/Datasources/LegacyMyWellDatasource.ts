@@ -319,10 +319,11 @@ export default class LegacyMyWellDatasource implements Datasource {
    *     has a relationship to an external data source
    */
   public getNewReadings(orgId: string, fs, filterAfterDate: number): Promise<Array<Reading>> {
-
+    console.log("Getting new readings: TODO: this index might be wrong...");
     return fs.collection('org').doc(orgId).collection('reading')
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
+      .limit(1)
       .get()
       .then((sn) => {
 
@@ -378,7 +379,10 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+    console.log("LegacyMyWellDatasource pushDataToDataSource()");
+
     const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
+    console.log(`pushDataToDataSource, found ${readings} new readings`);
     const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
     const result = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
