@@ -1,12 +1,6 @@
+import * as assert from 'assert';
 import ResourceIdType from "./ResourceIdType";
 
-const assert = require('assert');
-
-// const admin = require('firebase-admin');
-// if (admin.apps.length === 0) {
-//   admin.initializeApp();
-// }
-// const fs = admin.firestore();
 import fs from '../apis/Firestore';
 
 

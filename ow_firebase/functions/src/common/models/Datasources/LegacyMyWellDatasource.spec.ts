@@ -14,6 +14,7 @@ import LegacyMyWellDatasource from './LegacyMyWellDatasource';
 import LegacyVillage from '../../types/LegacyVillage';
 import ResourceIdType from '../../types/ResourceIdType';
 import { Reading } from '../Reading';
+import { ResourceType } from '../../enums/ResourceType';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -49,8 +50,8 @@ describe('pullFromDataSource', function () {
           name: 'Hinta',
           postcode: 5000,
           coordinates: { lat, lng },
-          createdAt: moment().toISOString,
-          updatedAt: moment().toISOString,
+          createdAt: moment().toISOString(),
+          updatedAt: moment().toISOString(),
         }
       ];
 
@@ -87,8 +88,8 @@ describe('pullFromDataSource', function () {
           name: 'Hinta',
           postcode: 5000,
           coordinates: { lat, lng },
-          createdAt: moment().toISOString,
-          updatedAt: moment().toISOString,
+          createdAt: moment().toISOString(),
+          updatedAt: moment().toISOString(),
         }
       ];
       const groups = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
@@ -111,7 +112,7 @@ describe('pushDataToDataSource', function () {
 
   /*INTEGRATION TEST */
   /* //TODO: test using mocks instead, and move this to integration test section*/
-  describe.skip('saveReadingsToLegacyMyWell', function () {
+  describe.skip('[INT] saveReadingsToLegacyMyWell', function () {
     this.timeout(15000);
     const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
 
@@ -136,7 +137,7 @@ describe('pushDataToDataSource', function () {
       assert.equal(1, result.errors.length);
     });
 
-    it('saves a list of readings to LegacyMyWell', async () => {
+    it('[INT] saves a list of readings to LegacyMyWell', async () => {
       //Arrange
       const legacyReadings = [{
         date: '2018-08-03T00:57:47.957Z',
@@ -176,8 +177,8 @@ describe('pushDataToDataSource', function () {
     it('transforms a list of Readings to LegacyMyWellReadings', () => {
       //Arrange
       const mockDate = moment('2018-08-03T00:57:47.957Z');
-      const readingA = new Reading(orgId, 'readingA', null, null, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
-      const readingB = new Reading(orgId, 'readingB', null, null, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
+      const readingA = new Reading(orgId, 'readingA', null, ResourceType.Well, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
+      const readingB = new Reading(orgId, 'readingB', null, ResourceType.Well, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
 
       readingA.id = 'readingA';
       readingB.id = 'readingB';
@@ -222,9 +223,9 @@ describe('pushDataToDataSource', function () {
     //TODO: tidy up, make helper functions...
     before(() => {
       const readingsRef = fs.collection('org').doc(orgId).collection('reading');
-      const readingA = new Reading(orgId, 'readingA', null, null, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
-      const readingB = new Reading(orgId, 'readingB', null, null, {}, moment().toDate(), 100, ResourceIdType.none());
-      const readingC = new Reading(orgId, 'readingB', null, null, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
+      const readingA = new Reading(orgId, 'readingA', null, ResourceType.Well, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
+      const readingB = new Reading(orgId, 'readingB', null, ResourceType.Well, {}, moment().toDate(), 100, ResourceIdType.none());
+      const readingC = new Reading(orgId, 'readingB', null, ResourceType.Well, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
 
       readingA.id = 'readingA';
       readingB.id = 'readingB';
