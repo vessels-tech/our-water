@@ -1,17 +1,19 @@
-const assert = require('assert');
-const MockFirebase = require('mock-cloud-firestore');
-const moment = require('moment');
-const { Reading } = require('../../../../lib/common/models/Reading');
-const LegacyMyWellDatasource = require('../../../../lib/common/models/Datasources/LegacyMyWellDatasource').default;
-const ResourceIdType = require('../../../../lib/common/types/ResourceIdType').default;
-const { createDiamondFromLatLng } = require('../../../../lib/common/utils');
+import * as assert from 'assert';
 import OWGeoPoint from '../../models/OWGeoPoint';
+import * as moment from 'moment';
 
 
-const admin = require('firebase-admin');
-admin.initializeApp();
-const fs = admin.firestore();
-
+// const admin = require('firebase-admin');
+// if (admin.apps.length === 0) {
+//   admin.initializeApp();
+// }
+import fs from '../../apis/Firestore';
+import * as MockFirebase from 'mock-cloud-firestore';
+import { createDiamondFromLatLng } from '../../utils';
+import LegacyMyWellDatasource from './LegacyMyWellDatasource';
+import LegacyVillage from '../../types/LegacyVillage';
+import ResourceIdType from '../../types/ResourceIdType';
+import { Reading } from '../Reading';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -41,7 +43,7 @@ describe('pullFromDataSource', function () {
       //Arrange
       const { lat, lng } = { lat: 34.54, lng: -115.4342 };
       const delta = 0.1;
-      const legacyVillages = [
+      const legacyVillages: Array<LegacyVillage> = [
         {
           id: 12345,
           name: 'Hinta',
@@ -79,7 +81,7 @@ describe('pullFromDataSource', function () {
       //Arrange
       const { lat, lng } = { lat: 34.54, lng: -115.4342 };
       const delta = 0.1;
-      const legacyVillages = [
+      const legacyVillages: Array<LegacyVillage> = [
         {
           id: 12345,
           name: 'Hinta',
@@ -174,16 +176,16 @@ describe('pushDataToDataSource', function () {
     it('transforms a list of Readings to LegacyMyWellReadings', () => {
       //Arrange
       const mockDate = moment('2018-08-03T00:57:47.957Z');
-      const readingA = new Reading(orgId, 'readingA', null, null, {}, mockDate.valueOf(), 100, ResourceIdType.fromLegacyReadingId('123', '5000', '1110'));
-      const readingB = new Reading(orgId, 'readingB', null, null, {}, mockDate.valueOf(), 100, ResourceIdType.fromLegacyReadingId('124', '5000', '1112'));
+      const readingA = new Reading(orgId, 'readingA', null, null, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
+      const readingB = new Reading(orgId, 'readingB', null, null, {}, mockDate.toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
 
       readingA.id = 'readingA';
       readingB.id = 'readingB';
 
-      readingA.createdAt = mockDate.valueOf();
-      readingB.createdAt = mockDate.subtract(1, 'month').valueOf();
-      readingA.updatedAt = mockDate.valueOf();
-      readingB.updatedAt = mockDate.subtract(1, 'month').valueOf();
+      readingA.createdAt = mockDate.toDate();
+      readingB.createdAt = mockDate.subtract(1, 'month').toDate();
+      readingA.updatedAt = mockDate.toDate();
+      readingB.updatedAt = mockDate.subtract(1, 'month').toDate();
       const readings = [readingA, readingB];
 
       //Act
@@ -220,21 +222,21 @@ describe('pushDataToDataSource', function () {
     //TODO: tidy up, make helper functions...
     before(() => {
       const readingsRef = fs.collection('org').doc(orgId).collection('reading');
-      const readingA = new Reading(orgId, 'readingA', null, null, {}, moment().valueOf(), 100, ResourceIdType.fromLegacyReadingId('123', '5000', '1110'));
-      const readingB = new Reading(orgId, 'readingB', null, null, {}, moment().valueOf(), 100, ResourceIdType.none());
-      const readingC = new Reading(orgId, 'readingB', null, null, {}, moment().valueOf(), 100, ResourceIdType.fromLegacyReadingId('124', '5000', '1112'));
+      const readingA = new Reading(orgId, 'readingA', null, null, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(123, 5000, 1110));
+      const readingB = new Reading(orgId, 'readingB', null, null, {}, moment().toDate(), 100, ResourceIdType.none());
+      const readingC = new Reading(orgId, 'readingB', null, null, {}, moment().toDate(), 100, ResourceIdType.fromLegacyReadingId(124, 5000, 1112));
 
       readingA.id = 'readingA';
       readingB.id = 'readingB';
       readingC.id = 'readingC';
 
-      readingA.createdAt = moment().valueOf();
-      readingB.createdAt = moment().subtract(1, 'month').valueOf();
-      readingC.createdAt = moment().subtract(2, 'year').valueOf();
+      readingA.createdAt = moment().toDate();
+      readingB.createdAt = moment().subtract(1, 'month').toDate();
+      readingC.createdAt = moment().subtract(2, 'year').toDate();
 
-      readingA.updatedAt = moment().valueOf();
-      readingB.updatedAt = moment().subtract(1, 'month').valueOf();
-      readingC.updatedAt = moment().subtract(2, 'year').valueOf();
+      readingA.updatedAt = moment().toDate();
+      readingB.updatedAt = moment().subtract(1, 'month').toDate();
+      readingC.updatedAt = moment().subtract(2, 'year').toDate();
 
       return Promise.all([
         readingsRef.add(readingA.serialize()),

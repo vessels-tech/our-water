@@ -2,6 +2,14 @@ import ResourceIdType from "./ResourceIdType";
 
 const assert = require('assert');
 
+// const admin = require('firebase-admin');
+// if (admin.apps.length === 0) {
+//   admin.initializeApp();
+// }
+// const fs = admin.firestore();
+import fs from '../apis/Firestore';
+
+
 describe('ResourceIdTypeTest', function () {
   describe('getResourceId()', () => {
     it('throws when no legacyMyWellResourceId', () => {
