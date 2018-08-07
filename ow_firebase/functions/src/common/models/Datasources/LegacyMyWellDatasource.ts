@@ -34,6 +34,15 @@ export default class LegacyMyWellDatasource implements Datasource {
     this.type = DatasourceType.LegacyMyWellDatasource;
   }
 
+
+  public static transformLegacyVillagesToGroups(orgId: string, villages: Array<LegacyVillage>): Array<Group> {
+    return villages.map(village => {
+      const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lng, 0.1);
+      const externalIds = ResourceIdType.fromLegacyVillageId(village.postcode, village.id);
+
+      return new Group(village.name, orgId, GroupType.Village, coords, externalIds);
+    });
+  }
  
   /**
    * Iterates through pincodes and villages from MyWell datasource
@@ -44,6 +53,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    */
   public getGroupData(orgId: string, fs): Promise<GroupSaveResult> {
     // https://mywell-server.vessels.tech/api/villages
+    //TODO proper Legacy Api Client
     const uriVillage = `${this.baseUrl}/api/villages`;
 
     const options = {
@@ -55,12 +65,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     return request(options)
     .then((villages: Array<LegacyVillage>) => {
       //TODO: save using bulk method
-      const newGroups = villages.map(village => {
-        const coords: Array<GeoPoint> = createDiamondFromLatLng(village.coordinates.lat, village.coordinates.lat, 0.1);
-        const externalIds = ResourceIdType.fromLegacyVillageId(village.postcode, village.id);
-      
-        return new Group(village.name, orgId, GroupType.Village, coords, externalIds);
-      });
+      const newGroups = this.transformLegacyVillagesToGroups(orgId, villages);
 
       const errors = [];
       const savedGroups: Group[] = [] ;
@@ -73,8 +78,7 @@ export default class LegacyMyWellDatasource implements Datasource {
             console.log('error saving new group', err);
             errors.push(err);
           });
-
-      })
+      });
 
       return {
         results: savedGroups,

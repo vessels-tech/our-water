@@ -2,6 +2,7 @@
 /**
  * SyncIntegrationTest
  * 
+ * Run a full 2 way sync with LegacyMyWell
  * 
  */
 const functions = require('firebase-functions');
@@ -139,6 +140,11 @@ return createSync()
   console.log("running pushTo sync");
 })
 .then(() => runSync(syncId, 'pushTo'))
+.then(syncRunId => {
+  console.log("running syncRun:", syncRunId);
+  sleep(20000);
+  console.log("hopefully finished running sync with id:", syncRunId);
+});
 .then(() => cleanup())
 .catch((err) => {
   console.log("Error with Test:", err);

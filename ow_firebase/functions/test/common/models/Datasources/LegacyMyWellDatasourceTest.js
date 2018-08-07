@@ -4,15 +4,81 @@ const moment = require('moment');
 const { Reading } = require('../../../../lib/common/models/Reading');
 const LegacyMyWellDatasource = require('../../../../lib/common/models/Datasources/LegacyMyWellDatasource').default;
 const ResourceIdType = require('../../../../lib/common/types/ResourceIdType').default;
+const { createDiamondFromLatLng } = require('../../../../lib/common/utils');
+const { GeoPoint } = require('@google-cloud/firestore');
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
 
 
 module.exports = ({fs}) => {
+
+  describe('pullFromDataSource', function() {
+
+    describe('getGroupData', function() {
+      it('creates a diamond from a given LatLng', () => {
+        //Arrange
+        const {lat, lng} = {lat: 34.54, lng: -115.4342};
+        const delta = 0.1;
+
+        //Act
+        const coords = createDiamondFromLatLng(lat, lng, delta);
+
+        //Assert
+        const expected = [
+          new GeoPoint(lat - delta, lng),
+          new GeoPoint(lat, lng + delta),
+          new GeoPoint(lat + delta, lng),
+          new GeoPoint(lat, lng - delta),
+        ];
+        assert.deepEqual(coords, expected);
+      });
+
+      it.only('transformsLegacyVillagesToGroups', () => {
+        //Arrange
+        const { lat, lng } = { lat: 34.54, lng: -115.4342 };
+        const delta = 0.1;
+        const legacyVillages = [
+          {
+            id: 12345,
+            name: 'Hinta',
+            postcode: 5000,
+            coordinates: { lat, lng},
+            createdAt: moment().toISOString,
+            updatedAt: moment().toISOString,
+          }
+        ];
+
+        //Act
+        const transformedVillages = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
+
+        //Assert
+        const expected = [{
+          name: 'Hinta',
+          orgId,
+          type: 'village',
+          coords: createDiamondFromLatLng(lat, lng, delta),
+          externalIds: {
+            legacyMyWellId: '5000.12345',
+          },
+        }];
+        assert.deepEqual(transformedVillages, expected);
+      });
+
+      /**
+       * Integration Test Only
+       */
+      it.skip('[INT] saves new Group Data', () => {
+
+      });
+    });
+  });
+
+
   describe('pushDataToDataSource', function() {
 
-    //TODO: test using mocks instead, and move this to integration test section
+    /*INTEGRATION TEST */
+    /* //TODO: test using mocks instead, and move this to integration test section*/
     describe.skip('saveReadingsToLegacyMyWell', function() {
       this.timeout(15000);
       const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
