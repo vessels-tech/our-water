@@ -10,6 +10,7 @@ import * as moment from 'moment';
 import fs from '../../apis/Firestore';
 import LegacyMyWellDatasource from './LegacyMyWellDatasource';
 import LegacyVillage from '../../types/LegacyVillage';
+import SyncRunResult from '../../types/SyncRunResult';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -50,6 +51,26 @@ describe('pullFromDataSource', function () {
 
 
 describe('pushDataToDataSource', function () {
+
+  describe('saveResourcesToLegacyMyWell', function() {
+    this.timeout(15000);
+    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
+    const legacyResources = [
+
+    ];
+
+    it('saves resources to LegacyMyWell', async () => {
+      //Arrange
+      
+      //Act
+      const result = await datasource.saveResourcesToLegacyMyWell(legacyResources);
+      
+      //Assert
+      assert.equal(2, result.results.length);
+      assert.equal(0, result.warnings.length);
+      assert.equal(0, result.errors.length);
+    });
+  });
 
   describe('saveReadingsToLegacyMyWell', function () {
     this.timeout(15000);
@@ -101,11 +122,6 @@ describe('pushDataToDataSource', function () {
       const result = await datasource.saveReadingsToLegacyMyWell(legacyReadings);
 
       //Assert
-      const expected = {
-        results: [],
-        warnings: [],
-        errors: []
-      };
       assert.equal(2, result.results.length);
       assert.equal(0, result.warnings.length);
       assert.equal(0, result.errors.length);

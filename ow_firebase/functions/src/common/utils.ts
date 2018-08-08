@@ -221,6 +221,55 @@ export const resourceTypeForLegacyResourceId = (legacyResourceId: string): Resou
   return ResourceType.Well;
 }
 
+export const resourceIdForResourceType = (resourceType: ResourceType): string => {
+  switch (resourceType) {
+    case ResourceType.Well:
+      return '10';
+    case ResourceType.Raingauge:
+      return '70';
+    case ResourceType.Checkdam:
+      return '80'
+  }
+}
+
+/**
+ * Convert an String id to a string of integers for the given length
+ * Yes, I know we may eventually get a collision, but this is really just
+ * so we can generate a simple Id that will be unique enough for Legacy MyWell.
+ * 
+ * We plan on using 6 integers, 10^6 = 1M possible values, so we should be fine.
+ */
+export const hashIdToIntegerString = (id: string, length: number): string => {
+
+  const fullHash = `${hashCode(id)}`;
+  return fullHash.substring(0, length);
+}
+
+
+/**
+ * Returns a hash code for a string.
+ * (Compatible to Java's String.hashCode())
+ *
+ * The hash code for a string object is computed as
+ *     s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
+ * using number arithmetic, where s[i] is the i th character
+ * of the given string, n is the length of the string,
+ * and ^ indicates exponentiation.
+ * (The hash value of the empty string is zero.)
+ * Ref: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
+ *
+ * @param {string} s a string
+ * @return {number} a hash code value for the given string.
+ */
+export const hashCode = (s) => {
+  var h = 0, l = s.length, i = 0;
+  if (l > 0)
+    while (i < l)
+      h = (h << 5) - h + s.charCodeAt(i++) | 0;
+  return Math.abs(h);
+};
+
+
 export const isNullOrEmpty = (stringOrNull: string): boolean => {
   if (!stringOrNull) {
     return true;

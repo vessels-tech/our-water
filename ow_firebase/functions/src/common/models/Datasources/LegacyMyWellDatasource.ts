@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -31,6 +31,29 @@ export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
   type: DatasourceType
   selectedDatatypes: Array<string>;
+
+  public static defaultPostcode = 11111;
+
+  /**
+   * We are using an int(11) on the MySQL table - 
+   * perhaps we can can generate a resource id for the 
+   * corresponding resource type, and append this to a 
+   * hash of the Resource.id.
+   *
+   *   such that:
+   *   ```
+   *   source: [villageId][resourceId][hash(id)]
+   *   length: 2          2            6
+   *   ```
+   */
+  public static generateLegacyResourceId(resourceType: ResourceType, id: string): number {
+    const villageIdStr = 11;
+    const resourceIdStr = resourceIdForResourceType(resourceType);
+    const hashedId = hashIdToIntegerString(id, 6);
+
+    return parseInt(villageIdStr + resourceIdStr + hashedId);
+  }
+
 
   constructor(baseUrl: string, selectedDatatypes: Array<string>) {
     this.baseUrl = baseUrl;
@@ -391,26 +414,30 @@ export default class LegacyMyWellDatasource implements Datasource {
   public static transformResourcesToLegacyMyWell(resources: Array<Resource>): Array<LegacyResource> {
 
     return resources.map(resource => {
+      let id, postcode;
+      //If the resource was originally from LegacyMyWell, this allows us to update it
+      if (resource.externalIds.hasLegacyMyWellId) {
+        id = resource.externalIds.getResourceId();
+        postcode = resource.externalIds.getPostcode();
+      } else {
+        //Generate our own Ids, 
+
+      }
+
       return {
-        id: resource.externalIds.getResourceId(),
+        id,
+        postcode,
         geo: {
           lat: resource.coords._latitude,
           lng: resource.coords._longitude,
         },
         last_value: resource.lastValue,
-        // well_depth: resource. //TODO: not sure about this
         last_date: resource.lastReadingDatetime.toISOString(),
         owner: resource.owner.name,
-        // elevation: //TODO: not sure
-        type: resource.resourceType, //TODO: handle case where we use a newer resource type?
-        postcode: resource.externalIds.getPostcode(),
-        // mobile: resource.
-        // email:
-        // clientId: resource.owner.createdByUserId,
+        type: resource.resourceType,
         createdAt: resource.createdAt.toISOString(),
         updatedAt: resource.updatedAt.toISOString(),
         villageId: resource.externalIds.getVillageId(),
-        // villageIdpostcode
       }
     });
   }
