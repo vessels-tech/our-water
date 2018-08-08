@@ -6,7 +6,7 @@ const FileDatasource_1 = require("./FileDatasource");
 exports.deserializeDatasource = (ser) => {
     switch (ser.type) {
         case DatasourceType_1.DatasourceType.LegacyMyWellDatasource:
-            return new LegacyMyWellDatasource_1.default(ser.baseUrl);
+            return new LegacyMyWellDatasource_1.default(ser.baseUrl, ser.selectedDatatypes);
         case DatasourceType_1.DatasourceType.FileDatasource:
             return new FileDatasource_1.FileDatasource(ser.fileUrl, ser.dataType, ser.fileFormat, ser.options);
         default:

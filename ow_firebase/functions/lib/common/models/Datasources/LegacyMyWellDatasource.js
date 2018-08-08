@@ -21,9 +21,10 @@ const ResourceType_1 = require("../../enums/ResourceType");
 const Reading_1 = require("../Reading");
 const env_1 = require("../../env");
 class LegacyMyWellDatasource {
-    constructor(baseUrl) {
+    constructor(baseUrl, selectedDatatypes) {
         this.baseUrl = baseUrl;
         this.type = DatasourceType_1.DatasourceType.LegacyMyWellDatasource;
+        this.selectedDatatypes = selectedDatatypes;
     }
     static transformLegacyVillagesToGroups(orgId, villages) {
         return villages.map(village => {

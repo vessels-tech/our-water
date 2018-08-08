@@ -5,8 +5,6 @@ const express = require("express");
 const cors = require("cors");
 const moment = require("moment");
 const bodyParser = require('body-parser');
-const Joi = require('joi');
-const fb = require('firebase-admin');
 const SyncMethod_1 = require("../common/enums/SyncMethod");
 const Sync_1 = require("../common/models/Sync");
 const SyncRun_1 = require("../common/models/SyncRun");
@@ -14,6 +12,7 @@ const LegacyMyWellDatasource_1 = require("../common/models/Datasources/LegacyMyW
 const DatasourceType_1 = require("../common/enums/DatasourceType");
 const FileDatasource_1 = require("../common/models/Datasources/FileDatasource");
 const FileDatasourceOptions_1 = require("../common/models/FileDatasourceOptions");
+const validate_1 = require("./validate");
 module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());
@@ -33,34 +32,11 @@ module.exports = (functions, admin) => {
      *
      * Creates a new sync with the given settings
      */
-    const createSyncValidation = {
-        options: {
-            allowUnknownBody: false,
-        },
-        body: {
-            data: {
-                isOneTime: Joi.boolean().required(),
-                datasource: Joi.object().keys({
-                    //TODO: add more to this later
-                    type: Joi.string().required(),
-                    //TODO: legacy options only
-                    url: Joi.string(),
-                    //TODO: file options:
-                    fileUrl: Joi.string(),
-                    dataType: Joi.string(),
-                    fileFormat: Joi.string(),
-                    options: Joi.object(),
-                }).required(),
-                type: Joi.string().required(),
-                selectedDatatypes: Joi.array().items(Joi.string()).required()
-            }
-        }
-    };
     const initDatasourceWithOptions = (datasource) => {
         console.log("datasource", datasource.type);
         switch (datasource.type) {
             case DatasourceType_1.DatasourceType.LegacyMyWellDatasource:
-                return new LegacyMyWellDatasource_1.default(datasource.url);
+                return new LegacyMyWellDatasource_1.default(datasource.url, datasource.selectedDatatypes);
             case DatasourceType_1.DatasourceType.FileDatasource:
                 const { fileUrl, dataType, fileFormat, options } = datasource;
                 return new FileDatasource_1.FileDatasource(fileUrl, dataType, fileFormat, FileDatasourceOptions_1.default.deserialize(options));
@@ -68,11 +44,11 @@ module.exports = (functions, admin) => {
                 throw new Error(`Tried to initialize Datasource of unknown type: ${datasource.type}`);
         }
     };
-    app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
+    app.post('/:orgId', validate(validate_1.createSyncValidation), (req, res, next) => {
         const { orgId } = req.params;
-        const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
+        const { isOneTime, datasource, type } = req.body.data;
         const ds = initDatasourceWithOptions(datasource);
-        const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate], selectedDatatypes);
+        const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate]);
         return sync.create({ fs })
             .then((createdSync) => {
             return res.json({ data: { syncId: createdSync.id } });

@@ -2,13 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Datasource_1 = require("./Datasources/Datasource");
 class Sync {
-    constructor(isOneTime, datasource, orgId, methods, selectedDatatypes) {
+    constructor(isOneTime, datasource, orgId, methods) {
         this.lastSyncDate = 0; //unix timestamp 
         this.isOneTime = isOneTime;
         this.datasource = datasource;
         this.orgId = orgId;
         this.methods = methods;
-        this.selectedDatatypes = selectedDatatypes;
     }
     /**
     * Create a new Sync in FireStore
@@ -34,7 +33,6 @@ class Sync {
             orgId: this.orgId,
             methods: this.methods,
             lastSyncDate: new Date(this.lastSyncDate),
-            selectedDatatypes: this.selectedDatatypes,
         };
     }
     /**
@@ -42,9 +40,9 @@ class Sync {
      * @param sn
      */
     static deserialize(sn) {
-        const { isOneTime, datasource, orgId, methods, lastSyncDate, selectedDatatypes, } = sn.data();
+        const { isOneTime, datasource, orgId, methods, lastSyncDate, } = sn.data();
         const syncMethods = []; //TODO deserialize somehow
-        const des = new Sync(isOneTime, Datasource_1.deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);
+        const des = new Sync(isOneTime, Datasource_1.deserializeDatasource(datasource), orgId, syncMethods);
         //private vars
         des.lastSyncDate = lastSyncDate;
         des.id = sn.id;

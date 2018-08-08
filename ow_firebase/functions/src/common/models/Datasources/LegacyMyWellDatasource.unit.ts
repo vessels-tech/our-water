@@ -2,11 +2,6 @@ import * as assert from 'assert';
 import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
-
-// const admin = require('firebase-admin');
-// if (admin.apps.length === 0) {
-//   admin.initializeApp();
-// }
 import fs from '../../apis/Firestore';
 import * as MockFirebase from 'mock-cloud-firestore';
 import { createDiamondFromLatLng } from '../../utils';
@@ -121,7 +116,7 @@ describe('pushDataToDataSource', function () {
   describe('getNewReadings', function () {
     this.timeout(5000);
     const fs = new MockFirebase({}).firestore(); //Careful! We're masking the original fs
-    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
+    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
 
     //TODO: tidy up, make helper functions...
     before(() => {
