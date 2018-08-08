@@ -1,0 +1,1 @@
+{"version":3,"file":"Firestore.js","sourceRoot":"","sources":["../../../src/common/apis/Firestore.ts"],"names":[],"mappings":";;AAAA,MAAM,KAAK,GAAG,OAAO,CAAC,gBAAgB,CAAC,CAAC;AACxC,IAAI,KAAK,CAAC,IAAI,CAAC,MAAM,KAAK,CAAC,EAAE;IAC3B,KAAK,CAAC,aAAa,EAAE,CAAC;CACvB;AAGD,kBAAe,KAAK,CAAC,SAAS,EAAE,CAAC"}
