@@ -4,8 +4,6 @@ import * as cors from 'cors';
 import * as moment from 'moment';
 
 const bodyParser = require('body-parser');
-const Joi = require('joi');
-const fb = require('firebase-admin')
 
 import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
 import { Sync } from '../common/models/Sync';
@@ -15,7 +13,8 @@ import Datasource from '../common/models/Datasources/Datasource';
 import { DatasourceType } from '../common/enums/DatasourceType';
 import { FileDatasource } from '../common/models/Datasources/FileDatasource';
 import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
-import { resolve } from 'path';
+import { SyncDatatypeList } from '../common/types/SyncDatatypes';
+import { createSyncValidation } from './validate';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -41,32 +40,6 @@ module.exports = (functions, admin) => {
    * 
    * Creates a new sync with the given settings
    */ 
-  const createSyncValidation = {
-    options: {
-      allowUnknownBody: false,
-    },
-    body: {
-      data: {
-        isOneTime: Joi.boolean().required(),
-        datasource: Joi.object().keys({
-          //TODO: add more to this later
-          type: Joi.string().required(),
-          
-          //TODO: legacy options only
-          url: Joi.string(),
-
-          //TODO: file options:
-          fileUrl: Joi.string(),
-          dataType: Joi.string(),
-          fileFormat: Joi.string(),
-          options: Joi.object(),
-          selectedDatatypes: Joi.array().items(Joi.string()).required(),
-        }).required(),
-        type: Joi.string().required(),
-      } 
-    }
-  }
-
   const initDatasourceWithOptions = (datasource): Datasource => {
     console.log("datasource", datasource.type);
     switch(datasource.type) {
@@ -85,7 +58,7 @@ module.exports = (functions, admin) => {
 
   app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
     const { orgId } = req.params;
-    const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
+    const { isOneTime, datasource, type} = req.body.data;
 
     const ds = initDatasourceWithOptions(datasource);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate]);
