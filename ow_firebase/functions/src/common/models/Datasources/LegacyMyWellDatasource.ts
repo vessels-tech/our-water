@@ -340,7 +340,6 @@ export default class LegacyMyWellDatasource implements Datasource {
    *     has a relationship to an external data source
    */
   public getNewReadings(orgId: string, fs, filterAfterDate: number): Promise<Array<Reading>> {
-    console.log("Getting new readings: TODO: this index might be wrong...");
     return fs.collection('org').doc(orgId).collection('reading')
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
@@ -353,6 +352,26 @@ export default class LegacyMyWellDatasource implements Datasource {
         return readings;
       });
   }
+
+  /**
+   * Get resources from OurWater that are eligble to be saved into LegacyMyWell
+   * 
+   * TODO: how do we prevent an infinite loop here?
+   * 
+   */
+  public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
+    return fs.collection('org').doc(orgId).collection('resource')
+    //TODO: should we also check for isLegacy?
+      .where('externalIds.hasLegacyMyWellId', '==', true)
+      .where('createdAt', '>=', filterAfterDate)
+      .limit(50).get()
+      .then(sn => {
+        const resources: Array<Resource> = [];
+        sn.forEach(doc => resources.push(Resource.fromDoc(doc)));
+        return resources;
+      });
+  }
+  
 
   public static transformReadingsToLegacyMyWell(readings: Array<Reading>): Array<LegacyMyWellReading> {
 
@@ -367,7 +386,33 @@ export default class LegacyMyWellDatasource implements Datasource {
         updatedAt: moment(reading.updatedAt).toISOString(),
       }
     });
+  }
 
+  public static transformResourcesToLegacyMyWell(resources: Array<Resource>): Array<LegacyResource> {
+
+    return resources.map(resource => {
+      return {
+        id: resource.externalIds.getResourceId(),
+        geo: {
+          lat: resource.coords._latitude,
+          lng: resource.coords._longitude,
+        },
+        last_value: resource.lastValue,
+        // well_depth: resource. //TODO: not sure about this
+        last_date: resource.lastReadingDatetime.toISOString(),
+        owner: resource.owner.name,
+        // elevation: //TODO: not sure
+        type: resource.resourceType, //TODO: handle case where we use a newer resource type?
+        postcode: resource.externalIds.getPostcode(),
+        // mobile: resource.
+        // email:
+        // clientId: resource.owner.createdByUserId,
+        createdAt: resource.createdAt.toISOString(),
+        updatedAt: resource.updatedAt.toISOString(),
+        villageId: resource.externalIds.getVillageId(),
+        // villageIdpostcode
+      }
+    });
   }
 
   public saveReadingsToLegacyMyWell(readings: Array<LegacyMyWellReading>): Promise<SyncRunResult> {
@@ -393,10 +438,34 @@ export default class LegacyMyWellDatasource implements Datasource {
     .catch(err => resultWithError(err.message));
   }
 
+  public saveResourcesToLegacyMyWell(resources: Array<LegacyResource>): Promise<SyncRunResult> {
+    //TODO: Eventually make this a proper, mockable web client
+    const uriReadings = `${this.baseUrl}/api/resources?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+    const options = {
+      method: 'POST',
+      uri: uriReadings,
+      json: true,
+      body: resources
+    };
+
+    //TODO: filter out resources we think will fail, add to warinings
+
+    return request(options)
+      .then((res: Array<LegacyMyWellReading>) => {
+        const results = res.map(resource => resource.id);
+        return {
+          results,
+          warnings: [],
+          errors: [],
+        };
+      })
+      .catch(err => resultWithError(err.message));
+  }
+
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     // let villageGroupResult = new DefaultSyncRunResult();
     // let pincodeGroups = new DefaultSyncRunResult();
-    // let resources = new DefaultSyncRunResult();
+    let resourceResult = new DefaultSyncRunResult();
     let readingResult = new DefaultSyncRunResult();
 
     await this.selectedDatatypes.forEach(async datatypeStr => {
@@ -405,9 +474,15 @@ export default class LegacyMyWellDatasource implements Datasource {
           const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
           console.log(`pushDataToDataSource, found ${readings.length} new readings`);
           const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
-          const readingResult = await this.saveReadingsToLegacyMyWell(legacyReadings);
+          readingResult = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
           break;
+        case DataType.Resource:
+          const resources: Array<Resource> = await this.getNewResources(orgId, fs, options.filterAfterDate);
+          console.log(`pushDataToDataSource, found ${resources.length} new resources`);
+          const legacyResources: Array<LegacyResource> = await LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
+          resourceResult = await this.saveResourcesToLegacyMyWell(legacyResources);
+        break;
         default:
           throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
       }

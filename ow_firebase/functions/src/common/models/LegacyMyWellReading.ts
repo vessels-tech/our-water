@@ -14,6 +14,7 @@
   } 
  */
 
+//TODO: remove this, use LegacyReading instead
 export type LegacyMyWellReading = {
 
   date: string,

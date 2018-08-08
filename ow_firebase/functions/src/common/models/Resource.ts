@@ -1,5 +1,5 @@
 
-import { ResourceType } from "../enums/ResourceType";
+import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
@@ -46,6 +46,49 @@ export class Resource extends FirestoreDoc {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
+  }
+
+  /**
+   * Deserialize from a json object
+   */
+  public static deserialize(data): Resource {
+    const {
+      id,
+      orgId,
+      docName,
+      externalIds,
+      coords,
+      resourceType,
+      owner,
+      groups,
+      lastValue,
+      lastReadingDatetime,
+      createdAt, 
+      updatedAt,
+    } = data;
+
+    //Deserialize objects
+    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    const externalIdsObj = ResourceIdType.deserialize(externalIds);
+    const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups);
+
+    //private vars
+    des.id = id;
+    des.docName = docName;
+    des.lastValue = lastValue;
+    des.lastReadingDatetime = lastReadingDatetime;
+    des.createdAt = createdAt;
+    des.updatedAt = updatedAt;
+
+    return des;
+
+  }
+
+  /**
+   * Deserialize from a Firestore Document
+   */
+  public static fromDoc(doc): Resource {
+    return this.deserialize(doc.data());
   }
 
 

@@ -1,9 +1,11 @@
 import { isNullOrUndefined } from "util";
 
 export default class ResourceIdType {
-  legacyMyWellId: string | null
-  legacyMyWellResourceId: string | null
-  hasLegacyMyWellResourceId: boolean | null
+  legacyMyWellId?: string
+  hasLegacyMyWellId?: boolean
+
+  legacyMyWellResourceId?: string
+  hasLegacyMyWellResourceId?: boolean
   //We can add other bits and pieces here
 
   static none(): ResourceIdType {
@@ -27,6 +29,7 @@ export default class ResourceIdType {
   static fromLegacyMyWellId(postcode: number, resourceId: number): ResourceIdType {
     const legacyId = new ResourceIdType();
     legacyId.legacyMyWellId = `${postcode}.${resourceId}`;
+    legacyId.hasLegacyMyWellId = true;
 
     return legacyId
   }
@@ -80,6 +83,10 @@ export default class ResourceIdType {
 
     if (this.legacyMyWellId) {
       serialized['legacyMyWellId'] = this.legacyMyWellId;
+    }
+
+    if (this.hasLegacyMyWellId) {
+      serialized['hasLegacyMyWellId'] = true;
     }
 
     if (this.legacyMyWellResourceId) {

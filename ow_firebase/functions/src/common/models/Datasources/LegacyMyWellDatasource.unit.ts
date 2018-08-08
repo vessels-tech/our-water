@@ -10,6 +10,7 @@ import LegacyVillage from '../../types/LegacyVillage';
 import ResourceIdType from '../../types/ResourceIdType';
 import { Reading } from '../Reading';
 import { ResourceType } from '../../enums/ResourceType';
+import { Resource } from '../Resource';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -110,6 +111,82 @@ describe('pushDataToDataSource', function () {
         updatedAt: '2018-06-03T00:57:47.957Z'
       }];
       assert.deepEqual(expected, transformed);
+    });
+  });
+
+  describe.only('getNewResources', function() {
+    this.timeout(5000);
+    const fs = new MockFirebase({}).firestore(); //Careful! We're masking the original fs
+    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
+
+    before(() => {
+      const resourcesRef = fs.collection('org').doc(orgId).collection('resource');
+      const resourceAJson = {
+        "resourceType": "well",
+        "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(),
+        "id": "00znWgaT83RoYXYXxmvk",
+        "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(),
+        "coords": {
+          "_latitude": 23.9172222222222,
+          "_longitude": 73.8244444444444
+        },
+        "lastValue": 22.6,
+        "groups": {
+          "rhBCmtN16cABh6xSPijR": true,
+          "jpKBA75GiZAzpA0gkBi8": true
+        },
+        "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(),
+        "owner": {
+          "name": "Khokhariya Ramabhai Sojabhai",
+          "createdByUserId": "default"
+        },
+        "orgId": "test_12345",
+        "externalIds": {
+          "legacyMyWellId": "383350.1233",
+          "hasLegacyMyWellId": true
+        }
+      };
+      const resourceBJson = {
+        "resourceType": "well",
+        "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(),
+        "id": "00znWgaT83RoYXYXxmvk",
+        "createdAt": moment("2016-08-07T01:58:10.031Z").valueOf(),
+        "coords": {
+          "_latitude": 23.9172222222222,
+          "_longitude": 73.8244444444444
+        },
+        "lastValue": 22.6,
+        "groups": {
+          "rhBCmtN16cABh6xSPijR": true,
+          "jpKBA75GiZAzpA0gkBi8": true
+        },
+        "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(),
+        "owner": {
+          "name": "Khokhariya Ramabhai Sojabhai",
+          "createdByUserId": "default"
+        },
+        "orgId": "test_12345",
+        "externalIds": {
+          "legacyMyWellId": "383350.1233",
+          "hasLegacyMyWellId": true
+        }
+      };
+      const resourceA = Resource.deserialize(resourceAJson);
+      const resourceB = Resource.deserialize(resourceBJson);
+
+      return Promise.all([
+        resourcesRef.add(resourceA.serialize()),
+        resourcesRef.add(resourceB.serialize()),
+      ]);
+    });
+
+    it('gets the latest resources from OW', () => {
+      const oneYearAgo = moment().subtract(1, 'year').valueOf();
+
+      return datasource.getNewResources(orgId, fs, oneYearAgo)
+        .then(readings => {
+          assert.equal(readings.length, 1);
+        });
     });
   });
 
