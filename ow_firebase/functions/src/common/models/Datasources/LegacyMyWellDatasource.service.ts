@@ -5,22 +5,11 @@
  */
 
 import * as assert from 'assert';
-import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
-
-// const admin = require('firebase-admin');
-// if (admin.apps.length === 0) {
-//   admin.initializeApp();
-// }
 import fs from '../../apis/Firestore';
-import * as MockFirebase from 'mock-cloud-firestore';
-import { createDiamondFromLatLng } from '../../utils';
 import LegacyMyWellDatasource from './LegacyMyWellDatasource';
 import LegacyVillage from '../../types/LegacyVillage';
-import ResourceIdType from '../../types/ResourceIdType';
-import { Reading } from '../Reading';
-import { ResourceType } from '../../enums/ResourceType';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
