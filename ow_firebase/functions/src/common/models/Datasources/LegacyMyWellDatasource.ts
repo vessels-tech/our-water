@@ -23,6 +23,8 @@ import ResourceSaveResult from '../../types/ResourceSaveResult';
 import ReadingSaveResult from '../../types/ReadingSaveResult';
 import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 import { LegacyMyWellReading } from '../LegacyMyWellReading';
+import { DataType } from '../../enums/FileDatasourceTypes';
+import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -299,10 +301,27 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pullDataFromDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    const villageGroupResult = await this.getGroupAndSave(orgId, fs);
-    const pincodeGroups = await this.getPincodeData(orgId, fs)
-    const resources = await this.getResourcesData(orgId, fs);
-    const readings = await this.getReadingsData(orgId, fs);
+    let villageGroupResult = new DefaultSyncRunResult();
+    let pincodeGroups = new DefaultSyncRunResult();
+    let resources = new DefaultSyncRunResult();
+    let readings = new DefaultSyncRunResult();
+
+    await this.selectedDatatypes.forEach(async datatypeStr => {
+      switch(datatypeStr) {
+        case DataType.Resource: 
+          resources = await this.getResourcesData(orgId, fs);
+        break;
+        case DataType.Reading:
+          readings = await this.getReadingsData(orgId, fs);
+        break;
+        case DataType.Group: 
+          villageGroupResult = await this.getGroupAndSave(orgId, fs);
+          pincodeGroups = await this.getPincodeData(orgId, fs)
+        break;
+        default:
+          throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
+      }
+    });
 
     return concatSaveResults([
       villageGroupResult,
@@ -375,12 +394,32 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
-    console.log(`pushDataToDataSource, found ${readings.length} new readings`);
-    const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
-    const result = await this.saveReadingsToLegacyMyWell(legacyReadings);
+    // let villageGroupResult = new DefaultSyncRunResult();
+    // let pincodeGroups = new DefaultSyncRunResult();
+    // let resources = new DefaultSyncRunResult();
+    let readingResult = new DefaultSyncRunResult();
 
-    return result;
+    await this.selectedDatatypes.forEach(async datatypeStr => {
+      switch (datatypeStr) {
+        case DataType.Reading:
+          const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
+          console.log(`pushDataToDataSource, found ${readings.length} new readings`);
+          const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
+          const readingResult = await this.saveReadingsToLegacyMyWell(legacyReadings);
+
+          break;
+        default:
+          throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
+      }
+    });
+
+    return concatSaveResults([
+      // villageGroupResult,
+      // pincodeGroups,
+      // resources,
+      // readings,
+      readingResult
+    ]);
   }
 
   serialize() {
