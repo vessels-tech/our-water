@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { validateDatatype } from './SyncDatatypes';
 
 
-describe.only('SyncDatatype', function() {
+describe('SyncDatatype', function() {
   it('throws if the given datatype cannot be found', () => {
     //Act & Assert
     assert.throws(
