@@ -1,3 +1,20 @@
+# Our Water
+## The OpenSource, Configrable MyWell
+
+-----
+
+## Installing
+
+## Documentation
+
+## Testing
+
+We use 3 types of tests:
+1. Unit tests, defined in `*.unit.ts` files
+2. Service tests, defined in `*.service.ts` files, and
+3. Full Integration tests, written and maintained in the `/ow_test` root folder
+
+Broadly, Unit tests will test one specific function and mock out any dependencies, service tests test a specific service and will rely on dependencies (such as Cloud Firestore), and full integration tests tie together a number of services together.
 
 
 

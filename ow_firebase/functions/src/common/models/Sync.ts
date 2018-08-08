@@ -9,18 +9,16 @@ export class Sync {
   datasource: Datasource
   orgId: string
   methods: Array<SyncMethod>
-  selectedDatatypes: Array<string>
   
   lastSyncDate: number = 0 //unix timestamp 
 
   constructor(isOneTime: boolean, datasource: Datasource, orgId: string,
-    methods: Array<SyncMethod>, selectedDatatypes: Array<string>
+    methods: Array<SyncMethod>
   ) {
     this.isOneTime = isOneTime;
     this.datasource = datasource;
     this.orgId = orgId;
     this.methods = methods;
-    this.selectedDatatypes = selectedDatatypes;
   }
 
   /**
@@ -52,7 +50,6 @@ export class Sync {
       orgId: this.orgId,
       methods: this.methods,
       lastSyncDate: new Date(this.lastSyncDate),
-      selectedDatatypes: this.selectedDatatypes,
     }
   }
 
@@ -67,11 +64,10 @@ export class Sync {
       orgId,
       methods,
       lastSyncDate,
-      selectedDatatypes,
     } = sn.data();
     
     const syncMethods: Array<SyncMethod> = []; //TODO deserialize somehow
-    const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods, selectedDatatypes);
+    const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods);
 
     //private vars
     des.lastSyncDate = lastSyncDate;

@@ -36,7 +36,7 @@ describe('pullFromDataSource', function () {
       const groups = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
 
       //Act
-      const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
+      const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
       const result = await datasource.saveGroups(orgId, fs, groups);
 
       //Assert
@@ -53,7 +53,7 @@ describe('pushDataToDataSource', function () {
 
   describe('saveReadingsToLegacyMyWell', function () {
     this.timeout(15000);
-    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl);
+    const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
 
     it('formats an error correctly', async () => {
       //Arrange

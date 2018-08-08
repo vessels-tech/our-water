@@ -27,11 +27,13 @@ import { LegacyMyWellReading } from '../LegacyMyWellReading';
 
 export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
-  type: DatasourceType;
+  type: DatasourceType
+  selectedDatatypes: Array<string>;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, selectedDatatypes: Array<string>) {
     this.baseUrl = baseUrl;
     this.type = DatasourceType.LegacyMyWellDatasource;
+    this.selectedDatatypes = selectedDatatypes
   }
 
 

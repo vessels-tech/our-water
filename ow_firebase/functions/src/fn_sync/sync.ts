@@ -60,9 +60,9 @@ module.exports = (functions, admin) => {
           dataType: Joi.string(),
           fileFormat: Joi.string(),
           options: Joi.object(),
+          selectedDatatypes: Joi.array().items(Joi.string()).required(),
         }).required(),
         type: Joi.string().required(),
-        selectedDatatypes: Joi.array().items(Joi.string()).required()
       } 
     }
   }
@@ -71,7 +71,7 @@ module.exports = (functions, admin) => {
     console.log("datasource", datasource.type);
     switch(datasource.type) {
       case DatasourceType.LegacyMyWellDatasource:
-        return new LegacyMyWellDatasource(datasource.url);
+        return new LegacyMyWellDatasource(datasource.url, datasource.selectedDatatypes);
         
       case DatasourceType.FileDatasource:
         const {fileUrl, dataType, fileFormat, options} = datasource;
@@ -88,7 +88,7 @@ module.exports = (functions, admin) => {
     const { isOneTime, datasource, type, selectedDatatypes } = req.body.data;
 
     const ds = initDatasourceWithOptions(datasource);
-    const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], selectedDatatypes);
+    const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate]);
     
     return sync.create({fs})
     .then((createdSync: Sync) => {
