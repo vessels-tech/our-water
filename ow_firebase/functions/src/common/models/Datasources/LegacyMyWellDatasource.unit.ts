@@ -42,7 +42,7 @@ describe('pullFromDataSource', function () {
       const delta = 0.1;
       const legacyVillages: Array<LegacyVillage> = [
         {
-          id: 12345,
+          id: 12,
           name: 'Hinta',
           postcode: 5000,
           coordinates: { lat, lng },
@@ -60,9 +60,7 @@ describe('pullFromDataSource', function () {
         orgId,
         type: 'village',
         coords: createDiamondFromLatLng(lat, lng, delta),
-        externalIds: {
-          legacyMyWellId: '5000.12345',
-        },
+        externalIds: ResourceIdType.fromLegacyVillageId(5000, 12),
       }];
       assert.deepEqual(transformedVillages, expected);
     });
@@ -115,11 +113,17 @@ describe('pushDataToDataSource', function () {
   });
 
   describe('getNewResources', function() {
-    this.timeout(5000);
+    this.timeout(50000);
     const fs = new MockFirebase({}).firestore(); //Careful! We're masking the original fs
     const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
 
     before(() => {
+      const externalIdsA = ResourceIdType.newOWResource(5000).serialize();
+      // console.log('externalIdsA', externalIdsA);
+
+      //This one isn't new, it should be filtered out
+      const externalIdsB = ResourceIdType.fromLegacyMyWellId(5000, 1111).serialize();
+
       const resourcesRef = fs.collection('org').doc(orgId).collection('resource');
       const resourceAJson = {
         "resourceType": "well",
@@ -141,16 +145,13 @@ describe('pushDataToDataSource', function () {
           "createdByUserId": "default"
         },
         "orgId": "test_12345",
-        "externalIds": {
-          "legacyMyWellId": "383350.1233",
-          "hasLegacyMyWellId": true
-        }
+        "externalIds": externalIdsA,
       };
       const resourceBJson = {
         "resourceType": "well",
         "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(),
         "id": "00znWgaT83RoYXYXxmvk",
-        "createdAt": moment("2016-08-07T01:58:10.031Z").valueOf(),
+        "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(),
         "coords": {
           "_latitude": 23.9172222222222,
           "_longitude": 73.8244444444444
@@ -166,13 +167,11 @@ describe('pushDataToDataSource', function () {
           "createdByUserId": "default"
         },
         "orgId": "test_12345",
-        "externalIds": {
-          "legacyMyWellId": "383350.1233",
-          "hasLegacyMyWellId": true
-        }
+        "externalIds": externalIdsB,
       };
       const resourceA = Resource.deserialize(resourceAJson);
       const resourceB = Resource.deserialize(resourceBJson);
+
 
       return Promise.all([
         resourcesRef.add(resourceA.serialize()),

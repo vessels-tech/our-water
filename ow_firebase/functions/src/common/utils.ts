@@ -72,19 +72,20 @@ export const createDiamondFromLatLng = (lat: number, lng: number, delta: number)
 export const getLegacyMyWellGroups = (orgId: string, fs): Promise<Map<string, Group>> => {
   const mappedGroups = new Map<string, Group>();
 
-  return fs.collection('org').doc(orgId).collection('group').where('externalIds.legacyMyWellId', '>', '0').get()
+  return fs.collection('org').doc(orgId).collection('group').where('externalIds.hasLegacyMyWellPincode', '==', true).get()
   .then(sn => {
     const groups = [];
     sn.forEach(result => groups.push(result.data()));
     console.log(`Found: ${groups.length} groups.`);
 
+    //TODO: this will die, we need to deserialize properly
     groups.forEach((group: Group) => {
       if (!group.externalIds) {
         console.log("group is missing externalIds", group);
         return;
       }
       
-      mappedGroups.set(group.externalIds.legacyMyWellId, group);
+      mappedGroups.set(group.externalIds.getMyWellId(), group);
     });
 
     return mappedGroups;
@@ -99,12 +100,13 @@ export const getLegacyMyWellGroups = (orgId: string, fs): Promise<Map<string, Gr
 export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string, Resource>> => {
   const mappedResources = new Map<string, Resource>();
 
-  return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()
+  return fs.collection('org').doc(orgId).collection('resource').where('externalIds.hasLegacyMyWellId', '==', true).get()
   .then(sn => {
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
     console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
 
+    //TODO: this will die, we need to deserialize properly
     resources.forEach((res: Resource) => {
       if (!res.externalIds) {
         //TODO: not sure what to do here. This should probably be a warning
@@ -112,9 +114,7 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
         return;
       }
 
-      mappedResources[res.externalIds.legacyMyWellId] = res;
-      //resources should only have 1 mywellId, but let's be safe
-      // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
+      mappedResources[res.externalIds.getMyWellId()] = res;
     });
 
     console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);

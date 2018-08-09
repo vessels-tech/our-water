@@ -31,8 +31,8 @@ describe('Utils Tests', () => {
       }
     }
 
-    //TODO: generate a million different ids and see how long until we get a collision
-    it('Does not collide with 100,000 ids', () => {
+    /* decided against this method */
+    it.skip('Does not collide with 100,000 ids', () => {
       const size = 100000;
       const ids = {};
       const hashedIds = {};

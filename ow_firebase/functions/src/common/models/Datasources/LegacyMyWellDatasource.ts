@@ -356,13 +356,16 @@ export default class LegacyMyWellDatasource implements Datasource {
   /**
    * Get resources from OurWater that are eligble to be saved into LegacyMyWell
    * 
-   * TODO: how do we prevent an infinite loop here?
+   * A NEW resource is one that:
+   * - has a pincode
+   * - does not have a MyWellId, a villageId or resourceId
    * 
    */
   public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
     return fs.collection('org').doc(orgId).collection('resource')
     //TODO: should we also check for isLegacy?
-      .where('externalIds.hasLegacyMyWellId', '==', true)
+      .where('externalIds.hasLegacyMyWellPincode', '==', true)
+      .where('externalIds.hasLegacyMyWellId', '==', false)
       .where('createdAt', '>=', filterAfterDate)
       .limit(50).get()
       .then(sn => snapshotToResourceList(sn));
@@ -405,14 +408,14 @@ export default class LegacyMyWellDatasource implements Datasource {
 
     return resources.map(resource => {
       let id, postcode;
-      //If the resource was originally from LegacyMyWell, this allows us to update it
-      if (resource.externalIds.hasLegacyMyWellId) {
-        id = resource.externalIds.getResourceId();
-        postcode = resource.externalIds.getPostcode();
-      } else {
-        //Generate our own Ids, 
+      // //If the resource was originally from LegacyMyWell, this allows us to update it
+      // if (resource.externalIds.hasLegacyMyWellId) {
+      //   id = resource.externalIds.getResourceId();
+      //   postcode = resource.externalIds.getPostcode();
+      // } else {
+      //   //Generate our own Ids, 
 
-      }
+      // }
 
       return {
         id,
