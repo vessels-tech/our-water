@@ -32,29 +32,6 @@ export default class LegacyMyWellDatasource implements Datasource {
   type: DatasourceType
   selectedDatatypes: Array<string>;
 
-  public static defaultPostcode = 11111;
-
-  /**
-   * We are using an int(11) on the MySQL table - 
-   * perhaps we can can generate a resource id for the 
-   * corresponding resource type, and append this to a 
-   * hash of the Resource.id.
-   *
-   *   such that:
-   *   ```
-   *   source: [villageId][resourceId][hash(id)]
-   *   length: 2          2            6
-   *   ```
-   */
-  public static generateLegacyResourceId(resourceType: ResourceType, id: string): number {
-    const villageIdStr = 11;
-    const resourceIdStr = resourceIdForResourceType(resourceType);
-    const hashedId = hashIdToIntegerString(id, 6);
-
-    return parseInt(villageIdStr + resourceIdStr + hashedId);
-  }
-
-
   constructor(baseUrl: string, selectedDatatypes: Array<string>) {
     this.baseUrl = baseUrl;
     this.type = DatasourceType.LegacyMyWellDatasource;
