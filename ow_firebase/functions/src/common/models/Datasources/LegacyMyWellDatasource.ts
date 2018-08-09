@@ -25,6 +25,7 @@ import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 import { LegacyMyWellReading } from '../LegacyMyWellReading';
 import { DataType } from '../../enums/FileDatasourceTypes';
 import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
+import { access } from 'fs/promises';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -363,18 +364,18 @@ export default class LegacyMyWellDatasource implements Datasource {
    */
   public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
     return fs.collection('org').doc(orgId).collection('resource')
-    //TODO: should we also check for isLegacy?
       .where('externalIds.hasLegacyMyWellPincode', '==', true)
       .where('externalIds.hasLegacyMyWellId', '==', false)
       .where('createdAt', '>=', filterAfterDate)
-      .limit(50).get()
+      .limit(50)
+      .get()
       .then(sn => snapshotToResourceList(sn));
   }
 
   /* TODO: implement and use in addition to getNewResources.
   We're not too worried about updating resources at this stage
 
-  public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
+  public getUpdatedResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
     return fs.collection('org').doc(orgId).collection('resource')
     //TODO: should we also check for isLegacy?
       .where('externalIds.hasLegacyMyWellId', '==', true)
@@ -407,19 +408,8 @@ export default class LegacyMyWellDatasource implements Datasource {
   public static transformResourcesToLegacyMyWell(resources: Array<Resource>): Array<LegacyResource> {
 
     return resources.map(resource => {
-      let id, postcode;
-      // //If the resource was originally from LegacyMyWell, this allows us to update it
-      // if (resource.externalIds.hasLegacyMyWellId) {
-      //   id = resource.externalIds.getResourceId();
-      //   postcode = resource.externalIds.getPostcode();
-      // } else {
-      //   //Generate our own Ids, 
-
-      // }
-
       return {
-        id,
-        postcode,
+        postcode: resource.externalIds.getPostcode(),
         geo: {
           lat: resource.coords._latitude,
           lng: resource.coords._longitude,
@@ -458,6 +448,62 @@ export default class LegacyMyWellDatasource implements Datasource {
     .catch(err => resultWithError(err.message));
   }
 
+  /**
+   * Save New resources to LegacyMyWell.
+   * 
+   * Saves them one at a time, and when the resources are saved, gets the resourceId and updates the 
+   * External IDs on the OW side.
+   * 
+   */
+  public async saveNewResourcesToLegacyMyWell(resources: Array<Resource>): Promise<Array<any>> {
+
+    //TODO: this is getting too big. Refactor?
+    //TODO: enforce a resonable limit here?
+    const legacyResources: Array<LegacyResource> = await LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
+
+    return Promise.all(legacyResources.map(resource => this.saveResourcesToLegacyMyWell([resource])))
+    .then((results: Array<SyncRunResult>) => {
+      //TODO: what about if one of the requests fails?
+       return results.map(result => result.results[0] ? result.results[0] : null);
+      });
+  }
+
+  /**
+   * Given a list of ids or nulls, and a list of OW Resources, update the OW Resources to have
+   * the correct external ids
+   * 
+   * //TODO: we assume that they will be in the same order. TODO: check this assumption!
+   */
+  public async updateExistingResources(resources: Array<Resource>, ids, fs) {
+
+    //Iterate through the newIds, and update OW resources to match
+    return ids.reduce(async (acc: SyncRunResult, curr: any, idx) => {
+      const owResource = resources[idx];
+      if (curr === null) {
+        acc.warnings.push(`Failed to save resource with id:${owResource.id}.`);
+        return acc;
+      }
+
+      try {
+        const pincode = owResource.externalIds.getPostcode();
+        owResource.externalIds = ResourceIdType.fromLegacyMyWellId(pincode, curr);
+        await owResource.save({ fs });
+        acc.results.push(curr);
+      } catch (err) {
+        acc.errors.push(err.message);
+      }
+
+      return acc;
+
+    }, new DefaultSyncRunResult())
+  }
+
+
+  /**
+   * Save a number of resources in bulk.
+   * 
+   * Use for updating a number of resources at a time. Don't use for creating new resources that don't have Ids yet.
+   */
   public saveResourcesToLegacyMyWell(resources: Array<LegacyResource>): Promise<SyncRunResult> {
     //TODO: Eventually make this a proper, mockable web client
     const uriReadings = `${this.baseUrl}/api/resources?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
@@ -467,8 +513,6 @@ export default class LegacyMyWellDatasource implements Datasource {
       json: true,
       body: resources
     };
-
-    //TODO: filter out resources we think will fail, add to warinings
 
     return request(options)
       .then((res: Array<LegacyMyWellReading>) => {
@@ -498,10 +542,10 @@ export default class LegacyMyWellDatasource implements Datasource {
 
           break;
         case DataType.Resource:
-          const resources: Array<Resource> = await this.getNewResources(orgId, fs, options.filterAfterDate);
-          console.log(`pushDataToDataSource, found ${resources.length} new/updated resources`);
-          const legacyResources: Array<LegacyResource> = await LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
-          resourceResult = await this.saveResourcesToLegacyMyWell(legacyResources);
+          const newResources: Array<Resource> = await this.getNewResources(orgId, fs, options.filterAfterDate);
+          console.log(`pushDataToDataSource, found ${newResources.length} new resources`);
+          const ids = await this.saveNewResourcesToLegacyMyWell(newResources);
+          resourceResult = await this.updateExistingResources(newResources, ids, fs);
         break;
         // case DataType.Group:
         //   //TODO: Implement for both pincodes and villages? For now only pincodes

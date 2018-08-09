@@ -70,6 +70,9 @@ describe('pushDataToDataSource', function () {
       assert.equal(0, result.warnings.length);
       assert.equal(0, result.errors.length);
     });
+
+    it('saves new resources to LegacyMyWell and returns a list of ids');
+    it('updateExistingResources updates resources for a list of ids');
   });
 
   describe('saveReadingsToLegacyMyWell', function () {

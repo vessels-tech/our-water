@@ -1,5 +1,5 @@
 export default interface LegacyResource {
-  id: number
+  id?: number //This is optional, as new resources don't yet have an id
   geo: {
     lat: number
     lng: number
