@@ -9,7 +9,27 @@ import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
 import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
+import FirestoreDoc from './models/FirestoreDoc';
 
+
+/**
+ * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
+ * iterate through and return a list of resources
+ * 
+ * //TODO: make type generic
+ */
+export const snapshotToResourceList= (sn): Array<Resource> => {
+  const resources: Array<Resource> = [];
+  sn.forEach(doc => resources.push(Resource.fromDoc(doc)));
+  return resources;
+}
+
+
+// export const snapshotToFirestoreDoc = (sn): Array<FirestoreDoc> => {
+//   const resources: Array<FirestoreDoc> = [];
+//   sn.forEach(doc => resources.push(FirestoreDoc.fromDoc(doc)));
+//   return resources;
+// }
 
 
 /**

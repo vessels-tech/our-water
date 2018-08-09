@@ -5,7 +5,7 @@ import { Group } from '../Group';
 import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString, snapshotToResourceList } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -388,12 +388,25 @@ export default class LegacyMyWellDatasource implements Datasource {
       .where('externalIds.hasLegacyMyWellId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
       .limit(50).get()
+      .then(sn => snapshotToResourceList(sn));
+  }
+
+  /* TODO: implement and use in addition to getNewResources.
+  We're not too worried about updating resources at this stage
+
+  public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
+    return fs.collection('org').doc(orgId).collection('resource')
+    //TODO: should we also check for isLegacy?
+      .where('externalIds.hasLegacyMyWellId', '==', true)
+      .where('createdAt', '>=', filterAfterDate)
+      .limit(50).get()
       .then(sn => {
         const resources: Array<Resource> = [];
         sn.forEach(doc => resources.push(Resource.fromDoc(doc)));
         return resources;
       });
   }
+  */
   
 
   public static transformReadingsToLegacyMyWell(readings: Array<Reading>): Array<LegacyMyWellReading> {
