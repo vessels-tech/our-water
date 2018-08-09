@@ -114,7 +114,7 @@ describe('pushDataToDataSource', function () {
     });
   });
 
-  describe.only('getNewResources', function() {
+  describe('getNewResources', function() {
     this.timeout(5000);
     const fs = new MockFirebase({}).firestore(); //Careful! We're masking the original fs
     const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);

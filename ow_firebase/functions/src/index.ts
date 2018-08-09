@@ -100,11 +100,7 @@ fs.settings({timestampsInSnapshots: true});
 
 /*
 
-  TODO: watches for syncs
-
-  - when a new resource is created, lookup the necessary syncs, and call `push` for each relevant one
-  - when a new reading is created, lookup the necessary syncs, and call `push` for each relevant one
-
+  TODO: watches for syncs?
 */
 
 /*

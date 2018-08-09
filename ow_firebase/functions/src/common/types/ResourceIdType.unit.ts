@@ -2,9 +2,34 @@ import * as assert from 'assert';
 import ResourceIdType from "./ResourceIdType";
 
 import fs from '../apis/Firestore';
+import { access } from 'fs';
+import { isNullOrUndefined } from 'util';
 
 
 describe('ResourceIdTypeTest', function () {
+
+  describe('serialize()', () => {
+
+    it('does not have extra null fields', () => {
+      //Arrange
+      const legacyId = ResourceIdType.fromLegacyPincode(313603);
+
+      //Act
+      const ser = legacyId.serialize()
+
+      //Assert
+      const nullCount = Object.keys(ser).map(key => ser[key]).reduce((acc, curr) => {
+        if (isNullOrUndefined(curr)) {
+          acc += 1;
+        }
+        return acc;
+      }, 0);
+      assert.equal(nullCount, 0);
+
+    });
+
+  });
+
   describe('getResourceId()', () => {
     it('throws when no legacyMyWellResourceId', () => {
       //Arrange

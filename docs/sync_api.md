@@ -83,45 +83,19 @@ The process will look roughly like:
 
 ## Challenges:
 
-**Pushing Resources from OW to MyWell is very difficult.** This is because we are abandoning the old Postcode + ResourceId notion for unique ids on every resource. 
+### Pushing Resources to LegacyMyWell
 
-This means that if we want to create a resource in OurWater, and then save it to MyWell, we first need to check that MyWell will allow us to create it, and somehow get the id that it should be. This also heavily ties its logic to that of postcodes and villages.
+When creating a resource in OurWater, we need to have some optional extra fields which will allow it to be saved into LegacyMyWell.
 
-One workaround is to allow the resourceId to be tied to Resource.id on the MyWell side. This is less than ideal as it requires changes to MyWell (which I was hoping to avoid), and could break a bunch of things on the MyWell side.
+Such as:
+`externalIds.legacyMyWellPincode`
 
-We are using an int(11) on the MySQL table - perhaps we can can generate a resource id for the corresponding resource type, and append this to a hash of the Resource.id. 
+If a resource has `externalIds.legacyMyWellPincode`, but no `externalIds.legacyMyWellId`, then it can be persisted into LegacyMyWell easily.
 
-such that:
-```
-source: [villageId][resourceId][hash(id)]
-length: 2          2            6 
-```
+**TODO: Later on, we can implement this more complicated implicit logic:**
 
-For example, A new Raingauge created in OurWater with the following properties: 
-```js
-{
-  id: '00znWgaT83RoYXYXxmvk',
-  resourceType: 'raingauge',
-  ...
-}
-```
+When a (1) group is created, (2) a group is updated, (3) a resource is created inside a group, if that group is of type Pincode, we can populate the `externalIds.legacyMyWellPincode` automatically.
 
-could become the following in LegacyMyWell:
-```js
-{
-  id: '1170<hash(00znWgaT83RoYXYXxmvk)>',
-  postcode: '000000',
-  type: 'raingauge'
-  ...
-}
-```
-
-This may still require some small changes to MyWell in order to allow ids longer than 4 digits, but it would likely not require too much work
-
-
-
-
-Another option is to create a dummy Postcode to put all of the synced resources into, but this would then be quite limited...
 
 
 

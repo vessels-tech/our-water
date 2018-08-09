@@ -6,7 +6,11 @@ export default class ResourceIdType {
 
   legacyMyWellResourceId?: string
   hasLegacyMyWellResourceId?: boolean
-  //We can add other bits and pieces here
+
+  legacyMyWellPincode?: string
+  hasLegacyMyWellPincode?: boolean
+
+  //Add other bits and pieces here as needed
 
   static none(): ResourceIdType {
     return new ResourceIdType();
@@ -14,7 +18,8 @@ export default class ResourceIdType {
 
   static fromLegacyPincode(pincode: any): ResourceIdType {
     const legacyId = new ResourceIdType();
-    legacyId.legacyMyWellId = `${pincode}`;
+    legacyId.legacyMyWellPincode = `${pincode}`;
+    legacyId.hasLegacyMyWellPincode = true;
 
     return legacyId;
   }
@@ -79,25 +84,7 @@ export default class ResourceIdType {
   }
 
   public serialize(): any {
-    const serialized = {};
-
-    if (this.legacyMyWellId) {
-      serialized['legacyMyWellId'] = this.legacyMyWellId;
-    }
-
-    if (this.hasLegacyMyWellId) {
-      serialized['hasLegacyMyWellId'] = true;
-    }
-
-    if (this.legacyMyWellResourceId) {
-      serialized['legacyMyWellResourceId'] = this.legacyMyWellResourceId;
-    }
-
-    if (this.hasLegacyMyWellResourceId) {
-      serialized['hasLegacyMyWellResourceId'] = true;
-    }
-
-    return serialized;
+    return JSON.parse(JSON.stringify(this));
   }
 
   public static deserialize(obj): ResourceIdType {

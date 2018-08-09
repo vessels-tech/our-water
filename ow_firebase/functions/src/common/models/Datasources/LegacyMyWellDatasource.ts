@@ -490,8 +490,8 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
-    // let villageGroupResult = new DefaultSyncRunResult();
-    // let pincodeGroups = new DefaultSyncRunResult();
+    let villageGroupResult = new DefaultSyncRunResult();
+    let pincodeGroupResult = new DefaultSyncRunResult();
     let resourceResult = new DefaultSyncRunResult();
     let readingResult = new DefaultSyncRunResult();
 
@@ -499,27 +499,34 @@ export default class LegacyMyWellDatasource implements Datasource {
       switch (datatypeStr) {
         case DataType.Reading:
           const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
-          console.log(`pushDataToDataSource, found ${readings.length} new readings`);
+          console.log(`pushDataToDataSource, found ${readings.length} new/updated readings`);
           const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
           readingResult = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
           break;
         case DataType.Resource:
           const resources: Array<Resource> = await this.getNewResources(orgId, fs, options.filterAfterDate);
-          console.log(`pushDataToDataSource, found ${resources.length} new resources`);
+          console.log(`pushDataToDataSource, found ${resources.length} new/updated resources`);
           const legacyResources: Array<LegacyResource> = await LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
           resourceResult = await this.saveResourcesToLegacyMyWell(legacyResources);
         break;
+        // case DataType.Group:
+        //   //TODO: Implement for both pincodes and villages? For now only pincodes
+        //   const groups: Array<Group> = await this.getPincodeGroups(orgId, fs, options.filterAfterDate);
+        //   console.log(`pushDataToDataSource, found ${groups.length} new/updated pincode groups`);
+        //   const legacyPincodes: Array<LegacyPincode>
+
+
+        // break;
         default:
           throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
       }
     });
 
     return concatSaveResults([
-      // villageGroupResult,
-      // pincodeGroups,
-      // resources,
-      // readings,
+      villageGroupResult,
+      pincodeGroupResult,
+      resourceResult,
       readingResult
     ]);
   }
