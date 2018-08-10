@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var functions = require('firebase-functions');
+// var functions = require('firebase-functions');
 
-exports.hourly_job =
-  functions.pubsub.topic('hourly-tick').onPublish((event) => {
-    console.log("This job is ran every hour!")
-  });
+// exports.hourly_job =
+//   functions.pubsub.topic('hourly-tick').onPublish((event) => {
+//     console.log("This job is ran every hour!")
+//   });

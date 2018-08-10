@@ -23,6 +23,8 @@ export const reading = require('./fn_reading/reading')(functions, admin);
 //Sync Api
 export const sync = require('./fn_sync/sync')(functions, admin);
 
+//Cron Api
+export const cron = require('./fs_cron/cron')(functions, admin);
 
 
 //TODO: move these functions to new doc
