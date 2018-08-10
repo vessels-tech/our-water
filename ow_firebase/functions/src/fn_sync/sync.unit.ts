@@ -5,7 +5,7 @@ import * as assert from 'assert';
 
 describe('SyncApi Unit Tests', function() {
 
-  describe('CreateSync', function() {
+  describe.only('CreateSync', function() {
     
     it('validates the POST /:orgId method correctly', () => {
       //Arrange
@@ -13,6 +13,7 @@ describe('SyncApi Unit Tests', function() {
         body: {
           data: {
             isOneTime: false,
+            frequency: 'daily',
             datasource: {
               type: "FileDatasource",
               fileUrl: 'file.com',

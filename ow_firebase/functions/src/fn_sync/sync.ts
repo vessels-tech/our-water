@@ -58,10 +58,10 @@ module.exports = (functions, admin) => {
 
   app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
     const { orgId } = req.params;
-    const { isOneTime, datasource, type} = req.body.data;
+    const { isOneTime, datasource, type, frequency} = req.body.data;
 
     const ds = initDatasourceWithOptions(datasource);
-    const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate]);
+    const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], frequency);
     
     return sync.create({fs})
     .then((createdSync: Sync) => {

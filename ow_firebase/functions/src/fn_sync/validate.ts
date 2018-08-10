@@ -1,4 +1,5 @@
 import { SyncDatatypeList } from "../common/types/SyncDatatypes";
+import { SyncFrequencyList } from "../common/enums/SyncFrequency";
 
 const Joi = require('joi');
 
@@ -9,6 +10,7 @@ export const createSyncValidation = {
   body: {
     data: {
       isOneTime: Joi.boolean().required(),
+      frequency:Joi.string().valid(SyncFrequencyList).required(),
       datasource: Joi.object().keys({
         //TODO: add more to this later
         type: Joi.string().required(),
