@@ -1,74 +1,111 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const util_1 = require("util");
 class ResourceIdType {
-    //We can add other bits and pieces here
+    constructor() {
+        this.hasLegacyMyWellId = false;
+        this.hasLegacyMyWellResourceId = false;
+        this.hasLegacyMyWellVillageId = false;
+        this.hasLegacyMyWellPincode = false;
+    }
+    //Add other bits and pieces here as needed
     static none() {
         return new ResourceIdType();
     }
+    /**
+     * When we create a resource in OW, and want to sync it to LegacyMyWell,
+     * it MUST have a postcode and villageId,  and NOT have a MyWellId
+     */
+    static newOWResource(pincode) {
+        const legacyId = new ResourceIdType();
+        legacyId.legacyMyWellPincode = `${pincode}`;
+        legacyId.hasLegacyMyWellPincode = true;
+        legacyId.legacyMyWellVillageId = `11`;
+        legacyId.hasLegacyMyWellVillageId = true;
+        return legacyId;
+    }
     static fromLegacyPincode(pincode) {
         const legacyId = new ResourceIdType();
+        legacyId.legacyMyWellPincode = `${pincode}`;
+        legacyId.hasLegacyMyWellPincode = true;
         legacyId.legacyMyWellId = `${pincode}`;
+        legacyId.hasLegacyMyWellId = true;
         return legacyId;
     }
     static fromLegacyVillageId(pincode, villageId) {
         const legacyId = new ResourceIdType();
         legacyId.legacyMyWellId = `${pincode}.${villageId}`;
+        legacyId.hasLegacyMyWellId = true;
+        legacyId.legacyMyWellPincode = `${pincode}`;
+        legacyId.hasLegacyMyWellPincode = true;
+        legacyId.legacyMyWellVillageId = `${villageId}`;
+        legacyId.hasLegacyMyWellVillageId = true;
         return legacyId;
     }
-    static fromLegacyMyWellId(postcode, resourceId) {
+    static fromLegacyMyWellId(pincode, resourceId) {
         const legacyId = new ResourceIdType();
-        legacyId.legacyMyWellId = `${postcode}.${resourceId}`;
+        legacyId.legacyMyWellId = `${pincode}.${resourceId}`;
+        legacyId.hasLegacyMyWellId = true;
+        legacyId.legacyMyWellPincode = `${pincode}`;
+        legacyId.hasLegacyMyWellPincode = true;
+        legacyId.legacyMyWellVillageId = `${resourceId}`.substring(0, 2);
+        legacyId.hasLegacyMyWellVillageId = true;
+        legacyId.legacyMyWellResourceId = `${resourceId}`;
+        legacyId.hasLegacyMyWellResourceId = true;
         return legacyId;
     }
-    static fromLegacyReadingId(id, postcode, resourceId) {
+    static fromLegacyReadingId(id, pincode, resourceId) {
         const legacyId = new ResourceIdType();
         legacyId.legacyMyWellId = `${id}`; //identifies this specific reading
+        legacyId.hasLegacyMyWellId = true;
+        legacyId.legacyMyWellPincode = `${pincode}`;
+        legacyId.hasLegacyMyWellPincode = true;
+        legacyId.legacyMyWellVillageId = `${resourceId}`.substring(0, 2);
+        legacyId.hasLegacyMyWellVillageId = true;
+        legacyId.legacyMyWellResourceId = `${resourceId}`; //identifies the reading's resource id
         legacyId.hasLegacyMyWellResourceId = true; //identified that the reading is linked to an external datasource
-        legacyId.legacyMyWellResourceId = `${postcode}.${resourceId}`; //identifies the reading's resource id
         return legacyId;
+    }
+    /**
+     * Get the generic Id string.
+     * Could be for a pincode, village, resource or reading
+     */
+    getMyWellId() {
+        if (!this.hasLegacyMyWellId) {
+            throw new Error('Tried to getMyWellId, but resource has no myWellId');
+        }
+        return this.legacyMyWellId;
     }
     /**
     * Parse the legacyMyWellResourceId, get the resourceId
     * throws if there is no legacyMyWellResourceId
     */
     getResourceId() {
-        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
-            throw new Error('tried to getResourceId, but could not find legacyMyWellResourceId.');
+        if (!this.hasLegacyMyWellResourceId) {
+            throw new Error('tried to getResourceId, but resource has no resourceId');
         }
-        return parseInt(this.legacyMyWellResourceId.split('.')[1]);
+        return parseInt(this.legacyMyWellResourceId);
     }
     /**
      * Parse the legacyMyWellResourceId, get the villageId
      * throws if there is no legacyMyWellResourceId
      */
     getVillageId() {
-        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
-            throw new Error('tried to getVillageId, but could not find legacyMyWellResourceId.');
+        if (!this.hasLegacyMyWellVillageId) {
+            throw new Error('tried to getVillageId, but could not find legacyMyWellVillageId.');
         }
-        return parseInt(this.legacyMyWellResourceId.split('.')[1].substring(0, 2));
+        return parseInt(this.legacyMyWellVillageId);
     }
     /**
      * Parse the legacyMyWellResourceId, get postcode
      */
     getPostcode() {
-        if (util_1.isNullOrUndefined(this.legacyMyWellResourceId)) {
-            throw new Error('tried to getPostcode, but could not find legacyMyWellResourceId.');
+        if (!this.hasLegacyMyWellPincode) {
+            throw new Error('tried to getPostcode, but could not find legacyMyWellPincode.');
         }
-        return parseInt(this.legacyMyWellResourceId.split('.')[0]);
+        return parseInt(this.legacyMyWellPincode);
     }
     serialize() {
-        const serialized = {};
-        if (this.legacyMyWellId) {
-            serialized['legacyMyWellId'] = this.legacyMyWellId;
-        }
-        if (this.legacyMyWellResourceId) {
-            serialized['legacyMyWellResourceId'] = this.legacyMyWellResourceId;
-        }
-        if (this.hasLegacyMyWellResourceId) {
-            serialized['hasLegacyMyWellResourceId'] = true;
-        }
-        return serialized;
+        return JSON.parse(JSON.stringify(this));
     }
     static deserialize(obj) {
         let resourceIdType = new ResourceIdType();

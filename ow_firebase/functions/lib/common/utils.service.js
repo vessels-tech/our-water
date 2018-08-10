@@ -13,6 +13,8 @@ const Firestore_1 = require("../common/apis/Firestore");
 const utils_1 = require("../common/utils");
 const ResourceIdType_1 = require("../common/types/ResourceIdType");
 const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
+const Group_1 = require("./models/Group");
+const GroupType_1 = require("./enums/GroupType");
 const orgId = process.env.ORG_ID;
 describe('Misc Tests', function () {
     describe('csv utils', function () {
@@ -52,9 +54,9 @@ describe('Misc Tests', function () {
             //Create 3 groups, 2 of which are legacy
             const coords = new OWGeoPoint_1.default;
             // const group1 = new Group("group1", orgId, "village", coords, utils.anyToMap({ 'mywell.12345.1':true }));
-            const group1 = new Group("group1", orgId, "village", coords, ResourceIdType_1.default.fromLegacyVillageId(12345, 1));
-            const group2 = new Group("group2", orgId, "pincode", coords, ResourceIdType_1.default.fromLegacyPincode(12345));
-            const group3 = new Group("group3", orgId, "village", coords, new ResourceIdType_1.default());
+            const group1 = new Group_1.Group("group1", orgId, GroupType_1.GroupType.Village, coords, ResourceIdType_1.default.fromLegacyVillageId(12345, 1));
+            const group2 = new Group_1.Group("group2", orgId, GroupType_1.GroupType.Pincode, coords, ResourceIdType_1.default.fromLegacyPincode(12345));
+            const group3 = new Group_1.Group("group3", orgId, GroupType_1.GroupType.Village, coords, new ResourceIdType_1.default());
             return Promise.all([
                 group1.create({ fs: Firestore_1.default }).then(group => groupIdsToCleanup.push(group.id)),
                 group2.create({ fs: Firestore_1.default }).then(group => groupIdsToCleanup.push(group.id)),

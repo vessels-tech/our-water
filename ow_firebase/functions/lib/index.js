@@ -18,6 +18,8 @@ exports.resource = require('./fn_resource/resource')(functions, admin);
 exports.reading = require('./fn_reading/reading')(functions, admin);
 //Sync Api
 exports.sync = require('./fn_sync/sync')(functions, admin);
+//Cron Api
+exports.cron = require('./fs_cron/cron')(functions, admin);
 //TODO: move these functions to new doc
 const fs = admin.firestore();
 fs.settings({ timestampsInSnapshots: true });
@@ -79,11 +81,7 @@ fs.settings({ timestampsInSnapshots: true });
 // });
 /*
 
-  TODO: watches for syncs
-
-  - when a new resource is created, lookup the necessary syncs, and call `push` for each relevant one
-  - when a new reading is created, lookup the necessary syncs, and call `push` for each relevant one
-
+  TODO: watches for syncs?
 */
 /*
 

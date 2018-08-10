@@ -253,20 +253,6 @@ export const resourceIdForResourceType = (resourceType: ResourceType): string =>
 }
 
 /**
- * Convert an String id to a string of integers for the given length
- * Yes, I know we may eventually get a collision, but this is really just
- * so we can generate a simple Id that will be unique enough for Legacy MyWell.
- * 
- * We plan on using 6 integers, 10^6 = 1M possible values, so we should be fine.
- */
-export const hashIdToIntegerString = (id: string, length: number): string => {
-
-  const fullHash = `${hashCode(id)}`;
-  return fullHash.substring(0, length);
-}
-
-
-/**
  * Returns a hash code for a string.
  * (Compatible to Java's String.hashCode())
  *
@@ -289,6 +275,19 @@ export const hashCode = (s) => {
   return Math.abs(h);
 };
 
+/**
+ * Convert an String id to a string of integers for the given length
+ * Yes, I know we may eventually get a collision, but this is really just
+ * so we can generate a simple Id that will be unique enough for Legacy MyWell.
+ * 
+ * We plan on using 6 integers, 10^6 = 1M possible values, so we should be fine.
+ */
+export const hashIdToIntegerString = (id: string, length: number): string => {
+
+  const fullHash = `${hashCode(id)}`;
+  return fullHash.substring(0, length);
+}
+
 
 export const isNullOrEmpty = (stringOrNull: string): boolean => {
   if (!stringOrNull) {
@@ -301,6 +300,7 @@ export const isNullOrEmpty = (stringOrNull: string): boolean => {
 
   return false;
 }
+
 
 /**
  * return a sync run result with just one error

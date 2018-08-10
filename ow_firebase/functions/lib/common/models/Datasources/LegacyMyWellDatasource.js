@@ -20,6 +20,8 @@ const ResourceIdType_1 = require("../../types/ResourceIdType");
 const ResourceType_1 = require("../../enums/ResourceType");
 const Reading_1 = require("../Reading");
 const env_1 = require("../../env");
+const FileDatasourceTypes_1 = require("../../enums/FileDatasourceTypes");
+const DefaultSyncRunResult_1 = require("../DefaultSyncRunResult");
 class LegacyMyWellDatasource {
     constructor(baseUrl, selectedDatatypes) {
         this.baseUrl = baseUrl;
@@ -256,10 +258,26 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, fs, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const villageGroupResult = yield this.getGroupAndSave(orgId, fs);
-            const pincodeGroups = yield this.getPincodeData(orgId, fs);
-            const resources = yield this.getResourcesData(orgId, fs);
-            const readings = yield this.getReadingsData(orgId, fs);
+            let villageGroupResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let pincodeGroups = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let resources = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let readings = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            this.selectedDatatypes.forEach((datatypeStr) => __awaiter(this, void 0, void 0, function* () {
+                switch (datatypeStr) {
+                    case FileDatasourceTypes_1.DataType.Resource:
+                        resources = yield this.getResourcesData(orgId, fs);
+                        break;
+                    case FileDatasourceTypes_1.DataType.Reading:
+                        readings = yield this.getReadingsData(orgId, fs);
+                        break;
+                    case FileDatasourceTypes_1.DataType.Group:
+                        villageGroupResult = yield this.getGroupAndSave(orgId, fs);
+                        pincodeGroups = yield this.getPincodeData(orgId, fs);
+                        break;
+                    default:
+                        throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
+                }
+            }));
             return utils_1.concatSaveResults([
                 villageGroupResult,
                 pincodeGroups,
@@ -277,7 +295,6 @@ class LegacyMyWellDatasource {
      *     has a relationship to an external data source
      */
     getNewReadings(orgId, fs, filterAfterDate) {
-        console.log("Getting new readings: TODO: this index might be wrong...");
         return fs.collection('org').doc(orgId).collection('reading')
             .where('externalIds.hasLegacyMyWellResourceId', '==', true)
             .where('createdAt', '>=', filterAfterDate)
@@ -290,6 +307,39 @@ class LegacyMyWellDatasource {
             return readings;
         });
     }
+    /**
+     * Get resources from OurWater that are eligble to be saved into LegacyMyWell
+     *
+     * A NEW resource is one that:
+     * - has a pincode
+     * - does not have a MyWellId, a villageId or resourceId
+     *
+     */
+    getNewResources(orgId, fs, filterAfterDate) {
+        return fs.collection('org').doc(orgId).collection('resource')
+            .where('externalIds.hasLegacyMyWellPincode', '==', true)
+            .where('externalIds.hasLegacyMyWellId', '==', false)
+            .where('createdAt', '>=', filterAfterDate)
+            .limit(50)
+            .get()
+            .then(sn => utils_1.snapshotToResourceList(sn));
+    }
+    /* TODO: implement and use in addition to getNewResources.
+    We're not too worried about updating resources at this stage
+  
+    public getUpdatedResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
+      return fs.collection('org').doc(orgId).collection('resource')
+      //TODO: should we also check for isLegacy?
+        .where('externalIds.hasLegacyMyWellId', '==', true)
+        .where('createdAt', '>=', filterAfterDate)
+        .limit(50).get()
+        .then(sn => {
+          const resources: Array<Resource> = [];
+          sn.forEach(doc => resources.push(Resource.fromDoc(doc)));
+          return resources;
+        });
+    }
+    */
     static transformReadingsToLegacyMyWell(readings) {
         return readings.map(reading => {
             return {
@@ -300,6 +350,25 @@ class LegacyMyWellDatasource {
                 resourceId: reading.externalIds.getResourceId(),
                 createdAt: moment(reading.createdAt).toISOString(),
                 updatedAt: moment(reading.updatedAt).toISOString(),
+            };
+        });
+    }
+    static transformResourcesToLegacyMyWell(resources) {
+        return resources.map(resource => {
+            return {
+                postcode: resource.externalIds.getPostcode(),
+                geo: {
+                    lat: resource.coords._latitude,
+                    lng: resource.coords._longitude,
+                },
+                last_value: resource.lastValue,
+                //TODO: this may cause problems...
+                last_date: moment(resource.lastReadingDatetime).toISOString(),
+                owner: resource.owner.name,
+                type: resource.resourceType,
+                createdAt: moment(resource.createdAt).toISOString(),
+                updatedAt: moment(resource.updatedAt).toISOString(),
+                villageId: resource.externalIds.getVillageId(),
             };
         });
     }
@@ -323,13 +392,122 @@ class LegacyMyWellDatasource {
         })
             .catch(err => utils_1.resultWithError(err.message));
     }
+    /**
+     * Convert a list of SyncRunResults containing only one item each into a list of
+     * nulls and ids
+     */
+    static convertSyncRunResultsToList(results) {
+        return results.map(result => result.results[0] ? result.results[0] : null);
+    }
+    /**
+     * Save New resources to LegacyMyWell.
+     *
+     * Saves them one at a time, and when the resources are saved, gets the resourceId and updates the
+     * External IDs on the OW side.
+     *
+     */
+    saveNewResourcesToLegacyMyWell(resources) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //TODO: enforce a resonable limit here?
+            const legacyResources = yield LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
+            return Promise.all(legacyResources.map(resource => {
+                //If this dies, it will return a SyncRunResult with one error, and end up as a null below
+                return this.saveResourcesToLegacyMyWell([resource]);
+            }))
+                .then((results) => LegacyMyWellDatasource.convertSyncRunResultsToList(results));
+        });
+    }
+    /**
+     * Given a list of ids or nulls, and a list of OW Resources, update the OW Resources to have
+     * the correct external ids
+     *
+     * //TODO: we assume that they will be in the same order. TODO: check this assumption!
+     */
+    updateExistingResources(resources, ids, fs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //Iterate through the newIds, and update OW resources to match
+            return ids.reduce((acc, curr, idx) => __awaiter(this, void 0, void 0, function* () {
+                const result = yield acc;
+                const owResource = resources[idx];
+                if (curr === null) {
+                    result.warnings.push(`Failed to save resource with id:${owResource.id}.`);
+                    return Promise.resolve(result);
+                }
+                const pincode = owResource.externalIds.getPostcode();
+                owResource.externalIds = ResourceIdType_1.default.fromLegacyMyWellId(pincode, curr);
+                return owResource.save({ fs })
+                    .then(() => result.results.push(curr))
+                    .catch((err) => result.errors.push(err.message))
+                    .then(() => result);
+            }), Promise.resolve(new DefaultSyncRunResult_1.DefaultSyncRunResult()));
+        });
+    }
+    /**
+     * Save a number of resources in bulk.
+     *
+     * Use for updating a number of resources at a time. Don't use for creating new resources that don't have Ids yet.
+     */
+    saveResourcesToLegacyMyWell(resources) {
+        //TODO: Eventually make this a proper, mockable web client
+        const uriReadings = `${this.baseUrl}/api/resources?access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+        const options = {
+            method: 'POST',
+            uri: uriReadings,
+            json: true,
+            body: resources
+        };
+        return request(options)
+            .then((res) => {
+            const results = res.map(resource => resource.id);
+            return {
+                results,
+                warnings: [],
+                errors: [],
+            };
+        })
+            .catch(err => {
+            console.log("ERROR saveResourcesToLegacyMyWell", err.message);
+            return utils_1.resultWithError(err.message);
+        });
+    }
     pushDataToDataSource(orgId, fs, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const readings = yield this.getNewReadings(orgId, fs, options.filterAfterDate);
-            console.log(`pushDataToDataSource, found ${readings.length} new readings`);
-            const legacyReadings = yield LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
-            const result = yield this.saveReadingsToLegacyMyWell(legacyReadings);
-            return result;
+            let villageGroupResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let pincodeGroupResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let resourceResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            let readingResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
+            this.selectedDatatypes.forEach((datatypeStr) => __awaiter(this, void 0, void 0, function* () {
+                // await this.selectedDatatypes.forEach(async datatypeStr => {
+                switch (datatypeStr) {
+                    case FileDatasourceTypes_1.DataType.Reading:
+                        const readings = yield this.getNewReadings(orgId, fs, options.filterAfterDate);
+                        console.log(`pushDataToDataSource, found ${readings.length} new/updated readings`);
+                        const legacyReadings = yield LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
+                        readingResult = yield this.saveReadingsToLegacyMyWell(legacyReadings);
+                        break;
+                    case FileDatasourceTypes_1.DataType.Resource:
+                        const newResources = yield this.getNewResources(orgId, fs, options.filterAfterDate);
+                        console.log(`pushDataToDataSource, found ${newResources.length} new resources`);
+                        const ids = yield this.saveNewResourcesToLegacyMyWell(newResources);
+                        resourceResult = yield this.updateExistingResources(newResources, ids, fs);
+                        break;
+                    // case DataType.Group:
+                    //   //TODO: Implement for both pincodes and villages? For now only pincodes
+                    //   const groups: Array<Group> = await this.getPincodeGroups(orgId, fs, options.filterAfterDate);
+                    //   console.log(`pushDataToDataSource, found ${groups.length} new/updated pincode groups`);
+                    //   const legacyPincodes: Array<LegacyPincode>
+                    // break;
+                    default:
+                        throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
+                }
+                return true;
+            }));
+            return utils_1.concatSaveResults([
+                villageGroupResult,
+                pincodeGroupResult,
+                resourceResult,
+                readingResult
+            ]);
         });
     }
     serialize() {

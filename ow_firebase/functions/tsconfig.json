@@ -10,5 +10,10 @@
   "compileOnSave": true,
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.unit.ts",
+    "**/*.service.ts"
   ]
 }

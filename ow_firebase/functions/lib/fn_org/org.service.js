@@ -1,4 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const request = require("request-promise");
 describe('OrgApi', function () {
+    const orgId = process.env.ORG_ID;
+    const baseUrl = process.env.BASE_URL;
     it('should get all orgs', () => {
         const options = {
             method: 'GET',

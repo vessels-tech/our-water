@@ -1,9 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
+const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
+/**
+ * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
+ * iterate through and return a list of resources
+ *
+ * //TODO: make type generic
+ */
+exports.snapshotToResourceList = (sn) => {
+    const resources = [];
+    sn.forEach(doc => resources.push(Resource_1.Resource.fromDoc(doc)));
+    return resources;
+};
+// export const snapshotToFirestoreDoc = (sn): Array<FirestoreDoc> => {
+//   const resources: Array<FirestoreDoc> = [];
+//   sn.forEach(doc => resources.push(FirestoreDoc.fromDoc(doc)));
+//   return resources;
+// }
 /**
  * Concatenate a list of results together, keeping the results, warnings, errors
  * format
@@ -37,17 +54,18 @@ exports.createDiamondFromLatLng = (lat, lng, delta) => {
  */
 exports.getLegacyMyWellGroups = (orgId, fs) => {
     const mappedGroups = new Map();
-    return fs.collection('org').doc(orgId).collection('group').where('externalIds.legacyMyWellId', '>', '0').get()
+    return fs.collection('org').doc(orgId).collection('group').where('externalIds.hasLegacyMyWellPincode', '==', true).get()
         .then(sn => {
         const groups = [];
         sn.forEach(result => groups.push(result.data()));
         console.log(`Found: ${groups.length} groups.`);
+        //TODO: this will die, we need to deserialize properly
         groups.forEach((group) => {
             if (!group.externalIds) {
                 console.log("group is missing externalIds", group);
                 return;
             }
-            mappedGroups.set(group.externalIds.legacyMyWellId, group);
+            mappedGroups.set(group.externalIds.getMyWellId(), group);
         });
         return mappedGroups;
     });
@@ -59,20 +77,19 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
  */
 exports.getLegacyMyWellResources = (orgId, fs) => {
     const mappedResources = new Map();
-    return fs.collection('org').doc(orgId).collection('resource').where('externalIds.legacyMyWellId', '>', '0').get()
+    return fs.collection('org').doc(orgId).collection('resource').where('externalIds.hasLegacyMyWellId', '==', true).get()
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
         console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
+        //TODO: this will die, we need to deserialize properly
         resources.forEach((res) => {
             if (!res.externalIds) {
                 //TODO: not sure what to do here. This should probably be a warning
                 console.log("resource is missing externalIds", res.id);
                 return;
             }
-            mappedResources[res.externalIds.legacyMyWellId] = res;
-            //resources should only have 1 mywellId, but let's be safe
-            // Object.keys(resource.externalIds).forEach(externalId => mappedResources.set(resource.extrexternalId, resource));
+            mappedResources[res.externalIds.getMyWellId()] = res;
         });
         console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);
         return mappedResources;
@@ -174,6 +191,49 @@ exports.resourceTypeForLegacyResourceId = (legacyResourceId) => {
         return ResourceType_1.ResourceType.Checkdam;
     }
     return ResourceType_1.ResourceType.Well;
+};
+exports.resourceIdForResourceType = (resourceType) => {
+    switch (resourceType) {
+        case ResourceType_1.ResourceType.Well:
+            return '10';
+        case ResourceType_1.ResourceType.Raingauge:
+            return '70';
+        case ResourceType_1.ResourceType.Checkdam:
+            return '80';
+    }
+};
+/**
+ * Returns a hash code for a string.
+ * (Compatible to Java's String.hashCode())
+ *
+ * The hash code for a string object is computed as
+ *     s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
+ * using number arithmetic, where s[i] is the i th character
+ * of the given string, n is the length of the string,
+ * and ^ indicates exponentiation.
+ * (The hash value of the empty string is zero.)
+ * Ref: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
+ *
+ * @param {string} s a string
+ * @return {number} a hash code value for the given string.
+ */
+exports.hashCode = (s) => {
+    var h = 0, l = s.length, i = 0;
+    if (l > 0)
+        while (i < l)
+            h = (h << 5) - h + s.charCodeAt(i++) | 0;
+    return Math.abs(h);
+};
+/**
+ * Convert an String id to a string of integers for the given length
+ * Yes, I know we may eventually get a collision, but this is really just
+ * so we can generate a simple Id that will be unique enough for Legacy MyWell.
+ *
+ * We plan on using 6 integers, 10^6 = 1M possible values, so we should be fine.
+ */
+exports.hashIdToIntegerString = (id, length) => {
+    const fullHash = `${exports.hashCode(id)}`;
+    return fullHash.substring(0, length);
 };
 exports.isNullOrEmpty = (stringOrNull) => {
     if (!stringOrNull) {

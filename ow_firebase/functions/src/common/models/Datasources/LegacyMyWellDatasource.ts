@@ -307,7 +307,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     let resources = new DefaultSyncRunResult();
     let readings = new DefaultSyncRunResult();
 
-    await this.selectedDatatypes.forEach(async datatypeStr => {
+    this.selectedDatatypes.forEach(async datatypeStr => {
       switch(datatypeStr) {
         case DataType.Resource: 
           resources = await this.getResourcesData(orgId, fs);
@@ -540,7 +540,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     let resourceResult = new DefaultSyncRunResult();
     let readingResult = new DefaultSyncRunResult();
 
-    await this.selectedDatatypes.forEach(async datatypeStr => {
+    this.selectedDatatypes.forEach(async datatypeStr => {
+    // await this.selectedDatatypes.forEach(async datatypeStr => {
       switch (datatypeStr) {
         case DataType.Reading:
           const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
@@ -566,6 +567,8 @@ export default class LegacyMyWellDatasource implements Datasource {
         default:
           throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
       }
+
+      return true;
     });
 
     return concatSaveResults([

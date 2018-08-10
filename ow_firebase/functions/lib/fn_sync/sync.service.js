@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sleep = require("thread-sleep");
 const assert = require("assert");
+const request = require("request-promise");
+const TestUtils_1 = require("../common/test/TestUtils");
 const Firestore_1 = require("../common/apis/Firestore");
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
@@ -57,7 +59,7 @@ describe('SyncAPI', function () {
                 sleep(10000);
                 syncRunId = response.data.syncRunId;
                 syncRunIds.push(syncRunId);
-                return getSyncRun({ orgId, fs: Firestore_1.default, syncRunId });
+                return TestUtils_1.getSyncRun({ orgId, fs: Firestore_1.default, syncRunId });
             })
                 .then(syncRun => {
                 console.log('syncRun: ', syncRun);
@@ -106,7 +108,7 @@ describe('SyncAPI', function () {
                 sleep(20000);
                 syncRunId = response.data.syncRunId;
                 syncRunIds.push(syncRunId);
-                return getSyncRun({ orgId, fs: Firestore_1.default, syncRunId });
+                return TestUtils_1.getSyncRun({ orgId, fs: Firestore_1.default, syncRunId });
             })
                 .then(syncRun => {
                 console.log('syncRun: ', syncRun);
@@ -147,7 +149,7 @@ describe('SyncAPI', function () {
     });
     it('should create and run the sync', () => {
         let syncRunId = null;
-        return createNewSync()
+        return TestUtils_1.createNewSync()
             .then(syncId => {
             syncIds.push(syncId);
             const options = {
@@ -163,7 +165,7 @@ describe('SyncAPI', function () {
         })
             //Wait for the sync to finish
             .then(() => sleep(20000))
-            .then(() => getSyncRun({ orgId, fs: Firestore_1.default, syncRunId }))
+            .then(() => TestUtils_1.getSyncRun({ orgId, fs: Firestore_1.default, syncRunId }))
             .then(syncRun => {
             console.log("syncRun is:", syncRun);
             assert.equal(syncRun.status, 'finished');

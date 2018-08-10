@@ -1,9 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const request = require('request-promise-native');
-const Group = require('../lib/common/models/Group');
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
 const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
-const createNewSync = () => {
+exports.createNewSync = () => {
     const data = {
         isOneTime: false,
         datasource: {
@@ -35,12 +36,8 @@ const createNewSync = () => {
         return Promise.reject(err);
     });
 };
-const getSyncRun = ({ orgId, fs, syncRunId }) => {
-    return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get()
+exports.getSyncRun = ({ _orgId, fs, syncRunId }) => {
+    return fs.collection('org').doc(_orgId).collection('syncRun').doc(syncRunId).get()
         .then(sn => sn.data());
-};
-module.exports = {
-    createNewSync,
-    getSyncRun,
 };
 //# sourceMappingURL=TestUtils.js.map

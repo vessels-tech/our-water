@@ -4,5 +4,8 @@ const admin = require('firebase-admin');
 if (admin.apps.length === 0) {
     admin.initializeApp();
 }
-exports.default = admin.firestore();
+const firestore = admin.firestore();
+const settings = { /* your settings... */ timestampsInSnapshots: true };
+firestore.settings(settings);
+exports.default = firestore;
 //# sourceMappingURL=Firestore.js.map
