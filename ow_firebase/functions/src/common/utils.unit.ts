@@ -2,9 +2,9 @@
 import * as assert from 'assert';
 import * as crypto from 'crypto';
 
-import fs from '../common/apis/Firestore';
-import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty } from '../common/utils';
-import ResourceIdType from '../common/types/ResourceIdType';
+import fs from './apis/Firestore';
+import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty } from './utils';
+import ResourceIdType from './types/ResourceIdType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
 
 const orgId = process.env.ORG_ID;

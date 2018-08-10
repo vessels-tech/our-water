@@ -24,14 +24,14 @@ export const reading = require('./fn_reading/reading')(functions, admin);
 export const sync = require('./fn_sync/sync')(functions, admin);
 
 //Cron Api
-export const cron = require('./fs_cron/cron')(functions, admin);
+export const cron = require('./fn_cron/cron');
 
 
-//TODO: move these functions to new doc
 
 const fs = admin.firestore();
 fs.settings({timestampsInSnapshots: true});
 
+//TODO: move these functions to new doc
 
 //TODO: REENABLE
 

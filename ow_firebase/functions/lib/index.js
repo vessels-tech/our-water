@@ -19,10 +19,10 @@ exports.reading = require('./fn_reading/reading')(functions, admin);
 //Sync Api
 exports.sync = require('./fn_sync/sync')(functions, admin);
 //Cron Api
-exports.cron = require('./fs_cron/cron')(functions, admin);
-//TODO: move these functions to new doc
+exports.cron = require('./fn_cron/cron');
 const fs = admin.firestore();
 fs.settings({ timestampsInSnapshots: true });
+//TODO: move these functions to new doc
 //TODO: REENABLE
 /**
  * Add metadata to readings when created

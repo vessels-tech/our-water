@@ -1,6 +1,7 @@
 import Datasource, { deserializeDatasource } from './Datasources/Datasource';
 import { SyncMethod } from '../enums/SyncMethod';
 import SyncDataSourceOptions from '../types/SyncDataSourceOptions';
+import { SyncFrequency } from '../enums/SyncFrequency';
 
 export class Sync {
 
@@ -9,16 +10,18 @@ export class Sync {
   datasource: Datasource
   orgId: string
   methods: Array<SyncMethod>
+  frequency: SyncFrequency
   
   lastSyncDate: number = 0 //unix timestamp 
 
   constructor(isOneTime: boolean, datasource: Datasource, orgId: string,
-    methods: Array<SyncMethod>
+    methods: Array<SyncMethod>, frequency: SyncFrequency
   ) {
     this.isOneTime = isOneTime;
     this.datasource = datasource;
     this.orgId = orgId;
     this.methods = methods;
+    this.frequency = frequency;
   }
 
   /**
@@ -50,6 +53,7 @@ export class Sync {
       orgId: this.orgId,
       methods: this.methods,
       lastSyncDate: new Date(this.lastSyncDate),
+      frequency: this.frequency.toString(),
     }
   }
 
@@ -64,10 +68,11 @@ export class Sync {
       orgId,
       methods,
       lastSyncDate,
+      frequency,
     } = sn.data();
     
     const syncMethods: Array<SyncMethod> = []; //TODO deserialize somehow
-    const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods);
+    const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods, frequency);
 
     //private vars
     des.lastSyncDate = lastSyncDate;

@@ -1,9 +1,9 @@
 
 import * as assert from 'assert';
 
-import fs from '../common/apis/Firestore';
-import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from '../common/utils';
-import ResourceIdType from '../common/types/ResourceIdType';
+import fs from './apis/Firestore';
+import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from './utils';
+import ResourceIdType from './types/ResourceIdType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
 import { Group } from './models/Group';
 import { GroupType } from './enums/GroupType';
