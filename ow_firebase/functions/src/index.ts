@@ -24,7 +24,7 @@ export const reading = require('./fn_reading/reading')(functions, admin);
 export const sync = require('./fn_sync/sync')(functions, admin);
 
 //Cron Api
-export const cron = require('./fn_cron/cron');
+export const { hourly_job, daily_job, weekly_job} = require('./fn_cron/cron');
 
 
 

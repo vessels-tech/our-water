@@ -2,6 +2,8 @@ import Datasource, { deserializeDatasource } from './Datasources/Datasource';
 import { SyncMethod } from '../enums/SyncMethod';
 import SyncDataSourceOptions from '../types/SyncDataSourceOptions';
 import { SyncFrequency } from '../enums/SyncFrequency';
+import { doesNotReject } from 'assert';
+import { snapshotToSyncList } from '../utils';
 
 export class Sync {
 
@@ -58,27 +60,45 @@ export class Sync {
   }
 
   /**
-   * Deserialize from a snapshot
-   * @param sn 
+   * Deserialize from a json object
    */
-  public static deserialize(sn): Sync {
+  public static deserialize(data): Sync {
     const {
+      id,
       isOneTime,
       datasource,
       orgId,
       methods,
       lastSyncDate,
       frequency,
-    } = sn.data();
-    
+    } = data;
+
     const syncMethods: Array<SyncMethod> = []; //TODO deserialize somehow
     const des: Sync = new Sync(isOneTime, deserializeDatasource(datasource), orgId, syncMethods, frequency);
 
     //private vars
     des.lastSyncDate = lastSyncDate;
-    des.id = sn.id;
+    des.id = id;
 
     return des;
+  }
+
+  /**
+   * Deserialize from a snapshot
+   * @param sn 
+   */
+  public static fromDoc(sn): Sync {
+    return this.deserialize(sn.data());
+  }
+
+  /**
+   * getSyncs
+   * 
+   * Get a list of the syncs for an org
+   */
+  static getSyncs(orgId, fs): Promise<Array<Sync>> {
+    return fs.collection('org').doc(orgId).collection('sync').get()
+      .then(sn => snapshotToSyncList(sn));
   }
 
   /**

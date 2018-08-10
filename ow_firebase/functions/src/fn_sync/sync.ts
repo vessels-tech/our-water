@@ -35,6 +35,16 @@ module.exports = (functions, admin) => {
     return res.status(500).json({ status: 500, message: err.message });
   });
 
+  app.get('/:orgId', async (req, res, next) => {
+    const { orgId } = req.params;
+
+    const syncs = await Sync.getSyncs(orgId, fs);
+    const syncsJson = syncs.map(sync => sync.serialize());
+
+    return res.json({data:syncsJson});
+  });
+
+
   /**
    * createSync
    * 

@@ -10,6 +10,7 @@ import * as request from 'request-promise-native';
 import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
 import FirestoreDoc from './models/FirestoreDoc';
+import { Sync } from './models/Sync';
 
 
 /**
@@ -22,6 +23,13 @@ export const snapshotToResourceList= (sn): Array<Resource> => {
   const resources: Array<Resource> = [];
   sn.forEach(doc => resources.push(Resource.fromDoc(doc)));
   return resources;
+}
+
+export const snapshotToSyncList = (sn): Array<Sync> => {
+  const syncs: Array<Sync> = [];
+  sn.forEach(doc => syncs.push(Sync.fromDoc(doc)));
+  
+  return syncs;
 }
 
 
