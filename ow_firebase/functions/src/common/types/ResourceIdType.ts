@@ -25,12 +25,15 @@ export default class ResourceIdType {
 
   /**
    * When we create a resource in OW, and want to sync it to LegacyMyWell, 
-   * it MUST have a postcode, and NOT have a MyWellId
+   * it MUST have a postcode and villageId,  and NOT have a MyWellId
    */
   static newOWResource(pincode: any): ResourceIdType {
     const legacyId = new ResourceIdType();
     legacyId.legacyMyWellPincode = `${pincode}`;
     legacyId.hasLegacyMyWellPincode = true;
+
+    legacyId.legacyMyWellVillageId = `11`;
+    legacyId.hasLegacyMyWellVillageId = true;
 
     return legacyId;
   }

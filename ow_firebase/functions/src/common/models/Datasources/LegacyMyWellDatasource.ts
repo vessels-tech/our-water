@@ -408,6 +408,7 @@ export default class LegacyMyWellDatasource implements Datasource {
   public static transformResourcesToLegacyMyWell(resources: Array<Resource>): Array<LegacyResource> {
 
     return resources.map(resource => {
+
       return {
         postcode: resource.externalIds.getPostcode(),
         geo: {
@@ -415,11 +416,12 @@ export default class LegacyMyWellDatasource implements Datasource {
           lng: resource.coords._longitude,
         },
         last_value: resource.lastValue,
-        last_date: resource.lastReadingDatetime.toISOString(),
+        //TODO: this may cause problems...
+        last_date: moment(resource.lastReadingDatetime).toISOString(),
         owner: resource.owner.name,
         type: resource.resourceType,
-        createdAt: resource.createdAt.toISOString(),
-        updatedAt: resource.updatedAt.toISOString(),
+        createdAt: moment(resource.createdAt).toISOString(),
+        updatedAt: moment(resource.updatedAt).toISOString(),
         villageId: resource.externalIds.getVillageId(),
       }
     });
@@ -449,6 +451,14 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   /**
+   * Convert a list of SyncRunResults containing only one item each into a list of
+   * nulls and ids
+   */
+  public static convertSyncRunResultsToList(results): Array<number> {    
+    return results.map(result => result.results[0] ? result.results[0] : null);
+  }
+
+  /**
    * Save New resources to LegacyMyWell.
    * 
    * Saves them one at a time, and when the resources are saved, gets the resourceId and updates the 
@@ -456,16 +466,14 @@ export default class LegacyMyWellDatasource implements Datasource {
    * 
    */
   public async saveNewResourcesToLegacyMyWell(resources: Array<Resource>): Promise<Array<any>> {
-
-    //TODO: this is getting too big. Refactor?
     //TODO: enforce a resonable limit here?
     const legacyResources: Array<LegacyResource> = await LegacyMyWellDatasource.transformResourcesToLegacyMyWell(resources);
 
-    return Promise.all(legacyResources.map(resource => this.saveResourcesToLegacyMyWell([resource])))
-    .then((results: Array<SyncRunResult>) => {
-      //TODO: what about if one of the requests fails?
-       return results.map(result => result.results[0] ? result.results[0] : null);
-      });
+    return Promise.all(legacyResources.map(resource => {
+      //If this dies, it will return a SyncRunResult with one error, and end up as a null below
+      return this.saveResourcesToLegacyMyWell([resource])
+    }))
+    .then((results: Array<SyncRunResult>) => LegacyMyWellDatasource.convertSyncRunResultsToList(results));
   }
 
   /**
@@ -477,25 +485,22 @@ export default class LegacyMyWellDatasource implements Datasource {
   public async updateExistingResources(resources: Array<Resource>, ids, fs) {
 
     //Iterate through the newIds, and update OW resources to match
-    return ids.reduce(async (acc: SyncRunResult, curr: any, idx) => {
+    return ids.reduce(async (acc: Promise<SyncRunResult>, curr: any, idx) => {
+      const result = await acc;
       const owResource = resources[idx];
       if (curr === null) {
-        acc.warnings.push(`Failed to save resource with id:${owResource.id}.`);
-        return acc;
+        result.warnings.push(`Failed to save resource with id:${owResource.id}.`);
+        return Promise.resolve(result);
       }
 
-      try {
-        const pincode = owResource.externalIds.getPostcode();
-        owResource.externalIds = ResourceIdType.fromLegacyMyWellId(pincode, curr);
-        await owResource.save({ fs });
-        acc.results.push(curr);
-      } catch (err) {
-        acc.errors.push(err.message);
-      }
+      const pincode = owResource.externalIds.getPostcode();
+      owResource.externalIds = ResourceIdType.fromLegacyMyWellId(pincode, curr);
+      return owResource.save({ fs })
+      .then(() => result.results.push(curr))
+      .catch((err) => result.errors.push(err.message))
+      .then(() => result);
 
-      return acc;
-
-    }, new DefaultSyncRunResult())
+    }, Promise.resolve(new DefaultSyncRunResult()));
   }
 
 
@@ -523,7 +528,10 @@ export default class LegacyMyWellDatasource implements Datasource {
           errors: [],
         };
       })
-      .catch(err => resultWithError(err.message));
+      .catch(err => {
+        console.log("ERROR saveResourcesToLegacyMyWell", err.message);
+        return resultWithError(err.message)
+      });
   }
 
   public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {

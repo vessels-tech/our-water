@@ -6,11 +6,14 @@
 
 import * as assert from 'assert';
 import * as moment from 'moment';
+import * as chai from 'chai';
 
 import fs from '../../apis/Firestore';
 import LegacyMyWellDatasource from './LegacyMyWellDatasource';
 import LegacyVillage from '../../types/LegacyVillage';
 import SyncRunResult from '../../types/SyncRunResult';
+import ResourceIdType from '../../types/ResourceIdType';
+import { Resource } from '../Resource';
 
 const orgId = process.env.ORG_ID;
 const myWellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
@@ -55,15 +58,39 @@ describe('pushDataToDataSource', function () {
   describe('saveResourcesToLegacyMyWell', function() {
     this.timeout(15000);
     const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
-    const legacyResources = [
+    let newResources;
+    let legacyResources;
 
-    ];
+    /* Create 2 resources that haven't yet been synced to LegacyMyWell */
+    before(() => {
+      const externalIdsA = ResourceIdType.newOWResource(223456789).serialize();
+      const externalIdsB = ResourceIdType.newOWResource(223456789).serialize();
 
-    it('saves resources to LegacyMyWell', async () => {
+      const resourcesRef = fs.collection('org').doc(orgId).collection('resource');
+      const resourceAJson = { "resourceType": "well", "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(), "id": "00znWgaT83RoYXYXxmvk", "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "coords": { "_latitude": 23.9172222222222, "_longitude": 73.8244444444444 }, "lastValue": 22.6, "groups": { "rhBCmtN16cABh6xSPijR": true, "jpKBA75GiZAzpA0gkBi8": true }, "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "owner": { "name": "Khokhariya Ramabhai Sojabhai", "createdByUserId": "default" }, "orgId": "test_12345", "externalIds": externalIdsA, };
+      const resourceBJson = { "resourceType": "well", "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(), "id": "00znWgaT83RoYXYXxmvk", "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "coords": { "_latitude": 23.9172222222222, "_longitude": 73.8244444444444 }, "lastValue": 22.6, "groups": { "rhBCmtN16cABh6xSPijR": true, "jpKBA75GiZAzpA0gkBi8": true }, "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "owner": { "name": "Khokhariya Ramabhai Sojabhai", "createdByUserId": "default" }, "orgId": "test_12345", "externalIds": externalIdsB };
+      const resourceA = Resource.deserialize(resourceAJson);
+      const resourceB = Resource.deserialize(resourceBJson);
+
+      return Promise.all([
+        resourcesRef.add(resourceA.serialize()),
+        resourcesRef.add(resourceB.serialize()),
+      ]).then(() => {
+        const oneYearAgo = moment().subtract(1, 'year').valueOf();
+        return datasource.getNewResources(orgId, fs, oneYearAgo);
+      }).then(_newResources => {
+        newResources = _newResources;
+        legacyResources = LegacyMyWellDatasource.transformResourcesToLegacyMyWell(newResources);
+      });
+    });
+
+    //TODO: we need a different set of legacyResources that have the external resourceId
+    it.skip('saves resources to LegacyMyWell', async () => {
       //Arrange
-      
       //Act
       const result = await datasource.saveResourcesToLegacyMyWell(legacyResources);
+
+      console.log('result is', result);
       
       //Assert
       assert.equal(2, result.results.length);
@@ -71,8 +98,14 @@ describe('pushDataToDataSource', function () {
       assert.equal(0, result.errors.length);
     });
 
-    it('saves new resources to LegacyMyWell and returns a list of ids');
-    it('updateExistingResources updates resources for a list of ids');
+    it('saves new resources to LegacyMyWell and returns a list of ids', async () => {
+      //Arrange
+      //Act
+      const result = await datasource.saveNewResourcesToLegacyMyWell(newResources);
+
+      //Assert
+      chai.expect(result).to.be.an('array').that.does.not.include(null);
+    });
   });
 
   describe('saveReadingsToLegacyMyWell', function () {

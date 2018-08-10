@@ -55,7 +55,6 @@ export class Resource extends FirestoreDoc {
     const {
       id,
       orgId,
-      docName,
       externalIds,
       coords,
       resourceType,
@@ -74,7 +73,6 @@ export class Resource extends FirestoreDoc {
 
     //private vars
     des.id = id;
-    des.docName = docName;
     des.lastValue = lastValue;
     des.lastReadingDatetime = lastReadingDatetime;
     des.createdAt = createdAt;

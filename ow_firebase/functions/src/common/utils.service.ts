@@ -5,6 +5,8 @@ import fs from '../common/apis/Firestore';
 import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from '../common/utils';
 import ResourceIdType from '../common/types/ResourceIdType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
+import { Group } from './models/Group';
+import { GroupType } from './enums/GroupType';
 
 const orgId = process.env.ORG_ID;
   
@@ -60,9 +62,9 @@ describe('Misc Tests', function() {
       //Create 3 groups, 2 of which are legacy
       const coords: OWGeoPoint = new OWGeoPoint;
       // const group1 = new Group("group1", orgId, "village", coords, utils.anyToMap({ 'mywell.12345.1':true }));
-      const group1 = new Group("group1", orgId, "village", coords, ResourceIdType.fromLegacyVillageId(12345, 1));
-      const group2 = new Group("group2", orgId, "pincode", coords, ResourceIdType.fromLegacyPincode(12345));
-      const group3 = new Group("group3", orgId, "village", coords, new ResourceIdType());
+      const group1 = new Group("group1", orgId, GroupType.Village, coords, ResourceIdType.fromLegacyVillageId(12345, 1));
+      const group2 = new Group("group2", orgId, GroupType.Pincode, coords, ResourceIdType.fromLegacyPincode(12345));
+      const group3 = new Group("group3", orgId, GroupType.Village, coords, new ResourceIdType());
 
       return Promise.all([
         group1.create({fs}).then(group => groupIdsToCleanup.push(group.id)),

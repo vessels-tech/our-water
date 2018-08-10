@@ -1,12 +1,11 @@
 const request = require('request-promise-native');
-const Group = require('../lib/common/models/Group');
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
 const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
 
 
-const createNewSync = () => {
+export const createNewSync = () => {
   const data = {
     isOneTime: false,
     datasource: {
@@ -42,12 +41,8 @@ const createNewSync = () => {
     });
 };
 
-const getSyncRun = ({orgId, fs, syncRunId}) => {
+export const getSyncRun = ({orgId, fs, syncRunId}) => {
   return fs.collection('org').doc(orgId).collection('syncRun').doc(syncRunId).get()
     .then(sn => sn.data());
 }
 
-module.exports = {
-  createNewSync,
-  getSyncRun,
-}
