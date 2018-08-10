@@ -46,6 +46,10 @@ export class Sync {
       });
   }
 
+  public delete({ fs }): Promise<boolean> {
+    return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id).delete();
+  }
+
 
   public serialize(): any {
     return {
@@ -55,7 +59,7 @@ export class Sync {
       orgId: this.orgId,
       methods: this.methods,
       lastSyncDate: new Date(this.lastSyncDate),
-      frequency: this.frequency.toString(),
+      frequency: this.frequency,
     }
   }
 
@@ -109,6 +113,6 @@ export class Sync {
   static getSync({ orgId, id, fs }): Promise<Sync> {
     //TODO: This hangs on the 2nd time for some reason...
     return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
-      .then(sn => Sync.deserialize(sn));
+      .then(doc => Sync.fromDoc(doc));
   }
 }

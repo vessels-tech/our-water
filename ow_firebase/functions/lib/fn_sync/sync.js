@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
@@ -28,6 +36,56 @@ module.exports = (functions, admin) => {
         return res.status(500).json({ status: 500, message: err.message });
     });
     /**
+     * GET Syncs
+     *
+     * Gets all the syncs for an orgId
+     */
+    app.get('/:orgId', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId } = req.params;
+        let syncsJson;
+        try {
+            const syncs = yield Sync_1.Sync.getSyncs(orgId, fs);
+            syncsJson = syncs.map(sync => sync.serialize());
+        }
+        catch (err) {
+            return next(err);
+        }
+        return res.json({ data: syncsJson });
+    }));
+    /**
+     * GET syncRunsForSync
+     *
+     * Gets the sync runs for a given sync run
+     */
+    app.get('/:orgId/syncRuns/:syncId', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, syncId } = req.params;
+        let syncRunsJson;
+        try {
+            const syncRuns = yield SyncRun_1.SyncRun.getSyncRuns({ orgId, syncId, fs });
+            syncRunsJson = syncRuns.map(syncRun => syncRun.serialize());
+        }
+        catch (err) {
+            return next(err);
+        }
+        return res.json({ data: syncRunsJson });
+    }));
+    /**
+     * DELETE sync
+     *
+     * Delete the sync for an id
+     */
+    app.delete('/:orgId/:id', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, id } = req.params;
+        try {
+            const sync = yield Sync_1.Sync.getSync({ orgId, id, fs });
+            sync.delete({ fs });
+        }
+        catch (err) {
+            return next(err);
+        }
+        return res.json({ data: true });
+    }));
+    /**
      * createSync
      *
      * Creates a new sync with the given settings
@@ -46,9 +104,9 @@ module.exports = (functions, admin) => {
     };
     app.post('/:orgId', validate(validate_1.createSyncValidation), (req, res, next) => {
         const { orgId } = req.params;
-        const { isOneTime, datasource, type } = req.body.data;
+        const { isOneTime, datasource, type, frequency } = req.body.data;
         const ds = initDatasourceWithOptions(datasource);
-        const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate]);
+        const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate], frequency);
         return sync.create({ fs })
             .then((createdSync) => {
             return res.json({ data: { syncId: createdSync.id } });

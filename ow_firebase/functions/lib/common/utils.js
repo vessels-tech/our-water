@@ -5,6 +5,8 @@ const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
+const Sync_1 = require("./models/Sync");
+const SyncRun_1 = require("./models/SyncRun");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
  * iterate through and return a list of resources
@@ -15,6 +17,17 @@ exports.snapshotToResourceList = (sn) => {
     const resources = [];
     sn.forEach(doc => resources.push(Resource_1.Resource.fromDoc(doc)));
     return resources;
+};
+exports.snapshotToSyncList = (sn) => {
+    const syncs = [];
+    sn.forEach(doc => syncs.push(Sync_1.Sync.fromDoc(doc)));
+    return syncs;
+};
+exports.snapshotToSyncRunList = (sn) => {
+    const syncRuns = [];
+    //TODO: change to fromDoc
+    sn.forEach(doc => syncRuns.push(SyncRun_1.SyncRun.deserialize(doc)));
+    return syncRuns;
 };
 // export const snapshotToFirestoreDoc = (sn): Array<FirestoreDoc> => {
 //   const resources: Array<FirestoreDoc> = [];

@@ -11,6 +11,7 @@ import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
 import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
+import { SyncRun } from './models/SyncRun';
 
 
 /**
@@ -32,6 +33,13 @@ export const snapshotToSyncList = (sn): Array<Sync> => {
   return syncs;
 }
 
+export const snapshotToSyncRunList = (sn): Array<SyncRun> => {
+  const syncRuns: Array<SyncRun> = [];
+  //TODO: change to fromDoc
+  sn.forEach(doc => syncRuns.push(SyncRun.deserialize(doc)));
+
+  return syncRuns;
+}
 
 // export const snapshotToFirestoreDoc = (sn): Array<FirestoreDoc> => {
 //   const resources: Array<FirestoreDoc> = [];

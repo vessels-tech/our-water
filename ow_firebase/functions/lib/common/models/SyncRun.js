@@ -13,6 +13,7 @@ const moment = require("moment");
 const SyncRunStatus_1 = require("../enums/SyncRunStatus");
 const SyncMethod_1 = require("../enums/SyncMethod");
 const Sync_1 = require("./Sync");
+const utils_1 = require("../utils");
 /**
  * A Sync run is a single run of a single sync method.
  * When a sync is triggered, a run is created.
@@ -171,6 +172,15 @@ class SyncRun {
         des.warnings = warnings;
         des.errors = errors;
         return des;
+    }
+    /**
+     * Get the sync rungs for a given id
+     */
+    static getSyncRuns({ orgId, syncId, fs }) {
+        return fs.collection('org').doc(orgId).collection('syncRun')
+            .where('syncId', '==', syncId)
+            .get()
+            .then(sn => utils_1.snapshotToSyncRunList(sn));
     }
     /**
      * Get the sync run for the given id

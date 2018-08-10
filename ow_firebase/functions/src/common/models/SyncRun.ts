@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { SyncRunStatus } from "../enums/SyncRunStatus";
 import { SyncMethod } from "../enums/SyncMethod";
 import { Sync } from './Sync';
+import { snapshotToSyncRunList } from '../utils';
 
 /**
  * A Sync run is a single run of a single sync method.
@@ -206,6 +207,17 @@ export class SyncRun {
     des.errors = errors;
 
     return des;
+  }
+
+
+  /**
+   * Get the sync rungs for a given id
+   */
+  static getSyncRuns({orgId, syncId, fs}): Promise<Array<SyncRun>> {
+    return fs.collection('org').doc(orgId).collection('syncRun')
+      .where('syncId', '==', syncId)
+      .get()
+      .then(sn => snapshotToSyncRunList(sn));
   }
 
   /**

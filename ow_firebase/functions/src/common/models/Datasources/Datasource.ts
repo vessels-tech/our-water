@@ -7,7 +7,6 @@ import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 
 
 export const deserializeDatasource = (ser) => {
-
   switch(ser.type) {
     case DatasourceType.LegacyMyWellDatasource:
       return new LegacyMyWellDatasource(ser.baseUrl, ser.selectedDatatypes);

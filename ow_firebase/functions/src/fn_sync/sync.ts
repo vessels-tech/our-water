@@ -15,6 +15,7 @@ import { FileDatasource } from '../common/models/Datasources/FileDatasource';
 import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
 import { SyncDatatypeList } from '../common/types/SyncDatatypes';
 import { createSyncValidation } from './validate';
+import { resolve } from 'dns';
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -35,13 +36,59 @@ module.exports = (functions, admin) => {
     return res.status(500).json({ status: 500, message: err.message });
   });
 
+  /**
+   * GET Syncs
+   * 
+   * Gets all the syncs for an orgId
+   */
   app.get('/:orgId', async (req, res, next) => {
     const { orgId } = req.params;
+    let syncsJson;
 
-    const syncs = await Sync.getSyncs(orgId, fs);
-    const syncsJson = syncs.map(sync => sync.serialize());
+    try {
+      const syncs = await Sync.getSyncs(orgId, fs);
+      syncsJson = syncs.map(sync => sync.serialize());
+    } catch (err) {
+      return next(err);
+    }
 
-    return res.json({data:syncsJson});
+    return res.json({ data: syncsJson });
+  });
+
+  /**
+   * GET syncRunsForSync
+   * 
+   * Gets the sync runs for a given sync run
+   */
+  app.get('/:orgId/syncRuns/:syncId', async (req, res, next) => {
+    const { orgId, syncId } = req.params;
+
+    let syncRunsJson;
+    try {
+      const syncRuns = await SyncRun.getSyncRuns({orgId, syncId, fs});
+      syncRunsJson = syncRuns.map(syncRun => syncRun.serialize());
+    } catch(err) {
+      return next(err);
+    }
+
+    return res.json({data: syncRunsJson});
+  });
+
+  /**
+   * DELETE sync
+   * 
+   * Delete the sync for an id
+   */
+  app.delete('/:orgId/:id', async (req, res, next) => {
+    const { orgId, id } = req.params;
+
+    try {
+      const sync = await Sync.getSync({orgId, id, fs});
+      sync.delete({fs});
+    } catch(err) {
+      return next(err);
+    }
+    return res.json({data:true});
   });
 
 

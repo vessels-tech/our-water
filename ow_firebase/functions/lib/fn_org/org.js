@@ -8,7 +8,10 @@ module.exports = (functions, admin) => {
     const app = express();
     app.use(bodyParser.json());
     const fs = admin.firestore();
-    app.get('/', (req, res) => res.send("TODO"));
+    app.get('/', (req, res) => {
+        console.log("TODO");
+        res.json(['test_12345', 'mywell', 'igrac']);
+    });
     const createOrgValidation = {
         options: {
             allowUnknownBody: false,

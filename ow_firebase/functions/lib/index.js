@@ -19,9 +19,10 @@ exports.reading = require('./fn_reading/reading')(functions, admin);
 //Sync Api
 exports.sync = require('./fn_sync/sync')(functions, admin);
 //Cron Api
-exports.cron = require('./fn_cron/cron');
+_a = require('./fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
 const fs = admin.firestore();
 fs.settings({ timestampsInSnapshots: true });
+var _a;
 //TODO: move these functions to new doc
 //TODO: REENABLE
 /**
