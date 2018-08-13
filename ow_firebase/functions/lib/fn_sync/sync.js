@@ -12,7 +12,13 @@ const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
 const moment = require("moment");
+const keyFilename = "./my-private-api-key-file.json"; //replace this with api key file
+const projectId = "our-water";
+const bucketName = `${projectId}.appspot.com`;
+const gcs = require('@google-cloud/storage')({ projectId });
+const bucket = gcs.bucket(bucketName);
 const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
 const SyncMethod_1 = require("../common/enums/SyncMethod");
 const Sync_1 = require("../common/models/Sync");
 const SyncRun_1 = require("../common/models/SyncRun");
@@ -23,8 +29,10 @@ const FileDatasourceOptions_1 = require("../common/models/FileDatasourceOptions"
 const validate_1 = require("./validate");
 module.exports = (functions, admin) => {
     const app = express();
+    app.use(fileUpload());
     app.use(bodyParser.json());
     const fs = admin.firestore();
+    const storage = admin.storage().bucket();
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
     app.use(openCors);
@@ -160,6 +168,40 @@ module.exports = (functions, admin) => {
             .catch(err => {
             console.log('error in runSync:', err);
             next(err);
+        });
+    });
+    /**
+     * POST uploadFile
+     * /:orgId/upload
+     */
+    app.post('/:orgId/upload', (req, res, next) => {
+        const { orgId } = req.params;
+        if (!req['files']) {
+            return res.status(400).send('No files were uploaded.');
+        }
+        if (!req['files'].readingsFile) {
+            return res.status(400).send('file with param readingsFile is required');
+        }
+        // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+        let readingsFile = req['files'].readingsFile;
+        //Save to local first:
+        const localFilename = `/tmp/${moment().toISOString()}_${readingsFile.name}`;
+        const destination = `${orgId}/sync/${readingsFile.name}`;
+        return readingsFile.mv(localFilename)
+            .then(() => {
+            //Upload from file to bucket
+            return bucket.upload(localFilename, {
+                destination,
+                public: true,
+                metadata: {
+                    contentType: readingsFile.mimetype,
+                },
+            });
+        })
+            .then(sn => res.json({ fileUrl: `http://storage.googleapis.com/${bucketName}/${destination}` }))
+            .catch(err => {
+            console.log('POST uploadFile err', err);
+            return next(err);
         });
     });
     return functions.https.onRequest(app);

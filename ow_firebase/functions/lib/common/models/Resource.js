@@ -55,6 +55,17 @@ class Resource extends FirestoreDoc_1.default {
     static fromDoc(doc) {
         return this.deserialize(doc.data());
     }
+    /**
+     * getResource
+     *
+     * Get the resource from an orgId and resourceId
+     */
+    static getResource({ orgId, id, fs }) {
+        //TODO: make sure orgId is valid first
+        return fs.collection('org').doc(orgId).collection('resource').doc(id)
+            .get()
+            .then(doc => Resource.fromDoc(doc));
+    }
 }
 exports.Resource = Resource;
 //# sourceMappingURL=Resource.js.map

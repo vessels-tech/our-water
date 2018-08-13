@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
@@ -7,6 +15,10 @@ const moment = require("moment");
 const Group_1 = require("../common/models/Group");
 const GroupType_1 = require("../common/enums/GroupType");
 const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
+const Resource_1 = require("../common/models/Resource");
+const util_1 = require("util");
+const ResourceIdType_1 = require("../common/types/ResourceIdType");
+const ResourceType_1 = require("../common/enums/ResourceType");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -130,6 +142,61 @@ module.exports = (functions, admin) => {
         })
             .catch(err => next(err));
     });
+    /**
+     * updateResource
+     * PUT /:orgId/:resourceId
+     */
+    const updateResourceValidation = {
+        options: {
+            allowUnknownBody: true,
+        },
+        body: {
+            //This is annoying...
+            data: {
+                coords: Joi.object().keys({
+                    _latitude: Joi.number().optional(),
+                    _longitude: Joi.number().optional(),
+                }).optional(),
+                owner: Joi.object().keys({
+                    name: Joi.string().optional(),
+                    createdByUserId: Joi.string().optional(),
+                }).optional(),
+                externalIds: Joi.object().optional(),
+                imageUrl: Joi.string().optional(),
+                resourceType: Joi.valid('well', 'raingauge', 'checkdam').optional()
+            },
+        }
+    };
+    app.put('/:orgId/:resourceId', validate(updateResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, resourceId } = req.params;
+        const newData = req.body.data;
+        console.log("orgId", orgId);
+        console.log("resourceId", resourceId);
+        console.log("newData", JSON.stringify(newData, null, 2));
+        try {
+            //get the resource
+            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, fs });
+            const modifiableKeys = ['owner', 'externalIds', 'resourceType', 'coords'];
+            modifiableKeys.forEach(key => {
+                let newValue = newData[key];
+                if (util_1.isNullOrUndefined(newValue)) {
+                    return;
+                }
+                if (key === 'externalIds') {
+                    newValue = ResourceIdType_1.default.deserialize(newValue);
+                }
+                if (key == 'resourceType') {
+                    newValue = ResourceType_1.resourceTypeFromString(newValue);
+                }
+                resource[key] = newValue;
+            });
+            yield resource.save({ fs });
+            return res.json(resource);
+        }
+        catch (err) {
+            return next(err);
+        }
+    }));
     /**
      * getReadingsForResource
      *

@@ -5,6 +5,10 @@ import * as moment from 'moment';
 import { Group } from '../common/models/Group';
 import { GroupType } from '../common/enums/GroupType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
+import { Resource } from '../common/models/Resource';
+import { isNullOrUndefined } from 'util';
+import ResourceIdType from '../common/types/ResourceIdType';
+import { resourceTypeFromString } from '../common/enums/ResourceType';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -153,6 +157,68 @@ module.exports = (functions, admin) => {
         return res.json({ resource: result.id })
       })
       .catch(err => next(err));
+  });
+
+  /**
+   * updateResource
+   * PUT /:orgId/:resourceId
+   */
+  const updateResourceValidation = {
+    options: {
+      allowUnknownBody: true,
+    },
+    body: {
+      //This is annoying...
+      data: {
+        coords: Joi.object().keys({
+          _latitude: Joi.number().optional(),
+          _longitude: Joi.number().optional(),
+        }).optional(),
+        owner: Joi.object().keys({
+          name: Joi.string().optional(),
+          createdByUserId: Joi.string().optional(),
+        }).optional(),
+        externalIds: Joi.object().optional(),
+        imageUrl: Joi.string().optional(),
+        resourceType: Joi.valid('well', 'raingauge', 'checkdam').optional()
+      },
+    }
+  };
+
+  app.put('/:orgId/:resourceId', validate(updateResourceValidation), async (req, res, next) => {
+    const { orgId, resourceId } = req.params;
+    const newData = req.body.data;
+    console.log("orgId", orgId);
+    console.log("resourceId", resourceId);
+
+    console.log("newData", JSON.stringify(newData, null, 2));
+
+    try {
+      //get the resource
+      const resource = await Resource.getResource({orgId, id: resourceId, fs});
+      const modifiableKeys = ['owner', 'externalIds', 'resourceType', 'coords'];
+      modifiableKeys.forEach(key => {
+        let newValue = newData[key];
+        if (isNullOrUndefined(newValue)) {
+          return;
+        }
+        
+        if (key === 'externalIds') {
+          newValue = ResourceIdType.deserialize(newValue);
+        }
+
+        if (key == 'resourceType') {
+          newValue = resourceTypeFromString(newValue);
+        }
+
+        resource[key] = newValue;
+      });
+
+      await resource.save({fs});
+      return res.json(resource);
+    } catch (err) {
+      return next(err);
+    }
   });
 
   /**
