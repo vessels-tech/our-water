@@ -1,8 +1,10 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
+import * as moment from 'moment';
 import { gzipSync } from 'zlib';
 import { deepStrictEqual } from 'assert';
 import { resource } from '..';
+import { snapshotToResourceList } from '../common/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -26,6 +28,32 @@ module.exports = (functions, admin) => {
     }
 
     return res.status(500).json({ status: 500, message: err.message });
+  });
+
+
+
+  /**
+   * GET reading
+   * Get all the readings for an orgId + resourceId
+   */
+  const getReading = (orgId, resourceId, last_createdAt = moment().valueOf(), limit = 25) => {
+    return fs.collection('org').doc(orgId)
+      .collection('reading')
+      .where('resourceId', '==', resourceId)
+      .orderBy('createdAt')
+      .startAfter(last_createdAt)
+      .limit(limit)
+      .get();
+  }
+
+  app.get('/:orgId/:resourceId', (req, res, next) => {
+    const { orgId, resourceId } = req.params;
+    const { last_createdAt, limit } = req.query;
+
+    return getReading(orgId, resourceId, last_createdAt, limit)
+    .then(snapshot => snapshotToResourceList(snapshot))
+    .then(resources => res.json(resources))
+    .catch(err => next(err));
   });
 
 

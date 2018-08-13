@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
+const moment = require("moment");
 const Group_1 = require("../common/models/Group");
 const GroupType_1 = require("../common/enums/GroupType");
 const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
@@ -25,13 +26,22 @@ module.exports = (functions, admin) => {
         }
         return res.status(500).json({ status: 500, message: err.message });
     });
+    const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
+        return fs.collection('org').doc(orgId)
+            .collection('resource')
+            .orderBy('createdAt')
+            .startAfter(last_createdAt)
+            .limit(limit)
+            .get();
+    };
     /**
      * return all the resources in a given organisation, containing the latest reading
      */
     app.get('/:orgId', (req, res, next) => {
         const orgId = req.params.orgId;
+        const { last_createdAt, limit } = req.query;
         // const resourceRef = fs.collection('org').doc(orgId).collection('resource');
-        return fs.collection('org').doc(orgId).collection('resource').get()
+        return getOrgs(orgId, last_createdAt, limit)
             .then(snapshot => {
             const resources = [];
             snapshot.forEach(function (doc) {

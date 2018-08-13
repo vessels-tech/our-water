@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
+const moment = require("moment");
+const utils_1 = require("../common/utils");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -17,6 +19,27 @@ module.exports = (functions, admin) => {
             return res.status(err.status).json(err);
         }
         return res.status(500).json({ status: 500, message: err.message });
+    });
+    /**
+     * GET reading
+     * Get all the readings for an orgId + resourceId
+     */
+    const getReading = (orgId, resourceId, last_createdAt = moment().valueOf(), limit = 25) => {
+        return fs.collection('org').doc(orgId)
+            .collection('reading')
+            .where('resourceId', '==', resourceId)
+            .orderBy('createdAt')
+            .startAfter(last_createdAt)
+            .limit(limit)
+            .get();
+    };
+    app.get('/:orgId/:resourceId', (req, res, next) => {
+        const { orgId, resourceId } = req.params;
+        const { last_createdAt, limit } = req.query;
+        return getReading(orgId, resourceId, last_createdAt, limit)
+            .then(snapshot => utils_1.snapshotToResourceList(snapshot))
+            .then(resources => res.json(resources))
+            .catch(err => next(err));
     });
     /**
      * saveReading

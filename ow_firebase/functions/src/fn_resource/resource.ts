@@ -1,6 +1,7 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
+import * as moment from 'moment';
 import { Group } from '../common/models/Group';
 import { GroupType } from '../common/enums/GroupType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
@@ -32,27 +33,38 @@ module.exports = (functions, admin) => {
     return res.status(500).json({ status: 500, message: err.message });
   });
 
+
+  const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
+    return fs.collection('org').doc(orgId)
+      .collection('resource')
+      .orderBy('createdAt')
+      .startAfter(last_createdAt)
+      .limit(limit)
+      .get();
+  }
+
   /**
    * return all the resources in a given organisation, containing the latest reading
    */
   app.get('/:orgId', (req, res, next) => {
     const orgId = req.params.orgId;
+    const { last_createdAt, limit } = req.query;
 
     // const resourceRef = fs.collection('org').doc(orgId).collection('resource');
-    return fs.collection('org').doc(orgId).collection('resource').get()
-    .then(snapshot => {
+    return getOrgs(orgId, last_createdAt, limit)
+      .then(snapshot => {
 
-      const resources = [];
-      snapshot.forEach(function (doc) {
-        resources.push(doc.data());
-      });
-    
-      //Sadly this doesn't give us the nested reading.
-      //It also doesn't give us the document containing the resources...
-      //One way to do this would be to store readings in an array on this object, but I'm worried about performance issues
-      return res.json(resources);
-    })
-    .catch(err => next(err));
+        const resources = [];
+        snapshot.forEach(function (doc) {
+          resources.push(doc.data());
+        });
+      
+        //Sadly this doesn't give us the nested reading.
+        //It also doesn't give us the document containing the resources...
+        //One way to do this would be to store readings in an array on this object, but I'm worried about performance issues
+        return res.json(resources);
+      })
+      .catch(err => next(err));
   });
 
   app.get('/:orgId/test', (req, res, next) => {
