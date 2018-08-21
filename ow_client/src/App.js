@@ -46,6 +46,8 @@ import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
 import { bgLight, primary, bgDark, bgMed, bgDark2, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
+import { FirebaseConfig } from './utils/FirebaseConfig';
+import { ConfigFactory } from './utils/ConfigFactory';
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -85,6 +87,10 @@ export default class App extends Component<Props> {
       isAuthenticated: false,
       userId: ''
     };
+
+    //TODO: find a better way, eg. dependency injection?
+    return FirebaseConfig.getAllConfig()
+      .then(config => this.config = new ConfigFactory(config));
   }
 
   componentWillMount() {

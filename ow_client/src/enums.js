@@ -1,28 +1,25 @@
-const MapHeightOptions = {
+export const MapHeightOptions = {
   default: 300,
   small: 100,
   fullscreen: '100%',
 };
 
-const MapStateOptions = {
+export const MapStateOptions = {
   default: 0,
   small: 1,
   fullscreen: 2
 };
 
-const ResourceTypes = {
+export const ResourceTypes = {
   well: 'well',
   raingauge: 'raingauge',
   checkdam: 'checkdam',
   custom: 'custom',
 }
 
-const ResourceTypeArray = Object.values(ResourceTypes);
+export const ResourceTypeArray = Object.values(ResourceTypes);
 
-
-export {
-  MapHeightOptions,
-  MapStateOptions,
-  ResourceTypes,
-  ResourceTypeArray,
-}
+export const BaseApiType = {
+  MyWellApi: 'MyWellApi',
+  GGMNApi: 'GGMNApi',
+};

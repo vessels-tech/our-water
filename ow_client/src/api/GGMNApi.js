@@ -9,7 +9,6 @@ import {
 } from '../utils';
 import { validateReading } from './ValidationApi';
 
-
 const ggmnBaseUrl = Config.GGMN_BASE_URL;
 const timeout = 1000 * 10;
 
@@ -25,6 +24,7 @@ class GGMNApi {
    * initialize with options
    * 
    * If options.auth is present then the user will be considered logged in
+   * TODO: how to we pass this in with 
    */
   constructor(options) {
     if (options && options.auth) {
