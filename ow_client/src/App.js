@@ -107,6 +107,7 @@ export default class App extends Component<Props> {
     })
     .then(location => {
       this.updateGeoLocation(location);
+      //TODO: can't do ths from GGMN
       return FirebaseApi.getResourceNearLocation(this.networkApi, {orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
@@ -153,6 +154,7 @@ export default class App extends Component<Props> {
     });
 
     //TODO: should probably present a 'mini loading indicator'
+    //TODO: can't do this from GGMN
     return FirebaseApi.getResourceNearLocation(this.networkApi, { orgId, ...coordinate, distance: 0.1 })
       .then(resources => {
         this.setState({
