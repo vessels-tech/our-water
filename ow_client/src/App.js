@@ -58,39 +58,40 @@ export default class App extends Component<Props> {
     this.fs = firebase.firestore();
     this.networkApi = new NetworkApi();
 
-    this.state = {
-      loading: true,
-      region: {
-        latitude: 23.345,
-        longitude: 23.44,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.25,
-      },
-      userRegion: {
-        latitude: 23.345,
-        longitude: 23.44,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.25,
-      },
-      droppedPin: false,
-      droppedPinCoords: {},
-      hasSavedReadings: false,
-      
-      mapHeight: MapHeightOptions.default,
-      mapState: MapStateOptions.default,
-
-      hasSelectedResource: false,
-      selectedResource: {},
-      
-      isSearching: false,
-
-      isAuthenticated: false,
-      userId: ''
-    };
-
     //TODO: find a better way, eg. dependency injection?
-    return FirebaseConfig.getAllConfig()
-      .then(config => this.config = new ConfigFactory(config));
+    FirebaseConfig.getAllConfig()
+    .then(config => this.config = new ConfigFactory(config))
+    .then(() => {
+      this.state = {
+        loading: true,
+        region: {
+          latitude: 23.345,
+          longitude: 23.44,
+          latitudeDelta: 0.5,
+          longitudeDelta: 0.25,
+        },
+        userRegion: {
+          latitude: 23.345,
+          longitude: 23.44,
+          latitudeDelta: 0.5,
+          longitudeDelta: 0.25,
+        },
+        droppedPin: false,
+        droppedPinCoords: {},
+        hasSavedReadings: false,
+
+        mapHeight: MapHeightOptions.default,
+        mapState: MapStateOptions.default,
+
+        hasSelectedResource: false,
+        selectedResource: {},
+
+        isSearching: false,
+
+        isAuthenticated: false,
+        userId: ''
+      };
+    });
   }
 
   componentWillMount() {

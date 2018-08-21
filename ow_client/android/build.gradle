@@ -12,6 +12,10 @@ buildscript {
 
         //Allow us to read google-services.json files
         classpath 'com.google.gms:google-services:3.2.0'
+
+        //According to v4.1.0 of react-native-firebase
+        // classpath 'com.android.tools.build:gradle:3.1.2'
+        // classpath 'com.google.gms:google-services:3.2.1'
     }
 }
 

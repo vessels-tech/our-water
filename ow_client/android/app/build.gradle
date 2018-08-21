@@ -170,9 +170,10 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:15.0.0"
 
     //react-native-firebase
-    implementation "com.google.firebase:firebase-core:15.0.0"
-    implementation "com.google.firebase:firebase-firestore:15.0.0"
-    implementation "com.google.firebase:firebase-auth:15.0.0"
+    implementation "com.google.firebase:firebase-core:15.0.2"
+    implementation "com.google.firebase:firebase-config:15.0.0"
+    implementation "com.google.firebase:firebase-firestore:16.0.0"
+    implementation "com.google.firebase:firebase-auth:15.1.0"
 
 
     //react-native-navigation

@@ -15,6 +15,7 @@ import {
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
+// const config = firebase.config();
 const baseUrl = Config.REACT_APP_BASE_URL;
 const timeout = 1000 * 10;
 
