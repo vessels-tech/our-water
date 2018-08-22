@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  TextInput,
   WebView,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { FormInput, SearchBar as SB } from 'react-native-elements';
+
+export interface Props {
+  legacyId: string,
+}
+
+export interface State {
+
+}
 
 class ResourceDetailScreen extends Component<Props> {
 
@@ -36,10 +35,6 @@ class ResourceDetailScreen extends Component<Props> {
   render() {
     return this.getWebView();
   }
-}
-
-ResourceDetailScreen.propTypes = {
-  legacyId: PropTypes.string.isRequired,
 }
 
 export default ResourceDetailScreen;

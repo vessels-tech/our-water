@@ -1,27 +1,26 @@
 import React, { Component } from 'react';
 import {
-  // Platform,
-  // StyleSheet,
-  // ScrollView,
   View,
-  // TextInput,
-  // WebView,
 } from 'react-native';
 import {
-  Button,
-  Text,
   ListItem,
 } from 'react-native-elements';
-// import Icon from 'react-native-vector-icons/FontAwesome';
-import PropTypes from 'prop-types';
 import {
   navigateTo,
 } from '../utils';
-import { primary, primaryDark, bgLight, textDark, bgLightHighlight } from '../utils/Colors';
+import { primary, primaryDark, textDark, } from '../utils/Colors';
+
+export interface Props {
+  config: any
+}
+
+export interface State {
+
+}
 
 class SettingsScreen extends Component<Props> {
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     console.log('SettingsScreen.props:', props);

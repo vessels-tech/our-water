@@ -3,12 +3,8 @@ import {
   View,
 } from 'react-native';
 import {
-  FormInput,
-  FormLabel,
-  FormValidationMessage,
   Button
 } from 'react-native-elements';
-import PropTypes from 'prop-types';
 import IconFormInput, { InputType } from '../components/common/IconFormInput';
 import { ResourceTypeArray, ResourceType } from '../enums';
 
