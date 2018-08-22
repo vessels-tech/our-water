@@ -73,7 +73,7 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   componentWillUpdate() {
-    console.log('willUpdate');
+
   }
 
   componentWillUnmount() {

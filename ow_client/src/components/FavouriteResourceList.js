@@ -49,7 +49,6 @@ class FavouriteResourceList extends Component<Props> {
       FirebaseApi.getFavouriteResources({orgId, userId})
     ])
     .then(([recents, favourites]) => {
-      console.log('recents,', recents, 'favourites', favourites);
       this.setState({
         recents, 
         favourites,
