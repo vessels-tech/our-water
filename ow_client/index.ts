@@ -10,7 +10,7 @@ import { defaultNavigatorStyle } from './src/utils';
 import { ConfigFactory } from './src/utils/ConfigFactory';
 import { FirebaseConfig } from './src/utils/FirebaseConfig';
 
-let config;
+let config: ConfigFactory;
 
 Promise.resolve(true)
 .then(() => FirebaseConfig.getAllConfig())
