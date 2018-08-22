@@ -3,7 +3,7 @@
  * which allows us an entrypoint and testable firebase config
  */
 import firebase from 'react-native-firebase';
-
+import Config from 'react-native-config';
 const config = firebase.config();
 
 export class FirebaseConfig {
@@ -11,7 +11,8 @@ export class FirebaseConfig {
   static getAllConfig() {
     // return Promise.resolve({});
     // TODO: we probably shouldn't fetch every time...
-    return config.fetch()
+    return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
+    // return config.fetch(10)
       .then(() => config.activateFetched())
       .then(() => config.getKeysByPrefix())
       .then(allKeys => config.getValues(allKeys))

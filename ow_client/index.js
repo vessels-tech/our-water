@@ -11,18 +11,15 @@ import { ConfigFactory } from './src/utils/ConfigFactory';
 import { FirebaseConfig } from './src/utils/FirebaseConfig';
 
 let config;
-console.log("FirebaseConfig", FirebaseConfig);
 
 Promise.resolve(true)
 .then(() => FirebaseConfig.getAllConfig())
 .then(_config => {
     config = new ConfigFactory(_config);
     registerScreens(config); // this is where you register all of your app's screens
-    console.log("config is", config);
 })
 .then(() => {
   // start the app
-  console.log("registered screens, startSingleScreenApp");
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
