@@ -54,6 +54,7 @@ export default class App extends Component<Props> {
 
   constructor(props) {
     super(props);
+    console.log("props are", props);
     this.fs = firebase.firestore();
     this.networkApi = new NetworkApi();
 

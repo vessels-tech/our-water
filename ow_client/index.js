@@ -53,8 +53,15 @@ Promise.resolve(true)
         screen: 'screen.MenuScreen',
         disableOpenGesture: true,
         fixedWidth: 800,
+        passProps: {
+          config
+        }
       }
     },
-    animationType: 'fade'
+    animationType: 'fade',
+    passProps: {
+      //config will be available on all props.config?
+      config,
+    },
   })
 });

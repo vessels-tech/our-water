@@ -21,6 +21,33 @@ import { primary, primaryDark, bgLight, textDark, bgLightHighlight } from '../ut
 
 class SettingsScreen extends Component<Props> {
 
+  constructor(props) {
+    super(props);
+
+    console.log('SettingsScreen.props:', props);
+  }
+
+  /**
+   * Connect to button is only available for variants which connect to external services
+   */
+  getConnectToButton() {
+    if (!this.props.config.showConnectToButton) {
+      return false;
+    }
+
+    return (
+      <ListItem
+        title={this.props.config.getConnectToButtonText}
+        onPress={() => console.log("GGMN pressed")}
+        leftIcon={{
+          name: 'account-circle',
+          color: textDark,
+        }}
+        hideChevron
+        disabled
+      />
+    );
+  }
 
   render() {
     return (
@@ -44,17 +71,7 @@ class SettingsScreen extends Component<Props> {
             backgroundColor: primary,
           }}/>
         </View>
-
-        <ListItem
-          title="Connect to GGMN"
-          onPress={() => console.log("GGMN pressed")}
-          leftIcon={{
-            name: 'account-circle',
-            color: textDark,
-          }}
-          hideChevron
-          disabled
-        />
+        {this.getConnectToButton()}
         <ListItem
           title="Register a resource"
           onPress={() =>

@@ -9,8 +9,6 @@ const config = firebase.config();
 export class FirebaseConfig {
 
   static getAllConfig() {
-    // return Promise.resolve({});
-    // TODO: we probably shouldn't fetch every time...
     return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
     // return config.fetch(10)
       .then(() => config.activateFetched())
@@ -29,5 +27,4 @@ export class FirebaseConfig {
   static getValue(key) {
     //TODO: get the value for the key...
   }
-
 }

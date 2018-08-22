@@ -37,4 +37,21 @@ export class ConfigFactory {
     return new MyWellApi();
   }
 
+  showConnectToButton() {
+    if (this.config.showConnectToButton) {
+      return true;
+    }
+
+    return false;
+  }
+
+  getConnectToButtonText() {
+    if (!this.config.showConnectToButton) {
+      console.warn("showConnectToButton is disabled. Text should be null");
+      return null;
+    }
+
+    return this.config.connectToButtonText;
+  }
+
 }
