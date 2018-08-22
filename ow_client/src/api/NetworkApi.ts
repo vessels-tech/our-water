@@ -2,6 +2,8 @@
 import { NetInfo } from 'react-native';
 
 class NetworkApi {
+  isConnected: boolean
+  connectionUpdateCallbacks: any
 
   constructor() {
     this.updateConnectionStatus();
@@ -15,11 +17,11 @@ class NetworkApi {
     );
   }
 
-  addConnectionChangeCallback(id, callback) {
+  addConnectionChangeCallback(id: any, callback: any) {
     this.connectionUpdateCallbacks[id] = callback;
   }
 
-  removeConnectionChangeCallback(id) {
+  removeConnectionChangeCallback(id: any) {
     delete this.connectionUpdateCallbacks[id];
   }
 
@@ -31,7 +33,7 @@ class NetworkApi {
       });
   }
 
-  onConnectionChange(isConnected) {
+  onConnectionChange(isConnected: boolean) {
     // console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
     this.isConnected = isConnected;
 

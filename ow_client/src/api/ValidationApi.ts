@@ -1,8 +1,8 @@
 
 import Joi from 'react-native-joi';
 
-const validateReading = (reading) => {
-  const schema = Joi.object().keys({
+const validateReading = (reading: any) => {
+  const schema:Joi.SchemaLike = Joi.object().keys({
     datetime: Joi.string().isoDate().required(),
     value: Joi.number().required(),
     userId: Joi.string().required(),

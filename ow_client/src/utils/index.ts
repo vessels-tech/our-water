@@ -102,7 +102,7 @@ const getMinAndMaxReadingDates = (momentFormat: string) => {
   }
 }
 
-const displayAlert = ({title: any, message: any, buttons: any}) => {
+const displayAlert = (title: string, message: string, buttons: any) => {
 
   Alert.alert(title, message, buttons,
     { cancelable: false }
@@ -114,7 +114,7 @@ const displayAlert = ({title: any, message: any, buttons: any}) => {
  * distance must be a float between 0-1
  * @param {*} param0 
  */
-const boundingBoxForCoords = ({(latitude:any), longitude: any , distance:any }) => {
+const boundingBoxForCoords = (latitude: number, longitude: number , distance: number) => {
   if (distance < 0 || distance > 1) {
     throw new Error("Distance must be a float between 0 and 1");
   }
@@ -141,25 +141,26 @@ const prettyColors = [
   "#fff9c4",
 ];
 
-const randomPrettyColorForId = (resourceId) => {
+const randomPrettyColorForId = (resourceId: string) => {
   const idNumber = Math.abs(hashCode(resourceId))
   const index = (idNumber % prettyColors.length);
 
   return prettyColors[index];
 }
 
-const hashCode = (str) => {
+const hashCode = (str: string) => {
   var hash = 0;
   if (str.length == 0) return hash;
+  let i: number;
   for (i = 0; i < str.length; i++) {
-    char = str.charCodeAt(i);
+    let char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return hash;
 }
 
-const getShortId = (str) => {
+const getShortId = (str: string) => {
   return Math.abs(hashCode(str));
 }
 
