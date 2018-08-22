@@ -7,7 +7,6 @@ import SettingsScreen from './SettingsScreen';
 import EditResourceScreen from './EditResourceScreen';
 
 
-
 export function registerScreens() {
   Navigation.registerComponent('example.FirstTabScreen', () => App);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen);
