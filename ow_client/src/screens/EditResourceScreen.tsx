@@ -4,31 +4,41 @@ import {
 } from 'react-native';
 import {
   FormInput,
-  Input,
   FormLabel,
   FormValidationMessage,
-  Button,
-  Icon,
-  Text
+  Button
 } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
-import {
-  ResourceTypes
-} from '../enums';
+import IconFormInput, { InputType } from '../components/common/IconFormInput';
+import { ResourceTypeArray, ResourceType } from '../enums';
+
+export interface Props { 
+  resourceId: string,
+}
+
+export interface State {
+  isLoading: boolean,
+  lat: string,
+  lng: string,
+  resourceType: ResourceType,
+  ownerName: string,
+ }
+
 
 class EditResourceScreen extends Component<Props> {
+  state: State;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       isLoading: false,
       lat: '',
       lng: '',
-      resourceType: 'well',
+      resourceType: ResourceType.well,
       ownerName: '',
     };
+    
   }
 
   //TODO: load the resource if we already have the id
@@ -49,10 +59,11 @@ class EditResourceScreen extends Component<Props> {
             lat.length > 0 && !this.isFieldValid(lat) ?
               'Field is required' : null
           }
-          onChangeText={lat => this.setState({ lat })}
+          onChangeText={(lat: string) => this.setState({ lat })}
           onSubmitEditing={() => console.log('on submit editing')}
-          fieldType={InputTypes.fieldInput}
+          fieldType={InputType.fieldInput}
           value={lat}
+          keyboardType='default'
         />
         <IconFormInput
           iconName='pencil'
@@ -62,10 +73,11 @@ class EditResourceScreen extends Component<Props> {
             lng.length > 0 && !this.isFieldValid(lng) ?
               'Field is required' : null
           }
-          onChangeText={lng => this.setState({ lng })}
+          onChangeText={(lng: string) => this.setState({ lng })}
           onSubmitEditing={() => console.log('on submit editing')}
-          fieldType={InputTypes.fieldInput}
+          fieldType={InputType.fieldInput}
           value={lng}
+          keyboardType='default'
         />
         <IconFormInput
           iconName='pencil'
@@ -75,10 +87,10 @@ class EditResourceScreen extends Component<Props> {
             ownerName.length > 0 && !this.isFieldValid(ownerName) ?
               'Owner name is required' : null
           }
-          onChangeText={ownerName => this.setState({ ownerName })}
+          onChangeText={(ownerName: string) => this.setState({ ownerName })}
           onSubmitEditing={() => console.log('on submit editing')}
           keyboardType='numeric'
-          fieldType={InputTypes.fieldInput}
+          fieldType={InputType.fieldInput}
           value={ownerName}
         />
 
@@ -86,11 +98,10 @@ class EditResourceScreen extends Component<Props> {
 
       {/* TODO: load conditional fields, maybe owner is even conditional? */}
       </View>
-
     );
   }
 
-  isFieldValid(str) {
+  isFieldValid(str: string) {
     if (!str || str.length === 0) {
       return false;
     }
@@ -98,7 +109,7 @@ class EditResourceScreen extends Component<Props> {
     return true;
   }
 
-  isResourceTypeValid(resourceType) {
+  isResourceTypeValid(resourceType: ResourceType) {
     if (ResourceTypeArray.indexOf(resourceType) === -1) {
       return false;
     }
@@ -107,10 +118,9 @@ class EditResourceScreen extends Component<Props> {
   }
 
   shouldDistableSubmitButton() {
-    const { isLoading, lat, lng, ownerName, resourceType } = this.state;
+    const { isLoading, lat, lng, resourceType } = this.state;
 
     return isLoading ||
-      !this.isFieldValid(isLoading) ||
       !this.isFieldValid(lat) ||
       !this.isFieldValid(lng) ||
       !this.isResourceTypeValid(resourceType)
@@ -126,7 +136,7 @@ class EditResourceScreen extends Component<Props> {
           padding: 30,
           // marginBottom: 20
         }}
-        titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+        // containerViewStyle={{ fontWeight: 'bold', fontSize: 23 }}
         title='Save'
         onPress={() => console.log("Save Pressed")}
       />
@@ -151,9 +161,5 @@ class EditResourceScreen extends Component<Props> {
 }
 
 //TODO: load existing resource for edit
-
-EditResourceScreen.propTypes = {
-  resourceId: PropTypes.string,
-}
 
 export default EditResourceScreen;

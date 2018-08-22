@@ -7,12 +7,12 @@ import {
   View,
   TextInput,
   Dimensions,
+  KeyboardTypeOptions,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   FormInput,
-  Input,
   FormLabel,
   FormValidationMessage,
   Button
@@ -27,14 +27,27 @@ import {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const InputTypes = {
-  fieldInput: 0,
-  dateTimeInput: 1,
+export enum InputType {
+  fieldInput,
+  dateTimeInput,
 };
 
 const dateFormat = 'MMMM Do YYYY, h: mm: ss a'
 
+export interface Props {
+  errorMessage: string | null,
+  value: any,
+  iconName: string,
+  placeholder: string,
+  onChangeText: any,
+  onSubmitEditing: any,
+  keyboardType: KeyboardTypeOptions,
+  iconColor: string,
+  fieldType: InputType,
+}
+
 class IconFormInput extends Component<Props> {
+  
   shouldDisplayErrorMessage() {
     const { errorMessage } = this.props;
 
@@ -47,11 +60,11 @@ class IconFormInput extends Component<Props> {
     return true;
   }
 
-  getFormInput(inputType) {
+  getFormInput(inputType: InputType) {
     switch(inputType) {
-      case InputTypes.dateTimeInput:
+      case InputType.dateTimeInput:
         return this.getFormInputCalendar();
-      case InputTypes.fieldInput:
+      case InputType.fieldInput:
         return this.getFormInputField();
     }
   }
@@ -77,12 +90,12 @@ class IconFormInput extends Component<Props> {
             // width: '100%',
             backgroundColor: 'transparent', 
           }}
-          titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-          containerStyle={{
-            marginVertical: 10,
-            height: 50,
-            // width: '100%'
-          }}
+          // titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+          // containerStyle={{
+          //   marginVertical: 10,
+          //   height: 50,
+          //   // width: '100%'
+          // }}
           onPress={() => {
             console.log('present cal');
             return false; //stop propagation?
@@ -164,7 +177,7 @@ class IconFormInput extends Component<Props> {
           borderBottomColor: iconColor || 'rgba(0, 0, 0, 0.38)',
           flex: 5
         }}
-        ref={input => this.dateInput = input}
+        // ref={input => this.dateInput = input}
         onSubmitEditing={() => onSubmitEditing()}
         onChangeText={text => onChangeText(text)}
       />
@@ -201,11 +214,11 @@ class IconFormInput extends Component<Props> {
               // backgroundColor: 'blue',
               flex: 1,
             }}
-            // reverse
-            raised
+
+            // raised
             size={37}
             name={iconName}
-            onPress={() => this.updateGeoLocation()}
+            // onPress={() => this.updateGeoLocation()}
             color={iconColor || "#FF6767"}
           />
           {this.getFormInput(fieldType)}
@@ -224,19 +237,5 @@ class IconFormInput extends Component<Props> {
   }
 }
 
-IconFormInput.propTypes = {
-  iconName: PropTypes.string,
-  placeholder: PropTypes.string,
-  errorMessage: PropTypes.string,
-  keyboardType: PropTypes.string,
-  value: PropTypes.any,
-  onChangeText: PropTypes.func,
-  onSubmitEditing: PropTypes.func,
-  fieldType: PropTypes.number,
-};
 
 export default IconFormInput;
-
-export {
-  InputTypes, 
-}
