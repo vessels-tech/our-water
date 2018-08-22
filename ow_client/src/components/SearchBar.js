@@ -45,7 +45,6 @@ class SearchPanel extends Component<Props> {
     //TODO: should we throttle/debounce this?
     return FirebaseApi.performBasicSearch({orgId, text})
       .then(results => {
-        console.log("search finished", results, text);
         this.setState({
           isLoading: false,
           results

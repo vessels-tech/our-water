@@ -4,13 +4,11 @@
  */
 import firebase from 'react-native-firebase';
 
-console.log("firebase", firebase);
 const config = firebase.config();
 
 export class FirebaseConfig {
 
   static getAllConfig() {
-    console.log("firebase", firebase);
     // return Promise.resolve({});
     // TODO: we probably shouldn't fetch every time...
     return config.fetch()
@@ -22,6 +20,8 @@ export class FirebaseConfig {
         Object.keys(obj).forEach(key => {
           data[key] = obj[key].val();
         });
+
+        return data;
       });
   }
 

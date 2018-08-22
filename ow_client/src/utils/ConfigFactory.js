@@ -8,6 +8,8 @@ export class ConfigFactory {
 
   constructor(config) {
     this.config = config;
+
+    console.log("init config factory with config", this.config);
   }
 
   /**

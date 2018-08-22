@@ -46,8 +46,7 @@ import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
 import { bgLight, primary, bgDark, bgMed, bgDark2, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
-import { FirebaseConfig } from './utils/FirebaseConfig';
-import { ConfigFactory } from './utils/ConfigFactory';
+
 const orgId = Config.REACT_APP_ORG_ID;
 
 type Props = {};
@@ -58,40 +57,35 @@ export default class App extends Component<Props> {
     this.fs = firebase.firestore();
     this.networkApi = new NetworkApi();
 
-    //TODO: find a better way, eg. dependency injection?
-    FirebaseConfig.getAllConfig()
-    .then(config => this.config = new ConfigFactory(config))
-    .then(() => {
-      this.state = {
-        loading: true,
-        region: {
-          latitude: 23.345,
-          longitude: 23.44,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.25,
-        },
-        userRegion: {
-          latitude: 23.345,
-          longitude: 23.44,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.25,
-        },
-        droppedPin: false,
-        droppedPinCoords: {},
-        hasSavedReadings: false,
+    this.state = {
+      loading: true,
+      region: {
+        latitude: 23.345,
+        longitude: 23.44,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.25,
+      },
+      userRegion: {
+        latitude: 23.345,
+        longitude: 23.44,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.25,
+      },
+      droppedPin: false,
+      droppedPinCoords: {},
+      hasSavedReadings: false,
 
-        mapHeight: MapHeightOptions.default,
-        mapState: MapStateOptions.default,
+      mapHeight: MapHeightOptions.default,
+      mapState: MapStateOptions.default,
 
-        hasSelectedResource: false,
-        selectedResource: {},
+      hasSelectedResource: false,
+      selectedResource: {},
 
-        isSearching: false,
+      isSearching: false,
 
-        isAuthenticated: false,
-        userId: ''
-      };
-    });
+      isAuthenticated: false,
+      userId: ''
+    };
   }
 
   componentWillMount() {
@@ -118,7 +112,6 @@ export default class App extends Component<Props> {
       return FirebaseApi.getResourceNearLocation(this.networkApi, {orgId, ...location.coords, distance: 0.1});
     })
     .then(resources => {
-      console.log("Done loading?");
       this.setState({
         loading: false,
         resources
@@ -193,13 +186,11 @@ export default class App extends Component<Props> {
   }
 
   onRegionChange(region) {
-    console.log("new region is:", region);
+    // console.log("new region is:", region);
     this.setState({ region });
   }
 
   imageForResourceType(type) {
-    console.log("type", type);
-
     switch (type) {
       case ResourceTypes.checkdam:
         return require('./assets/checkdam_pin.png');
@@ -237,8 +228,6 @@ export default class App extends Component<Props> {
 
   getMap() {
     const { userRegion, region, loading, resources, mapHeight } = this.state;
-
-    console.log("resources are: ", resources);
 
     return (
       <View style={{
@@ -329,7 +318,7 @@ export default class App extends Component<Props> {
         name="menu"
         onPress={() => {
           // navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
-          console.log("opening drawer?", this.props.navigator);
+          // console.log("opening drawer?", this.props.navigator);
 
           this.props.navigator.toggleDrawer({
             side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
@@ -373,7 +362,7 @@ export default class App extends Component<Props> {
     userRegion.latitude = location.coords.latitude;
     userRegion.longitude = location.coords.longitude;
 
-    console.log("updating geolocation", region, userRegion);
+    // console.log("updating geolocation", region, userRegion);
     
     this.setState({
       region,

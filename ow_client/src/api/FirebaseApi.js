@@ -89,8 +89,6 @@ class FirebaseApi {
   static getRecentResources({orgId, userId}) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
-        console.log("snapshot", sn);
-
         if (!sn || !sn.data() || !sn.data().recentResources) {
           return [];
         }
@@ -103,8 +101,6 @@ class FirebaseApi {
 
     return this.getRecentResources({orgId, userId})
     .then(recentResources => {
-      console.log(recentResources);
-
       //only keep the last 5 resources
       recentResources.unshift(resource);
       
@@ -160,7 +156,6 @@ class FirebaseApi {
     return ftch(url, options)
       .then(response => {
         if (!response.ok) {
-          console.log(response._bodyText);
           return rejectRequestWithError(response.status);
         }
 
@@ -180,7 +175,6 @@ class FirebaseApi {
 
     return this.checkNetworkAndToggleFirestore()
     .then(() => {
-      console.log("getResourceNearLocation ");
       return fs.collection('org').doc(orgId).collection('resource')
         .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()

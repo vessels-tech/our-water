@@ -129,7 +129,6 @@ class NewReadingScreen extends Component<Props> {
     
     try {
       let measurement = parseFloat(measurementString);
-      console.log(measurementString, measurement);
 
       if (isNaN(measurement)) {
         isValid = false;
@@ -269,7 +268,6 @@ class NewReadingScreen extends Component<Props> {
           height: '100%'
         }}
         onPress={() => {
-          console.log("user touched me");
           return false;
         }}
       >

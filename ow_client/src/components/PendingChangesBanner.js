@@ -35,7 +35,8 @@ class PendingChangesBanner extends Component<Props> {
 
   componentWillMount() {
     // TODO: how to we unsubscribe to this?
-    FirebaseApi.listenForPendingReadings({orgId}, (sn) => this.pendingReadingsCallback(sn));
+    //TODO: update for breaking changes: to 4.1.0 https://github.com/invertase/react-native-firebase/releases?after=v4.3.x
+    // FirebaseApi.listenForPendingReadings({orgId}, (sn) => this.pendingReadingsCallback(sn));
   }
 
   pendingReadingsCallback(sn) {

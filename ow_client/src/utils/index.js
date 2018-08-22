@@ -37,8 +37,6 @@ const formatCoords = (fbCoords) => {
 }
 
 const getLocation = () => {
-  console.log(navigator.geolocation);
-
   return new Promise((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
   });
@@ -68,7 +66,7 @@ const getSelectedResourceFromCoords = (resources, coords) => {
   }
 
   if (filtered.length > 1) {
-    console.log("Found more than 1 resource for coords. returning just the first");
+    console.warn("Found more than 1 resource for coords. returning just the first");
   }
 
   return filtered[0];
