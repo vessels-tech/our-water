@@ -434,6 +434,12 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-native-navigation@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-native-navigation/-/react-native-navigation-2.0.0.tgz#9a2353be6b31a864336e8fef4e3be305c3ee1422"
+  dependencies:
+    react-native-navigation "*"
+
 "@types/react-native@^0.56.10":
   version "0.56.10"
   resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.56.10.tgz#b4db3244fcbe48f0398aa714869db15b5984779e"
@@ -4398,7 +4404,7 @@ react-native-maps@0.20.1:
     babel-plugin-module-resolver "^2.3.0"
     babel-preset-react-native "1.9.0"
 
-react-native-navigation@^1.1.480:
+react-native-navigation@*, react-native-navigation@^1.1.480:
   version "1.1.480"
   resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-1.1.480.tgz#7090a2adbc0399f223d8be906df33fbe12f6c272"
   dependencies:

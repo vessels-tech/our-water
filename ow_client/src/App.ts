@@ -14,22 +14,16 @@ import {
 } from 'react-native';
 import { Marker } from 'react-native-maps';
 import firebase from 'react-native-firebase';
-import { Button, Icon } from 'react-native-elements';
-import { Navigation } from 'react-native-navigation';
 
-import SearchBar from './components/SearchBar';
 import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
-import ResoureMarker from './components/common/ResourceMarker';
 import PendingChangesBanner from './components/PendingChangesBanner';
-import FavouriteResourceList from './components/FavouriteResourceList';
+
 
 import FirebaseApi from './api/FirebaseApi';
 import { 
-  formatCoords, 
-  pinColorForResourceType,
   getLocation,
   getSelectedResourceFromCoords,
   navigateTo,

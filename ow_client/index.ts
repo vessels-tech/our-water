@@ -1,8 +1,4 @@
 
-// import { AppRegistry } from 'react-native';
-// import App from './App';
-
-// AppRegistry.registerComponent('OurWater', () => App);
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './src/screens';
 import { bgLight, primary, textDark, bgDark, bgMed, bgDark2 } from './src/utils/Colors';

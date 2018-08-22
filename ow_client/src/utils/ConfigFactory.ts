@@ -1,3 +1,8 @@
+import { BaseApiType } from "../enums";
+import GGMNApi from '../api/GGMNApi';
+import MyWellApi from '../api/MyWellApi';
+
+
 /**
  * ConfigFactory gives us the necessary components and env vars
  * based on the config of the application.
@@ -5,8 +10,9 @@
  * Inspired by: https://martinfowler.com/articles/feature-toggles.html
  */
 export class ConfigFactory {
+  config: any; //the firebase config object. TODO: Add type
 
-  constructor(config) {
+  constructor(config: any) {
     this.config = config;
 
     console.log("init config factory with config", this.config);
@@ -27,10 +33,10 @@ export class ConfigFactory {
   /**
    * Return 
    */
-  getBaseApi(auth) {
+  getBaseApi(auth: any) {
     //TODO: should 
     if (this.config.baseApi === BaseApiType.GGMNApi) {
-      return new GGMNApi(auth);
+      return new GGMNApi({});
     }
 
     //Default to MyWellApi

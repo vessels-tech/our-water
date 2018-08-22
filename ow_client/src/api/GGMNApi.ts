@@ -41,3 +41,5 @@ class GGMNApi {
 
   }
 }
+
+export default GGMNApi;

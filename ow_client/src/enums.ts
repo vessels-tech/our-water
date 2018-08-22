@@ -10,14 +10,14 @@ export const MapStateOptions = {
   fullscreen: 2
 };
 
-export const ResourceTypes = {
-  well: 'well',
-  raingauge: 'raingauge',
-  checkdam: 'checkdam',
-  custom: 'custom',
+export enum ResourceTypes {
+  well = 'well',
+  raingauge = 'raingauge',
+  checkdam = 'checkdam',
+  custom = 'custom',
 }
 
-export const ResourceTypeArray = Object.values(ResourceTypes);
+export const ResourceTypeArray: Array<string> = Object.keys(ResourceTypes);
 
 export const BaseApiType = {
   MyWellApi: 'MyWellApi',
