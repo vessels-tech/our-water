@@ -1,4 +1,4 @@
-import { Navigation, Screen } from 'react-native-navigation';
+import { Navigation } from 'react-native-navigation';
 
 import App from '../App';
 import NewReadingScreen from './NewReadingScreen';

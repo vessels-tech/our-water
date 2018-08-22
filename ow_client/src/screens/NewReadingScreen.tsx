@@ -14,17 +14,16 @@ import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { 
   FormInput, 
-  Input,
   FormLabel,
   FormValidationMessage, 
   Button 
 } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker'
 import Config from 'react-native-config';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 
-import IconFormInput, { InputTypes } from '../components/common/IconFormInput';
+import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert, getLocation } from '../utils';
 import { bgLight, primary, textDark, primaryDark, textMed, primaryLight } from '../utils/Colors';
@@ -33,9 +32,23 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const orgId = Config.REACT_APP_ORG_ID;
 
-class NewReadingScreen extends Component<Props> {
+export interface Props {
+  resource: any,
+  navigator: any
+}
 
-  constructor(props) {
+export interface State {
+  measurementString: string,
+  enableSubmitButton: boolean,
+  date: Moment,
+  isLoading: boolean,
+  coords: any
+}
+
+class NewReadingScreen extends Component<Props> {
+  state: State
+
+  constructor(props: Props) {
     super(props);
 
     const listener = FirebaseApi.pendingReadingsListener({orgId});
@@ -52,7 +65,7 @@ class NewReadingScreen extends Component<Props> {
   componentWillMount() {
     //Load the users location - don't inform user
     getLocation()
-    .then(location => {
+    .then((location: any) => {
       this.setState({coords: {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -91,14 +104,13 @@ class NewReadingScreen extends Component<Props> {
         isLoading: false
       });
 
-      displayAlert({
-        title: 'Success',
-        message: `Reading saved.`,
-        buttons: [
+      displayAlert(
+        'Success', `Reading saved.`,
+        [
           { text: 'One More', onPress: () => console.log('continue pressed') },
           { text: 'Done', onPress: () => this.props.navigator.pop() },
         ]
-      });
+      );
     })
     .catch(err => {
       console.log(err);
@@ -107,13 +119,11 @@ class NewReadingScreen extends Component<Props> {
         isLoading: false
       });
 
-      displayAlert({
-        title: 'Error',
-        message: `Couldn't save your reading. Please try again.`,
-        buttons: [
-          { text: 'OK', onPress: () => console.log('continue pressed') },
-        ]
-      });
+      displayAlert(
+        'Error',
+         `Couldn't save your reading. Please try again.`,
+         [{ text: 'OK', onPress: () => console.log('continue pressed') },]
+      );
     });
   }
 
@@ -157,13 +167,12 @@ class NewReadingScreen extends Component<Props> {
           buttonStyle={{
             backgroundColor: primary,
           }}
-
-          titleStyle={{
-            fontWeight: 'bold',
-            fontSize: 23,
-          }}
-          containerStyle={{
-          }}
+          // titleStyle={{
+          //   fontWeight: 'bold',
+          //   fontSize: 23,
+          // }}
+          // containerStyle={{
+          // }}
           onPress={() => this.takeImage()}
           underlayColor="transparent"
         />
@@ -191,9 +200,9 @@ class NewReadingScreen extends Component<Props> {
           iconColor={textMed}
           placeholder='Reading Date'
           errorMessage={this.isDateValid() ? null : 'Invalid Date'}
-          onChangeText={date => this.setState({date})}
+          onChangeText={(date: Moment) => this.setState({date})}
           onSubmitEditing={() => console.log('on submit editing')}
-          fieldType={InputTypes.dateTimeInput}
+          fieldType={InputType.dateTimeInput}
           value={date}
         />
         <IconFormInput
@@ -204,10 +213,10 @@ class NewReadingScreen extends Component<Props> {
             measurementString.length > 0 && !this.isMeasurementValid() ? 
               'Invalid Measurement' : null
           }
-          onChangeText={measurementString => this.setState({ measurementString})}
+          onChangeText={(measurementString: string) => this.setState({ measurementString})}
           onSubmitEditing={() => console.log('on submit editing')}
           keyboardType='numeric'
-          fieldType={InputTypes.fieldInput}
+          fieldType={InputType.fieldInput}
           value={measurementString}
         />
       </View>
@@ -228,7 +237,7 @@ class NewReadingScreen extends Component<Props> {
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
         loading={this.state.isLoading}
-        loadingProps={{ size: 'small', color: 'white' }}
+        // loadingProps={{ size: 'small', color: 'white' }}
         buttonStyle={{ 
           backgroundColor: primary,
           // borderRadius: 5,
@@ -238,16 +247,13 @@ class NewReadingScreen extends Component<Props> {
         // disabledStyle={{
         //   backgroundColor: primaryDark, 
         // }}
-        titleStyle={{ 
-          fontWeight: 'bold',
-          fontSize: 23,
-        }}
-        containerStyle={{ 
-
-          // height: 50,
-          // width: '100%',
-          // paddingHorizontal: 20,
-        }}
+        // titleStyle={{ 
+        //   fontWeight: 'bold',
+        //   fontSize: 23,
+        // }}
+        // containerStyle={{         
+        
+        // }}
         onPress={() => this.saveReading()}
         underlayColor="transparent"
       />
@@ -287,9 +293,5 @@ class NewReadingScreen extends Component<Props> {
     );
   }
 }
-
-NewReadingScreen.propTypes = {
-  resource: PropTypes.object.isRequired,
-};
 
 export default NewReadingScreen;

@@ -41,7 +41,7 @@ export interface Props {
   placeholder: string,
   onChangeText: any,
   onSubmitEditing: any,
-  keyboardType: KeyboardTypeOptions,
+  keyboardType?: KeyboardTypeOptions,
   iconColor: string,
   fieldType: InputType,
 }
