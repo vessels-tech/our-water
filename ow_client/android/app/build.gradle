@@ -189,9 +189,8 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
+//react-native-config
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 //react-native-firebase
 apply plugin: 'com.google.gms.google-services'
-
-//react-native-config
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
