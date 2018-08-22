@@ -13,9 +13,11 @@ export class FirebaseConfig {
     // return config.fetch(10)
       .then(() => config.activateFetched())
       .then(() => config.getKeysByPrefix())
-      .then(allKeys => config.getValues(allKeys))
+      .then(allKeys => allKeys.map((key: String) => key.toString()))
+      .then((allKeys: Array<string>) => config.getValues(allKeys))
       .then(obj => {
-        const data = {};
+        //TODO: make this a custom FB type
+        const data: any = {};
         Object.keys(obj).forEach(key => {
           data[key] = obj[key].val();
         });
@@ -24,7 +26,7 @@ export class FirebaseConfig {
       });
   }
 
-  static getValue(key) {
-    //TODO: get the value for the key...
-  }
+  // static getValue(key) {
+  //   //TODO: get the value for the key...
+  // }
 }

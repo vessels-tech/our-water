@@ -8,28 +8,29 @@ import { textDark, bgDark2, bgLight } from './Colors';
 /**
  * Get a unique hash based on the resourceId, pincode, and date
  */
-const getHashForReading = (reading) => {
+/* tslint:disable-next-line */
+const getHashForReading = (reading: any) => {
   return `r:${reading.date}|${reading.resourceId}|${reading.pincode}`;
 }
 
-const rejectRequestWithError = (status) => {
-  const error = new Error(`Request failed with status ${status}`);
-  error.status = status;
+const rejectRequestWithError = (status: number) => {
+  const error: any = new Error(`Request failed with status ${status}`);
+  error['status'] = status;
   return Promise.reject(error);
 }
 
-const showAlert = (title, message) => {
+const showAlert = (title: string, message: string) => {
   Alert.alert(title, message,
     [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
     { cancelable: false }
   );
 }
 
-const appendUrlParameters = (url, qs) => {
+const appendUrlParameters = (url:string, qs:any) => {
   return `${url}?${QueryString.stringify(qs)}`;
 }
 
-const formatCoords = (fbCoords) => {
+const formatCoords = (fbCoords: any) => {
   return {
     latitude: fbCoords._latitude,
     longitude: fbCoords._longitude,
@@ -42,7 +43,7 @@ const getLocation = () => {
   });
 }
 
-const pinColorForResourceType = (resourceType) => {
+const pinColorForResourceType = (resourceType: any) => {
 
   switch(resourceType) {
     case 'well':
@@ -54,8 +55,8 @@ const pinColorForResourceType = (resourceType) => {
   }
 }
 
-const getSelectedResourceFromCoords = (resources, coords) => {
-  const filtered = resources.filter(res => {
+const getSelectedResourceFromCoords = (resources: any, coords: any) => {
+  const filtered = resources.filter((res: any) => {
     return coords.latitude === res.coords._latitude && 
       coords.longitude === res.coords._longitude;
   });
@@ -72,7 +73,7 @@ const getSelectedResourceFromCoords = (resources, coords) => {
   return filtered[0];
 }
 
-const navigateTo = (props, screen, title, passProps) => {
+const navigateTo = (props: any, screen: any, title: any, passProps: any) => {
   //TODO: only navigate if we aren't already here!
 
   props.navigator.toggleDrawer({
@@ -91,7 +92,7 @@ const navigateTo = (props, screen, title, passProps) => {
   });
 }
 
-const getMinAndMaxReadingDates = (momentFormat) => {
+const getMinAndMaxReadingDates = (momentFormat: string) => {
   const today = moment();
   const twoWeeksAgo = moment().subtract(14, 'days');
 
@@ -101,7 +102,7 @@ const getMinAndMaxReadingDates = (momentFormat) => {
   }
 }
 
-const displayAlert = ({title, message, buttons}) => {
+const displayAlert = ({title: any, message: any, buttons: any}) => {
 
   Alert.alert(title, message, buttons,
     { cancelable: false }
@@ -113,7 +114,7 @@ const displayAlert = ({title, message, buttons}) => {
  * distance must be a float between 0-1
  * @param {*} param0 
  */
-const boundingBoxForCoords = ({latitude, longitude, distance}) => {
+const boundingBoxForCoords = ({(latitude:any), longitude: any , distance:any }) => {
   if (distance < 0 || distance > 1) {
     throw new Error("Distance must be a float between 0 and 1");
   }
