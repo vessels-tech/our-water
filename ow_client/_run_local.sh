@@ -5,4 +5,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export ENVFILE="$DIR"/../env/.env.sh
 
 #TODO: be less lazy
-react-native run-android
+react-native run-android --config "$DIR"/rn-cli.config.js

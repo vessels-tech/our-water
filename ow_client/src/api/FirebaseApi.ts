@@ -16,7 +16,7 @@ import {
 import NetworkApi from './NetworkApi';
 
 const fs = firebase.firestore();
-const functions = firebase.functions();
+// const functions = firebase.functions();
 const auth = firebase.auth();
 // const config = firebase.config();
 const baseUrl = Config.REACT_APP_BASE_URL;
@@ -204,17 +204,18 @@ class FirebaseApi {
 
       return resources;
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log('error', err));
   }
 
   static createNewResource(orgId: string, resourceData: any) {
-    const resource = functions.httpsCallable(`resource/${orgId}`);
+    // const resource = functions.httpsCallable(`resource/${orgId}`);
 
+    return Promise.resolve(true);
     //TODO: cors, figure out how to set the path here.
-    return resource(resourceData)
-      .then(() => {
-        // Read result of the Cloud Function.
-      })
+    // return resource(resourceData)
+    //   .then(() => {
+    //     // Read result of the Cloud Function.
+    //   })
   };
 
 

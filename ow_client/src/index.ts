@@ -1,21 +1,28 @@
 
 import { Navigation } from 'react-native-navigation';
-import { registerScreens } from './src/screens';
-import { bgLight, primary, textDark, bgDark, bgMed, bgDark2 } from './src/utils/Colors';
-import { defaultNavigatorStyle } from './src/utils';
-import { ConfigFactory } from './src/utils/ConfigFactory';
-import { FirebaseConfig } from './src/utils/FirebaseConfig';
+import { registerScreens } from './screens';
+import { textDark } from './utils/Colors';
+import { defaultNavigatorStyle } from './utils';
+import { ConfigFactory } from './utils/ConfigFactory';
+// import { FirebaseConfig } from './utils/FirebaseConfig';
 
 let config: ConfigFactory;
 
+console.log("WTF?");
+
 Promise.resolve(true)
-.then(() => FirebaseConfig.getAllConfig())
+//Get the fb config first
+//TODO: fix this...
+// .then(() => FirebaseConfig.getAllConfig())
 .then(_config => {
-    config = new ConfigFactory(_config);
-    registerScreens(); // this is where you register all of your app's screens
+  console.log("got config");
+  // config = new ConfigFactory(_config);
+  config = new ConfigFactory({});
+  registerScreens();
+  console.log("registered screens");
 })
 .then(() => {
-  // start the app
+  console.log("config is:", config);
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
@@ -60,4 +67,5 @@ Promise.resolve(true)
       config,
     },
   })
-});
+})
+.catch((err: Error) => console.error(err));

@@ -20,6 +20,7 @@ import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
+// import io.invertase.firebase.functions.RNFirebaseFunctionsPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ public class MainApplication extends NavigationApplication {
           new RNFirebaseFirestorePackage(),
           new RNFirebaseAuthPackage(),
           new RNFirebaseRemoteConfigPackage()
+        //   new RNFirebaseFunctionsPackage()
       );
   }
 

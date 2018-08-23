@@ -162,7 +162,8 @@ export default class App extends Component<Props> {
     const { mapState } = this.state;
 
     //Don't drop a marker if the map is in small mode, 
-    //just make the map bigger, and deselect the resource
+    //just make the map bigger, and deselect the resource popopo
+    
     if (mapState === MapStateOption.small) {
       this.setState({
         mapState: MapStateOption.default,
