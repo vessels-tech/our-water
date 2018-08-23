@@ -49,7 +49,7 @@ export default class FavouriteResourceList extends Component<Props> {
     const { userId } = this.props;
 
     // Subscribe to updates
-    this.unsubscribe = FirebaseApi.listenForUpdatedUser({orgId, userId}, this.onUserUpdated);
+    this.unsubscribe = FirebaseApi.listenForUpdatedUser(orgId, userId, this.onUserUpdated);
   
     return Promise.all([
       FirebaseApi.getRecentResources(orgId, userId),

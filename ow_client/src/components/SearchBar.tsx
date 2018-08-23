@@ -52,7 +52,7 @@ export default class SearchPanel extends Component<Props> {
     });
 
     //TODO: should we throttle/debounce this?
-    return FirebaseApi.performBasicSearch({orgId, text})
+    return FirebaseApi.performBasicSearch(orgId, text)
       .then(results => {
         this.setState({
           isLoading: false,
