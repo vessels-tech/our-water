@@ -8,6 +8,7 @@
     "lint": "tslint -p \".\" -t stylish"
   },
   "dependencies": {
+    "@types/supercluster": "^3.0.2",
     "moment": "^2.22.1",
     "query-string": "^6.0.0",
     "react": "16.3.1",
@@ -24,10 +25,10 @@
     "react-native-vector-icons": "^4.6.0"
   },
   "devDependencies": {
-    "@types/react-native-datepicker": "^1.6.5",
     "@types/query-string": "^6.1.0",
     "@types/react": "^16.4.11",
     "@types/react-native": "^0.56.10",
+    "@types/react-native-datepicker": "^1.6.5",
     "@types/react-native-navigation": "^1.1.0",
     "@types/react-native-vector-icons": "^4.6.3",
     "babel-jest": "22.4.3",

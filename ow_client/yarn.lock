@@ -428,6 +428,10 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@types/geojson@*":
+  version "7946.0.4"
+  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.4.tgz#4e049756383c3f055dd8f3d24e63fb543e98eb07"
+
 "@types/prop-types@*":
   version "15.5.5"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.5.5.tgz#17038dd322c2325f5da650a94d5f9974943625e3"
@@ -471,6 +475,12 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/supercluster@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/supercluster/-/supercluster-3.0.2.tgz#dc11a6afa3d21b1a3d8510b1759a668fdf19e254"
+  dependencies:
+    "@types/geojson" "*"
 
 abab@^1.0.4:
   version "1.0.4"

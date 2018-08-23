@@ -2,8 +2,25 @@ import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
+export interface Props {
+  geometry: any,
+  pointCount: number,
+  clusterStyle: any,
+  clusterTextStyle: any,
+  onClusterPress: any,
+  marker: any,
+  clusterId: any,
+}
+
 export default class CustomMarker extends Component {
-  shouldComponentUpdate(nextProps) {
+  props: Props;
+
+  constructor(props: Props) {
+    super(props);
+    this.props = props;
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
     return !(this.props.geometry === nextProps.geometry
       && this.props.pointCount === nextProps.pointCount);
   }

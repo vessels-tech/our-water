@@ -1,31 +1,20 @@
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
-  ScrollView,
   View,
-  Dimensions,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import {
-  FormInput,
-  Input,
-  FormLabel,
-  FormValidationMessage,
-  Button,
-  Text,
+import  { Text } from 'react-native-elements';
+import { primaryDark } from '../../utils/Colors';
 
-} from 'react-native-elements';
-import DatePicker from 'react-native-datepicker';
-import moment from 'moment';
-import { primary, primaryDark } from '../../utils/Colors';
-
+export interface Props {
+  highlightColor: string,
+  description: string,
+  value: any,
+  title: string,
+}
 
 class StatCard extends Component<Props> {
 
   render() {
-
     let { highlightColor } = this.props;
 
     if (!highlightColor || highlightColor === '') {
@@ -68,13 +57,6 @@ class StatCard extends Component<Props> {
       </View>
     );
   }
-}
-
-StatCard.propTypes = {
-  title: PropTypes.string,
-  value: PropTypes.any,
-  description: PropTypes.string,
-  highlightColor: PropTypes.string,
 }
 
 export default StatCard;

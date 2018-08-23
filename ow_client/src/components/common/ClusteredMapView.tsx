@@ -1,16 +1,65 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import MapView from 'react-native-maps';
+// @ts-ignore
 import { width as w, height as h } from 'react-native-dimension';
 import SuperCluster from 'supercluster';
 import CustomMarker from './CustomMarker';
+
+export interface Props {
+  clusterBorderColor: string,
+  clusterBorderWidth: number,
+  clusterColor: string,
+  region?: any,
+  clusterTextSize: number,
+  clusterTextColor: any,
+  clustering: any,
+  superCluster?: any,
+  radius: number,
+  onClusterPress: any,
+  children?: any,
+}
+
+export interface State {
+  currentRegion?: any,
+  clusterStyle: {
+    borderRadius: any,
+    backgroundColor: any,
+    borderColor: any,
+    borderWidth: any,
+    width: any,
+    height: any,
+    justifyContent: any,
+    alignItems: any,
+  },
+  clusterTextStyle: {
+    fontSize: any,
+    color: any,
+    fontWeight: any,
+  },
+  markers: any[],
+  clusteredMarkers?: any
+  otherChildren?: any
+}
 
 /**
  * Map view with clustering.
  * Originally from https://github.com/venits/react-native-map-clustering/blob/master/MapView/MapWithClustering.js
  */
 class ClusteredMapView extends Component {
-  state = {
+  props: Props = {
+    clustering: true,
+    radius: w(5),
+    clusterColor: '#F5F5F5',
+    clusterTextColor: '#FF5252',
+    clusterBorderColor: '#FF5252',
+    clusterBorderWidth: 1,
+    clusterTextSize: totalSize(2.4),
+    onClusterPress: () => { },
+  }
+  superCluster: any;
+  root: any;
+
+  state: State = {
     currentRegion: this.props.region,
     clusterStyle: {
       borderRadius: w(15),
@@ -27,8 +76,14 @@ class ClusteredMapView extends Component {
       color: this.props.clusterTextColor,
       fontWeight: 'bold',
     },
+    markers: [],
   };
 
+  constructor(props: Props) {
+    super(props);
+    this.props = props;
+  }
+ 
   componentDidMount() {
     this.createMarkersOnMap();
   }
@@ -37,7 +92,7 @@ class ClusteredMapView extends Component {
     this.createMarkersOnMap();
   }
 
-  onRegionChangeComplete = (region) => {
+  onRegionChangeComplete = (region: any) => {
     const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
     if (region.longitudeDelta <= 80) {
       if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
@@ -49,14 +104,14 @@ class ClusteredMapView extends Component {
   };
 
   createMarkersOnMap = () => {
-    const markers = [];
-    const otherChildren = [];
+    const markers: any[] = [];
+    const otherChildren: any[] = [];
 
     React.Children.forEach(this.props.children, (marker) => {
       if (!marker) {
         return
       }
-
+      // @ts-ignore
       if (marker.props && marker.props.coordinate && marker.props.collapsable) {
         markers.push({
           marker,
@@ -64,7 +119,9 @@ class ClusteredMapView extends Component {
           geometry: {
             type: 'Point',
             coordinates: [
+              // @ts-ignore
               marker.props.coordinate.longitude,
+              // @ts-ignore
               marker.props.coordinate.latitude,
             ],
           },
@@ -91,24 +148,24 @@ class ClusteredMapView extends Component {
     });
   };
 
-  calculateBBox = region => [
+  calculateBBox = (region: any) => [
     region.longitude - region.longitudeDelta, // westLng - min lng
     region.latitude - region.latitudeDelta, // southLat - min lat
     region.longitude + region.longitudeDelta, // eastLng - max lng
     region.latitude + region.latitudeDelta// northLat - max lat
   ];
 
-  getBoundsZoomLevel = (bounds, mapDim) => {
+  getBoundsZoomLevel = (bounds: any[], mapDim: any) => {
     const WORLD_DIM = { height: mapDim.height, width: mapDim.width };
     const ZOOM_MAX = 20;
 
-    function latRad(lat) {
+    function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
       const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
       return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
     }
 
-    function zoom(mapPx, worldPx, fraction) {
+    function zoom(mapPx: number, worldPx: number, fraction: number) {
       return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
     }
 
@@ -129,7 +186,8 @@ class ClusteredMapView extends Component {
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
       const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
 
-      clusteredMarkers = clusters.map(cluster => (<CustomMarker
+      clusteredMarkers = clusters.map((cluster: any) => (
+      <CustomMarker
         pointCount={cluster.properties.point_count}
         clusterId={cluster.properties.cluster_id}
         geometry={cluster.geometry}
@@ -149,10 +207,11 @@ class ClusteredMapView extends Component {
     });
   };
 
-  removeChildrenFromProps = (props) => {
-    const newProps = {};
+  removeChildrenFromProps = (props: Props) => {
+    const newProps: any = {};
     Object.keys(props).forEach((key) => {
       if (key !== 'children') {
+        //@ts-ignore
         newProps[key] = props[key];
       }
     });
@@ -174,29 +233,6 @@ class ClusteredMapView extends Component {
   }
 }
 
-ClusteredMapView.propTypes = {
-  region: PropTypes.object,
-  clustering: PropTypes.bool,
-  radius: PropTypes.number,
-  clusterColor: PropTypes.string,
-  clusterTextColor: PropTypes.string,
-  clusterBorderColor: PropTypes.string,
-  clusterBorderWidth: PropTypes.number,
-  clusterTextSize: PropTypes.number,
-  onClusterPress: PropTypes.func,
-};
-
-const totalSize = num => (Math.sqrt((h(100) * h(100)) + (w(100) * w(100))) * num) / 100;
-
-ClusteredMapView.defaultProps = {
-  clustering: true,
-  radius: w(5),
-  clusterColor: '#F5F5F5',
-  clusterTextColor: '#FF5252',
-  clusterBorderColor: '#FF5252',
-  clusterBorderWidth: 1,
-  clusterTextSize: totalSize(2.4),
-  onClusterPress: () => { },
-};
+const totalSize = (num: number) => (Math.sqrt((h(100) * h(100)) + (w(100) * w(100))) * num) / 100;
 
 export default ClusteredMapView;
