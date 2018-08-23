@@ -9,16 +9,15 @@ import {
   navigateTo,
 } from '../utils';
 import { primary, primaryDark, textDark, } from '../utils/Colors';
+import { ConfigFactory } from '../utils/ConfigFactory';
 
 export interface Props {
-  config: any
+  config: ConfigFactory
 }
 
 export interface State {
 
 }
-
-console.log("SettingsScreen React is:", React);
 
 export default class SettingsScreen extends React.Component<Props> {
 
@@ -32,13 +31,13 @@ export default class SettingsScreen extends React.Component<Props> {
    * Connect to button is only available for variants which connect to external services
    */
   getConnectToButton() {
-    if (!this.props.config.showConnectToButton) {
+    if (!this.props.config.showConnectToButton()) {
       return false;
     }
 
     return (
       <ListItem
-        title={this.props.config.getConnectToButtonText}
+        title={this.props.config.getConnectToButtonText()}
         onPress={() => console.log("GGMN pressed")}
         leftIcon={{
           name: 'account-circle',

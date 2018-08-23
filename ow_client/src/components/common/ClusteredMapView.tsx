@@ -46,42 +46,33 @@ export interface State {
  * Map view with clustering.
  * Originally from https://github.com/venits/react-native-map-clustering/blob/master/MapView/MapWithClustering.js
  */
-class ClusteredMapView extends Component {
-  props: Props = {
-    clustering: true,
-    radius: w(5),
-    clusterColor: '#F5F5F5',
-    clusterTextColor: '#FF5252',
-    clusterBorderColor: '#FF5252',
-    clusterBorderWidth: 1,
-    clusterTextSize: totalSize(2.4),
-    onClusterPress: () => { },
-  }
+class ClusteredMapView extends Component<Props> {
   superCluster: any;
   root: any;
-
-  state: State = {
-    currentRegion: this.props.region,
-    clusterStyle: {
-      borderRadius: w(15),
-      backgroundColor: this.props.clusterColor,
-      borderColor: this.props.clusterBorderColor,
-      borderWidth: this.props.clusterBorderWidth,
-      width: w(15),
-      height: w(15),
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    clusterTextStyle: {
-      fontSize: this.props.clusterTextSize,
-      color: this.props.clusterTextColor,
-      fontWeight: 'bold',
-    },
-    markers: [],
-  };
+  state: State;
 
   constructor(props: Props) {
     super(props);
+
+    this.state = {
+      currentRegion: props.region,
+      clusterStyle: {
+        borderRadius: w(15),
+        backgroundColor: props.clusterColor,
+        borderColor: props.clusterBorderColor,
+        borderWidth: props.clusterBorderWidth,
+        width: w(15),
+        height: w(15),
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      clusterTextStyle: {
+        fontSize: props.clusterTextSize,
+        color: props.clusterTextColor,
+        fontWeight: 'bold',
+      },
+      markers: [],
+    };
   }
  
   componentDidMount() {
@@ -148,13 +139,15 @@ class ClusteredMapView extends Component {
     });
   };
 
-  calculateBBox = (region: any) => [
-    region.longitude - region.longitudeDelta, // westLng - min lng
-    region.latitude - region.latitudeDelta, // southLat - min lat
-    region.longitude + region.longitudeDelta, // eastLng - max lng
-    region.latitude + region.latitudeDelta// northLat - max lat
-  ];
-
+  calculateBBox = (region: any) => {
+    console.log('calcBBox region', region);
+      return [   
+      region.longitude - region.longitudeDelta, // westLng - min lng
+      region.latitude - region.latitudeDelta, // southLat - min lat
+      region.longitude + region.longitudeDelta, // eastLng - max lng
+      region.latitude + region.latitudeDelta// northLat - max lat
+    ];
+  }
   getBoundsZoomLevel = (bounds: any[], mapDim: any) => {
     const WORLD_DIM = { height: mapDim.height, width: mapDim.width };
     const ZOOM_MAX = 20;

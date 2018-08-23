@@ -4,7 +4,7 @@ import { registerScreens } from './screens';
 import { textDark } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory } from './utils/ConfigFactory';
-// import { FirebaseConfig } from './utils/FirebaseConfig';
+import { FirebaseConfig } from './utils/FirebaseConfig';
 
 let config: ConfigFactory;
 
@@ -13,11 +13,11 @@ console.log("WTF?");
 Promise.resolve(true)
 //Get the fb config first
 //TODO: fix this...
-// .then(() => FirebaseConfig.getAllConfig())
+.then(() => FirebaseConfig.getAllConfig())
 .then(_config => {
   console.log("got config");
-  // config = new ConfigFactory(_config);
-  config = new ConfigFactory({});
+  config = new ConfigFactory(_config);
+  // config = new ConfigFactory({});
   registerScreens();
   console.log("registered screens");
 })

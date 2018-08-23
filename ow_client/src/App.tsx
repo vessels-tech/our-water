@@ -137,6 +137,7 @@ export default class App extends Component<Props> {
     .then(location => {
       this.updateGeoLocation(location);
       //TODO: can't do ths from GGMN
+      console.log("getting resourceNearLocation", location);
       return FirebaseApi.getResourceNearLocation(this.networkApi, orgId, location.coords.latitude, location.coords.longitude, 0.1)
     })
     .then(resources => {

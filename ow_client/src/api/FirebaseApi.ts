@@ -178,7 +178,7 @@ class FirebaseApi {
    * @param {*} param0 
    */
   static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number) {
-    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(longitude, latitude, distance);
+    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(latitude, longitude, distance);
 
     return this.checkNetworkAndToggleFirestore()
     .then(() => {
