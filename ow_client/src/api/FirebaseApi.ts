@@ -1,5 +1,6 @@
 import { NetInfo } from 'react-native';
 import firebase from 'react-native-firebase';
+//@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 import Config from 'react-native-config';
 
@@ -12,8 +13,10 @@ import { validateReading } from './ValidationApi';
 import {
   boundingBoxForCoords
 } from '../utils';
+import NetworkApi from './NetworkApi';
 
 const fs = firebase.firestore();
+const functions = firebase.functions();
 const auth = firebase.auth();
 // const config = firebase.config();
 const baseUrl = Config.REACT_APP_BASE_URL;
@@ -108,7 +111,7 @@ class FirebaseApi {
       recentResources.unshift(resource);
       
       //remove this resource from later on if it already exists
-      const dedupDict = {};
+      const dedupDict: any = {};
       recentResources.forEach((res: any) => { dedupDict[res.id] = res});
       const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
 
@@ -120,13 +123,14 @@ class FirebaseApi {
     });
   }
 
-  static getResourcesForOrg({ orgId }) {
+  static getResourcesForOrg(orgId: string) {
     return fs.collection('org').doc(orgId).collection('resource').get()
       .then(sn => {
-        const resources = [];
+        const resources: any[] = [];
         sn.forEach((doc) => {
           //Get each document, put in the id
           const data = doc.data();
+          //@ts-ignore
           data.id = doc.id;
           resources.push(data);
         });
@@ -143,7 +147,7 @@ class FirebaseApi {
    * 
    * @param {*} param0 
    */
-  static dep_getResourceNearLocation({orgId, latitude, longitude, distance}) {
+  static dep_getResourceNearLocation(orgId: string, latitude: number, longitude: number, distance: number) {
     const resourceUrl = `${baseUrl}/resource/${orgId}/nearLocation`;
     const url = appendUrlParameters(resourceUrl, {latitude, longitude, distance});
     
@@ -157,14 +161,14 @@ class FirebaseApi {
     };
 
     return ftch(url, options)
-      .then(response => {
+      .then((response: any) => {
         if (!response.ok) {
           return rejectRequestWithError(response.status);
         }
 
         return response.json();
       })
-      .catch(err => console.log(err));
+      .catch((err: Error) => console.log(err));
   }
 
   /**
@@ -173,8 +177,8 @@ class FirebaseApi {
    * We use this instead of the get request, as it will default to the cache if we're offline
    * @param {*} param0 
    */
-  static getResourceNearLocation(networkApi, { orgId, latitude, longitude, distance }) {
-    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords({longitude, latitude, distance});
+  static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number) {
+    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(longitude, latitude, distance);
 
     return this.checkNetworkAndToggleFirestore()
     .then(() => {
@@ -183,12 +187,14 @@ class FirebaseApi {
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     })
     .then(snapshot => {
-      const resources = []
+      const resources: any[] = []
       snapshot.forEach(doc => {
         const data = doc.data();
+        //@ts-ignore
         data.id = doc.id;
 
         // Filter based on longitude. TODO: remove this once google fixes the above query
+        //@ts-ignore
         if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
           return;
         }
@@ -201,12 +207,12 @@ class FirebaseApi {
     .catch(err => console.log(err));
   }
 
-  static createNewResource({ orgId, resourceData }) {
+  static createNewResource(orgId: string, resourceData: any) {
     const resource = functions.httpsCallable(`resource/${orgId}`);
 
     //TODO: cors, figure out how to set the path here.
     return resource(resourceData)
-      .then(result => {
+      .then(() => {
         // Read result of the Cloud Function.
       })
   };
@@ -218,17 +224,17 @@ class FirebaseApi {
    * saves a reading, Promise resolves when the reading appears in local cache, 
    * and not actually commited to the server
    */
-  static saveReadingPossiblyOffline({orgId, reading}) {
+  static saveReadingPossiblyOffline(orgId: string, reading: any) {
     return new Promise((resolve, reject) => {
 
-      this.pendingReadingsListener({orgId})
+      this.pendingReadingsListener(orgId)
       .then(snapshot => {
 
         //Resolve once the pending reading is saved
         resolve(true);
       });
 
-      this.saveReading({orgId, reading})
+      this.saveReading(orgId, reading)
       //Don't resolve this - as if we are offline, it will take a long time
       .then(result => console.log('saveReading result', result))
       .catch(err => {
@@ -258,7 +264,7 @@ class FirebaseApi {
    * 
    */
 
-  static saveReading({orgId, reading}) {
+  static saveReading(orgId: string, reading: any) {
     return validateReading(reading)
     .then(validReading => {
 
@@ -273,8 +279,8 @@ class FirebaseApi {
     });
   }
 
-
-  static pendingReadingsListener({orgId}) {
+  //TODO: fix with version 4.1 of react native firebase
+  static pendingReadingsListener(orgId: string) {
     return new Promise((resolve, reject) => {
       fs.collection('org').doc(orgId).collection('reading')
         .onSnapshot(
@@ -285,23 +291,24 @@ class FirebaseApi {
             }
             reject(new Error('recieved snapshot with no changes'))
           },
-          (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
+          //TODO: this needs to be fixed
+          // (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
           //onError
           (error) => {
             console.log("error", error);
             return reject(error);
           },
-          (sn) => console.log('onCompletion', sn), //onCompletion
+          // (sn) => console.log('onCompletion', sn), //onCompletion
       );
     });
   }
 
 
-  static listenForPendingReadings({orgId}, callback) {
+  static listenForPendingReadings(orgId: string, callback: any) {
     fs.collection('org').doc(orgId).collection('reading')
       .onSnapshot(
         {
-          includeQueryMetadataChanges: true,
+          includeMetadataChanges: true,
         },
         //optionsOrObserverOrOnNext
         (sn) => {
@@ -310,13 +317,13 @@ class FirebaseApi {
         //onError
         (error) => {
           console.log("error", error);
-          return reject(error);
+          return Promise.reject(error);
         },
-        (sn) => console.log('onCompletion', sn), //onCompletion
+        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
     );
   }
 
-  static listenForUpdatedUser({orgId, userId}, cb) {
+  static listenForUpdatedUser(orgId: string, userId: string, cb: any) {
     const ref = fs.collection('org').doc(orgId)
         .collection('user').doc(userId);
 
@@ -330,8 +337,8 @@ class FirebaseApi {
    * Searching is a little tricky, we need to figure out by which fields that
    * the user is likely to search by first (eg. groupName, )
    */
-  static performBasicSearch({orgId, text}) {
-    return this.getResourcesForOrg({orgId})
+  static performBasicSearch(orgId: string, text: string) {
+    return this.getResourcesForOrg(orgId)
       .then(resources => {
         return resources.filter(resource => {
           return resource.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
