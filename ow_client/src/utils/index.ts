@@ -2,6 +2,7 @@ import { Alert } from 'react-native';
 import moment from 'moment';
 import QueryString from 'query-string';
 import { textDark, bgDark2, bgLight } from './Colors';
+import { Location } from '../typings/Location';
 
 
 
@@ -37,7 +38,7 @@ const formatCoords = (fbCoords: any) => {
   };
 }
 
-const getLocation = () => {
+const getLocation = (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
   });

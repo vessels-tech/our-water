@@ -9,7 +9,7 @@ import { getLocation } from '../utils';
 export interface Props {
   onComplete?: any,
   onPress: any,
-  color: string,
+  color?: string,
   name: string,
 }
 

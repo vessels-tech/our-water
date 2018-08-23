@@ -13,13 +13,14 @@ import {
   View
 } from 'react-native';
 import { Marker } from 'react-native-maps';
-import firebase from 'react-native-firebase';
+import firebase, { RNFirebase } from 'react-native-firebase';
 
 import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import PendingChangesBanner from './components/PendingChangesBanner';
+import { Location } from './typings/Location';
 
 
 import FirebaseApi from './api/FirebaseApi';
@@ -28,59 +29,94 @@ import {
   getSelectedResourceFromCoords,
   navigateTo,
   getShortId,
+  formatCoords,
 } from './utils';
 
 import {
-  MapHeightOptions, 
-  MapStateOptions,
-  ResourceTypes
+  MapStateOption,
+  ResourceType,
+  MapHeightOption,
 } from './enums';
 
 import Config from 'react-native-config'
 import NetworkApi from './api/NetworkApi';
 import { bgLight, primary, bgDark, bgMed, bgDark2, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
+import { Resource } from './typings/Resource';
+import FavouriteResourceList from './components/FavouriteResourceList';
+import { SearchBar, Icon } from 'react-native-elements';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
-type Props = {};
+export interface Props {
+  navigator: any,
+};
+
+export interface State {
+  loading: boolean,
+  region: {
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+  },
+  userRegion: {
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+  },
+  droppedPin: boolean,
+  droppedPinCoords: any,
+  hasSavedReadings: boolean,
+  mapHeight: any,
+  mapState: MapStateOption,
+  hasSelectedResource: boolean,
+  selectedResource: any,
+  isSearching: boolean,
+  isAuthenticated: boolean,
+  userId: string,
+  resources: any[],
+};
+
+
 export default class App extends Component<Props> {
+  state: State = {
+    loading: true,
+    region: {
+      latitude: 23.345,
+      longitude: 23.44,
+      latitudeDelta: 0.5,
+      longitudeDelta: 0.25,
+    },
+    userRegion: {
+      latitude: 23.345,
+      longitude: 23.44,
+      latitudeDelta: 0.5,
+      longitudeDelta: 0.25,
+    },
+    droppedPin: false,
+    droppedPinCoords: {},
+    hasSavedReadings: false,
+    mapHeight: MapHeightOption.default,
+    mapState: MapStateOption.default,
+    hasSelectedResource: false,
+    selectedResource: {},
+    isSearching: false,
+    isAuthenticated: false,
+    userId: '',
+    resources: []
+  };
 
-  constructor(props) {
+  fs: any;
+  networkApi: NetworkApi;
+  hardwareBackListener: any;
+
+
+  constructor(props: Props) {
     super(props);
-    console.log("props are", props);
     this.fs = firebase.firestore();
-    this.networkApi = new NetworkApi();
-
-    this.state = {
-      loading: true,
-      region: {
-        latitude: 23.345,
-        longitude: 23.44,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.25,
-      },
-      userRegion: {
-        latitude: 23.345,
-        longitude: 23.44,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.25,
-      },
-      droppedPin: false,
-      droppedPinCoords: {},
-      hasSavedReadings: false,
-
-      mapHeight: MapHeightOptions.default,
-      mapState: MapStateOptions.default,
-
-      hasSelectedResource: false,
-      selectedResource: {},
-
-      isSearching: false,
-
-      isAuthenticated: false,
-      userId: ''
-    };
+    this.networkApi = new NetworkApi();    
   }
 
   componentWillMount() {
@@ -127,15 +163,15 @@ export default class App extends Component<Props> {
   }
 
   //Change to when the map is moved
-  onMapPressed({coordinate}) {
+  onMapPressed(coordinate: any) {
     const { mapState } = this.state;
 
     //Don't drop a marker if the map is in small mode, 
     //just make the map bigger, and deselect the resource
-    if (mapState === MapStateOptions.small) {
+    if (mapState === MapStateOption.small) {
       this.setState({
-        mapState: MapStateOptions.default,
-        mapHeight: MapHeightOptions.default,
+        mapState: MapStateOption.default,
+        mapHeight: MapHeightOption.default,
         selectedResource: {},
         hasSelectedResource: false,
       });
@@ -180,20 +216,19 @@ export default class App extends Component<Props> {
     );
   }
 
-  onRegionChange(region) {
-    // console.log("new region is:", region);
+  onRegionChange(region: any) {
     this.setState({ region });
   }
 
-  imageForResourceType(type) {
+  imageForResourceType(type: ResourceType) {
     switch (type) {
-      case ResourceTypes.checkdam:
+      case ResourceType.checkdam:
         return require('./assets/checkdam_pin.png');
-      case ResourceTypes.raingauge:
+      case ResourceType.raingauge:
         return require('./assets/raingauge_pin.png');
-      case ResourceTypes.well:
+      case ResourceType.well:
         return require('./assets/well_pin.png');
-      case ResourceTypes.custom:
+      case ResourceType.custom:
         return require('./assets/other_pin.png')
     }
   }
@@ -204,25 +239,25 @@ export default class App extends Component<Props> {
    * 
    * @param {*} param0 
    */
-  focusResource({coordinate, position}) {
+  focusResource(coordinate: any) {
     const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
     this.selectResource(resource);
   }
 
-  selectResource(resource) {
+  selectResource(resource: any) {
     this.setState({
-      mapHeight: MapHeightOptions.small,
-      mapState: MapStateOptions.small,
+      mapHeight: MapHeightOption.small,
+      mapState: MapStateOption.small,
       hasSelectedResource: true,
       selectedResource: resource
     });
 
     //Do in the background - we don't care when
-    FirebaseApi.addRecentResource({ orgId, resource, userId: this.state.userId });
+    FirebaseApi.addRecentResource(orgId, resource, this.state.userId);
   }
 
   getMap() {
-    const { userRegion, region, loading, resources, mapHeight } = this.state;
+    const { userRegion, region, resources, mapHeight } = this.state;
 
     return (
       <View style={{
@@ -235,13 +270,13 @@ export default class App extends Component<Props> {
             height: mapHeight
           }}
           clustering={true}
-          // radius={10}
           clusterColor={primaryDark}
           clusterTextColor={textLight}
           clusterBorderColor={textLight}
-          onPress={e => this.onMapPressed(e.nativeEvent)}
+          onClusterPress={(e: any) => this.onMapPressed(e.nativeEvent)}
           region={region}
-          onRegionChangeComplete={(region) => this.onRegionChange(region)}
+          //@ts-ignore
+          onRegionChangeComplete={(region: any) => this.onRegionChange(region)}
         >
         {/* TODO: enable these without the clustering */}
           <Marker
@@ -257,13 +292,14 @@ export default class App extends Component<Props> {
           {resources.map(resource => {
               const shortId = getShortId(resource.id);
               return <Marker
+                //@ts-ignore
                 collapsable={true}
                 key={shortId}
                 coordinate={formatCoords(resource.coords)}
                 title={`${shortId}`}
                 description={resource.resourceType}
                 image={this.imageForResourceType(resource.resourceType)}
-                onPress={(e) => this.focusResource(e.nativeEvent)}
+                onPress={(e: any) => this.focusResource(e.nativeEvent)}
               />
             }
           )}
@@ -287,7 +323,7 @@ export default class App extends Component<Props> {
     const { mapState } = this.state;
 
     //Hide this when the map is small
-    if (mapState === MapStateOptions.small) {
+    if (mapState === MapStateOption.small) {
       return null;
     }
 
@@ -345,7 +381,7 @@ export default class App extends Component<Props> {
     );
   }
 
-  updateGeoLocation(location) {
+  updateGeoLocation(location: Location) {
     let region = {...this.state.region};
     let userRegion = { ...this.state.userRegion};
     
@@ -368,14 +404,14 @@ export default class App extends Component<Props> {
   //Don't know if this will work...
   //TODO: figure out how to animate?
   toggleFullscreenMap() {
-    const { mapHeight, mapState } = this.state;
+    const { mapState } = this.state;
 
-    let newMapState = MapStateOptions.default;
-    let newMapHeight = MapHeightOptions.default;
+    let newMapState = MapStateOption.default;
+    let newMapHeight: any = MapHeightOption.default;
     
-    if (mapState === MapStateOptions.default) {
-      newMapState = MapStateOptions.fullscreen;
-      newMapHeight = MapHeightOptions.fullscreen;
+    if (mapState === MapStateOption.default) {
+      newMapState = MapStateOption.fullscreen;
+      newMapHeight = MapHeightOption.fullscreen;
     }
 
     this.setState({
@@ -397,24 +433,24 @@ export default class App extends Component<Props> {
   clearSelectedResource() {
 
     this.setState({
-      mapState: MapStateOptions.default,
-      mapHeight:MapHeightOptions.default,
+      mapState: MapStateOption.default,
+      mapHeight:MapHeightOption.default,
       hasSelectedResource: false,
       selectedResource: {},
     });
   }
 
   getMapButtons() {
-    const { mapHeight, mapState, droppedPin } = this.state;
+    const { mapState, droppedPin } = this.state;
 
     //Hide these buttons when the map is in small mode
-    if (mapState === MapStateOptions.small) {
+    if (mapState === MapStateOption.small) {
       //TODO: fade out nicely
       return null;
     }
 
     let fullscreenIcon = 'fullscreen';
-    if (mapState === MapStateOptions.fullscreen) {
+    if (mapState === MapStateOption.fullscreen) {
       fullscreenIcon = 'fullscreen-exit';
     }
 
@@ -424,7 +460,7 @@ export default class App extends Component<Props> {
         justifyContent:'space-around',
       }}>
         <LoadLocationButton
-          onComplete={location => this.updateGeoLocation(location)}
+          onComplete={(location: Location) => this.updateGeoLocation(location)}
         />
         <IconButton 
           name={fullscreenIcon}
@@ -441,7 +477,7 @@ export default class App extends Component<Props> {
   }
 
   getFavouritesList() {
-    const { userId, hasSelectedResource } = this.state;
+    const { hasSelectedResource } = this.state;
 
     //Hide when we are looking at a resource
     if (hasSelectedResource) {
@@ -451,7 +487,7 @@ export default class App extends Component<Props> {
     return (  
       <FavouriteResourceList
         userId={this.state.userId}
-        onResourceCellPressed={(resource) => {
+        onResourceCellPressed={(resource: Resource) => {
           //TODO: move the map to select this resource
           this.selectResource(resource);
         }}
@@ -462,7 +498,7 @@ export default class App extends Component<Props> {
   //A button for the user to deselect a resource, and exit out
   //of small map mode
   getUpButton() {
-    const { hasSelectedResource, selectedResource } = this.state;
+    const { hasSelectedResource } = this.state;
 
     if (!hasSelectedResource) {
       return null;
@@ -495,14 +531,14 @@ export default class App extends Component<Props> {
         <ResourceDetailSection
           userId={userId}
           resource={selectedResource}
-          onMorePressed={resource => {
+          onMorePressed={(resource: Resource) => {
             navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
               legacyId: resource.legacyId,
             });
           }}
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
-          onAddReadingPressed={resource => {
+          onAddReadingPressed={(resource: Resource) => {
             navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
               resource, 
             });
@@ -531,7 +567,7 @@ export default class App extends Component<Props> {
   }
   
   render() {
-    const { coords, loading, resources } = this.state;
+    const { loading } = this.state;
 
     if (loading) {
       return (

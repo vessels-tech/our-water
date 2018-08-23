@@ -23,20 +23,29 @@ import Config from 'react-native-config'
 import { bgDark2, textLight, textDark } from '../utils/Colors';
 const orgId = Config.REACT_APP_ORG_ID;
 
+export interface Props {
+  onEndEditing: any,
+}
 
-class SearchPanel extends Component<Props> {
+export interface State {
+  text: string,
+  isLoading: boolean,
+  results: any[]
+}
 
-  constructor(props) {
+
+export default class SearchPanel extends Component<Props> {
+  state: State = {
+    text: '',
+    isLoading: false,
+    results: [],
+  };
+
+  constructor(props: Props) {
     super(props);
-
-    this.state = {
-      text: '',
-      isLoading: false,
-      results: [],
-    };
   }
 
-  performSearch(text) { 
+  performSearch(text: string) { 
     this.setState({
       isLoading: true,
       text,
@@ -99,19 +108,6 @@ class SearchPanel extends Component<Props> {
         }
       </List>
       );
-
-          // <List containerStyle={{ width:'100%' marginBottom: 20 }}>
-          // <List>
-          //   {
-          //     results.map((r, i) => (
-          //       <ListItem
-          //         key={i}
-          //         title="WHAT THE HELL???"
-          //       />
-          //     ))
-          //   }
-          // </List>
-          // );
     }
 
     return (
@@ -173,7 +169,7 @@ class SearchPanel extends Component<Props> {
             this.setState({text:''});
             this.props.onEndEditing();
           }}
-          clearIconName
+          // clearIconName
           icon={{ 
             type: 'font-awesome', 
             name: 'search',
@@ -187,9 +183,3 @@ class SearchPanel extends Component<Props> {
     );
   }
 }
-
-SearchPanel.propTypes = {
-  onEndEditing: PropTypes.func.isRequired,
-}
-
-export default SearchPanel;

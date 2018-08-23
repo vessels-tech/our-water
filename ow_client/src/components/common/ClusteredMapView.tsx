@@ -7,16 +7,17 @@ import CustomMarker from './CustomMarker';
 
 export interface Props {
   clusterBorderColor: string,
-  clusterBorderWidth: number,
+  clusterBorderWidth?: number,
   clusterColor: string,
   region?: any,
-  clusterTextSize: number,
+  clusterTextSize?: number,
   clusterTextColor: any,
   clustering: any,
   superCluster?: any,
-  radius: number,
-  onClusterPress: any,
+  radius?: number,
+  onClusterPress?: any,
   children?: any,
+  style?: any,
 }
 
 export interface State {

@@ -1,13 +1,13 @@
-export const MapHeightOptions = {
+export const MapHeightOption = {
   default: 300,
   small: 100,
   fullscreen: '100%',
 };
 
-export const MapStateOptions = {
-  default: 0,
-  small: 1,
-  fullscreen: 2
+export enum MapStateOption {
+  default = 'default',
+  small = 'small',
+  fullscreen = 'fullscreen'
 };
 
 export enum ResourceType {
