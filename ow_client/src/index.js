@@ -5,6 +5,7 @@ import { textDark } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory } from './utils/ConfigFactory';
 import { FirebaseConfig } from './utils/FirebaseConfig';
+import Config from 'react-native-config';
 
 let config: ConfigFactory;
 
@@ -14,9 +15,9 @@ Promise.resolve(true)
 //Get the fb config first
 //TODO: fix this...
 .then(() => FirebaseConfig.getAllConfig())
-.then(_config => {
+.then(_remoteConfig => {
   console.log("got config");
-  config = new ConfigFactory(_config);
+  config = new ConfigFactory(_remoteConfig, Config);
   // config = new ConfigFactory({});
   registerScreens();
   console.log("registered screens");

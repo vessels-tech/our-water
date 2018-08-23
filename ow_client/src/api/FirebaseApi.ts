@@ -14,6 +14,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
+import { Resource } from '../typings/Resource';
 
 const fs = firebase.firestore();
 // const functions = firebase.functions();
@@ -177,7 +178,7 @@ class FirebaseApi {
    * We use this instead of the get request, as it will default to the cache if we're offline
    * @param {*} param0 
    */
-  static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number) {
+  static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number): Promise<Array<any>> {
     const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(latitude, longitude, distance);
 
     return this.checkNetworkAndToggleFirestore()
@@ -187,9 +188,10 @@ class FirebaseApi {
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     })
     .then(snapshot => {
-      const resources: any[] = []
+      const resources: Resource[] = []
       snapshot.forEach(doc => {
-        const data = doc.data();
+        //TODO: map to an actual Resource
+        const data: any = doc.data();
         //@ts-ignore
         data.id = doc.id;
 
@@ -203,8 +205,7 @@ class FirebaseApi {
       });
 
       return resources;
-    })
-    .catch(err => console.log('error', err));
+    });
   }
 
   static createNewResource(orgId: string, resourceData: any) {

@@ -44,11 +44,14 @@ import ClusteredMapView from './components/common/ClusteredMapView';
 import { Resource } from './typings/Resource';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import { SearchBar, Icon } from 'react-native-elements';
+import BaseApi from './api/BaseApi';
+import { ConfigFactory } from './utils/ConfigFactory';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   navigator: any;
+  config: ConfigFactory,
 }
 
 export interface State {
@@ -109,12 +112,13 @@ export default class App extends Component<Props> {
   fs: any;
   networkApi: NetworkApi;
   hardwareBackListener: any;
-
+  appApi: BaseApi;
 
   constructor(props: Props) {
     super(props);
     this.fs = firebase.firestore();
     this.networkApi = new NetworkApi();
+    this.appApi = props.config.getAppApi();
   }
 
   componentWillMount() {
@@ -136,9 +140,7 @@ export default class App extends Component<Props> {
     })
     .then(location => {
       this.updateGeoLocation(location);
-      //TODO: can't do ths from GGMN
-      console.log("getting resourceNearLocation", location);
-      return FirebaseApi.getResourceNearLocation(this.networkApi, orgId, location.coords.latitude, location.coords.longitude, 0.1)
+      return this.appApi.getResourceNearLocation(location.coords.latitude, location.coords.longitude, 0.1);
     })
     .then(resources => {
       this.setState({
@@ -183,8 +185,18 @@ export default class App extends Component<Props> {
       droppedPinCoords: coordinate,
     });
 
-    //TODO: should probably present a 'mini loading indicator'
-    //TODO: can't do this from GGMN
+    return this.reloadResourcesIfNeeded(coordinate);
+  }
+
+  /**
+   * Only reload the resources if the api can support it
+   * otherwise it's a lot of work!
+   */
+  reloadResourcesIfNeeded(coordinate: Coordinates) {
+    if (!this.props.config.getShouldMapLoadAllResources()) {
+      return;
+    }
+
     return FirebaseApi.getResourceNearLocation(this.networkApi, orgId, coordinate.latitude, coordinate.latitude, 0.1)
       .then(resources => {
         this.setState({
@@ -192,7 +204,7 @@ export default class App extends Component<Props> {
           resources,
         });
       })
-      .catch (err => {
+      .catch(err => {
         console.log(err);
       });
   }

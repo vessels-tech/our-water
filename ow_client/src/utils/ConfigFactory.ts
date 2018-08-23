@@ -1,6 +1,7 @@
 import { BaseApiType } from "../enums";
 import GGMNApi from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
+import NetworkApi from "../api/NetworkApi";
 
 
 /**
@@ -14,6 +15,7 @@ export type RemoteConfig = {
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
+  map_shouldLoadAllResources: boolean,
 }
 
 /**
@@ -21,6 +23,7 @@ export type RemoteConfig = {
  */
 type EnvConfig = {
   // baseApiType: BaseApiType,
+  orgId: string,
 
 }
 
@@ -33,6 +36,7 @@ type EnvConfig = {
 export class ConfigFactory {
   remoteConfig: RemoteConfig; //the firebase config object. Configurable remotely
   envConfig: EnvConfig; //The env config object. Configurable only at build time 
+  networkApi: NetworkApi = new NetworkApi();
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig) {
     this.remoteConfig = remoteConfig;
@@ -54,18 +58,18 @@ export class ConfigFactory {
   }
 
   /**
-   * Return the base api based on the remoteConfig
+   * Return the AppApi based on the remoteConfig
    * 
    * 
    */
-  getBaseApi(auth: any) {
+  getAppApi(auth?: any) {
     //TODO: should 
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
-      return new GGMNApi({});
+      return new GGMNApi(this.networkApi, this.envConfig.orgId);
     }
 
     //Default to MyWellApi
-    return new MyWellApi();
+    return new MyWellApi(this.networkApi, this.envConfig.orgId);
   }
 
   getShowConnectToButton() {
@@ -83,6 +87,17 @@ export class ConfigFactory {
     }
 
     return this.remoteConfig.connectToButtonText;
+  }
+
+  /**
+   * Should the map load all of the resources? Or just resources closest to the 
+   * user? This method will tell you 
+   * 
+   * It's much less efficent if we load them all at once, but some apis
+   * don't support loading just some by location
+   */
+  getShouldMapLoadAllResources() {
+    return this.remoteConfig.map_shouldLoadAllResources;
   }
 
 }
