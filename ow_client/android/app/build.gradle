@@ -109,7 +109,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         //TODO: this is the that changes which firebase remote config we get
-        versionName "1.0"
+        // versionName "1.0"
+        versionName "ggmn_1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

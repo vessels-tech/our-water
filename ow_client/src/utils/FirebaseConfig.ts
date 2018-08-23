@@ -4,6 +4,7 @@
  */
 import firebase from 'react-native-firebase';
 import Config from 'react-native-config';
+import { RemoteConfig } from './ConfigFactory';
 const config = firebase.config();
 
 export class FirebaseConfig {
@@ -15,14 +16,18 @@ export class FirebaseConfig {
       .then(() => config.getKeysByPrefix())
       .then(allKeys => allKeys.map((key: String) => key.toString()))
       .then((allKeys: Array<string>) => config.getValues(allKeys))
-      .then(obj => {
-        //TODO: make this a custom FB type
-        const data: any = {};
-        Object.keys(obj).forEach(key => {
-          data[key] = obj[key].val();
-        });
+      .then((obj: any) => {
 
-        return data;
+        const remoteConfig: RemoteConfig = {
+          applicationName: obj.applicationName.val(),
+          baseApiType: obj.baseApiType.val(),
+          connectToButtonText: obj.connectToButtonText.val(),
+          firebaseBaseUrl: obj.firebaseBaseUrl.val(),
+          ggmnBaseUrl: obj.ggmnBaseUrl.val(),
+          showConnectToButton: obj.showConnectToButton.val(),
+          mywellBaseUrl: obj.mywellBaseUrl.val(),
+        }
+        return remoteConfig;
       });
   }
 

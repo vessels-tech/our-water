@@ -31,7 +31,7 @@ export default class SettingsScreen extends React.Component<Props> {
    * Connect to button is only available for variants which connect to external services
    */
   getConnectToButton() {
-    if (!this.props.config.showConnectToButton()) {
+    if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
 

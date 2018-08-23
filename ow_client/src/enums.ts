@@ -19,7 +19,7 @@ export enum ResourceType {
 
 export const ResourceTypeArray: Array<string> = Object.keys(ResourceType);
 
-export const BaseApiType = {
-  MyWellApi: 'MyWellApi',
-  GGMNApi: 'GGMNApi',
+export enum BaseApiType{
+  MyWellApi = 'MyWellApi',
+  GGMNApi = 'GGMNApi',
 };
