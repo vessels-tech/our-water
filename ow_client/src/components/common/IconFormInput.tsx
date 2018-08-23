@@ -1,31 +1,22 @@
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  Text,
   View,
-  TextInput,
-  Dimensions,
   KeyboardTypeOptions,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   FormInput,
-  FormLabel,
   FormValidationMessage,
   Button
 } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
-import moment from 'moment';
 
 import {
   getMinAndMaxReadingDates,
 } from '../../utils'
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
+// const SCREEN_WIDTH = Dimensions.get('window').width;
+// const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export enum InputType {
   fieldInput,
@@ -148,9 +139,7 @@ class IconFormInput extends Component<Props> {
 
   getFormInputField() {
     const { 
-      iconName,
       placeholder,
-      errorMessage,
       onChangeText,
       onSubmitEditing,
       keyboardType,
@@ -188,12 +177,7 @@ class IconFormInput extends Component<Props> {
   render() {
     const {
       iconName,
-      placeholder,
       errorMessage,
-      onChangeText,
-      onSubmitEditing,
-      keyboardType,
-      value,
       iconColor,
       fieldType,
     } = this.props;

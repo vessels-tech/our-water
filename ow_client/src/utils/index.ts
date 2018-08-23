@@ -151,7 +151,7 @@ const randomPrettyColorForId = (resourceId: string) => {
 
 const hashCode = (str: string) => {
   var hash = 0;
-  if (str.length == 0) return hash;
+  if (str.length === 0) return hash;
   let i: number;
   for (i = 0; i < str.length; i++) {
     let char = str.charCodeAt(i);

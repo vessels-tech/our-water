@@ -1,19 +1,16 @@
 /**
  * Main OurWater App
- * @flow
+ * 
  */
-
 import React, { Component } from 'react';
 import {
   BackHandler,
-  Platform,
-  StyleSheet,
   ScrollView,
   Text,
-  View
+  View,
 } from 'react-native';
 import { Marker } from 'react-native-maps';
-import firebase, { RNFirebase } from 'react-native-firebase';
+import firebase from 'react-native-firebase';
 
 import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
@@ -38,9 +35,9 @@ import {
   MapHeightOption,
 } from './enums';
 
-import Config from 'react-native-config'
+import Config from 'react-native-config';
 import NetworkApi from './api/NetworkApi';
-import { bgLight, primary, bgDark, bgMed, bgDark2, textDark, textLight, primaryDark } from './utils/Colors';
+import { bgLight, bgMed, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
 import { Resource } from './typings/Resource';
 import FavouriteResourceList from './components/FavouriteResourceList';
@@ -49,11 +46,11 @@ import { SearchBar, Icon } from 'react-native-elements';
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
-  navigator: any,
-};
+  navigator: any;
+}
 
 export interface State {
-  loading: boolean,
+  loading: boolean;
   region: {
     latitude: number,
     longitude: number,
@@ -77,8 +74,7 @@ export interface State {
   isAuthenticated: boolean,
   userId: string,
   resources: any[],
-};
-
+}
 
 export default class App extends Component<Props> {
   state: State = {
@@ -116,24 +112,23 @@ export default class App extends Component<Props> {
   constructor(props: Props) {
     super(props);
     this.fs = firebase.firestore();
-    this.networkApi = new NetworkApi();    
+    this.networkApi = new NetworkApi();
   }
 
   componentWillMount() {
-    let { region } = this.state;
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
     this.setState({loading: true});
 
     FirebaseApi.signIn()
     .then(siginData => {
-      this.setState({ 
+      this.setState({
         isAuthenticated: true,
         userId: siginData.user.uid,
       });
       return getLocation();
     })
     .catch(err => {
-      console.log("error signing in", err);
+      console.log('error signing in', err);
       this.setState({ isAuthenticated: false });
       return getLocation();
     })
@@ -145,7 +140,7 @@ export default class App extends Component<Props> {
     .then(resources => {
       this.setState({
         loading: false,
-        resources
+        resources,
       });
     })
     .catch(err => {
@@ -190,7 +185,7 @@ export default class App extends Component<Props> {
       .then(resources => {
         this.setState({
           loading: false,
-          resources
+          resources,
         });
       })
       .catch (err => {
@@ -249,7 +244,7 @@ export default class App extends Component<Props> {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
       hasSelectedResource: true,
-      selectedResource: resource
+      selectedResource: resource,
     });
 
     //Do in the background - we don't care when
@@ -267,7 +262,7 @@ export default class App extends Component<Props> {
           style={{
             position: 'relative',
             width: '100%',
-            height: mapHeight
+            height: mapHeight,
           }}
           clustering={true}
           clusterColor={primaryDark}
@@ -341,12 +336,10 @@ export default class App extends Component<Props> {
   }
 
   getMenuButton() {
-    const { mapState } = this.state;
-
     return (
       <Icon
         size={30}
-        name="menu"
+        name='menu'
         onPress={() => {
           // navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
           // console.log("opening drawer?", this.props.navigator);
@@ -603,10 +596,3 @@ export default class App extends Component<Props> {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 0,
-    flex: 1
-  }
-});

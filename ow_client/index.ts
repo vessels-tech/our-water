@@ -12,7 +12,7 @@ Promise.resolve(true)
 .then(() => FirebaseConfig.getAllConfig())
 .then(_config => {
     config = new ConfigFactory(_config);
-    registerScreens(config); // this is where you register all of your app's screens
+    registerScreens(); // this is where you register all of your app's screens
 })
 .then(() => {
   // start the app

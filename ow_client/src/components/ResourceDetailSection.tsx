@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
   View,
-  TextInput,
   ViewPagerAndroid
 } from 'react-native';
 import { 
   Avatar,
   Button,
   Card, 
-  Icon,
   Text,
 } from 'react-native-elements';
-import PropTypes from 'prop-types';
 
 import Loading from './Loading';
 import IconButton from './IconButton';

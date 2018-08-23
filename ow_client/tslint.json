@@ -1,34 +1,34 @@
 {
   "extends": [
-    "tslint-react-recommended"
   ],
   "rules": {
+
     "ordered-imports": [
-      true
+      false
     ],
-    "quotemark": [
-      true,
-      "single",
-      "jsx-single",
-      "avoid-escape"
+    "comment-format": [
+      false
     ],
-    "semicolon": [
-      true,
-      "never"
-    ],
+    // "quotemark": [
+    //   true,
+    //   "single",
+    //   "double",
+    //   "jsx-single",
+    //   "avoid-escape"
+    // ],
     "member-access": [
       false
     ],
     "member-ordering": [
       false
     ],
-    "trailing-comma": [
-      true,
-      {
-        "singleline": "never",
-        "multiline": "always"
-      }
-    ],
+    // "trailing-comma": [
+    //   true,
+    //   {
+    //     "singleline": "never",
+    //     "multiline": "never"
+    //   }
+    // ],
     "no-empty": false,
     "no-submodule-imports": false,
     "no-implicit-dependencies": false,

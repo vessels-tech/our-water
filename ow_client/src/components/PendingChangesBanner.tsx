@@ -8,19 +8,12 @@
 
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
   Text,
   View,
-  TextInput,
-  Image,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Config from 'react-native-config'
 import { RNFirebase } from 'react-native-firebase';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
-
-import FirebaseApi from '../api/FirebaseApi';
 import {  textLight, bgMed } from '../utils/Colors';
 
 

@@ -1,8 +1,8 @@
 
-import Config from 'react-native-config';
+// import Config from 'react-native-config';
 
-const ggmnBaseUrl = Config.GGMN_BASE_URL;
-const timeout = 1000 * 10;
+// const ggmnBaseUrl = Config.GGMN_BASE_URL;
+// const timeout = 1000 * 10;
 
 /**
  * The GGMN Api.

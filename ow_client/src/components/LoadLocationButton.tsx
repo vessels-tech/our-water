@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
-  Text,
   View,
-  TextInput
 } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
-import PropTypes from 'prop-types';
+import { Icon } from 'react-native-elements';
 
 import {
   getLocation,

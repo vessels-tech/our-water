@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
-  ScrollView,
   Text,
   View,
-  TextInput
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { 
   List, 
   ListItem, 
-  FormInput, 
   SearchBar as SB 
 } from 'react-native-elements';
 
@@ -20,7 +13,7 @@ import Loading from './Loading';
 import FirebaseApi from '../api/FirebaseApi';
 
 import Config from 'react-native-config'
-import { bgDark2, textLight, textDark } from '../utils/Colors';
+import { textDark } from '../utils/Colors';
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
@@ -124,12 +117,12 @@ export default class SearchPanel extends Component<Props> {
   }
 
   render() {
-    const { text } = this.state;
+    // const { text } = this.state;
 
-    let backgroundColor = 'transparent';
-    if (text !== '') {
-      backgroundColor = "#D9E3F0";
-    }
+    // let backgroundColor = 'transparent';
+    // if (text !== '') {
+    //   backgroundColor = "#D9E3F0";
+    // }
 
     return (
       <View style={{

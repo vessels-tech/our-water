@@ -1,24 +1,13 @@
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
-  Text,
   View,
-  TextInput,
   Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { 
-  FormInput, 
-  FormLabel,
-  FormValidationMessage, 
   Button 
 } from 'react-native-elements';
-import DatePicker from 'react-native-datepicker'
 import Config from 'react-native-config';
 import moment, { Moment } from 'moment';
 
@@ -26,10 +15,10 @@ import moment, { Moment } from 'moment';
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert, getLocation } from '../utils';
-import { bgLight, primary, textDark, primaryDark, textMed, primaryLight } from '../utils/Colors';
+import { bgLight, primary, primaryDark, textMed} from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
+// const SCREEN_HEIGHT = Dimensions.get('window').height;
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
@@ -51,7 +40,7 @@ class NewReadingScreen extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    const listener = FirebaseApi.pendingReadingsListener({orgId});
+    // const listener = FirebaseApi.pendingReadingsListener(orgId);
 
     this.state = {
       enableSubmitButton: false,
@@ -95,8 +84,8 @@ class NewReadingScreen extends Component<Props> {
       coords
     };
 
-    return FirebaseApi.saveReadingPossiblyOffline({orgId, reading})
-    .then(result => {
+    return FirebaseApi.saveReadingPossiblyOffline(orgId, reading)
+    .then(() => {
       //TODO: display toast or something
       this.setState({
         date: moment(),
@@ -112,7 +101,7 @@ class NewReadingScreen extends Component<Props> {
         ]
       );
     })
-    .catch(err => {
+    .catch((err: Error) => {
       console.log(err);
       //TODO: display error
       this.setState({

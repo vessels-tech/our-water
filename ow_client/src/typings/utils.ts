@@ -1,7 +1,7 @@
-import { RNFirebase } from 'react-native-firebase';
+// import { RNFirebase } from 'react-native-firebase';
 
-declare module utils {
-  export type Snapshot = RNFirebase.firestore.QuerySnapshot;
-  // export type QuerySnapshot
+// declare module utils {
+//   export type Snapshot = RNFirebase.firestore.QuerySnapshot;
+//   // export type QuerySnapshot
 
-}
+// }
