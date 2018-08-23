@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react'; import { Component } from 'react';
 import MapView from 'react-native-maps';
 // @ts-ignore
 import { width as w, height as h } from 'react-native-dimension';

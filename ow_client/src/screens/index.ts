@@ -4,13 +4,13 @@ import App from '../App';
 import NewReadingScreen from './NewReadingScreen';
 import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
-import EditResourceScreen from './EditResourceScreen';
+// import EditResourceScreen from './EditResourceScreen';
 
 
 export function registerScreens() {
   Navigation.registerComponent('example.FirstTabScreen', () => App);
-  Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen);
-  Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
+  // Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen);
+  // Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
-  Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
+  // Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
 }

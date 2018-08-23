@@ -6,7 +6,7 @@
  * For now, it only monitors the readings for the given organisation
  */
 
-import React, { Component } from 'react';
+import * as React from 'react'; import { Component } from 'react';
 import {
   Text,
   View,

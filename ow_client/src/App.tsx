@@ -2,7 +2,7 @@
  * Main OurWater App
  * 
  */
-import React, { Component } from 'react';
+import * as React from 'react'; import { Component } from 'react';
 import {
   BackHandler,
   ScrollView,
@@ -18,6 +18,8 @@ import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import PendingChangesBanner from './components/PendingChangesBanner';
 import { Location } from './typings/Location';
+
+import * as myPinImg from './assets/my_pin.png';
 
 
 import FirebaseApi from './api/FirebaseApi';
@@ -207,7 +209,7 @@ export default class App extends Component<Props> {
         key='droppedPin'
         coordinate={droppedPinCoords}
         title='Your Pin'
-        image={require('./assets/my_pin.png')}
+        image={myPinImg}
       />
     );
   }

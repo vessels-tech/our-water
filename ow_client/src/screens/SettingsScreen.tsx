@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   View,
 } from 'react-native';
@@ -18,7 +18,9 @@ export interface State {
 
 }
 
-class SettingsScreen extends Component<Props> {
+console.log("SettingsScreen React is:", React);
+
+export default class SettingsScreen extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
@@ -103,5 +105,3 @@ class SettingsScreen extends Component<Props> {
     );
   }
 }
-
-export default SettingsScreen;

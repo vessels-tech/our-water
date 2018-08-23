@@ -16,9 +16,9 @@ module.exports = {
   getSourceExts() {
     return ['ts', 'tsx'];
   },
-  getBlackListRE(platform) {
-    return blacklist([
-      /src\/*/
-    ]);
-  }
+  // getBlackListRE(platform) {
+  //   return blacklist([
+  //     /src\/*/
+  //   ]);
+  // }
 }
