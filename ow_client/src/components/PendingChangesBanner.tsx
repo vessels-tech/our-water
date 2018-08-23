@@ -14,23 +14,32 @@ import {
   TextInput,
   Image,
 } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import Config from 'react-native-config'
+import { RNFirebase } from 'react-native-firebase';
+type Snapshot = RNFirebase.firestore.QuerySnapshot;
+
 
 import FirebaseApi from '../api/FirebaseApi';
-import { bgDark2, textLight, bgLightHighlight, bgMed } from '../utils/Colors';
+import {  textLight, bgMed } from '../utils/Colors';
 
-const orgId = Config.REACT_APP_ORG_ID;
+
+export interface Props {
+
+}
+
+export interface State {
+  hasPendingWrites: boolean,
+}
 
 class PendingChangesBanner extends Component<Props> {
+  state: State = {
+    hasPendingWrites: false,
+  };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
-    this.state = {
-      hasPendingWrites: false,
-    };
   }
 
   componentWillMount() {
@@ -39,7 +48,8 @@ class PendingChangesBanner extends Component<Props> {
     // FirebaseApi.listenForPendingReadings({orgId}, (sn) => this.pendingReadingsCallback(sn));
   }
 
-  pendingReadingsCallback(sn) {
+  //TODO: find the snapshot type
+  pendingReadingsCallback(sn: Snapshot) {
     
     this.setState({
       hasPendingWrites: sn.metadata.hasPendingWrites,

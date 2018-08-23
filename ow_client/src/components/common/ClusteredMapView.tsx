@@ -81,7 +81,6 @@ class ClusteredMapView extends Component {
 
   constructor(props: Props) {
     super(props);
-    this.props = props;
   }
  
   componentDidMount() {

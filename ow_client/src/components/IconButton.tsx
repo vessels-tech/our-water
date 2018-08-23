@@ -1,17 +1,25 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
-  Text,
   View,
-  TextInput
 } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
-import PropTypes from 'prop-types';
+import { Icon } from 'react-native-elements';
 import { primary, textDark } from '../utils/Colors';
+import { getLocation } from '../utils';
 
-class IconButton extends Component<Props> {
+export interface Props {
+  onComplete?: any,
+  onPress: any,
+  color: string,
+  name: string,
+}
 
-  constructor(props) {
+export interface State {
+
+}
+
+export default class IconButton extends Component<Props> {
+
+  constructor(props: Props) {
     super(props);
   }
 
@@ -21,16 +29,14 @@ class IconButton extends Component<Props> {
     });
 
     return getLocation()
-      .then(location => {
-        // this.setState({loading: false});
-
-        this.props.onComplete(location);
-      })
-      .catch(err => {
-        //TODO: display error to user
-        console.log('err', err);
-        this.setState({ loading: false });
-      });
+    .then(location => {
+      this.props.onComplete(location);
+    })
+    .catch(err => {
+      //TODO: display error to user
+      console.log('err', err);
+      this.setState({ loading: false });
+    });
   }
 
   render() {
@@ -58,14 +64,4 @@ class IconButton extends Component<Props> {
       </View>
     );
   }
-
 }
-
-IconButton.propTypes = {
-  onPress: PropTypes.func,
-  color: PropTypes.string,
-  name: PropTypes.string,
-  
-}
-
-export default IconButton;

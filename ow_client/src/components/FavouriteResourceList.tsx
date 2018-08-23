@@ -2,34 +2,41 @@ import React, { Component } from 'react';
 import {
   Text,
   View,
-  TextInput,
-  Image,
   Dimensions,
 } from 'react-native';
-import { Card, ListItem, Button } from 'react-native-elements'
+import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
-import PropTypes from 'prop-types';
 import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
-import { textDark, primary } from '../utils/Colors';
+import { textDark } from '../utils/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const orgId = Config.REACT_APP_ORG_ID;
 
+
+export interface Props {
+  userId: string,
+  onResourceCellPressed: any
+}
+
+export interface State {
+  favourites: any,
+  recents: any[],
+}
 
 /**
  * FavouriteResourceList displays a list of the recent or favourite
  * resources.
  * 
  */
-class FavouriteResourceList extends Component<Props> {
+export default class FavouriteResourceList extends Component<Props> {
+  unsubscribe: any;
+  state: State;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -45,8 +52,8 @@ class FavouriteResourceList extends Component<Props> {
     this.unsubscribe = FirebaseApi.listenForUpdatedUser({orgId, userId}, this.onUserUpdated);
   
     return Promise.all([
-      FirebaseApi.getRecentResources({orgId, userId}),
-      FirebaseApi.getFavouriteResources({orgId, userId})
+      FirebaseApi.getRecentResources(orgId, userId),
+      FirebaseApi.getFavouriteResources(orgId, userId)
     ])
     .then(([recents, favourites]) => {
       this.setState({
@@ -61,12 +68,12 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   //TODO: for some reason, this isn't updating
-  onUserUpdated(sn) {
+  onUserUpdated(sn: any) {
     console.log("onUserUpdated snapshot", sn);
 
   }
 
-  getResourceCell(resource) {
+  getResourceCell(resource: any) {
     //Ideally, we would display the resource image + 
     //if we don't have the image, pick a random color from a nice set maybe?
     const backgroundColor = randomPrettyColorForId(resource.id);
@@ -88,10 +95,10 @@ class FavouriteResourceList extends Component<Props> {
             backgroundColor, 
             // borderRadius: 5,
           }}
-          titleStyle={{
-            fontWeight: 'bold', 
-            fontSize: 23,
-          }}
+          // titleStyle={{
+          //   fontWeight: 'bold', 
+          //   fontSize: 23,
+          // }}
           onPress={() => this.props.onResourceCellPressed(resource)}
           underlayColor="transparent"
         />
@@ -107,10 +114,9 @@ class FavouriteResourceList extends Component<Props> {
 
       const icon = (<Icon
         style={{
-          // backgroundColor: 'blue',
           flex: 1,
         }}
-        // reverse
+        //@ts-ignore
         raised
         size={12}
         name='star'
@@ -192,13 +198,4 @@ class FavouriteResourceList extends Component<Props> {
       </View>
     );
   }
-
 }
-
-FavouriteResourceList.propTypes = {
-  onResourceCellPressed: PropTypes.func.isRequired,
-  userId: PropTypes.string.isRequired,
-};
-
-
-export default FavouriteResourceList;

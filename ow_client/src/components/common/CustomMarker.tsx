@@ -12,12 +12,10 @@ export interface Props {
   clusterId: any,
 }
 
-export default class CustomMarker extends Component {
-  props: Props;
+export default class CustomMarker extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
-    this.props = props;
   }
 
   shouldComponentUpdate(nextProps: Props) {

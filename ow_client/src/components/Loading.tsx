@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
-  View
 } from 'react-native';
-import PropTypes from 'prop-types';
 import { primary } from '../utils/Colors';
 
 
@@ -11,6 +9,10 @@ import { primary } from '../utils/Colors';
  * A simple loading indicator
  * 
  */
+export interface Props {
+
+}
+
 class Loading extends Component<Props> {
 
   render() {

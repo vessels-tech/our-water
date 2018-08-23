@@ -6,8 +6,8 @@ import  { Text } from 'react-native-elements';
 import { primaryDark } from '../../utils/Colors';
 
 export interface Props {
-  highlightColor: string,
-  description: string,
+  highlightColor?: string,
+  description?: string,
   value: any,
   title: string,
 }

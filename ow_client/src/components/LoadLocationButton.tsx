@@ -13,14 +13,22 @@ import {
 } from '../utils';
 import { textDark, primary } from '../utils/Colors';
 
-class LoadLocationButton extends Component<Props> {
+export interface Props { 
+  onComplete: any,
+}
 
-  constructor(props) {
+export interface State {
+  loading: boolean,
+}
+
+export default class LoadLocationButton extends Component<Props> {
+  state: State = {
+    loading: false,
+  }
+
+  constructor(props: Props) {
     super(props);
 
-    this.state = {
-      loading: false
-    };
   }
 
   updateGeoLocation() {
@@ -72,11 +80,4 @@ class LoadLocationButton extends Component<Props> {
       </View>
     );
   }
-
 }
-
-LoadLocationButton.propTypes = {
-  onComplete: PropTypes.func.isRequired,
-}
-
-export default LoadLocationButton;

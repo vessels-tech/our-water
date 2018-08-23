@@ -26,18 +26,45 @@ import { primary, textDark, bgMed } from '../utils/Colors';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
+export interface Props {
+  resource: {
+    id: string,
+    legacyId: string,
+    owner: {
+      name: string,
+    }
+  },
+  userId: string,
+  onAddReadingPressed: any,
+  onMorePressed: any,
+  onAddToFavourites: any,
+  onRemoveFromFavourites: any,
+}
+
+export interface State {
+  loading: boolean,
+  resource: {
+    lastValue: string,
+    legacyId?: string,
+    owner?: {
+      id?: string
+    }
+  },
+  isFavourite: boolean,
+}
 
 class ResourceDetailSection extends Component<Props> {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      resource: {
-        lastValue: '',
-      }
+  unsubscribe: any;
+  state: State = {
+    loading: false,
+    isFavourite: false,
+    resource: {
+      lastValue: '',
     }
+  }
+
+  constructor(props: Props) {
+    super(props);
   }
 
   componentWillMount() {
@@ -51,11 +78,11 @@ class ResourceDetailSection extends Component<Props> {
     });
   
     //Listen to updates from Firebase
-    this.unsubscribe = FirebaseApi.getResourceListener({orgId, resourceId: id, onSnapshot: (data) => this.onSnapshot(data)});
+    this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
 
     //TODO: we need to reload this when changing resources.
     return Promise.all([
-      FirebaseApi.isInFavourites({orgId, userId, resourceId: id})
+      FirebaseApi.isInFavourites(orgId, id, userId)
     ])
     .then(([isFavourite]) => {
 
@@ -66,7 +93,7 @@ class ResourceDetailSection extends Component<Props> {
     });
   }
 
-  onSnapshot(data) {
+  onSnapshot(data: any) {
     this.setState({
       resource: data,
     });
@@ -94,6 +121,7 @@ class ResourceDetailSection extends Component<Props> {
 
     if(loading) {
       return (
+        //@ts-ignore
         <View style={viewStyle}>
           <Loading/>
         </View>
@@ -101,8 +129,8 @@ class ResourceDetailSection extends Component<Props> {
     }
 
     return (
-      // <View style={viewStyle}>
         <ViewPagerAndroid
+          //@ts-ignore
           style={{
             flex: 1,
             ...viewStyle
@@ -160,9 +188,9 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getFavouriteButton() {
-    const { isLoading, isFavourite } = this.state;
+    const { loading, isFavourite } = this.state;
 
-    if (isLoading) {
+    if (loading) {
       return <Loading/>;
     }
 
@@ -175,7 +203,7 @@ class ResourceDetailSection extends Component<Props> {
       <IconButton
         // use star-outlined when not a fav
         name={iconName}
-        onPress={() => this.toggleFavourites(this.props.resource)}
+        onPress={() => this.toggleFavourites()}
         color={primary}
       />
     );
@@ -195,10 +223,10 @@ class ResourceDetailSection extends Component<Props> {
             borderRadius: 5,
             flex: 1
           }}
-          titleStyle={{ 
-            fontWeight: 'bold', 
-            fontSize: 23,
-          }}
+          // titleStyle={{ 
+          //   fontWeight: 'bold', 
+          //   fontSize: 23,
+          // }}
           title='New reading'
           onPress={() => this.props.onAddReadingPressed(this.props.resource)}
         />
@@ -219,21 +247,21 @@ class ResourceDetailSection extends Component<Props> {
     const { isFavourite } = this.state;
 
     this.setState({
-      isLoading: true,
+      loading: true,
     });
 
     return Promise.resolve(true)
     .then(() => {
       //TODO: don't keep of track of state ourselves, use firebase callbacks
       if (isFavourite) {
-        return FirebaseApi.removeFavouriteResource({ orgId, resource, userId })
+        return FirebaseApi.removeFavouriteResource(orgId, resource.id, userId)
       }
 
-      return FirebaseApi.addFavouriteResource({ orgId, resource, userId });
+      return FirebaseApi.addFavouriteResource(orgId, resource, userId);
     })
     .then(() => {
       this.setState({
-        isLoading: false,
+        loading: false,
         isFavourite: !isFavourite,
       });
     })
@@ -259,7 +287,7 @@ class ResourceDetailSection extends Component<Props> {
           borderRadius: 5,
           flex: 1
         }}
-        titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
+        // titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
         onPress={() => this.props.onMorePressed(this.props.resource)}
       />
     );
@@ -284,8 +312,7 @@ class ResourceDetailSection extends Component<Props> {
               marginTop: 20,
               marginLeft: 20,
              }}
-            size="large"
-            // rounded
+            // size="large"
             title="RG"
             activeOpacity={0.7}
           />
@@ -303,15 +330,6 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
   
-};
-
-ResourceDetailSection.propTypes = {
-  resource: PropTypes.object.isRequired,
-  onMorePressed: PropTypes.func.isRequired,
-  onAddToFavourites: PropTypes.func.isRequired,
-  onRemoveFromFavourites: PropTypes.func.isRequired,
-  onAddReadingPressed: PropTypes.func.isRequired,
-  userId: PropTypes.string.isRequired,
 };
 
 export default ResourceDetailSection;

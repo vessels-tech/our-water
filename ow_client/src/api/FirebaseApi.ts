@@ -41,72 +41,75 @@ class FirebaseApi {
     return auth.signInAnonymouslyAndRetrieveData();
   }
 
-  static addFavouriteResource({orgId, resource, userId}) {
-    return this.getFavouriteResources({orgId, userId})
+  static addFavouriteResource(orgId: string, resource: any, userId: string) {
+    return this.getFavouriteResources(orgId, userId)
     .then(favouriteResources => {
       favouriteResources[resource.id] = resource;
 
-      return this.updateFavouriteResources({orgId, userId, favouriteResources});
+      return this.updateFavouriteResources(orgId, userId, favouriteResources);
     });
   }
 
-  static removeFavouriteResource({ orgId, resourceId, userId}) {
-    return this.getFavouriteResources({ orgId, userId })
+  static removeFavouriteResource(orgId: string, resourceId: string, userId: string) {
+    return this.getFavouriteResources(orgId, userId)
     .then(favouriteResources => {
       delete favouriteResources[resourceId];
 
-      return this.updateFavouriteResources({ orgId, userId, favouriteResources });
+      return this.updateFavouriteResources(orgId, userId, favouriteResources);
     });  
   }
 
-  static isInFavourites({ orgId, resourceId, userId }) {
-    return this.getFavouriteResources({ orgId, userId })
+  static isInFavourites(orgId: string, resourceId: string, userId: string) {
+    return this.getFavouriteResources(orgId, userId)
     .then(favouriteResources => {
       return resourceId in favouriteResources;
     });
   }
 
-  static updateFavouriteResources({orgId, userId, favouriteResources}) {
+  static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true});
   }
 
-  static getFavouriteResources({ orgId, userId }) {
+  static getFavouriteResources(orgId: string, userId: string) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
+        //@ts-ignore
         if (!sn || !sn.data() || !sn.data().favouriteResources) {
           return {};
         }
-
+        //@ts-ignore
         return sn.data().favouriteResources;
       })
   }
 
-  static getResourceListener({orgId, resourceId, onSnapshot}) {
+  static getResourceListener(orgId: string, resourceId: string, onSnapshot: any) {
     return fs.collection('org').doc(orgId).collection('resource').doc(resourceId)
     .onSnapshot(sn => onSnapshot(sn.data()));
   }
 
-  static getRecentResources({orgId, userId}) {
+  static getRecentResources(orgId: string, userId: string) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
+        //@ts-ignore
         if (!sn || !sn.data() || !sn.data().recentResources) {
           return [];
         }
 
+        //@ts-ignore
         return sn.data().recentResources;
-      })
+      });
   }
 
-  static addRecentResource({ orgId, resource, userId}) {
+  static addRecentResource(orgId: string, resource: any, userId: string) {
 
-    return this.getRecentResources({orgId, userId})
+    return this.getRecentResources(orgId, userId)
     .then(recentResources => {
       //only keep the last 5 resources
       recentResources.unshift(resource);
       
       //remove this resource from later on if it already exists
       const dedupDict = {};
-      recentResources.forEach(res => { dedupDict[res.id] = res});
+      recentResources.forEach((res: any) => { dedupDict[res.id] = res});
       const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
 
       while (dedupList.length > 5) {
