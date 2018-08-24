@@ -38,7 +38,6 @@ import {
 } from './enums';
 
 import Config from 'react-native-config';
-import NetworkApi from './api/NetworkApi';
 import { bgLight, bgMed, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
 import { Resource } from './typings/Resource';
@@ -110,7 +109,6 @@ export default class App extends Component<Props> {
   };
 
   fs: any;
-  networkApi: NetworkApi;
   hardwareBackListener: any;
   appApi: BaseApi;
 
@@ -118,7 +116,6 @@ export default class App extends Component<Props> {
     super(props);
 
     this.fs = firebase.firestore();
-    this.networkApi = new NetworkApi();
     this.appApi = props.config.getAppApi();
   }
 

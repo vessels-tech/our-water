@@ -7,6 +7,7 @@ import { ConfigFactory } from './utils/ConfigFactory';
 import { FirebaseConfig } from './utils/FirebaseConfig';
 import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
+import NetworkApi from './api/NetworkApi';
 
 let config: ConfigFactory;
 
@@ -18,10 +19,10 @@ Promise.resolve(true)
   }
   return FirebaseConfig.getAllConfig();
 })
-.then(_remoteConfig => {
-  config = new ConfigFactory(_remoteConfig, Config);
+.then(async (_remoteConfig) => {
+  const networkApi = await NetworkApi.createAndInit();
+  config = new ConfigFactory(_remoteConfig, Config, networkApi);
   registerScreens();
-  console.log("registered screens");
 })
 .then(() => {
   console.log("config is:", config);

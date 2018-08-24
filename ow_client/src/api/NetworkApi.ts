@@ -1,30 +1,14 @@
 
 import { NetInfo } from 'react-native';
-import { Component } from 'react';
 
-interface Props {
+class NetworkApi {
+  public isConnected: boolean
+  public connectionUpdateCallbacks: any
 
-}
-
-interface State {
-  isConnected: boolean,
-  connectionUpdateCallbacks: any,
-}
-
-class NetworkApi extends Component<Props> {
-  state: State;
-  // isConnected: boolean
-  // connectionUpdateCallbacks: any
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      isConnected: false,
-      connectionUpdateCallbacks: {}
-    }
-
-    this.updateConnectionStatus();
+  constructor()  {
+    // this.updateConnectionStatus();
+    this.isConnected = false;
+    this.connectionUpdateCallbacks = {};
 
     NetInfo.isConnected.addEventListener(
       'connectionChange',
@@ -32,43 +16,42 @@ class NetworkApi extends Component<Props> {
     );
   }
 
-  addConnectionChangeCallback(id: any, callback: any) {
-    const { connectionUpdateCallbacks } = this.state;
-    connectionUpdateCallbacks[id] = callback;
+  public static async createAndInit() {
+    const networkApi = new NetworkApi();
+    await networkApi.updateConnectionStatus();
 
-    this.setState({connectionUpdateCallbacks});
+    return networkApi;
+  }
+
+  addConnectionChangeCallback(id: any, callback: any) {
+    this.connectionUpdateCallbacks[id] = callback;
   }
 
   removeConnectionChangeCallback(id: any) {
-    const { connectionUpdateCallbacks } = this.state;
-    delete connectionUpdateCallbacks[id];
-
-    this.setState({ connectionUpdateCallbacks });
+    delete this.connectionUpdateCallbacks[id];
   }
 
   updateConnectionStatus() {
     return NetInfo.isConnected.fetch()
       .then(isConnected => {
         console.log('isConnected', isConnected);
-        this.setState({isConnected});
+        this.isConnected = isConnected;
       });
   }
 
   onConnectionChange(isConnected: boolean) {
-    const { connectionUpdateCallbacks } = this.state;
-
     console.log("isConnected", isConnected);
     console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
-    this.setState({ isConnected });
+    this.isConnected = isConnected;
 
-    Object.keys(connectionUpdateCallbacks).forEach(key => {
-      let callback = connectionUpdateCallbacks[key];
+    Object.keys(this.connectionUpdateCallbacks).forEach(key => {
+      let callback = this.connectionUpdateCallbacks[key];
       callback(isConnected);
     });
   }
 
   getIsConnected() {
-    return this.state.isConnected;
+    return this.isConnected;
   }
 }
 

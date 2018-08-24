@@ -36,11 +36,12 @@ type EnvConfig = {
 export class ConfigFactory {
   remoteConfig: RemoteConfig; //the firebase config object. Configurable remotely
   envConfig: EnvConfig; //The env config object. Configurable only at build time 
-  networkApi: NetworkApi = new NetworkApi();
+  networkApi: NetworkApi;
 
-  constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig) {
+  constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
     this.envConfig = envConfig;
+    this.networkApi = networkApi;
 
     console.log("init config factory with config", this.remoteConfig);
   }
