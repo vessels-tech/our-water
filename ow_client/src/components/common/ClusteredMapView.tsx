@@ -184,7 +184,7 @@ class ClusteredMapView extends Component<Props> {
     if (this.props.clustering && this.superCluster) {
       const bBox = this.calculateBBox(this.state.currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
-      const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
+      const clusters = await this.superCluster.getClusters(bBox, zoom);
 
       clusteredMarkers = clusters.map((cluster: any) => {
         console.log("cluster is: ", cluster);

@@ -19,17 +19,12 @@ import {
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
 import { primary, textDark, bgMed } from '../utils/Colors';
+import { Resource } from '../typings/models/OurWater';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
-  resource: {
-    id: string,
-    legacyId: string,
-    owner: {
-      name: string,
-    }
-  },
+  resource: Resource,
   userId: string,
   onAddReadingPressed: any,
   onMorePressed: any,
@@ -39,13 +34,6 @@ export interface Props {
 
 export interface State {
   loading: boolean,
-  resource: {
-    lastValue: string,
-    legacyId?: string,
-    owner?: {
-      id?: string
-    }
-  },
   isFavourite: boolean,
 }
 
@@ -54,9 +42,6 @@ class ResourceDetailSection extends Component<Props> {
   state: State = {
     loading: false,
     isFavourite: false,
-    resource: {
-      lastValue: '',
-    }
   }
 
   constructor(props: Props) {
@@ -104,7 +89,8 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getReadingsView() {
-    const { loading, resource: { lastValue } } = this.state;
+    const { loading } = this.state;
+    const { resource: {lastValue}} = this.props;
 
     const viewStyle = {
       justifyContent: 'center',

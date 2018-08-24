@@ -3,6 +3,7 @@ import moment from 'moment';
 import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight } from './Colors';
 import { Location } from '../typings/Location';
+import { Resource, BasicCoords } from '../typings/models/OurWater';
 
 
 
@@ -67,7 +68,10 @@ const pinColorForResourceType = (resourceType: any) => {
   }
 }
 
-const getSelectedResourceFromCoords = (resources: any, coords: any) => {
+const getSelectedResourceFromCoords = (resources: Resource[], coords: BasicCoords): Resource | null => {
+  console.log("coords are", coords);
+  console.log("resources length is: ", resources.length);
+
   const filtered = resources.filter((res: any) => {
     return coords.latitude === res.coords._latitude && 
       coords.longitude === res.coords._longitude;

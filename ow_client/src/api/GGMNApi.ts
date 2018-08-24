@@ -8,6 +8,7 @@ import { appendUrlParameters, parseFetchResponse } from "../utils";
 import { GGMNLocationResponse } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource } from "../typings/models/OurWater";
+import { ResourceType } from "../enums";
 
 // TODO: make configurable
 const timeout = 1000 * 10;
@@ -69,7 +70,7 @@ class GGMNApi implements BaseApi {
     const resourceUrl = `${this.baseUrl}/v3/locations/`;
     const url = appendUrlParameters(resourceUrl, {
       page: 2,
-      page_size: 1000,
+      page_size: 10,
     });
     console.log("URL is", url);
     
@@ -93,10 +94,14 @@ class GGMNApi implements BaseApi {
           legacyId: `ggmn_${from.id}`,
           groups: null,
           lastValue: 0,
+          resourceType: ResourceType.well,
           lastReadingDatetime: new Date(),
           coords: {
-            _latitude: from.geometry.coordinates[0],
-            _longitude: from.geometry.coordinates[1],
+            _latitude: from.geometry.coordinates[1],
+            _longitude: from.geometry.coordinates[0],
+          },
+          owner: {
+            name: from.organisation.name,
           }
         };
 

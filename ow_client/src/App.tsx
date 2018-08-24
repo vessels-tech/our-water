@@ -42,7 +42,8 @@ import FavouriteResourceList from './components/FavouriteResourceList';
 import { SearchBar, Icon } from 'react-native-elements';
 import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
-import { Resource } from './typings/models/OurWater';
+import { Resource, BasicCoords } from './typings/models/OurWater';
+import { isNullOrUndefined } from 'util';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -71,7 +72,7 @@ export interface State {
   mapHeight: any,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
-  selectedResource: any,
+  selectedResource?: Resource,
   isSearching: boolean,
   isAuthenticated: boolean,
   userId: string,
@@ -99,7 +100,6 @@ export default class App extends Component<Props> {
     mapHeight: MapHeightOption.default,
     mapState: MapStateOption.default,
     hasSelectedResource: false,
-    selectedResource: {},
     isSearching: false,
     isAuthenticated: false,
     userId: '',
@@ -137,6 +137,7 @@ export default class App extends Component<Props> {
       return getLocation();
     })
     .then(location => {
+      console.log("got location", location);
       this.updateGeoLocation(location);
 
       //Either load all the resources, or just those close to user's pin
@@ -178,7 +179,7 @@ export default class App extends Component<Props> {
       this.setState({
         mapState: MapStateOption.default,
         mapHeight: MapHeightOption.default,
-        selectedResource: {},
+        selectedResource: null,
         hasSelectedResource: false,
       });
 
@@ -233,6 +234,7 @@ export default class App extends Component<Props> {
   }
 
   onRegionChange(region: any) {
+    console.log("onRegionChange called");
     this.setState({ region });
   }
 
@@ -255,12 +257,17 @@ export default class App extends Component<Props> {
    * 
    * @param {*} param0 
    */
-  focusResource(coordinate: any) {
+  focusResource(coordinate: BasicCoords) {
     const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
+    if (isNullOrUndefined(resource)) {
+      console.warn("tried to call focusResource, but resource was null");
+      return;
+    }
+
     this.selectResource(resource);
   }
 
-  selectResource(resource: any) {
+  selectResource(resource: Resource) {
     this.setState({
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
@@ -308,7 +315,7 @@ export default class App extends Component<Props> {
           {/* Villages */}
           {resources.map(resource => {
               const shortId = getShortId(resource.id);
-              console.log('placing marker with shortId', shortId);
+              console.log('placing marker with coords', resource.coords);
               return <Marker
                 //@ts-ignore
                 collapsable={true}
@@ -317,7 +324,7 @@ export default class App extends Component<Props> {
                 title={`${shortId}`}
                 description={resource.resourceType}
                 image={this.imageForResourceType(resource.resourceType)}
-                onPress={(e: any) => this.focusResource(e.nativeEvent)}
+                onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
               />
             }
           )}
@@ -452,7 +459,7 @@ export default class App extends Component<Props> {
       mapState: MapStateOption.default,
       mapHeight:MapHeightOption.default,
       hasSelectedResource: false,
-      selectedResource: {},
+      selectedResource: null,
     });
   }
 
@@ -536,9 +543,11 @@ export default class App extends Component<Props> {
   getResourceView() {
     const {hasSelectedResource, selectedResource, userId} = this.state;
 
-    if (!hasSelectedResource) {
+    if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
     }
+
+    console.log('selectedResource is', selectedResource);
 
     return (
       <View style={{
