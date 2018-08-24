@@ -66,9 +66,13 @@ class GGMNApi implements BaseApi {
    * Maybe we can sort by updatedAt
    */
   getResources(): Promise<Array<Resource>> {
-    // const resourceUrl = `${this.baseUrl}/v3/locations/`;
-    // const url = appendUrlParameters(resourceUrl, {});
-    const url = `${this.baseUrl}/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/v3/locations/`;
+    const url = appendUrlParameters(resourceUrl, {
+      page: 2,
+      page_size: 1000,
+    });
+    console.log("URL is", url);
+    
     const options = {
       timeout,
       method: 'GET',

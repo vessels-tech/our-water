@@ -21,8 +21,6 @@ import { Location } from './typings/Location';
 
 import * as myPinImg from './assets/my_pin.png';
 
-
-import FirebaseApi from './api/FirebaseApi';
 import { 
   getLocation,
   getSelectedResourceFromCoords,
@@ -40,11 +38,11 @@ import {
 import Config from 'react-native-config';
 import { bgLight, bgMed, textDark, textLight, primaryDark } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
-import { Resource } from './typings/Resource';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import { SearchBar, Icon } from 'react-native-elements';
 import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
+import { Resource } from './typings/models/OurWater';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -140,9 +138,16 @@ export default class App extends Component<Props> {
     })
     .then(location => {
       this.updateGeoLocation(location);
+
+      //Either load all the resources, or just those close to user's pin
+      if (this.props.config.getShouldMapLoadAllResources()) {
+        return this.appApi.getResources();
+      }
+
       return this.appApi.getResourceNearLocation(location.coords.latitude, location.coords.longitude, 0.1);
     })
     .then(resources => {
+      console.log("got %s resources", resources.length);
       this.setState({
         loading: false,
         resources,

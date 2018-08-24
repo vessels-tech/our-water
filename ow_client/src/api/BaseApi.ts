@@ -1,4 +1,5 @@
-import { Resource } from "../typings/Resource";
+import { Resource } from "../typings/models/OurWater";
+
 
 /**
  * BaseApi is the base API for Our Water

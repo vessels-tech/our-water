@@ -27,15 +27,18 @@ class FirebaseApi {
 
   /**
    * call this before everything, to make sure we're turning firestore off and on
+   * 
+   * //TODO: should this talk to the NetworkApi?
    */
   static checkNetworkAndToggleFirestore() {
     return NetInfo.isConnected.fetch()
     .then(isConnected => {
-      console.log('isConnected', isConnected);
       if (isConnected) {
+        console.log("FirebaseApi enableNetwork()");
         return fs.enableNetwork().then(() => true);
       }
 
+      console.log("FirebaseApi disableNetwork()");
       return fs.disableNetwork().then(() => false);
     });
   }
@@ -124,20 +127,29 @@ class FirebaseApi {
     });
   }
 
-  static getResourcesForOrg(orgId: string) {
-    return fs.collection('org').doc(orgId).collection('resource').get()
-      .then(sn => {
-        const resources: any[] = [];
-        sn.forEach((doc) => {
-          //Get each document, put in the id
-          const data = doc.data();
-          //@ts-ignore
-          data.id = doc.id;
-          resources.push(data);
-        });
-
-        return resources;
+  static getResourcesForOrg(orgId: string): Promise<Array<Resource>> {
+    return this.checkNetworkAndToggleFirestore()
+    .then(() => console.log("getting resource", orgId))
+    .then(() => fs.collection('org').doc(orgId).collection('resource')
+      .limit(100)
+      .get())
+    .then(sn => {
+      console.log('got snapshot');
+      const resources: any[] = [];
+      sn.forEach((doc) => {
+        //Get each document, put in the id
+        const data = doc.data();
+        //@ts-ignore
+        data.id = doc.id;
+        resources.push(data);
       });
+
+      return resources;
+    })
+    .catch(err => {
+      console.log(err);
+      return Promise.reject(err);
+    });
   }
 
   /**

@@ -1,8 +1,8 @@
 
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
-import { Resource } from '../typings/Resource';
 import FirebaseApi from './FirebaseApi';
+import { Resource } from '../typings/models/OurWater';
 
 /**
  * MyWellApi is the MyWell variant of the BaseApi
@@ -33,9 +33,10 @@ export default class MyWellApi implements BaseApi {
   }
 
   getResources() {
-    return true;
+    return FirebaseApi.getResourcesForOrg(this.orgId);
   }
 
+  //TODO: make this look for the config!
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
     return FirebaseApi.getResourceNearLocation(
       this.networkApi,

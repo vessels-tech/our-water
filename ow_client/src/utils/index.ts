@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 import moment from 'moment';
-import QueryString from 'query-string';
+import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight } from './Colors';
 import { Location } from '../typings/Location';
 
@@ -39,7 +39,7 @@ const showAlert = (title: string, message: string) => {
 }
 
 const appendUrlParameters = (url: string, qs: any) => {
-  return `${url}?${QueryString.stringify(qs)}`;
+  return `${url}?${stringify(qs)}`;
 }
 
 const formatCoords = (fbCoords: any) => {

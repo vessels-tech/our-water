@@ -3,10 +3,11 @@ import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
 import { textDark } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
-import { ConfigFactory } from './config/ConfigFactory';
+import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
 import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
+import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
 
 let config: ConfigFactory;
@@ -15,13 +16,21 @@ Promise.resolve(true)
 .then(() => {
   if (Config.SHOULD_USE_LOCAL_CONFIG === 'true') {
     console.log("using local config instead of FB remote config");
-    return GGMNDevConfig;
+    switch (Config.CONFIG_TYPE) {
+      case 'GGMNDevConfig':
+        return GGMNDevConfig;
+      default:
+        return MyWellDevConfig;
+    }
   }
   return FirebaseConfig.getAllConfig();
 })
 .then(async (_remoteConfig) => {
   const networkApi = await NetworkApi.createAndInit();
-  config = new ConfigFactory(_remoteConfig, Config, networkApi);
+  const envConfig: EnvConfig = {
+    orgId: Config.REACT_APP_ORG_ID,
+  }
+  config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
   registerScreens();
 })
 .then(() => {

@@ -12,7 +12,7 @@ class NetworkApi {
 
     NetInfo.isConnected.addEventListener(
       'connectionChange',
-      this.onConnectionChange
+      (isConnected) => this.onConnectionChange(isConnected)
     );
   }
 

@@ -21,8 +21,7 @@ export type RemoteConfig = {
 /**
  * Things that are configurable with env vars
  */
-type EnvConfig = {
-  // baseApiType: BaseApiType,
+export type EnvConfig = {
   orgId: string,
 
 }
@@ -40,6 +39,7 @@ export class ConfigFactory {
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
+    console.log("envConfig", envConfig);
     this.envConfig = envConfig;
     this.networkApi = networkApi;
 
