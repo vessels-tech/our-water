@@ -1,15 +1,16 @@
 import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
-import { Resource } from "../typings/Resource";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
+import { appendUrlParameters, parseFetchResponse } from "../utils";
+import { GGMNLocationResponse } from "../typings/models/GGMN";
+import { isMoment } from "moment";
+import { Resource } from "../typings/models/OurWater";
 
-// import Config from 'react-native-config';
-
-// const ggmnBaseUrl = Config.GGMN_BASE_URL;
-// const timeout = 1000 * 10;
+// TODO: make configurable
+const timeout = 1000 * 10;
 
 export interface GGMNApiOptions {
   baseUrl: string,
@@ -60,17 +61,44 @@ class GGMNApi implements BaseApi {
   /**
    * GET resources
    * 
-   * Gets the resources and recent readings from GGMN api
+   * Gets the resources and recent readings from GGMN api.
+   * TODO: figure out pagination and whatnot!
+   * Maybe we can sort by updatedAt
    */
   getResources(): Promise<Array<Resource>> {
-    const resourceUrl = `${this.baseUrl}/v3/locations/`;
-    // const url = appendUrlParameters(resourceUrl, { latitude, longitude, distance });
+    // const resourceUrl = `${this.baseUrl}/v3/locations/`;
+    // const url = appendUrlParameters(resourceUrl, {});
+    const url = `${this.baseUrl}/v3/locations/`;
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
 
-    
+    return ftch(url, options)
+    .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
+    .then((response: GGMNLocationResponse) => {
+      console.log("response", response);
+      //TODO: finish getting the resources
+      return response.results.map(from => {
+        const to: Resource = {
+          id: `ggmn_${from.id}`,
+          legacyId: `ggmn_${from.id}`,
+          groups: null,
+          lastValue: 0,
+          lastReadingDatetime: new Date(),
+          coords: {
+            _latitude: from.geometry.coordinates[0],
+            _longitude: from.geometry.coordinates[1],
+          }
+        };
 
-
-    //TODO: implement!!!
-    return Promise.resolve([]);
+        return to;
+      });
+    });
   }
 
 

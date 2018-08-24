@@ -14,7 +14,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource } from '../typings/Resource';
+import { Resource } from '../typings/models/OurWater';
 
 const fs = firebase.firestore();
 // const functions = firebase.functions();

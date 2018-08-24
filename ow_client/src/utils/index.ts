@@ -7,6 +7,17 @@ import { Location } from '../typings/Location';
 
 
 /**
+ * Parse the response from Fetch api, and handle errors etc.
+ */
+export function parseFetchResponse<T>(response: any): Promise<T> {
+  if (!response.ok) {
+    return rejectRequestWithError(response.status);
+  }
+
+  return response.json();
+}
+
+/**
  * Get a unique hash based on the resourceId, pincode, and date
  */
 /* tslint:disable-next-line */
@@ -27,7 +38,7 @@ const showAlert = (title: string, message: string) => {
   );
 }
 
-const appendUrlParameters = (url:string, qs:any) => {
+const appendUrlParameters = (url: string, qs: any) => {
   return `${url}?${QueryString.stringify(qs)}`;
 }
 
