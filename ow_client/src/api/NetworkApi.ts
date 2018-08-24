@@ -28,13 +28,14 @@ class NetworkApi {
   updateConnectionStatus() {
     return NetInfo.isConnected.fetch()
       .then(isConnected => {
-        // console.log('isConnected', isConnected);
+        console.log('isConnected', isConnected);
         this.isConnected = isConnected;
       });
   }
 
   onConnectionChange(isConnected: boolean) {
-    // console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
+    console.log("isConnected", isConnected);
+    console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
     this.isConnected = isConnected;
 
     Object.keys(this.connectionUpdateCallbacks).forEach(key => {

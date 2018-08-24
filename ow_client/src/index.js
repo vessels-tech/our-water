@@ -6,19 +6,20 @@ import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory } from './utils/ConfigFactory';
 import { FirebaseConfig } from './utils/FirebaseConfig';
 import Config from 'react-native-config';
+import GGMNDevConfig from './config/GGMNDevConfig';
 
 let config: ConfigFactory;
 
-console.log("WTF?");
-
 Promise.resolve(true)
-//Get the fb config first
-//TODO: fix this...
-.then(() => FirebaseConfig.getAllConfig())
+.then(() => {
+  if (Config.SHOULD_USE_LOCAL_CONFIG === 'true') {
+    console.log("using local config instead of FB remote config");
+    return GGMNDevConfig;
+  }
+  return FirebaseConfig.getAllConfig();
+})
 .then(_remoteConfig => {
-  console.log("got config");
   config = new ConfigFactory(_remoteConfig, Config);
-  // config = new ConfigFactory({});
   registerScreens();
   console.log("registered screens");
 })

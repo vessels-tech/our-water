@@ -116,16 +116,19 @@ export default class App extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     this.fs = firebase.firestore();
     this.networkApi = new NetworkApi();
     this.appApi = props.config.getAppApi();
   }
 
   componentWillMount() {
+    //TODO: clean up?
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
     this.setState({loading: true});
 
-    FirebaseApi.signIn()
+    //TODO: replace with other api
+    this.appApi.silentSignin()
     .then(siginData => {
       this.setState({
         isAuthenticated: true,
@@ -197,7 +200,7 @@ export default class App extends Component<Props> {
       return;
     }
 
-    return FirebaseApi.getResourceNearLocation(this.networkApi, orgId, coordinate.latitude, coordinate.latitude, 0.1)
+    return this.appApi.getResourceNearLocation(coordinate.latitude, coordinate.latitude, 0.1)
       .then(resources => {
         this.setState({
           loading: false,
@@ -264,7 +267,8 @@ export default class App extends Component<Props> {
     });
 
     //Do in the background - we don't care when
-    FirebaseApi.addRecentResource(orgId, resource, this.state.userId);
+    //TODO: replace with otherApi
+    this.appApi.addRecentResource(resource, this.state.userId);
   }
 
   getMap() {
@@ -301,6 +305,7 @@ export default class App extends Component<Props> {
           {/* Pincode */}
           {/* Villages */}
           {resources.map(resource => {
+            console.log('placing marker for resource', resource);
               const shortId = getShortId(resource.id);
               return <Marker
                 //@ts-ignore

@@ -18,6 +18,20 @@ export default class MyWellApi implements BaseApi {
     this.orgId = orgId;
   }
 
+  /**
+   * Sign the user in anonymously with Firebase
+   */
+  silentSignin(): Promise<any> {
+    return FirebaseApi.signIn();
+  }
+
+  /**
+   * Add a resource to the recently viewed list
+   */
+  addRecentResource(resource: Resource, userId: string): Promise<any> {
+    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  }
+
   getResources() {
     return true;
   }

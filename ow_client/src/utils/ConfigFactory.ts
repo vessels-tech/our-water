@@ -1,5 +1,5 @@
 import { BaseApiType } from "../enums";
-import GGMNApi from '../api/GGMNApi';
+import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
 
@@ -65,7 +65,10 @@ export class ConfigFactory {
   getAppApi(auth?: any) {
     //TODO: should 
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
-      return new GGMNApi(this.networkApi, this.envConfig.orgId);
+      const options: GGMNApiOptions = {
+        baseUrl: this.remoteConfig.ggmnBaseUrl,
+      }
+      return new GGMNApi(this.networkApi, this.envConfig.orgId, options);
     }
 
     //Default to MyWellApi

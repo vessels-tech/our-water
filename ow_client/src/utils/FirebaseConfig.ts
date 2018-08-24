@@ -26,6 +26,7 @@ export class FirebaseConfig {
           ggmnBaseUrl: obj.ggmnBaseUrl.val(),
           showConnectToButton: obj.showConnectToButton.val(),
           mywellBaseUrl: obj.mywellBaseUrl.val(),
+          map_shouldLoadAllResources: obj.map_shouldLoadAllResources.val(),
         }
         return remoteConfig;
       });

@@ -140,12 +140,11 @@ class ClusteredMapView extends Component<Props> {
   };
 
   calculateBBox = (region: any) => {
-    console.log('calcBBox region', region);
       return [   
-      region.longitude - region.longitudeDelta, // westLng - min lng
-      region.latitude - region.latitudeDelta, // southLat - min lat
-      region.longitude + region.longitudeDelta, // eastLng - max lng
-      region.latitude + region.latitudeDelta// northLat - max lat
+        region.longitude - region.longitudeDelta, // westLng - min lng
+        region.latitude - region.latitudeDelta, // southLat - min lat
+        region.longitude + region.longitudeDelta, // eastLng - max lng
+        region.latitude + region.latitudeDelta// northLat - max lat
     ];
   }
   getBoundsZoomLevel = (bounds: any[], mapDim: any) => {
