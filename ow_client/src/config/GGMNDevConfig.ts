@@ -10,7 +10,7 @@ const GGMNDevConfig: RemoteConfig = {
   ggmnBaseUrl: 'https://ggmn.lizard.net/api',
   showConnectToButton: true,
   mywellBaseUrl: '',
-  map_shouldLoadAllResources: true,
+  map_shouldLoadAllResources: false,
 }
 
 export default GGMNDevConfig;

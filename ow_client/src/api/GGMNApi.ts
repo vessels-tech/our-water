@@ -5,7 +5,7 @@ import FirebaseApi from "./FirebaseApi";
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 import { appendUrlParameters, parseFetchResponse } from "../utils";
-import { GGMNLocationResponse } from "../typings/models/GGMN";
+import { GGMNLocationResponse, GGMNLocation } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -93,34 +93,56 @@ class GGMNApi implements BaseApi {
     .then((response: GGMNLocationResponse) => {
       console.log("response", response);
       //TODO: finish getting the resources
-      return response.results.map(from => {
-        const to: Resource = {
-          id: `ggmn_${from.id}`,
-          legacyId: `ggmn_${from.id}`,
-          groups: null,
-          lastValue: 0,
-          resourceType: ResourceType.well,
-          lastReadingDatetime: new Date(),
-          coords: {
-            _latitude: from.geometry.coordinates[1],
-            _longitude: from.geometry.coordinates[0],
-          },
-          owner: {
-            name: from.organisation.name,
-          }
-        };
-
-        return to;
-      });
+      return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
     });
   }
 
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
-    console.log("getResourceNearLocation not available for GGMNApi. Defaulting to getResources()");
+    const realDistance = distance * 1000000; //not sure what units distance is in
+    const resourceUrl = `${this.baseUrl}/v3/locations/`;
+    const url = appendUrlParameters(resourceUrl, {
+      dist: realDistance,
+      point: `${longitude},${latitude}`
+    });
+    console.log("URL is", url);
 
-    return this.getResources();
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
 
+    return ftch(url, options)
+      .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
+      .then((response: GGMNLocationResponse) => {
+        console.log("response", response);
+        //TODO: finish getting the resources
+        return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
+      });
+  }
+
+  static ggmnLocationToResource(from: GGMNLocation): Resource {
+    const to: Resource = {
+      id: `ggmn_${from.id}`,
+      legacyId: `ggmn_${from.id}`,
+      groups: null,
+      lastValue: 0,
+      resourceType: ResourceType.well,
+      lastReadingDatetime: new Date(),
+      coords: {
+        _latitude: from.geometry.coordinates[1],
+        _longitude: from.geometry.coordinates[0],
+      },
+      owner: {
+        name: from.organisation.name,
+      }
+    };
+
+    return to;
   }
 }
 
