@@ -131,7 +131,7 @@ class FirebaseApi {
     return this.checkNetworkAndToggleFirestore()
     .then(() => console.log("getting resource", orgId))
     .then(() => fs.collection('org').doc(orgId).collection('resource')
-      .limit(100)
+      .limit(10)
       .get())
     .then(sn => {
       console.log('got snapshot');

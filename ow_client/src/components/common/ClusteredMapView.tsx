@@ -2,7 +2,8 @@ import * as React from 'react'; import { Component } from 'react';
 import MapView from 'react-native-maps';
 // @ts-ignore
 import { width as w, height as h } from 'react-native-dimension';
-import SuperCluster from 'supercluster';
+// @ts-ignore
+import * as supercluster from 'supercluster';
 import CustomMarker from './CustomMarker';
 
 export interface Props {
@@ -53,6 +54,12 @@ class ClusteredMapView extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
+    this.superCluster = supercluster({
+      radius: this.props.radius,
+      maxZoom: 9,
+      minZoom: 1,
+    });
 
     this.state = {
       currentRegion: props.region,
@@ -122,13 +129,14 @@ class ClusteredMapView extends Component<Props> {
       }
     });
 
-    if (!this.superCluster) {
-      this.superCluster = SuperCluster({
-        radius: this.props.radius,
-        maxZoom: 9,
-        minZoom: 1,
-      });
-    }
+    // if (!this.superCluster) {
+    //   console.log("init superCluster");
+    //   this.superCluster = supercluster({
+    //     radius: this.props.radius,
+    //     maxZoom: 9,
+    //     minZoom: 1,
+    //   });
+    // }
     this.superCluster.load(markers);
 
     this.setState({
@@ -178,17 +186,21 @@ class ClusteredMapView extends Component<Props> {
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
       const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
 
-      clusteredMarkers = clusters.map((cluster: any) => (
-      <CustomMarker
-        pointCount={cluster.properties.point_count}
-        clusterId={cluster.properties.cluster_id}
-        geometry={cluster.geometry}
-        clusterStyle={this.state.clusterStyle}
-        clusterTextStyle={this.state.clusterTextStyle}
-        marker={cluster.properties.point_count === 0 ? cluster.marker : null}
-        key={JSON.stringify(cluster.geometry) + cluster.properties.cluster_id + cluster.properties.point_count}
-        onClusterPress={this.props.onClusterPress}
-      />));
+      clusteredMarkers = clusters.map((cluster: any) => {
+        console.log("cluster is: ", cluster);
+        return ( 
+          <CustomMarker
+            pointCount={cluster.properties.point_count}
+            clusterId={cluster.properties.cluster_id}
+            geometry={cluster.geometry}
+            clusterStyle={this.state.clusterStyle}
+            clusterTextStyle={this.state.clusterTextStyle}
+            marker={cluster.properties.point_count === 0 ? cluster.marker : null}
+            key={JSON.stringify(cluster.geometry) + cluster.properties.cluster_id + cluster.properties.point_count}
+            onClusterPress={this.props.onClusterPress}
+          />
+        )
+      });
     } else {
       clusteredMarkers = this.state.markers.map(marker => marker.marker);
     }

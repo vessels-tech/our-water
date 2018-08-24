@@ -11,7 +11,6 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "@types/supercluster": "^3.0.2",
     "moment": "^2.22.1",
     "query-string": "^6.0.0",
     "react": "16.3.1",
@@ -25,7 +24,8 @@
     "react-native-map-clustering": "^1.3.0",
     "react-native-maps": "0.20.1",
     "react-native-navigation": "^1.1.480",
-    "react-native-vector-icons": "^4.6.0"
+    "react-native-vector-icons": "^4.6.0",
+    "supercluster": "^4.1.1"
   },
   "devDependencies": {
     "@types/query-string": "^6.1.0",

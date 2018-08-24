@@ -307,8 +307,8 @@ export default class App extends Component<Props> {
           {/* Pincode */}
           {/* Villages */}
           {resources.map(resource => {
-            console.log('placing marker for resource', resource);
               const shortId = getShortId(resource.id);
+              console.log('placing marker with shortId', shortId);
               return <Marker
                 //@ts-ignore
                 collapsable={true}
