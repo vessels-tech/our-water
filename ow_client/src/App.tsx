@@ -293,6 +293,7 @@ export default class App extends Component<Props> {
             width: '100%',
             height: mapHeight,
           }}
+          radius={25}
           clustering={true}
           clusterColor={primaryDark}
           clusterTextColor={textLight}
