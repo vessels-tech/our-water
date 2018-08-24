@@ -84,10 +84,10 @@ export class ConfigFactory {
     return false;
   }
 
-  getConnectToButtonText() {
+  getConnectToButtonText(): string {
     if (!this.remoteConfig.showConnectToButton) {
-      console.warn("showConnectToButton is disabled. Text should be null");
-      return null;
+      console.warn("showConnectToButton is disabled. Text should be empty");
+      return '';
     }
 
     return this.remoteConfig.connectToButtonText;

@@ -9,7 +9,7 @@ import {
   navigateTo,
 } from '../utils';
 import { primary, primaryDark, textDark, } from '../utils/Colors';
-import { ConfigFactory } from '../utils/ConfigFactory';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 export interface Props {
   config: ConfigFactory

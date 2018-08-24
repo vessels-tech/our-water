@@ -1,4 +1,4 @@
-import { RemoteConfig } from "../utils/ConfigFactory";
+import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType } from "../enums";
 
 

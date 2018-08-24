@@ -44,7 +44,7 @@ import { Resource } from './typings/Resource';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import { SearchBar, Icon } from 'react-native-elements';
 import BaseApi from './api/BaseApi';
-import { ConfigFactory } from './utils/ConfigFactory';
+import { ConfigFactory } from './config/ConfigFactory';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
