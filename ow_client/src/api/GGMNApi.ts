@@ -56,8 +56,13 @@ class GGMNApi implements BaseApi {
    * Add a resource to the recently viewed list
    */
   addRecentResource(resource: Resource, userId: string): Promise<any> {
+    return FirebaseApi.addRecentResource(this.orgId, resource, userId);
+  }
+
+  addFavouriteResource(resource: Resource, userId: string): Promise<any> {
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
   }
+
 
   /**
    * GET resources
@@ -69,8 +74,8 @@ class GGMNApi implements BaseApi {
   getResources(): Promise<Array<Resource>> {
     const resourceUrl = `${this.baseUrl}/v3/locations/`;
     const url = appendUrlParameters(resourceUrl, {
-      page: 2,
-      page_size: 10,
+      // page: 0,
+      page_size: 100,
     });
     console.log("URL is", url);
     

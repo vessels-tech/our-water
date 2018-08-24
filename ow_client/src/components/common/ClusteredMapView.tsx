@@ -57,7 +57,7 @@ class ClusteredMapView extends Component<Props> {
 
     this.superCluster = supercluster({
       radius: this.props.radius,
-      // maxZoom: 9,
+      maxZoom: 9,
       // minZoom: 1,
     });
 

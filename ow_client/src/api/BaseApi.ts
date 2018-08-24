@@ -18,6 +18,11 @@ export default interface BaseApi {
    */
   addRecentResource(resource: Resource, userId: string): Promise<any>;
 
+  /**
+   * Add a resource to the favourites list
+   */
+  addFavouriteResource(resource: Resource, userId: string): Promise<any>
+
   getResources(): any;
   getResourceNearLocation(
     latitude: number,

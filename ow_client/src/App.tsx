@@ -168,6 +168,11 @@ export default class App extends Component<Props> {
     return false;
   }
 
+  onClusterPressed(event: any) {
+    console.log("onClusterPressed", event);
+
+  }
+ 
   //Change to when the map is moved
   onMapPressed(coordinate: any) {
     const { mapState } = this.state;
@@ -298,7 +303,7 @@ export default class App extends Component<Props> {
           clusterColor={primaryDark}
           clusterTextColor={textLight}
           clusterBorderColor={textLight}
-          onClusterPress={(e: any) => this.onMapPressed(e.nativeEvent)}
+          onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
           region={region}
           //@ts-ignore
           onRegionChangeComplete={(region: any) => this.onRegionChange(region)}
