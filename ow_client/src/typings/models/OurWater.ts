@@ -27,3 +27,11 @@ export type BasicCoords = {
 export type ResourceOwnerType = {
   name: string,
 }
+
+
+export type SearchResult = {
+  resources: Resource[],
+  groups: any[],
+  users: any[],
+  offline: boolean, //Lets us know if the search was performed offline
+}

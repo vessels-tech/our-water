@@ -2,7 +2,7 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { Resource } from '../typings/models/OurWater';
+import { Resource, SearchResult } from '../typings/models/OurWater';
 
 /**
  * MyWellApi is the MyWell variant of the BaseApi
@@ -32,6 +32,10 @@ export default class MyWellApi implements BaseApi {
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
   }
 
+  addFavouriteResource(resource: Resource, userId: string): Promise<any> {
+    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  }
+
   getResources() {
     return FirebaseApi.getResourcesForOrg(this.orgId);
   }
@@ -45,6 +49,32 @@ export default class MyWellApi implements BaseApi {
       longitude,
       distance,
     );
+  }
+
+  //
+  // Search API
+  //----------------------------------------------------------------------
+
+  /**
+   * Get the most recent resources, courtesy of the firebase api
+   */
+  getRecentSearches(userId: string): Promise<string[]> {
+    return FirebaseApi.getRecentSearches(this.orgId, userId);
+  }
+
+  /**
+   * we use the firebase api to save, as this is a user setting
+   */
+  saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
+    return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
+  }
+
+  /**
+   * Peform the search with the firebase api
+   * TODO: implement a better search api - will require an endpoint methinks
+   */
+  performSearch(searchQuery: string): Promise<SearchResult> {
+    return FirebaseApi.performBasicSearch(this.orgId, searchQuery);
   }
 
 }

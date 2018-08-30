@@ -5,6 +5,7 @@ import NewReadingScreen from './NewReadingScreen';
 import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
 import EditResourceScreen from './EditResourceScreen';
+import SearchScreen from './SearchScreen';
 
 
 export function registerScreens() {
@@ -13,4 +14,5 @@ export function registerScreens() {
   Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
+  Navigation.registerComponent('screen.SearchScreen', () => SearchScreen);
 }

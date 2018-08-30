@@ -115,6 +115,9 @@ export default class App extends Component<Props> {
 
     this.fs = firebase.firestore();
     this.appApi = props.config.getAppApi();
+
+    //Listen to events from the navigator
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
   }
 
   componentWillMount() {
@@ -159,6 +162,8 @@ export default class App extends Component<Props> {
     });
   }
 
+  /*--- externally bound events ---*/
+
   hardwareBackPressed() {
     if (this.state.hasSelectedResource) {
       this.clearSelectedResource();
@@ -167,6 +172,14 @@ export default class App extends Component<Props> {
 
     return false;
   }
+
+  onNavigatorEvent(event: any) {
+    if (event.id === 'search') {
+      console.log("Search pressed");
+      navigateTo(this.props, 'screen.SearchScreen', 'Search', {});
+    }
+  }
+
 
   onClusterPressed(event: any) {
     console.log("onClusterPressed", event);

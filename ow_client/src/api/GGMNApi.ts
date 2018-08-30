@@ -4,10 +4,10 @@ import { Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
-import { appendUrlParameters, parseFetchResponse } from "../utils";
+import { appendUrlParameters, parseFetchResponse, getDemoResources } from "../utils";
 import { GGMNLocationResponse, GGMNLocation } from "../typings/models/GGMN";
 import { isMoment } from "moment";
-import { Resource } from "../typings/models/OurWater";
+import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 
 // TODO: make configurable
@@ -124,6 +124,38 @@ class GGMNApi implements BaseApi {
         return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
       });
   }
+
+  //
+  // Search API
+  //----------------------------------------------------------------------
+
+  /**
+   * Get the most recent resources, courtesy of the firebase api
+   */
+  getRecentSearches(userId: string): Promise<string[]> {
+    return FirebaseApi.getRecentSearches(this.orgId, userId);
+  }
+
+  /**
+   * we use the firebase api to save, as this is a user setting
+   */
+  saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
+    return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
+  }
+
+  performSearch(searchQuery: string): Promise<SearchResult> {
+    //TODO: implement search for offline mode
+    return Promise.resolve({
+      resources: getDemoResources(),
+      groups:[],
+      users: [],
+      offline: false,
+    });
+  }
+
+  //
+  // Utils
+  //----------------------------------------------------------------------
 
   static ggmnLocationToResource(from: GGMNLocation): Resource {
     const to: Resource = {

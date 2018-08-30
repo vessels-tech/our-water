@@ -14,7 +14,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource } from '../typings/models/OurWater';
+import { Resource, SearchResult } from '../typings/models/OurWater';
 
 const fs = firebase.firestore();
 // const functions = firebase.functions();
@@ -351,14 +351,55 @@ class FirebaseApi {
    * Searching is a little tricky, we need to figure out by which fields that
    * the user is likely to search by first (eg. groupName, )
    */
-  static performBasicSearch(orgId: string, text: string) {
-    return this.getResourcesForOrg(orgId)
-      .then(resources => {
-        return resources.filter(resource => {
-          return resource.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
-        });
-      });
+  static async performBasicSearch(orgId: string, text: string): Promise<SearchResult> {
+    const resources = await this.getResourcesForOrg(orgId);
+    const filteredResources = resources.filter(r => {
+      return r.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
+    });
+
+    return {
+      resources,
+      groups: [],
+      users: [],
+      offline: false,
+    };
   }
+
+
+  /**
+   * Get the n most recent searches the user made
+   */
+  static getRecentSearches(orgId: string, userId: string): Promise<string[]> {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
+      .then(sn => {
+        //@ts-ignore
+        if (!sn || !sn.data() || !sn.data().recentSearches) {
+          return [];
+        }
+        //@ts-ignore
+        return sn.data().recentSearches;
+      });
+
+  }
+
+  /**
+   * Save this search to the user's recent searches
+   */
+  static async saveRecentSearch(orgId: string, userId: string, searchQuery: string): Promise<any> {
+    const maxRecentSearches = 5;
+    const recentSearches = await this.getRecentSearches(orgId, userId);
+    //Make sure we don't re-add an existing query. Add it to the start of the array
+    const existingIndex = recentSearches.indexOf(searchQuery);
+    if (existingIndex > -1) {
+      delete recentSearches[existingIndex];
+    }
+    if (recentSearches.unshift(searchQuery) > maxRecentSearches) {
+      recentSearches.pop;
+    }
+
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentSearches})
+  }
+
 }
 
 export default FirebaseApi;

@@ -4,6 +4,7 @@ import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight } from './Colors';
 import { Location } from '../typings/Location';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
+import { ResourceType } from '../enums';
 
 
 
@@ -189,6 +190,41 @@ const defaultNavigatorStyle = {
   screenBackgroundColor: bgLight,
   //Bottom nav bar, android only
   navigationBarColor: bgDark2,
+}
+
+export function getDemoResources(): Resource[] {
+  return [
+    {
+      id: '12345',
+      legacyId: '12345',
+      coords: {
+        _latitude: -20.401,
+        _longitude: 32.3373
+      },
+      resourceType: ResourceType.well,
+      owner: {
+        name: 'Lewis Ji',
+      },
+      groups: null,
+      lastValue: 12.34,
+      lastReadingDatetime: new Date(),
+    },
+    {
+      id: '12346',
+      legacyId: '12346',
+      coords: {
+        _latitude: -20.401,
+        _longitude: 32.3373
+      },
+      resourceType: ResourceType.raingauge,
+      owner: {
+        name: 'Basant Ji',
+      },
+      groups: null,
+      lastValue: 12.34,
+      lastReadingDatetime: new Date(),
+    },
+  ];
 }
 
 export {
