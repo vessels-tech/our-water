@@ -22,4 +22,9 @@ export default interface ExternalServiceApi {
    */
   getExternalServiceLoginDetails(): Promise<ExternalLoginDetails>;
 
+  /**
+   * Force us to remove the login details
+   */
+  forgetExternalServiceLoginDetails(): Promise<any>;
+
 }

@@ -11,6 +11,8 @@ const GGMNDevConfig: RemoteConfig = {
   showConnectToButton: true,
   mywellBaseUrl: '',
   map_shouldLoadAllResources: false,
+  connectToDescription: 'Connect to GGMN to create new wells and save readings from your device.',
+  connectToText: 'Connected to GGMN',
 }
 
 export default GGMNDevConfig;

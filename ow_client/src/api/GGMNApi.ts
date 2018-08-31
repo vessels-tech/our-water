@@ -167,14 +167,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     }
   }
 
-  /**
-   * We get a sessionId that lasts only 24 hours
-   * That means if a request fails, we should try refreshing the 
-   * session and try again.
-   */
-  private refreshSession() {
-    //Get the login details and attempt to refresh the session
+  forgetExternalServiceLoginDetails(): Promise<any> {
+    return Keychain.resetGenericPassword();
   }
+
+  
 
   /**
    * Add a resource to the recently viewed list

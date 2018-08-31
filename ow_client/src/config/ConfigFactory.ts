@@ -16,6 +16,8 @@ export type RemoteConfig = {
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
+  connectToDescription: string,
+  connectToText: string,
   map_shouldLoadAllResources: boolean,
 }
 
@@ -101,13 +103,11 @@ export class ConfigFactory {
   }
 
   getConnectToButtonConnectedText(): string {
-    const message = 'TODO: Connected to GGMN';
-    return this.checkConnectToButtonStatus(message);
+    return this.checkConnectToButtonStatus(this.remoteConfig.connectToText);
   }
 
   getConnectToButtonDescription(): string {
-    const message = 'TODO: add the description about why you would want to connect here! Also add a message about consent to use your login!';
-    return this.checkConnectToButtonStatus(message);
+    return this.checkConnectToButtonStatus(this.remoteConfig.connectToDescription);
   }
 
   private checkConnectToButtonStatus(success: string) {

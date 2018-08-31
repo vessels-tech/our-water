@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
-import { View, KeyboardAvoidingView, ScrollView, ToastAndroid } from 'react-native';
+import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard } from 'react-native';
 import { primaryDark, primary } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
@@ -92,10 +92,9 @@ export default class ConnectToServiceScreen extends Component<Props> {
   }
 
   handleSubmit = () => {
+    Keyboard.dismiss();
     this.setState({ buttonLoading: true});
-    console.log("Form values", this.loginForm.value);
 
-    //TODO: make non-explicit
     return this.externalApi.connectToService(this.loginForm.value.username, this.loginForm.value.password)
     .then(result => {
       return this.externalApi.saveExternalServiceLoginDetails(this.loginForm.value.username, this.loginForm.value.password)
@@ -119,20 +118,23 @@ export default class ConnectToServiceScreen extends Component<Props> {
     this.setState({
       isConnected: false,
     });
+
+    this.externalApi.forgetExternalServiceLoginDetails();
   }
 
   getLogo() {
     return (
       <View style={{
         width: '100%',
-        height: 150,
+        height: '40%',
+        // height: 150,
         backgroundColor: primaryDark,
+        justifyContent: 'center',
       }}>
         <View style={{
           alignSelf: 'center',
-          marginTop: 25,
           width: 100,
-          height: 100,
+          height: '30%',
           backgroundColor: primary,
         }} />
       </View>
@@ -173,11 +175,13 @@ export default class ConnectToServiceScreen extends Component<Props> {
               render={TextInput}
               meta={{ label: "Password", secureTextEntry: true }}
             />
-            {/* TODO: add loading indicator, disable feature */}
             <Button
+              style={{
+                paddingBottom: 20,
+              }}
               loading={buttonLoading}
               disabled={invalid}
-              title='Submit' 
+              title={buttonLoading ? '' : 'Submit'}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -192,15 +196,15 @@ export default class ConnectToServiceScreen extends Component<Props> {
   
 
     return (
-      <ScrollView>
-        {/* TODO: button is still being partly obscured by keyboard */}
-        <KeyboardAvoidingView>
+      
+        <KeyboardAvoidingView
+          keyboardVerticalOffset={10}
+        >
           {this.getLogo()}
           <Text>{this.props.config.getConnectToButtonText()}</Text>
           <Text>{this.props.config.getConnectToButtonDescription()}</Text>
           {isConnected ? this.getConnectedSection() : this.getForm()}
         </KeyboardAvoidingView>
-      </ScrollView>
     );
   }
 }
