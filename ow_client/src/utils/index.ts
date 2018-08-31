@@ -90,7 +90,7 @@ const getSelectedResourceFromCoords = (resources: Resource[], coords: BasicCoord
   return filtered[0];
 }
 
-const navigateTo = (props: any, screen: any, title: any, passProps: any) => {
+const navigateTo = (props: any, screen: any, title: any, passProps: any, animationType = 'slide-horizontal') => {
   //TODO: only navigate if we aren't already here!
 
   props.navigator.toggleDrawer({
@@ -105,7 +105,25 @@ const navigateTo = (props: any, screen: any, title: any, passProps: any) => {
     passProps,
     navigatorStyle: defaultNavigatorStyle,
     navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
-    animationType: 'slide-horizontal'
+    animationType
+  });
+}
+
+export const showModal = (props: any, screen: any, title: any, passProps: any) => {
+  //TODO: only navigate if we aren't already here!
+
+  props.navigator.toggleDrawer({
+    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
+    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
+    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
+  });
+
+  // TODO: change left arrow to just x
+  props.navigator.showModal({
+    screen,
+    title,
+    passProps,
+    navigatorStyle: defaultNavigatorStyle,
   });
 }
 

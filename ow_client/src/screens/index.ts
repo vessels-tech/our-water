@@ -6,6 +6,7 @@ import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
 import EditResourceScreen from './EditResourceScreen';
 import SearchScreen from './SearchScreen';
+import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 
 
 export function registerScreens() {
@@ -15,4 +16,6 @@ export function registerScreens() {
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreen);
+  
+  Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen);
 }

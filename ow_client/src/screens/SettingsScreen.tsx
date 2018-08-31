@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {
-  View,
+  View, KeyboardAvoidingView, ScrollView,
 } from 'react-native';
 import {
   ListItem,
 } from 'react-native-elements';
 import {
-  navigateTo,
+  navigateTo, showModal,
 } from '../utils';
 import { primary, primaryDark, textDark, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -16,42 +16,66 @@ export interface Props {
 }
 
 export interface State {
+  isConnectedToExternalService: boolean
 
 }
 
 export default class SettingsScreen extends React.Component<Props> {
+  state: State = {
+    isConnectedToExternalService: true,
+    //TODO: maybe have an error with external service connection flag as well?
+  }
 
   constructor(props: Props) {
     super(props);
 
     console.log('SettingsScreen.props:', props);
+
+    //TODO: do check to see if we are connected to external service, and see if there is an error
   }
 
   /**
    * Connect to button is only available for variants which connect to external services
+   * 
+   * //TODO: if already connected, display a button that says "Connected to XYZ"
    */
   getConnectToButton() {
     if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
 
+    let title = this.props.config.getConnectToButtonText();
+    const { isConnectedToExternalService } = this.state;
+    if (isConnectedToExternalService) {
+      title = this.props.config.getConnectToButtonConnectedText();
+    }
+
     return (
       <ListItem
-        title={this.props.config.getConnectToButtonText()}
-        onPress={() => console.log("GGMN pressed")}
+        title={title}
+        onPress={() => showModal(
+          this.props, 
+          'screen.menu.ConnectToServiceScreen',
+          this.props.config.getConnectToButtonText(),
+          {
+            config: this.props.config,
+            //TODO: how to get the userId in here???
+            userId: '12345',
+            isConnected: isConnectedToExternalService,
+          }
+        )}
         leftIcon={{
           name: 'account-circle',
           color: textDark,
         }}
         hideChevron
-        disabled
       />
     );
   }
 
   render() {
     return (
-      <View style={{
+      <KeyboardAvoidingView style={{
         flexDirection: 'column',
         // justifyContent: 'space-around',
         backgroundColor: 'white',
@@ -100,7 +124,7 @@ export default class SettingsScreen extends React.Component<Props> {
 
         {/* TODO: display conditionally, use firebase remote config */}
        
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

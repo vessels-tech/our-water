@@ -85,12 +85,26 @@ export class ConfigFactory {
   }
 
   getConnectToButtonText(): string {
+    return this.checkConnectToButtonStatus(this.remoteConfig.connectToButtonText);
+  }
+
+  getConnectToButtonConnectedText(): string {
+    const message = 'TODO: Connected to GGMN';
+    return this.checkConnectToButtonStatus(message);
+  }
+
+  getConnectToButtonDescription(): string {
+    const message = 'TODO: add the description about why you would want to connect here!';
+    return this.checkConnectToButtonStatus(message);
+  }
+
+  private checkConnectToButtonStatus(success: string) {
     if (!this.remoteConfig.showConnectToButton) {
       console.warn("showConnectToButton is disabled. Text should be empty");
       return '';
     }
 
-    return this.remoteConfig.connectToButtonText;
+    return success;
   }
 
   /**

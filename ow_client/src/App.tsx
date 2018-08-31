@@ -125,7 +125,6 @@ export default class App extends Component<Props> {
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
     this.setState({loading: true});
 
-    //TODO: replace with other api
     this.appApi.silentSignin()
     .then(siginData => {
       this.setState({
@@ -176,14 +175,15 @@ export default class App extends Component<Props> {
   onNavigatorEvent(event: any) {
     if (event.id === 'search') {
       console.log("Search pressed");
-      navigateTo(this.props, 'screen.SearchScreen', 'Search', {});
+      navigateTo(this.props, 'screen.SearchScreen', 'Search', {
+        config: this.props.config, 
+        userId: this.state.userId
+      });
     }
   }
 
-
   onClusterPressed(event: any) {
     console.log("onClusterPressed", event);
-
   }
  
   //Change to when the map is moved

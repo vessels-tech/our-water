@@ -9,38 +9,52 @@ import {
   SearchBar,
   Text,
 } from 'react-native-elements';
-import { Resource } from '../typings/models/OurWater';
+import { Resource, SearchResult } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { getDemoResources } from '../utils';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
+import Loading from '../components/Loading';
+import {debounce} from 'throttle-debounce';
+// import { debounce } from "debounce";
 
 export interface Props {
   navigator: any;
   config: ConfigFactory,
+  userId: string,
 }
 
 export interface State {
   searchQuery: string,
   results: Resource[], //This may be more than just resources in the future
   recentSearches: string[],
+  isLoading: boolean,
+  error: boolean,
+  errorMessage: string
 }
 
 export default class SearchScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
+  debouncedPerformSearch: any;
 
   constructor(props: Props) {
     super(props);
 
     this.appApi = props.config.getAppApi();
-
     this.state = {
-      searchQuery:'',
+      searchQuery: '',
       results: [],
-      recentSearches: ['12345'],
-    }
+      recentSearches: [],
+      isLoading: false,
+      error: false,
+      errorMessage: '',
+    };
+
+    this.appApi.getRecentSearches(this.props.userId)
+    .then(recentSearches => this.setState({recentSearches}));
   }
+
 
   getSearchBar() {
 
@@ -49,8 +63,13 @@ export default class SearchScreen extends Component<Props> {
         <SearchBar
           lightTheme
           noIcon
-          onChangeText={(searchQuery) => this.setState({searchQuery})}
-          onEndEditing={() => this.performSearch()}
+          onChangeText={(searchQuery) => {
+            this.setState({ searchQuery });
+            // console.log("text changed");
+            //TODO: figure out how to debounce properly
+            this.performSearch();
+          }}
+          // onEndEditing={() => this.performSearch()}
           onClearText={() => console.log('clear text')}
           value={this.state.searchQuery}
           placeholder='Search' />
@@ -62,24 +81,45 @@ export default class SearchScreen extends Component<Props> {
    * Perform the search for the given query
    * This is a placeholder implementation
    * 
-   * TODO: refactor to be offline search? and move to API?
+   * TODO: refactor to be offline search?
    */
-  async performSearch() {
+  performSearch() {
+    console.log("performing search");
     const { searchQuery } = this.state;
 
-    const allResources: Resource[] = await 
-    console.log("searching for:", searchQuery);
-    console.log("all resouces length:", allResources.length);
-    const filtered = allResources.filter(r => {
-      return r.id.indexOf(searchQuery) > -1;
+    let result: SearchResult;
+    let resources: Resource[];
+    
+    this.setState({isLoading: true});
+
+    return this.appApi.performSearch(searchQuery)
+    .then(_result => result = _result)
+    .then(() => {
+      console.log("search finished");
+      resources = result.resources;
+
+      //TODO: if results are larger than 0, save the search!
+      if (resources.length > 0) {
+        console.log("save recent search!");
+        return this.appApi.saveRecentSearch(this.props.userId, searchQuery)
+        //Non-critical error
+        .catch(err => console.log("error saving search: ", err));
+      }
+    })
+    .then(() => {
+      this.setState({
+        isLoading: false,
+        error: false,
+        results: resources,
+      });
+    })
+    .catch(err => {
+      this.setState({
+        isLoading: false,
+        error: true,
+        errorMessage: 'Something went wrong with your search. Please try again.',
+      });
     });
-
-    //TODO: if results are larger than 0, save the search!
-
-    console.log("filtered resources length:", filtered.length);
-
-
-    this.setState({results: filtered})
   }
 
   /**
@@ -87,9 +127,19 @@ export default class SearchScreen extends Component<Props> {
    * similar to google maps.
    */
   getSearchResults() {
-    const { results } = this.state;
+    const { results, isLoading, error, errorMessage } = this.state;
 
     const resources: Resource[] = getDemoResources();
+
+    if (isLoading) {
+      return <View><Loading/></View>
+    }
+
+    if (error) {
+      return <View>
+        <Text>{errorMessage}</Text>
+      </View>
+    };
 
     if (results.length === 0) {
       return (

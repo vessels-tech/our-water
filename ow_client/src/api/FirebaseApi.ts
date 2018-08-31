@@ -377,9 +377,10 @@ class FirebaseApi {
           return [];
         }
         //@ts-ignore
-        return sn.data().recentSearches;
+        const recentSearches = sn.data().recentSearches;
+        console.log("recent searches are", recentSearches);
+        return recentSearches;
       });
-
   }
 
   /**
