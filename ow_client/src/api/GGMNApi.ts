@@ -9,6 +9,7 @@ import { GGMNLocationResponse, GGMNLocation } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
+import ExternalServiceApi from "./ExternalServiceApi";
 
 // TODO: make configurable
 const timeout = 1000 * 10;
@@ -23,7 +24,7 @@ export interface GGMNApiOptions {
  * 
  * TODO: make an interface, and share components with BaseApi.js
  */
-class GGMNApi implements BaseApi {
+class GGMNApi implements BaseApi, ExternalServiceApi {
   auth: any = null;
   baseUrl: string;
   networkApi: NetworkApi;
@@ -45,11 +46,37 @@ class GGMNApi implements BaseApi {
     this.orgId = orgId;
   }
 
+  //
+  // Auth API
+  //----------------------------------------------------------------------
+
   /**
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<any> {
     return FirebaseApi.signIn();
+  }
+
+  /**
+  * Connect to an external service.
+  * 
+  * Optional implementation
+  */
+  connectToService(): Promise<any> {
+    return Promise.resolve(null);
+  }
+
+  /**
+   * Save the external service details to firebase, securely
+   * 
+   * Optional implementation
+   */
+  saveExternalServiceLoginDetails(): Promise<any> {
+    return Promise.resolve(null);
+  }
+
+  getExternalServiceLoginDetails(): Promise<any> {
+    return Promise.resolve(null);
   }
 
   /**

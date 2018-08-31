@@ -2,6 +2,7 @@ import { BaseApiType } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
+import ExternalServiceApi from "../api/ExternalServiceApi";
 
 
 /**
@@ -74,6 +75,17 @@ export class ConfigFactory {
 
     //Default to MyWellApi
     return new MyWellApi(this.networkApi, this.envConfig.orgId);
+  }
+
+  getExternalServiceApi(): ExternalServiceApi {
+    if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
+      const options: GGMNApiOptions = {
+        baseUrl: this.remoteConfig.ggmnBaseUrl,
+      }
+      return new GGMNApi(this.networkApi, this.envConfig.orgId, options);
+    }
+    
+    throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
   }
 
   getShowConnectToButton() {

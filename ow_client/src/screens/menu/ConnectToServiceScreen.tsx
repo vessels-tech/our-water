@@ -10,6 +10,9 @@ import {
   FieldControl,
   Validators,
 } from "react-reactive-form";
+import BaseApi from '../../api/BaseApi';
+import ExternalServiceApi from '../../api/ExternalServiceApi';
+import { LoginStatus } from '../../typings/api/ExternalServiceApi';
 
 export interface Props {
   navigator: any,
@@ -21,6 +24,7 @@ export interface Props {
 export interface State {
    isConnected: boolean,
    loading: boolean,
+   buttonLoading: boolean, //The loading state of the submit button.
    username: string,
    password: string,
  }
@@ -52,25 +56,56 @@ export default class ConnectToServiceScreen extends Component<Props> {
     password: ["", Validators.required],
   });
 
+  appApi: BaseApi;
+  externalApi: ExternalServiceApi;
+
   constructor(props: Props) {
     super(props);
 
+    this.appApi = this.props.config.getAppApi();
+    this.externalApi = this.props.config.getExternalServiceApi();
+
     this.state = {
       isConnected: this.props.isConnected,
-      loading: false,
-      username: 'lewisiscool', //TODO: get this from somewhere.
+      loading: true,
+      buttonLoading: false,
+      username: '', //TODO: get this from somewhere.
       password: '',
-    }
+    };
+
+    this.externalApi.getExternalServiceLoginDetails()
+    .then(details => {
+      console.log("got external login details", details);
+      this.setState({
+        loading: false,
+        username: details.username,
+        isConnected: details.status === LoginStatus.Success
+      })
+    })
+    .catch(err => {
+      console.log("could not get external login details", err);
+      this.setState({
+        loading: false,
+      });
+    });
   }
 
   handleSubmit = () => {
-    this.setState({loading: true});
+    this.setState({ buttonLoading: true});
     console.log("Form values", this.loginForm.value);
 
-    //TODO: talk to the api, and validate the user's login
-    //Then save to firebase!
+    //TODO: insert params once we know what they are
 
-    setTimeout(() => this.setState({loading: false}), 300);
+    return this.externalApi.connectToService()
+    .then(result => {
+      console.log("connect to result", result);
+      return this.externalApi.saveExternalServiceLoginDetails()
+      .catch(err => console.log(err)); //non critical I suppose
+    })
+    .catch(err => {
+      console.log("Error logging in:", err);
+    })
+    .then(() => this.setState({ buttonLoading: false }));
   }
 
   handleLogout = () => {
@@ -113,8 +148,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
   }
 
   getForm() {
-    const { loading } = this.state;
-    console.log("getForm, loading:", loading);
+    const { buttonLoading } = this.state;
 
     return (
       <FieldGroup
@@ -134,7 +168,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
             />
             {/* TODO: add loading indicator, disable feature */}
             <Button
-              loading={loading}
+              loading={buttonLoading}
               disabled={invalid}
               title='Submit' 
               onPress={() => this.handleSubmit()}

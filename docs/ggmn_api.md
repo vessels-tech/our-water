@@ -58,3 +58,9 @@ example result:
     ]
 }
 ```
+
+
+## Sign in
+
+From what I can tell, GGMN uses basic auth, and simply adds the auth headers to each request. This means no session tokens, refresh tokens or anything of the like.
+

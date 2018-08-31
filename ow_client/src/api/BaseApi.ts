@@ -5,12 +5,20 @@ import { Resource, SearchResult } from "../typings/models/OurWater";
  * BaseApi is the base API for Our Water
  */
 export default interface BaseApi {
+  
+  //
+  // Auth API
+  //----------------------------------------------------------------------
 
   /**
    * Sign in the user sliently.
    * Most likely, this will use the FirebaseAPI behind the scenes
    */
   silentSignin(): Promise<any>;
+
+
+  
+
 
   //
   // Resource API
