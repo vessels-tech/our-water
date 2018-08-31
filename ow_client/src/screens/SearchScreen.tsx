@@ -55,7 +55,6 @@ export default class SearchScreen extends Component<Props> {
     .then(recentSearches => this.setState({recentSearches}));
   }
 
-
   getSearchBar() {
 
     return (
@@ -132,7 +131,14 @@ export default class SearchScreen extends Component<Props> {
     const resources: Resource[] = getDemoResources();
 
     if (isLoading) {
-      return <View><Loading/></View>
+      return (
+        <View style={{
+          justifyContent: 'center',
+          height: 350,
+        }}>
+          <Loading/>
+        </View>
+      );
     }
 
     if (error) {

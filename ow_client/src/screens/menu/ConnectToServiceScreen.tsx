@@ -196,13 +196,15 @@ export default class ConnectToServiceScreen extends Component<Props> {
   
 
     return (
-      
+    
         <KeyboardAvoidingView
           keyboardVerticalOffset={10}
         >
           {this.getLogo()}
-          <Text>{this.props.config.getConnectToButtonText()}</Text>
-          <Text>{this.props.config.getConnectToButtonDescription()}</Text>
+          <Text style={{
+            paddingHorizontal: 20,
+            paddingTop: 10,
+            }}>{this.props.config.getConnectToButtonDescription()}</Text>
           {isConnected ? this.getConnectedSection() : this.getForm()}
         </KeyboardAvoidingView>
     );

@@ -17,9 +17,8 @@ import NetworkApi from './NetworkApi';
 import { Resource, SearchResult } from '../typings/models/OurWater';
 
 const fs = firebase.firestore();
-// const functions = firebase.functions();
 const auth = firebase.auth();
-// const config = firebase.config();
+
 const baseUrl = Config.REACT_APP_BASE_URL;
 const timeout = 1000 * 10;
 
@@ -394,8 +393,10 @@ class FirebaseApi {
     if (existingIndex > -1) {
       delete recentSearches[existingIndex];
     }
-    if (recentSearches.unshift(searchQuery) > maxRecentSearches) {
-      recentSearches.pop;
+
+    recentSearches.unshift(searchQuery);
+    while (recentSearches.length > maxRecentSearches + 1) {
+      recentSearches.pop();
     }
 
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentSearches})

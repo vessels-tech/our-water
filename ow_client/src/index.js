@@ -52,11 +52,11 @@ Promise.resolve(true)
           buttonFontWeight: '600'
         }],
         rightButtons: [{
-          title: 'SEARCH',
+          icon: require('./assets/search/48.png'),
           passProps: {},
           id: 'search',
           disabled: false, 
-          disableIconTint: true, 
+          disableIconTint: false, 
           buttonColor: textDark, 
           buttonFontSize: 14, 
           buttonFontWeight: '600' 

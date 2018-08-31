@@ -10,9 +10,12 @@ import {
 } from '../utils';
 import { primary, primaryDark, textDark, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
+import ExternalServiceApi from '../api/ExternalServiceApi';
+import { ExternalLoginDetails } from '../typings/api/ExternalServiceApi';
 
 export interface Props {
-  config: ConfigFactory
+  config: ConfigFactory,
+  navigator: any,
 }
 
 export interface State {
@@ -29,9 +32,33 @@ export default class SettingsScreen extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    console.log('SettingsScreen.props:', props);
+    this.checkLoginStatusIfNeeded();
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+  }
 
-    //TODO: do check to see if we are connected to external service, and see if there is an error
+  componentWillUnmount() {
+    //TODO: unsubscribe
+  }
+
+  onNavigatorEvent() {
+
+  }
+
+  checkLoginStatusIfNeeded() {
+    //Check if we are connected to external service - only if we actually should
+    if (this.props.config.getShowConnectToButton()) {
+      const externalApi: ExternalServiceApi = this.props.config.getExternalServiceApi();
+      externalApi.getExternalServiceLoginDetails()
+        .then((result: ExternalLoginDetails) => {
+          this.setState({
+            isConnectedToExternalService: true,
+          });
+        }).catch(err => {
+          this.setState({
+            isConnectedToExternalService: false,
+          });
+        });
+    }
   }
 
   /**
