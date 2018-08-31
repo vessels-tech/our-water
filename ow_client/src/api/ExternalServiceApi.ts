@@ -9,15 +9,17 @@ export default interface ExternalServiceApi {
   connectToService(username: string, password: string): Promise<any>;
 
   /**
-   * Save the external service details to firebase, securely
+   * Save the external service details locally.
    * 
-   * Optional implementation
    */
-  saveExternalServiceLoginDetails(): Promise<any>;
+  saveExternalServiceLoginDetails(username: string, password: string): Promise<any>;
 
-  //TODO: make this return the username, as well as the status
-  //TODO: throw an error if we can't get the details back
-  //TODO: what about if we have the details, but the login fails?
+  /**
+   * Get the external service login details, and attempt to log in.
+   * If the login fails, ExternalLoginDetails.LoginStatus will be Error, but won't throw
+   * 
+   * If we can't get or decode the details, this will Throw
+   */
   getExternalServiceLoginDetails(): Promise<ExternalLoginDetails>;
 
 }

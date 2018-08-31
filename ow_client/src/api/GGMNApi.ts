@@ -2,6 +2,7 @@ import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
+import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 
@@ -11,7 +12,7 @@ import { isMoment } from "moment";
 import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
-import { LoginRequest } from "../typings/api/ExternalServiceApi";
+import { LoginRequest, ExternalLoginDetails, LoginStatus } from "../typings/api/ExternalServiceApi";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -133,13 +134,37 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   /**
    * Save the external service details, locally only
    */
-  saveExternalServiceLoginDetails(): Promise<any> {
-    return Promise.resolve(null);
+  async saveExternalServiceLoginDetails(username: string, password: string): Promise<any> {
+    await Keychain.setGenericPassword(username, password);
+    return true 
   }
 
-  getExternalServiceLoginDetails(): Promise<any> {
+  async getExternalServiceLoginDetails(): Promise<ExternalLoginDetails> {
     //Try performing a login first, just in case
-    return Promise.resolve(null);
+
+    const credentials = await Keychain.getGenericPassword();
+    if (credentials === false) {
+      throw new Error("Could not get saved credentials");
+    }
+
+    if (credentials === true) {
+      throw new Error("Error with Keychain API");
+    }
+
+    console.log("credentials", credentials);
+    try {
+      await this.connectToService(credentials.username, credentials.password);
+      return {
+        username: credentials.username,
+        status: LoginStatus.Success,
+      };
+    } catch (err) {
+      console.log("error logging in", err);
+      return {
+        username: credentials.username,
+        status: LoginStatus.Error,
+      }
+    }
   }
 
   /**

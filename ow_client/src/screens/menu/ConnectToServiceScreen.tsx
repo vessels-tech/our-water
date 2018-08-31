@@ -52,8 +52,8 @@ const TextInput = ({meta, handler}: any) => (
 export default class ConnectToServiceScreen extends Component<Props> {
   state: State;
   loginForm = FormBuilder.group({
-    username: ["nienke.ansems", Validators.required],
-    password: ["Aquifer2016", Validators.required],
+    username: ["", Validators.required],
+    password: ["", Validators.required],
   });
 
   appApi: BaseApi;
@@ -76,6 +76,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
     this.externalApi.getExternalServiceLoginDetails()
     .then(details => {
       console.log("got external login details", details);
+      //TODO: update the login form if we can
       this.setState({
         loading: false,
         username: details.username,
@@ -97,7 +98,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
     //TODO: make non-explicit
     return this.externalApi.connectToService(this.loginForm.value.username, this.loginForm.value.password)
     .then(result => {
-      return this.externalApi.saveExternalServiceLoginDetails()
+      return this.externalApi.saveExternalServiceLoginDetails(this.loginForm.value.username, this.loginForm.value.password)
       .catch(err => console.log(err)); //non critical I suppose
     })
     .then(() => {
@@ -141,7 +142,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
   getConnectedSection() {
     const { username } = this.state;
 
-    const text = `You are already connected to GGMN with username: ${username}`;
+    const text = `You are connected to GGMN with username: ${username}`;
     return (
       <View>
         <Text>{text}</Text>

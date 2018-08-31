@@ -4847,6 +4847,10 @@ react-native-joi@^0.0.5:
     moment "2.x.x"
     util "^0.10.3"
 
+react-native-keychain@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-3.0.0.tgz#29da1dfa43c2581f76bf9420914fd38a1558cf18"
+
 react-native-map-clustering@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/react-native-map-clustering/-/react-native-map-clustering-1.3.0.tgz#e7affe9652a63eeef46ef4d5678c791c708f3886"
