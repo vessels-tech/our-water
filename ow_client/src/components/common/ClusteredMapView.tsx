@@ -187,7 +187,6 @@ class ClusteredMapView extends Component<Props> {
       const clusters = await this.superCluster.getClusters(bBox, zoom);
 
       clusteredMarkers = clusters.map((cluster: any) => {
-        console.log("cluster is: ", cluster);
         return ( 
           <CustomMarker
             pointCount={cluster.properties.point_count}

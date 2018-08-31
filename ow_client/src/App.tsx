@@ -150,7 +150,6 @@ export default class App extends Component<Props> {
       return this.appApi.getResourceNearLocation(location.coords.latitude, location.coords.longitude, 0.1);
     })
     .then(resources => {
-      console.log("got %s resources", resources.length);
       this.setState({
         loading: false,
         resources,
@@ -334,7 +333,6 @@ export default class App extends Component<Props> {
           {/* Villages */}
           {resources.map(resource => {
               const shortId = getShortId(resource.id);
-              console.log('placing marker with coords', resource.coords);
               return <Marker
                 //@ts-ignore
                 collapsable={true}

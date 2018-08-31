@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
-import { View, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, KeyboardAvoidingView, ScrollView, ToastAndroid } from 'react-native';
 import { primaryDark, primary } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
@@ -38,7 +38,7 @@ export type TextInputParams = {
 
 const TextInput = ({meta, handler}: any) => (
   <View>
-    <FormInput placeholder={`${meta.label}`}{...handler()}/>
+    <FormInput secureTextEntry={meta.secureTextEntry} placeholder={`${meta.label}`}{...handler()}/>
   </View>
 )
 
@@ -52,8 +52,8 @@ const TextInput = ({meta, handler}: any) => (
 export default class ConnectToServiceScreen extends Component<Props> {
   state: State;
   loginForm = FormBuilder.group({
-    username: ["", Validators.required],
-    password: ["", Validators.required],
+    username: ["nienke.ansems", Validators.required],
+    password: ["Aquifer2016", Validators.required],
   });
 
   appApi: BaseApi;
@@ -94,16 +94,22 @@ export default class ConnectToServiceScreen extends Component<Props> {
     this.setState({ buttonLoading: true});
     console.log("Form values", this.loginForm.value);
 
-    //TODO: insert params once we know what they are
-
-    return this.externalApi.connectToService()
+    //TODO: make non-explicit
+    return this.externalApi.connectToService(this.loginForm.value.username, this.loginForm.value.password)
     .then(result => {
-      console.log("connect to result", result);
       return this.externalApi.saveExternalServiceLoginDetails()
       .catch(err => console.log(err)); //non critical I suppose
     })
+    .then(() => {
+      this.setState({
+        username: this.loginForm.value.username,
+        isConnected: true,
+      });
+    })
     .catch(err => {
       console.log("Error logging in:", err);
+      //TODO: make error message better, parse status codes.
+      ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
     })
     .then(() => this.setState({ buttonLoading: false }));
   }
@@ -159,12 +165,12 @@ export default class ConnectToServiceScreen extends Component<Props> {
             <FieldControl
               name="username"
               render={TextInput}
-              meta={{ label: "Username" }}
+              meta={{ label: "Username", secureTextEntry: false }}
             />
             <FieldControl
               name="password"
               render={TextInput}
-              meta={{ label: "Password" }}
+              meta={{ label: "Password", secureTextEntry: true }}
             />
             {/* TODO: add loading indicator, disable feature */}
             <Button

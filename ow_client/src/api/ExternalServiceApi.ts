@@ -6,7 +6,7 @@ export default interface ExternalServiceApi {
    * Connect to an external service.
    * 
    */
-  connectToService(): Promise<any>;
+  connectToService(username: string, password: string): Promise<any>;
 
   /**
    * Save the external service details to firebase, securely

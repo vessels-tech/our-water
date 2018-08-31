@@ -7,7 +7,7 @@ const GGMNDevConfig: RemoteConfig = {
   baseApiType: BaseApiType.GGMNApi,
   connectToButtonText: 'Connect to GGMN',
   firebaseBaseUrl: 'localhost:5000',
-  ggmnBaseUrl: 'https://ggmn.lizard.net/api',
+  ggmnBaseUrl: 'https://ggmn.lizard.net',
   showConnectToButton: true,
   mywellBaseUrl: '',
   map_shouldLoadAllResources: false,

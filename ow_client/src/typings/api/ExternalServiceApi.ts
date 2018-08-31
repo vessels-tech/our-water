@@ -7,3 +7,9 @@ export enum LoginStatus {
   Success,
   Error,
 }
+
+export type LoginRequest = {
+  username: string,
+  password: string,
+  [key: string]: string,
+}

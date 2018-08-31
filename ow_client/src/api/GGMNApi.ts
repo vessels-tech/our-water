@@ -4,15 +4,17 @@ import { Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
-import { appendUrlParameters, parseFetchResponse, getDemoResources } from "../utils";
-import { GGMNLocationResponse, GGMNLocation } from "../typings/models/GGMN";
+
+import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError } from "../utils";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
+import { LoginRequest } from "../typings/api/ExternalServiceApi";
 
 // TODO: make configurable
-const timeout = 1000 * 10;
+const timeout = 1000 * 100;
 
 export interface GGMNApiOptions {
   baseUrl: string,
@@ -59,24 +61,94 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   /**
   * Connect to an external service.
+  * This is really just a check to see that the login credentials provided work.
   * 
-  * Optional implementation
+  * Maybe we don't need to save the sessionId. It should be handled
+  * automatically by our cookies
   */
-  connectToService(): Promise<any> {
-    return Promise.resolve(null);
+  connectToService(username: string, password: string): Promise<any> {
+    const url = `${this.baseUrl}/api/v3/organisations/`;
+    console.log("url is", url);
+
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        username,
+        password,
+      },
+      credentials: 'include' //make sure fetch sets the cookie for us.
+    };
+
+    return ftch(url, options)
+      .then((response: any) => parseFetchResponse<GGMNOrganisationResponse>(response))
+      .then((r: GGMNOrganisationResponse) => {
+        console.log(r);
+
+        return true; //If the request succeeded, then we are logged in.
+      });
   }
 
   /**
-   * Save the external service details to firebase, securely
-   * 
-   * Optional implementation
+   * This is a broken implementation, we will use a different endpoint instead
+   */
+  private dep_connectToService(username: string, password: string): Promise<any> {
+    const url = `${this.baseUrl}/api-auth/login/`;
+    console.log("URL is", url);
+    
+    const rawParams: LoginRequest = {
+      username,
+      password,
+    };
+    
+    const body = Object.keys(rawParams).map((k: string) => {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(rawParams[k])
+    })
+
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.join('&'),
+      credentials: 'include'
+    };
+
+    //This fetch doesn't have a freaking timeout!
+    return ftch(url, options)
+    .then((response: any) => {
+      if (!response.ok) {
+        return rejectRequestWithError(response.status);
+      }
+
+      //This still comes back with html, not json thanks to the dodgy api
+      console.log(response);
+      console.log("all headers", response.headers.getAll())
+      return 
+    });
+  }
+
+  /**
+   * Save the external service details, locally only
    */
   saveExternalServiceLoginDetails(): Promise<any> {
     return Promise.resolve(null);
   }
 
   getExternalServiceLoginDetails(): Promise<any> {
+    //Try performing a login first, just in case
     return Promise.resolve(null);
+  }
+
+  /**
+   * We get a sessionId that lasts only 24 hours
+   * That means if a request fails, we should try refreshing the 
+   * session and try again.
+   */
+  private refreshSession() {
+    //Get the login details and attempt to refresh the session
   }
 
   /**
@@ -99,7 +171,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * Maybe we can sort by updatedAt
    */
   getResources(): Promise<Array<Resource>> {
-    const resourceUrl = `${this.baseUrl}/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const url = appendUrlParameters(resourceUrl, {
       // page: 0,
       page_size: 100,
@@ -127,7 +199,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in
-    const resourceUrl = `${this.baseUrl}/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const url = appendUrlParameters(resourceUrl, {
       dist: realDistance,
       point: `${longitude},${latitude}`

@@ -22,7 +22,7 @@ export interface State {
 
 export default class SettingsScreen extends React.Component<Props> {
   state: State = {
-    isConnectedToExternalService: true,
+    isConnectedToExternalService: false,
     //TODO: maybe have an error with external service connection flag as well?
   }
 

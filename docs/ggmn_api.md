@@ -64,3 +64,19 @@ example result:
 
 From what I can tell, GGMN uses basic auth, and simply adds the auth headers to each request. This means no session tokens, refresh tokens or anything of the like.
 
+ref: https://ggmn.lizard.net/doc/api.html First section, Authentication
+
+nienke.ansems
+<PWD>
+
+```
+curl -X POST \
+  https://ggmn.lizard.net/api-auth/login/ \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'username=nienke.ansems&password=<PWD>'
+```
+
+Got back session id: 444d1asw5i68jhzohbkb37fs0mwem0bk
+
+So it looks like we get a sessionId cookie back, which we can use for all other requests later on. According to the docs, it has a 24 hour expiry, and doesn't have a refresh token, so we will need to hold onto the username and password

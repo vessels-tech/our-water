@@ -106,7 +106,7 @@ export class ConfigFactory {
   }
 
   getConnectToButtonDescription(): string {
-    const message = 'TODO: add the description about why you would want to connect here!';
+    const message = 'TODO: add the description about why you would want to connect here! Also add a message about consent to use your login!';
     return this.checkConnectToButtonStatus(message);
   }
 
