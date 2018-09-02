@@ -1,14 +1,18 @@
 
 import { NetInfo } from 'react-native';
 
+export type CallbackMap = {
+  [key: string]: any
+}
+
 class NetworkApi {
-  public isConnected: boolean
-  public connectionUpdateCallbacks: any
+  public isConnected: boolean;
+  public connectionUpdateCallbacks: Map<string, any>;
 
   constructor()  {
     // this.updateConnectionStatus();
     this.isConnected = false;
-    this.connectionUpdateCallbacks = {};
+    this.connectionUpdateCallbacks = new Map<string, any>();
 
     NetInfo.isConnected.addEventListener(
       'connectionChange',
@@ -23,12 +27,12 @@ class NetworkApi {
     return networkApi;
   }
 
-  addConnectionChangeCallback(id: any, callback: any) {
-    this.connectionUpdateCallbacks[id] = callback;
+  addConnectionChangeCallback(id: string, callback: any) {
+    this.connectionUpdateCallbacks.set(id, callback);
   }
 
-  removeConnectionChangeCallback(id: any) {
-    delete this.connectionUpdateCallbacks[id];
+  removeConnectionChangeCallback(id: string) {
+    this.connectionUpdateCallbacks.delete(id);
   }
 
   updateConnectionStatus() {
@@ -45,7 +49,7 @@ class NetworkApi {
     this.isConnected = isConnected;
 
     Object.keys(this.connectionUpdateCallbacks).forEach(key => {
-      let callback = this.connectionUpdateCallbacks[key];
+      let callback = this.connectionUpdateCallbacks.get(key);
       callback(isConnected);
     });
   }

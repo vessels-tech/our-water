@@ -19,6 +19,7 @@ export type RemoteConfig = {
   connectToDescription: string,
   connectToText: string,
   map_shouldLoadAllResources: boolean,
+  settings_registerResourceText: string,
 }
 
 /**
@@ -108,6 +109,10 @@ export class ConfigFactory {
 
   getConnectToButtonDescription(): string {
     return this.checkConnectToButtonStatus(this.remoteConfig.connectToDescription);
+  }
+
+  getRegisterResourceButtonText(): string {
+    return this.remoteConfig.settings_registerResourceText;
   }
 
   private checkConnectToButtonStatus(success: string) {

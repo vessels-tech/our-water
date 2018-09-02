@@ -124,7 +124,7 @@ export default class SettingsScreen extends React.Component<Props> {
         </View>
         {this.getConnectToButton()}
         <ListItem
-          title="Register a resource"
+          title={this.props.config.getRegisterResourceButtonText()}
           onPress={() =>
             //TODO: dismiss the sidebar
             navigateTo(this.props, 'screen.EditResourceScreen', 'New Resource', {})

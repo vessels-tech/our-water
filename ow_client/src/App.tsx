@@ -44,6 +44,7 @@ import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
 import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
+import { NetworkStatusBanner } from './components/NetworkStatusBanner';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -121,15 +122,16 @@ export default class App extends Component<Props> {
   }
 
   componentWillMount() {
-    //TODO: clean up?
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
     this.setState({loading: true});
 
     this.appApi.silentSignin()
     .then(siginData => {
+      console.log("signed in");
       this.setState({
         isAuthenticated: true,
         userId: siginData.user.uid,
+        loading: false, //we are still loading stuff, but each component can take care of itself
       });
       return getLocation();
     })
@@ -151,13 +153,17 @@ export default class App extends Component<Props> {
     })
     .then(resources => {
       this.setState({
-        loading: false,
         resources,
       });
     })
     .catch(err => {
       console.log(err);
     });
+  }
+
+  componentWillUnmount() {
+    //TODO unsubscribe if possible?
+    // this.hardwareBackListener
   }
 
   /*--- externally bound events ---*/
@@ -641,6 +647,7 @@ export default class App extends Component<Props> {
           {this.getSavedReadingsButton()}
         </ScrollView>
         <PendingChangesBanner/>
+        <NetworkStatusBanner config={this.props.config}/>
       </View>
     );
   }

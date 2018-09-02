@@ -13,6 +13,7 @@ const GGMNDevConfig: RemoteConfig = {
   map_shouldLoadAllResources: false,
   connectToDescription: 'Connect to GGMN to create new wells and save readings from your device.',
   connectToText: 'Connected to GGMN',
+  settings_registerResourceText: 'Register a new Well',
 }
 
 export default GGMNDevConfig;
