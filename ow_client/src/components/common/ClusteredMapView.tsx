@@ -19,6 +19,8 @@ export interface Props {
   onClusterPress?: any,
   children?: any,
   style?: any,
+  onRegionChangeComplete: any,
+  mapRef?: any,
 }
 
 export interface State {
@@ -91,14 +93,18 @@ class ClusteredMapView extends Component<Props> {
   }
 
   onRegionChangeComplete = (region: any) => {
-    const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
-    if (region.longitudeDelta <= 80) {
-      if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
-        || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
-        || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
-        this.calculateClustersForMap(region);
-      }
-    }
+    //TODO: replace somehow
+
+    // const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
+    // if (region.longitudeDelta <= 80) {
+    //   if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
+    //     || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
+    //     || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
+    //     this.calculateClustersForMap(region);
+    //   }
+    // }
+
+    return this.props.onRegionChangeComplete(region);
   };
 
   createMarkersOnMap = () => {
@@ -129,14 +135,6 @@ class ClusteredMapView extends Component<Props> {
       }
     });
 
-    // if (!this.superCluster) {
-    //   console.log("init superCluster");
-    //   this.superCluster = supercluster({
-    //     radius: this.props.radius,
-    //     maxZoom: 9,
-    //     minZoom: 1,
-    //   });
-    // }
     this.superCluster.load(markers);
 
     this.setState({
@@ -225,8 +223,11 @@ class ClusteredMapView extends Component<Props> {
     return (
       <MapView
         {...this.removeChildrenFromProps(this.props)}
-        ref={(ref) => { this.root = ref; }}
-        region={this.state.currentRegion}
+        ref={(ref) => { this.props.mapRef(ref)}}
+        showsMyLocationButton
+        showsPointsOfInterest={false}
+        showsUserLocation
+        initialRegion={this.state.currentRegion}
         onRegionChangeComplete={this.onRegionChangeComplete}
       >
         {this.state.clusteredMarkers}

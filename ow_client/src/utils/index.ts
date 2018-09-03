@@ -20,6 +20,22 @@ export function parseFetchResponse<T>(response: any): Promise<T> {
 }
 
 /**
+ * Get the image based on the resource type
+ */
+export function imageForResourceType(type: ResourceType) {
+  switch (type) {
+    case ResourceType.checkdam:
+      return require('../assets/checkdam_pin.png');
+    case ResourceType.raingauge:
+      return require('../assets/raingauge_pin.png');
+    case ResourceType.well:
+      return require('../assets/well_pin.png');
+    case ResourceType.custom:
+      return require('../assets/other_pin.png')
+  }
+}
+
+/**
  * Get a unique hash based on the resourceId, pincode, and date
  */
 /* tslint:disable-next-line */

@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Marker } from 'react-native-maps';
+import MapView, { Marker, Region } from 'react-native-maps';
 import firebase from 'react-native-firebase';
 
 import LoadLocationButton from './components/LoadLocationButton';
@@ -45,6 +45,7 @@ import { ConfigFactory } from './config/ConfigFactory';
 import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import { NetworkStatusBanner } from './components/NetworkStatusBanner';
+import MapSection, { MapRegion } from './components/MapSection';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -55,22 +56,9 @@ export interface Props {
 
 export interface State {
   loading: boolean;
-  region: {
-    latitude: number,
-    longitude: number,
-    latitudeDelta: number,
-    longitudeDelta: number,
-  },
-  userRegion: {
-    latitude: number,
-    longitude: number,
-    latitudeDelta: number,
-    longitudeDelta: number,
-  },
-  droppedPin: boolean,
-  droppedPinCoords: any,
-  hasSavedReadings: boolean,
-  mapHeight: any,
+  region: MapRegion,
+  userRegion: MapRegion,
+  mapHeight: MapHeightOption,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
   selectedResource?: Resource,
@@ -81,6 +69,7 @@ export interface State {
 }
 
 export default class App extends Component<Props> {
+  mapRef?: MapView;
   state: State = {
     loading: true,
     region: {
@@ -95,9 +84,6 @@ export default class App extends Component<Props> {
       latitudeDelta: 0.5,
       longitudeDelta: 0.25,
     },
-    droppedPin: false,
-    droppedPinCoords: {},
-    hasSavedReadings: false,
     mapHeight: MapHeightOption.default,
     mapState: MapStateOption.default,
     hasSelectedResource: false,
@@ -141,7 +127,6 @@ export default class App extends Component<Props> {
       return getLocation();
     })
     .then(location => {
-      console.log("got location", location);
       this.updateGeoLocation(location);
 
       //Either load all the resources, or just those close to user's pin
@@ -187,46 +172,26 @@ export default class App extends Component<Props> {
     }
   }
 
-  onClusterPressed(event: any) {
-    console.log("onClusterPressed", event);
-  }
- 
-  //Change to when the map is moved
-  onMapPressed(coordinate: any) {
-    const { mapState } = this.state;
-
-    //Don't drop a marker if the map is in small mode, 
-    //just make the map bigger, and deselect the resource popopo
-    
-    if (mapState === MapStateOption.small) {
-      this.setState({
-        mapState: MapStateOption.default,
-        mapHeight: MapHeightOption.default,
-        selectedResource: null,
-        hasSelectedResource: false,
-      });
-
-      return;
-    }
-
-    this.setState({
-      droppedPin: true,
-      droppedPinCoords: coordinate,
-    });
-
-    return this.reloadResourcesIfNeeded(coordinate);
+  /**
+   * The user has dragged the map in the MapSection.
+   * Load new resources based on where they are looking
+   */
+  onMapRegionChange(region: Region) {
+    // return this.reloadResourcesIfNeeded(region)
   }
 
   /**
    * Only reload the resources if the api can support it
    * otherwise it's a lot of work!
    */
-  reloadResourcesIfNeeded(coordinate: Coordinates) {
-    if (!this.props.config.getShouldMapLoadAllResources()) {
+  reloadResourcesIfNeeded(region: Region) {
+    if (this.props.config.getShouldMapLoadAllResources()) {
+      //Resources are all already loaded.
       return;
     }
 
-    return this.appApi.getResourceNearLocation(coordinate.latitude, coordinate.latitude, 0.1)
+    //TODO: scale the distance with the latitude and longitude deltas
+    return this.appApi.getResourceNearLocation(region.latitude, region.longitude, 0.1)
       .then(resources => {
         this.setState({
           loading: false,
@@ -236,42 +201,6 @@ export default class App extends Component<Props> {
       .catch(err => {
         console.log(err);
       });
-  }
-
-  //TODO: replace this with just the map view. When the map is moved, load the new markers
-  getDroppedPin() {
-    const { droppedPin, droppedPinCoords } = this.state;
-
-    if (!droppedPin) {
-      return null;
-    }
-
-    return (
-      <Marker
-        key='droppedPin'
-        coordinate={droppedPinCoords}
-        title='Your Pin'
-        image={myPinImg}
-      />
-    );
-  }
-
-  onRegionChange(region: any) {
-    console.log("onRegionChange called");
-    this.setState({ region });
-  }
-
-  imageForResourceType(type: ResourceType) {
-    switch (type) {
-      case ResourceType.checkdam:
-        return require('./assets/checkdam_pin.png');
-      case ResourceType.raingauge:
-        return require('./assets/raingauge_pin.png');
-      case ResourceType.well:
-        return require('./assets/well_pin.png');
-      case ResourceType.custom:
-        return require('./assets/other_pin.png')
-    }
   }
 
   /**
@@ -292,8 +221,8 @@ export default class App extends Component<Props> {
 
   selectResource(resource: Resource) {
     this.setState({
-      mapHeight: MapHeightOption.small,
-      mapState: MapStateOption.small,
+      // mapHeight: MapHeightOption.small,
+      // mapState: MapStateOption.small,
       hasSelectedResource: true,
       selectedResource: resource,
     });
@@ -303,223 +232,44 @@ export default class App extends Component<Props> {
     this.appApi.addRecentResource(resource, this.state.userId);
   }
 
-  getMap() {
-    const { userRegion, region, resources, mapHeight } = this.state;
-
-    return (
-      <View style={{
-        backgroundColor: bgMed,
-      }}>
-        <ClusteredMapView
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: mapHeight,
-          }}
-          radius={25}
-          clustering={true}
-          clusterColor={primaryDark}
-          clusterTextColor={textLight}
-          clusterBorderColor={textLight}
-          onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
-          region={region}
-          //@ts-ignore
-          onRegionChangeComplete={(region: any) => this.onRegionChange(region)}
-        >
-        {/* TODO: enable these without the clustering */}
-          <Marker
-            key='geoLocation'
-            coordinate={{ latitude: userRegion.latitude, longitude: userRegion.longitude}}
-            title='Me'
-            image={require('./assets/my_location.png')}
-          />
-          {this.getDroppedPin()}
-          {/* TODO: Hide and show different groups at different levels */}
-          {/* Pincode */}
-          {/* Villages */}
-          {resources.map(resource => {
-              const shortId = getShortId(resource.id);
-              return <Marker
-                //@ts-ignore
-                collapsable={true}
-                key={shortId}
-                coordinate={formatCoords(resource.coords)}
-                title={`${shortId}`}
-                description={resource.resourceType}
-                image={this.imageForResourceType(resource.resourceType)}
-                onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
-              />
-            }
-          )}
-        </ClusteredMapView>
-        <View style={{
-          position: 'absolute',
-          width: '100%',
-          height: 40,
-          bottom: '10%',
-          left: '0%',
-        }}>
-          {this.getMapButtons()}
-          {this.getUpButton()}
-        </View>
-
-      </View>
-    );
-  }
-
-  getTopBar() {
-    const { mapState } = this.state;
-
-    //Hide this when the map is small
-    if (mapState === MapStateOption.small) {
-      return null;
-    }
-
-    return (
-      <View style={{
-        backgroundColor: bgLight,
-        width: '100%',
-        height: 50,
-        flexDirection: 'row'
-      }}>
-        {this.getMenuButton()}
-        {this.getSearchBar()}
-      </View>
-    );
-  }
-
-  getMenuButton() {
-    return (
-      <Icon
-        size={30}
-        name='menu'
-        onPress={() => {
-          // navigateTo(this.props, 'screen.SettingsScreen', 'Settings', {});
-          // console.log("opening drawer?", this.props.navigator);
-
-          this.props.navigator.toggleDrawer({
-            side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-            animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-            to: 'open' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-          });
-        }}
-        iconStyle={{
-          color: textDark,
-        }}
-        underlayColor='transparent'
-        containerStyle={{
-          marginLeft: 10
-        }}
-      />
-    );
-  }
-
-  getSearchBar() {
-    return (
-      <SearchBar
-        containerStyle={{
-          flex: 1,
-          width: '100%',
-          backgroundColor: 'transparent'
-        }}
-        onEndEditing={() => console.log("TODO: dismiss and finish search")}
-      />
-    );
-  }
-
   updateGeoLocation(location: Location) {
+    console.log("update GeoLocation");
+
     let region = {...this.state.region};
-    let userRegion = { ...this.state.userRegion};
+
     
     //Move the pin to the user's location, 
     //and move the map back to where the user is
     //TODO: chang the zoom level?
     region.latitude = location.coords.latitude;
     region.longitude = location.coords.longitude;
-    userRegion.latitude = location.coords.latitude;
-    userRegion.longitude = location.coords.longitude;
 
     // console.log("updating geolocation", region, userRegion);
+
+    if (this.mapRef) {
+      console.log('animating underlying map!',location);
+      this.mapRef.animateToCoordinate({
+        latitude: region.latitude,
+        longitude: region.longitude,
+      }, 1000);
+      
+    } else {
+      console.log("tried to animate map, but map is null");
+    }
     
     this.setState({
       region,
-      userRegion,
     });
   }
 
-  //Don't know if this will work...
-  //TODO: figure out how to animate?
-  toggleFullscreenMap() {
-    const { mapState } = this.state;
-
-    let newMapState = MapStateOption.default;
-    let newMapHeight: any = MapHeightOption.default;
-    
-    if (mapState === MapStateOption.default) {
-      newMapState = MapStateOption.fullscreen;
-      newMapHeight = MapHeightOption.fullscreen;
-    }
-
-    this.setState({
-      mapState: newMapState,
-      mapHeight: newMapHeight,
-    });
-  }
-
-  clearDroppedPin() {
-
-    this.setState({
-      droppedPin: false,
-      droppedPinCoords: {},
-    });
-
-    //TODO: should we re-do the search for the user?
-  }
-
+  //TODO: not sure how to handle this with the nested map...
   clearSelectedResource() {
-
     this.setState({
       mapState: MapStateOption.default,
       mapHeight:MapHeightOption.default,
       hasSelectedResource: false,
       selectedResource: null,
     });
-  }
-
-  getMapButtons() {
-    const { mapState, droppedPin } = this.state;
-
-    //Hide these buttons when the map is in small mode
-    if (mapState === MapStateOption.small) {
-      //TODO: fade out nicely
-      return null;
-    }
-
-    let fullscreenIcon = 'fullscreen';
-    if (mapState === MapStateOption.fullscreen) {
-      fullscreenIcon = 'fullscreen-exit';
-    }
-
-    return (
-      <View style={{
-        flexDirection:'row',
-        justifyContent:'space-around',
-      }}>
-        <LoadLocationButton
-          onComplete={(location: Location) => this.updateGeoLocation(location)}
-        />
-        <IconButton 
-          name={fullscreenIcon}
-          onPress={() => this.toggleFullscreenMap()}
-        />
-        {droppedPin ? 
-          <IconButton 
-            name="clear"
-            onPress={() => this.clearDroppedPin()}
-          />
-          : null }
-      </View>
-    );
   }
 
   getFavouritesList() {
@@ -541,27 +291,6 @@ export default class App extends Component<Props> {
     );
   }
 
-  //A button for the user to deselect a resource, and exit out
-  //of small map mode
-  getUpButton() {
-    const { hasSelectedResource } = this.state;
-
-    if (!hasSelectedResource) {
-      return null;
-    }
-
-    return (
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-      }}>
-      <IconButton
-        name="clear"
-        onPress={() => this.clearSelectedResource()}
-      />
-      </View>
-    );
-  }
 
   getResourceView() {
     const {hasSelectedResource, selectedResource, userId} = this.state;
@@ -595,24 +324,6 @@ export default class App extends Component<Props> {
       </View>
     );
   }
-
-  getSavedReadingsButton() {
-    const { hasSavedReadings } = this.state;
-
-    if (!hasSavedReadings) {
-      return null;
-    }
-
-    return (
-      <View style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 1,
-      }}>
-        <Text>Saved Readings</Text>
-      </View>
-    );
-  }
   
   render() {
     const { loading } = this.state;
@@ -636,7 +347,19 @@ export default class App extends Component<Props> {
         flex: 1,
         backgroundColor: bgLight,
       }}>
-        {this.getMap()}
+        <MapSection 
+          mapRef={(ref: any) => {this.mapRef = ref}}
+          initialRegion={this.state.region}
+          resources={this.state.resources}
+          userRegion={this.state.userRegion}
+          onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
+          onResourceSelected={(r: Resource) => this.selectResource(r)}
+          onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
+          selectedResource={this.state.selectedResource}
+          hasSelectedResource={this.state.hasSelectedResource}
+          // mapState={this.state.mapState}
+          // mapHeight={this.state.mapHeight}
+        />
         <ScrollView style={{
             marginTop: 0,
             flex: 1
@@ -644,10 +367,9 @@ export default class App extends Component<Props> {
         >
           {this.getResourceView()}
           {this.getFavouritesList()}
-          {this.getSavedReadingsButton()}
         </ScrollView>
         <PendingChangesBanner/>
-        <NetworkStatusBanner config={this.props.config}/>
+        {/* <NetworkStatusBanner config={this.props.config}/> */}
       </View>
     );
   }
