@@ -5,6 +5,7 @@ import { width as w, height as h } from 'react-native-dimension';
 // @ts-ignore
 import * as supercluster from 'supercluster';
 import CustomMarker from './CustomMarker';
+import { calculateBBox } from '../../utils';
 
 export interface Props {
   clusterBorderColor: string,
@@ -145,14 +146,6 @@ class ClusteredMapView extends Component<Props> {
     });
   };
 
-  calculateBBox = (region: any) => {
-      return [   
-        region.longitude - region.longitudeDelta, // westLng - min lng
-        region.latitude - region.latitudeDelta, // southLat - min lat
-        region.longitude + region.longitudeDelta, // eastLng - max lng
-        region.latitude + region.latitudeDelta// northLat - max lat
-    ];
-  }
   getBoundsZoomLevel = (bounds: any[], mapDim: any) => {
     const WORLD_DIM = { height: mapDim.height, width: mapDim.width };
     const ZOOM_MAX = 20;
@@ -180,7 +173,7 @@ class ClusteredMapView extends Component<Props> {
     let clusteredMarkers = [];
 
     if (this.props.clustering && this.superCluster) {
-      const bBox = this.calculateBBox(this.state.currentRegion);
+      const bBox = calculateBBox(this.state.currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
       const clusters = await this.superCluster.getClusters(bBox, zoom);
 

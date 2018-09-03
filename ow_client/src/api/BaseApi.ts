@@ -1,4 +1,5 @@
 import { Resource, SearchResult } from "../typings/models/OurWater";
+import { Region } from "react-native-maps";
 
 
 /**
@@ -51,6 +52,13 @@ export default interface BaseApi {
     longitude: number,
     distance: number
   ): Promise<Array<Resource>>;
+
+
+  /**
+   * Get the resources within a region.
+   * May not necessarily return all resources if the region is too large
+   */
+  getResourcesWithinRegion(region: Region): Promise<Array<Resource>>;
 
   //
   // Search API

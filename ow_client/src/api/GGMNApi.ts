@@ -6,13 +6,14 @@ import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 
-import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError } from "../utils";
+import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, ExternalLoginDetails, LoginStatus } from "../typings/api/ExternalServiceApi";
+import { Region } from "react-native-maps";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -217,7 +218,33 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
     });
   }
+  
+  getResourcesWithinRegion(region: Region): Promise<Resource[]> {
+    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    const bBox = calculateBBox(region);
+    const url = appendUrlParameters(resourceUrl, {
+      page_size: 1000,
+      in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`
+    });
+    console.log("URL is", url);
 
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
+
+    return ftch(url, options)
+      .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
+      .then((response: GGMNLocationResponse) => {
+        console.log("response", response);
+        //TODO: finish getting the resources
+        return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
+      });
+  }
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in

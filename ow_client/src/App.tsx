@@ -120,22 +120,21 @@ export default class App extends Component<Props> {
     })
     .then(_location => {
       location = _location;
-      // this.updateGeoLocation(location);
-      this.setState({
-        initialRegion: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5, 
-        }
-      });
+      const initialRegion: Region = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5,
+      };
+
+      this.setState({initialRegion});
 
       //Either load all the resources, or just those close to user's pin
       if (this.props.config.getShouldMapLoadAllResources()) {
         return this.appApi.getResources();
       }
 
-      return this.appApi.getResourceNearLocation(location.coords.latitude, location.coords.longitude, 0.1);
+      return this.appApi.getResourcesWithinRegion(initialRegion);
     })
     .then(resources => {
       this.setState({
@@ -188,7 +187,7 @@ export default class App extends Component<Props> {
    */
   reloadResourcesIfNeeded(region: Region): Promise<any> {
     //TODO: be smarter about how we determine whether or not to reload resources.
-
+    console.log("regin")
 
     if (this.props.config.getShouldMapLoadAllResources()) {
       //Resources are all already loaded.
@@ -198,7 +197,7 @@ export default class App extends Component<Props> {
     this.setState({passiveLoading: true});
 
     //TODO: scale the distance with the latitude and longitude deltas
-    return this.appApi.getResourceNearLocation(region.latitude, region.longitude, 0.1)
+    return this.appApi.getResourcesWithinRegion(region)
       .then(resources => {
         this.setState({
           loading: false,
@@ -217,14 +216,10 @@ export default class App extends Component<Props> {
 
   selectResource(resource: Resource) {
     this.setState({
-      // mapHeight: MapHeightOption.small,
-      // mapState: MapStateOption.small,
       hasSelectedResource: true,
       selectedResource: resource,
     });
 
-    //Do in the background - we don't care when
-    //TODO: replace with otherApi
     this.appApi.addRecentResource(resource, this.state.userId);
   }
 
@@ -241,7 +236,6 @@ export default class App extends Component<Props> {
     }
   }
 
-  //TODO: not sure how to handle this with the nested map...
   clearSelectedResource() {
     this.setState({
       hasSelectedResource: false,
@@ -291,8 +285,6 @@ export default class App extends Component<Props> {
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
     }
-
-    console.log('getResourceView, selectedResource is', selectedResource);
 
     return (
       <View style={{

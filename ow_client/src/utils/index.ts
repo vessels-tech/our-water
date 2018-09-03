@@ -5,8 +5,20 @@ import { textDark, bgDark2, bgLight } from './Colors';
 import { Location } from '../typings/Location';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
+import { Region } from 'react-native-maps';
 
 
+/**
+ * Convert a region to a bounding box
+ */
+export function calculateBBox(region: Region){
+  return [
+    region.longitude - region.longitudeDelta, // westLng - min lng
+    region.latitude - region.latitudeDelta, // southLat - min lat
+    region.longitude + region.longitudeDelta, // eastLng - max lng
+    region.latitude + region.latitudeDelta// northLat - max lat
+  ];
+}
 
 /**
  * Parse the response from Fetch api, and handle errors etc.
