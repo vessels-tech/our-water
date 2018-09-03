@@ -1,6 +1,6 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View } from "react-native";
+import { View, ProgressBarAndroid } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
@@ -30,9 +30,9 @@ export interface Props {
   onGetUserLocation: any,
   onMapRegionChange: any,
   onResourceSelected: any,
-  region: MapRegion,
+  onResourceDeselected: any,
+  initialRegion: MapRegion,
   resources: Resource[],
-  userRegion: MapRegion,
   selectedResource?: Resource,
   hasSelectedResource: boolean,
   mapRef: any,
@@ -54,14 +54,36 @@ export default class MapSection extends Component<Props> {
     
   }
 
-  componentDidUpdate() {
-    //TODO: handle case where user selects the resource from another screen
-    if (this.props.hasSelectedResource === true) {
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.hasSelectedResource !== this.state.hasSelectedResource) {
+      let mapHeight = MapHeightOption.default
+      let mapState = MapStateOption.default;
+
+      if (nextProps.hasSelectedResource) {
+        mapHeight = MapHeightOption.small;
+        mapState = MapStateOption.small;
+      }
+
       this.setState({
-        hasSelectedResource: true,
+        hasSelectedResource: nextProps.hasSelectedResource,
+        mapHeight,
+        mapState,
       });
     }
+  }
 
+  // componentDidUpdate() {
+  //   //TODO: handle case where user selects the resource from another screen
+  //   if (this.props.hasSelectedResource !== this.state)
+  //   this.setState({
+  //     hasSelectedResource: this.props.hasSelectedResource
+  //   });
+  // }
+
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    console.log("shouldComponentUpdate. nextProps:", nextProps);
+
+    return true;
   }
 
   //
@@ -89,12 +111,12 @@ export default class MapSection extends Component<Props> {
     this.selectResource(resource);
   }
 
+  //TODO: fix infinite loop here
   selectResource(resource: Resource) {
     this.setState({
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
       hasSelectedResource: true,
-      selectedResource: resource,
     });
 
     this.props.onResourceSelected(resource);
@@ -130,6 +152,8 @@ export default class MapSection extends Component<Props> {
       hasSelectedResource: false,
       selectedResource: null,
     });
+
+    this.props.onResourceDeselected();
   }
 
   //
@@ -191,10 +215,9 @@ export default class MapSection extends Component<Props> {
 
   render() {
     const { mapHeight } = this.state;
-    const { region, userRegion, resources } = this.props;
+    const { initialRegion, resources } = this.props;
 
-    console.log("User region is:", userRegion);
-    console.log("Map region is: ", region);
+    console.log("MapSection rendering:", resources.length, "resources.");
 
     return (
       <View style={{
@@ -217,9 +240,8 @@ export default class MapSection extends Component<Props> {
           clusterTextColor={textLight}
           clusterBorderColor={textLight}
           onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
-          region={region}
+          initialRegion={initialRegion}
           onRegionChangeComplete={(region: Region) => this.props.onMapRegionChange(region)}
-          // onRegionChangeComplete={(region: any) => () => console.log("onRegionChangeComplete")}
         >
           {/* TODO: Hide and show different groups at different levels */}
           {/* Pincode */}
@@ -248,6 +270,7 @@ export default class MapSection extends Component<Props> {
         }}>
           {this.getMapButtons()}
           {this.getUpButton()}
+          
         </View>
       </View>    
     )

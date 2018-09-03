@@ -10,7 +10,7 @@ export interface Props {
   clusterBorderColor: string,
   clusterBorderWidth?: number,
   clusterColor: string,
-  region?: any,
+  initialRegion: any,
   clusterTextSize?: number,
   clusterTextColor: any,
   clustering: any,
@@ -64,7 +64,7 @@ class ClusteredMapView extends Component<Props> {
     });
 
     this.state = {
-      currentRegion: props.region,
+      currentRegion: props.initialRegion,
       clusterStyle: {
         borderRadius: w(15),
         backgroundColor: props.clusterColor,
@@ -93,19 +93,19 @@ class ClusteredMapView extends Component<Props> {
   }
 
   onRegionChangeComplete = (region: any) => {
-    //TODO: replace somehow
-
-    // const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
-    // if (region.longitudeDelta <= 80) {
-    //   if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
-    //     || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
-    //     || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
-    //     this.calculateClustersForMap(region);
-    //   }
-    // }
-
-    return this.props.onRegionChangeComplete(region);
-  };
+    console.log("ClusteredMapView start onRegionChangeComplete");
+    return this.props.onRegionChangeComplete(region)
+    .then(() => {
+      const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
+      if (region.longitudeDelta <= 80) {
+        if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
+          || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
+          || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
+          this.calculateClustersForMap(region);
+        }
+      }
+    });
+  }
 
   createMarkersOnMap = () => {
     const markers: any[] = [];

@@ -8,6 +8,7 @@ import {
   ScrollView,
   Text,
   View,
+  ProgressBarAndroid,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import firebase from 'react-native-firebase';
@@ -36,7 +37,7 @@ import {
 } from './enums';
 
 import Config from 'react-native-config';
-import { bgLight, bgMed, textDark, textLight, primaryDark } from './utils/Colors';
+import { bgLight, bgMed, textDark, textLight, primaryDark, bgLightHighlight, primaryLight } from './utils/Colors';
 import ClusteredMapView from './components/common/ClusteredMapView';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import { SearchBar, Icon } from 'react-native-elements';
@@ -56,8 +57,8 @@ export interface Props {
 
 export interface State {
   loading: boolean;
-  region: MapRegion,
-  userRegion: MapRegion,
+  passiveLoading: boolean; //Use for a load that doesn't need to stop user from interacting
+  initialRegion?: MapRegion,
   mapHeight: MapHeightOption,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
@@ -72,18 +73,7 @@ export default class App extends Component<Props> {
   mapRef?: MapView;
   state: State = {
     loading: true,
-    region: {
-      latitude: 23.345,
-      longitude: 23.44,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.25,
-    },
-    userRegion: {
-      latitude: 23.345,
-      longitude: 23.44,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.25,
-    },
+    passiveLoading: false,
     mapHeight: MapHeightOption.default,
     mapState: MapStateOption.default,
     hasSelectedResource: false,
@@ -108,8 +98,10 @@ export default class App extends Component<Props> {
   }
 
   componentWillMount() {
+    let location: Location;
+
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
-    this.setState({loading: true});
+    this.setState({loading: true, passiveLoading: true});
 
     this.appApi.silentSignin()
     .then(siginData => {
@@ -126,8 +118,17 @@ export default class App extends Component<Props> {
       this.setState({ isAuthenticated: false });
       return getLocation();
     })
-    .then(location => {
-      this.updateGeoLocation(location);
+    .then(_location => {
+      location = _location;
+      // this.updateGeoLocation(location);
+      this.setState({
+        initialRegion: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.5,
+          longitudeDelta: 0.5, 
+        }
+      });
 
       //Either load all the resources, or just those close to user's pin
       if (this.props.config.getShouldMapLoadAllResources()) {
@@ -139,6 +140,7 @@ export default class App extends Component<Props> {
     .then(resources => {
       this.setState({
         resources,
+        passiveLoading: false,
       });
     })
     .catch(err => {
@@ -177,46 +179,40 @@ export default class App extends Component<Props> {
    * Load new resources based on where they are looking
    */
   onMapRegionChange(region: Region) {
-    // return this.reloadResourcesIfNeeded(region)
+    return this.reloadResourcesIfNeeded(region)
   }
 
   /**
    * Only reload the resources if the api can support it
    * otherwise it's a lot of work!
    */
-  reloadResourcesIfNeeded(region: Region) {
+  reloadResourcesIfNeeded(region: Region): Promise<any> {
+    //TODO: be smarter about how we determine whether or not to reload resources.
+
+
     if (this.props.config.getShouldMapLoadAllResources()) {
       //Resources are all already loaded.
-      return;
+      return Promise.resolve(true);
     }
+
+    this.setState({passiveLoading: true});
 
     //TODO: scale the distance with the latitude and longitude deltas
     return this.appApi.getResourceNearLocation(region.latitude, region.longitude, 0.1)
       .then(resources => {
         this.setState({
           loading: false,
+          passiveLoading: false,
           resources,
         });
       })
       .catch(err => {
         console.log(err);
+        this.setState({
+          loading: false,
+          passiveLoading: false,
+        });
       });
-  }
-
-  /**
-   * When user clicks on a resource, make the map small, 
-   * scroll to the top of the view, and display the resource details
-   * 
-   * @param {*} param0 
-   */
-  focusResource(coordinate: BasicCoords) {
-    const resource = getSelectedResourceFromCoords(this.state.resources, coordinate);
-    if (isNullOrUndefined(resource)) {
-      console.warn("tried to call focusResource, but resource was null");
-      return;
-    }
-
-    this.selectResource(resource);
   }
 
   selectResource(resource: Resource) {
@@ -233,43 +229,43 @@ export default class App extends Component<Props> {
   }
 
   updateGeoLocation(location: Location) {
-    console.log("update GeoLocation");
-
-    let region = {...this.state.region};
-
-    
-    //Move the pin to the user's location, 
-    //and move the map back to where the user is
-    //TODO: chang the zoom level?
-    region.latitude = location.coords.latitude;
-    region.longitude = location.coords.longitude;
-
-    // console.log("updating geolocation", region, userRegion);
-
     if (this.mapRef) {
       console.log('animating underlying map!',location);
       this.mapRef.animateToCoordinate({
-        latitude: region.latitude,
-        longitude: region.longitude,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
       }, 1000);
       
     } else {
       console.log("tried to animate map, but map is null");
     }
-    
-    this.setState({
-      region,
-    });
   }
 
   //TODO: not sure how to handle this with the nested map...
   clearSelectedResource() {
     this.setState({
-      mapState: MapStateOption.default,
-      mapHeight:MapHeightOption.default,
       hasSelectedResource: false,
       selectedResource: null,
     });
+  }
+
+  getPassiveLoadingIndicator() {
+    const { passiveLoading } = this.state;
+
+    if (!passiveLoading) {
+      return null;
+    }
+
+    return (
+      <ProgressBarAndroid
+        styleAttr="Horizontal"
+        indeterminate={true}
+        color={primaryDark}
+        style={{
+          marginVertical: -6, //make it just touch the bottom
+        }}
+      />
+    );
   }
 
   getFavouritesList() {
@@ -283,10 +279,7 @@ export default class App extends Component<Props> {
     return (  
       <FavouriteResourceList
         userId={this.state.userId}
-        onResourceCellPressed={(resource: Resource) => {
-          //TODO: move the map to select this resource
-          this.selectResource(resource);
-        }}
+        onResourceCellPressed={(r: Resource) => this.selectResource(r)}
       />
     );
   }
@@ -299,7 +292,7 @@ export default class App extends Component<Props> {
       return null;
     }
 
-    console.log('selectedResource is', selectedResource);
+    console.log('getResourceView, selectedResource is', selectedResource);
 
     return (
       <View style={{
@@ -326,7 +319,7 @@ export default class App extends Component<Props> {
   }
   
   render() {
-    const { loading } = this.state;
+    const { loading, initialRegion } = this.state;
 
     if (loading) {
       return (
@@ -341,25 +334,28 @@ export default class App extends Component<Props> {
       );
     }
 
+    if (!initialRegion) {
+      return null;
+    }
+
     return (
       <View style={{
         marginTop: 0,
         flex: 1,
         backgroundColor: bgLight,
       }}>
+      {isNullOrUndefined(initialRegion) ? null :
         <MapSection 
           mapRef={(ref: any) => {this.mapRef = ref}}
-          initialRegion={this.state.region}
+          initialRegion={initialRegion}
           resources={this.state.resources}
-          userRegion={this.state.userRegion}
           onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
           onResourceSelected={(r: Resource) => this.selectResource(r)}
+          onResourceDeselected={() => this.clearSelectedResource()}
           onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
           selectedResource={this.state.selectedResource}
           hasSelectedResource={this.state.hasSelectedResource}
-          // mapState={this.state.mapState}
-          // mapHeight={this.state.mapHeight}
-        />
+        />}
         <ScrollView style={{
             marginTop: 0,
             flex: 1
@@ -368,6 +364,7 @@ export default class App extends Component<Props> {
           {this.getResourceView()}
           {this.getFavouritesList()}
         </ScrollView>
+        {this.getPassiveLoadingIndicator()}
         <PendingChangesBanner/>
         {/* <NetworkStatusBanner config={this.props.config}/> */}
       </View>
