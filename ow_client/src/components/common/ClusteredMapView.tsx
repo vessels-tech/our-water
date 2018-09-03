@@ -230,6 +230,4 @@ class ClusteredMapView extends Component<Props> {
   }
 }
 
-const totalSize = (num: number) => (Math.sqrt((h(100) * h(100)) + (w(100) * w(100))) * num) / 100;
-
 export default ClusteredMapView;

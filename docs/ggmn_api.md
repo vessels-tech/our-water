@@ -80,3 +80,12 @@ curl -X POST \
 Got back session id: 444d1asw5i68jhzohbkb37fs0mwem0bk
 
 So it looks like we get a sessionId cookie back, which we can use for all other requests later on. According to the docs, it has a 24 hour expiry, and doesn't have a refresh token, so we will need to hold onto the username and password
+
+## Private resources
+
+Based on the site, the only private resources I can see are in Iran.
+
+format: min Lat, min Lon, max Lat, max Lon
+BBox:
+38.264440,45.635009,25.924174,61.769277
+30.00,36.38591,50.00,56.51367 
