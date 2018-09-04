@@ -12,8 +12,9 @@ import { isMoment } from "moment";
 import { Resource, SearchResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
-import { LoginRequest, ExternalLoginDetails, LoginStatus } from "../typings/api/ExternalServiceApi";
+import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
+import { Credentials } from "crypto";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -137,22 +138,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    */
   async saveExternalServiceLoginDetails(username: string, password: string): Promise<any> {
     await Keychain.setGenericPassword(username, password);
+
     return true 
   }
 
   async getExternalServiceLoginDetails(): Promise<ExternalLoginDetails> {
     //Try performing a login first, just in case
-
-    const credentials = await Keychain.getGenericPassword();
-    if (credentials === false) {
-      throw new Error("Could not get saved credentials");
-    }
-
-    if (credentials === true) {
-      throw new Error("Error with Keychain API");
-    }
-
-    console.log("credentials", credentials);
+    const credentials = await this.getCredentials();
     try {
       await this.connectToService(credentials.username, credentials.password);
       return {
@@ -172,7 +164,36 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return Keychain.resetGenericPassword();
   }
 
-  
+  private async getCredentials(): Promise<{ service: string, username: string, password: string }> {
+    const credentials = await Keychain.getGenericPassword();
+    if (credentials === false) {
+      throw new Error("Could not get saved credentials");
+    }
+
+    if (credentials === true) {
+      throw new Error("Error with Keychain API");
+    }
+
+    return credentials;
+  }
+
+  /**
+   * If the Keychain has credentials, then return the 
+   * auth headers. Otherwise, return an empty dict
+   */
+  private getAuthHeaders(): Promise<OptionalAuthHeaders> {
+    return this.getCredentials()
+    .then(credentials => {
+      return {
+        username: credentials.username,
+        password: credentials.password,
+      };
+    })
+    .catch(err => {
+      // this is fine, just return an empty headers object
+      return {};
+    });
+  }
 
   /**
    * Add a resource to the recently viewed list
@@ -234,8 +255,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders()
       }
     };
+
+    console.log("options are", options);
 
     return ftch(url, options)
       .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))

@@ -13,3 +13,8 @@ export type LoginRequest = {
   password: string,
   [key: string]: string,
 }
+
+export type OptionalAuthHeaders = {
+  username?: string,
+  password?: string,
+};
