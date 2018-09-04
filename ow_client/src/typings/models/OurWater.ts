@@ -1,4 +1,5 @@
 import { ResourceType } from "../../enums";
+import { Moment } from "moment";
 
 export type Resource = {
   id: string,
@@ -34,4 +35,12 @@ export type SearchResult = {
   groups: any[],
   users: any[],
   offline: boolean, //Lets us know if the search was performed offline
+}
+
+export type Reading = {
+  resourceId: string,
+  date: Moment  
+  value: number,
+  imageUrl?: string, //optional imageUrl for the reading
+  location?: Location,
 }

@@ -1,5 +1,5 @@
 import { NetInfo } from 'react-native';
-import firebase from 'react-native-firebase';
+import firebase, { Firebase } from 'react-native-firebase';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 import Config from 'react-native-config';
@@ -14,7 +14,8 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource, SearchResult } from '../typings/models/OurWater';
+import { Resource, SearchResult, Reading } from '../typings/models/OurWater';
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -249,15 +250,63 @@ class FirebaseApi {
 
       this.saveReading(orgId, reading)
       //Don't resolve this - as if we are offline, it will take a long time
-      .then(result => console.log('saveReading result', result))
-      .catch(err => {
+      .then((result: any) => console.log('saveReading result', result))
+      .catch((err: Error) => {
         console.log('saveReading Err', err);
         reject(err);
       });
     });
   }
 
+  /**
+   * saveReadingPossiblyOffineToUser
+   * 
+   * Like saveReadingPossiblyOffline, but saves to a 'pendingReadings' object on the
+   * user model, instead of the actual reading. Use this for integration with external
+   * services where OurWater doesn't need to contain all of the data.
+   * 
+   * Promise resolves when the reading appears in local cache,
+   * and not actually commited to the server
+   */
+  static saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<any> {
+    return new Promise((resolve, reject) => {
 
+      this.pendingReadingsListenerForUser(orgId, userId)
+        .then(snapshot => {
+
+          //Resolve once the pending reading is saved
+          resolve(true);
+        });
+
+      this.saveReadingToUser(orgId, userId, reading)
+      //Don't resolve this - as if we are offline, it will take a long time
+      .then((result: any) => console.log('saveReadingToUser result', result))
+      .catch((err: Error) => {
+        console.log('saveReading Err', err);
+        reject(err);
+      });
+    });
+  }
+
+  /**
+   * Get the pending readings saved to the user's `pendingReadings` collection
+   */
+  static getPendingReadingsFromUser(orgId: string, userId: string): Promise<Reading[]> {
+    return this.userDoc(orgId, userId).collection('pendingReadings').get()
+      .then((sn: any) => {
+        const readings: Reading[] = [];
+        sn.forEach((doc: any) => {
+          //Get each document, put in the id
+          const data = doc.data();
+          //@ts-ignore
+          data.id = doc.id;
+          readings.push(data);
+        });
+
+        return readings;
+      });
+  }
+  
   /**
    * saveReading
    * submits a new reading for a given resource
@@ -276,46 +325,50 @@ class FirebaseApi {
    * }
    * 
    */
+  static saveReading(orgId: string, reading: Reading) {
+    return this.readingCol(orgId).add(reading);
+  }
 
-  static saveReading(orgId: string, reading: any) {
-    return validateReading(reading)
-    .then(validReading => {
+  static saveReadingToUser(orgId: string, userId: string, reading: Reading) {
+    return this.userDoc(orgId, userId).collection('pendingReadings').add(reading);
+  }
 
-      //Don't return this promise. Indicate success or failure based on watching
-      //the snapshot 
-      fs.collection('org').doc(orgId)
-        .collection('reading').add(validReading);
-    })
-    .catch(err => { 
-      console.log('error is', err);
-      return Promise.reject(err);
+  static listenForPendingWrites(collection: any) {
+    return new Promise((resolve, reject) => {
+      collection.onSnapshot(
+        //optionsOrObserverOrOnNext
+        (sn: any) => {
+          if (sn.docChanges.length > 0) {
+            return resolve(sn);
+          }
+          reject(new Error('recieved snapshot with no changes'))
+        },
+        //TODO: this needs to be fixed
+        // (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
+        //onError
+        (error: Error) => {
+          console.log("error", error);
+          return reject(error);
+        },
+        // (sn) => console.log('onCompletion', sn), //onCompletion
+      );
     });
   }
 
   //TODO: fix with version 4.1 of react native firebase
   static pendingReadingsListener(orgId: string) {
-    return new Promise((resolve, reject) => {
-      fs.collection('org').doc(orgId).collection('reading')
-        .onSnapshot(
-          //optionsOrObserverOrOnNext
-          (sn) => {
-            if (sn.docChanges.length > 0) {
-              return resolve(sn);
-            }
-            reject(new Error('recieved snapshot with no changes'))
-          },
-          //TODO: this needs to be fixed
-          // (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
-          //onError
-          (error) => {
-            console.log("error", error);
-            return reject(error);
-          },
-          // (sn) => console.log('onCompletion', sn), //onCompletion
-      );
-    });
+    return this.listenForPendingWrites(this.readingCol(orgId));
   }
 
+  /**
+   * The listener for pending readings that are cached to the user instead of in the normal place
+   * see `saveReadingPossiblyOffineToUser`
+   */
+  static pendingReadingsListenerForUser(orgId: string, userId: string) {
+    return this.listenForPendingWrites(
+      this.userDoc(orgId, userId).collection('pendingReadings')
+    );
+  }
 
   static listenForPendingReadings(orgId: string, callback: any) {
     fs.collection('org').doc(orgId).collection('reading')
@@ -337,10 +390,7 @@ class FirebaseApi {
   }
 
   static listenForUpdatedUser(orgId: string, userId: string, cb: any) {
-    const ref = fs.collection('org').doc(orgId)
-        .collection('user').doc(userId);
-
-    return ref.onSnapshot(cb);
+    return this.userDoc(orgId, userId).onSnapshot(cb);
   }
 
   /**
@@ -400,6 +450,16 @@ class FirebaseApi {
     }
 
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentSearches})
+  }
+
+
+
+  private static userDoc(orgId: string, userId: string): any {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId)
+  } 
+
+  private static readingCol(orgId: string): any {
+    return fs.collection('org').doc(orgId).collection('reading');
   }
 
 }

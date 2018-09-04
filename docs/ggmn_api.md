@@ -89,3 +89,11 @@ format: min Lat, min Lon, max Lat, max Lon
 BBox:
 38.264440,45.635009,25.924174,61.769277
 30.00,36.38591,50.00,56.51367 
+
+
+## CSV Import docs (for reference)
+
+https://ggmn.lizard.net/doc/import_screen.html?highlight=csv
+
+The referenced units might also be helpful down the line: 
+https://ddsc.lizard.net/api/v2/parameterreferencedunits/

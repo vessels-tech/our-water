@@ -1,4 +1,4 @@
-import { Resource, SearchResult } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 
 
@@ -35,7 +35,7 @@ export default interface BaseApi {
   /**
    * Add a resource to the favourites list
    */
-  addFavouriteResource(resource: Resource, userId: string): Promise<any>
+  addFavouriteResource(resource: Resource, userId: string): Promise<any>;
 
   /**
    * Get a bunch of resources
@@ -52,6 +52,11 @@ export default interface BaseApi {
     longitude: number,
     distance: number
   ): Promise<Array<Resource>>;
+
+  /**
+   * Save a reading
+   */
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<any>;
 
 
   /**

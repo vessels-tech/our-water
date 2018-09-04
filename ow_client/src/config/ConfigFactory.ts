@@ -20,6 +20,8 @@ export type RemoteConfig = {
   connectToText: string,
   map_shouldLoadAllResources: boolean,
   settings_registerResourceText: string,
+  newReading_enableImageUpload: boolean,
+
 }
 
 /**
@@ -122,6 +124,10 @@ export class ConfigFactory {
     }
 
     return success;
+  }
+
+  getNewReadingShouldShowImageUpload(): boolean {
+    return this.remoteConfig.newReading_enableImageUpload;
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import moment from 'moment';
+import * as moment from 'moment';
 import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight } from './Colors';
 import { Location } from '../typings/Location';
@@ -155,7 +155,7 @@ export const showModal = (props: any, screen: any, title: any, passProps: any) =
   });
 }
 
-const getMinAndMaxReadingDates = (momentFormat: string) => {
+const getMinAndMaxReadingDates = (momentFormat: string): {minDate: string, maxDate: string} => {
   const today = moment();
   const twoWeeksAgo = moment().subtract(14, 'days');
 

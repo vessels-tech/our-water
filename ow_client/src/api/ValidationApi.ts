@@ -1,7 +1,8 @@
 
-import Joi from 'react-native-joi';
+import * as Joi from 'react-native-joi';
+import { Reading } from '../typings/models/OurWater';
 
-const validateReading = (reading: any) => {
+export function validateReading(reading: any): Promise<Reading> {
   const schema:Joi.SchemaLike = Joi.object().keys({
     datetime: Joi.string().isoDate().required(),
     value: Joi.number().required(),
@@ -15,6 +16,7 @@ const validateReading = (reading: any) => {
     imageUrl: Joi.string().uri(),
   });
 
+  //TODO: not sure why this is like this...
   return new Promise((resolve, reject) => {
     const result = Joi.validate(reading, schema);
     
@@ -25,8 +27,4 @@ const validateReading = (reading: any) => {
 
     resolve(result.value);
   });
-}
-
-export {
-  validateReading,
 }

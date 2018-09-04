@@ -9,13 +9,15 @@ import {
   Button 
 } from 'react-native-elements';
 import Config from 'react-native-config';
-import moment, { Moment } from 'moment';
-
+import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert, getLocation } from '../utils';
 import { bgLight, primary, primaryDark, textMed} from '../utils/Colors';
+import { ConfigFactory } from '../config/ConfigFactory';
+import BaseApi from '../api/BaseApi';
+import { Reading } from '../typings/models/OurWater';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -23,24 +25,28 @@ const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   resource: any,
-  navigator: any
+  navigator: any,
+  config: ConfigFactory,
+  userId: string,
 }
 
 export interface State {
   measurementString: string,
   enableSubmitButton: boolean,
-  date: Moment,
+  date: moment.Moment,
   isLoading: boolean,
   coords: any
 }
 
 class NewReadingScreen extends Component<Props> {
-  state: State
+  state: State;
+  appApi: BaseApi;
 
   constructor(props: Props) {
     super(props);
 
     // const listener = FirebaseApi.pendingReadingsListener(orgId);
+    this.appApi = this.props.config.getAppApi();
 
     this.state = {
       enableSubmitButton: false,
@@ -75,7 +81,8 @@ class NewReadingScreen extends Component<Props> {
 
     this.setState({isLoading: true});
 
-    const reading = {
+
+    const readingRaw = {
       datetime: moment(date).format(), //converts to iso string
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
@@ -83,8 +90,12 @@ class NewReadingScreen extends Component<Props> {
       imageUrl: "http://placekitten.com/g/200/300",
       coords
     };
+    
 
-    return FirebaseApi.saveReadingPossiblyOffline(orgId, reading)
+    //TODO: validate here and now!
+
+
+    return this.appApi.saveReading(orgId,this.props.userId, reading)
     .then(() => {
       //TODO: display toast or something
       this.setState({
@@ -142,6 +153,10 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getImageSection() {
+    if (!this.props.config.getNewReadingShouldShowImageUpload()) {
+      return null;
+    }
+
     return (
       <View style={{
         height: 150,
@@ -189,7 +204,7 @@ class NewReadingScreen extends Component<Props> {
           iconColor={textMed}
           placeholder='Reading Date'
           errorMessage={this.isDateValid() ? null : 'Invalid Date'}
-          onChangeText={(date: Moment) => this.setState({date})}
+          onChangeText={(date: moment.Moment) => this.setState({date})}
           onSubmitEditing={() => console.log('on submit editing')}
           fieldType={InputType.dateTimeInput}
           value={date}

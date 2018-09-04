@@ -296,6 +296,8 @@ export default class App extends Component<Props> {
           onMorePressed={(resource: Resource) => {
             navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
               legacyId: resource.legacyId,
+              config: this.props.config,
+              userId: this.state.userId,
             });
           }}
           onAddToFavourites={() => console.log('onAddToFavourites')}
@@ -303,6 +305,8 @@ export default class App extends Component<Props> {
           onAddReadingPressed={(resource: Resource) => {
             navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
               resource, 
+              config: this.props.config,
+              userId: this.state.userId
             });
           }} 
         />

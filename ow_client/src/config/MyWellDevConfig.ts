@@ -12,6 +12,7 @@ const MyWellDevConfig: RemoteConfig = {
   mywellBaseUrl: 'https://mywell-server.vessels.tech',
   //This should be false, just for fixing map layout problems
   map_shouldLoadAllResources: true,
+  newReading_enableImageUpload: true
 }
 
 export default MyWellDevConfig;

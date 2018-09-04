@@ -9,7 +9,7 @@ import { default as ftch } from 'react-native-fetch-polyfill';
 import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse } from "../typings/models/GGMN";
 import { isMoment } from "moment";
-import { Resource, SearchResult } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
@@ -240,7 +240,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     });
   }
   
-  getResourcesWithinRegion(region: Region): Promise<Resource[]> {
+  async getResourcesWithinRegion(region: Region): Promise<Resource[]> {
     const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const bBox = calculateBBox(region);
     const url = appendUrlParameters(resourceUrl, {
@@ -249,17 +249,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     });
     console.log("URL is", url);
 
+    const authHeaders = await this.getAuthHeaders();
     const options = {
       timeout,
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...this.getAuthHeaders()
+        ...authHeaders
       }
     };
-
-    console.log("options are", options);
 
     return ftch(url, options)
       .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
@@ -296,6 +295,28 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
         return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
       });
   }
+
+  /**
+   * Save the reading 
+   * We do this in 2 parts:
+   *  1. First, we save to our user's object in firebase
+   *  2. Then we persist the reading actually to GGMN
+   * 
+   * That way, we can get the benefits of local caching and offline mode, 
+   * as well as the actual syncing with GGMN. 
+   * 
+   * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
+   * put it on a timer/user click banner
+   */
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<any> {
+
+    return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
+    .then(() => {
+      console.log("TODO: #2 actually save the reading to GGMN Fool");
+    });
+
+  }
+
 
   //
   // Search API
