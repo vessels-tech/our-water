@@ -81,7 +81,6 @@ export default class MapSection extends Component<Props> {
   // }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    console.log("shouldComponentUpdate. nextProps:", nextProps);
 
     return true;
   }
@@ -92,7 +91,7 @@ export default class MapSection extends Component<Props> {
 
 
   onClusterPressed(event: any) {
-    console.log("onClusterPressed", event);
+    // console.log("onClusterPressed", event);
   }
 
   /**
@@ -140,7 +139,7 @@ export default class MapSection extends Component<Props> {
   }
 
   onRegionChange(region: any) {
-    console.log('region changed', region);
+    // console.log('region changed', region);
   }
 
 
@@ -217,7 +216,7 @@ export default class MapSection extends Component<Props> {
     const { mapHeight } = this.state;
     const { initialRegion, resources } = this.props;
 
-    console.log("MapSection rendering:", resources.length, "resources.");
+    // console.log("MapSection rendering:", resources.length, "resources.");
 
     return (
       <View style={{

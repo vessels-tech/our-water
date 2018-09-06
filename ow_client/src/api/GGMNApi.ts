@@ -249,8 +249,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return ftch(url, options)
     .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
     .then((response: GGMNGroundwaterStationResponse) => {
-      console.log("response", response);
-      //TODO: finish getting the resources
       return response.results.map(from => GGMNApi.ggmnStationToResource(from));
     });
   }
@@ -280,8 +278,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return ftch(url, options)
       .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
-        console.log("response", response);
-        //TODO: finish getting the resources
         return response.results.map(from => GGMNApi.ggmnStationToResource(from));
       });
   }
@@ -295,7 +291,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       dist: realDistance,
       point: `${longitude},${latitude}`
     });
-    console.log("URL is", url);
 
     const options = {
       timeout,
@@ -309,7 +304,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return ftch(url, options)
       .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
-        console.log("response", response);
         //TODO: finish getting the resources
         return response.results.map(from => GGMNApi.ggmnStationToResource(from));
       });

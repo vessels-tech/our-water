@@ -94,7 +94,6 @@ class ClusteredMapView extends Component<Props> {
   }
 
   onRegionChangeComplete = (region: any) => {
-    console.log("ClusteredMapView start onRegionChangeComplete");
     return this.props.onRegionChangeComplete(region)
     .then(() => {
       const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;

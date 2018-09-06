@@ -105,7 +105,6 @@ export default class App extends Component<Props> {
 
     this.appApi.silentSignin()
     .then(siginData => {
-      console.log("signed in");
       this.setState({
         isAuthenticated: true,
         userId: siginData.user.uid,
@@ -114,7 +113,6 @@ export default class App extends Component<Props> {
       return getLocation();
     })
     .catch(err => {
-      console.log('error signing in', err);
       this.setState({ isAuthenticated: false });
       return getLocation();
     })
@@ -165,7 +163,6 @@ export default class App extends Component<Props> {
 
   onNavigatorEvent(event: any) {
     if (event.id === 'search') {
-      console.log("Search pressed");
       navigateTo(this.props, 'screen.SearchScreen', 'Search', {
         config: this.props.config, 
         userId: this.state.userId
@@ -187,7 +184,6 @@ export default class App extends Component<Props> {
    */
   reloadResourcesIfNeeded(region: Region): Promise<any> {
     //TODO: be smarter about how we determine whether or not to reload resources.
-    console.log("regin")
 
     if (this.props.config.getShouldMapLoadAllResources()) {
       //Resources are all already loaded.
@@ -225,7 +221,6 @@ export default class App extends Component<Props> {
 
   updateGeoLocation(location: Location) {
     if (this.mapRef) {
-      console.log('animating underlying map!',location);
       this.mapRef.animateToCoordinate({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,

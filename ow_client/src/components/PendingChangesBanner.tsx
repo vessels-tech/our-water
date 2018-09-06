@@ -60,7 +60,6 @@ export default class PendingChangesBanner extends Component<Props> {
   }
 
   pendingReadingsCallback(sn: Snapshot) {
-    console.log('pendingReadingsCallback called');
     
     this.setState({
       hasPendingWrites: sn.metadata.hasPendingWrites,

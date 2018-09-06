@@ -15,7 +15,6 @@ let config: ConfigFactory;
 Promise.resolve(true)
 .then(() => {
   if (Config.SHOULD_USE_LOCAL_CONFIG === 'true') {
-    console.log("using local config instead of FB remote config");
     switch (Config.CONFIG_TYPE) {
       case 'GGMNDevConfig':
         return GGMNDevConfig;
@@ -34,7 +33,6 @@ Promise.resolve(true)
   registerScreens();
 })
 .then(() => {
-  console.log("config is:", config);
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen

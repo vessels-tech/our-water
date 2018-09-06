@@ -120,7 +120,7 @@ class NewReadingScreen extends Component<Props> {
       displayAlert(
         'Success', message,
         [
-          { text: 'One More', onPress: () => console.log('continue pressed') },
+          { text: 'One More', onPress: () => {} },
           { text: 'Done', onPress: () => this.props.navigator.pop() },
         ]
       );
@@ -135,7 +135,7 @@ class NewReadingScreen extends Component<Props> {
       displayAlert(
         'Error',
          `Couldn't save your reading. Please try again.`,
-         [{ text: 'OK', onPress: () => console.log('continue pressed') },]
+         [{ text: 'OK', onPress: () => {} }]
       );
     });
   }
@@ -255,12 +255,9 @@ class NewReadingScreen extends Component<Props> {
             selectedValue={this.state.timeseriesString}
             style={{ width: '100%', backgroundColor: 'red' }}
             mode={'dropdown'}
-            onValueChange={(itemValue) => {
-              console.log('Picker on value change:', itemValue);
-              this.setState({ timeseriesString: itemValue })
-              }
+            onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
             }>
-            {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.uuid}/>)}
+            {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.id}/>)}
           </Picker>
         </View>
       </View>

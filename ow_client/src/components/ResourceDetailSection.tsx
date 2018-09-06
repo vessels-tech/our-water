@@ -62,8 +62,6 @@ class ResourceDetailSection extends Component<Props> {
     const { resource, userId } = this.props; 
     const { id } = resource;
 
-    console.log("displaying resource:", resource);
-
     //TODO: load the readings for this resource
     //todo: find out if in favourites
 
@@ -84,7 +82,7 @@ class ResourceDetailSection extends Component<Props> {
     //Get all readings for each timeseries
     //TODO: refactor to the AppApi, this is a little heavy.
     if (!resource.timeseries) {
-      console.log("no resource.timeseries!");
+      console.log("ERROR: no resource.timeseries!");
     }
 
     const readingsMap = new Map<string, Reading[]>();
@@ -92,7 +90,6 @@ class ResourceDetailSection extends Component<Props> {
       this.appApi.getReadingsForTimeseries(id, t.id, twoYearsAgo, today)
     ))
     .then((readingArrays: Reading[][]) => {
-      console.log("got readings for resource:", readingArrays);
       readingArrays.forEach((readings: Reading[], idx: number)  => {
         const timeseriesId = resource.timeseries[idx].id;
         readingsMap.set(timeseriesId, readings);
@@ -101,10 +98,7 @@ class ResourceDetailSection extends Component<Props> {
       return this.appApi.getPendingReadingsForResourceId(this.props.userId, id);
     })
     .then((pendingReadings: Reading[]) => {
-      //TODO: merge together pending readings with readings
-      console.log("got pending Readings", pendingReadings);
-
-      //Put the new readings into their right places
+      //Merge together pending readings with GGMN readings
       pendingReadings.forEach((r: Reading) => {
         const readingList: Reading[] | undefined  = readingsMap.get(r.timeseriesId);
         if (!readingList) {
@@ -179,8 +173,6 @@ class ResourceDetailSection extends Component<Props> {
       return null;
     }
 
-    console.log("getting stat card for timeseries:", ts);
-
     let value = 0;
     if (ts[0]) {
       //For now, assume the last object is the newest
@@ -199,8 +191,6 @@ class ResourceDetailSection extends Component<Props> {
     const { readingsMap } = this.state;
 
     const keys = [... readingsMap.keys() ];
-    console.log("keys", keys);
-
     return keys.map(key => this.statCardForTimeseries(key, readingsMap.get(key)));
   }
 

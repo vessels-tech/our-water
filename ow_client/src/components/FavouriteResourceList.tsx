@@ -69,7 +69,7 @@ export default class FavouriteResourceList extends Component<Props> {
 
   //TODO: for some reason, this isn't updating
   onUserUpdated(sn: any) {
-    console.log("onUserUpdated snapshot", sn);
+    // console.log("onUserUpdated snapshot", sn);
 
   }
 
