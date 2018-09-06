@@ -42,9 +42,10 @@ export type GGMNTimeseries = {
   scale: string,
   value_type: string,
   location: string,
-  last_value?: number,
-  events?: Array<GGMNTimeseriesEvent>,
+  last_value: number,
+  events: Array<GGMNTimeseriesEvent>,
 }
+
 
 export type GGMNTimeseriesEvent = {
   timestamp: number, //unix timestamp

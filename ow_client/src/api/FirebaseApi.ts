@@ -306,6 +306,29 @@ class FirebaseApi {
         return readings;
       });
   }
+
+  /**
+   * Get the pending readings from firestore from the user's `pendingReadings`
+   * for a given resourceId
+   */
+  static getPendingReadingsForUserAndResourceId(orgId: string, userId: string, resourceId: string): Promise<Reading[]> {
+    return this.userDoc(orgId, userId).collection('pendingReadings')
+      .where('resourceId', '==', resourceId)
+      .limit(100)
+      .get()
+      .then((sn: any) => {
+        const readings: Reading[] = [];
+        sn.forEach((doc: any) => {
+          //Get each document, put in the id
+          const data = doc.data();
+          //@ts-ignore
+          data.id = doc.id;
+          readings.push(data);
+        });
+
+        return readings;
+      });
+  }
   
   /**
    * saveReading

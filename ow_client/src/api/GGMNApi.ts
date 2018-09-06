@@ -6,9 +6,9 @@ import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 
-import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
+import { appendUrlParameters, getDemoResources, rejectRequestWithError, calculateBBox, naiveParseFetchResponse } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries } from "../typings/models/GGMN";
-import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
@@ -90,7 +90,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => parseFetchResponse<GGMNOrganisationResponse>(response))
+      .then((response: any) => naiveParseFetchResponse<GGMNOrganisationResponse>(response))
       .then((r: GGMNOrganisationResponse) => {
         console.log(r);
 
@@ -247,7 +247,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-    .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+    .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
     .then((response: GGMNGroundwaterStationResponse) => {
       console.log("response", response);
       //TODO: finish getting the resources
@@ -261,7 +261,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const bBox = calculateBBox(region);
     const url = appendUrlParameters(resourceUrl, {
-      page_size: 1000,
+      page_size: 100,
       in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`
     });
     console.log("URL is", url);
@@ -278,7 +278,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
         console.log("response", response);
         //TODO: finish getting the resources
@@ -307,7 +307,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
         console.log("response", response);
         //TODO: finish getting the resources
@@ -327,7 +327,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(resourceUrl, options)
-      .then((response: any) => parseFetchResponse<GGMNGroundwaterStation>(response))
+      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStation>(response))
       .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
   }
 
@@ -349,6 +349,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
   async getReadingsForTimeseries(resourceId: string, timeseriesId: string, startDate: number, endDate: number): Promise<Reading[]> {
+    console.log("UUID:", timeseriesId);
     const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;
     const url = appendUrlParameters(readingUrl, {
       uuid: timeseriesId,
@@ -368,9 +369,40 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       },
     };
 
+    console.log("getReadingsForTimeseries url:", url);
+
     return ftch(url, options)
-    .then((response: any) => parseFetchResponse<GGMNTimeseriesResponse>(response))
-    .then((response: GGMNTimeseriesResponse) => {
+    .then((response: any): Promise<GGMNTimeseriesResponse> | Promise<never> => {
+      if (!response.ok) {
+        return rejectRequestWithError(response.status);
+      }
+
+      return response.json();
+    })
+    .then((parsed: GGMNTimeseriesResponse) => {
+      return {
+        count: parsed.count,
+        next: parsed.next,
+        previous: parsed.previous,
+        results: parsed.results.map((result: any): OWTimeseries => (
+          {
+            id: result.uuid,
+            name: result.name,
+            parameter: result.parameter,
+            unit: result.unit,
+            referenceFrame: result.reference_frame,
+            scale: result.scale,
+            valueType: result.value_type,
+            location: result.location,
+            //TODO: should this really default to 0?
+            lastValue: result.last_value || 0,
+            //If events, parse them out, otherwise default to an empty array!
+            events: result.events ? result.events.map((e: any) => ({timestamp: e.timestamp, value: e.value})) : [],
+         }
+        ))
+      };
+    })
+    .then((response: OWTimeseriesResponse) => {
       //Convert GGMNTimeseriesResponse to something we can use
 
       if (response.results.length === 0) {
@@ -385,13 +417,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
         return Promise.reject(new Error(`Error with getReadingsForTimeseries, events is undefined.`));
       }
 
-      const timeseries: GGMNTimeseries = response.results[0];
-      return response.results[0].events!.map((e: GGMNTimeseriesEvent) => {
+      const timeseries: OWTimeseries = response.results[0];
+      return timeseries.events.map((e: OWTimeseriesEvent): Reading => {
         return {
           resourceId,
           date: moment(e.timestamp),
           value: e.value,
-          timeseriesId: timeseries.uuid,
+          timeseriesId: timeseries.id,
         };
       });
     });
@@ -434,8 +466,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   /**
    * Get the pending readings listener from the firebase api
    */
-  listenForPendingReadings(userId: string, callback: any): void {
-    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  listenForPendingReadings(userId: string, callback: any): any {
+    return FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  }
+
+  getPendingReadings(userId: string): Promise<Reading[]> {
+    return FirebaseApi.getPendingReadingsFromUser(this.orgId, userId);
+  }
+
+  getPendingReadingsForResourceId(userId: string, resourceId: string): Promise<Reading[]> {
+    return FirebaseApi.getPendingReadingsForUserAndResourceId(this.orgId, userId, resourceId);
   }
 
 
@@ -489,11 +529,25 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       owner: {
         name: from.name,
       },
-      //TODO: this may cause trouble later on.
-      timeseries: from.filters[0].timeseries,
+      timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
     };
 
     return to;
+  }
+
+  static ggmnTimeseriesToTimeseries(from: GGMNTimeseries): OWTimeseries {
+    return {
+      id: from.uuid,
+      name: from.name,
+      parameter: from.parameter,
+      unit: from.unit,
+      referenceFrame: from.reference_frame,
+      scale: from.scale,
+      valueType: from.value_type,
+      location: from.location,
+      lastValue: from.last_value,
+      events: !from.events ? [] : from.events.map((e: GGMNTimeseriesEvent) => ({timestamp: e.timestamp, value: e.value}))
+    };
   }
 }
 

@@ -21,9 +21,11 @@ export function calculateBBox(region: Region){
 }
 
 /**
- * Parse the response from Fetch api, and handle errors etc.
+ * Naively Parse the response from Fetch api, and handle errors etc.
+ * Use this for small requests with well formed responses. Otherwise you 
+ * may have to do it manually.
  */
-export function parseFetchResponse<T>(response: any): Promise<T> {
+export function naiveParseFetchResponse<T>(response: any): Promise<T> {
   if (!response.ok) {
     return rejectRequestWithError(response.status);
   }

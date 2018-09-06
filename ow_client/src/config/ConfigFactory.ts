@@ -69,7 +69,8 @@ export class ConfigFactory {
    * 
    * 
    */
-  getAppApi(auth?: any) {
+  //TODO: remove the return annotation eventually.
+  getAppApi(auth?: any): GGMNApi {
     //TODO: should 
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
       const options: GGMNApiOptions = {

@@ -291,6 +291,7 @@ export default class App extends Component<Props> {
         backgroundColor: bgLight,
       }}>
         <ResourceDetailSection
+          config={this.props.config}
           userId={userId}
           resource={selectedResource}
           onMorePressed={(resource: Resource) => {

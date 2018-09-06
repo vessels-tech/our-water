@@ -52,7 +52,7 @@ class NewReadingScreen extends Component<Props> {
 
     let timeseriesString = '';
     if (this.props.resource.timeseries[0]) {
-      timeseriesString = this.props.resource.timeseries[0].uuid;
+      timeseriesString = this.props.resource.timeseries[0].id;
     }
 
     this.state = {
@@ -260,7 +260,7 @@ class NewReadingScreen extends Component<Props> {
               this.setState({ timeseriesString: itemValue })
               }
             }>
-            {resource.timeseries.map(ts => <Picker.Item key={ts.uuid} label={ts.name} value={ts.uuid}/>)}
+            {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.uuid}/>)}
           </Picker>
         </View>
       </View>

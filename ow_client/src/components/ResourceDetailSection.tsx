@@ -19,7 +19,7 @@ import {
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
 import { primary, textDark, bgMed } from '../utils/Colors';
-import { Resource, Reading } from '../typings/models/OurWater';
+import { Resource, Reading, OWTimeseries } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
@@ -74,7 +74,7 @@ class ResourceDetailSection extends Component<Props> {
     //Listen to updates from Firebase
     //TODO: re enable for MyWellApi
     // this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
-    
+
     //TODO: we need to reload this when changing resources.
   
     //TODO: make configurable
@@ -83,23 +83,51 @@ class ResourceDetailSection extends Component<Props> {
 
     //Get all readings for each timeseries
     //TODO: refactor to the AppApi, this is a little heavy.
-    return Promise.all(resource.timeseries.map((t: GGMNTimeseries ) => 
-      this.appApi.getReadingsForTimeseries(id, t.uuid, twoYearsAgo, today)))
+    if (!resource.timeseries) {
+      console.log("no resource.timeseries!");
+    }
+
+    const readingsMap = new Map<string, Reading[]>();
+    return Promise.all(resource.timeseries.map((t: OWTimeseries ) => 
+      this.appApi.getReadingsForTimeseries(id, t.id, twoYearsAgo, today)
+    ))
     .then((readingArrays: Reading[][]) => {
-      const readingsMap = new Map<string, Reading[]>();
+      console.log("got readings for resource:", readingArrays);
       readingArrays.forEach((readings: Reading[], idx: number)  => {
-        const timeseriesId = resource.timeseries[idx].uuid;
+        const timeseriesId = resource.timeseries[idx].id;
         readingsMap.set(timeseriesId, readings);
       });
 
+      return this.appApi.getPendingReadingsForResourceId(this.props.userId, id);
+    })
+    .then((pendingReadings: Reading[]) => {
+      //TODO: merge together pending readings with readings
+      console.log("got pending Readings", pendingReadings);
 
+      //Put the new readings into their right places
+      pendingReadings.forEach((r: Reading) => {
+        const readingList: Reading[] | undefined  = readingsMap.get(r.timeseriesId);
+        if (!readingList) {
+          return;
+        }
 
+        readingList.push(r);
+        readingsMap.set(r.timeseriesId, readingList);
+      });
+    
       return this.appApi.isResourceInFavourites(id, userId);
     })
     .then((isFavourite: boolean) => {
       this.setState({
         isFavourite, 
+        readingsMap,
         loading:false
+      });
+    })
+    .catch((err: Error) => {
+      console.log("error", err);
+      this.setState({
+        loading: false,
       });
     });
   }
@@ -117,6 +145,63 @@ class ResourceDetailSection extends Component<Props> {
   componentWillUnmount() {
     //TODO: re enable for MyWellApi
     // this.unsubscribe();
+  }
+
+  // getLatestReadingsPerTimeseries() {
+  //   const { readingsMap } = this.state;
+
+  //   const keys = [... readingsMap.keys() ];
+  //   return (
+  //     <View>
+  //     { 
+  //       keys.map(k => {
+  //       let value = 0;
+  //       const readings = readingsMap.get(k);
+  //       if (readings) {
+  //         //For now, assume the last object is the newest
+  //         return readings[0].value;
+  //       }
+
+  //       return (
+  //         <StatCard
+  //           title={`Latest Reading: ${k}`}
+  //           value={`${value}`}
+  //         />
+  //       )
+  //     })
+  //   }
+  //   </View>
+  // )
+  // }
+
+  statCardForTimeseries(key: string, ts: Reading[]|undefined) {
+    if (!ts) {
+      return null;
+    }
+
+    console.log("getting stat card for timeseries:", ts);
+
+    let value = 0;
+    if (ts[0]) {
+      //For now, assume the last object is the newest
+      value = ts[0].value;
+    }
+    return (
+      <StatCard
+        key={key}
+        title={`${key}`}
+        value={`${value}`}
+      />
+    );
+  }
+
+  getLatestReadingsPerTimeseries() {
+    const { readingsMap } = this.state;
+
+    const keys = [... readingsMap.keys() ];
+    console.log("keys", keys);
+
+    return keys.map(key => this.statCardForTimeseries(key, readingsMap.get(key)));
   }
 
   getReadingsView() {
@@ -160,14 +245,7 @@ class ResourceDetailSection extends Component<Props> {
                 alignItems: 'center',
               }}
               title="At a Glance">
-              <StatCard
-                title="Latest Reading"
-                value={lastValue}
-              />
-              <StatCard
-                title="Village Average"
-                value={'23.5 m'}
-              /> 
+              {this.getLatestReadingsPerTimeseries()}
             </Card>
           </View>
 

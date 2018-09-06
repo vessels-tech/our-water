@@ -8,7 +8,7 @@ import { primaryDark } from '../../utils/Colors';
 export interface Props {
   highlightColor?: string,
   description?: string,
-  value: any,
+  value: string,
   title: string,
 }
 

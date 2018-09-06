@@ -80,8 +80,17 @@ export default interface BaseApi {
   /**
    * set up a listener for changes to any pending readings
    */
-  listenForPendingReadings(userId: string, callback: any): void;
+  listenForPendingReadings(userId: string, callback: any): any;
 
+  /**
+   * get the pending readings for this user
+   */
+  getPendingReadings(userId: string): Promise<Reading[]>;
+
+  /**
+   * get the pending readings for this user and resourceId
+   */
+  getPendingReadingsForResourceId(userId: string, resourceId: string): Promise<Reading[]>;
 
   /**
    * Get the resources within a region.
