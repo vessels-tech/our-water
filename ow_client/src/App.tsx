@@ -361,7 +361,10 @@ export default class App extends Component<Props> {
           {this.getFavouritesList()}
         </ScrollView>
         {this.getPassiveLoadingIndicator()}
-        <PendingChangesBanner/>
+        <PendingChangesBanner
+          config={this.props.config}
+          userId={this.state.userId}
+        />
         {/* <NetworkStatusBanner config={this.props.config}/> */}
       </View>
     );

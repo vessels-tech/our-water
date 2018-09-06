@@ -355,7 +355,6 @@ class FirebaseApi {
     });
   }
 
-  //TODO: fix with version 4.1 of react native firebase
   static pendingReadingsListener(orgId: string) {
     return this.listenForPendingWrites(this.readingCol(orgId));
   }
@@ -382,6 +381,25 @@ class FirebaseApi {
         },
         //onError
         (error) => {
+          console.log("error", error);
+          return Promise.reject(error);
+        },
+        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
+    );
+  }
+
+  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: any) {
+    this.userDoc(orgId, userId).collection('pendingReadings')
+    .onSnapshot(
+      {
+          includeMetadataChanges: true,
+        },
+        //optionsOrObserverOrOnNext
+        (sn: any) => {
+          callback(sn);
+        },
+        //onError
+        (error: Error) => {
           console.log("error", error);
           return Promise.reject(error);
         },

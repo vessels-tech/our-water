@@ -314,7 +314,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     .then(() => {
       console.log("TODO: #2 actually save the reading to GGMN Fool");
     });
+  }
 
+
+  /**
+   * Get the pending readings listener from the firebase api
+   */
+  listenForPendingReadings(userId: string, callback: any): void {
+    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
   }
 
 

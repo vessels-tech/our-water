@@ -18,6 +18,7 @@ import { bgLight, primary, primaryDark, textMed} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading } from '../typings/models/OurWater';
+import { validateReading } from '../api/ValidationApi';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -45,7 +46,6 @@ class NewReadingScreen extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    // const listener = FirebaseApi.pendingReadingsListener(orgId);
     this.appApi = this.props.config.getAppApi();
 
     this.state = {
@@ -86,18 +86,14 @@ class NewReadingScreen extends Component<Props> {
       datetime: moment(date).format(), //converts to iso string
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
-      userId: "12345", //TODO get the userId
+      userId: this.props.userId,
       imageUrl: "http://placekitten.com/g/200/300",
       coords
     };
-    
 
-    //TODO: validate here and now!
-
-
-    return this.appApi.saveReading(orgId,this.props.userId, reading)
+    return validateReading(readingRaw)
+    .then(reading => this.appApi.saveReading(orgId,this.props.userId, reading))
     .then(() => {
-      //TODO: display toast or something
       this.setState({
         date: moment(),
         measurementString: '',
@@ -105,6 +101,7 @@ class NewReadingScreen extends Component<Props> {
       });
 
       displayAlert(
+        //TODO: change this message if we are GGMN, and haven't logged in
         'Success', `Reading saved.`,
         [
           { text: 'One More', onPress: () => console.log('continue pressed') },

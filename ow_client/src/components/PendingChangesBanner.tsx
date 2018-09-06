@@ -15,9 +15,13 @@ import { RNFirebase } from 'react-native-firebase';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import {  textLight, bgMed } from '../utils/Colors';
+import FirebaseApi from '../api/FirebaseApi';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 
 export interface Props {
+  config: ConfigFactory;
+  userId: string,
 
 }
 
@@ -25,24 +29,38 @@ export interface State {
   hasPendingWrites: boolean,
 }
 
-class PendingChangesBanner extends Component<Props> {
+
+/*TODO: reimplement this for GGMN - if we are syncing to firebase, display 'saving', if we have pending writes that 
+are being saved to ggmn, display 'syncing with GGMN', if we have pendingReadings in the user object, but are not logged in
+or there is some error, display 'Error syncing with GGMN'. Pressing on banner will bring up a nice modal with tips etc.
+*/
+export default class PendingChangesBanner extends Component<Props> {
+  appApi: BaseApi;
+  listener: any;
+
   state: State = {
     hasPendingWrites: false,
   };
 
   constructor(props: Props) {
     super(props);
+    this.appApi = this.props.config.getAppApi();
 
   }
 
   componentWillMount() {
     // TODO: how to we unsubscribe to this?
     //TODO: update for breaking changes: to 4.1.0 https://github.com/invertase/react-native-firebase/releases?after=v4.3.x
+    this.listener = this.appApi.listenForPendingReadings(this.props.userId, (sn: Snapshot) => this.pendingReadingsCallback(sn));
     // FirebaseApi.listenForPendingReadings({orgId}, (sn) => this.pendingReadingsCallback(sn));
   }
 
-  //TODO: find the snapshot type
+  componentWillUnmount() {
+    this.listener.unsubscribe();
+  }
+
   pendingReadingsCallback(sn: Snapshot) {
+    console.log('pendingReadingsCallback called');
     
     this.setState({
       hasPendingWrites: sn.metadata.hasPendingWrites,
@@ -74,5 +92,3 @@ class PendingChangesBanner extends Component<Props> {
     );
   }
 }
-
-export default PendingChangesBanner;

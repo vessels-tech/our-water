@@ -58,6 +58,11 @@ export default interface BaseApi {
    */
   saveReading(resourceId: string, userId: string, reading: Reading): Promise<any>;
 
+  /**
+   * set up a listener for changes to any pending readings
+   */
+  listenForPendingReadings(userId: string, callback: any): void;
+
 
   /**
    * Get the resources within a region.
