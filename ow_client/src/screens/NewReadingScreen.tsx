@@ -4,9 +4,10 @@ import {
   View,
   Dimensions,
   TouchableWithoutFeedback,
+  Picker,
 } from 'react-native';
 import { 
-  Button 
+  Button, Text 
 } from 'react-native-elements';
 import Config from 'react-native-config';
 import * as moment from 'moment';
@@ -17,7 +18,7 @@ import { displayAlert, getLocation } from '../utils';
 import { bgLight, primary, primaryDark, textMed} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { Reading } from '../typings/models/OurWater';
+import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -25,7 +26,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
-  resource: any,
+  resource: Resource,
   navigator: any,
   config: ConfigFactory,
   userId: string,
@@ -33,6 +34,7 @@ export interface Props {
 
 export interface State {
   measurementString: string,
+  timeseriesString: string,
   enableSubmitButton: boolean,
   date: moment.Moment,
   isLoading: boolean,
@@ -48,10 +50,16 @@ class NewReadingScreen extends Component<Props> {
 
     this.appApi = this.props.config.getAppApi();
 
+    let timeseriesString = '';
+    if (this.props.resource.timeseries[0]) {
+      timeseriesString = this.props.resource.timeseries[0].uuid;
+    }
+
     this.state = {
       enableSubmitButton: false,
       date: moment(),
       measurementString: '',
+      timeseriesString,
       isLoading: false,
       coords: {},
     };
@@ -93,16 +101,23 @@ class NewReadingScreen extends Component<Props> {
 
     return validateReading(readingRaw)
     .then(reading => this.appApi.saveReading(orgId,this.props.userId, reading))
-    .then(() => {
+    //TODO: catch not logged in error
+    .then((r: SaveReadingResult) => {
       this.setState({
         date: moment(),
         measurementString: '',
         isLoading: false
       });
 
+      let message = `Reading saved.`;
+
+      if (r.requiresLogin) {
+        //Reading was saved, but pending sync
+        message = `Reading saved locally. Login to save to GGMN.`;
+      }
+
       displayAlert(
-        //TODO: change this message if we are GGMN, and haven't logged in
-        'Success', `Reading saved.`,
+        'Success', message,
         [
           { text: 'One More', onPress: () => console.log('continue pressed') },
           { text: 'Done', onPress: () => this.props.navigator.pop() },
@@ -125,7 +140,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   isDateValid() {
-    //Date is controlled by date picker, can't really be valid
+    //Date is controlled by date picker, can't really be invalid
     return true;
   }
 
@@ -147,6 +162,15 @@ class NewReadingScreen extends Component<Props> {
     //TODO: custom validation, eg. well depth
   
     return isValid;
+  }
+
+  isTimeseriesValid() {
+    const { timeseriesString } = this.state;
+    if (!timeseriesString || timeseriesString.length === 0) {
+      return false;
+    }
+
+    return true;
   }
 
   getImageSection() {
@@ -186,6 +210,7 @@ class NewReadingScreen extends Component<Props> {
     //TODO: get units from reading.metadata
     const units = 'metres';
     const { date, measurementString  } = this.state;
+    const { resource } = this.props;
 
     return (
       <View style={{
@@ -193,7 +218,8 @@ class NewReadingScreen extends Component<Props> {
         width: '100%',
         paddingHorizontal: 20,
         marginTop: 10,
-        flexDirection: 'column'
+        flexDirection: 'column',
+        paddingBottom: 10,
       }}>
         {this.getImageSection()}
         <IconFormInput
@@ -220,6 +246,22 @@ class NewReadingScreen extends Component<Props> {
           fieldType={InputType.fieldInput}
           value={measurementString}
         />
+        <View style={{
+          flexDirection: "row"
+        }}>
+          <Text>Timeseries:</Text>
+          <Picker
+            selectedValue={this.state.timeseriesString}
+            style={{ width: '100%', backgroundColor: 'red' }}
+            mode={'dropdown'}
+            onValueChange={(itemValue) => {
+              console.log('Picker on value change:', itemValue);
+              this.setState({ timeseriesString: itemValue })
+              }
+            }>
+            {resource.timeseries.map(ts => <Picker.Item key={ts.uuid} label={ts.name} value={ts.uuid}/>)}
+          </Picker>
+        </View>
       </View>
     );
   }
@@ -227,7 +269,8 @@ class NewReadingScreen extends Component<Props> {
   shouldDisableSubmitButton() {
     return this.state.isLoading ||
            !this.isDateValid() ||
-           !this.isMeasurementValid();
+           !this.isMeasurementValid() ||
+           !this.isTimeseriesValid();
   }
 
   getButton() {
@@ -286,6 +329,7 @@ class NewReadingScreen extends Component<Props> {
           // alignItems: 'center',
           width: '100%',
           marginBottom: 40,
+          paddingHorizontal: 10,
         }}>
           {this.getForm()}
           {this.getButton()}

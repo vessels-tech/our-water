@@ -61,7 +61,3 @@ export type GGMNOrganisationResponse = {
   prevous: string | null,
   results: any[], //we don't really care about this for now.
 }
-
-export interface GGMNReading extends Reading {
-  timeseriesId: string, //The id of the timeseries to save this reading to in GGMN
-}

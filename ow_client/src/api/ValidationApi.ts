@@ -14,6 +14,7 @@ export function validateReading(reading: any): Promise<Reading> {
       longitude: Joi.number(),
     }),
     imageUrl: Joi.string().uri(),
+    timeseriesId: Joi.string(),
   });
 
   //TODO: not sure why this is like this...

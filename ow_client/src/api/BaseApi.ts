@@ -1,4 +1,4 @@
-import { Resource, SearchResult, Reading } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 
 
@@ -55,8 +55,12 @@ export default interface BaseApi {
 
   /**
    * Save a reading
+   * 
+   * Returns a SaveReadingResult which we can use to inform the user if
+   * the reading is saved but pending, requires a login or something else.
+   *
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<any>;
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult>;
 
   /**
    * set up a listener for changes to any pending readings

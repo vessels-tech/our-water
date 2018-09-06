@@ -7,14 +7,12 @@ import * as Keychain from 'react-native-keychain';
 import { default as ftch } from 'react-native-fetch-polyfill';
 
 import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNReading, GGMNGroundwaterStationResponse, GGMNGroundwaterStation } from "../typings/models/GGMN";
-import { isMoment } from "moment";
-import { Resource, SearchResult, Reading } from "../typings/models/OurWater";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation } from "../typings/models/GGMN";
+import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
-import { Credentials } from "crypto";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -234,11 +232,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-    .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
-    .then((response: GGMNLocationResponse) => {
+    .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+    .then((response: GGMNGroundwaterStationResponse) => {
       console.log("response", response);
       //TODO: finish getting the resources
-      return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
+      return response.results.map(from => GGMNApi.ggmnStationToResource(from));
     });
   }
   
@@ -265,11 +263,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
-      .then((response: GGMNLocationResponse) => {
+      .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: GGMNGroundwaterStationResponse) => {
         console.log("response", response);
         //TODO: finish getting the resources
-        return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
+        return response.results.map(from => GGMNApi.ggmnStationToResource(from));
       });
   }
 
@@ -331,11 +329,23 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
    * put it on a timer/user click banner
    */
-  saveReading(resourceId: string, userId: string, reading: GGMNReading): Promise<any> {
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult> {
 
     return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
-    .then(() => {
-      console.log("TODO: #2 actually save the reading to GGMN Fool");
+    .then(async () => {
+      console.log("TODO: #2 actually save the reading to GGMN Fool, but don't care about the result");
+      try {
+        await this.getCredentials()
+      } catch (err) {
+        //Could not get credentials, or user hasn't logged in
+        return {
+          requiresLogin: true,
+        }
+      }
+
+      return {
+        requiresLogin: false,
+      };
     });
   }
 
@@ -400,26 +410,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       },
       //TODO: this may cause trouble later on.
       timeseries: from.filters[0].timeseries,
-    };
-
-    return to;
-  }
-
-  static ggmnLocationToResource(from: GGMNLocation): Resource {
-    const to: Resource = {
-      id: `ggmn_${from.id}`,
-      legacyId: `ggmn_${from.id}`,
-      groups: null,
-      lastValue: 0,
-      resourceType: ResourceType.well,
-      lastReadingDatetime: new Date(),
-      coords: {
-        _latitude: from.geometry.coordinates[1],
-        _longitude: from.geometry.coordinates[0],
-      },
-      owner: {
-        name: from.organisation.name,
-      }
     };
 
     return to;

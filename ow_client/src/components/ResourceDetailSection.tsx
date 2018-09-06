@@ -49,7 +49,10 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   componentWillMount() {
-    const { resource: { id }, userId } = this.props; 
+    const { resource, userId } = this.props; 
+    const { id } = resource;
+
+    console.log("displaying resource:", resource);
 
     //TODO: load the readings for this resource
     //todo: find out if in favourites
@@ -59,9 +62,12 @@ class ResourceDetailSection extends Component<Props> {
     });
   
     //Listen to updates from Firebase
-    this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
+    //TODO: re enable for MyWellApi
+    // this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
+
 
     //TODO: we need to reload this when changing resources.
+    //TODO: load more info about the resource (eg. timeseries) here.
     return Promise.all([
       FirebaseApi.isInFavourites(orgId, id, userId)
     ])
@@ -85,7 +91,8 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    //TODO: re enable for MyWellApi
+    // this.unsubscribe();
   }
 
   getReadingsView() {

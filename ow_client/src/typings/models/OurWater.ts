@@ -50,4 +50,9 @@ export type Reading = {
   value: number,
   imageUrl?: string, //optional imageUrl for the reading
   location?: Location,
+  timeseriesId: string, //GGMN only, TODO: make separate models
+}
+
+export type SaveReadingResult = {
+  requiresLogin: boolean,
 }
