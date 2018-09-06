@@ -97,3 +97,19 @@ https://ggmn.lizard.net/doc/import_screen.html?highlight=csv
 
 The referenced units might also be helpful down the line: 
 https://ddsc.lizard.net/api/v2/parameterreferencedunits/
+
+## Get Readings
+
+When we load the resource detail page, we need to get the last n readings from GGMN.
+
+https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1072915200000&uuid=93c6ff85-1661-4ce4-8671-926517eb797c
+
+One location can have multiple timeseries? Yes. It appears that multiple parameters can be recorded in a single location.
+
+This means that when we submit the reading, the user must select the parameter, and then we can set the timeseries accordingly
+
+
+Location UUID -> Timeseries -> values?
+
+
+How do we find the timeseries for the selected resource?

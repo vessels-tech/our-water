@@ -70,6 +70,12 @@ export default interface BaseApi {
    */
   getResourcesWithinRegion(region: Region): Promise<Array<Resource>>;
 
+
+  /**
+   * Get a resource for an id.
+   */
+  getResource(id: string): Promise<Resource>;
+
   //
   // Search API
   //----------------------------------------------------------------------

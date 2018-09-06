@@ -7,7 +7,7 @@ import * as Keychain from 'react-native-keychain';
 import { default as ftch } from 'react-native-fetch-polyfill';
 
 import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse } from "../typings/models/GGMN";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNReading, GGMNGroundwaterStationResponse, GGMNGroundwaterStation } from "../typings/models/GGMN";
 import { isMoment } from "moment";
 import { Resource, SearchResult, Reading } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -215,7 +215,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * Maybe we can sort by updatedAt
    */
   getResources(): Promise<Array<Resource>> {
-    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
+    // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const url = appendUrlParameters(resourceUrl, {
       // page: 0,
       page_size: 100,
@@ -241,7 +243,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   }
   
   async getResourcesWithinRegion(region: Region): Promise<Resource[]> {
-    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
+    // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const bBox = calculateBBox(region);
     const url = appendUrlParameters(resourceUrl, {
       page_size: 1000,
@@ -271,7 +275,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in
-    const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
+    // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
+    const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const url = appendUrlParameters(resourceUrl, {
       dist: realDistance,
       point: `${longitude},${latitude}`
@@ -288,13 +294,30 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => parseFetchResponse<GGMNLocationResponse>(response))
-      .then((response: GGMNLocationResponse) => {
+      .then((response: any) => parseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: GGMNGroundwaterStationResponse) => {
         console.log("response", response);
         //TODO: finish getting the resources
-        return response.results.map(from => GGMNApi.ggmnLocationToResource(from));
+        return response.results.map(from => GGMNApi.ggmnStationToResource(from));
       });
   }
+
+  getResource(id: string): Promise<Resource> {
+    const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/${id}`;
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
+
+    return ftch(resourceUrl, options)
+      .then((response: any) => parseFetchResponse<GGMNGroundwaterStation>(response))
+      .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
+  }
+
 
   /**
    * Save the reading 
@@ -308,7 +331,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
    * put it on a timer/user click banner
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<any> {
+  saveReading(resourceId: string, userId: string, reading: GGMNReading): Promise<any> {
 
     return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
     .then(() => {
@@ -356,6 +379,31 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   //
   // Utils
   //----------------------------------------------------------------------
+
+  //TODO: this will fall apart, as we need a specific GGMNResource type :(
+  //For now, we can make OurWater handle all the fields, and worry about making
+  //it flexible later on
+  static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
+    const to: Resource = {
+      id: `ggmn_${from.id}`,
+      legacyId: `ggmn_${from.id}`,
+      groups: null,
+      lastValue: 0,
+      resourceType: ResourceType.well,
+      lastReadingDatetime: new Date(),
+      coords: {
+        _latitude: from.geometry.coordinates[1],
+        _longitude: from.geometry.coordinates[0],
+      },
+      owner: {
+        name: from.name,
+      },
+      //TODO: this may cause trouble later on.
+      timeseries: from.filters[0].timeseries,
+    };
+
+    return to;
+  }
 
   static ggmnLocationToResource(from: GGMNLocation): Resource {
     const to: Resource = {

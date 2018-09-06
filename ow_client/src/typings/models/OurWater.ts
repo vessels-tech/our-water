@@ -1,5 +1,6 @@
 import { ResourceType } from "../../enums";
 import { Moment } from "moment";
+import { GGMNTimeseries } from "./GGMN";
 
 export type Resource = {
   id: string,
@@ -10,6 +11,12 @@ export type Resource = {
   resourceType: ResourceType
   owner: ResourceOwnerType
   groups: Map<string, boolean> | null//simple dict with key of GroupId, value of true
+  
+  /* 
+    This is a concept borrowed from GGMN. I'm not yet sure how we will make it 
+    compatitble with OurWater.
+  */
+  timeseries: Array<GGMNTimeseries>
 
   lastValue: number;
   lastReadingDatetime: Date;
