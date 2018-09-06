@@ -38,6 +38,11 @@ export default interface BaseApi {
   addFavouriteResource(resource: Resource, userId: string): Promise<any>;
 
   /**
+   * Check if a resource is in the user's favourites
+   */
+  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean>; 
+
+  /**
    * Get a bunch of resources
    * No guarantee that this is all the resources
    */
@@ -52,6 +57,16 @@ export default interface BaseApi {
     longitude: number,
     distance: number
   ): Promise<Array<Resource>>;
+
+  //
+  // Reading API
+  //----------------------------------------------------------------------
+
+  /**
+   * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN,
+   * and a unique for a series of readings
+   */
+  getReadingsForTimeseries(resourceId: string, timeseriesId: string, startDate: number, endDate: number): Promise<Reading[]>;
 
   /**
    * Save a reading

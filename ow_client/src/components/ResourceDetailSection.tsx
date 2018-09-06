@@ -19,11 +19,16 @@ import {
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
 import { primary, textDark, bgMed } from '../utils/Colors';
-import { Resource } from '../typings/models/OurWater';
+import { Resource, Reading } from '../typings/models/OurWater';
+import { ConfigFactory } from '../config/ConfigFactory';
+import BaseApi from '../api/BaseApi';
+import { GGMNTimeseries } from '../typings/models/GGMN';
+import * as moment from 'moment';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
+  config: ConfigFactory,
   resource: Resource,
   userId: string,
   onAddReadingPressed: any,
@@ -35,17 +40,22 @@ export interface Props {
 export interface State {
   loading: boolean,
   isFavourite: boolean,
+  readingsMap: Map<string, Reading[]> //key = timeseriesId, value = Reading[]
 }
 
 class ResourceDetailSection extends Component<Props> {
   unsubscribe: any;
+  appApi: BaseApi;
   state: State = {
     loading: false,
     isFavourite: false,
+    readingsMap: new Map<string, Reading[]>(),
   }
 
   constructor(props: Props) {
     super(props);
+
+    this.appApi = this.props.config.getAppApi();
   }
 
   componentWillMount() {
@@ -64,15 +74,29 @@ class ResourceDetailSection extends Component<Props> {
     //Listen to updates from Firebase
     //TODO: re enable for MyWellApi
     // this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
-
-
+    
     //TODO: we need to reload this when changing resources.
-    //TODO: load more info about the resource (eg. timeseries) here.
-    return Promise.all([
-      FirebaseApi.isInFavourites(orgId, id, userId)
-    ])
-    .then(([isFavourite]) => {
+  
+    //TODO: make configurable
+    const today: number = moment().valueOf();
+    const twoYearsAgo: number = moment().subtract(2, 'years').valueOf();
 
+    //Get all readings for each timeseries
+    //TODO: refactor to the AppApi, this is a little heavy.
+    return Promise.all(resource.timeseries.map((t: GGMNTimeseries ) => 
+      this.appApi.getReadingsForTimeseries(id, t.uuid, twoYearsAgo, today)))
+    .then((readingArrays: Reading[][]) => {
+      const readingsMap = new Map<string, Reading[]>();
+      readingArrays.forEach((readings: Reading[], idx: number)  => {
+        const timeseriesId = resource.timeseries[idx].uuid;
+        readingsMap.set(timeseriesId, readings);
+      });
+
+
+
+      return this.appApi.isResourceInFavourites(id, userId);
+    })
+    .then((isFavourite: boolean) => {
       this.setState({
         isFavourite, 
         loading:false

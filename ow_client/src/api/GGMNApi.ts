@@ -7,20 +7,27 @@ import * as Keychain from 'react-native-keychain';
 import { default as ftch } from 'react-native-fetch-polyfill';
 
 import { appendUrlParameters, parseFetchResponse, getDemoResources, rejectRequestWithError, calculateBBox } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation } from "../typings/models/GGMN";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
+import { isNullOrUndefined } from "util";
+import * as moment from 'moment';
 
 // TODO: make configurable
 const timeout = 1000 * 100;
+const defaultHeaders = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+};
 
 export interface GGMNApiOptions {
   baseUrl: string,
   auth?: any,
 }
+
 
 /**
  * The GGMN Api.
@@ -179,7 +186,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * If the Keychain has credentials, then return the 
    * auth headers. Otherwise, return an empty dict
    */
-  private getAuthHeaders(): Promise<OptionalAuthHeaders> {
+  private getOptionalAuthHeaders(): Promise<OptionalAuthHeaders> {
     return this.getCredentials()
     .then(credentials => {
       return {
@@ -193,6 +200,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     });
   }
 
+  //
+  // Resource API
+  //----------------------------------------------------------------------
+
   /**
    * Add a resource to the recently viewed list
    */
@@ -202,6 +213,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   addFavouriteResource(resource: Resource, userId: string): Promise<any> {
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  }
+
+  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
+    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
   }
 
 
@@ -251,7 +266,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     });
     console.log("URL is", url);
 
-    const authHeaders = await this.getAuthHeaders();
+    const authHeaders = await this.getOptionalAuthHeaders();
     const options = {
       timeout,
       method: 'GET',
@@ -316,6 +331,72 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
   }
 
+
+  //
+  // Reading API
+  //----------------------------------------------------------------------
+
+  /**
+   * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN, 
+   * and a unique for a series of readings
+   * 
+   * @param resourceId: string -> The id of the resource. Not strictly required for the 
+   *    GGMN api, but required to refer to the reading later on.
+   * @param timeseriesId: string  -> The id of the timeseries
+   * @param startDate: string  -> Unix timestamp date. The start date of the readings
+   * @param endDate: string  -> Unix timestamp date. The end date of the readings,
+   * 
+   * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
+   */
+  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, startDate: number, endDate: number): Promise<Reading[]> {
+    const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;
+    const url = appendUrlParameters(readingUrl, {
+      uuid: timeseriesId,
+      startDate,
+      endDate,
+      //I don't know why we need this, but it's taken straight from the GGMN site
+      min_points: 320
+    });
+
+    const authHeaders = await this.getOptionalAuthHeaders();
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+    };
+
+    return ftch(url, options)
+    .then((response: any) => parseFetchResponse<GGMNTimeseriesResponse>(response))
+    .then((response: GGMNTimeseriesResponse) => {
+      //Convert GGMNTimeseriesResponse to something we can use
+
+      if (response.results.length === 0) {
+        return Promise.reject(new Error(`Couldn't find readings for timeseriesId: ${timeseriesId} with given date range.`));
+      }
+
+      if (response.results.length > 1) {
+        return Promise.reject(new Error("WARNING: getReadingsForTimeseries returned multiple results. This shouldn't happen."));
+      }
+
+      if (isNullOrUndefined(response.results[0].events)) {
+        return Promise.reject(new Error(`Error with getReadingsForTimeseries, events is undefined.`));
+      }
+
+      const timeseries: GGMNTimeseries = response.results[0];
+      return response.results[0].events!.map((e: GGMNTimeseriesEvent) => {
+        return {
+          resourceId,
+          date: moment(e.timestamp),
+          value: e.value,
+          timeseriesId: timeseries.uuid,
+        };
+      });
+    });
+
+  }
 
   /**
    * Save the reading 

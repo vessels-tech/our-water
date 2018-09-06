@@ -66,7 +66,7 @@ class FirebaseApi {
     });  
   }
 
-  static isInFavourites(orgId: string, resourceId: string, userId: string) {
+  static isInFavourites(orgId: string, resourceId: string, userId: string): Promise<boolean> {
     return this.getFavouriteResources(orgId, userId)
     .then(favouriteResources => {
       return resourceId in favouriteResources;

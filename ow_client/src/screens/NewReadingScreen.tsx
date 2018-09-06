@@ -84,7 +84,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   saveReading() {
-    const {date, measurementString, coords} = this.state;
+    const {date, measurementString, coords, timeseriesString} = this.state;
     const { resource: { id } } = this.props;
 
     this.setState({isLoading: true});
@@ -92,6 +92,7 @@ class NewReadingScreen extends Component<Props> {
 
     const readingRaw = {
       datetime: moment(date).format(), //converts to iso string
+      timeseriesId: timeseriesString, 
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,

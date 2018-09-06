@@ -1,11 +1,17 @@
 import { Reading } from "./OurWater";
 
 export type GGMNLocationResponse = {
-
   count: number,
   next: string,
   previous: string,
   results: Array<GGMNLocation>
+}
+
+export type GGMNTimeseriesResponse = {
+  count: number,
+  next: string,
+  previous: string,
+  results: Array<GGMNTimeseries>
 }
 
 export type GGMNGroundwaterStationResponse = {
@@ -36,6 +42,13 @@ export type GGMNTimeseries = {
   scale: string,
   value_type: string,
   location: string,
+  last_value?: number,
+  events?: Array<GGMNTimeseriesEvent>,
+}
+
+export type GGMNTimeseriesEvent = {
+  timestamp: number, //unix timestamp
+  value: number,
 }
 
 export type GGMNLocation = {
