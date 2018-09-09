@@ -7,7 +7,7 @@ import * as Keychain from 'react-native-keychain';
 import { default as ftch } from 'react-native-fetch-polyfill';
 
 import { appendUrlParameters, getDemoResources, rejectRequestWithError, calculateBBox, naiveParseFetchResponse } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries } from "../typings/models/GGMN";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
@@ -343,7 +343,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
   async getReadingsForTimeseries(resourceId: string, timeseriesId: string, startDate: number, endDate: number): Promise<Reading[]> {
-    console.log("UUID:", timeseriesId);
     const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;
     const url = appendUrlParameters(readingUrl, {
       uuid: timeseriesId,
@@ -415,7 +414,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       return timeseries.events.map((e: OWTimeseriesEvent): Reading => {
         return {
           resourceId,
-          date: moment(e.timestamp),
+          date: moment(e.timestamp).toISOString(),
           value: e.value,
           timeseriesId: timeseries.id,
         };
@@ -440,7 +439,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
     return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
     .then(async () => {
-      console.log("TODO: #2 actually save the reading to GGMN Fool, but don't care about the result");
       try {
         await this.getCredentials()
       } catch (err) {
@@ -450,10 +448,56 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
         }
       }
 
+      //Don't return this promise - do without user caring
+      console.log("saving reading", reading);
+      this.persistReadingToGGMN(reading)
+      .then((response: any) => console.log("saved reading!"))
+      .catch(err => console.log("Failed to save reading to GGMN", err));
+
       return {
         requiresLogin: false,
       };
+
     });
+  }
+
+  private async persistReadingToGGMN(reading: Reading): Promise<any> {
+    const tsId = '8cd4eec3-1c76-4ebb-84e6-57681f15424f'; //TODO: Just temporary!
+    // const tsId = reading.timeseriesId;
+    const url = `${this.baseUrl}/api/v3/timeseries/${tsId}/data/`;
+    const data = [{
+      datetime: reading.date, //this must be in UTC, otherwise we get a 500.
+      value: reading.value,
+    }];
+
+    const authHeaders = await this.getOptionalAuthHeaders();
+    //Auth headers are required to save readings
+    if (!authHeaders.username) {
+      throw new Error("Authorization is required to save readings to GGMN.");
+    }
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+      body: JSON.stringify(data),
+    };
+
+    console.log("url is", url);
+    console.log("options are:", options);
+
+    return ftch(url, options)
+    .then((response: any) => naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
+    .then((response: GGMNSaveReadingResponse) => response)
+    .then(() => this.removeReadingFromPendingList(reading));
+
+  }
+
+  //TODO: should we implement some sort of id? It is in a firebase collection after all...
+  private removeReadingFromPendingList(reading: Reading): Promise<any> {
+    return Promise.resolve(true);
   }
 
 
@@ -510,7 +554,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   //it flexible later on
   static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
     const to: Resource = {
-      id: `ggmn_${from.id}`,
+      id: `${from.id}`,
       legacyId: `ggmn_${from.id}`,
       groups: null,
       lastValue: 0,

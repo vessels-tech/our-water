@@ -17,7 +17,7 @@ import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
-import PendingChangesBanner from './components/PendingChangesBanner';
+import PendingChangesBanner, { BannerState } from './components/PendingChangesBanner';
 import { Location } from './typings/Location';
 
 import * as myPinImg from './assets/my_pin.png';
@@ -28,6 +28,7 @@ import {
   navigateTo,
   getShortId,
   formatCoords,
+  showModal,
 } from './utils';
 
 import {
@@ -176,6 +177,31 @@ export default class App extends Component<Props> {
    */
   onMapRegionChange(region: Region) {
     return this.reloadResourcesIfNeeded(region)
+  }
+
+  onBannerPressed(bannerState: BannerState) {
+    if (bannerState === BannerState.pendingGGMNLogin) {
+      //Redirect user to settings view
+      showModal(
+        this.props,
+        'screen.menu.ConnectToServiceScreen',
+        this.props.config.getConnectToButtonText(),
+        {
+          config: this.props.config,
+          userId: this.state.userId,
+          isConnected: false, //This is an assumption, we should probably check again...
+        }
+      );
+    }
+
+    //TODO: this one is tricky. If they don't have permission
+    //To save to a resource, then we need to allow the user to
+    //delete pending readings and stuff, which means we need to
+    //display a list of the pending readings with a state next to them
+    //I'll leave this now until I can think of an easier option
+    if (bannerState === BannerState.ggmnError) {
+
+    }
   }
 
   /**
@@ -360,6 +386,7 @@ export default class App extends Component<Props> {
         <PendingChangesBanner
           config={this.props.config}
           userId={this.state.userId}
+          onBannerPressed={(bannerState: BannerState) => this.onBannerPressed(bannerState)}
         />
         {/* <NetworkStatusBanner config={this.props.config}/> */}
       </View>

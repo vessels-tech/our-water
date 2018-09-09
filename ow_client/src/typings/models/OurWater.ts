@@ -46,7 +46,7 @@ export type SearchResult = {
 
 export type Reading = {
   resourceId: string,
-  date: Moment  
+  date: string, //ISO Formatted  
   value: number,
   imageUrl?: string, //optional imageUrl for the reading
   location?: Location,

@@ -91,7 +91,7 @@ class NewReadingScreen extends Component<Props> {
 
 
     const readingRaw = {
-      datetime: moment(date).format(), //converts to iso string
+      date: moment(date).utc().format(), //converts to iso string
       timeseriesId: timeseriesString, 
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
@@ -120,6 +120,7 @@ class NewReadingScreen extends Component<Props> {
       displayAlert(
         'Success', message,
         [
+          //TODO: add a new button to take the user to the login page?
           { text: 'One More', onPress: () => {} },
           { text: 'Done', onPress: () => this.props.navigator.pop() },
         ]

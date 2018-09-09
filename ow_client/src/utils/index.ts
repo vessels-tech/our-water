@@ -225,8 +225,13 @@ const hashCode = (str: string) => {
   return hash;
 }
 
-const getShortId = (str: string) => {
-  return Math.abs(hashCode(str));
+/**
+ * Get the short id.
+ * This will have to account for different coding schemes
+ */
+export const getShortId = (str: string): string => {
+  // return Math.abs(hashCode(str));
+  return str;
 }
 
 const defaultNavigatorStyle = {
@@ -240,40 +245,40 @@ const defaultNavigatorStyle = {
   navigationBarColor: bgDark2,
 }
 
-export function getDemoResources(): Resource[] {
-  return [
-    {
-      id: '12345',
-      legacyId: '12345',
-      coords: {
-        _latitude: -20.401,
-        _longitude: 32.3373
-      },
-      resourceType: ResourceType.well,
-      owner: {
-        name: 'Lewis Ji',
-      },
-      groups: null,
-      lastValue: 12.34,
-      lastReadingDatetime: new Date(),
-    },
-    {
-      id: '12346',
-      legacyId: '12346',
-      coords: {
-        _latitude: -20.401,
-        _longitude: 32.3373
-      },
-      resourceType: ResourceType.raingauge,
-      owner: {
-        name: 'Basant Ji',
-      },
-      groups: null,
-      lastValue: 12.34,
-      lastReadingDatetime: new Date(),
-    },
-  ];
-}
+// export function getDemoResources(): Resource[] {
+//   return [
+//     {
+//       id: '12345',
+//       legacyId: '12345',
+//       coords: {
+//         _latitude: -20.401,
+//         _longitude: 32.3373
+//       },
+//       resourceType: ResourceType.well,
+//       owner: {
+//         name: 'Lewis Ji',
+//       },
+//       groups: null,
+//       lastValue: 12.34,
+//       lastReadingDatetime: new Date(),
+//     },
+//     {
+//       id: '12346',
+//       legacyId: '12346',
+//       coords: {
+//         _latitude: -20.401,
+//         _longitude: 32.3373
+//       },
+//       resourceType: ResourceType.raingauge,
+//       owner: {
+//         name: 'Basant Ji',
+//       },
+//       groups: null,
+//       lastValue: 12.34,
+//       lastReadingDatetime: new Date(),
+//     },
+//   ];
+// }
 
 export {
   appendUrlParameters,
@@ -290,5 +295,4 @@ export {
   displayAlert,
   boundingBoxForCoords,
   randomPrettyColorForId,
-  getShortId,
 };

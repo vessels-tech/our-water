@@ -21,6 +21,13 @@ export type GGMNGroundwaterStationResponse = {
   results: Array<GGMNGroundwaterStation>
 }
 
+export type GGMNSaveReadingResponse = GGMNReadingData[];
+
+export type GGMNReadingData = {
+  datetime: string,
+  value: string, //According to what comes back, it is a string. But this feels wrong
+};
+
 export type GGMNGroundwaterStation = {
   id: number,
   code: string,

@@ -113,3 +113,34 @@ Location UUID -> Timeseries -> values?
 
 
 How do we find the timeseries for the selected resource?
+
+
+
+## Save Reading
+
+we should use resources in IGRAC:
+org id: a852f2e7bfe94e7c87e22927134ffead
+
+eg. resource at:
+52.92266,5.6967
+
+
+For testing purposes, we will use:
+- timeseries uuid: 8cd4eec3-1c76-4ebb-84e6-57681f15424f
+
+```
+POST https://ggmn.lizard.net/api/v3/timeseries/8cd4eec3-1c76-4ebb-84e6-57681f15424f/data/
+Accept: application/json
+Content-Type: application/json
+
+[{
+    "datetime": "2018-01-01T00:00:00.000Z",
+    "value": 100
+}]
+```
+
+Now we need to find the Groundwater station this is attached to.
+
+
+1536227365000
+1904208000000

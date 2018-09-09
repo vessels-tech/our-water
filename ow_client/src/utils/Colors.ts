@@ -10,6 +10,9 @@ export const bgMed = "#D8D8D8";
 export const bgDark = "#323232";
 export const bgDark2 = "#89ACC9";
 
+export const error1 = "#E2A69A"
+export const warning1 = "#F2E764"
+
 
 
 

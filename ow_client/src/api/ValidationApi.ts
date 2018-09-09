@@ -4,7 +4,7 @@ import { Reading } from '../typings/models/OurWater';
 
 export function validateReading(reading: any): Promise<Reading> {
   const schema:Joi.SchemaLike = Joi.object().keys({
-    datetime: Joi.string().isoDate().required(),
+    date: Joi.string().isoDate().required(),
     value: Joi.number().required(),
     userId: Joi.string().required(),
     resourceId: Joi.string().required(),
