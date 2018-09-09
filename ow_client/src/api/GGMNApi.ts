@@ -47,7 +47,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
-  apiState: ApiState;
+    apiState: ApiState;
 
   firebasePendingReadingsSubscriptionId: string | null = null;
   pendingReadingsSubscriptions: Map<string, any> = new Map<string, any>();
@@ -572,8 +572,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     const { bannerState } = this.apiState;
     const subscribers = this.pendingReadingsSubscriptions;
 
-
-    console.log("updating subscripers", bannerState);
+    console.log("updating subscripers", bannerState, subscribers);
     //TODO: add other metadata here!
     let keys = [...subscribers.keys()];
     keys.forEach(key => {

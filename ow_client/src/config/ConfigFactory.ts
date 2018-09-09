@@ -3,6 +3,7 @@ import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
+import BaseApi from "../api/BaseApi";
 
 
 /**
@@ -43,6 +44,9 @@ export class ConfigFactory {
   envConfig: EnvConfig; //The env config object. Configurable only at build time 
   networkApi: NetworkApi;
 
+  appApi: BaseApi; //TODO: change to appApi
+  externalServiceApi?: ExternalServiceApi;
+
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
     console.log("envConfig", envConfig);
@@ -50,6 +54,23 @@ export class ConfigFactory {
     this.networkApi = networkApi;
 
     console.log("init config factory with config", this.remoteConfig);
+
+
+    //Set up App Api
+    if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
+      const options: GGMNApiOptions = {
+        baseUrl: this.remoteConfig.ggmnBaseUrl,
+      }
+      const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
+      this.appApi = ggmnApi
+      this.externalServiceApi = ggmnApi;
+    } else {
+      //Default to MyWellApi
+      this.appApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
+    }
+
+
   }
 
   /**
@@ -71,27 +92,15 @@ export class ConfigFactory {
    */
   //TODO: remove the return annotation eventually.
   getAppApi(auth?: any): GGMNApi {
-    //TODO: should 
-    if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
-      const options: GGMNApiOptions = {
-        baseUrl: this.remoteConfig.ggmnBaseUrl,
-      }
-      return new GGMNApi(this.networkApi, this.envConfig.orgId, options);
-    }
-
-    //Default to MyWellApi
-    return new MyWellApi(this.networkApi, this.envConfig.orgId);
+    return this.appApi;
   }
 
   getExternalServiceApi(): ExternalServiceApi {
-    if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
-      const options: GGMNApiOptions = {
-        baseUrl: this.remoteConfig.ggmnBaseUrl,
-      }
-      return new GGMNApi(this.networkApi, this.envConfig.orgId, options);
+    if (!this.externalServiceApi) {
+      throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
     }
-    
-    throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
+
+   return this.externalServiceApi;
   }
 
   getShowConnectToButton() {
