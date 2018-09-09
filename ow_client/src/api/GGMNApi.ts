@@ -47,7 +47,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
-  apiState: ApiState;
 
   firebasePendingReadingsSubscriptionId: string | null = null;
   pendingReadingsSubscriptions: Map<string, any> = new Map<string, any>();
@@ -66,9 +65,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
     this.networkApi = networkApi;
     this.orgId = orgId;
-    this.apiState = {
-      bannerState: BannerState.none,
-    }
 
   }
 
@@ -469,17 +465,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
       //Don't return this promise - do without user caring
       console.log("saving reading", reading);
-      this.apiState.bannerState = BannerState.pendingGGMNWrites;
+      // this.apiState.bannerState = BannerState.pendingGGMNWrites;
       this.updatePendingReadingSubscribers();
       this.persistReadingToGGMN(reading)
       .then((response: any) => {
         console.log("saved reading!");
-        this.apiState.bannerState = BannerState.none;
+        // this.apiState.bannerState = BannerState.none;
         this.updatePendingReadingSubscribers();
       })
       .catch(err => {
         console.log("Failed to save reading to GGMN", err)
-        this.apiState.bannerState = BannerState.ggmnError;
+        // this.apiState.bannerState = BannerState.ggmnError;
         this.updatePendingReadingSubscribers();
       });
 
@@ -561,7 +557,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   firebasePendingReadingsCallback(sn: Snapshot) {
     if (sn.metadata.hasPendingWrites) {
-      this.apiState.bannerState = BannerState.pendingFirebaseWrites;
+      // this.apiState.bannerState = BannerState.pendingFirebaseWrites;
     }
     this.updatePendingReadingSubscribers();
   }
@@ -569,16 +565,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   //TODO: we need to maintain some sort of internal state and ordering here.
 
   updatePendingReadingSubscribers() {
-    const { bannerState } = this.apiState;
+    // const { bannerState } = this.apiState;
     const subscribers = this.pendingReadingsSubscriptions;
 
-    console.log("updating subscripers", bannerState, subscribers);
+    // console.log("updating subscripers", bannerState, subscribers);
     //TODO: add other metadata here!
     let keys = [...subscribers.keys()];
     keys.forEach(key => {
       console.log("updatingSubscriber:", key);
       const callback = subscribers.get(key);
-      callback(bannerState);
+      //TODO: reenable
+      // callback(bannerState);
     });
   }
 

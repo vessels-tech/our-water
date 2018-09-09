@@ -19,46 +19,42 @@ import {  textLight, bgMed, error1, textDark, warning1 } from '../utils/Colors';
 import FirebaseApi from '../api/FirebaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
+import { GlobalContext } from '../App';
+import { AppContext } from '../AppProvider';
+import { SyncStatus } from '../typings/enums';
 
-
-export enum BannerState {
-  none = 'none', //No changes need be saved or anything
-  pendingFirebaseWrites = 'pendingFirebaseWrites', //We have pending writes that haven't been saved to firebase yet
-  pendingGGMNLogin = 'pendingGGMNLogin', //User has tried to save, but isn't logged into ggmn
-  pendingGGMNWrites = 'pendingGGMNWrites', //We have pending writes that have been saved to firebase, but not to GGMN
-  ggmnError = 'ggmnError', //There was an error saving readings to ggmn.
-}
 
 export interface Props {
   config: ConfigFactory;
   userId: string,
   onBannerPressed: any;
+  syncStatus: SyncStatus,
 }
 
 export interface State {
-  bannerState: BannerState,
+  syncStatus: SyncStatus,
 }
 
 const bannerHeight = 25;
 
-export default function PendingChangesBannerFactory(config: ConfigFactory) {
+// export default function PendingChangesBannerFactory(config: ConfigFactory) {
  
-  class PendingChangesBanner extends Component<Props> {
+  export class PendingChangesBanner extends Component<Props> {
     appApi: BaseApi;
     subscriptionId: string | null = null;
 
     state: State = {
-      bannerState: BannerState.none,
+      syncStatus: SyncStatus.none,
     };
 
     constructor(props: Props) {
       super(props);
-      this.appApi = config.getAppApi();
+      this.appApi = props.config.getAppApi();
 
     }
 
     componentWillMount() {
-      this.subscriptionId = config.getAppApi().subscribeToPendingReadings(this.props.userId, (bs: BannerState) => this.pendingReadingsCallback(bs))
+      this.subscriptionId = this.appApi.subscribeToPendingReadings(this.props.userId, (bs: SyncStatus) => this.pendingReadingsCallback(bs))
     }
 
     componentWillUnmount() {
@@ -68,11 +64,11 @@ export default function PendingChangesBannerFactory(config: ConfigFactory) {
       }
     }
 
-    pendingReadingsCallback(bannerState: BannerState) {
-      console.log("pendingReadingsCallback", bannerState);
+    pendingReadingsCallback(syncStatus: SyncStatus) {
+      console.log("pendingReadingsCallback", syncStatus);
       
       this.setState({
-        bannerState
+        syncStatus
       });
     }
 
@@ -162,27 +158,27 @@ export default function PendingChangesBannerFactory(config: ConfigFactory) {
     }
 
     render() {
-      const { bannerState } = this.state;
+      const { syncStatus } = this.props;
 
       let innerView;
 
-      switch (bannerState) {
-        case BannerState.none: {
+      switch (syncStatus) {
+        case SyncStatus.none: {
           return null;
         }
-        case BannerState.pendingFirebaseWrites: {
+        case SyncStatus.pendingFirebaseWrites: {
           innerView = this.getFirebaseBanner();
           break;
         }
-        case BannerState.pendingGGMNLogin: {
+        case SyncStatus.pendingGGMNLogin: {
           innerView = this.getGGMNPendingBanner();
           break;
         }
-        case BannerState.pendingGGMNWrites: {
+        case SyncStatus.pendingGGMNWrites: {
           innerView = this.getGGMNBanner();
           break;
         }
-        case BannerState.ggmnError: {
+        case SyncStatus.ggmnError: {
           innerView = this.getGGMNErrorBanner();
           break;
         }
@@ -190,13 +186,25 @@ export default function PendingChangesBannerFactory(config: ConfigFactory) {
 
       return (
         <TouchableNativeFeedback
-          onPress={() => { this.props.onBannerPressed(this.state.bannerState) }}>
+          onPress={() => { this.props.onBannerPressed(this.state.syncStatus) }}>
           {innerView}
         </TouchableNativeFeedback>
       );
     }
   }
 
-  return PendingChangesBanner;
-}
 
+const PendingChangesBannerWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({syncStatus}) => (
+        <PendingChangesBanner 
+          syncStatus={syncStatus}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+};
+
+export default PendingChangesBannerWithContext;

@@ -17,7 +17,7 @@ import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
-import PendingChangesBannerFactory, { BannerState } from './components/PendingChangesBanner';
+import PendingChangesBanner, { BannerState } from './components/PendingChangesBanner';
 import { Location } from './typings/Location';
 
 import * as myPinImg from './assets/my_pin.png';
@@ -48,6 +48,8 @@ import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import NetworkStatusBannerFactory from './components/NetworkStatusBanner';
 import MapSection, { MapRegion } from './components/MapSection';
+import PendingChangesBannerWithContext from './components/PendingChangesBanner';
+import AppProvider from './AppProvider';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -70,12 +72,12 @@ export interface State {
   resources: any[],
 }
 
-export default function AppFactory(myConfig: ConfigFactory) {
-  //Init other components with DI:
-  const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
-  const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
+// export default function AppFactory(myConfig: ConfigFactory) {
+//   //Init other components with DI:
+//   const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
+//   const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
 
-  class App extends Component<Props> {
+export class App extends Component<Props> {
     mapRef?: MapView;
     state: State = {
       loading: true,
@@ -89,6 +91,7 @@ export default function AppFactory(myConfig: ConfigFactory) {
       resources: []
     };
 
+
     fs: any;
     hardwareBackListener: any;
     appApi: BaseApi;
@@ -97,9 +100,9 @@ export default function AppFactory(myConfig: ConfigFactory) {
       super(props);
 
       this.fs = firebase.firestore();
-      // this.appApi = props.config.getAppApi();
-      this.appApi = myConfig.getAppApi();
-      console.log("myConfig is:", myConfig)
+      this.appApi = props.config.getAppApi();
+      // this.appApi = myConfig.getAppApi();
+      // console.log("myConfig is:", myConfig)
 
       //Listen to events from the navigator
       this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
@@ -147,6 +150,7 @@ export default function AppFactory(myConfig: ConfigFactory) {
           resources,
           passiveLoading: false,
         });
+
       })
       .catch(err => {
         console.log(err);
@@ -390,7 +394,7 @@ export default function AppFactory(myConfig: ConfigFactory) {
             {this.getFavouritesList()}
           </ScrollView>
           {this.getPassiveLoadingIndicator()}
-          <PendingChangesBanner
+          <PendingChangesBannerWithContext
             config={this.props.config}
             userId={this.state.userId}
             onBannerPressed={(bannerState: BannerState) => this.onBannerPressed(bannerState)}
@@ -401,5 +405,14 @@ export default function AppFactory(myConfig: ConfigFactory) {
     }
   }
 
-  return App;
+const AppWithProvider = (props: Props) => {
+  return (
+    <AppProvider>
+      <App
+        {...props}
+      />
+    </AppProvider>
+  );
 }
+
+export default AppWithProvider;

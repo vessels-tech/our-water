@@ -16,15 +16,15 @@ export interface State {
 
 //TODO: make this DI'd
 
-export default function NetworkStatusBannerFactory(config: ConfigFactory) {
+// export default function (config: ConfigFactory) {
 
-  class NetworkStatusBanner extends Component<Props> {
+  export default class NetworkStatusBanner extends Component<Props> {
     networkApi: NetworkApi;
     
     constructor(props: Props) {
       super(props);
 
-      this.networkApi = config.networkApi;
+      this.networkApi = props.config.networkApi;
       this.networkApi.addConnectionChangeCallback(
         'networkBanner', 
         (i: boolean) => this.onConnectionChange(i)
@@ -61,5 +61,5 @@ export default function NetworkStatusBannerFactory(config: ConfigFactory) {
     }
   }
 
-  return NetworkStatusBanner;
-}
+  // return NetworkStatusBanner;
+// }
