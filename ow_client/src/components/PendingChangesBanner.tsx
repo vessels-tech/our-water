@@ -19,7 +19,6 @@ import {  textLight, bgMed, error1, textDark, warning1 } from '../utils/Colors';
 import FirebaseApi from '../api/FirebaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { GlobalContext } from '../App';
 import { AppContext } from '../AppProvider';
 import { SyncStatus } from '../typings/enums';
 
@@ -51,25 +50,6 @@ const bannerHeight = 25;
       super(props);
       this.appApi = props.config.getAppApi();
 
-    }
-
-    componentWillMount() {
-      this.subscriptionId = this.appApi.subscribeToPendingReadings(this.props.userId, (bs: SyncStatus) => this.pendingReadingsCallback(bs))
-    }
-
-    componentWillUnmount() {
-      if (this.subscriptionId) {
-        console.log("unsubscribing!");
-        this.appApi.unsubscribeFromPendingReadings(this.subscriptionId);
-      }
-    }
-
-    pendingReadingsCallback(syncStatus: SyncStatus) {
-      console.log("pendingReadingsCallback", syncStatus);
-      
-      this.setState({
-        syncStatus
-      });
     }
 
     getFirebaseBanner() {

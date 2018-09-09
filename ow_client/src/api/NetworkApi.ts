@@ -38,6 +38,7 @@ export default class NetworkApi {
   }
 
   addConnectionChangeCallback(id: string, callback: any) {
+    console.log("Added callback");
     this.connectionUpdateCallbacks.set(id, callback);
   }
 
@@ -45,19 +46,17 @@ export default class NetworkApi {
     this.connectionUpdateCallbacks.delete(id);
   }
 
-  // updateConnectionStatus() {
-  //   return NetInfo.isConnected.fetch()
-  //     .then(isConnected => {
-  //       console.log('isConnected', isConnected);
-  //       this = new NetworkApi({isConnected, connectionUpdateCallbacks: this.connectionUpdateCallbacks});
-  //     });
-  // }
+  updateConnectionStatus() {
+    return NetInfo.isConnected.fetch()
+      .then(isConnected => {
+        console.log('isConnected', isConnected);
+        this.onConnectionChange(isConnected);
+      });
+  }
 
-  onConnectionChange(isConnected: boolean) {
-    console.log("isConnected", isConnected);
-    console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
-
-    Object.keys(this.connectionUpdateCallbacks).forEach(key => {
+  private onConnectionChange(isConnected: boolean) {
+    const keys = [ ...this.connectionUpdateCallbacks.keys() ];
+    keys.forEach(key => {
       let callback = this.connectionUpdateCallbacks.get(key);
       callback(isConnected);
     });

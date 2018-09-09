@@ -134,4 +134,12 @@ export default interface BaseApi {
    */
   performSearch(searchQuery: string): Promise<SearchResult>;
 
+
+
+  //
+  // Callbacks
+  //----------------------------------------------------------------------
+  setSyncStatusChangedCallback(cb: any): void;
+
+
 }

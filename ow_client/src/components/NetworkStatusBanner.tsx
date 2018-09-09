@@ -5,61 +5,61 @@ import { bgMed, textLight, textDark } from "../utils/Colors";
 import { Text } from "react-native-elements";
 import { ConfigFactory } from '../config/ConfigFactory';
 import NetworkApi from '../api/NetworkApi';
+import { AppContext } from '../AppProvider';
 
-export interface Props {
-  config: ConfigFactory
+export interface Props {  
+  isConnected: boolean
 }
 
 export interface State {
   
 }
 
-//TODO: make this DI'd
 
-// export default function (config: ConfigFactory) {
-
-  export default class NetworkStatusBanner extends Component<Props> {
-    networkApi: NetworkApi;
+class NetworkStatusBanner extends Component<Props> {
     
     constructor(props: Props) {
       super(props);
-
-      this.networkApi = props.config.networkApi;
-      this.networkApi.addConnectionChangeCallback(
-        'networkBanner', 
-        (i: boolean) => this.onConnectionChange(i)
-      );
     }
 
-    componentWillUnmount() {
-      this.networkApi.removeConnectionChangeCallback('networkBanner');
-    } 
-
-    onConnectionChange(isConnected: boolean) {
-      console.log("connection changed! isConnected:", isConnected);
-    }
 
     render() {
+      if (this.props.isConnected) {
+        return null;
+      }
+
       return (
-      <View
-        style={{
-          backgroundColor: bgMed,
-          width: '100%',
-          height: 20,
-        }}
-      >
-        <Text
+        <View
           style={{
-            color: textDark,
-            textAlign: 'center',
+            backgroundColor: bgMed,
+            width: '100%',
+            height: 20,
           }}
         >
-          {`Network is offline.`}
-        </Text>
-      </View>
+          <Text
+            style={{
+              color: textDark,
+              textAlign: 'center',
+            }}
+          >
+            {`Network is offline.`}
+          </Text>
+        </View>
       );
     }
-  }
+}
 
-  // return NetworkStatusBanner;
-// }
+const NetworkStatusBannerWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({ isConnected}) => (
+        <NetworkStatusBanner
+          isConnected={isConnected}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+};
+
+export default NetworkStatusBannerWithContext;

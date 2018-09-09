@@ -17,7 +17,6 @@ import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
-import PendingChangesBanner, { BannerState } from './components/PendingChangesBanner';
 import { Location } from './typings/Location';
 
 import * as myPinImg from './assets/my_pin.png';
@@ -49,13 +48,17 @@ import { isNullOrUndefined } from 'util';
 import NetworkStatusBannerFactory from './components/NetworkStatusBanner';
 import MapSection, { MapRegion } from './components/MapSection';
 import PendingChangesBannerWithContext from './components/PendingChangesBanner';
-import AppProvider from './AppProvider';
+import AppProvider, { AppContext } from './AppProvider';
+import { SyncStatus } from './typings/enums';
+import NetworkStatusBannerWithContext from './components/NetworkStatusBanner';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   navigator: any;
   config: ConfigFactory,
+
+  appApi: BaseApi, //injected by provider I think.
 }
 
 export interface State {
@@ -98,6 +101,8 @@ export class App extends Component<Props> {
 
     constructor(props: Props) {
       super(props);
+
+      console.log("this.props.appApi", props.appApi)
 
       this.fs = firebase.firestore();
       this.appApi = props.config.getAppApi();
@@ -190,8 +195,8 @@ export class App extends Component<Props> {
       return this.reloadResourcesIfNeeded(region)
     }
 
-    onBannerPressed(bannerState: BannerState) {
-      if (bannerState === BannerState.pendingGGMNLogin) {
+    onBannerPressed(bannerState: SyncStatus) {
+      if (bannerState === SyncStatus.pendingGGMNLogin) {
         //Redirect user to settings view
         showModal(
           this.props,
@@ -210,7 +215,7 @@ export class App extends Component<Props> {
       //delete pending readings and stuff, which means we need to
       //display a list of the pending readings with a state next to them
       //I'll leave this now until I can think of an easier option
-      if (bannerState === BannerState.ggmnError) {
+      if (bannerState === SyncStatus.ggmnError) {
 
       }
     }
@@ -397,9 +402,9 @@ export class App extends Component<Props> {
           <PendingChangesBannerWithContext
             config={this.props.config}
             userId={this.state.userId}
-            onBannerPressed={(bannerState: BannerState) => this.onBannerPressed(bannerState)}
+            onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
           />
-          {/* <NetworkStatusBanner config={this.props.config}/> */}
+          <NetworkStatusBannerWithContext/>
         </View>
       );
     }
@@ -407,10 +412,15 @@ export class App extends Component<Props> {
 
 const AppWithProvider = (props: Props) => {
   return (
-    <AppProvider>
-      <App
-        {...props}
-      />
+    <AppProvider config={props.config}>
+      <AppContext.Consumer>
+        {({appApi}) => (
+          <App
+            appApi={appApi}
+            {...props}
+          />
+        )}
+      </AppContext.Consumer>
     </AppProvider>
   );
 }

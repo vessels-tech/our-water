@@ -17,7 +17,7 @@ import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } 
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
-import { BannerState } from "../components/PendingChangesBanner";
+import { SyncStatus } from "../typings/enums";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -31,11 +31,6 @@ export interface GGMNApiOptions {
   auth?: any,
 }
 
-export interface ApiState {
-  bannerState: BannerState //TODO: separate out view and api logic
-
-}
-
 
 /**
  * The GGMN Api.
@@ -47,6 +42,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
+
+  // private syncStatusCallback: any;
 
   firebasePendingReadingsSubscriptionId: string | null = null;
   pendingReadingsSubscriptions: Map<string, any> = new Map<string, any>();
@@ -457,7 +454,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       } catch (err) {
         //Could not get credentials, or user hasn't logged in
         console.log("pendingReadingSubscriptions", this.pendingReadingsSubscriptions);
-        this.updatePendingReadingSubscribers();
+        this.updatePendingReadingSubscribers(SyncStatus.pendingGGMNLogin);
         return {
           requiresLogin: true,
         }
@@ -465,18 +462,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
       //Don't return this promise - do without user caring
       console.log("saving reading", reading);
-      // this.apiState.bannerState = BannerState.pendingGGMNWrites;
-      this.updatePendingReadingSubscribers();
+      this.updatePendingReadingSubscribers(SyncStatus.pendingGGMNWrites);
       this.persistReadingToGGMN(reading)
       .then((response: any) => {
         console.log("saved reading!");
-        // this.apiState.bannerState = BannerState.none;
-        this.updatePendingReadingSubscribers();
+        this.updatePendingReadingSubscribers(SyncStatus.none);
       })
       .catch(err => {
         console.log("Failed to save reading to GGMN", err)
         // this.apiState.bannerState = BannerState.ggmnError;
-        this.updatePendingReadingSubscribers();
+        this.updatePendingReadingSubscribers(SyncStatus.ggmnError);
       });
 
       return {
@@ -540,6 +535,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
     }
     const subscriptionId = `${moment().valueOf()}`;
+    console.log("subscribed for userId", userId);
     this.pendingReadingsSubscriptions.set(subscriptionId, callback);
     
     return subscriptionId;
@@ -558,14 +554,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   firebasePendingReadingsCallback(sn: Snapshot) {
     if (sn.metadata.hasPendingWrites) {
       // this.apiState.bannerState = BannerState.pendingFirebaseWrites;
+      this.updatePendingReadingSubscribers(SyncStatus.pendingFirebaseWrites);
     }
-    this.updatePendingReadingSubscribers();
   }
 
   //TODO: we need to maintain some sort of internal state and ordering here.
 
-  updatePendingReadingSubscribers() {
-    // const { bannerState } = this.apiState;
+  updatePendingReadingSubscribers(syncStatus: SyncStatus) {
+
     const subscribers = this.pendingReadingsSubscriptions;
 
     // console.log("updating subscripers", bannerState, subscribers);
@@ -575,7 +571,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       console.log("updatingSubscriber:", key);
       const callback = subscribers.get(key);
       //TODO: reenable
-      // callback(bannerState);
+      callback(syncStatus);
     });
   }
 
@@ -614,6 +610,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       users: [],
       offline: false,
     });
+  }
+
+  //
+  // Callbacks
+  //----------------------------------------------------------------------
+  setSyncStatusChangedCallback(cb: any): void {
+    console.log("Setting callback!", cb);
+    this.syncStatusCallback = cb;
   }
 
   //
