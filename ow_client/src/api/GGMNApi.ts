@@ -1,12 +1,14 @@
 import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
-import { Firebase } from "react-native-firebase";
+import { RNFirebase, Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
+type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
-import { appendUrlParameters, getDemoResources, rejectRequestWithError, calculateBBox, naiveParseFetchResponse } from "../utils";
+
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -15,6 +17,7 @@ import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } 
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
+import { BannerState } from "../components/PendingChangesBanner";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -28,6 +31,11 @@ export interface GGMNApiOptions {
   auth?: any,
 }
 
+export interface ApiState {
+  bannerState: BannerState //TODO: separate out view and api logic
+
+}
+
 
 /**
  * The GGMN Api.
@@ -39,6 +47,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
+  apiState: ApiState;
+
+  firebasePendingReadingsSubscriptionId: string | null = null;
+  pendingReadingsSubscriptions: Map<string, any> = new Map<string, any>();
 
   /**
    * initialize with options
@@ -54,6 +66,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
     this.networkApi = networkApi;
     this.orgId = orgId;
+    this.apiState = {
+      bannerState: BannerState.none,
+    }
+
   }
 
   //
@@ -436,6 +452,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * put it on a timer/user click banner
    */
   saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult> {
+    console.log("saveReading: pendingReadingSubscriptions", this.pendingReadingsSubscriptions);
 
     return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
     .then(async () => {
@@ -443,6 +460,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
         await this.getCredentials()
       } catch (err) {
         //Could not get credentials, or user hasn't logged in
+        console.log("pendingReadingSubscriptions", this.pendingReadingsSubscriptions);
+        this.updatePendingReadingSubscribers();
         return {
           requiresLogin: true,
         }
@@ -450,9 +469,19 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
       //Don't return this promise - do without user caring
       console.log("saving reading", reading);
+      this.apiState.bannerState = BannerState.pendingGGMNWrites;
+      this.updatePendingReadingSubscribers();
       this.persistReadingToGGMN(reading)
-      .then((response: any) => console.log("saved reading!"))
-      .catch(err => console.log("Failed to save reading to GGMN", err));
+      .then((response: any) => {
+        console.log("saved reading!");
+        this.apiState.bannerState = BannerState.none;
+        this.updatePendingReadingSubscribers();
+      })
+      .catch(err => {
+        console.log("Failed to save reading to GGMN", err)
+        this.apiState.bannerState = BannerState.ggmnError;
+        this.updatePendingReadingSubscribers();
+      });
 
       return {
         requiresLogin: false,
@@ -502,10 +531,56 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
 
   /**
-   * Get the pending readings listener from the firebase api
+   * A listener function which combines callback events from the FirebaseApi and 
+   * GGMN api to inform the PendingChangesBanner of any updates it needs to make
+   * 
+   * returns an id of the subscription, to be used for unsubscribe events
    */
-  listenForPendingReadings(userId: string, callback: any): any {
-    return FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  subscribeToPendingReadings(userId: string, callback: any): string {
+
+    //If we haven't already subscribed to the firebase updates, do it now.
+    if (!this.firebasePendingReadingsSubscriptionId) {
+      this.firebasePendingReadingsSubscriptionId = FirebaseApi.listenForPendingReadingsToUser(
+        this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
+    }
+    const subscriptionId = `${moment().valueOf()}`;
+    this.pendingReadingsSubscriptions.set(subscriptionId, callback);
+    
+    return subscriptionId;
+  }
+
+  unsubscribeFromPendingReadings(subscriptionId: string): void {
+    if (this.pendingReadingsSubscriptions.has(subscriptionId)) {
+      this.pendingReadingsSubscriptions.delete(subscriptionId);
+    }
+
+    if (this.pendingReadingsSubscriptions.size === 0) {
+      //TODO: unsubscripe from firebase updates
+    }
+  }
+
+  firebasePendingReadingsCallback(sn: Snapshot) {
+    if (sn.metadata.hasPendingWrites) {
+      this.apiState.bannerState = BannerState.pendingFirebaseWrites;
+    }
+    this.updatePendingReadingSubscribers();
+  }
+
+  //TODO: we need to maintain some sort of internal state and ordering here.
+
+  updatePendingReadingSubscribers() {
+    const { bannerState } = this.apiState;
+    const subscribers = this.pendingReadingsSubscriptions;
+
+
+    console.log("updating subscripers", bannerState);
+    //TODO: add other metadata here!
+    let keys = [...subscribers.keys()];
+    keys.forEach(key => {
+      console.log("updatingSubscriber:", key);
+      const callback = subscribers.get(key);
+      callback(bannerState);
+    });
   }
 
   getPendingReadings(userId: string): Promise<Reading[]> {
@@ -538,7 +613,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   performSearch(searchQuery: string): Promise<SearchResult> {
     //TODO: implement search for offline mode
     return Promise.resolve({
-      resources: getDemoResources(),
+      resources: [],
       groups:[],
       users: [],
       offline: false,

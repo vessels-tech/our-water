@@ -41,14 +41,13 @@ export interface State {
 
 const bannerHeight = 25;
 
-
 /*TODO: reimplement this for GGMN - if we are syncing to firebase, display 'saving', if we have pending writes that 
 are being saved to ggmn, display 'syncing with GGMN', if we have pendingReadings in the user object, but are not logged in
 or there is some error, display 'Error syncing with GGMN'. Pressing on banner will bring up a nice modal with tips etc.
 */
 export default class PendingChangesBanner extends Component<Props> {
   appApi: BaseApi;
-  listener: any;
+  subscriptionId: string | null = null;
 
   state: State = {
     bannerState: BannerState.none,
@@ -63,18 +62,23 @@ export default class PendingChangesBanner extends Component<Props> {
   componentWillMount() {
     // TODO: how to we unsubscribe to this?
     //TODO: update for breaking changes: to 4.1.0 https://github.com/invertase/react-native-firebase/releases?after=v4.3.x
-    this.listener = this.appApi.listenForPendingReadings(this.props.userId, (sn: Snapshot) => this.pendingReadingsCallback(sn));
+    // this.listener = this.appApi.listenForPendingReadings(this.props.userId, (sn: Snapshot) => this.pendingReadingsCallback(sn));
+    this.subscriptionId = this.appApi.subscribeToPendingReadings(this.props.userId, (bs: BannerState) => this.pendingReadingsCallback(bs))
     // FirebaseApi.listenForPendingReadings({orgId}, (sn) => this.pendingReadingsCallback(sn));
   }
 
   componentWillUnmount() {
-    this.listener.unsubscribe();
+    if (this.subscriptionId) {
+      console.log("unsubscribing!");
+      this.appApi.unsubscribeFromPendingReadings(this.subscriptionId);
+    }
   }
 
-  pendingReadingsCallback(sn: Snapshot) {
+  pendingReadingsCallback(bannerState: BannerState) {
+    console.log("pendingReadingsCallback", bannerState);
     
     this.setState({
-      hasPendingWrites: sn.metadata.hasPendingWrites,
+      bannerState
     });
   }
 

@@ -80,7 +80,13 @@ export default interface BaseApi {
   /**
    * set up a listener for changes to any pending readings
    */
-  listenForPendingReadings(userId: string, callback: any): any;
+  subscribeToPendingReadings(userId: string, callback: any): string;
+
+  /**
+   * unsubscribe from the pending reading listener
+   */
+  unsubscribeFromPendingReadings(subscriptionId: string): void;
+
 
   /**
    * get the pending readings for this user

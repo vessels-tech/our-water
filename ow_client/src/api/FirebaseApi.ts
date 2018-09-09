@@ -411,8 +411,8 @@ class FirebaseApi {
     );
   }
 
-  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: any) {
-    this.userDoc(orgId, userId).collection('pendingReadings')
+  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: any): string {
+    return this.userDoc(orgId, userId).collection('pendingReadings')
     .onSnapshot(
       {
           includeMetadataChanges: true,
