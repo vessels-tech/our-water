@@ -14,46 +14,52 @@ export interface State {
   
 }
 
-export class NetworkStatusBanner extends Component<Props> {
-  networkApi: NetworkApi;
-  
-  constructor(props: Props) {
-    super(props);
+//TODO: make this DI'd
 
-    this.networkApi = props.config.networkApi;
-    this.networkApi.addConnectionChangeCallback(
-      'networkBanner', 
-      (i: boolean) => this.onConnectionChange(i)
-    );
-  }
+export default function NetworkStatusBannerFactory(config: ConfigFactory) {
 
-  componentWillUnmount() {
-    this.networkApi.removeConnectionChangeCallback('networkBanner');
-  } 
+  class NetworkStatusBanner extends Component<Props> {
+    networkApi: NetworkApi;
+    
+    constructor(props: Props) {
+      super(props);
 
-  onConnectionChange(isConnected: boolean) {
-    console.log("connection changed! isConnected:", isConnected);
-  }
+      this.networkApi = config.networkApi;
+      this.networkApi.addConnectionChangeCallback(
+        'networkBanner', 
+        (i: boolean) => this.onConnectionChange(i)
+      );
+    }
 
-  render() {
-    return (
-    <View
-      style={{
-        backgroundColor: bgMed,
-        width: '100%',
-        height: 20,
-      }}
-    >
-      <Text
+    componentWillUnmount() {
+      this.networkApi.removeConnectionChangeCallback('networkBanner');
+    } 
+
+    onConnectionChange(isConnected: boolean) {
+      console.log("connection changed! isConnected:", isConnected);
+    }
+
+    render() {
+      return (
+      <View
         style={{
-          color: textDark,
-          textAlign: 'center',
+          backgroundColor: bgMed,
+          width: '100%',
+          height: 20,
         }}
       >
-        {`Network is offline.`}
-      </Text>
-    </View>
-    );
+        <Text
+          style={{
+            color: textDark,
+            textAlign: 'center',
+          }}
+        >
+          {`Network is offline.`}
+        </Text>
+      </View>
+      );
+    }
   }
 
+  return NetworkStatusBanner;
 }

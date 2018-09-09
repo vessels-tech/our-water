@@ -5,14 +5,24 @@ export type CallbackMap = {
   [key: string]: any
 }
 
-class NetworkApi {
+export interface State {
+  isConnected: boolean,
+  connectionUpdateCallbacks: Map<string, any>,
+}
+
+export default class NetworkApi {
   public isConnected: boolean;
   public connectionUpdateCallbacks: Map<string, any>;
 
-  constructor()  {
-    // this.updateConnectionStatus();
-    this.isConnected = false;
-    this.connectionUpdateCallbacks = new Map<string, any>();
+  constructor(state?: State)  {
+    if (!state) {
+      state = {
+        isConnected: false,
+        connectionUpdateCallbacks: new Map<string, any>(),
+      }
+    }
+    this.isConnected = state.isConnected;
+    this.connectionUpdateCallbacks = state.connectionUpdateCallbacks;
 
     NetInfo.isConnected.addEventListener(
       'connectionChange',
@@ -22,7 +32,7 @@ class NetworkApi {
 
   public static async createAndInit() {
     const networkApi = new NetworkApi();
-    await networkApi.updateConnectionStatus();
+    // await networkApi.updateConnectionStatus();
 
     return networkApi;
   }
@@ -35,18 +45,17 @@ class NetworkApi {
     this.connectionUpdateCallbacks.delete(id);
   }
 
-  updateConnectionStatus() {
-    return NetInfo.isConnected.fetch()
-      .then(isConnected => {
-        console.log('isConnected', isConnected);
-        this.isConnected = isConnected;
-      });
-  }
+  // updateConnectionStatus() {
+  //   return NetInfo.isConnected.fetch()
+  //     .then(isConnected => {
+  //       console.log('isConnected', isConnected);
+  //       this = new NetworkApi({isConnected, connectionUpdateCallbacks: this.connectionUpdateCallbacks});
+  //     });
+  // }
 
   onConnectionChange(isConnected: boolean) {
     console.log("isConnected", isConnected);
     console.log('Then, is ' + (isConnected ? 'online' : 'offline'));
-    this.isConnected = isConnected;
 
     Object.keys(this.connectionUpdateCallbacks).forEach(key => {
       let callback = this.connectionUpdateCallbacks.get(key);
@@ -54,9 +63,7 @@ class NetworkApi {
     });
   }
 
-  getIsConnected() {
-    return this.isConnected;
-  }
+  // getIsConnected() {
+  //   return this.isConnected;
+  // }
 }
-
-export default NetworkApi;

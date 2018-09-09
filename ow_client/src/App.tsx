@@ -17,7 +17,7 @@ import LoadLocationButton from './components/LoadLocationButton';
 import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
-import PendingChangesBanner, { BannerState } from './components/PendingChangesBanner';
+import PendingChangesBannerFactory, { BannerState } from './components/PendingChangesBanner';
 import { Location } from './typings/Location';
 
 import * as myPinImg from './assets/my_pin.png';
@@ -46,7 +46,7 @@ import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
 import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
-import { NetworkStatusBanner } from './components/NetworkStatusBanner';
+import NetworkStatusBannerFactory from './components/NetworkStatusBanner';
 import MapSection, { MapRegion } from './components/MapSection';
 
 const orgId = Config.REACT_APP_ORG_ID;
@@ -70,7 +70,10 @@ export interface State {
   resources: any[],
 }
 
-export default function AppFactory(config: ConfigFactory) {
+export default function AppFactory(myConfig: ConfigFactory) {
+  //Init other components with DI:
+  const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
+  const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
 
   class App extends Component<Props> {
     mapRef?: MapView;
@@ -94,7 +97,9 @@ export default function AppFactory(config: ConfigFactory) {
       super(props);
 
       this.fs = firebase.firestore();
-      this.appApi = props.config.getAppApi();
+      // this.appApi = props.config.getAppApi();
+      this.appApi = myConfig.getAppApi();
+      console.log("myConfig is:", myConfig)
 
       //Listen to events from the navigator
       this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));

@@ -47,7 +47,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
-    apiState: ApiState;
+  apiState: ApiState;
 
   firebasePendingReadingsSubscriptionId: string | null = null;
   pendingReadingsSubscriptions: Map<string, any> = new Map<string, any>();
@@ -540,8 +540,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
     //If we haven't already subscribed to the firebase updates, do it now.
     if (!this.firebasePendingReadingsSubscriptionId) {
-      this.firebasePendingReadingsSubscriptionId = FirebaseApi.listenForPendingReadingsToUser(
-        this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
+      //TODO: set this value?
+      FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
     }
     const subscriptionId = `${moment().valueOf()}`;
     this.pendingReadingsSubscriptions.set(subscriptionId, callback);

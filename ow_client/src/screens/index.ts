@@ -1,6 +1,6 @@
 import { Navigation } from 'react-native-navigation';
 
-import App from '../App';
+import AppFactory from '../App';
 import NewReadingScreen from './NewReadingScreen';
 import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
@@ -8,10 +8,11 @@ import EditResourceScreen from './EditResourceScreen';
 import SearchScreen from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import GGMNReadingScreen from './GGMNReadingScreen';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 
-export function registerScreens() {
-  Navigation.registerComponent('example.FirstTabScreen', () => App);
+export function registerScreens(config: ConfigFactory) {
+  Navigation.registerComponent('example.FirstTabScreen', () => AppFactory(config));
   Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
