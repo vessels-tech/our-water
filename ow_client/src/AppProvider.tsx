@@ -76,8 +76,6 @@ export default class AppProvider extends Component<Props> {
   }
 
   connectionStatusChanged(isConnected: boolean) {
-    console.log("AppProvider: NetworkStatusChanged!");
-
     this.setState({
       isConnected,
     });

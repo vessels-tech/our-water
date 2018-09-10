@@ -1,6 +1,7 @@
+import * as React from 'react';
 import { Navigation } from 'react-native-navigation';
 
-import AppWithProvider from '../App';
+import App from '../App';
 import NewReadingScreen from './NewReadingScreen';
 import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
@@ -10,11 +11,26 @@ import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import GGMNReadingScreen from './GGMNReadingScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
 import AppProvider, { AppContext } from '../AppProvider';
+//@ts-ignore
+import Provider from 'react-context-api-store';
 
+const store = {
+  isConnected: false,
+};
+
+
+const wrapComponentWithProvider = (Comp: any) => (props: any) => {
+
+  return (
+    <Provider store={store}>
+      <Comp {...props}/>
+    </Provider>
+  );
+}
 
 export function registerScreens(config: ConfigFactory) {
   //@ts-ignore
-  Navigation.registerComponent('example.FirstTabScreen', () => AppWithProvider, undefined, AppContext.Provider);
+  Navigation.registerComponent('example.FirstTabScreen', () => wrapComponentWithProvider(App), store, Provider);
   Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);

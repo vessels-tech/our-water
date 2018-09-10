@@ -80,7 +80,7 @@ export interface State {
 //   const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
 //   const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
 
-export class App extends Component<Props> {
+export default class App extends Component<Props> {
     mapRef?: MapView;
     state: State = {
       loading: true,
@@ -410,19 +410,19 @@ export class App extends Component<Props> {
     }
   }
 
-const AppWithProvider = (props: Props) => {
-  return (
-    <AppProvider config={props.config}>
-      <AppContext.Consumer>
-        {({appApi}) => (
-          <App
-            appApi={appApi}
-            {...props}
-          />
-        )}
-      </AppContext.Consumer>
-    </AppProvider>
-  );
-}
+// const AppWithProvider = (props: Props) => {
+//   return (
+//     <AppProvider config={props.config}>
+//       <AppContext.Consumer>
+//         {({appApi}) => (
+//           <App
+//             appApi={appApi}
+//             {...props}
+//           />
+//         )}
+//       </AppContext.Consumer>
+//     </AppProvider>
+//   );
+// }
 
-export default AppWithProvider;
+// export default AppWithProvider;
