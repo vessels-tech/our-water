@@ -251,12 +251,12 @@ class ResourceDetailSection extends Component<Props> {
             width: '50%',
             height: 30,
             position: 'absolute',
-            // left: 0,
             right: 20,
             bottom: 0,
             borderColor: textLight,
             borderTopWidth: 2,
-            flexDirection: 'row'
+            flexDirection: 'row',
+            marginRight: 10,
           }}>
             {this.getReadingButton()}
             {this.getFavouriteButton()}

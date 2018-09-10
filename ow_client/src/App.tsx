@@ -272,7 +272,12 @@ class App extends Component<Props> {
           indeterminate={true}
           color={primaryDark}
           style={{
-            marginVertical: -6, //make it just touch the bottom
+            marginVertical: -6,
+            position: 'absolute',
+            zIndex: 10,
+            top: 0,
+            left: 0,
+            right: 0, 
           }}
         />
       );
@@ -357,6 +362,7 @@ class App extends Component<Props> {
           flex: 1,
           backgroundColor: bgLight,
         }}>
+        {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection 
             mapRef={(ref: any) => {this.mapRef = ref}}
@@ -377,7 +383,6 @@ class App extends Component<Props> {
             {this.getResourceView()}
             {this.getFavouritesList()}
           </ScrollView>
-          {this.getPassiveLoadingIndicator()}
           <PendingChangesBannerWithContext
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
           />
