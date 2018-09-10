@@ -47,7 +47,8 @@ export interface GlobalState {
   //Adding other user-based models
   favouriteResources: Resource[],
   favouriteResourcesMeta: AsyncMeta,
-
+  recentResources: Resource[],
+  recentResourcesMeta: AsyncMeta,
 
   //Functions - passed through via state to Consumers
   syncStatusChanged?: any,
@@ -55,6 +56,7 @@ export interface GlobalState {
   userIdChanged?: any,
   action_addFavourite?: any,
   action_removeFavourite?: any,
+  action_addRecent?: any,
 
 
 
@@ -73,6 +75,8 @@ const defaultState: GlobalState = {
   networkApi: null,
   favouriteResources: [],
   favouriteResourcesMeta: {loading: false},
+  recentResources: [],
+  recentResourcesMeta: {loading: false},
 }
 
 export const AppContext = React.createContext(defaultState);
@@ -112,6 +116,7 @@ export default class AppProvider extends Component<Props> {
       //TODO: Move elsewhere?
       action_addFavourite: this.action_addFavourite.bind(this),
       action_removeFavourite: this.action_removeFavourite.bind(this),
+      action_addRecent: this.action_addRecent.bind(this),
     }
 
     AsyncStorage.getItem(storageKey)
@@ -196,12 +201,15 @@ export default class AppProvider extends Component<Props> {
     console.log("got a user changed callback!", sn.data());
     const userData = sn.data();
 
+
+    /* Map from Firebase Domain to our Domain*/
     const favouriteResourcesDict = userData.favouriteResources;
     const favouriteResources = Object.keys(favouriteResourcesDict)
       .map(key => favouriteResourcesDict[key])
-      .filter(r => r === null);  //Null resources are ones that were added but have been removed
+      .filter(r => r !== null);  //Null resources are ones that were added but have been removed
     this.setState({
       favouriteResources,
+      recentResources: userData.recentResources,
     });
   }
 
@@ -232,6 +240,14 @@ export default class AppProvider extends Component<Props> {
     this.setState({favouriteResourcesMeta: {loading: true}});
     await this.appApi.removeFavouriteResource(resourceId, userId);
     this.setState({favouriteResourcesMeta: { loading: false }});
+  }
+
+  async action_addRecent(resource: Resource): Promise<any> {
+    const { userId } = this.state;
+
+    this.setState({ recentResourcesMeta: { loading: true } });
+    await this.appApi.addRecentResource(resource, userId);
+    this.setState({ recentResourcesMeta: { loading: false } });
   }
 
   /*

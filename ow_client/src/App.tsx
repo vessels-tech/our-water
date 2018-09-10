@@ -47,6 +47,7 @@ export interface Props {
   //Injected by Consumer
   appApi: BaseApi, 
   userIdChanged: any, 
+  action_addRecent: any,
 }
 
 export interface State {
@@ -237,7 +238,7 @@ class App extends Component<Props> {
         selectedResource: resource,
       });
 
-      this.appApi.addRecentResource(resource, this.state.userId);
+      this.props.action_addRecent(resource);
     }
 
     updateGeoLocation(location: Location) {
@@ -395,10 +396,11 @@ class App extends Component<Props> {
 const AppWithContext = (props: Props) => {
   return (
     <AppContext.Consumer>
-      {({appApi, userIdChanged}) => (
+      {({ appApi, userIdChanged, action_addRecent}) => (
         <App
           appApi={appApi}
           userIdChanged={userIdChanged}
+          action_addRecent={action_addRecent}
           {...props}
         />
       )}

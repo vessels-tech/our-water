@@ -12,6 +12,9 @@ import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
 import { textDark } from '../utils/Colors';
+import { AppContext, AsyncMeta } from '../AppProvider';
+import { Resource } from '../typings/models/OurWater';
+import Loading from './Loading';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const orgId = Config.REACT_APP_ORG_ID;
@@ -20,10 +23,14 @@ const orgId = Config.REACT_APP_ORG_ID;
 export interface Props {
   userId: string,
   onResourceCellPressed: any
+
+  favouriteResourcesMeta: AsyncMeta,
+  favouriteResources: Resource[],
+  recentResourcesMeta: AsyncMeta,
+  recentResources: Resource[],
 }
 
 export interface State {
-  favourites: any,
   recents: any[],
 }
 
@@ -32,7 +39,7 @@ export interface State {
  * resources.
  * 
  */
-export default class FavouriteResourceList extends Component<Props> {
+class FavouriteResourceList extends Component<Props> {
   unsubscribe: any;
   state: State;
 
@@ -40,40 +47,13 @@ export default class FavouriteResourceList extends Component<Props> {
     super(props);
 
     this.state = {
-      favourites: {},
+      // favourites: {},
       recents: []
     }
   }
 
-  componentWillMount() {
-    const { userId } = this.props;
-
-    // Subscribe to updates
-    this.unsubscribe = FirebaseApi.listenForUpdatedUser(orgId, userId, this.onUserUpdated);
   
-    return Promise.all([
-      FirebaseApi.getRecentResources(orgId, userId),
-      FirebaseApi.getFavouriteResources(orgId, userId)
-    ])
-    .then(([recents, favourites]) => {
-      this.setState({
-        recents, 
-        favourites,
-      });
-    });
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  //TODO: for some reason, this isn't updating
-  onUserUpdated(sn: any) {
-    // console.log("onUserUpdated snapshot", sn);
-
-  }
-
-  getResourceCell(resource: any) {
+  getResourceCell(resource: Resource) {
     //Ideally, we would display the resource image + 
     //if we don't have the image, pick a random color from a nice set maybe?
     const backgroundColor = randomPrettyColorForId(resource.id);
@@ -108,10 +88,13 @@ export default class FavouriteResourceList extends Component<Props> {
 
   
   getFavouritesSection() {
-    const { favourites } = this.state;
+    const { favouriteResources, favouriteResourcesMeta } = this.props;
 
-    if (Object.keys(favourites).length === 0) {
+    if (favouriteResourcesMeta.loading) {
+      return <Loading/>
+    }
 
+    if (favouriteResources.length === 0) {
       const icon = (<Icon
         style={{
           flex: 1,
@@ -122,8 +105,7 @@ export default class FavouriteResourceList extends Component<Props> {
         name='star'
         color='yellow'
       />);
-      
-
+    
       return (
         <Text style={{textAlign: 'center'}}>
           Press the {icon} button to add a favourite.
@@ -131,10 +113,7 @@ export default class FavouriteResourceList extends Component<Props> {
       );
     }
 
-    const firstFiveFavourites = Object.keys(favourites)
-      .slice(0, 5)
-      .map(id => favourites[id]);
-
+    const firstFiveFavourites = favouriteResources.slice(0,5);
     return (
       <View style={{
         flexWrap: 'wrap',
@@ -147,9 +126,9 @@ export default class FavouriteResourceList extends Component<Props> {
   }
 
   getRecentsSection() {
-    const { recents } = this.state;
+    const { recentResources } = this.props;
 
-    if (recents.length === 0) {
+    if (recentResources.length === 0) {
       return (
         <View style={{
           height: 150,
@@ -171,7 +150,7 @@ export default class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       > 
-        { recents.map(resource => this.getResourceCell(resource))}
+        {recentResources.map(r => this.getResourceCell(r))}
       </View>
     );
   }
@@ -199,3 +178,26 @@ export default class FavouriteResourceList extends Component<Props> {
     );
   }
 }
+
+
+const FavouriteResourceListWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({
+        favouriteResources,
+        favouriteResourcesMeta,
+        recentResources,
+        recentResourcesMeta,
+      }) => (
+          <FavouriteResourceList
+            favouriteResources={favouriteResources}
+            favouriteResourcesMeta={favouriteResourcesMeta}
+            recentResources={recentResources}
+            recentResourcesMeta={recentResourcesMeta}
+            {...props}
+          />
+        )}
+    </AppContext.Consumer>
+  );
+};
+export default FavouriteResourceListWithContext;
