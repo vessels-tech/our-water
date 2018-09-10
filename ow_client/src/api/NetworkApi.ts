@@ -1,4 +1,4 @@
-
+import * as moment from 'moment';
 import { NetInfo } from 'react-native';
 
 export type CallbackMap = {
@@ -37,9 +37,10 @@ export default class NetworkApi {
     return networkApi;
   }
 
-  addConnectionChangeCallback(id: string, callback: any) {
-    console.log("Added callback");
+  addConnectionChangeCallback(callback: any): string {
+    const id = `${moment().valueOf()}`;
     this.connectionUpdateCallbacks.set(id, callback);
+    return id;
   }
 
   removeConnectionChangeCallback(id: string) {

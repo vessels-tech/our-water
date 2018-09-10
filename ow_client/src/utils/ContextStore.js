@@ -88,7 +88,7 @@ var Provider = function (_React$Component2) {
       if (_this2.props.persist !== false) {
         console.log("Persisting:", _this2.state);
         await _this2.props.persist.storage.removeItem(_this2.props.persist.key || 'react-context-api-store');
-        // await _this2.props.persist.storage.setItem(_this2.props.persist.key || 'react-context-api-store', JSON.stringify(_this2.state));
+        await _this2.props.persist.storage.setItem(_this2.props.persist.key || 'react-context-api-store', JSON.stringify(_this2.state));
       }
     };
 

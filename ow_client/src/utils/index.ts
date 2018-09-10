@@ -132,7 +132,7 @@ const navigateTo = (props: any, screen: any, title: any, passProps: any, animati
   props.navigator.push({
     screen,
     title,
-    // passProps,
+    passProps,
     navigatorStyle: defaultNavigatorStyle,
     navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
     animationType

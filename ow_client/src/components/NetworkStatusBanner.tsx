@@ -10,7 +10,10 @@ import { AppContext } from '../AppProvider';
 import { connect } from 'react-context-api-store';
 
 export interface Props {  
-  isConnected: boolean
+  isConnected: boolean,
+  
+  connectionStatusChanged: any,
+  
 }
 
 export interface State {
@@ -39,7 +42,7 @@ class NetworkStatusBanner extends Component<Props> {
 
       return (
         <TouchableNativeFeedback
-          onPress={() => this.props.testChangeStore()}>
+          onPress={() => this.props.connectionStatusChanged(!this.props.isConnected)}>
           <View
             style={{
               backgroundColor: bgMed,
@@ -61,28 +64,30 @@ class NetworkStatusBanner extends Component<Props> {
     }
 }
 
-// const NetworkStatusBannerWithContext = (props: any) => {
-//   return (
-//     <AppContext.Consumer>
-//       {({ isConnected}) => (
-//         <NetworkStatusBanner
-//           isConnected={isConnected}
-//           {...props}
-//         />
-//       )}
-//     </AppContext.Consumer>
-//   );
-// };
+const NetworkStatusBannerWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({ isConnected, connectionStatusChanged }) => (
+        //TODO: how to do callbacks this way?
+        <NetworkStatusBanner
+          isConnected={isConnected}
+          connectionStatusChanged={connectionStatusChanged}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+};
 
-// export default NetworkStatusBannerWithContext;
+export default NetworkStatusBannerWithContext;
 
 
-export default connect((store: any) => ({
-  isConnected: store.isConnected,
-}), {
-  //TODO: actions relevant to this component here
-  testChangeStore(store: any) {
-    console.log("updating store", store);
-    store.updateStore({isConnected: !store.state.isConnected})
-  }
-})(NetworkStatusBanner);
+// export default connect((store: any) => ({
+//   isConnected: store.isConnected,
+// }), {
+//   //TODO: actions relevant to this component here
+//   testChangeStore(store: any) {
+//     console.log("updating store", store);
+//     store.updateStore({isConnected: !store.state.isConnected})
+//   }
+// })(NetworkStatusBanner);

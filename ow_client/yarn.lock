@@ -5280,6 +5280,10 @@ rimraf@~2.2.6:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
 
+rn-async-storage@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/rn-async-storage/-/rn-async-storage-1.0.23.tgz#5c560ae982cca2ae0f08b4163d524434797b73f1"
+
 rndm@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/rndm/-/rndm-1.2.0.tgz#f33fe9cfb52bbfd520aa18323bc65db110a1b76c"

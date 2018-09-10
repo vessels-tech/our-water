@@ -81,7 +81,7 @@ export interface State {
 //   const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
 //   const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
 
-export default class App extends Component<Props> {
+class App extends Component<Props> {
     mapRef?: MapView;
     state: State = {
       loading: true,
@@ -405,25 +405,25 @@ export default class App extends Component<Props> {
             userId={this.state.userId}
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
           /> */}
-          <NetworkStatusBanner/>
+          <NetworkStatusBannerWithContext/>
         </View>
       );
     }
   }
 
-// const AppWithProvider = (props: Props) => {
-//   return (
-//     <AppProvider config={props.config}>
-//       <AppContext.Consumer>
-//         {({appApi}) => (
-//           <App
-//             appApi={appApi}
-//             {...props}
-//           />
-//         )}
-//       </AppContext.Consumer>
-//     </AppProvider>
-//   );
-// }
+const AppWithContext = (props: Props) => {
+  return (
+    // <AppProvider config={props.config}>
+      <AppContext.Consumer>
+        {({appApi}) => (
+          <App
+            appApi={appApi}
+            {...props}
+          />
+        )}
+      </AppContext.Consumer>
+    // </AppProvider>
+  );
+}
 
-// export default AppWithProvider;
+export default AppWithContext;

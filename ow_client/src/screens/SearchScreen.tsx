@@ -16,7 +16,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
-import { AppContext } from '../AppProvider';
+import AppProvider, { AppContext } from '../AppProvider';
 import { connect } from 'react-context-api-store';
 
 // import { debounce } from "debounce";
@@ -250,24 +250,26 @@ class SearchScreen extends Component<Props> {
   }
 }
 
-export default connect((store: any) => ({
-  isConnected: store.isConnected,
-}), {
-    //TODO: actions relevant to this component here
-  })(SearchScreen);
+// export default connect((store: any) => ({
+//   isConnected: store.isConnected,
+// }), {
+//     //TODO: actions relevant to this component here
+//   })(SearchScreen);
 
-// const SearchScreenWithContext = (props: any) => {
-//   return (
-//     <AppContext.Consumer>
-//       {({ isConnected }) => {
-//         console.log("AppContext. isConnected", isConnected);
-//         return (
-//         <SearchScreen
-//           isConnected={isConnected}
-//           {...props}
-//         />
-//       )}}
-//     </AppContext.Consumer>
-//   )
-// }
-// export default SearchScreenWithContext;
+const SearchScreenWithContext = (props: any) => {
+  return (
+    // <AppProvider config={props.config}>
+      <AppContext.Consumer>
+        {({ isConnected }) => {
+          console.log("AppContext. isConnected", isConnected);
+          return (
+          <SearchScreen
+            isConnected={isConnected}
+            {...props}
+          />
+        )}}
+      </AppContext.Consumer>
+    // </AppProvider>
+  )
+}
+export default SearchScreenWithContext;
