@@ -51,6 +51,7 @@ import PendingChangesBannerWithContext from './components/PendingChangesBanner';
 import AppProvider, { AppContext } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 import NetworkStatusBannerWithContext from './components/NetworkStatusBanner';
+import NetworkStatusBanner from './components/NetworkStatusBanner';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -399,12 +400,12 @@ export default class App extends Component<Props> {
             {this.getFavouritesList()}
           </ScrollView>
           {this.getPassiveLoadingIndicator()}
-          <PendingChangesBannerWithContext
+          {/* <PendingChangesBannerWithContext
             config={this.props.config}
             userId={this.state.userId}
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
-          />
-          <NetworkStatusBannerWithContext/>
+          /> */}
+          <NetworkStatusBanner/>
         </View>
       );
     }

@@ -17,12 +17,14 @@ import BaseApi from '../api/BaseApi';
 import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
 import { AppContext } from '../AppProvider';
+import { connect } from 'react-context-api-store';
+
 // import { debounce } from "debounce";
 
 export interface Props {
   navigator: any;
-  config: ConfigFactory,
-  userId: string,
+  // config: ConfigFactory,
+  // userId: string,
   isConnected: boolean,
 }
 
@@ -35,7 +37,7 @@ export interface State {
   errorMessage: string
 }
 
-export default class SearchScreen extends Component<Props> {
+class SearchScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
   debouncedPerformSearch: any;
@@ -43,7 +45,7 @@ export default class SearchScreen extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    this.appApi = props.config.getAppApi();
+    // this.appApi = props.config.getAppApi();
     this.state = {
       searchQuery: '',
       results: [],
@@ -53,8 +55,8 @@ export default class SearchScreen extends Component<Props> {
       errorMessage: '',
     };
 
-    this.appApi.getRecentSearches(this.props.userId)
-    .then(recentSearches => this.setState({recentSearches}));
+    // this.appApi.getRecentSearches(this.props.userId)
+    // .then(recentSearches => this.setState({recentSearches}));
   }
 
   getSearchBar() {
@@ -100,12 +102,12 @@ export default class SearchScreen extends Component<Props> {
       resources = result.resources;
 
       //TODO: if results are larger than 0, save the search!
-      if (resources.length > 0) {
-        console.log("save recent search!");
-        return this.appApi.saveRecentSearch(this.props.userId, searchQuery)
-        //Non-critical error
-        .catch(err => console.log("error saving search: ", err));
-      }
+      // if (resources.length > 0) {
+      //   console.log("save recent search!");
+      //   return this.appApi.saveRecentSearch(this.props.userId, searchQuery)
+      //   //Non-critical error
+      //   .catch(err => console.log("error saving search: ", err));
+      // }
     })
     .then(() => {
       this.setState({
@@ -247,6 +249,12 @@ export default class SearchScreen extends Component<Props> {
     );
   }
 }
+
+export default connect((store: any) => ({
+  isConnected: store.isConnected,
+}), {
+    //TODO: actions relevant to this component here
+  })(SearchScreen);
 
 // const SearchScreenWithContext = (props: any) => {
 //   return (
