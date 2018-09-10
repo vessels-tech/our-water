@@ -60,7 +60,7 @@ class FirebaseApi {
   static removeFavouriteResource(orgId: string, resourceId: string, userId: string) {
     return this.getFavouriteResources(orgId, userId)
     .then(favouriteResources => {
-      delete favouriteResources[resourceId];
+      favouriteResources[resourceId] = null;
 
       return this.updateFavouriteResources(orgId, userId, favouriteResources);
     });  
@@ -74,6 +74,7 @@ class FirebaseApi {
   }
 
   static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
+    //TODO: fix this - since we cannot merge
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true});
   }
 

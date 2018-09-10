@@ -26,6 +26,8 @@ import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
 import * as moment from 'moment';
 import HeadingText from './common/HeadingText';
+import { AsyncMeta, AppContext } from '../AppProvider';
+import { S_IFIFO } from 'constants';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -37,11 +39,15 @@ export interface Props {
   onMorePressed: any,
   onAddToFavourites: any,
   onRemoveFromFavourites: any,
+
+  favouriteResourcesMeta: AsyncMeta,
+  favouriteResources: Resource[],
+  action_addFavourite: any,
+  action_removeFavourite: any,
 }
 
 export interface State {
   loading: boolean,
-  isFavourite: boolean,
   readingsMap: Map<string, Reading[]> //key = timeseriesId, value = Reading[]
 }
 
@@ -50,7 +56,6 @@ class ResourceDetailSection extends Component<Props> {
   appApi: BaseApi;
   state: State = {
     loading: false,
-    isFavourite: false,
     readingsMap: new Map<string, Reading[]>(),
   }
 
@@ -213,26 +218,45 @@ class ResourceDetailSection extends Component<Props> {
     });
   }
 
+  /**
+   * Iterate through favourite resources, and find out
+   * if this is in the list
+   */
+  isFavourite() {
+    const { favouriteResources, resource: { id } } = this.props;
+
+    const ids = favouriteResources.map(r => r.id);
+    if (ids.indexOf(id) > -1) {
+      return true;
+    }
+
+    return false;
+  }
+
   getSummaryCard() {
     return (
-      <View
-        style={{
+      <Card
+        containerStyle={{
           width: '90%',
           height: '90%',
-          marginHorizontal: 10,
-          marginVertical: 10,
-          paddingHorizontal: 5,
-          paddingVertical: 5,
-          borderColor: textLight,
-          borderWidth: 2,
-          borderRadius: 2,
-
-          // alignItems: 'center',
         }}
+        // style={{
+        //   width: '90%',
+        //   height: '90%',
+        //   marginHorizontal: 10,
+        //   marginVertical: 10,
+        //   paddingHorizontal: 5,
+        //   paddingVertical: 5,
+        //   borderColor: textLight,
+        //   borderWidth: 2,
+        //   borderRadius: 2,
+
+        //   // alignItems: 'center',
+        // }}
       >
         <View style={{
           flexDirection: 'column',
-          flex: 1
+          // flex: 1
         }}>
           <HeadingText heading={'Station Type:'} content={'TODO'}/>
           <HeadingText heading={'Status'} content={'TODO'}/>
@@ -258,11 +282,11 @@ class ResourceDetailSection extends Component<Props> {
             flexDirection: 'row',
             marginRight: 10,
           }}>
-            {this.getReadingButton()}
-            {this.getFavouriteButton()}
+            {/* {this.getFavouriteButton()}
+            {this.getReadingButton()} */}
           </View>
         </View>
-      </View>
+      </Card>
     );
   }
 
@@ -341,11 +365,12 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getFavouriteButton() {
-    const { loading, isFavourite } = this.state;
+    const { favouriteResourcesMeta } = this.props;
+    const isFavourite = this.isFavourite();
 
-    // if (loading) {
-    //   return <Loading/>;
-    // }
+    if (favouriteResourcesMeta.loading) {
+      return <Loading/>;
+    }
 
     let iconName = 'star-half';
     if (isFavourite) {
@@ -383,7 +408,6 @@ class ResourceDetailSection extends Component<Props> {
           title='New reading'
           onPress={() => this.props.onAddReadingPressed(this.props.resource)}
         />
-        {this.getMoreButton()}
         <View
           style={{
             flex: 1,
@@ -395,59 +419,16 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
-  toggleFavourites() {
+  async toggleFavourites() {
+    const isFavourite = this.isFavourite();
 
-  }
+    this.setState({isFavourite: !isFavourite});
 
-  dep_toggleFavourites() {
-    const { resource, userId } = this.props;
-    const { isFavourite } = this.state;
-
-    this.setState({
-      loading: true,
-    });
-
-    return Promise.resolve(true)
-    .then(() => {
-      //TODO: don't keep of track of state ourselves, use firebase callbacks
-      if (isFavourite) {
-        return FirebaseApi.removeFavouriteResource(orgId, resource.id, userId)
-      }
-
-      return FirebaseApi.addFavouriteResource(orgId, resource, userId);
-    })
-    .then(() => {
-      this.setState({
-        loading: false,
-        isFavourite: !isFavourite,
-      });
-    })
-    .catch(err => {
-      console.log('error in toggleFavourites', err);
-      this.setState({loading: false});
-    })
-  
-  }
-
-  getMoreButton() {
-    const { resource: { legacyId } } = this.props;
-
-    if(!legacyId || legacyId === '') {
-      return null;
+    if (!isFavourite) {
+      return await this.props.action_addFavourite(this.props.resource)
     }
 
-    return (
-      <Button
-        title='More'
-        buttonStyle={{
-          backgroundColor: primary,
-          borderRadius: 5,
-          flex: 1
-        }}
-        // titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-        onPress={() => this.props.onMorePressed(this.props.resource)}
-      />
-    );
+    return await this.props.action_removeFavourite(this.props.resource.id);
   }
 
   render() {        
@@ -456,11 +437,32 @@ class ResourceDetailSection extends Component<Props> {
         flexDirection: 'column',
       }}>
         {this.getHeadingBar()}
-        {/* {this.getButtonsView()} */}
-        {this.getReadingsView()}
+        {/* {this.getReadingsView()} */}
+        {this.getButtonsView()}
       </View>
     );
   }
 };
 
-export default ResourceDetailSection;
+
+const ResourceDetailSectionWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({
+        favouriteResources, 
+        favouriteResourcesMeta, 
+        action_addFavourite,
+        action_removeFavourite,
+      }) => (
+        <ResourceDetailSection
+          favouriteResources={favouriteResources}
+          favouriteResourcesMeta={favouriteResourcesMeta}
+          action_addFavourite={action_addFavourite}
+          action_removeFavourite={action_removeFavourite}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+};
+export default ResourceDetailSectionWithContext;

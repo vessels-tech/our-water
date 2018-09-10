@@ -44,13 +44,18 @@ export interface GlobalState {
   appApi: BaseApi | null,         //TODO: make non null
   networkApi: NetworkApi | null,
 
+  //Adding other user-based models
+  favouriteResources: Resource[],
+  favouriteResourcesMeta: AsyncMeta,
+
+
   //Functions - passed through via state to Consumers
   syncStatusChanged?: any,
   connectionStatusChanged?: any,
   userIdChanged?: any,
+  action_addFavourite?: any,
+  action_removeFavourite?: any,
 
-  favouriteResources: Resource[],
-  favouriteResourcesMeta: AsyncMeta,
 
 
   //TODO: 
@@ -103,6 +108,10 @@ export default class AppProvider extends Component<Props> {
       //Callbacks must be registered here in order to get called properly
       connectionStatusChanged: this.connectionStatusChanged.bind(this),
       userIdChanged: this.userIdChanged.bind(this),
+      
+      //TODO: Move elsewhere?
+      action_addFavourite: this.action_addFavourite.bind(this),
+      action_removeFavourite: this.action_removeFavourite.bind(this),
     }
 
     AsyncStorage.getItem(storageKey)
@@ -183,8 +192,17 @@ export default class AppProvider extends Component<Props> {
     this.setState({userId}, async () => await this.persistState())
   }
 
-  userChanged(sn: Snapshot) {
-    console.log("got a user changed callback!", sn);
+  userChanged(sn: any) {
+    console.log("got a user changed callback!", sn.data());
+    const userData = sn.data();
+
+    const favouriteResourcesDict = userData.favouriteResources;
+    const favouriteResources = Object.keys(favouriteResourcesDict)
+      .map(key => favouriteResourcesDict[key])
+      .filter(r => r === null);  //Null resources are ones that were added but have been removed
+    this.setState({
+      favouriteResources,
+    });
   }
 
 
@@ -208,14 +226,19 @@ export default class AppProvider extends Component<Props> {
     this.setState({favouriteResourcesMeta: { loading: false }});
   }
 
+  async action_removeFavourite(resourceId: string): Promise<any> {
+    const { userId } = this.state;
+
+    this.setState({favouriteResourcesMeta: {loading: true}});
+    await this.appApi.removeFavouriteResource(resourceId, userId);
+    this.setState({favouriteResourcesMeta: { loading: false }});
+  }
+
   /*
-    addFavourite
-    removeFavourite
     addRecentSearch
     addRecentResource
     saveReading
     saveResource
-
 
     connectToExternalService
     disconnectFromExternalService

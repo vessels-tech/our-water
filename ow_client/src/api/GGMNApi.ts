@@ -225,6 +225,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
   }
 
+  removeFavouriteResource(resourceId: string, userId: string): Promise<any> {
+    return FirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId);
+  }
+
   isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
     return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
   }

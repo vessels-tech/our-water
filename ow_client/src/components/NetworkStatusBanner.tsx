@@ -75,14 +75,3 @@ const NetworkStatusBannerWithContext = (props: any) => {
 };
 
 export default NetworkStatusBannerWithContext;
-
-
-// export default connect((store: any) => ({
-//   isConnected: store.isConnected,
-// }), {
-//   //TODO: actions relevant to this component here
-//   testChangeStore(store: any) {
-//     console.log("updating store", store);
-//     store.updateStore({isConnected: !store.state.isConnected})
-//   }
-// })(NetworkStatusBanner);

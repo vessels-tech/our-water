@@ -38,6 +38,11 @@ export default interface BaseApi {
   addFavouriteResource(resource: Resource, userId: string): Promise<any>;
 
   /**
+   * Remove a favourite resource from the favourites list
+   */
+  removeFavouriteResource(resourceId: string, userId: string): Promise<any>;
+
+  /**
    * Check if a resource is in the user's favourites
    */
   isResourceInFavourites(resourceId: string, userId: string): Promise<boolean>; 
