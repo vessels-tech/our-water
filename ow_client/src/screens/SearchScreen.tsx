@@ -10,22 +10,17 @@ import {
   Text,
 } from 'react-native-elements';
 import { Resource, SearchResult } from '../typings/models/OurWater';
-import { ResourceType } from '../enums';
-import { getDemoResources } from '../utils';
-import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
-import AppProvider, { AppContext } from '../AppProvider';
-import { connect } from 'react-context-api-store';
+import { AppContext } from '../AppProvider';
 
 // import { debounce } from "debounce";
 
 export interface Props {
   navigator: any;
-  // config: ConfigFactory,
-  // userId: string,
   isConnected: boolean,
+  appApi: BaseApi,
 }
 
 export interface State {
@@ -39,7 +34,6 @@ export interface State {
 
 class SearchScreen extends Component<Props> {
   state: State;
-  appApi: BaseApi;
   debouncedPerformSearch: any;
 
   constructor(props: Props) {
@@ -95,7 +89,7 @@ class SearchScreen extends Component<Props> {
     
     this.setState({isLoading: true});
 
-    return this.appApi.performSearch(searchQuery)
+    return this.props.appApi.performSearch(searchQuery)
     .then(_result => result = _result)
     .then(() => {
       console.log("search finished");
@@ -132,7 +126,7 @@ class SearchScreen extends Component<Props> {
   getSearchResults() {
     const { results, isLoading, error, errorMessage } = this.state;
 
-    const resources: Resource[] = getDemoResources();
+    const resources: Resource[] = [];
 
     if (isLoading) {
       return (
@@ -250,26 +244,19 @@ class SearchScreen extends Component<Props> {
   }
 }
 
-// export default connect((store: any) => ({
-//   isConnected: store.isConnected,
-// }), {
-//     //TODO: actions relevant to this component here
-//   })(SearchScreen);
-
 const SearchScreenWithContext = (props: any) => {
   return (
-    // <AppProvider config={props.config}>
-      <AppContext.Consumer>
-        {({ isConnected }) => {
-          console.log("AppContext. isConnected", isConnected);
-          return (
-          <SearchScreen
-            isConnected={isConnected}
-            {...props}
-          />
-        )}}
-      </AppContext.Consumer>
-    // </AppProvider>
+    <AppContext.Consumer>
+      {({ isConnected, appApi, userId }) => {
+        return (
+        <SearchScreen
+          appApi={appApi}
+          isConnected={isConnected}
+          userId={userId}
+          {...props}
+        />
+      )}}
+    </AppContext.Consumer>
   )
 }
 export default SearchScreenWithContext;

@@ -29,17 +29,12 @@ class NetworkStatusBanner extends Component<Props> {
 
 
     render() {
-      console.log('NetworkStatusBanner isConnected', this.props.isConnected);
       
-      // if (this.props.isConnected) {
-      //   return null;
-      // }
-
-      let text = `Network is online`;
-      if (!this.props.isConnected) {
-        text = `Network is offline.`;
+      if (this.props.isConnected) {
+        return null;
       }
 
+      const text = `Network is offline.`;
       return (
         <TouchableNativeFeedback
           onPress={() => this.props.connectionStatusChanged(!this.props.isConnected)}>

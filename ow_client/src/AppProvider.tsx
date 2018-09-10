@@ -17,33 +17,34 @@ export interface Props {
 };
 
 export interface GlobalState {
-  syncStatus: SyncStatus, // the status of any syncs that OW needs to make
-  isConnected: boolean, //are we connected to the internets? 
+  syncStatus: SyncStatus,         //the status of any syncs that OW needs to make
+  isConnected: boolean,           //are we connected to the internets? 
+  userId: string,                 //the userId
 
-  appApi: BaseApi | null, //TODO: make non null
+  appApi: BaseApi | null,         //TODO: make non null
   networkApi: NetworkApi | null,
 
-  //Functions - do we need to pass these through?
+  //Functions - passed through via state to Consumers
   syncStatusChanged?: any,
   connectionStatusChanged?: any,
+  userIdChanged?: any,
 
 
   //TODO: 
   //pendingReadings
-  //userId
   //isConnectedExternally
   //language and region
 }
 
 const defaultState: GlobalState = {
   syncStatus: SyncStatus.none,
+  userId: 'unknown',
   isConnected: false,
   appApi: null,
   networkApi: null,
 }
 
 export const AppContext = React.createContext(defaultState);
-// export const AppContext = React.createContext({});
 
 const storageKey = "AppProviderState";
 
@@ -54,20 +55,24 @@ export default class AppProvider extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     const appApi = props.config.getAppApi();
     this.networkApi = props.config.networkApi;
 
     //TODO: ask api to trigger first status update now
 
     //TODO: fix needing userId here...
-    appApi.subscribeToPendingReadings('12345', this.syncStatusChanged.bind(this));
+    // appApi.subscribeToPendingReadings('12345', this.syncStatusChanged.bind(this));
     this.connectionChangeCallbackId = this.networkApi.addConnectionChangeCallback(this.connectionStatusChanged.bind(this));
 
     this.state = {
       ...defaultState,
       appApi,
       networkApi: this.networkApi,
+
+      //Callbacks must be registered here in order to get called properly
       connectionStatusChanged: this.connectionStatusChanged.bind(this),
+      userIdChanged: this.userIdChanged.bind(this),
     }
 
     AsyncStorage.getItem(storageKey)
@@ -81,7 +86,9 @@ export default class AppProvider extends Component<Props> {
       this.state = {
         ...this.state,
         ...lastState,
-      }
+      };
+
+      //TODO: set up user-based subscriptions if we have a userId?
     })
     .catch((err: Error) => {
       console.log("err", err);
@@ -95,19 +102,17 @@ export default class AppProvider extends Component<Props> {
   }
 
   componentWillUnmount() {
+    //Make sure to remove all subscriptions here.
     this.networkApi.removeConnectionChangeCallback(this.connectionChangeCallbackId);
   }
 
-
-
   async persistState() {
     const toSave = {
-      //TODO: strip out anything that isn't an object
+      //TODO: strip out anything that we don't want to save
       isConnected: this.state.isConnected,
+      userId: this.state.userId,
     };
-    const toSaveStr = JSON.stringify(toSave);
-
-    await AsyncStorage.setItem(storageKey, toSaveStr);
+    await AsyncStorage.setItem(storageKey, JSON.stringify(toSave));
   }
 
   //
@@ -115,15 +120,18 @@ export default class AppProvider extends Component<Props> {
   //------------------------------------------------------------------------------
 
   syncStatusChanged(syncStatus: SyncStatus) {
-    this.setState({
-      syncStatus
-    }, async () => await this.persistState());
+    this.setState({syncStatus}, async () => await this.persistState());
   }
 
   connectionStatusChanged(isConnected: boolean) {
-    this.setState({
-      isConnected,
-    }, async () => await this.persistState());
+    this.setState({isConnected}, async () => await this.persistState());
+  }
+
+  userIdChanged(userId: string) {
+    //TODO: modify user based subscriptions?
+    console.log("TODO: modify user based subscriptions for userId");
+
+    this.setState({userId}, async () => await this.persistState())
   }
 
   render() {

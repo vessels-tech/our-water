@@ -60,6 +60,8 @@ export interface Props {
   config: ConfigFactory,
 
   appApi: BaseApi, //injected by provider I think.
+
+  userIdChanged: any, //Call when userId has changed
 }
 
 export interface State {
@@ -95,7 +97,6 @@ class App extends Component<Props> {
       resources: []
     };
 
-
     fs: any;
     hardwareBackListener: any;
     appApi: BaseApi;
@@ -103,12 +104,8 @@ class App extends Component<Props> {
     constructor(props: Props) {
       super(props);
 
-      console.log("this.props.appApi", props.appApi)
-
       this.fs = firebase.firestore();
       this.appApi = props.config.getAppApi();
-      // this.appApi = myConfig.getAppApi();
-      // console.log("myConfig is:", myConfig)
 
       //Listen to events from the navigator
       this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
@@ -121,12 +118,16 @@ class App extends Component<Props> {
       this.setState({loading: true, passiveLoading: true});
 
       this.appApi.silentSignin()
-      .then(siginData => {
+      .then(signInData => {
+        //Tell global state
+        this.props.userIdChanged(signInData.user.uid);
+
         this.setState({
           isAuthenticated: true,
-          userId: siginData.user.uid,
+          userId: signInData.user.uid,
           loading: false, //we are still loading stuff, but each component can take care of itself
         });
+
         return getLocation();
       })
       .catch(err => {
@@ -181,10 +182,7 @@ class App extends Component<Props> {
 
     onNavigatorEvent(event: any) {
       if (event.id === 'search') {
-        navigateTo(this.props, 'screen.SearchScreen', 'Search', {
-          config: this.props.config, 
-          userId: this.state.userId
-        });
+        navigateTo(this.props, 'screen.SearchScreen', 'Search', {config: this.props.config});
       }
     }
 
@@ -413,16 +411,15 @@ class App extends Component<Props> {
 
 const AppWithContext = (props: Props) => {
   return (
-    // <AppProvider config={props.config}>
-      <AppContext.Consumer>
-        {({appApi}) => (
-          <App
-            appApi={appApi}
-            {...props}
-          />
-        )}
-      </AppContext.Consumer>
-    // </AppProvider>
+    <AppContext.Consumer>
+      {({appApi, userIdChanged}) => (
+        <App
+          appApi={appApi}
+          userIdChanged={userIdChanged}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
   );
 }
 
