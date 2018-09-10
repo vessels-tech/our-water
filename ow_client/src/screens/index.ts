@@ -5,18 +5,21 @@ import NewReadingScreen from './NewReadingScreen';
 import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
 import EditResourceScreen from './EditResourceScreen';
-import SearchScreen from './SearchScreen';
+import SearchScreenWithContext from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import GGMNReadingScreen from './GGMNReadingScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
+import AppProvider, { AppContext } from '../AppProvider';
 
 
 export function registerScreens(config: ConfigFactory) {
-  Navigation.registerComponent('example.FirstTabScreen', () => AppWithProvider);
+  //@ts-ignore
+  Navigation.registerComponent('example.FirstTabScreen', () => AppWithProvider, undefined, AppContext.Provider);
   Navigation.registerComponent('screen.ResourceDetailScreen', () => ResourceDetailScreen);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen);
-  Navigation.registerComponent('screen.SearchScreen', () => SearchScreen);
+  //@ts-ignore
+  Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, undefined, AppContext.Provider);
   
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen);
 

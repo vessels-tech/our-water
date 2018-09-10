@@ -40,6 +40,7 @@ const defaultState: GlobalState = {
 }
 
 export const AppContext = React.createContext(defaultState);
+// export const AppContext = React.createContext({});
 
 export default class AppProvider extends Component<Props> {
   state: GlobalState = defaultState;

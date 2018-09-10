@@ -16,12 +16,14 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
+import { AppContext } from '../AppProvider';
 // import { debounce } from "debounce";
 
 export interface Props {
   navigator: any;
   config: ConfigFactory,
   userId: string,
+  isConnected: boolean,
 }
 
 export interface State {
@@ -213,6 +215,22 @@ export default class SearchScreen extends Component<Props> {
     </View>
   }
 
+  getOfflineWarning() {
+    const { isConnected } = this.props;
+    console.log("SearchScreen is connected?", isConnected);
+
+    if (isConnected === true) {
+      return null;
+    }
+
+    return (
+      <View>
+        <Text>You are currently offline.</Text>
+        <Text>Showing limited search results.</Text>
+      </View>
+    )
+  }
+
   render() {
     const { searchQuery } = this.state;
     
@@ -224,8 +242,24 @@ export default class SearchScreen extends Component<Props> {
           this.getRecentSearches() : 
           this.getSearchResults()
         }
+        {this.getOfflineWarning()}
       </View>
     );
   }
-
 }
+
+// const SearchScreenWithContext = (props: any) => {
+//   return (
+//     <AppContext.Consumer>
+//       {({ isConnected }) => {
+//         console.log("AppContext. isConnected", isConnected);
+//         return (
+//         <SearchScreen
+//           isConnected={isConnected}
+//           {...props}
+//         />
+//       )}}
+//     </AppContext.Consumer>
+//   )
+// }
+// export default SearchScreenWithContext;

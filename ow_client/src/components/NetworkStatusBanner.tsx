@@ -24,6 +24,8 @@ class NetworkStatusBanner extends Component<Props> {
 
 
     render() {
+      console.log('NetworkStatusBanner isConnected', this.props.isConnected);
+      
       if (this.props.isConnected) {
         return null;
       }
