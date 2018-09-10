@@ -77,6 +77,10 @@ export default interface BaseApi {
    */
   saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult>;
 
+
+  subscribeToUser(userId: string, callback: any): string;
+
+
   /**
    * set up a listener for changes to any pending readings
    */

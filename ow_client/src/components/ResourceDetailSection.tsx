@@ -323,9 +323,8 @@ class ResourceDetailSection extends Component<Props> {
 
   getReadingButton() {
     return (
-
       <Button
-        color={textDark}
+        color={primaryDark}
         buttonStyle={{
           backgroundColor: bgLight,
           borderRadius: 5,
@@ -344,9 +343,9 @@ class ResourceDetailSection extends Component<Props> {
   getFavouriteButton() {
     const { loading, isFavourite } = this.state;
 
-    if (loading) {
-      return <Loading/>;
-    }
+    // if (loading) {
+    //   return <Loading/>;
+    // }
 
     let iconName = 'star-half';
     if (isFavourite) {
@@ -397,6 +396,10 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   toggleFavourites() {
+
+  }
+
+  dep_toggleFavourites() {
     const { resource, userId } = this.props;
     const { isFavourite } = this.state;
 
@@ -458,7 +461,6 @@ class ResourceDetailSection extends Component<Props> {
       </View>
     );
   }
-  
 };
 
 export default ResourceDetailSection;

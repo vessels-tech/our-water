@@ -42,6 +42,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
+  unsubscribeUser: any;
 
   // private syncStatusCallback: any;
 
@@ -526,28 +527,35 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * GGMN api to inform the PendingChangesBanner of any updates it needs to make
    * 
    * returns an id of the subscription, to be used for unsubscribe events
+   * 
+   * We are using this subscription to also subscribe to pending readings
+   * but this is an assumption which holds only for GGMN. We will need to
+   * fix this later on.
    */
-  subscribeToPendingReadings(userId: string, callback: any): string {
+  subscribeToUser(userId: string, callback: any): string {
 
-    //If we haven't already subscribed to the firebase updates, do it now.
-    if (!this.firebasePendingReadingsSubscriptionId) {
-      //TODO: set this value?
-      FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
-    }
-    const subscriptionId = `${moment().valueOf()}`;
-    console.log("subscribed for userId", userId);
-    this.pendingReadingsSubscriptions.set(subscriptionId, callback);
+    return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
+
+    // //If we haven't already subscribed to the firebase updates, do it now.
+    // if (!this.firebasePendingReadingsSubscriptionId) {
+    //   //TODO: set this value?
+    //   this.unsubscribeUser = FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
+    // }
+    // const subscriptionId = `${moment().valueOf()}`;
+    // console.log("subscribed for userId", userId);
+    // this.pendingReadingsSubscriptions.set(subscriptionId, callback);
     
-    return subscriptionId;
+    // return subscriptionId;
   }
 
-  unsubscribeFromPendingReadings(subscriptionId: string): void {
+  unsubscribeFromUser(subscriptionId: string): void {
     if (this.pendingReadingsSubscriptions.has(subscriptionId)) {
       this.pendingReadingsSubscriptions.delete(subscriptionId);
     }
 
     if (this.pendingReadingsSubscriptions.size === 0) {
       //TODO: unsubscripe from firebase updates
+      this.unsubscribeUser();
     }
   }
 

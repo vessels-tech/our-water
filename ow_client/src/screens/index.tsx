@@ -25,14 +25,9 @@ const wrapComponentWithProvider = (Comp: any) => (props: any) => {
 export function registerScreens(config: ConfigFactory) {
   console.log("register screens");
   Navigation.registerComponent('example.FirstTabScreen', () => wrapComponentWithProvider(AppWithContext));
-  // Navigation.registerComponent('screen.ResourceDetailScreen', () => wrapComponentWithProvider(ResourceDetailScreen));
   Navigation.registerComponent('screen.MenuScreen', () => wrapComponentWithProvider(SettingsScreen));
   Navigation.registerComponent('screen.EditResourceScreen', () => wrapComponentWithProvider(EditResourceScreen));
   Navigation.registerComponent('screen.SearchScreen', () => wrapComponentWithProvider(SearchScreenWithContext));
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => wrapComponentWithProvider(ConnectToServiceScreen));
-
-
-  //TODO: if we want, we can register different (but similar) compoments based on the version of OW
   Navigation.registerComponent('screen.NewReadingScreen', () => wrapComponentWithProvider(NewReadingScreen));
-  // Navigation.registerComponent('screen.NewReadingScreen', () => GGMNReadingScreen);
 }

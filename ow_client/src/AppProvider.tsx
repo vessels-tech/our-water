@@ -7,6 +7,10 @@ import NetworkApi from './api/NetworkApi';
 // import { AsyncStorage } from 'react-native';
 //@ts-ignore
 import * as AsyncStorage from 'rn-async-storage'
+import { Resource } from './typings/models/OurWater';
+import { RNFirebase } from "react-native-firebase";
+type Snapshot = RNFirebase.firestore.QuerySnapshot;
+
 
 /**
  * App provider uses the React Context api to manage any global state.
@@ -27,10 +31,14 @@ export interface Props {
   config: ConfigFactory,
 };
 
+export type AsyncMeta = {
+  loading: boolean,
+}
+
 export interface GlobalState {
   syncStatus: SyncStatus,         //the status of any syncs that OW needs to make
   isConnected: boolean,           //are we connected to the internets? 
-  userId: string | null,                 //the userId
+  userId: string,                 //the userId
 
   config: ConfigFactory | null,
   appApi: BaseApi | null,         //TODO: make non null
@@ -40,6 +48,9 @@ export interface GlobalState {
   syncStatusChanged?: any,
   connectionStatusChanged?: any,
   userIdChanged?: any,
+
+  favouriteResources: Resource[],
+  favouriteResourcesMeta: AsyncMeta,
 
 
   //TODO: 
@@ -51,10 +62,12 @@ export interface GlobalState {
 const defaultState: GlobalState = {
   syncStatus: SyncStatus.none,
   config: null,
-  userId: null,
+  userId: 'unknown',
   isConnected: true,
   appApi: null,
   networkApi: null,
+  favouriteResources: [],
+  favouriteResourcesMeta: {loading: false},
 }
 
 export const AppContext = React.createContext(defaultState);
@@ -65,11 +78,14 @@ export default class AppProvider extends Component<Props> {
   state: GlobalState = defaultState;
   connectionChangeCallbackId: string;
   networkApi: NetworkApi;
+  appApi: BaseApi;
+
+  unsubscribeFromUser: any;
 
   constructor(props: Props) {
     super(props);
 
-    const appApi = props.config.getAppApi();
+    this.appApi = props.config.getAppApi();
     this.networkApi = props.config.networkApi;
 
     //TODO: ask api to trigger first status update now
@@ -80,7 +96,7 @@ export default class AppProvider extends Component<Props> {
 
     this.state = {
       ...defaultState,
-      appApi,
+      appApi: this.appApi,
       networkApi: this.networkApi,
       config: this.props.config,
 
@@ -89,32 +105,7 @@ export default class AppProvider extends Component<Props> {
       userIdChanged: this.userIdChanged.bind(this),
     }
 
-    // AsyncStorage.getItem(storageKey)
-    // .then((lastStateStr: string) => {
-    //   let lastState = {};
-    //   if (lastStateStr) {
-    //     lastState = JSON.parse(lastStateStr);
-    //   }
-    //   console.log("lastState", lastState);
-
-    //   this.state = {
-    //     ...lastState,
-    //     ...this.state,
-    //   };
-
-    //   //TODO: set up user-based subscriptions if we have a userId?
-    // })
-    // .catch((err: Error) => {
-    //   console.log("err", err);
-    // })
-  }
-
-  async componentDidMount()  {
-    if (this.state.networkApi) {
-      await this.state.networkApi.updateConnectionStatus();
-    }
-
-    await AsyncStorage.getItem(storageKey)
+    AsyncStorage.getItem(storageKey)
     .then((lastStateStr: string) => {
       let lastState = {};
       if (lastStateStr) {
@@ -122,20 +113,41 @@ export default class AppProvider extends Component<Props> {
       }
       console.log("lastState", lastState);
 
-      this.setState({
+      this.state = {
         ...lastState,
-      });
+        ...this.state,
+      };
 
-      //TODO: set up user-based subscriptions if we have a userId?
+      //@ts-ignore
+      if (lastState.userId) {
+        //@ts-ignore
+        this.subscribeToUserUpdates(lastState.userId);
+      }
     })
     .catch((err: Error) => {
       console.log("err", err);
     })
   }
 
+  private subscribeToUserUpdates(userId: string) {
+    if (this.unsubscribeFromUser) {
+      this.unsubscribeFromUser();
+    }
+
+    this.unsubscribeFromUser = this.appApi.subscribeToUser(
+      userId, (sn: Snapshot) => this.userChanged(sn));
+  }
+
+  async componentDidMount()  {
+    if (this.state.networkApi) {
+      await this.state.networkApi.updateConnectionStatus();
+    }
+  }
+
   componentWillUnmount() {
     //Make sure to remove all subscriptions here.
     this.networkApi.removeConnectionChangeCallback(this.connectionChangeCallbackId);
+    this.unsubscribeFromUser();
   }
 
   async persistState() {
@@ -167,12 +179,48 @@ export default class AppProvider extends Component<Props> {
   }
 
   userIdChanged(userId: string) {
-    console.log("userIdChanged", userId);
-    //TODO: modify user based subscriptions?
-    console.log("TODO: modify user based subscriptions for userId");
-
+    this.subscribeToUserUpdates(userId);
     this.setState({userId}, async () => await this.persistState())
   }
+
+  userChanged(sn: Snapshot) {
+    console.log("got a user changed callback!", sn);
+  }
+
+
+  //
+  // Async Actions
+  //------------------------------------------------------------------------------
+
+  //TODO: abstract away to another file somewhere
+
+  /**
+   * Add a resourceId to the user's favourites
+   */
+  async action_addFavourite(resource: Resource): Promise<any> {
+    const { userId } = this.state;
+    //TODO: should this return straight away? 
+    //Or only after the user's object has been updated?
+
+    //TODO: tidy this up later on
+    this.setState({favouriteResourcesMeta: {loading: true}});
+    await this.appApi.addFavouriteResource(resource, userId);
+    this.setState({favouriteResourcesMeta: { loading: false }});
+  }
+
+  /*
+    addFavourite
+    removeFavourite
+    addRecentSearch
+    addRecentResource
+    saveReading
+    saveResource
+
+
+    connectToExternalService
+    disconnectFromExternalService
+  */
+
 
   render() {
     return (
