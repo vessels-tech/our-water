@@ -1,7 +1,8 @@
 import * as React from 'react'; import { Component } from 'react';
 import {
   View,
-  ViewPagerAndroid
+  ViewPagerAndroid,
+  TouchableNativeFeedback
 } from 'react-native';
 import { 
   Avatar,
@@ -18,12 +19,13 @@ import {
 } from '../utils';
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
-import { primary, textDark, bgMed } from '../utils/Colors';
+import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, textMed } from '../utils/Colors';
 import { Resource, Reading, OWTimeseries } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
 import * as moment from 'moment';
+import HeadingText from './common/HeadingText';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -132,41 +134,42 @@ class ResourceDetailSection extends Component<Props> {
     });
   }
 
-  componentWillUpdate() {
+  getHeadingBar() {
+    const { resource: { id, owner: { name } } } = this.props;
 
+    return (
+      <View style={{
+        flexDirection: 'row',
+        paddingVertical: 10,
+        backgroundColor: primaryDark
+      }}>
+        <Avatar
+          containerStyle={{
+            marginLeft: 15,
+            backgroundColor: primaryLight,
+            alignSelf: 'center',
+          }}
+          rounded
+          // size="large"
+          title="GW"
+          activeOpacity={0.7}
+        />
+        <View style={{
+          paddingLeft: 15,
+          alignSelf: 'center',
+        }}>
+          <Text style={{ color:textLight, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+            <Text style={{ color: textLight, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+            <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text>
+          </View>
+        </View>
+      </View>
+    )
   }
-
-  componentWillUnmount() {
-    //TODO: re enable for MyWellApi
-    // this.unsubscribe();
-  }
-
-  // getLatestReadingsPerTimeseries() {
-  //   const { readingsMap } = this.state;
-
-  //   const keys = [... readingsMap.keys() ];
-  //   return (
-  //     <View>
-  //     { 
-  //       keys.map(k => {
-  //       let value = 0;
-  //       const readings = readingsMap.get(k);
-  //       if (readings) {
-  //         //For now, assume the last object is the newest
-  //         return readings[0].value;
-  //       }
-
-  //       return (
-  //         <StatCard
-  //           title={`Latest Reading: ${k}`}
-  //           value={`${value}`}
-  //         />
-  //       )
-  //     })
-  //   }
-  //   </View>
-  // )
-  // }
 
   statCardForTimeseries(key: string, ts: Reading[]|undefined) {
     if (!ts) {
@@ -187,34 +190,92 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
-  getLatestReadingsPerTimeseries() {
+  dep_getLatestReadingsPerTimeseries() {
     const { readingsMap } = this.state;
 
     const keys = [... readingsMap.keys() ];
     return keys.map(key => this.statCardForTimeseries(key, readingsMap.get(key)));
   }
 
+  getLatestReadingsForTimeseries() {
+    const {readingsMap, loading} = this.state;
+
+    if (loading) {
+      return null;
+    }
+
+    const keys = [...readingsMap.keys()];
+    return keys.map(key => {
+      const value = readingsMap.get(key);
+      return (
+        <HeadingText key={key} heading={key} content={`${value}`}/>
+      )
+    });
+  }
+
+  getSummaryCard() {
+    return (
+      <View
+        style={{
+          width: '90%',
+          height: '90%',
+          marginHorizontal: 10,
+          marginVertical: 10,
+          paddingHorizontal: 5,
+          paddingVertical: 5,
+          borderColor: textLight,
+          borderWidth: 2,
+          borderRadius: 2,
+
+          // alignItems: 'center',
+        }}
+      >
+        <View style={{
+          flexDirection: 'column',
+          flex: 1
+        }}>
+          <HeadingText heading={'Station Type:'} content={'TODO'}/>
+          <HeadingText heading={'Status'} content={'TODO'}/>
+          <Text style={{
+            paddingTop: 10, 
+            textDecorationLine: 'underline', 
+            fontSize: 15, 
+            fontWeight: '600', 
+            alignSelf:'center'
+            }}>
+            Latest Readings:
+            {this.getLatestReadingsForTimeseries()}
+          </Text>
+          {/* Bottom Buttons */}
+          <View style={{
+            width: '50%',
+            height: 30,
+            position: 'absolute',
+            // left: 0,
+            right: 20,
+            bottom: 0,
+            borderColor: textLight,
+            borderTopWidth: 2,
+            flexDirection: 'row'
+          }}>
+            {this.getReadingButton()}
+            {this.getFavouriteButton()}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   getReadingsView() {
-    const { loading } = this.state;
     const { resource: {lastValue}} = this.props;
 
     const viewStyle = {
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
-      marginTop: 10,
-      height: 260,
-      backgroundColor: bgMed,
+      height: 425, //TODO: figure out this height
+      backgroundColor: bgLight,
     };
-
-    if(loading) {
-      return (
-        //@ts-ignore
-        <View style={viewStyle}>
-          <Loading/>
-        </View>
-      );
-    }
 
     return (
         <ViewPagerAndroid
@@ -228,15 +289,7 @@ class ResourceDetailSection extends Component<Props> {
           <View key="1" style={{
               alignItems: 'center',
             }}>
-            <Card
-              containerStyle={{
-                width: '90%',
-                height: '90%',
-                alignItems: 'center',
-              }}
-              title="At a Glance">
-              {this.getLatestReadingsPerTimeseries()}
-            </Card>
+            {this.getSummaryCard()}
           </View>
 
           <View key="2" style={{
@@ -268,6 +321,26 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
+  getReadingButton() {
+    return (
+
+      <Button
+        color={textDark}
+        buttonStyle={{
+          backgroundColor: bgLight,
+          borderRadius: 5,
+          flex: 1
+        }}
+        // titleStyle={{ 
+        //   fontWeight: 'bold', 
+        //   fontSize: 23,
+        // }}
+        title='NEW READING'
+        onPress={() => this.props.onAddReadingPressed(this.props.resource)}
+      />
+    );
+  }
+
   getFavouriteButton() {
     const { loading, isFavourite } = this.state;
 
@@ -295,7 +368,7 @@ class ResourceDetailSection extends Component<Props> {
     return (
       <View style={{
         flexDirection: 'row',
-        marginTop: 20,
+        backgroundColor: primaryDark,
       }}>
         <Button
           color={textDark}
@@ -374,39 +447,14 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
-  render() {    
-    const { resource: { id, owner: {name}}} = this.props;
-    
+  render() {        
     return (
       <View style={{
         flexDirection: 'column',
-        alignContent: 'center',
-        // marginVertical: 20,
-        // marginHorizontal: 20
       }}>
-        <View style={{
-          flexDirection: 'row',
-          paddingTop: 10
-        }}>
-          <Avatar
-            containerStyle={{ 
-              marginTop: 20,
-              marginLeft: 20,
-             }}
-            // size="large"
-            title="RG"
-            activeOpacity={0.7}
-          />
-          <View style={{
-            paddingLeft: 20,
-          }}>
-            <Text h3>{`Id: ${getShortId(id)}`}</Text>
-            <Text h4>{name}</Text>
-          </View>
-        </View>
-      
+        {this.getHeadingBar()}
+        {/* {this.getButtonsView()} */}
         {this.getReadingsView()}
-        {this.getButtonsView()}
       </View>
     );
   }
