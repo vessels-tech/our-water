@@ -12,21 +12,12 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import firebase from 'react-native-firebase';
-
-import LoadLocationButton from './components/LoadLocationButton';
-import IconButton from './components/IconButton';
 import Loading from './components/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import { Location } from './typings/Location';
-
-import * as myPinImg from './assets/my_pin.png';
-
 import { 
   getLocation,
-  getSelectedResourceFromCoords,
   navigateTo,
-  getShortId,
-  formatCoords,
   showModal,
 } from './utils';
 
@@ -35,33 +26,27 @@ import {
   ResourceType,
   MapHeightOption,
 } from './enums';
-
 import Config from 'react-native-config';
-import { bgLight, bgMed, textDark, textLight, primaryDark, bgLightHighlight, primaryLight } from './utils/Colors';
-import ClusteredMapView from './components/common/ClusteredMapView';
+import { bgLight, primaryDark } from './utils/Colors';
 import FavouriteResourceList from './components/FavouriteResourceList';
-import { SearchBar, Icon } from 'react-native-elements';
 import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
 import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
-import NetworkStatusBannerFactory from './components/NetworkStatusBanner';
 import MapSection, { MapRegion } from './components/MapSection';
 import PendingChangesBannerWithContext from './components/PendingChangesBanner';
-import AppProvider, { AppContext } from './AppProvider';
+import  { AppContext } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 import NetworkStatusBannerWithContext from './components/NetworkStatusBanner';
-import NetworkStatusBanner from './components/NetworkStatusBanner';
-
-const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   navigator: any;
   config: ConfigFactory,
 
-  appApi: BaseApi, //injected by provider I think.
 
-  userIdChanged: any, //Call when userId has changed
+  //Injected by Consumer
+  appApi: BaseApi, 
+  userIdChanged: any, 
 }
 
 export interface State {
@@ -77,11 +62,6 @@ export interface State {
   userId: string,
   resources: any[],
 }
-
-// export default function AppFactory(myConfig: ConfigFactory) {
-//   //Init other components with DI:
-//   const PendingChangesBanner = PendingChangesBannerFactory(myConfig);
-//   const NetworkStatusBanner = NetworkStatusBannerFactory(myConfig);
 
 class App extends Component<Props> {
     mapRef?: MapView;
@@ -398,11 +378,9 @@ class App extends Component<Props> {
             {this.getFavouritesList()}
           </ScrollView>
           {this.getPassiveLoadingIndicator()}
-          {/* <PendingChangesBannerWithContext
-            config={this.props.config}
-            userId={this.state.userId}
+          <PendingChangesBannerWithContext
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
-          /> */}
+          />
           <NetworkStatusBannerWithContext/>
         </View>
       );

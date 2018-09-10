@@ -24,9 +24,9 @@ import { SyncStatus } from '../typings/enums';
 
 
 export interface Props {
-  config: ConfigFactory;
-  userId: string,
   onBannerPressed: any;
+
+  //Injected from Context
   syncStatus: SyncStatus,
 }
 
@@ -39,8 +39,6 @@ const bannerHeight = 25;
 // export default function PendingChangesBannerFactory(config: ConfigFactory) {
  
   export class PendingChangesBanner extends Component<Props> {
-    appApi: BaseApi;
-    subscriptionId: string | null = null;
 
     state: State = {
       syncStatus: SyncStatus.none,
@@ -48,7 +46,6 @@ const bannerHeight = 25;
 
     constructor(props: Props) {
       super(props);
-      this.appApi = props.config.getAppApi();
 
     }
 
