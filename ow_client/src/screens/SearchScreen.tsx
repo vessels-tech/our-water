@@ -21,6 +21,7 @@ export interface Props {
   navigator: any;
   isConnected: boolean,
   appApi: BaseApi,
+  userId: string,
 }
 
 export interface State {
@@ -39,7 +40,6 @@ class SearchScreen extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    // this.appApi = props.config.getAppApi();
     this.state = {
       searchQuery: '',
       results: [],

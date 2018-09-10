@@ -12,10 +12,16 @@ import { primary, primaryDark, textDark, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 import { ExternalLoginDetails } from '../typings/api/ExternalServiceApi';
+import { AppContext } from '../AppProvider';
+import BaseApi from '../api/BaseApi';
 
 export interface Props {
-  config: ConfigFactory,
   navigator: any,
+  
+  //Injected by consumer
+  userId: string,
+  appApi: BaseApi,
+  config: ConfigFactory,
 }
 
 export interface State {
@@ -23,7 +29,7 @@ export interface State {
 
 }
 
-export default class SettingsScreen extends React.Component<Props> {
+class SettingsScreen extends React.Component<Props> {
   state: State = {
     isConnectedToExternalService: false,
     //TODO: maybe have an error with external service connection flag as well?
@@ -155,3 +161,19 @@ export default class SettingsScreen extends React.Component<Props> {
     );
   }
 }
+
+const SettingScreenWithContext = (props: Props) => {
+  return (
+    <AppContext.Consumer>
+      {({ appApi, userId, config }) => (
+        <SettingsScreen
+          appApi={appApi}
+          userId={userId}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+}
+
+export default SettingScreenWithContext;

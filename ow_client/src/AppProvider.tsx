@@ -19,8 +19,9 @@ export interface Props {
 export interface GlobalState {
   syncStatus: SyncStatus,         //the status of any syncs that OW needs to make
   isConnected: boolean,           //are we connected to the internets? 
-  userId: string,                 //the userId
+  userId: string | null,                 //the userId
 
+  config: ConfigFactory | null,
   appApi: BaseApi | null,         //TODO: make non null
   networkApi: NetworkApi | null,
 
@@ -38,8 +39,9 @@ export interface GlobalState {
 
 const defaultState: GlobalState = {
   syncStatus: SyncStatus.none,
-  userId: 'unknown',
-  isConnected: false,
+  config: null,
+  userId: null,
+  isConnected: true,
   appApi: null,
   networkApi: null,
 }
@@ -69,36 +71,55 @@ export default class AppProvider extends Component<Props> {
       ...defaultState,
       appApi,
       networkApi: this.networkApi,
+      config: this.props.config,
 
       //Callbacks must be registered here in order to get called properly
       connectionStatusChanged: this.connectionStatusChanged.bind(this),
       userIdChanged: this.userIdChanged.bind(this),
     }
 
-    AsyncStorage.getItem(storageKey)
-    .then((lastStateStr: string) => {
-      let lastState = {};
-      if (lastStateStr) {
-        lastState = JSON.parse(lastStateStr);
-      }
-      //TODO: how to make sure we ARE mounted?
-      this.setState({ ...lastState });
-      this.state = {
-        ...this.state,
-        ...lastState,
-      };
+    // AsyncStorage.getItem(storageKey)
+    // .then((lastStateStr: string) => {
+    //   let lastState = {};
+    //   if (lastStateStr) {
+    //     lastState = JSON.parse(lastStateStr);
+    //   }
+    //   console.log("lastState", lastState);
 
-      //TODO: set up user-based subscriptions if we have a userId?
-    })
-    .catch((err: Error) => {
-      console.log("err", err);
-    })
+    //   this.state = {
+    //     ...lastState,
+    //     ...this.state,
+    //   };
+
+    //   //TODO: set up user-based subscriptions if we have a userId?
+    // })
+    // .catch((err: Error) => {
+    //   console.log("err", err);
+    // })
   }
 
   async componentDidMount()  {
     if (this.state.networkApi) {
       await this.state.networkApi.updateConnectionStatus();
     }
+
+    await AsyncStorage.getItem(storageKey)
+    .then((lastStateStr: string) => {
+      let lastState = {};
+      if (lastStateStr) {
+        lastState = JSON.parse(lastStateStr);
+      }
+      console.log("lastState", lastState);
+
+      this.setState({
+        ...lastState,
+      });
+
+      //TODO: set up user-based subscriptions if we have a userId?
+    })
+    .catch((err: Error) => {
+      console.log("err", err);
+    })
   }
 
   componentWillUnmount() {
@@ -113,6 +134,7 @@ export default class AppProvider extends Component<Props> {
       userId: this.state.userId,
     };
     await AsyncStorage.setItem(storageKey, JSON.stringify(toSave));
+    console.log("finished persisting state", toSave);
   }
 
   //
@@ -120,14 +142,21 @@ export default class AppProvider extends Component<Props> {
   //------------------------------------------------------------------------------
 
   syncStatusChanged(syncStatus: SyncStatus) {
+    console.log('syncStatusChanged');
     this.setState({syncStatus}, async () => await this.persistState());
   }
 
   connectionStatusChanged(isConnected: boolean) {
+    if (this.state.isConnected === isConnected) {
+      return;
+    }
+
+    console.log('connectionStatusChanged', isConnected);
     this.setState({isConnected}, async () => await this.persistState());
   }
 
   userIdChanged(userId: string) {
+    console.log("userIdChanged", userId);
     //TODO: modify user based subscriptions?
     console.log("TODO: modify user based subscriptions for userId");
 
