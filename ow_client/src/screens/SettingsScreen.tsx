@@ -133,7 +133,9 @@ class SettingsScreen extends React.Component<Props> {
           title={this.props.config.getRegisterResourceButtonText()}
           onPress={() =>
             //TODO: dismiss the sidebar
-            navigateTo(this.props, 'screen.EditResourceScreen', 'New Resource', {})
+            navigateTo(this.props, 'screen.EditResourceScreen', 'New Resource', {
+              config: this.props.config,
+            })
           }
           leftIcon={{
             name: 'create',

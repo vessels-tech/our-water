@@ -8,9 +8,17 @@ import {
 } from 'react-native-elements';
 import IconFormInput, { InputType } from '../components/common/IconFormInput';
 import { ResourceTypeArray, ResourceType } from '../enums';
+import { ConfigFactory } from '../config/ConfigFactory';
+import BaseApi from '../api/BaseApi';
+import { AppContext } from '../AppProvider';
 
 export interface Props { 
   resourceId: string,
+
+  //Injected by Consumer
+  config: ConfigFactory,
+  userId: string,
+  appApi: BaseApi,
 }
 
 export interface State {
@@ -157,6 +165,20 @@ class EditResourceScreen extends Component<Props> {
   }
 }
 
-//TODO: load existing resource for edit
+const EditResourceScreenWithContext = (props: Props) => {
+  return (
+    <AppContext.Consumer>
+      {({ appApi, userId, config }) => (
+        <EditResourceScreen
+          appApi={appApi}
+          userId={userId}
+          config={config}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+}
 
-export default EditResourceScreen;
+
+export default EditResourceScreenWithContext;

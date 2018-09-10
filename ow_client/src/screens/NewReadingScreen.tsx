@@ -20,6 +20,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
+import { AppContext } from '../AppProvider';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -28,8 +29,11 @@ const orgId = Config.REACT_APP_ORG_ID;
 export interface Props {
   resource: Resource,
   navigator: any,
+
+  //Injected by Consumer
   config: ConfigFactory,
   userId: string,
+  appApi: BaseApi,
 }
 
 export interface State {
@@ -43,12 +47,9 @@ export interface State {
 
 class NewReadingScreen extends Component<Props> {
   state: State;
-  appApi: BaseApi;
 
   constructor(props: Props) {
     super(props);
-
-    this.appApi = this.props.config.getAppApi();
 
     let timeseriesString = '';
     if (this.props.resource.timeseries[0]) {
@@ -101,7 +102,7 @@ class NewReadingScreen extends Component<Props> {
     };
 
     return validateReading(readingRaw)
-    .then(reading => this.appApi.saveReading(orgId,this.props.userId, reading))
+    .then(reading => this.props.appApi.saveReading(orgId,this.props.userId, reading))
     //TODO: catch not logged in error
     .then((r: SaveReadingResult) => {
       this.setState({
@@ -338,4 +339,19 @@ class NewReadingScreen extends Component<Props> {
   }
 }
 
-export default NewReadingScreen;
+const NewReadingScreenWithContext = (props: Props) => {
+  return (
+    <AppContext.Consumer>
+      {({ appApi, userId, config }) => (
+        <NewReadingScreen
+          appApi={appApi}
+          userId={userId}
+          config={config}
+          {...props}
+        />
+      )}
+    </AppContext.Consumer>
+  );
+}
+
+export default NewReadingScreenWithContext;
