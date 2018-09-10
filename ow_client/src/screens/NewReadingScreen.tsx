@@ -5,6 +5,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Picker,
+  Keyboard,
 } from 'react-native';
 import { 
   Button, Text 
@@ -85,6 +86,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   saveReading() {
+    Keyboard.dismiss();
     const {date, measurementString, coords, timeseriesString} = this.state;
     const { resource: { id } } = this.props;
 
@@ -330,7 +332,9 @@ class NewReadingScreen extends Component<Props> {
           width: '100%',
           marginBottom: 40,
           paddingHorizontal: 10,
-        }}>
+        }}
+          keyboardShouldPersistTaps={'always'}
+        >
           {this.getForm()}
           {this.getButton()}
         </ScrollView>

@@ -12,6 +12,17 @@ import * as AsyncStorage from 'rn-async-storage'
  * App provider uses the React Context api to manage any global state.
  */
 
+/*
+  TODO: this is less than ideal, as it means we need to rely
+  on config being passed through everywhere still.
+
+  A better situation would be to use the shared state to set up the config for us, 
+  and init the app api from the constructor here.
+
+  Or better yet, abstract away the app api as a series of Actions - more like redux
+  we can leave it for now, as it's no major issue, but this would be a better architecture
+  in the end.
+*/
 export interface Props {
   config: ConfigFactory,
 };
