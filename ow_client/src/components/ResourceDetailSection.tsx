@@ -197,33 +197,24 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
-  dep_getLatestReadingsPerTimeseries() {
-    const { readingsMap } = this.state;
-
-    const keys = [... readingsMap.keys() ];
-    return keys.map(key => this.statCardForTimeseries(key, readingsMap.get(key)));
-  }
-
   getLatestReadingsForTimeseries() {
     const { readingsMap, loading} = this.state;
     const { resource } = this.props;
 
     if (loading) {
-      return (
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <Loading />
-        </View>
-      );
+      return <Loading/>
     }
 
     const keys = [...readingsMap.keys()];
-    return keys.map((key, idx) => {
-      const value = readingsMap.get(key);
-      const timeseries = resource.timeseries[idx];
-      return (
-        <HeadingText key={key} heading={timeseries.name} content={`${value}`}/>
-      )
-    });
+    return (
+      keys.map((key, idx) => {
+        const value = readingsMap.get(key);
+        const timeseries = resource.timeseries[idx];
+        return (
+          <HeadingText key={key} heading={timeseries.name} content={`${value}`} />
+        )
+      })
+    );
   }
 
   /**
@@ -253,29 +244,45 @@ class ResourceDetailSection extends Component<Props> {
           flexDirection: 'column',
           height: '100%',
         }}>
-          <HeadingText heading={'Station Type:'} content={'TODO'}/>
-          <HeadingText heading={'Status'} content={'TODO'}/>
-          <Text style={{
-            paddingTop: 10, 
-            textDecorationLine: 'underline', 
-            fontSize: 15, 
-            fontWeight: '600', 
-            alignSelf:'center'
+          <View style={{
+            flexDirection: 'column',
+            flex: 2,
+            // backgroundColor: 'blue',
+          }}>
+            <HeadingText heading={'Station Type:'} content={'TODO'}/>
+            <HeadingText heading={'Status'} content={'TODO'}/>
+            <Text style={{
+              paddingVertical: 10,
+              textDecorationLine: 'underline',
+              fontSize: 15,
+              fontWeight: '600',
+              alignSelf: 'center',
             }}>
-            Latest Readings:
-          </Text>
+              Latest Readings:
+            </Text>
+          </View>
 
-          {this.getLatestReadingsForTimeseries()}
+          <View style={{
+            flexDirection: 'column',
+            flex: 5,
+            // backgroundColor: 'pink',
+            justifyContent: 'center',
+          }}>
+            {this.getLatestReadingsForTimeseries()}
+          </View>
 
           {/* Bottom Buttons */}
           <View style={{
-            height: 30,
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
+            flex: 1,
+            maxHeight: 30,
+            // height: 30,
+            // position: 'absolute',
+            // right: 0,
+            // bottom: 0,
             borderColor: textLight,
             borderTopWidth: 2,
-            flexDirection: 'row',
+            flexDirection: 'row-reverse',
+            // backgroundColor: 'purple',
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -285,8 +292,21 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
+  getCardForTimeseries(ts: OWTimeseries) {
+    return (
+      <Card
+        containerStyle={{
+          width: '90%',
+          height: '90%',
+          alignItems: 'center',
+        }}
+        title={ts.name}>
+      </Card>
+    )
+  }
+
   getReadingsView() {
-    const { resource: {lastValue}} = this.props;
+    const { resource } = this.props;
 
     return (
       <View style={{
@@ -306,33 +326,13 @@ class ResourceDetailSection extends Component<Props> {
             }}>
             {this.getSummaryCard()}
           </View>
-
-          <View key="2" style={{
-            alignItems: 'center',
-          }}>
-            <Card
-              containerStyle={{
-                width: '90%',
-                height: '90%',
-                alignItems: 'center',
-              }}
-              title="Past Readings">
-            </Card>
-          </View>
-
-          <View key="3" style={{
-            alignItems: 'center',
-          }}>
-            <Card
-              containerStyle={{
-                width: '90%',
-                height: '90%',
-                alignItems: 'center',
-              }}
-              title="Rainfall">
-            </Card>
-          </View>
-
+          {
+            resource.timeseries.map((ts: OWTimeseries, idx: number) => (
+              <View key={idx} style={{alignItems: 'center'}}>
+                {this.getCardForTimeseries(ts)}
+              </View>
+            ))
+          }
         </ViewPagerAndroid>
       </View>
     );
@@ -345,7 +345,8 @@ class ResourceDetailSection extends Component<Props> {
         buttonStyle={{
           backgroundColor: bgLight,
           borderRadius: 5,
-          flex: 1
+          flex: 1,
+          marginTop: 6,
         }}
         title='NEW READING'
         onPress={() => this.props.onAddReadingPressed(this.props.resource)}
