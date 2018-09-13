@@ -277,13 +277,12 @@ class ResourceDetailSection extends Component<Props> {
             // width: '50%',
             height: 30,
             position: 'absolute',
-            right: 20,
+            right: 0,
             bottom: 0,
             borderColor: textLight,
             borderTopWidth: 2,
             flexDirection: 'row',
-            marginRight: 10,
-            backgroundColor: 'red',
+            // marginRight: 10,
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -357,10 +356,6 @@ class ResourceDetailSection extends Component<Props> {
           borderRadius: 5,
           flex: 1
         }}
-        // titleStyle={{ 
-        //   fontWeight: 'bold', 
-        //   fontSize: 23,
-        // }}
         title='NEW READING'
         onPress={() => this.props.onAddReadingPressed(this.props.resource)}
       />
@@ -370,10 +365,6 @@ class ResourceDetailSection extends Component<Props> {
   getFavouriteButton() {
     const { favouriteResourcesMeta } = this.props;
     const isFavourite = this.isFavourite();
-
-    if (favouriteResourcesMeta.loading) {
-      return <Loading/>;
-    }
 
     let iconName = 'star-half';
     if (isFavourite) {
@@ -385,40 +376,9 @@ class ResourceDetailSection extends Component<Props> {
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
-        color={bgLight}
+        color={primaryDark}
+        isLoading={favouriteResourcesMeta.loading}
       />
-    );
-  }
-
-  getButtonsView() {
-
-    return (
-      <View style={{
-        flexDirection: 'row',
-        backgroundColor: primaryDark,
-      }}>
-        <Button
-          color={textDark}
-          buttonStyle={{
-            backgroundColor: primary,
-            borderRadius: 5,
-            flex: 1
-          }}
-          // titleStyle={{ 
-          //   fontWeight: 'bold', 
-          //   fontSize: 23,
-          // }}
-          title='New reading'
-          onPress={() => this.props.onAddReadingPressed(this.props.resource)}
-        />
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center'
-          }}>
-          {this.getFavouriteButton()}
-        </View>
-      </View>
     );
   }
 
@@ -441,7 +401,6 @@ class ResourceDetailSection extends Component<Props> {
       }}>
         {this.getHeadingBar()}
         {this.getReadingsView()}
-        {/* {this.getButtonsView()} */}
       </View>
     );
   }

@@ -179,7 +179,11 @@ export default class AppProvider extends Component<Props> {
   componentWillUnmount() {
     //Make sure to remove all subscriptions here.
     this.networkApi.removeConnectionChangeCallback(this.connectionChangeCallbackId);
-    this.unsubscribeFromUser();
+    if (this.unsubscribeFromUser) {
+      this.unsubscribeFromUser();
+    } else {
+      console.warn('componentWillUnmount, this.unsubscribeFromUser doesn\'t exist');
+    }
   }
 
   async persistState() {
@@ -232,7 +236,9 @@ export default class AppProvider extends Component<Props> {
       .filter(r => r !== null);  //Null resources are ones that were added but have been removed
     this.setState({
       favouriteResources,
+      favouriteResourcesMeta: { loading: false}, //TODO: not sure if this is the best method
       recentResources: userData.recentResources,
+
     });
   }
 
@@ -261,6 +267,7 @@ export default class AppProvider extends Component<Props> {
     const { userId } = this.state;
 
     this.setState({favouriteResourcesMeta: {loading: true}});
+    //TODO: set this loading status in a way that the onUserChanged can override it...
     await this.appApi.removeFavouriteResource(resourceId, userId);
     this.setState({favouriteResourcesMeta: { loading: false }});
   }

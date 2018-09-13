@@ -1,16 +1,18 @@
 import * as React from 'react'; import { Component } from 'react';
 import {
-  View,
+  View, ActivityIndicator,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { primary, textDark } from '../../utils/Colors';
 import { getLocation } from '../../utils';
+import Loading from './Loading';
 
 export interface Props {
   onComplete?: any,
   onPress: any,
-  color?: string,
+  color: string,
   name: string,
+  isLoading: boolean,
 }
 
 export interface State {
@@ -23,42 +25,31 @@ export default class FlatIconButton extends Component<Props> {
     super(props);
   }
 
-  updateGeoLocation() {
-    this.setState({
-      loading: true
-    });
-
-    return getLocation()
-      .then(location => {
-        this.props.onComplete(location);
-      })
-      .catch(err => {
-        //TODO: display error to user
-        console.log('err', err);
-        this.setState({ loading: false });
-      });
-  }
-
   render() {
+    const { isLoading } = this.props;
 
     return (
 
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
-        // borderRadius: 50,
-        // width: 45,
-        // height: 45,
       }}>
-        <Icon
-          size={20}
-          name={this.props.name}
-          onPress={() => this.props.onPress()}
-          color={this.props.color ? this.props.color : primary}
-          iconStyle={{
-            color: textDark,
-          }}
-        />
+        { isLoading ? 
+          <ActivityIndicator
+            size="small"
+            color={this.props.color}
+          />
+          :
+          <Icon
+            size={25}
+            name={this.props.name}
+            onPress={() => this.props.onPress()}
+            // color={this.props.color ? this.props.color : primary}
+            iconStyle={{
+              color: this.props.color,
+            }}
+          />
+          }
       </View>
     );
   }
