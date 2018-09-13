@@ -81,3 +81,10 @@ export type OWTimeseriesResponse = {
   previous: string,
   results: Array<OWTimeseries>
 }
+
+export enum TimeseriesButton {
+  ONE_YEAR,
+  THREE_MONTHS,
+  TWO_WEEKS,
+  EXTENT,
+}
