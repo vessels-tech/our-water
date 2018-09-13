@@ -1,11 +1,13 @@
 import { Alert } from 'react-native';
+import * as React from 'react';
 import * as moment from 'moment';
 import QueryString, { stringify } from 'query-string';
-import { textDark, bgDark2, bgLight } from './Colors';
+import { textDark, bgDark2, bgLight, primaryLight } from './Colors';
 import { Location } from '../typings/Location';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
+import { Avatar } from 'react-native-elements';
 
 
 /**
@@ -267,4 +269,19 @@ export function getDemoResources(count: number): Resource[] {
   }
 
   return resources;
+}
+
+export function getGroundwaterAvatar() {
+  return (
+    <Avatar
+      containerStyle={{
+        backgroundColor: primaryLight,
+        alignSelf: 'center',
+      }}
+      rounded
+      // size="large"
+      title = "GW"
+      activeOpacity = { 0.7}
+    />
+  );
 }

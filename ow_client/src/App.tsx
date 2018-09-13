@@ -163,7 +163,10 @@ class App extends Component<Props> {
 
     onNavigatorEvent(event: any) {
       if (event.id === 'search') {
-        navigateTo(this.props, 'screen.SearchScreen', 'Search', {config: this.props.config});
+        navigateTo(this.props, 'screen.SearchScreen', 'Search', {
+          config: this.props.config,
+          onSearchResultPressed: (result: any) => this.onSearchResultPressed(result),
+        });
       }
     }
 
@@ -198,6 +201,14 @@ class App extends Component<Props> {
       if (bannerState === SyncStatus.ggmnError) {
 
       }
+    }
+
+    /**
+     * Handle when a user clicks a result from the search screen.
+     * 
+     */
+    onSearchResultPressed(r: Resource): void {
+      this.selectResource(r);
     }
 
     /**

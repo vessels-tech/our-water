@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import {
-  View, TouchableNativeFeedback, ScrollView,
+  View, TouchableNativeFeedback, ScrollView, TouchableHighlight,
 } from 'react-native';
 import {
   Card,
@@ -15,11 +15,16 @@ import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
 import { AppContext } from '../AppProvider';
 import { ConfigFactory } from '../config/ConfigFactory';
+import { getGroundwaterAvatar } from '../utils';
 
 // import { debounce } from "debounce";
 
 export interface Props {
+  onSearchResultPressed: any,
+
   navigator: any;
+
+  //Injected from Provider
   isConnected: boolean,
   appApi: BaseApi,
   userId: string,
@@ -45,7 +50,7 @@ class SearchScreen extends Component<Props> {
     this.state = {
       searchQuery: '',
       results: [],
-      recentSearches: [],
+      recentSearches: [], //TODO: get from provider
       isLoading: false,
       error: false,
       errorMessage: '',
@@ -147,26 +152,28 @@ class SearchScreen extends Component<Props> {
 
     return (
       <View>
-        {/* <Card title="Results"> */}
-          {
-            results.map((r, i) => {
-              return (
-                <ListItem
-                  containerStyle={{
-                    paddingLeft: 10,
-                    // marginLeft: 0,
-                  }}
-                  hideChevron
-                  key={i}
-                  onPress={() => console.log("pressed")}
-                  roundAvatar
-                  title={r.id}
-                  avatar={{ uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg' }}
-                />
-              );
-            })
-          }
-        {/* </Card> */}
+        {
+          // TODO: fix this with a touchable native feedback
+          results.map((r: Resource, i) => {
+            return (
+              <ListItem
+                containerStyle={{
+                  paddingLeft: 10,
+                }}
+                hideChevron
+                key={i}
+                onPress={() => {
+                  this.props.navigator.pop();
+                  this.props.onSearchResultPressed(r)
+                }}
+                roundAvatar
+                title={r.id}
+                avatar={getGroundwaterAvatar()}
+                subtitle={r.owner.name}>
+              </ListItem>
+            );
+          })
+        }
       </View>
     );
   }
@@ -306,7 +313,8 @@ class SearchScreen extends Component<Props> {
       }}>
         {this.getSearchBar()}
         <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps={'always'}
         >
           {this.getSearchResults()}
           {this.getNoResultsFoundText()}
