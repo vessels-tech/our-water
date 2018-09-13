@@ -1,4 +1,4 @@
-import { ExternalLoginDetails } from "../typings/api/ExternalServiceApi";
+import { EmptyLoginDetails, LoginDetails } from "../typings/api/ExternalServiceApi";
 
 export default interface ExternalServiceApi {
 
@@ -20,7 +20,7 @@ export default interface ExternalServiceApi {
    * 
    * If we can't get or decode the details, this will Throw
    */
-  getExternalServiceLoginDetails(): Promise<ExternalLoginDetails>;
+  getExternalServiceLoginDetails(): Promise<LoginDetails | EmptyLoginDetails>;
 
   /**
    * Force us to remove the login details

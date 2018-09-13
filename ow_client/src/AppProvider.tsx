@@ -9,6 +9,9 @@ import NetworkApi from './api/NetworkApi';
 import * as AsyncStorage from 'rn-async-storage'
 import { Resource, Reading } from './typings/models/OurWater';
 import { RNFirebase } from "react-native-firebase";
+import FirebaseApi from './api/FirebaseApi';
+import ExternalServiceApi from './api/ExternalServiceApi';
+import { ExternalLoginDetails, EmptyLoginDetails, LoginDetails, LoginDetailsType, ConnectionStatus } from './typings/api/ExternalServiceApi';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
@@ -49,6 +52,9 @@ export interface GlobalState {
   appApi: BaseApi | null,         //TODO: make non null
   networkApi: NetworkApi | null,
 
+  externalLoginDetails: LoginDetails | EmptyLoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
+
   //Adding other user-based models
   favouriteResources: Resource[],
   favouriteResourcesMeta: ActionMeta,
@@ -70,11 +76,12 @@ export interface GlobalState {
   action_saveReading?: any,
   action_saveResource?: any
 
+  action_connectToExternalService?: any,
+  action_disconnectFromExternalService?: any,
+
 
 
   //TODO: 
-  //pendingReadings
-  //isConnectedExternally
   //language and region
 }
 
@@ -83,6 +90,11 @@ const defaultState: GlobalState = {
   config: null,
   userId: 'unknown',
   isConnected: false,
+  externalLoginDetails: {
+    type: LoginDetailsType.EMPTY,
+    status: ConnectionStatus.NO_CREDENTIALS,
+  },
+  externalLoginDetailsMeta: {loading: false},
   appApi: null,
   networkApi: null,
   favouriteResources: [],
@@ -104,6 +116,7 @@ export default class AppProvider extends Component<Props> {
   connectionChangeCallbackId: string;
   networkApi: NetworkApi;
   appApi: BaseApi;
+  externalServiceApi: ExternalServiceApi;
 
   unsubscribeFromUser: any;
 
@@ -111,6 +124,7 @@ export default class AppProvider extends Component<Props> {
     super(props);
 
     this.appApi = props.config.getAppApi();
+    this.externalServiceApi = props.config.getExternalServiceApi();
     this.networkApi = props.config.networkApi;
 
     //TODO: ask api to trigger first status update now
@@ -135,6 +149,8 @@ export default class AppProvider extends Component<Props> {
       action_addRecent: this.action_addRecent.bind(this),
       action_saveReading: this.action_saveReading.bind(this),
       action_saveResource: this.action_saveResource.bind(this),
+      action_connectToExternalService: this.action_connectToExternalService.bind(this),
+      action_disconnectFromExternalService: this.action_disconnectFromExternalService.bind(this),
     }
 
     AsyncStorage.getItem(storageKey)
@@ -174,6 +190,18 @@ export default class AppProvider extends Component<Props> {
     if (this.state.networkApi) {
       await this.state.networkApi.updateConnectionStatus();
     }
+
+    /* Get the is external service connection status*/
+    this.setState({ externalLoginDetailsMeta: { loading: true} });
+    try {
+      const details: LoginDetails | EmptyLoginDetails = await this.externalServiceApi.getExternalServiceLoginDetails();
+      //If the above succeeds, then yes, we are connected
+      this.setState({ externalLoginDetails: details});
+    } catch (err) {
+      console.log("error with login details", err);
+    } finally {
+      this.setState({externalLoginDetailsMeta: {loading: false}});
+    }
   }
 
   componentWillUnmount() {
@@ -188,9 +216,10 @@ export default class AppProvider extends Component<Props> {
 
   async persistState() {
     const toSave = {
-      //TODO: strip out anything that we don't want to save
+      //Put your state you want to persist between screens here
       isConnected: this.state.isConnected,
       userId: this.state.userId,
+      externalLoginDetails: this.state.externalLoginDetails,
     };
     await AsyncStorage.setItem(storageKey, JSON.stringify(toSave));
     console.log("finished persisting state", toSave);
@@ -223,11 +252,11 @@ export default class AppProvider extends Component<Props> {
     console.log("got a user changed callback!", sn.data());
     const userData = sn.data();
 
+    //TODO: fix this up
     if (!userData) {
       console.log("ERROR: onUserChanged -> userData is undefined.");
       return;
     }
-
 
     /* Map from Firebase Domain to our Domain*/
     const favouriteResourcesDict = userData.favouriteResources;
@@ -296,15 +325,42 @@ export default class AppProvider extends Component<Props> {
 
   async action_saveResource(resource: Resource): Promise<any> {
     //TODO: implement
+    
   }
 
+
+  async action_connectToExternalService(username: string, password: string): Promise<void> {
+    this.setState({ externalLoginDetailsMeta: { loading: true } });
+
+    try {
+      const externalLoginDetails = await this.externalServiceApi.connectToService(username, password);
+      this.setState({externalLoginDetails});
+
+    } catch(err) {
+      console.log("error connecting to external service", err);
+    } finally {
+      this.setState({ externalLoginDetailsMeta: { loading: false } });
+    }
+  }
+
+  async action_disconnectFromExternalService(): Promise<any> {
+    //All we are doing is forgetting the credentials
+    await this.externalServiceApi.forgetExternalServiceLoginDetails();
+
+    this.setState({
+      externalLoginDetails: {
+        type: LoginDetailsType.EMPTY,
+        status: ConnectionStatus.NO_CREDENTIALS,
+      },
+    });
+  }
+
+
+  
   /*
     addRecentSearch
     saveReading
     saveResource
-
-    connectToExternalService
-    disconnectFromExternalService
   */
 
 

@@ -13,7 +13,7 @@ import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroun
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
-import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders } from "../typings/api/ExternalServiceApi";
+import { LoginRequest, ExternalLoginDetails, LoginStatus, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
@@ -84,9 +84,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   * Maybe we don't need to save the sessionId. It should be handled
   * automatically by our cookies
   */
-  connectToService(username: string, password: string): Promise<any> {
+  connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails> {
     const url = `${this.baseUrl}/api/v3/organisations/`;
     console.log("url is", url);
+    let signInResponse: LoginDetails | EmptyLoginDetails;
 
     const options = {
       timeout,
@@ -104,14 +105,39 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
       .then((r: GGMNOrganisationResponse) => {
         console.log(r);
 
-        return true; //If the request succeeded, then we are logged in.
-      });
+        return {
+          type: LoginDetailsType.FULL,
+          status: ConnectionStatus.SIGN_IN_SUCCESS,
+          username,
+        };
+      })
+      .catch((err: Error) => {
+        //Sign in failed:
+        return {
+          type: LoginDetailsType.FULL,
+          status: ConnectionStatus.SIGN_IN_ERROR,
+          username,
+        };
+      })
+      .then((_signInResponse: LoginDetails | EmptyLoginDetails) => {
+        signInResponse = _signInResponse;
+
+        return this.saveExternalServiceLoginDetails(username, password)
+        .catch(err => {
+          //Couldn't save the creds for some reason
+          signInResponse = {
+            type: LoginDetailsType.EMPTY,
+            status: ConnectionStatus.NO_CREDENTIALS,
+          };
+        })
+      })
+      .then(() => signInResponse)
   }
 
   /**
    * This is a broken implementation, we will use a different endpoint instead
    */
-  private dep_connectToService(username: string, password: string): Promise<any> {
+  private dep_connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails> {
     const url = `${this.baseUrl}/api-auth/login/`;
     console.log("URL is", url);
     
@@ -157,21 +183,35 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return true 
   }
 
-  async getExternalServiceLoginDetails(): Promise<ExternalLoginDetails> {
+
+  async getExternalServiceLoginDetails(): Promise<LoginDetails | EmptyLoginDetails> {
     //Try performing a login first, just in case
-    const credentials = await this.getCredentials();
+    let credentials;
+    try {
+      credentials = await this.getCredentials();
+    } catch (err) {
+      //No credentials:
+      return {
+        type: LoginDetailsType.EMPTY,
+        status: ConnectionStatus.NO_CREDENTIALS,
+      }
+    }
+
     try {
       await this.connectToService(credentials.username, credentials.password);
+
       return {
+        type: LoginDetailsType.FULL,
+        status: ConnectionStatus.SIGN_IN_SUCCESS,
         username: credentials.username,
-        status: LoginStatus.Success,
       };
     } catch (err) {
       console.log("error logging in", err);
       return {
+        type: LoginDetailsType.FULL,
+        status: ConnectionStatus.SIGN_IN_ERROR,
         username: credentials.username,
-        status: LoginStatus.Error,
-      }
+      };
     }
   }
 

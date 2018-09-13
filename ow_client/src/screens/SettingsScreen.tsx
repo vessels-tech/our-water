@@ -22,10 +22,11 @@ export interface Props {
   userId: string,
   appApi: BaseApi,
   config: ConfigFactory,
+  isConnectedToExternalService: boolean
+
 }
 
 export interface State {
-  isConnectedToExternalService: boolean
 
 }
 
@@ -38,34 +39,16 @@ class SettingsScreen extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    this.checkLoginStatusIfNeeded();
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+    // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
   }
 
-  componentWillUnmount() {
-    //TODO: unsubscribe
-  }
+  // componentWillUnmount() {
+  //   //TODO: unsubscribe
+  // }
 
-  onNavigatorEvent() {
+  // onNavigatorEvent() {
 
-  }
-
-  checkLoginStatusIfNeeded() {
-    //Check if we are connected to external service - only if we actually should
-    if (this.props.config.getShowConnectToButton()) {
-      const externalApi: ExternalServiceApi = this.props.config.getExternalServiceApi();
-      externalApi.getExternalServiceLoginDetails()
-        .then((result: ExternalLoginDetails) => {
-          this.setState({
-            isConnectedToExternalService: true,
-          });
-        }).catch(err => {
-          this.setState({
-            isConnectedToExternalService: false,
-          });
-        });
-    }
-  }
+  // }
 
   /**
    * Connect to button is only available for variants which connect to external services
@@ -78,7 +61,7 @@ class SettingsScreen extends React.Component<Props> {
     }
 
     let title = this.props.config.getConnectToButtonText();
-    const { isConnectedToExternalService } = this.state;
+    const { isConnectedToExternalService } = this.props;
     if (isConnectedToExternalService) {
       title = this.props.config.getConnectToButtonConnectedText();
     }
@@ -167,10 +150,11 @@ class SettingsScreen extends React.Component<Props> {
 const SettingScreenWithContext = (props: Props) => {
   return (
     <AppContext.Consumer>
-      {({ appApi, userId, config }) => (
+      {({ appApi, userId, config, isConnectedToExternalService }) => (
         <SettingsScreen
           appApi={appApi}
           userId={userId}
+          isConnectedToExternalService={isConnectedToExternalService}
           {...props}
         />
       )}
