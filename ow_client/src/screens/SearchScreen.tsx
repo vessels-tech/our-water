@@ -63,7 +63,6 @@ class SearchScreen extends Component<Props> {
         noIcon
         onChangeText={(searchQuery) => {
           this.setState({ searchQuery });
-          // console.log("text changed");
           //TODO: figure out how to debounce properly
           this.performSearch();
         }}
@@ -78,7 +77,7 @@ class SearchScreen extends Component<Props> {
    * Perform the search for the given query
    * This is a placeholder implementation
    * 
-   * TODO: refactor to be offline search?
+   * TODO: refactor to handle offline search?
    */
   performSearch() {
     const { searchQuery } = this.state;
@@ -95,12 +94,12 @@ class SearchScreen extends Component<Props> {
       resources = result.resources;
 
       //TODO: if results are larger than 0, save the search!
-      // if (resources.length > 0) {
-      //   console.log("save recent search!");
-      //   return this.appApi.saveRecentSearch(this.props.userId, searchQuery)
-      //   //Non-critical error
-      //   .catch(err => console.log("error saving search: ", err));
-      // }
+      if (resources.length > 0) {
+        console.log("save recent search!");
+        return this.props.appApi.saveRecentSearch(this.props.userId, searchQuery)
+        //Non-critical error
+        .catch(err => console.log("error saving search: ", err));
+      }
     })
     .then(() => {
       this.setState({
@@ -148,11 +147,15 @@ class SearchScreen extends Component<Props> {
 
     return (
       <View>
-        <Card title="Results">
+        {/* <Card title="Results"> */}
           {
             results.map((r, i) => {
               return (
                 <ListItem
+                  containerStyle={{
+                    paddingLeft: 10,
+                    // marginLeft: 0,
+                  }}
                   hideChevron
                   key={i}
                   onPress={() => console.log("pressed")}
@@ -163,7 +166,7 @@ class SearchScreen extends Component<Props> {
               );
             })
           }
-        </Card>
+        {/* </Card> */}
       </View>
     );
   }
@@ -247,6 +250,10 @@ class SearchScreen extends Component<Props> {
             recentSearches.map((r, i) => {
               return (
                 <ListItem
+                  containerStyle={{
+                    paddingLeft: 0,
+                    marginLeft: 0,
+                  }}
                   hideChevron
                   key={i}
                   component={TouchableNativeFeedback}
