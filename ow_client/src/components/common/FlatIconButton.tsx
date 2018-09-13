@@ -3,8 +3,8 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { primary, textDark } from '../utils/Colors';
-import { getLocation } from '../utils';
+import { primary, textDark } from '../../utils/Colors';
+import { getLocation } from '../../utils';
 
 export interface Props {
   onComplete?: any,
@@ -17,7 +17,7 @@ export interface State {
 
 }
 
-export default class IconButton extends Component<Props> {
+export default class FlatIconButton extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
@@ -29,14 +29,14 @@ export default class IconButton extends Component<Props> {
     });
 
     return getLocation()
-    .then(location => {
-      this.props.onComplete(location);
-    })
-    .catch(err => {
-      //TODO: display error to user
-      console.log('err', err);
-      this.setState({ loading: false });
-    });
+      .then(location => {
+        this.props.onComplete(location);
+      })
+      .catch(err => {
+        //TODO: display error to user
+        console.log('err', err);
+        this.setState({ loading: false });
+      });
   }
 
   render() {
@@ -46,13 +46,11 @@ export default class IconButton extends Component<Props> {
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 50,
-        width: 45,
-        height: 45,
+        // borderRadius: 50,
+        // width: 45,
+        // height: 45,
       }}>
         <Icon
-          reverse
-          raised
           size={20}
           name={this.props.name}
           onPress={() => this.props.onPress()}
@@ -60,7 +58,7 @@ export default class IconButton extends Component<Props> {
           iconStyle={{
             color: textDark,
           }}
-      />
+        />
       </View>
     );
   }

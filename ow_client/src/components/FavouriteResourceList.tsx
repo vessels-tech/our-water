@@ -12,9 +12,9 @@ import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
 import { textDark } from '../utils/Colors';
-import { AppContext, AsyncMeta } from '../AppProvider';
+import { AppContext, SyncMeta } from '../AppProvider';
 import { Resource } from '../typings/models/OurWater';
-import Loading from './Loading';
+import Loading from './common/Loading';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const orgId = Config.REACT_APP_ORG_ID;
@@ -24,9 +24,9 @@ export interface Props {
   userId: string,
   onResourceCellPressed: any
 
-  favouriteResourcesMeta: AsyncMeta,
+  favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
-  recentResourcesMeta: AsyncMeta,
+  recentResourcesMeta: SyncMeta,
   recentResources: Resource[],
 }
 

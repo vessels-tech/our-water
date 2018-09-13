@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import firebase from 'react-native-firebase';
-import Loading from './components/Loading';
+import Loading from './components/common/Loading';
 import ResourceDetailSection from './components/ResourceDetailSection';
 import { Location } from './typings/Location';
 import { 

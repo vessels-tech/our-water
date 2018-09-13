@@ -2,7 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import {
   ActivityIndicator,
 } from 'react-native';
-import { primary } from '../utils/Colors';
+import { primary } from '../../utils/Colors';
 
 
 /**

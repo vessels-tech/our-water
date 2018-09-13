@@ -11,7 +11,7 @@ import {
 } from 'react-native-elements';
 import { Resource, SearchResult } from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
-import Loading from '../components/Loading';
+import Loading from '../components/common/Loading';
 import {debounce} from 'throttle-debounce';
 import { AppContext } from '../AppProvider';
 import { ConfigFactory } from '../config/ConfigFactory';

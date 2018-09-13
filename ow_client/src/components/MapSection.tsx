@@ -8,7 +8,7 @@ import { bgMed, primaryDark, textLight } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
-import IconButton from './IconButton';
+import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
 
 export type MapRegion = {

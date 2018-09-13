@@ -1,14 +1,11 @@
 import * as React from 'react';
 import { Navigation } from 'react-native-navigation';
 
-import App from '../App';
 import NewReadingScreen from './NewReadingScreen';
-import ResourceDetailScreen from './ResourceDetailScreen';
 import SettingsScreen from './SettingsScreen';
 import EditResourceScreen from './EditResourceScreen';
 import SearchScreenWithContext from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
-import GGMNReadingScreen from './GGMNReadingScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
 import AppProvider, { AppContext } from '../AppProvider';
 import AppWithContext from '../App';

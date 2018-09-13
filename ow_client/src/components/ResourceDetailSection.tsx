@@ -11,8 +11,8 @@ import {
   Text,
 } from 'react-native-elements';
 
-import Loading from './Loading';
-import IconButton from './IconButton';
+import Loading from './common/Loading';
+import IconButton from './common/IconButton';
 import StatCard from './common/StatCard';
 import {
   getShortId,
@@ -26,8 +26,9 @@ import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
 import * as moment from 'moment';
 import HeadingText from './common/HeadingText';
-import { AsyncMeta, AppContext } from '../AppProvider';
+import { AppContext, SyncMeta } from '../AppProvider';
 import { S_IFIFO } from 'constants';
+import FlatIconButton from './common/FlatIconButton';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -40,7 +41,7 @@ export interface Props {
   onAddToFavourites: any,
   onRemoveFromFavourites: any,
 
-  favouriteResourcesMeta: AsyncMeta,
+  favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
   action_addFavourite: any,
   action_removeFavourite: any,
@@ -256,6 +257,7 @@ class ResourceDetailSection extends Component<Props> {
       >
         <View style={{
           flexDirection: 'column',
+          height: '100%',
           // flex: 1
         }}>
           <HeadingText heading={'Station Type:'} content={'TODO'}/>
@@ -272,7 +274,7 @@ class ResourceDetailSection extends Component<Props> {
           </Text>
           {/* Bottom Buttons */}
           <View style={{
-            width: '50%',
+            // width: '50%',
             height: 30,
             position: 'absolute',
             right: 20,
@@ -281,9 +283,10 @@ class ResourceDetailSection extends Component<Props> {
             borderTopWidth: 2,
             flexDirection: 'row',
             marginRight: 10,
+            backgroundColor: 'red',
           }}>
-            {/* {this.getFavouriteButton()}
-            {this.getReadingButton()} */}
+            {this.getFavouriteButton()}
+            {this.getReadingButton()}
           </View>
         </View>
       </Card>
@@ -378,11 +381,11 @@ class ResourceDetailSection extends Component<Props> {
     }
 
     return (
-      <IconButton
+      <FlatIconButton
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
-        color={primary}
+        color={bgLight}
       />
     );
   }
@@ -437,8 +440,8 @@ class ResourceDetailSection extends Component<Props> {
         flexDirection: 'column',
       }}>
         {this.getHeadingBar()}
-        {/* {this.getReadingsView()} */}
-        {this.getButtonsView()}
+        {this.getReadingsView()}
+        {/* {this.getButtonsView()} */}
       </View>
     );
   }

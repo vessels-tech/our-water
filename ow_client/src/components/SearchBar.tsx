@@ -9,7 +9,7 @@ import {
   SearchBar as SB 
 } from 'react-native-elements';
 
-import Loading from './Loading';
+import Loading from './common/Loading';
 import FirebaseApi from '../api/FirebaseApi';
 
 import Config from 'react-native-config'
