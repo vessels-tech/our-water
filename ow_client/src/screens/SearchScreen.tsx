@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import {
-  View, TouchableNativeFeedback,
+  View, TouchableNativeFeedback, ScrollView,
 } from 'react-native';
 import {
   Card,
@@ -14,6 +14,7 @@ import BaseApi from '../api/BaseApi';
 import Loading from '../components/Loading';
 import {debounce} from 'throttle-debounce';
 import { AppContext } from '../AppProvider';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 // import { debounce } from "debounce";
 
@@ -22,6 +23,7 @@ export interface Props {
   isConnected: boolean,
   appApi: BaseApi,
   userId: string,
+  config: ConfigFactory,
 }
 
 export interface State {
@@ -56,21 +58,19 @@ class SearchScreen extends Component<Props> {
   getSearchBar() {
 
     return (
-      <View>
-        <SearchBar
-          lightTheme
-          noIcon
-          onChangeText={(searchQuery) => {
-            this.setState({ searchQuery });
-            // console.log("text changed");
-            //TODO: figure out how to debounce properly
-            this.performSearch();
-          }}
-          // onEndEditing={() => this.performSearch()}
-          onClearText={() => console.log('clear text')}
-          value={this.state.searchQuery}
-          placeholder='Search' />
-      </View>
+      <SearchBar
+        lightTheme
+        noIcon
+        onChangeText={(searchQuery) => {
+          this.setState({ searchQuery });
+          // console.log("text changed");
+          //TODO: figure out how to debounce properly
+          this.performSearch();
+        }}
+        // onEndEditing={() => this.performSearch()}
+        onClearText={() => console.log('clear text')}
+        value={this.state.searchQuery}
+        placeholder='Search' />
     );
   }
 
@@ -81,7 +81,6 @@ class SearchScreen extends Component<Props> {
    * TODO: refactor to be offline search?
    */
   performSearch() {
-    console.log("performing search");
     const { searchQuery } = this.state;
 
     let result: SearchResult;
@@ -126,8 +125,6 @@ class SearchScreen extends Component<Props> {
   getSearchResults() {
     const { results, isLoading, error, errorMessage } = this.state;
 
-    const resources: Resource[] = [];
-
     if (isLoading) {
       return (
         <View style={{
@@ -146,13 +143,7 @@ class SearchScreen extends Component<Props> {
     };
 
     if (results.length === 0) {
-      return (
-        <View>
-          <Text>No Results Found</Text>
-          {/* TODO: display recent searches */}
-          {this.getRecentSearches()}
-        </View>
-      );
+      return null;
     }
 
     return (
@@ -177,38 +168,100 @@ class SearchScreen extends Component<Props> {
     );
   }
 
-  getRecentSearches() {
-    const { recentSearches } = this.state;
+  getNoResultsFoundText() {
+    const { searchQuery, results, isLoading } = this.state;
 
-    if (recentSearches.length === 0) {
+    if (isLoading) { 
+      return null;
+    }
+
+    if (results.length > 0) {
+      return null;
+    }
+
+    if (searchQuery.length === 0) {
+      return null;
+    }
+
+    return (
+      <View style={{
+        flex: 1,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        width: '50%',
+        height: '100%',
+      }}>
+        <Text style={{
+          textAlign: "center"
+        }}>
+          No Results Found
+          </Text>
+      </View>
+    );
+  }
+
+  getSearchHint() {
+    const { searchQuery, results, isLoading, recentSearches } = this.state;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (recentSearches.length === 0 && searchQuery.length === 0) {
       return (
-        //TODO: formatting
-        <View>
-          <Text>Search hint</Text> 
+        <View style={{
+          flex: 1,
+          alignSelf: 'center',
+          justifyContent: 'center',
+          width: '50%',
+          height: '100%',
+        }}>
+          <Text style={{
+            textAlign: "center"
+          }}
+          >{this.props.config.getSearchHint()} </Text>
         </View>
       );
     }
+  }
 
-    return <View>
-      <Card title="Recent Searches">
-        {
-          recentSearches.map((r, i) => {
-            return (
-              <ListItem
-                hideChevron
-                key={i}
-                component={TouchableNativeFeedback}
-                onPress={() => {
-                  this.setState({searchQuery: r}, () => {this.performSearch()});
-                }}
-                roundAvatar
-                title={r}
-              />
-            );
-          })
-        }
-      </Card>
-    </View>
+  getRecentSearches() {
+    const { isLoading, recentSearches, results } = this.state;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (results.length > 0) {
+      return null;
+    }
+
+    if (recentSearches.length === 0) {
+      return null;
+    }
+  
+    return (
+      <View>
+        <Card title="Recent Searches">
+          {
+            recentSearches.map((r, i) => {
+              return (
+                <ListItem
+                  hideChevron
+                  key={i}
+                  component={TouchableNativeFeedback}
+                  onPress={() => {
+                    this.setState({searchQuery: r}, () => {this.performSearch()});
+                  }}
+                  roundAvatar
+                  title={r}
+                />
+              );
+            })
+          }
+        </Card>
+      </View>
+    );
   }
 
   getOfflineWarning() {
@@ -228,17 +281,33 @@ class SearchScreen extends Component<Props> {
   }
 
   render() {
-    const { searchQuery } = this.state;
+
+    /*
+      no search + no recent searches         =>  Search Hint
+      no search + recent searches            =>  Recent Searches
+      search with results + any              =>  Search Results
+      search no results + no recent searches =>  No Results Found
+      search no results + recent searches    =>  No Results Found + Recent Searches
+    */
     
     //TODO: add 'showing offline results only. Connect to mobile or wifi to get more accurate results'
     return (
-      <View>
+      <View style={{
+        flexDirection: 'column',
+        // backgroundColor: 'pink',
+        height: '100%'
+      }}>
         {this.getSearchBar()}
-        {searchQuery.length === 0 ? 
-          this.getRecentSearches() : 
-          this.getSearchResults()
-        }
-        {this.getOfflineWarning()}
+        <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {this.getSearchResults()}
+          {this.getNoResultsFoundText()}
+          {this.getSearchHint()}
+          {this.getRecentSearches()}
+        </ScrollView>
+        {/*TODO: implement this later on with more robust network detection  */}
+        {/* {this.getOfflineWarning()} */}
       </View>
     );
   }
@@ -247,12 +316,13 @@ class SearchScreen extends Component<Props> {
 const SearchScreenWithContext = (props: any) => {
   return (
     <AppContext.Consumer>
-      {({ isConnected, appApi, userId }) => {
+      {({ isConnected, appApi, userId, config }) => {
         return (
         <SearchScreen
           appApi={appApi}
           isConnected={isConnected}
           userId={userId}
+          config={config}
           {...props}
         />
       )}}

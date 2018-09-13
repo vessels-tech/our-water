@@ -74,7 +74,6 @@ class FirebaseApi {
   }
 
   static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
-    //TODO: fix this - since we cannot merge
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true});
   }
 

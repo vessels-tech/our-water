@@ -7,7 +7,7 @@ import NetworkApi from './api/NetworkApi';
 // import { AsyncStorage } from 'react-native';
 //@ts-ignore
 import * as AsyncStorage from 'rn-async-storage'
-import { Resource } from './typings/models/OurWater';
+import { Resource, Reading } from './typings/models/OurWater';
 import { RNFirebase } from "react-native-firebase";
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
@@ -31,8 +31,13 @@ export interface Props {
   config: ConfigFactory,
 };
 
-export type AsyncMeta = {
+export type ActionMeta = {
   loading: boolean,
+}
+
+export type SyncMeta = {
+  loading: boolean,
+  //TODO: Add sync states
 }
 
 export interface GlobalState {
@@ -46,9 +51,13 @@ export interface GlobalState {
 
   //Adding other user-based models
   favouriteResources: Resource[],
-  favouriteResourcesMeta: AsyncMeta,
+  favouriteResourcesMeta: ActionMeta,
   recentResources: Resource[],
-  recentResourcesMeta: AsyncMeta,
+  recentResourcesMeta: ActionMeta,
+  pendingSavedReadings: Reading[], //TODO: figure out how to load from collections
+  pendingSavedReadingsMeta: SyncMeta,
+  pendingSavedResources: Reading[],
+  pendingSavedResourcesMeta: SyncMeta,
 
   //Functions - passed through via state to Consumers
   syncStatusChanged?: any,
@@ -57,6 +66,9 @@ export interface GlobalState {
   action_addFavourite?: any,
   action_removeFavourite?: any,
   action_addRecent?: any,
+
+  action_saveReading?: any,
+  action_saveResource?: any
 
 
 
@@ -70,13 +82,17 @@ const defaultState: GlobalState = {
   syncStatus: SyncStatus.none,
   config: null,
   userId: 'unknown',
-  isConnected: true,
+  isConnected: false,
   appApi: null,
   networkApi: null,
   favouriteResources: [],
   favouriteResourcesMeta: {loading: false},
   recentResources: [],
   recentResourcesMeta: {loading: false},
+  pendingSavedReadings: [],
+  pendingSavedReadingsMeta: { loading: false },
+  pendingSavedResources: [], 
+  pendingSavedResourcesMeta: { loading: false },
 }
 
 export const AppContext = React.createContext(defaultState);
@@ -117,6 +133,8 @@ export default class AppProvider extends Component<Props> {
       action_addFavourite: this.action_addFavourite.bind(this),
       action_removeFavourite: this.action_removeFavourite.bind(this),
       action_addRecent: this.action_addRecent.bind(this),
+      action_saveReading: this.action_saveReading.bind(this),
+      action_saveResource: this.action_saveResource.bind(this),
     }
 
     AsyncStorage.getItem(storageKey)
@@ -201,6 +219,11 @@ export default class AppProvider extends Component<Props> {
     console.log("got a user changed callback!", sn.data());
     const userData = sn.data();
 
+    if (!userData) {
+      console.log("ERROR: onUserChanged -> userData is undefined.");
+      return;
+    }
+
 
     /* Map from Firebase Domain to our Domain*/
     const favouriteResourcesDict = userData.favouriteResources;
@@ -250,9 +273,26 @@ export default class AppProvider extends Component<Props> {
     this.setState({ recentResourcesMeta: { loading: false } });
   }
 
+  async action_saveReading(resourceId: string, reading: Reading): Promise<any> {
+    const { userId } = this.state;
+
+    this.setState({ pendingSavedReadingsMeta: { loading: true } });
+    return this.appApi.saveReading(resourceId, userId, reading)
+    .then(result => {
+      if (result.requiresLogin) {
+        //TODO: finish this off later - too tired now :(
+      }
+    })
+
+
+  }
+
+  async action_saveResource(resource: Resource): Promise<any> {
+    //TODO: implement
+  }
+
   /*
     addRecentSearch
-    addRecentResource
     saveReading
     saveResource
 

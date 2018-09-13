@@ -8,7 +8,7 @@ import { default as ftch } from 'react-native-fetch-polyfill';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
-import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse } from "../utils";
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse, getDemoResources } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -458,25 +458,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
         await this.getCredentials()
       } catch (err) {
         //Could not get credentials, or user hasn't logged in
-        console.log("pendingReadingSubscriptions", this.pendingReadingsSubscriptions);
-        this.updatePendingReadingSubscribers(SyncStatus.pendingGGMNLogin);
         return {
           requiresLogin: true,
         }
       }
 
-      //Don't return this promise - do without user caring
-      console.log("saving reading", reading);
-      this.updatePendingReadingSubscribers(SyncStatus.pendingGGMNWrites);
       this.persistReadingToGGMN(reading)
       .then((response: any) => {
         console.log("saved reading!");
-        this.updatePendingReadingSubscribers(SyncStatus.none);
+        //Remove from firebase, this would trigger the update to user
+        //to say that 
       })
       .catch(err => {
         console.log("Failed to save reading to GGMN", err)
         // this.apiState.bannerState = BannerState.ggmnError;
-        this.updatePendingReadingSubscribers(SyncStatus.ggmnError);
       });
 
       return {
@@ -614,10 +609,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
+  /**
+   * Perform a search using the GGMN Api
+   */
   performSearch(searchQuery: string): Promise<SearchResult> {
+
     //TODO: implement search for offline mode
     return Promise.resolve({
-      resources: [],
+      resources: getDemoResources(20),
+      // resources: [],
       groups:[],
       users: [],
       offline: false,

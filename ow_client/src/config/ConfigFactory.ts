@@ -22,6 +22,7 @@ export type RemoteConfig = {
   map_shouldLoadAllResources: boolean,
   settings_registerResourceText: string,
   newReading_enableImageUpload: boolean,
+  searchHint: string,
 
 }
 
@@ -149,6 +150,13 @@ export class ConfigFactory {
    */
   getShouldMapLoadAllResources() {
     return this.remoteConfig.map_shouldLoadAllResources;
+  }
+
+  /**
+   * Get the hint text for the default search page with no recents
+   */
+  getSearchHint() { 
+    return this.remoteConfig.searchHint;
   }
 
 }

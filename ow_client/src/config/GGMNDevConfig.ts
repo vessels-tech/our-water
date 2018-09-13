@@ -15,6 +15,7 @@ const GGMNDevConfig: RemoteConfig = {
   connectToText: 'Connected to GGMN',
   settings_registerResourceText: 'Register a new Well',
   newReading_enableImageUpload: false,
+  searchHint: 'Search for Groundwater Stations by Id, Organisation, or Code'
 }
 
 export default GGMNDevConfig;
