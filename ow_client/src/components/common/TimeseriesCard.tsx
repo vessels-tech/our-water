@@ -8,6 +8,7 @@ import {
 import { OWTimeseries, Reading, TimeseriesButton } from '../../typings/models/OurWater';
 import { View } from 'react-native';
 import { textLight, primaryDark, bgLight } from '../../utils/Colors';
+import LineChartExample from './DemoChart';
 
 
 export interface Props {
@@ -26,6 +27,7 @@ export interface State {
  */
 class TimeseriesCard extends Component<Props> {
 
+
   getGraphView() {
 
     return (
@@ -34,11 +36,7 @@ class TimeseriesCard extends Component<Props> {
         flex: 5,
         justifyContent: 'center'
       }}>
-        <Text
-          style={{alignSelf: 'center', textAlign: 'center'}}
-        >
-          TODO: Insert graph
-        </Text>
+        <LineChartExample/>
       </View>
     );
   }

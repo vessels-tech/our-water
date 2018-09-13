@@ -5,6 +5,7 @@ import android.app.Application;
 import com.reactnativenavigation.NavigationApplication;
 
 import com.facebook.react.ReactApplication;
+import com.horcrux.svg.SvgPackage;
 import org.gamega.RNAsyncStoragePackage;
 import com.oblador.keychain.KeychainPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -40,6 +41,7 @@ public class MainApplication extends NavigationApplication {
       // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
           // new MainReactPackage(),
+            new SvgPackage(),
           new RNAsyncStoragePackage(),
           new KeychainPackage(),
           new VectorIconsPackage(),

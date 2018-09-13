@@ -153,6 +153,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-svg')
     compile project(':rn-async-storage')
     compile project(':react-native-keychain')
     compile project(':react-native-vector-icons')
