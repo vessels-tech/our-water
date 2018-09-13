@@ -16,7 +16,7 @@ import * as moment from 'moment';
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert, getLocation } from '../utils';
-import { bgLight, primary, primaryDark, textMed} from '../utils/Colors';
+import { bgLight, primary, primaryDark, textMed, textDark} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
@@ -252,12 +252,27 @@ class NewReadingScreen extends Component<Props> {
           value={measurementString}
         />
         <View style={{
-          flexDirection: "row"
+          flexDirection: "row",
+          borderBottomColor: textDark,
+          borderBottomWidth: 1,
         }}>
-          <Text>Timeseries:</Text>
+          <Text 
+          style={{
+            alignSelf:'center',
+            paddingRight: 10,
+            fontSize: 15,
+            fontWeight: '600', 
+            flex: 1,
+          }}>
+            Timeseries:
+          </Text>
           <Picker
             selectedValue={this.state.timeseriesString}
-            style={{ width: '100%', backgroundColor: 'red' }}
+            style={{
+              flex: 2
+              // width: '100%',
+              // backgroundColor: 'red' 
+            }}
             mode={'dropdown'}
             onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
             }>
@@ -283,23 +298,10 @@ class NewReadingScreen extends Component<Props> {
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
         loading={this.state.isLoading}
-        // loadingProps={{ size: 'small', color: 'white' }}
         buttonStyle={{ 
           backgroundColor: primary,
-          // borderRadius: 5,
           width: SCREEN_WIDTH - 20,
-          // marginBottn: 20
         }}
-        // disabledStyle={{
-        //   backgroundColor: primaryDark, 
-        // }}
-        // titleStyle={{ 
-        //   fontWeight: 'bold',
-        //   fontSize: 23,
-        // }}
-        // containerStyle={{         
-        
-        // }}
         onPress={() => this.saveReading()}
         underlayColor="transparent"
       />
@@ -327,8 +329,6 @@ class NewReadingScreen extends Component<Props> {
           flex: 1,
           flexDirection: 'column',
           backgroundColor: bgLight,
-          // justifyContent: 'space-around',
-          // alignItems: 'center',
           width: '100%',
           marginBottom: 40,
           paddingHorizontal: 10,

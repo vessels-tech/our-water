@@ -320,9 +320,9 @@ class App extends Component<Props> {
       }
 
       return (
-        <View style={{
-          backgroundColor: bgLight,
-        }}>
+        // <View style={{
+        //   backgroundColor: bgLight,
+        // }}>
           <ResourceDetailSection
             config={this.props.config}
             userId={userId}
@@ -344,7 +344,7 @@ class App extends Component<Props> {
               });
             }} 
           />
-        </View>
+        // </View>
       );
     }
     
@@ -387,10 +387,12 @@ class App extends Component<Props> {
             selectedResource={this.state.selectedResource}
             hasSelectedResource={this.state.hasSelectedResource}
           />}
-          <ScrollView style={{
+          <ScrollView 
+            style={{
               marginTop: 0,
               flex: 1
             }}
+            contentContainerStyle={{ flexGrow: 1 }}
           >
             {this.getResourceView()}
             {this.getFavouritesList()}

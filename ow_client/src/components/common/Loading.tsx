@@ -10,7 +10,7 @@ import { primary } from '../../utils/Colors';
  * 
  */
 export interface Props {
-
+  style?: any,
 }
 
 class Loading extends Component<Props> {
@@ -18,6 +18,7 @@ class Loading extends Component<Props> {
   render() {
     return (
       <ActivityIndicator 
+        style={{justifyContent: 'center'}}
         size="large" 
         color={primary}
       />

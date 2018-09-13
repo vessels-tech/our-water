@@ -145,9 +145,9 @@ class ResourceDetailSection extends Component<Props> {
 
     return (
       <View style={{
+        flex: 1,
         flexDirection: 'row',
-        paddingVertical: 10,
-        backgroundColor: primaryDark
+        backgroundColor: primaryDark,
       }}>
         <Avatar
           containerStyle={{
@@ -170,7 +170,8 @@ class ResourceDetailSection extends Component<Props> {
             justifyContent: 'space-between',
           }}>
             <Text style={{ color: textLight, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
-            <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text>
+            {/* TODO: enable code? Most of the time it's the same as Name. */}
+            {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
           </View>
         </View>
       </View>
@@ -204,17 +205,23 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getLatestReadingsForTimeseries() {
-    const {readingsMap, loading} = this.state;
+    const { readingsMap, loading} = this.state;
+    const { resource } = this.props;
 
     if (loading) {
-      return null;
+      return (
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          <Loading />
+        </View>
+      );
     }
 
     const keys = [...readingsMap.keys()];
-    return keys.map(key => {
+    return keys.map((key, idx) => {
       const value = readingsMap.get(key);
+      const timeseries = resource.timeseries[idx];
       return (
-        <HeadingText key={key} heading={key} content={`${value}`}/>
+        <HeadingText key={key} heading={timeseries.name} content={`${value}`}/>
       )
     });
   }
@@ -241,24 +248,10 @@ class ResourceDetailSection extends Component<Props> {
           width: '90%',
           height: '90%',
         }}
-        // style={{
-        //   width: '90%',
-        //   height: '90%',
-        //   marginHorizontal: 10,
-        //   marginVertical: 10,
-        //   paddingHorizontal: 5,
-        //   paddingVertical: 5,
-        //   borderColor: textLight,
-        //   borderWidth: 2,
-        //   borderRadius: 2,
-
-        //   // alignItems: 'center',
-        // }}
       >
         <View style={{
           flexDirection: 'column',
           height: '100%',
-          // flex: 1
         }}>
           <HeadingText heading={'Station Type:'} content={'TODO'}/>
           <HeadingText heading={'Status'} content={'TODO'}/>
@@ -270,11 +263,12 @@ class ResourceDetailSection extends Component<Props> {
             alignSelf:'center'
             }}>
             Latest Readings:
-            {this.getLatestReadingsForTimeseries()}
           </Text>
+
+          {this.getLatestReadingsForTimeseries()}
+
           {/* Bottom Buttons */}
           <View style={{
-            // width: '50%',
             height: 30,
             position: 'absolute',
             right: 0,
@@ -282,7 +276,6 @@ class ResourceDetailSection extends Component<Props> {
             borderColor: textLight,
             borderTopWidth: 2,
             flexDirection: 'row',
-            // marginRight: 10,
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -295,20 +288,16 @@ class ResourceDetailSection extends Component<Props> {
   getReadingsView() {
     const { resource: {lastValue}} = this.props;
 
-    const viewStyle = {
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-      height: 425, //TODO: figure out this height
-      backgroundColor: bgLight,
-    };
-
     return (
+      <View style={{
+        flex: 15,
+      }}>
         <ViewPagerAndroid
           //@ts-ignore
           style={{
-            flex: 1,
-            ...viewStyle
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
           initialPage={0}
         >
@@ -343,7 +332,9 @@ class ResourceDetailSection extends Component<Props> {
               title="Rainfall">
             </Card>
           </View>
+
         </ViewPagerAndroid>
+      </View>
     );
   }
 
@@ -398,6 +389,7 @@ class ResourceDetailSection extends Component<Props> {
     return (
       <View style={{
         flexDirection: 'column',
+        flex: 1,
       }}>
         {this.getHeadingBar()}
         {this.getReadingsView()}

@@ -14,6 +14,7 @@ import DatePicker from 'react-native-datepicker';
 import {
   getMinAndMaxReadingDates,
 } from '../../utils'
+import { textDark } from '../../utils/Colors';
 
 // const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -106,6 +107,7 @@ class IconFormInput extends Component<Props> {
           // width: 200 
           flex: 5,
           borderWidth: 0,
+          marginBottom: 10,
         }}
         showIcon={false}
         date={this.props.value}
@@ -121,6 +123,7 @@ class IconFormInput extends Component<Props> {
           dateInput: {
             // marginLeft: 36
             borderWidth: 0,
+        
           }
         }}
         modalOnResponderTerminationRequest={() => {
@@ -189,7 +192,7 @@ class IconFormInput extends Component<Props> {
         <View style={{
           // backgroundColor: 'red',
           flexDirection: 'row',
-          borderBottomColor: iconColor || 'rgba(110, 120, 170, 1)',
+          borderBottomColor: textDark,
           borderBottomWidth: 1,
           marginTop: 15,
         }}>
@@ -206,7 +209,6 @@ class IconFormInput extends Component<Props> {
             color={iconColor || "#FF6767"}
           />
           {this.getFormInput(fieldType)}
-          
         </View>
         <FormValidationMessage
             style={{

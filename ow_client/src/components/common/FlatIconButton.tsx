@@ -27,9 +27,8 @@ export default class FlatIconButton extends Component<Props> {
 
   render() {
     const { isLoading } = this.props;
-
+    console.log("rendering FlatIconButton");
     return (
-
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
@@ -38,6 +37,7 @@ export default class FlatIconButton extends Component<Props> {
           <ActivityIndicator
             size="small"
             color={this.props.color}
+            animating={true}
           />
           :
           <Icon
