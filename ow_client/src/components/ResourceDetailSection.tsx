@@ -15,7 +15,7 @@ import Loading from './common/Loading';
 import IconButton from './common/IconButton';
 import StatCard from './common/StatCard';
 import {
-  getShortId,
+  getShortId, isFavourite,
 } from '../utils';
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
@@ -29,6 +29,7 @@ import HeadingText from './common/HeadingText';
 import { AppContext, SyncMeta } from '../AppProvider';
 import { S_IFIFO } from 'constants';
 import FlatIconButton from './common/FlatIconButton';
+import TimeseriesCard from './common/TimeseriesCard';
 
 const orgId = Config.REACT_APP_ORG_ID;
 
@@ -72,17 +73,11 @@ class ResourceDetailSection extends Component<Props> {
 
     //TODO: load the readings for this resource
     //todo: find out if in favourites
-
     this.setState({
       loading: true
     });
   
-    //Listen to updates from Firebase
-    //TODO: re enable for MyWellApi
-    // this.unsubscribe = FirebaseApi.getResourceListener(orgId, id,  (data: any) => this.onSnapshot(data));
-
     //TODO: we need to reload this when changing resources.
-  
     //TODO: make configurable
     const today: number = moment().valueOf();
     const twoYearsAgo: number = moment().subtract(2, 'years').valueOf();
@@ -217,21 +212,6 @@ class ResourceDetailSection extends Component<Props> {
     );
   }
 
-  /**
-   * Iterate through favourite resources, and find out
-   * if this is in the list
-   */
-  isFavourite() {
-    const { favouriteResources, resource: { id } } = this.props;
-
-    const ids = favouriteResources.map(r => r.id);
-    if (ids.indexOf(id) > -1) {
-      return true;
-    }
-
-    return false;
-  }
-
   getSummaryCard() {
     return (
       <Card
@@ -247,7 +227,6 @@ class ResourceDetailSection extends Component<Props> {
           <View style={{
             flexDirection: 'column',
             flex: 2,
-            // backgroundColor: 'blue',
           }}>
             <HeadingText heading={'Station Type:'} content={'TODO'}/>
             <HeadingText heading={'Status'} content={'TODO'}/>
@@ -265,7 +244,6 @@ class ResourceDetailSection extends Component<Props> {
           <View style={{
             flexDirection: 'column',
             flex: 5,
-            // backgroundColor: 'pink',
             justifyContent: 'center',
           }}>
             {this.getLatestReadingsForTimeseries()}
@@ -275,14 +253,9 @@ class ResourceDetailSection extends Component<Props> {
           <View style={{
             flex: 1,
             maxHeight: 30,
-            // height: 30,
-            // position: 'absolute',
-            // right: 0,
-            // bottom: 0,
             borderColor: textLight,
             borderTopWidth: 2,
             flexDirection: 'row-reverse',
-            // backgroundColor: 'purple',
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -329,7 +302,10 @@ class ResourceDetailSection extends Component<Props> {
           {
             resource.timeseries.map((ts: OWTimeseries, idx: number) => (
               <View key={idx} style={{alignItems: 'center'}}>
-                {this.getCardForTimeseries(ts)}
+                <TimeseriesCard 
+                  timeseries={ts} 
+                  initialReadings={this.state.readingsMap.get(ts.id) || []}
+                />
               </View>
             ))
           }
@@ -356,10 +332,13 @@ class ResourceDetailSection extends Component<Props> {
 
   getFavouriteButton() {
     const { favouriteResourcesMeta } = this.props;
-    const isFavourite = this.isFavourite();
+    const favourite = isFavourite(
+      this.props.favouriteResources,
+      this.props.resource.id
+    );
 
     let iconName = 'star-half';
-    if (isFavourite) {
+    if (favourite) {
       iconName = 'star';
     }
 
@@ -375,11 +354,14 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   async toggleFavourites() {
-    const isFavourite = this.isFavourite();
+    const favourite = isFavourite(
+      this.props.favouriteResources,
+      this.props.resource.id
+    );
+  
+    this.setState({ isFavourite: !favourite});
 
-    this.setState({isFavourite: !isFavourite});
-
-    if (!isFavourite) {
+    if (!favourite) {
       return await this.props.action_addFavourite(this.props.resource)
     }
 

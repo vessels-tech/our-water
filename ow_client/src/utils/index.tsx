@@ -285,3 +285,18 @@ export function getGroundwaterAvatar() {
     />
   );
 }
+
+/**
+   * Iterate through favourite resources, and find out
+   * if this is in the list
+   */
+export function isFavourite(favouriteResources: Resource[], resourceId: string) {
+  // const { favouriteResources, resource: { id } } = this.props;
+
+  const ids = favouriteResources.map(r => r.id);
+  if (ids.indexOf(resourceId) > -1) {
+    return true;
+  }
+
+  return false;
+}
