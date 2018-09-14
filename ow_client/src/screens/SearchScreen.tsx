@@ -223,7 +223,7 @@ class SearchScreen extends Component<Props> {
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          width: '70%',
           height: '100%',
         }}>
           <Text style={{

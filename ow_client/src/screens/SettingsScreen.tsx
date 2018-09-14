@@ -58,11 +58,13 @@ class SettingsScreen extends React.Component<Props> {
    */
   getConnectToButton() {
     const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
+
+    console.log("getConnectToButton, externalLoginDetails: ", externalLoginDetails);
+
     if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
 
-    //TODO: handle an error status
     let title = this.props.config.getConnectToButtonText();
     let subtitle;
     if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
