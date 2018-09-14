@@ -1,8 +1,9 @@
 
 import * as Joi from 'react-native-joi';
 import { Reading } from '../typings/models/OurWater';
+import { SomeResult, ResultType, ErrorResult, SuccessResult } from '../typings/AppProviderTypes';
 
-export function validateReading(reading: any): Promise<Reading> {
+export function validateReading(reading: any): Promise<SomeResult<Reading>> {
   const schema:Joi.SchemaLike = Joi.object().keys({
     date: Joi.string().isoDate().required(),
     value: Joi.number().required(),
@@ -23,9 +24,18 @@ export function validateReading(reading: any): Promise<Reading> {
     
     if (result.error !== null) {
       console.log('error', result.error);
-      return reject(result.error);
+      const errorResult: ErrorResult = {
+        type: ResultType.ERROR,
+        message: result.error.message,
+      };
+
+      return reject(errorResult);
     }
 
-    resolve(result.value);
+    const successResult: SuccessResult<Reading> = {
+      type: ResultType.SUCCESS,
+      result: result.value,
+    };
+    resolve(successResult);
   });
 }

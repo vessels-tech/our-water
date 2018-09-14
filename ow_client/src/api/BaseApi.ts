@@ -1,5 +1,6 @@
 import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
+import { SomeResult } from "../typings/AppProviderTypes";
 
 
 /**
@@ -76,11 +77,14 @@ export default interface BaseApi {
   /**
    * Save a reading
    * 
-   * Returns a SaveReadingResult which we can use to inform the user if
-   * the reading is saved but pending, requires a login or something else.
-   *
+   * Returns a SomeResult which can either be a SuccessResult or ErrorResult
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult>;
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<null>>;
+
+  /**
+   * Save a Resource
+   */
+  saveResource(userId: string, resource: Resource): Promise<SomeResult<null>>;
 
 
   subscribeToUser(userId: string, callback: any): string;

@@ -18,6 +18,7 @@ import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
+import { SomeResult } from "../typings/AppProviderTypes";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -477,7 +478,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
 
   /**
    * Save the reading 
-   * We do this in 2 parts:
+   * 
+   * This saves the reading only to the user's object in Firebase. We will sync with GGMN later on
    *  1. First, we save to our user's object in firebase
    *  2. Then we persist the reading actually to GGMN
    * 
@@ -487,37 +489,42 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
    * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
    * put it on a timer/user click banner
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SaveReadingResult> {
-    console.log("saveReading: pendingReadingSubscriptions", this.pendingReadingsSubscriptions);
+  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<null>> {
 
-    return FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading)
-    .then(async () => {
-      try {
-        await this.getCredentials()
-      } catch (err) {
-        //Could not get credentials, or user hasn't logged in
-        return {
-          requiresLogin: true,
-        }
-      }
+    return await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
 
-      this.persistReadingToGGMN(reading)
-      .then((response: any) => {
-        console.log("saved reading!");
-        //Remove from firebase, this would trigger the update to user
-        //to say that 
-      })
-      .catch(err => {
-        console.log("Failed to save reading to GGMN", err)
-        // this.apiState.bannerState = BannerState.ggmnError;
-      });
+    // .then(async () => {
+    //   try {
+    //     await this.getCredentials()
+    //   } catch (err) {
+    //     //Could not get credentials, or user hasn't logged in
+    //     return {
+    //       requiresLogin: true,
+    //     }
+    //   }
 
-      return {
-        requiresLogin: false,
-      };
+    //   this.persistReadingToGGMN(reading)
+    //   .then((response: any) => {
+    //     console.log("saved reading!");
+    //     //Remove from firebase, this would trigger the update to user
+    //     //to say that 
+    //   })
+    //   .catch(err => {
+    //     console.log("Failed to save reading to GGMN", err)
+    //     // this.apiState.bannerState = BannerState.ggmnError;
+    //   });
 
-    });
+    //   return {
+    //     requiresLogin: false,
+    //   };
+
+    // });
   }
+
+  async saveResource(userId: string, resource: Resource): Promise<SomeResult<null>> {
+    return await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+  }
+
 
   private async persistReadingToGGMN(reading: Reading): Promise<any> {
     const tsId = '8cd4eec3-1c76-4ebb-84e6-57681f15424f'; //TODO: Just temporary!

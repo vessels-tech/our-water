@@ -7,11 +7,11 @@ import NetworkApi from './api/NetworkApi';
 // import { AsyncStorage } from 'react-native';
 //@ts-ignore
 import * as AsyncStorage from 'rn-async-storage'
-import { Resource, Reading } from './typings/models/OurWater';
+import { Resource, Reading, SaveReadingResult, SaveResourceResult } from './typings/models/OurWater';
 import { RNFirebase } from "react-native-firebase";
 import FirebaseApi from './api/FirebaseApi';
 import ExternalServiceApi from './api/ExternalServiceApi';
-import { ExternalLoginDetails, EmptyLoginDetails, LoginDetails, LoginDetailsType, ConnectionStatus } from './typings/api/ExternalServiceApi';
+import { EmptyLoginDetails, LoginDetails, LoginDetailsType, ConnectionStatus } from './typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from './typings/AppProviderTypes';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
@@ -206,6 +206,7 @@ export default class AppProvider extends Component<Props> {
     }
   }
 
+
   componentWillUnmount() {
     //Make sure to remove all subscriptions here.
     this.networkApi.removeConnectionChangeCallback(this.connectionChangeCallbackId);
@@ -287,9 +288,9 @@ export default class AppProvider extends Component<Props> {
 
   //
   // Async Actions
+  // TODO: abstract away to another file somewhere
   //------------------------------------------------------------------------------
 
-  //TODO: abstract away to another file somewhere
 
   /**
    * Add a resourceId to the user's favourites
@@ -322,33 +323,57 @@ export default class AppProvider extends Component<Props> {
     this.setState({ recentResourcesMeta: { loading: false } });
   }
 
-  async action_saveReading(resourceId: string, reading: Reading): Promise<any> {
-    const { userId } = this.state;
+  async action_saveReading(resourceId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
+    const { userId, externalLoginDetails } = this.state;
 
     this.setState({ pendingSavedReadingsMeta: { loading: true } });
-    return this.appApi.saveReading(resourceId, userId, reading)
-    .then(result => {
-      if (result.requiresLogin) {
-        //TODO: finish this off later - too tired now :(
+
+    const result = await this.appApi.saveReading(resourceId, userId, reading);
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    const someResult: SomeResult<SaveReadingResult> = {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false,
       }
-    })
+    }
+    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      someResult.result.requiresLogin = true;
+    }
 
-
+    return someResult;
   }
 
-  async action_saveResource(resource: Resource): Promise<any> {
-    //TODO: implement
-    
-  }
+  async action_saveResource(resource: Resource): Promise<SomeResult<SaveResourceResult>> {
+    const { userId, externalLoginDetails } = this.state;
 
+    this.setState({ pendingSavedReadingsMeta: { loading: true } });
+
+    const result = await this.appApi.saveResource(userId, resource);
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    const someResult: SomeResult<SaveResourceResult> = {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false,
+      }
+    }
+    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      someResult.result.requiresLogin = true;
+    }
+
+    return someResult;    
+  }
 
   async action_connectToExternalService(username: string, password: string): Promise<SomeResult<null>> {
     this.setState({ externalLoginDetailsMeta: { loading: true } });
 
     try {
       const externalLoginDetails = await this.externalServiceApi.connectToService(username, password);
-      console.log("Got externalLoginDetails", externalLoginDetails);
-
       this.setState({externalLoginDetails, externalLoginDetailsMeta: { loading: false } });
 
       if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
@@ -388,9 +413,9 @@ export default class AppProvider extends Component<Props> {
 
   
   /*
+    TODO:
+    
     addRecentSearch
-    saveReading
-    saveResource
   */
 
 

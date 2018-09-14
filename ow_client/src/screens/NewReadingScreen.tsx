@@ -21,7 +21,8 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
-import { AppContext } from '../AppProvider';
+import { AppContext, SyncMeta } from '../AppProvider';
+import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -35,6 +36,8 @@ export interface Props {
   config: ConfigFactory,
   userId: string,
   appApi: BaseApi,
+  saveReading: any,
+  pendingSavedReadingsMeta: SyncMeta,
 }
 
 export interface State {
@@ -42,7 +45,6 @@ export interface State {
   timeseriesString: string,
   enableSubmitButton: boolean,
   date: moment.Moment,
-  isLoading: boolean,
   coords: any
 }
 
@@ -62,7 +64,6 @@ class NewReadingScreen extends Component<Props> {
       date: moment(),
       measurementString: '',
       timeseriesString,
-      isLoading: false,
       coords: {},
     };
   }
@@ -85,13 +86,16 @@ class NewReadingScreen extends Component<Props> {
     console.log("displaying image dialog");
   }
 
-  saveReading() {
+  async saveReading() {
     Keyboard.dismiss();
+    const { pendingSavedReadingsMeta: {loading} } = this.props;
     const {date, measurementString, coords, timeseriesString} = this.state;
     const { resource: { id } } = this.props;
 
-    this.setState({isLoading: true});
-
+    if (loading) {
+      //Don't allow a double button press!
+      return;
+    }
 
     const readingRaw = {
       date: moment(date).utc().format(), //converts to iso string
@@ -103,45 +107,47 @@ class NewReadingScreen extends Component<Props> {
       coords
     };
 
-    return validateReading(readingRaw)
-    .then(reading => this.props.appApi.saveReading(orgId,this.props.userId, reading))
-    //TODO: catch not logged in error
-    .then((r: SaveReadingResult) => {
-      this.setState({
-        date: moment(),
-        measurementString: '',
-        isLoading: false
-      });
-
-      let message = `Reading saved.`;
-
-      if (r.requiresLogin) {
-        //Reading was saved, but pending sync
-        message = `Reading saved locally. Login to save to GGMN.`;
-      }
-
-      displayAlert(
-        'Success', message,
-        [
-          //TODO: add a new button to take the user to the login page?
-          { text: 'One More', onPress: () => {} },
-          { text: 'Done', onPress: () => this.props.navigator.pop() },
-        ]
-      );
-    })
-    .catch((err: Error) => {
-      console.log(err);
-      //TODO: display error
-      this.setState({
-        isLoading: false
-      });
-
+    const validateResult = await validateReading(readingRaw);
+    if (validateResult.type === ResultType.ERROR) {
       displayAlert(
         'Error',
-         `Couldn't save your reading. Please try again.`,
-         [{ text: 'OK', onPress: () => {} }]
+        `Invalid reading. Please check and try again.`,
+        [{ text: 'OK', onPress: () => { } }]
       );
+
+      return;
+    }
+
+    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(id, validateResult.result)
+    if (saveResult.type === ResultType.ERROR) {
+      displayAlert(
+        'Error',
+        `There was a problem saving your reading. Please try again.`,
+        [{ text: 'OK', onPress: () => { } }]
+      );
+
+      return;
+    }
+
+    this.setState({
+      date: moment(),
+      measurementString: '',
+      isLoading: false
     });
+
+    let message = `Reading saved.`;
+    if (saveResult.result.requiresLogin) {
+      message = `Reading saved locally. Login to save to GGMN.`;
+    }
+
+    displayAlert(
+      'Success', message,
+      [
+        //TODO: add a new button to take the user to the login page?
+        { text: 'One More', onPress: () => { } },
+        { text: 'Done', onPress: () => this.props.navigator.pop() },
+      ]
+    );
   }
 
   isDateValid() {
@@ -284,20 +290,22 @@ class NewReadingScreen extends Component<Props> {
   }
 
   shouldDisableSubmitButton() {
-    return this.state.isLoading ||
+    return this.props.pendingSavedReadingsMeta.loading ||
            !this.isDateValid() ||
            !this.isMeasurementValid() ||
            !this.isTimeseriesValid();
   }
 
   getButton() {
+    const { pendingSavedReadingsMeta: { loading } } = this.props;
+
     return (
       <Button
         title='Save'
         raised
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
-        loading={this.state.isLoading}
+        loading={loading}
         buttonStyle={{ 
           backgroundColor: primary,
           width: SCREEN_WIDTH - 20,
@@ -346,11 +354,13 @@ class NewReadingScreen extends Component<Props> {
 const NewReadingScreenWithContext = (props: Props) => {
   return (
     <AppContext.Consumer>
-      {({ appApi, userId, config }) => (
+      {({ appApi, userId, config, pendingSavedReadingsMeta, action_saveReading }) => (
         <NewReadingScreen
           appApi={appApi}
           userId={userId}
           config={config}
+          pendingSavedReadingsMeta={pendingSavedReadingsMeta}
+          saveReading={action_saveReading}
           {...props}
         />
       )}

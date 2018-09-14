@@ -16,6 +16,7 @@ import {
 import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading } from '../typings/models/OurWater';
 import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -261,6 +262,8 @@ class FirebaseApi {
   /**
    * saveReadingPossiblyOffineToUser
    * 
+   * Returns immediately, as long as there was no firebase error.
+   * 
    * Like saveReadingPossiblyOffline, but saves to a 'pendingReadings' object on the
    * user model, instead of the actual reading. Use this for integration with external
    * services where OurWater doesn't need to contain all of the data.
@@ -268,24 +271,47 @@ class FirebaseApi {
    * Promise resolves when the reading appears in local cache,
    * and not actually commited to the server
    */
-  static saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<any> {
-    return new Promise((resolve, reject) => {
+  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<SomeResult<null>> {
+    //TODO: some form of extra validation here?
 
-      this.pendingReadingsListenerForUser(orgId, userId)
-        .then(snapshot => {
+    /* we don't want to wait for this to resolve */
+    this.saveReadingToUser(orgId, userId, reading);
 
-          //Resolve once the pending reading is saved
-          resolve(true);
-        });
+    return {
+      type: ResultType.SUCCESS,
+      result: null
+    };
 
-      this.saveReadingToUser(orgId, userId, reading)
-      //Don't resolve this - as if we are offline, it will take a long time
-      .then((result: any) => console.log('saveReadingToUser result', result))
-      .catch((err: Error) => {
-        console.log('saveReading Err', err);
-        reject(err);
-      });
-    });
+
+    // return new Promise((resolve, reject) => {
+
+    //   this.pendingReadingsListenerForUser(orgId, userId)
+    //     .then(snapshot => {
+
+    //       //Resolve once the pending reading is saved
+    //       resolve();
+    //     });
+
+    //   this.saveReadingToUser(orgId, userId, reading)
+    //   //Don't resolve this - as if we are offline, it will take a long time
+    //   .then((result: any) => console.log('saveReadingToUser result', result))
+    //   .catch((err: Error) => {
+    //     console.log('saveReading Err', err);
+    //     reject(err);
+    //   });
+    // });
+  }
+
+  static async saveResourceToUser(orgId: string, userId: string, resource: Resource): Promise<SomeResult<null>> {
+    //TODO: some form of extra validation here?
+
+    /* we don't want to wait for this to resolve */
+    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+
+    return {
+      type: ResultType.SUCCESS,
+      result: null
+    };
   }
 
   /**
@@ -355,6 +381,7 @@ class FirebaseApi {
   static saveReadingToUser(orgId: string, userId: string, reading: Reading) {
     return this.userDoc(orgId, userId).collection('pendingReadings').add(reading);
   }
+
 
   static listenForPendingWrites(collection: any) {
     return new Promise((resolve, reject) => {
