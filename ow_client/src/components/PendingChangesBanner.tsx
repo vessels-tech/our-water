@@ -21,6 +21,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { AppContext } from '../AppProvider';
 import { SyncStatus } from '../typings/enums';
+import { Reading, Resource } from '../typings/models/OurWater';
 
 
 export interface Props {
@@ -28,6 +29,8 @@ export interface Props {
 
   //Injected from Context
   syncStatus: SyncStatus,
+  pendingSavedReadings: Reading[],
+  pendingSavedResources: Resource[],
 }
 
 export interface State {
@@ -135,18 +138,26 @@ const bannerHeight = 25;
     }
 
     render() {
-      const { syncStatus } = this.props;
+      const { syncStatus, pendingSavedReadings, pendingSavedResources } = this.props;
+      console.log("PendingChangesBanner, syncStatus is", syncStatus);
+
+      // let syncStatus
+      // if (pendingSavedReadings.length + pendingSavedResources.length > 0){
+        
+      // }
 
       let innerView;
 
+      //I don't think we should worry about local vs remote firebase syncing
+      //This will be behind the scenes and not concern the user anyway
       switch (syncStatus) {
         case SyncStatus.none: {
           return null;
         }
-        case SyncStatus.pendingFirebaseWrites: {
-          innerView = this.getFirebaseBanner();
-          break;
-        }
+        // case SyncStatus.pendingFirebaseWrites: {
+        //   innerView = this.getFirebaseBanner();
+        //   break;
+        // }
         case SyncStatus.pendingGGMNLogin: {
           innerView = this.getGGMNPendingBanner();
           break;
@@ -174,9 +185,11 @@ const bannerHeight = 25;
 const PendingChangesBannerWithContext = (props: any) => {
   return (
     <AppContext.Consumer>
-      {({syncStatus}) => (
+      {({ syncStatus, pendingSavedReadings, pendingSavedResources}) => (
         <PendingChangesBanner 
           syncStatus={syncStatus}
+          pendingSavedReadings={pendingSavedReadings}
+          pendingSavedResources={pendingSavedResources}
           {...props}
         />
       )}

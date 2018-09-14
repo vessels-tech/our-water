@@ -102,6 +102,7 @@ const defaultState: GlobalState = {
   favouriteResourcesMeta: {loading: false},
   recentResources: [],
   recentResourcesMeta: {loading: false},
+
   pendingSavedReadings: [],
   pendingSavedReadingsMeta: { loading: false },
   pendingSavedResources: [], 
@@ -204,6 +205,9 @@ export default class AppProvider extends Component<Props> {
     } finally {
       this.setState({externalLoginDetailsMeta: {loading: false}});
     }
+
+    /* TODO: Get the pending resources/readings from user object */
+
   }
 
 
@@ -223,6 +227,9 @@ export default class AppProvider extends Component<Props> {
       isConnected: this.state.isConnected,
       userId: this.state.userId,
       externalLoginDetails: this.state.externalLoginDetails,
+      pendingSavedReadings: this.state.pendingSavedReadings,
+      pendingSavedResources: this.state.pendingSavedResources,
+      syncStatus: this.state.syncStatus,
     };
     await AsyncStorage.setItem(storageKey, JSON.stringify(toSave));
     console.log("finished persisting state", toSave);
@@ -325,6 +332,7 @@ export default class AppProvider extends Component<Props> {
 
   async action_saveReading(resourceId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
     const { userId, externalLoginDetails } = this.state;
+    console.log('action_saveReading');
 
     this.setState({ pendingSavedReadingsMeta: { loading: true } });
 
@@ -339,17 +347,32 @@ export default class AppProvider extends Component<Props> {
         requiresLogin: false,
       }
     }
+
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       someResult.result.requiresLogin = true;
     }
 
+    /*update the sync status */
+    let syncStatus = SyncStatus.pendingGGMNWrites;
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+      syncStatus = SyncStatus.ggmnError;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {
+      syncStatus = SyncStatus.pendingGGMNLogin
+    }
+
+    this.setState({
+      syncStatus,
+      pendingSavedReadingsMeta: { loading: false}
+    }, async () => await this.persistState())
     return someResult;
   }
 
   async action_saveResource(resource: Resource): Promise<SomeResult<SaveResourceResult>> {
     const { userId, externalLoginDetails } = this.state;
 
-    this.setState({ pendingSavedReadingsMeta: { loading: true } });
+    this.setState({ pendingSavedResources: { loading: true } });
 
     const result = await this.appApi.saveResource(userId, resource);
     if (result.type === ResultType.ERROR) {
@@ -365,6 +388,21 @@ export default class AppProvider extends Component<Props> {
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       someResult.result.requiresLogin = true;
     }
+
+    /*update the sync status */
+    let syncStatus = SyncStatus.pendingGGMNWrites;
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+      syncStatus = SyncStatus.ggmnError;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {
+      syncStatus = SyncStatus.pendingGGMNLogin
+    }
+
+    this.setState({
+      syncStatus,
+      pendingSavedResourcesMeta: { loading: false },
+    }, async () => await this.persistState())
 
     return someResult;    
   }
@@ -414,7 +452,7 @@ export default class AppProvider extends Component<Props> {
   
   /*
     TODO:
-    
+
     addRecentSearch
   */
 

@@ -132,7 +132,6 @@ class NewReadingScreen extends Component<Props> {
     this.setState({
       date: moment(),
       measurementString: '',
-      isLoading: false
     });
 
     let message = `Reading saved.`;

@@ -57,6 +57,10 @@ export type SaveReadingResult = {
   requiresLogin: boolean,
 }
 
+export type SaveResourceResult = {
+  requiresLogin: boolean,
+}
+
 export type OWTimeseries = {
   id: string,
   name: string,
