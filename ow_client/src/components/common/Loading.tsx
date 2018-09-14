@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { primary } from '../../utils/Colors';
+import { isNullOrUndefined } from 'util';
 
 
 /**
@@ -11,15 +12,21 @@ import { primary } from '../../utils/Colors';
  */
 export interface Props {
   style?: any,
+  size?: 'large' | 'small',
 }
 
 class Loading extends Component<Props> {
 
   render() {
+    let size: 'large' | 'small' = 'large';
+    if (!isNullOrUndefined(this.props.size)) {
+      size = this.props.size;
+    }
+
     return (
       <ActivityIndicator 
-        style={{justifyContent: 'center'}}
-        size="large" 
+        style={{justifyContent: 'center', ...this.props.style}}
+        size={size} 
         color={primary}
       />
     );

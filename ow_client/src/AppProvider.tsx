@@ -12,6 +12,7 @@ import { RNFirebase } from "react-native-firebase";
 import FirebaseApi from './api/FirebaseApi';
 import ExternalServiceApi from './api/ExternalServiceApi';
 import { ExternalLoginDetails, EmptyLoginDetails, LoginDetails, LoginDetailsType, ConnectionStatus } from './typings/api/ExternalServiceApi';
+import { SomeResult, ResultType } from './typings/AppProviderTypes';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
@@ -195,6 +196,7 @@ export default class AppProvider extends Component<Props> {
     this.setState({ externalLoginDetailsMeta: { loading: true} });
     try {
       const details: LoginDetails | EmptyLoginDetails = await this.externalServiceApi.getExternalServiceLoginDetails();
+      console.log("externalLoginDetails are", details);
       //If the above succeeds, then yes, we are connected
       this.setState({ externalLoginDetails: details});
     } catch (err) {
@@ -248,26 +250,37 @@ export default class AppProvider extends Component<Props> {
     this.setState({userId}, async () => await this.persistState())
   }
 
+  /**
+   * Handle a callback from Firebase when our user has changed
+   * 
+   * sn could be anything, so be safe!
+   */
   userChanged(sn: any) {
+    let { favouriteResources, recentResources } = this.state;
     console.log("got a user changed callback!", sn.data());
     const userData = sn.data();
 
-    //TODO: fix this up
+
+    //We have no guarantees about what is in userData here
     if (!userData) {
-      console.log("ERROR: onUserChanged -> userData is undefined.");
       return;
     }
 
     /* Map from Firebase Domain to our Domain*/
     const favouriteResourcesDict = userData.favouriteResources;
-    const favouriteResources = Object.keys(favouriteResourcesDict)
-      .map(key => favouriteResourcesDict[key])
-      .filter(r => r !== null);  //Null resources are ones that were added but have been removed
+    if (favouriteResourcesDict) {
+      favouriteResources = Object.keys(favouriteResourcesDict)
+        .map(key => favouriteResourcesDict[key])
+        .filter(r => r !== null);  //Null resources are ones that were added but have been removed
+    }
+
+    recentResources = userData.recentResources ? userData.recentResources : recentResources;
+
     this.setState({
       favouriteResources,
-      favouriteResourcesMeta: { loading: false}, //TODO: not sure if this is the best method
-      recentResources: userData.recentResources,
-
+      favouriteResourcesMeta: { loading: false }, //TODO: not sure if this is the best method
+      recentResources,
+      recentResourcesMeta: {loading: false},
     });
   }
 
@@ -329,17 +342,34 @@ export default class AppProvider extends Component<Props> {
   }
 
 
-  async action_connectToExternalService(username: string, password: string): Promise<void> {
+  async action_connectToExternalService(username: string, password: string): Promise<SomeResult<null>> {
     this.setState({ externalLoginDetailsMeta: { loading: true } });
 
     try {
       const externalLoginDetails = await this.externalServiceApi.connectToService(username, password);
-      this.setState({externalLoginDetails});
+      console.log("Got externalLoginDetails", externalLoginDetails);
+
+      this.setState({externalLoginDetails, externalLoginDetailsMeta: { loading: false } });
+
+      if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+        return {
+          type: ResultType.ERROR,
+          message: 'Wrong username/password combination'
+        };
+      }
+
+      return {
+        type: ResultType.SUCCESS,
+        result: null,
+      };
 
     } catch(err) {
-      console.log("error connecting to external service", err);
-    } finally {
       this.setState({ externalLoginDetailsMeta: { loading: false } });
+      
+      return {
+        type: ResultType.ERROR,
+        message: 'Error connecting to external service',
+      };
     }
   }
 

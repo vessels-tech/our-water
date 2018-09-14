@@ -1,6 +1,6 @@
 export enum LoginDetailsType {
-  EMPTY,
-  FULL,
+  EMPTY = 'EMPTY',
+  FULL = 'FULL',
 }
 
 
@@ -28,7 +28,7 @@ export type OptionalAuthHeaders = {
 
 
 export enum ConnectionStatus {
-  NO_CREDENTIALS,
-  SIGN_IN_ERROR,   //we have credentials, but the login is invalid
-  SIGN_IN_SUCCESS, //we have credentials, and the login is valid
+  NO_CREDENTIALS = 'NO_CREDENTIALS',
+  SIGN_IN_ERROR = 'SIGN_IN_ERROR',   //we have credentials, but the login is invalid
+  SIGN_IN_SUCCESS = 'SIGN_IN_SUCCESS', //we have credentials, and the login is valid
 }

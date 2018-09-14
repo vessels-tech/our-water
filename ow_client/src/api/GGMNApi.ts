@@ -189,6 +189,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     let credentials;
     try {
       credentials = await this.getCredentials();
+      console.log('getExternalServiceLoginDetails got credentials', credentials);
     } catch (err) {
       //No credentials:
       return {
@@ -198,13 +199,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     }
 
     try {
-      await this.connectToService(credentials.username, credentials.password);
+      const result = await this.connectToService(credentials.username, credentials.password);
+      console.log("connectToService result", result);
 
-      return {
-        type: LoginDetailsType.FULL,
-        status: ConnectionStatus.SIGN_IN_SUCCESS,
-        username: credentials.username,
-      };
+      return result;
     } catch (err) {
       console.log("error logging in", err);
       return {

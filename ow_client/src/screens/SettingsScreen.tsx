@@ -3,17 +3,18 @@ import {
   View, KeyboardAvoidingView, ScrollView,
 } from 'react-native';
 import {
-  ListItem,
+  ListItem, Badge, Text,
 } from 'react-native-elements';
 import {
   navigateTo, showModal,
 } from '../utils';
-import { primary, primaryDark, textDark, } from '../utils/Colors';
+import { primary, primaryDark, textDark, error1, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
-import { AppContext } from '../AppProvider';
+import { AppContext, SyncMeta } from '../AppProvider';
 import BaseApi from '../api/BaseApi';
 import { EmptyLoginDetails, LoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
+import Loading from '../components/common/Loading';
 
 export interface Props {
   navigator: any,
@@ -23,6 +24,7 @@ export interface Props {
   appApi: BaseApi,
   config: ConfigFactory,
   externalLoginDetails: EmptyLoginDetails | LoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
 
 }
 
@@ -52,18 +54,31 @@ class SettingsScreen extends React.Component<Props> {
   /**
    * Connect to button is only available for variants which connect to external services
    * 
-   * //TODO: if already connected, display a button that says "Connected to XYZ"
+   * if already connected, displays a button that says "Connected to XYZ"
    */
   getConnectToButton() {
+    const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
     if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
 
-    //TODO: model the error status
+    //TODO: handle an error status
     let title = this.props.config.getConnectToButtonText();
-    const { externalLoginDetails } = this.props;
-    if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {
+    let subtitle;
+    if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
       title = this.props.config.getConnectToButtonConnectedText();
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+      subtitle = 'Error Logging In';
+    }
+
+    let leftIcon: any = {
+      name: 'account-circle',
+      color: textDark,
+    };
+    if (loading) {
+      leftIcon = <Loading style={{paddingRight: 10}} size={'small'}/>
     }
 
     return (
@@ -80,11 +95,13 @@ class SettingsScreen extends React.Component<Props> {
             isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
           }
         )}
-        leftIcon={{
-          name: 'account-circle',
-          color: textDark,
-        }}
+        disabled={loading}
+        leftIcon={leftIcon}
         hideChevron
+        subtitle={subtitle}
+        subtitleStyle={{
+          color: error1,
+        }}
       />
     );
   }
@@ -145,11 +162,12 @@ class SettingsScreen extends React.Component<Props> {
 const SettingScreenWithContext = (props: Props) => {
   return (
     <AppContext.Consumer>
-      {({ appApi, userId, config, externalLoginDetails }) => (
+      {({ appApi, userId, config, externalLoginDetails, externalLoginDetailsMeta }) => (
         <SettingsScreen
           appApi={appApi}
           userId={userId}
           externalLoginDetails={externalLoginDetails}
+          externalLoginDetailsMeta={externalLoginDetailsMeta}
           {...props}
         />
       )}

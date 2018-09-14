@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard } from 'react-native';
-import { primaryDark, primary } from '../../utils/Colors';
+import { primaryDark, primary, error1 } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
   FormBuilder,
@@ -14,6 +14,7 @@ import BaseApi from '../../api/BaseApi';
 import ExternalServiceApi from '../../api/ExternalServiceApi';
 import { AppContext, SyncMeta } from '../../AppProvider';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
+import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 
 export interface Props {
   navigator: any,
@@ -40,7 +41,7 @@ export type TextInputParams = {
 
 const TextInput = ({meta, handler}: any) => (
   <View>
-    <FormInput secureTextEntry={meta.secureTextEntry} placeholder={`${meta.label}`}{...handler()}/>
+    <FormInput autoCapitalize={'none'} secureTextEntry={meta.secureTextEntry} placeholder={`${meta.label}`}{...handler()}/>
   </View>
 )
 
@@ -73,20 +74,38 @@ class ConnectToServiceScreen extends Component<Props> {
     };
 
     this.loginForm = FormBuilder.group({
-      username: [this.state.username, Validators.required],
+      username: [username, Validators.required],
       password: ["", Validators.required],
     });
   }
 
-  handleSubmit = () => {
+  componentWillReceiveProps(newProps: Props) {
+    const { username } = this.state;
+    const { externalLoginDetails } = newProps;
+
+    if (externalLoginDetails.type === LoginDetailsType.FULL) {
+
+      //Update the username if we found a saved one.
+      if (username !== externalLoginDetails.username) {
+        this.setState({username: externalLoginDetails.username});
+        this.loginForm.get('username').setValue(externalLoginDetails.username);
+      }
+    }
+  }
+
+  handleSubmit = async () => {
     Keyboard.dismiss();
 
-    return this.props.connectToExternalService(this.loginForm.value.username, this.loginForm.value.password)
-    .then(() => {
-      this.setState({
-        username: this.loginForm.value.username,
-      });
-    })
+    //Trying a more 'rusty' way of handling errors
+    const result: SomeResult<null> = await this.props.connectToExternalService(this.loginForm.value.username, this.loginForm.value.password);
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show(`Sorry, could not log you in. ${result.message}`, ToastAndroid.SHORT);
+      return;
+    }
+
+    this.setState({
+      username: this.loginForm.value.username,
+    });
   }
 
   handleLogout = () => {
@@ -96,29 +115,66 @@ class ConnectToServiceScreen extends Component<Props> {
   getLogo() {
     return (
       <View style={{
-        width: '100%',
-        height: '40%',
-        // height: 150,
-        backgroundColor: primaryDark,
-        justifyContent: 'center',
-      }}>
-        <View style={{
-          alignSelf: 'center',
-          width: 100,
-          height: '30%',
-          backgroundColor: primary,
-        }} />
-      </View>
+        alignSelf: 'center',
+        width: 100,
+        height: '30%',
+        backgroundColor: primary,
+      }} />
     )
   }
 
+  /**
+   * If the user was previously logged in but something went wrong, display an error message
+   */
+  getErrorMessage() {
+    const { externalLoginDetails, externalLoginDetailsMeta: {loading} } = this.props;
+    
+    if (loading) {
+      return null;
+    }
+
+    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_ERROR) {
+      return null;
+    }
+
+    return (
+      <Text style={{
+        color: error1,
+        paddingHorizontal: 20,
+        paddingTop: 10,
+      }}>
+        Error signing in. Please try again.
+      </Text>
+    );
+  }
+
   getConnectedSection() {
-    const { username } = this.state;
+    let { username } = this.state;
+    const { externalLoginDetails } = this.props;
+
+    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      return null;
+    }
+
+    if (username.length === 0) {
+      username = externalLoginDetails.username;
+    }
 
     const text = `You are connected to GGMN with username: ${username}`;
     return (
-      <View>
-        <Text>{text}</Text>
+      <View
+        style={{
+          flex: 5,
+        }}
+      >
+        <Text
+          style={{
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}
+        >
+          {text}
+        </Text>
         <Button
           title='Log out'
           onPress={() => this.handleLogout()}
@@ -149,6 +205,7 @@ class ConnectToServiceScreen extends Component<Props> {
             <Button
               style={{
                 paddingBottom: 20,
+                minHeight: 50,
               }}
               loading={loading}
               disabled={invalid}
@@ -167,21 +224,49 @@ class ConnectToServiceScreen extends Component<Props> {
   render() {
     const { externalLoginDetails } = this.props;
 
-    const isConnected = externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS;
-    //TODO: handle the login error case!
-  
+    const isConnected = externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS;  
     return (
-    
-        <KeyboardAvoidingView
-          keyboardVerticalOffset={10}
+      // <KeyboardAvoidingView
+      //   style={{ flex: 1 }}
+      //   // behavior="padding"
+      //   keyboardVerticalOffset={-500}
+      // >
+        <ScrollView
+          style={{
+            flexDirection: 'column',
+            // height: '100%',
+          }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps={'always'}
         >
-          {this.getLogo()}
-          <Text style={{
-            paddingHorizontal: 20,
-            paddingTop: 10,
+          {/* Logo */}
+          <View style={{
+            width: '100%',
+            flex: 5,
+            backgroundColor: primaryDark,
+            justifyContent: 'center',
+          }}>
+            {this.getLogo()}
+          </View>
+
+          {/* Text */}
+          <View style={{
+            flex: 2
+          }}>
+            <Text style={{
+              paddingHorizontal: 20,
+              paddingTop: 10,
             }}>{this.props.config.getConnectToButtonDescription()}</Text>
-          {isConnected ? this.getConnectedSection() : this.getForm()}
-        </KeyboardAvoidingView>
+            {this.getErrorMessage()}
+            {this.getConnectedSection()}
+          </View>
+        
+          {/* Form  */}
+          <View style={{flex: 5}}>
+            {isConnected ? null : this.getForm()}
+          </View>
+        </ScrollView>
+      // </KeyboardAvoidingView>
     );
   }
 }

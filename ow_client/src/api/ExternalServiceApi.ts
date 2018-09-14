@@ -6,7 +6,7 @@ export default interface ExternalServiceApi {
    * Connect to an external service.
    * 
    */
-  connectToService(username: string, password: string): Promise<any>;
+  connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails>;
 
   /**
    * Save the external service details locally.
