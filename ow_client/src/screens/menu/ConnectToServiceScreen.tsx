@@ -12,19 +12,21 @@ import {
 } from "react-reactive-form";
 import BaseApi from '../../api/BaseApi';
 import ExternalServiceApi from '../../api/ExternalServiceApi';
-import { LoginStatus } from '../../typings/api/ExternalServiceApi';
+import { AppContext, SyncMeta } from '../../AppProvider';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
 
 export interface Props {
   navigator: any,
   config: ConfigFactory,
   userId: string,
-  isConnected: boolean, //passed through to state
+  isConnected: boolean, //passed through to state,
+  connectToExternalService: any,
+  disconnectFromExternalService: any,
+  externalLoginDetails: LoginDetails | EmptyLoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
 }
 
 export interface State {
-   isConnected: boolean,
-   loading: boolean,
-   buttonLoading: boolean, //The loading state of the submit button.
    username: string,
    password: string,
  }
@@ -49,13 +51,9 @@ const TextInput = ({meta, handler}: any) => (
  * For now, this implementation will be very GGMN-Specific, but can be adapted for other 
  * external services as OurWater expands.
  */
-export default class ConnectToServiceScreen extends Component<Props> {
+class ConnectToServiceScreen extends Component<Props> {
   state: State;
-  loginForm = FormBuilder.group({
-    username: ["", Validators.required],
-    password: ["", Validators.required],
-  });
-
+  loginForm: any;
   appApi: BaseApi;
   externalApi: ExternalServiceApi;
 
@@ -65,61 +63,34 @@ export default class ConnectToServiceScreen extends Component<Props> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
 
+    let username = '';
+    if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
+      username = this.props.externalLoginDetails.username;
+    }
     this.state = {
-      isConnected: this.props.isConnected,
-      loading: true,
-      buttonLoading: false,
-      username: '', //TODO: get this from somewhere.
+      username,
       password: '',
     };
 
-    this.externalApi.getExternalServiceLoginDetails()
-    .then(details => {
-      console.log("got external login details", details);
-      //TODO: update the login form if we can
-      this.setState({
-        loading: false,
-        username: details.username,
-        isConnected: details.status === LoginStatus.Success
-      })
-    })
-    .catch(err => {
-      console.log("could not get external login details", err);
-      this.setState({
-        loading: false,
-      });
+    this.loginForm = FormBuilder.group({
+      username: [this.state.username, Validators.required],
+      password: ["", Validators.required],
     });
   }
 
   handleSubmit = () => {
     Keyboard.dismiss();
-    this.setState({ buttonLoading: true});
 
-    return this.externalApi.connectToService(this.loginForm.value.username, this.loginForm.value.password)
-    .then(result => {
-      return this.externalApi.saveExternalServiceLoginDetails(this.loginForm.value.username, this.loginForm.value.password)
-      .catch(err => console.log(err)); //non critical I suppose
-    })
+    return this.props.connectToExternalService(this.loginForm.value.username, this.loginForm.value.password)
     .then(() => {
       this.setState({
         username: this.loginForm.value.username,
-        isConnected: true,
       });
     })
-    .catch(err => {
-      console.log("Error logging in:", err);
-      //TODO: make error message better, parse status codes.
-      ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
-    })
-    .then(() => this.setState({ buttonLoading: false }));
   }
 
   handleLogout = () => {
-    this.setState({
-      isConnected: false,
-    });
-
-    this.externalApi.forgetExternalServiceLoginDetails();
+    this.props.disconnectFromExternalService();
   }
 
   getLogo() {
@@ -157,7 +128,7 @@ export default class ConnectToServiceScreen extends Component<Props> {
   }
 
   getForm() {
-    const { buttonLoading } = this.state;
+    const { externalLoginDetailsMeta: { loading }} = this.props;
 
     return (
       <FieldGroup
@@ -179,9 +150,9 @@ export default class ConnectToServiceScreen extends Component<Props> {
               style={{
                 paddingBottom: 20,
               }}
-              loading={buttonLoading}
+              loading={loading}
               disabled={invalid}
-              title={buttonLoading ? '' : 'Submit'}
+              title={loading ? '' : 'Submit'}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -190,11 +161,15 @@ export default class ConnectToServiceScreen extends Component<Props> {
     )
   }
 
+  // TODO: when to display this?
+  // ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
 
   render() {
-    const { isConnected } = this.state;
-  
+    const { externalLoginDetails } = this.props;
 
+    const isConnected = externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS;
+    //TODO: handle the login error case!
+  
     return (
     
         <KeyboardAvoidingView
@@ -210,3 +185,26 @@ export default class ConnectToServiceScreen extends Component<Props> {
     );
   }
 }
+
+const ConnectToServiceScreenWithContext = (props: any) => {
+  return (
+    <AppContext.Consumer>
+      {({
+        externalLoginDetails,
+        externalLoginDetailsMeta,
+        action_connectToExternalService,
+        action_disconnectFromExternalService,
+      }) => (
+          <ConnectToServiceScreen
+            externalLoginDetails={externalLoginDetails}
+            externalLoginDetailsMeta={externalLoginDetailsMeta}
+            connectToExternalService={action_connectToExternalService}
+            disconnectFromExternalService={action_disconnectFromExternalService}
+            {...props}
+          />
+        )}
+    </AppContext.Consumer>
+  );
+};
+
+export default ConnectToServiceScreenWithContext;

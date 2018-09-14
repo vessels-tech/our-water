@@ -11,9 +11,9 @@ import {
 import { primary, primaryDark, textDark, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
-import { ExternalLoginDetails } from '../typings/api/ExternalServiceApi';
 import { AppContext } from '../AppProvider';
 import BaseApi from '../api/BaseApi';
+import { EmptyLoginDetails, LoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
 
 export interface Props {
   navigator: any,
@@ -22,7 +22,7 @@ export interface Props {
   userId: string,
   appApi: BaseApi,
   config: ConfigFactory,
-  isConnectedToExternalService: boolean
+  externalLoginDetails: EmptyLoginDetails | LoginDetails,
 
 }
 
@@ -32,7 +32,6 @@ export interface State {
 
 class SettingsScreen extends React.Component<Props> {
   state: State = {
-    isConnectedToExternalService: false,
     //TODO: maybe have an error with external service connection flag as well?
   }
 
@@ -60,9 +59,10 @@ class SettingsScreen extends React.Component<Props> {
       return false;
     }
 
+    //TODO: model the error status
     let title = this.props.config.getConnectToButtonText();
-    const { isConnectedToExternalService } = this.props;
-    if (isConnectedToExternalService) {
+    const { externalLoginDetails } = this.props;
+    if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {
       title = this.props.config.getConnectToButtonConnectedText();
     }
 
@@ -77,7 +77,7 @@ class SettingsScreen extends React.Component<Props> {
             config: this.props.config,
             //TODO: how to get the userId in here???
             userId: '12345',
-            isConnected: isConnectedToExternalService,
+            isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
           }
         )}
         leftIcon={{
@@ -136,12 +136,7 @@ class SettingsScreen extends React.Component<Props> {
           hideChevron
           disabled
         />
-
-      
-    
-
         {/* TODO: display conditionally, use firebase remote config */}
-       
       </KeyboardAvoidingView>
     );
   }
@@ -150,11 +145,11 @@ class SettingsScreen extends React.Component<Props> {
 const SettingScreenWithContext = (props: Props) => {
   return (
     <AppContext.Consumer>
-      {({ appApi, userId, config, isConnectedToExternalService }) => (
+      {({ appApi, userId, config, externalLoginDetails }) => (
         <SettingsScreen
           appApi={appApi}
           userId={userId}
-          isConnectedToExternalService={isConnectedToExternalService}
+          externalLoginDetails={externalLoginDetails}
           {...props}
         />
       )}
