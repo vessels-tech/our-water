@@ -39,6 +39,8 @@ import  { AppContext } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 import NetworkStatusBannerWithContext from './components/NetworkStatusBanner';
 
+import { connect } from 'react-redux'
+
 export interface Props {
   navigator: any;
   config: ConfigFactory,
@@ -351,18 +353,18 @@ class App extends Component<Props> {
     render() {
       const { loading, initialRegion } = this.state;
 
-      if (loading) {
-        return (
-          <View style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            flex: 1,
-            backgroundColor: bgLight,
-          }}>
-            <Loading/>
-          </View>
-        );
-      }
+      // if (loading) {
+      //   return (
+      //     <View style={{
+      //       justifyContent: 'center',
+      //       alignItems: 'center',
+      //       flex: 1,
+      //       backgroundColor: bgLight,
+      //     }}>
+      //       <Loading/>
+      //     </View>
+      //   );
+      // }
 
       if (!initialRegion) {
         return null;
@@ -375,7 +377,7 @@ class App extends Component<Props> {
           backgroundColor: bgLight,
         }}>
         {this.getPassiveLoadingIndicator()}
-        {isNullOrUndefined(initialRegion) ? null :
+        {/* {isNullOrUndefined(initialRegion) ? null :
           <MapSection 
             mapRef={(ref: any) => {this.mapRef = ref}}
             initialRegion={initialRegion}
@@ -399,7 +401,7 @@ class App extends Component<Props> {
           </ScrollView>
           <PendingChangesBannerWithContext
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
-          />
+          /> */}
           <NetworkStatusBannerWithContext/>
         </View>
       );
@@ -421,4 +423,4 @@ const AppWithContext = (props: Props) => {
   );
 }
 
-export default AppWithContext;
+export default connect()(App);

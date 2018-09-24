@@ -16,6 +16,8 @@ import {debounce} from 'throttle-debounce';
 import { AppContext } from '../AppProvider';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { getGroundwaterAvatar } from '../utils';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux';
 
 // import { debounce } from "debounce";
 
@@ -295,6 +297,8 @@ class SearchScreen extends Component<Props> {
   }
 
   render() {
+    console.log("SearchScreen is connected?", this.props.isConnected);
+
 
     /*
       no search + no recent searches         =>  Search Hint
@@ -344,4 +348,11 @@ const SearchScreenWithContext = (props: any) => {
     </AppContext.Consumer>
   )
 }
-export default SearchScreenWithContext;
+// export default SearchScreenWithContext;
+
+const mapStateToProps = (state: AppState) => {
+  return { isConnected: state.isConnected}
+}
+export default connect(mapStateToProps, null)(SearchScreen);
+
+// export default SearchScreen;

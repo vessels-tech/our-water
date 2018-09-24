@@ -4,7 +4,7 @@ declare module 'react-native-navigation' {
   //http://blog.wolksoftware.com/contributing-to-definitelytyped
   export class Navigation {
     public static registerComponent(id: string, constructor: any)
-    pulic static registerComponentWithRedux(id: )
+    public static registerComponent(id: string, constructor: any, store: any, provider: any)
     public static startSingleScreenApp
   }
 
