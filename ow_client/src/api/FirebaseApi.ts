@@ -17,6 +17,8 @@ import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading } from '../typings/models/OurWater';
 import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { userInfo } from 'os';
+import { UserCredentials } from 'react-native-keychain';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -45,8 +47,20 @@ class FirebaseApi {
   }
 
   
-  static signIn() {
-    return auth.signInAnonymouslyAndRetrieveData();
+  static async signIn(): Promise<SomeResult<string>> {
+
+    try {
+      const userCredential = await auth.signInAnonymouslyAndRetrieveData();
+      return {
+        type: ResultType.SUCCESS,
+        result: userCredential.user.uid,
+      }
+    } catch (err) {
+      return {
+        type: ResultType.ERROR,
+        message: 'Could not sign in.'
+      }
+    }
   }
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
@@ -95,37 +109,52 @@ class FirebaseApi {
     .onSnapshot(sn => onSnapshot(sn.data()));
   }
 
-  static getRecentResources(orgId: string, userId: string) {
+  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
+  
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
+        const response: SomeResult<Resource[]> = {
+          type: ResultType.SUCCESS,
+          result: [],
+        };
+
         //@ts-ignore
         if (!sn || !sn.data() || !sn.data().recentResources) {
-          return [];
+          return response;
         }
 
         //@ts-ignore
-        return sn.data().recentResources;
+        response.result = sn.data().recentResources;
+        return response;
       });
   }
 
-  static addRecentResource(orgId: string, resource: any, userId: string) {
+  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<Resource[]>> {
 
-    return this.getRecentResources(orgId, userId)
-    .then(recentResources => {
-      //only keep the last 5 resources
-      recentResources.unshift(resource);
-      
-      //remove this resource from later on if it already exists
-      const dedupDict: any = {};
-      recentResources.forEach((res: any) => { dedupDict[res.id] = res});
-      const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
+    const r = await this.getRecentResources(orgId, userId);
 
-      while (dedupList.length > 5) {
-        dedupList.pop();
-      }
+    if (r.type === ResultType.ERROR) {
+      return r;
+    }
 
-      return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList }, {merge: true});
-    });
+    const recentResources = r.result;
+    //only keep the last 5 resources
+    recentResources.unshift(resource);
+    
+    //remove this resource from later on if it already exists
+    const dedupDict: any = {};
+    recentResources.forEach((res: any) => { dedupDict[res.id] = res});
+    const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
+    while (dedupList.length > 5) {
+      dedupList.pop();
+    }
+
+    console.log("dedupList is:", orgId, userId, dedupList);
+
+    const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList }, {merge: true});
+    console.log("result is", result);
+
+    return await this.getRecentResources(orgId, userId);
   }
 
   static getResourcesForOrg(orgId: string): Promise<Array<Resource>> {

@@ -10,29 +10,29 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import AppProvider, { AppContext } from '../AppProvider';
 import App from '../App';
 
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import OWApp from '../reducers';
 import { Provider } from 'react-redux';
+import * as appActions from '../actions/index';
 
-const store = createStore(OWApp);
 
-const wrapComponentWithProvider = (Comp: any) => (props: any) => {
-  return (
-    <AppProvider config={props.config}>
-      <Comp {...props}/>
-    </AppProvider>
-  );
-}
+import thunkMiddleware from 'redux-thunk';
+//@ts-ignore
+import { createLogger } from 'redux-logger';
+
+const loggerMiddleware = createLogger();
 
 export function registerScreens(config: ConfigFactory) {
-  console.log("register screens");
-  // Navigation.registerComponent('example.FirstTabScreen', () => wrapComponentWithProvider(AppWithContext));
-  // Navigation.registerComponent('screen.MenuScreen', () => wrapComponentWithProvider(SettingsScreen));
-  // Navigation.registerComponent('screen.EditResourceScreen', () => wrapComponentWithProvider(EditResourceScreen));
-  // Navigation.registerComponent('screen.SearchScreen', () => wrapComponentWithProvider(SearchScreenWithContext));
-  // Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => wrapComponentWithProvider(ConnectToServiceScreen));
-  // Navigation.registerComponent('screen.NewReadingScreen', () => wrapComponentWithProvider(NewReadingScreen));
 
+  const store = createStore(OWApp,
+    applyMiddleware(
+      thunkMiddleware,
+      loggerMiddleware,
+    )
+  );
+
+  //TODO: we should log the user in here!
+  store.dispatch(appActions.silentLogin(config.appApi))
 
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);

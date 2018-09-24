@@ -74,7 +74,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   /**
    * Sign the user in anonymously with Firebase
    */
-  silentSignin(): Promise<any> {
+  silentSignin(): Promise<SomeResult<string>> {
     return FirebaseApi.signIn();
   }
 
@@ -256,7 +256,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
   /**
    * Add a resource to the recently viewed list
    */
-  addRecentResource(resource: Resource, userId: string): Promise<any> {
+  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
+    console.log("userId is:", userId);
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 

@@ -37,19 +37,24 @@ import MapSection, { MapRegion } from './components/MapSection';
 import PendingChangesBannerWithContext from './components/PendingChangesBanner';
 import  { AppContext } from './AppProvider';
 import { SyncStatus } from './typings/enums';
-import NetworkStatusBannerWithContext from './components/NetworkStatusBanner';
 
 import { connect } from 'react-redux'
+import NetworkStatusBanner from './components/NetworkStatusBanner';
+import { AppState } from './reducers';
+import * as appActions from './actions/index';
+
 
 export interface Props {
   navigator: any;
   config: ConfigFactory,
 
 
-  //Injected by Consumer
+  //Injected by connect function
+  addRecent: any,
+
+  //TODO: update
   appApi: BaseApi, 
   userIdChanged: any, 
-  action_addRecent: any,
 }
 
 export interface State {
@@ -76,7 +81,7 @@ class App extends Component<Props> {
       hasSelectedResource: false,
       isSearching: false,
       isAuthenticated: false,
-      userId: '',
+      userId: 'unknown',
       resources: []
     };
 
@@ -251,7 +256,7 @@ class App extends Component<Props> {
         selectedResource: resource,
       });
 
-      this.props.action_addRecent(resource);
+      this.props.addRecent(this.appApi, this.state.userId, resource);
     }
 
     updateGeoLocation(location: Location) {
@@ -377,7 +382,7 @@ class App extends Component<Props> {
           backgroundColor: bgLight,
         }}>
         {this.getPassiveLoadingIndicator()}
-        {/* {isNullOrUndefined(initialRegion) ? null :
+        {isNullOrUndefined(initialRegion) ? null :
           <MapSection 
             mapRef={(ref: any) => {this.mapRef = ref}}
             initialRegion={initialRegion}
@@ -401,26 +406,42 @@ class App extends Component<Props> {
           </ScrollView>
           <PendingChangesBannerWithContext
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
-          /> */}
-          <NetworkStatusBannerWithContext/>
+          />
+          <NetworkStatusBanner/>
         </View>
       );
     }
   }
 
-const AppWithContext = (props: Props) => {
-  return (
-    <AppContext.Consumer>
-      {({ appApi, userIdChanged, action_addRecent}) => (
-        <App
-          appApi={appApi}
-          userIdChanged={userIdChanged}
-          action_addRecent={action_addRecent}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
+// const AppWithContext = (props: Props) => {
+//   return (
+//     <AppContext.Consumer>
+//       {({ appApi, userIdChanged, action_addRecent}) => (
+//         <App
+//           appApi={appApi}
+//           userIdChanged={userIdChanged}
+//           action_addRecent={action_addRecent}
+//           {...props}
+//         />
+//       )}
+//     </AppContext.Consumer>
+//   );
+// }
+
+const mapStateToProps = (state: AppState) => {
+  return {
+
+  }
 }
 
-export default connect()(App);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    addRecent: (api: BaseApi, userId: string, resource: Resource) => {
+      console.log("dispatch to props, userId, resource", userId, resource);
+      dispatch(appActions.addRecent(api, userId, resource))
+    }
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

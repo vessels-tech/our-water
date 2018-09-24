@@ -69,25 +69,21 @@ class NetworkStatusBanner extends Component<Props> {
     }
 }
 
-const NetworkStatusBannerWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({ isConnected, connectionStatusChanged }) => (
-        //TODO: how to do callbacks this way?
-        <NetworkStatusBanner
-          isConnected={isConnected}
-          connectionStatusChanged={connectionStatusChanged}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
-};
+// const NetworkStatusBannerWithContext = (props: any) => {
+//   return (
+//     <AppContext.Consumer>
+//       {({ isConnected, connectionStatusChanged }) => (
+//         //TODO: how to do callbacks this way?
+//         <NetworkStatusBanner
+//           isConnected={isConnected}
+//           connectionStatusChanged={connectionStatusChanged}
+//           {...props}
+//         />
+//       )}
+//     </AppContext.Consumer>
+//   );
+// };
 
-
-
-// export default NetworkStatusBannerWithContext;
-//implement mapStateToProps and mapDispatchToProps here
 
 const mapStateToProps = (state: AppState) => {
   console.log("mapping state to props", state);

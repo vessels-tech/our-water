@@ -16,7 +16,7 @@ export default interface BaseApi {
    * Sign in the user sliently.
    * Most likely, this will use the FirebaseAPI behind the scenes
    */
-  silentSignin(): Promise<any>;
+  silentSignin(): Promise<SomeResult<string>>;
 
 
   
@@ -31,7 +31,7 @@ export default interface BaseApi {
    * Add a resource to the recently viewed list
    * Most likely will use Firebase
    */
-  addRecentResource(resource: Resource, userId: string): Promise<any>;
+  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>>;
 
   /**
    * Add a resource to the favourites list
