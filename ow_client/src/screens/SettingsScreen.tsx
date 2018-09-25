@@ -15,6 +15,10 @@ import { AppContext, SyncMeta } from '../AppProvider';
 import BaseApi from '../api/BaseApi';
 import { EmptyLoginDetails, LoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
 import Loading from '../components/common/Loading';
+import { connect } from 'react-redux'
+import { AppState } from '../reducers';
+import * as appActions from '../actions/index';
+
 
 export interface Props {
   navigator: any,
@@ -161,20 +165,19 @@ class SettingsScreen extends React.Component<Props> {
   }
 }
 
-const SettingScreenWithContext = (props: Props) => {
-  return (
-    <AppContext.Consumer>
-      {({ appApi, userId, config, externalLoginDetails, externalLoginDetailsMeta }) => (
-        <SettingsScreen
-          appApi={appApi}
-          userId={userId}
-          externalLoginDetails={externalLoginDetails}
-          externalLoginDetailsMeta={externalLoginDetailsMeta}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
+const mapStateToProps = (state: AppState) => {
+
+  return {
+    externalLoginDetails: state.externalLoginDetails,
+    externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+  }
 }
 
-export default SettingScreenWithContext;
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);

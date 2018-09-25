@@ -15,14 +15,19 @@ import ExternalServiceApi from '../../api/ExternalServiceApi';
 import { AppContext, SyncMeta } from '../../AppProvider';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
+import { connect } from 'react-redux'
+import * as appActions from '../../actions/index';
+import { AppState } from '../../reducers';
+
 
 export interface Props {
   navigator: any,
   config: ConfigFactory,
   userId: string,
-  isConnected: boolean, //passed through to state,
+  
   connectToExternalService: any,
   disconnectFromExternalService: any,
+
   externalLoginDetails: LoginDetails | EmptyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
 }
@@ -98,11 +103,7 @@ class ConnectToServiceScreen extends Component<Props> {
     Keyboard.dismiss();
 
     //Trying a more 'rusty' way of handling errors
-    const result: SomeResult<null> = await this.props.connectToExternalService(this.loginForm.value.username, this.loginForm.value.password);
-    if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(`Sorry, could not log you in. ${result.message}`, ToastAndroid.SHORT);
-      return;
-    }
+    const result: SomeResult<null> = await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password);
 
     this.setState({
       username: this.loginForm.value.username,
@@ -110,7 +111,7 @@ class ConnectToServiceScreen extends Component<Props> {
   }
 
   handleLogout = () => {
-    this.props.disconnectFromExternalService();
+    this.props.disconnectFromExternalService(this.externalApi);
   }
 
   getLogo() {
@@ -272,25 +273,47 @@ class ConnectToServiceScreen extends Component<Props> {
   }
 }
 
-const ConnectToServiceScreenWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({
-        externalLoginDetails,
-        externalLoginDetailsMeta,
-        action_connectToExternalService,
-        action_disconnectFromExternalService,
-      }) => (
-          <ConnectToServiceScreen
-            externalLoginDetails={externalLoginDetails}
-            externalLoginDetailsMeta={externalLoginDetailsMeta}
-            connectToExternalService={action_connectToExternalService}
-            disconnectFromExternalService={action_disconnectFromExternalService}
-            {...props}
-          />
-        )}
-    </AppContext.Consumer>
-  );
-};
+// const ConnectToServiceScreenWithContext = (props: any) => {
+//   return (
+//     <AppContext.Consumer>
+//       {({
+//         externalLoginDetails,
+//         externalLoginDetailsMeta,
+//         action_connectToExternalService,
+//         action_disconnectFromExternalService,
+//       }) => (
+//           <ConnectToServiceScreen
+//             externalLoginDetails={externalLoginDetails}
+//             externalLoginDetailsMeta={externalLoginDetailsMeta}
+//             connectToExternalService={action_connectToExternalService}
+//             disconnectFromExternalService={action_disconnectFromExternalService}
+//             {...props}
+//           />
+//         )}
+//     </AppContext.Consumer>
+//   );
+// };
 
-export default ConnectToServiceScreenWithContext;
+// export default ConnectToServiceScreenWithContext;
+
+
+const mapStateToProps = (state: AppState) => {
+
+  return {
+    externalLoginDetails: state.externalLoginDetails,
+    externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    connectToExternalService: (api: ExternalServiceApi, username: string, password: string) =>
+      { dispatch(appActions.connectToExternalService(api, username, password)) },
+
+    disconnectFromExternalService: (api: ExternalServiceApi) => 
+      { dispatch(appActions.disconnectFromExternalService(api))},
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConnectToServiceScreen);

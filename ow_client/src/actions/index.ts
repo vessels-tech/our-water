@@ -11,6 +11,7 @@ import { Firebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
+import { ToastAndroid } from "react-native";
 
 
 /* Step 4: Add the actions handlers here */
@@ -78,17 +79,26 @@ function addRecentResponse(result: SomeResult<void>): AddRecentActionResponse {
  * Async connect to external service
  */
 
-export function connectToExternalService(username: string, password: string): any {
+export function connectToExternalService(api: ExternalServiceApi, username: string, password: string): any {
   return async function (dispatch: any) {
     dispatch(connectToExternalServiceRequest());
-    //TODO: call api
-    let result: SomeResult<EmptyLoginDetails> = {
-      type: ResultType.SUCCESS,
-      result: {
-        type: LoginDetailsType.EMPTY,
-        status: ConnectionStatus.NO_CREDENTIALS,
+
+    let result: SomeResult < LoginDetails | EmptyLoginDetails>; 
+    const details = await api.connectToService(username, password);
+    if (details.status === ConnectionStatus.SIGN_IN_ERROR) {
+      //TODO: should we really have ui elements here?
+      //TODO: get better error messages
+      ToastAndroid.show(`Sorry, could not log you in.`, ToastAndroid.SHORT);
+      result = {
+        type: ResultType.ERROR,
+        message: 'Login Error',
       }
-    }
+    } else {
+      result = {
+        type: ResultType.SUCCESS,
+        result: details
+      }
+    }    
     dispatch(connectToExternalServiceResponse(result));
   }
 }
@@ -110,10 +120,10 @@ function connectToExternalServiceResponse(result: SomeResult<LoginDetails | Empt
 /**
  * Async disconnect from external service
  */
-export function disconnectFromExternalService(username: string, password: string): any {
+export function disconnectFromExternalService(api: ExternalServiceApi): any {
   return async function (dispatch: any) {
     dispatch(disconnectFromExternalServiceRequest());
-    //TODO: call api
+    await api.forgetExternalServiceLoginDetails();
 
     dispatch(disconnectFromExternalServiceResponse());
   }

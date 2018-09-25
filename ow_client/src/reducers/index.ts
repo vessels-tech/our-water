@@ -77,6 +77,34 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
   //TODO: non exhaustive match ts
   switch(action.type) {
+    case ActionType.CONNECT_TO_EXTERNAL_SERVICE_REQUEST:
+    case ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST:
+    case ActionType.GET_EXTERNAL_LOGIN_DETAILS_REQUEST: {
+      const externalLoginDetailsMeta = { loading: true };
+
+      return Object.assign({}, state, { externalLoginDetailsMeta })
+    }
+    case ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE: 
+    case ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE: {
+      const externalLoginDetailsMeta = { loading: false };
+
+      let externalLoginDetails = state.externalLoginDetails;
+      if (action.result.type === ResultType.SUCCESS) {
+        externalLoginDetails = action.result.result;
+      }
+
+      return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
+    }
+    case ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_RESPONSE: {
+      const externalLoginDetailsMeta = { loading: false };
+
+      //Don't check the failure status, this can't really fail.
+      let externalLoginDetails: EmptyLoginDetails  = {
+        type: LoginDetailsType.EMPTY,
+        status: ConnectionStatus.NO_CREDENTIALS,
+      }
+      return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
+    }
     case ActionType.ADD_FAVOURITE_REQUEST:
     case ActionType.REMOVE_FAVOURITE_REQUEST: {
       const favouriteResourcesMeta =  { loading: true, error: false, errorMessage: '' };

@@ -38,8 +38,6 @@ export interface State {
 }
 
 const bannerHeight = 25;
-
-// export default function PendingChangesBannerFactory(config: ConfigFactory) {
  
   export class PendingChangesBanner extends Component<Props> {
 
@@ -170,6 +168,9 @@ const bannerHeight = 25;
           break;
         }
       }
+
+      //TODO: update for redux implementation
+      return null;
 
       return (
         <TouchableNativeFeedback

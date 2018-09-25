@@ -124,6 +124,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       .then((_signInResponse: LoginDetails | EmptyLoginDetails) => {
         signInResponse = _signInResponse;
 
+        //TODO: fix this, I think it's saving the details even if the 
         return this.saveExternalServiceLoginDetails(username, password)
         .catch(err => {
           //Couldn't save the creds for some reason
