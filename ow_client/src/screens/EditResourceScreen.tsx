@@ -11,6 +11,10 @@ import { ResourceTypeArray, ResourceType } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { AppContext } from '../AppProvider';
+import { Resource } from '../typings/models/OurWater';
+import * as appActions from '../actions/index';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux'
 
 export interface Props { 
   resourceId: string,
@@ -143,9 +147,14 @@ class EditResourceScreen extends Component<Props> {
         }}
         // containerViewStyle={{ fontWeight: 'bold', fontSize: 23 }}
         title='Save'
-        onPress={() => console.log("Save Pressed")}
+        onPress={() => this.saveResource()}
       />
     )
+  }
+
+  saveResource() {
+    //TODO: load resource from state
+    //Save resource
   }
 
   render() {
@@ -165,20 +174,20 @@ class EditResourceScreen extends Component<Props> {
   }
 }
 
-const EditResourceScreenWithContext = (props: Props) => {
-  return (
-    <AppContext.Consumer>
-      {({ appApi, userId, config }) => (
-        <EditResourceScreen
-          appApi={appApi}
-          userId={userId}
-          config={config}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
+
+const mapStateToProps = (state: AppState) => {
+
+  return {
+    pendingSavedReadings: state.pendingSavedReadings,
+    pendingSaverResourcesMeta: state.pendingSavedResourcesMeta,
+  }
 }
 
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    saveResource: (api: BaseApi, userId: string, resource: Resource) =>
+     { return dispatch(appActions.saveResource(api, userId, resource)) }
+  }
+}
 
-export default EditResourceScreenWithContext;
+export default connect(mapStateToProps, mapDispatchToProps)(EditResourceScreen);

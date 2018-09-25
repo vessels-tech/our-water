@@ -23,6 +23,10 @@ export type AppState = {
   //Api
   resources: Resource[],
   resourcesMeta: ActionMeta,
+
+  /* resourceId -> resource map, containing  */
+  //TODO: think this through better
+  readingsMap: Map<string, Resource>
   
   //Firebase
   user: MaybeUser,

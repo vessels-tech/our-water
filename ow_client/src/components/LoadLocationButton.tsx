@@ -34,7 +34,6 @@ class LoadLocationButton extends Component<Props> {
   }
 
   async updateGeoLocation() {
-    console.log("HELLO");
     const result = await this.props.getGeoLocation();
 
     //TODO: this is less than ideal
