@@ -8,6 +8,7 @@ import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 
 
 /**
@@ -83,9 +84,13 @@ export const formatCoords = (fbCoords: any) => {
   };
 }
 
-export const getLocation = (): Promise<Location> => {
+export const getLocation = (): Promise<SomeResult<Location>> => {
   return new Promise((resolve, reject) => {
-    return navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
+    return navigator.geolocation.getCurrentPosition(
+      (l: Location) => (resolve({type: ResultType.SUCCESS, result: l})),
+      (err: any) => (reject({type: ResultType.ERROR, message: 'Error loading location.'})),
+      {timeout: 5000}
+    );
   });
 }
 

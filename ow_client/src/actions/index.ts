@@ -1,133 +1,382 @@
-import { Resource, Reading } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
+import { AsyncResource } from "async_hooks";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse } from "./AnyAction";
+import { ActionType } from "./ActionType";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
+import { Location } from "../typings/Location";
+import { getLocation } from "../utils";
 
-export enum ActionType {
-  SILENT_LOGIN_REQUEST = 'SILENT_LOGIN_REQUEST',
-  SILENT_LOGIN_RESPONSE = 'SILENT_LOGIN_RESPONSE',
-  ADD_FAVOURITE = 'ADD_FAVOURITE',
-  REMOVE_FAVOURITE = 'REMOVE_FAVOURITE',
-  TOGGLE_CONNECTION = 'TOGGLE_CONNECTION',
-  ADD_RECENT_REQUEST = 'ADD_RECENT_REQUEST',
-  ADD_RECENT_RESPONSE = 'ADD_RECENT_RESPONSE',
-  SAVE_READING = 'SAVE_READING',
-  SAVE_RESOURCE = 'SAVE_RESOURCE',
-  CONNECT_TO_EXTERNAL_SERVICE = 'CONNECT_TO_EXTERNAL_SERVICE',
-  DISCONNECT_FROM_EXTERNAL_SERVICE = 'DISCONNECT_FROM_EXTERNAL_SERVICE',
 
-  //Get location
-  //get resources
-  //get resources in location
-}
-
-//Add new actions to this type
-export type AnyAction = 
-  SilentLoginActionRequest |
-  SilentLoginActionResponse |
-  AddFavouriteAction |
-  RemoveFavouriteAction |
-  ToggleConnectionAction |
-  AddRecentActionRequest |
-  AddRecentActionResponse |
-  SaveReadingAction |
-  SaveResourceAction |
-  ConnectToExternalServiceAction |
-  DisconnectFromExternalServiceAction
-  ;
-
+/* Step 4: Add the actions handlers here */
 
 /**
- * TODO: other actions:
- * GetLocationRequest
- * GetLocationResponse
- * GetResourcesRequest
- * GetResourcesResponse
+ * Async Add favourite
  */
+export function addFavourite(resource: Resource): any {
+  return async (dispatch: any ) => {
+    dispatch(addFavouriteRequest(resource));
 
-export type SilentLoginActionRequest = {
-  type: ActionType.SILENT_LOGIN_REQUEST
+    //TODO: call api
+    let result: SomeResult<void> = {
+      type: ResultType.SUCCESS,
+      result: undefined
+    }
+    dispatch(addFavouriteResponse(result));
+  }
 }
 
-export type SilentLoginActionResponse = {
-  type: ActionType.SILENT_LOGIN_RESPONSE,
-  userIdResult: SomeResult<string>,
-}
-
-
-export type AddFavouriteAction = {
-  type: ActionType.ADD_FAVOURITE,
-  resource: Resource,
-}
-
-export type RemoveFavouriteAction = {
-  type: ActionType.REMOVE_FAVOURITE,
-  resourceId: string,
-}
-
-export type ToggleConnectionAction = {
-  type: ActionType.TOGGLE_CONNECTION,
-  isConnected: boolean,
-}
-
-export type AddRecentActionRequest = {
-  type: ActionType.ADD_RECENT_REQUEST,
-  resource: Resource,
-}
-
-//This gets called when the AddRecentActionRequest finishes
-export type AddRecentActionResponse = {
-  type: ActionType.ADD_RECENT_RESPONSE,
-  result: SomeResult<Resource[]>
-}
-
-export type SaveReadingAction = {
-  type: ActionType.SAVE_READING,
-  reading: Reading,
-}
-
-export type SaveResourceAction = {
-  type: ActionType.SAVE_RESOURCE ,
-  resource: Resource,
-}
-
-export type ConnectToExternalServiceAction = {
-  type: ActionType.CONNECT_TO_EXTERNAL_SERVICE,
-  username: string,
-  password: string,
-}
-
-export type DisconnectFromExternalServiceAction = {
-  type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE,
-}
-
-/**
- * Action creators
- * 
- * Utility functions to easily make actions for us
- */
-export function addFavourite(resource: Resource): AddFavouriteAction {
+function addFavouriteRequest(resource: Resource): AddFavouriteActionRequest {
   return {
-    type: ActionType.ADD_FAVOURITE,
+    type: ActionType.ADD_FAVOURITE_REQUEST,
     resource,
   } 
 }
 
-export function removeFavourite(resourceId: string): RemoveFavouriteAction {
+function addFavouriteResponse(result: SomeResult<void>): AddFavouriteActionResponse {
   return {
-    type: ActionType.REMOVE_FAVOURITE,
-    resourceId,
+    type: ActionType.ADD_FAVOURITE_RESPONSE,
+    result,
   } 
 }
 
-export function toggleConnection(isConnected: boolean): ToggleConnectionAction {
-  console.log("ToggleConnection creator called");
+
+/**
+ * Async add recent
+ */
+export function addRecent(api: BaseApi, userId: string, resource: Resource): any {
+  return async function (dispatch: any) {
+    dispatch(addRecentRequest(resource));
+    const result = await api.addRecentResource(resource, userId);
+
+    //TODO: make this result void
+    let voidResult: SomeResult<void> = {
+      type: ResultType.SUCCESS,
+      result: undefined
+    }
+    dispatch(addRecentResponse(voidResult));
+  }
+}
+
+function addRecentRequest(resource: Resource): AddRecentActionRequest {
   return {
-    type: ActionType.TOGGLE_CONNECTION,
-    isConnected,
+    type: ActionType.ADD_RECENT_REQUEST,
+    resource,
+  }
+}
+
+function addRecentResponse(result: SomeResult<void>): AddRecentActionResponse {
+  return {
+    type: ActionType.ADD_RECENT_RESPONSE,
+    result
+  };
+}
+
+/**
+ * Async connect to external service
+ */
+
+export function connectToExternalService(username: string, password: string): any {
+  return async function (dispatch: any) {
+    dispatch(connectToExternalServiceRequest());
+    //TODO: call api
+    let result: SomeResult<EmptyLoginDetails> = {
+      type: ResultType.SUCCESS,
+      result: {
+        type: LoginDetailsType.EMPTY,
+        status: ConnectionStatus.NO_CREDENTIALS,
+      }
+    }
+    dispatch(connectToExternalServiceResponse(result));
+  }
+}
+
+function connectToExternalServiceRequest(): ConnectToExternalServiceActionRequest {
+  return {
+    type: ActionType.CONNECT_TO_EXTERNAL_SERVICE_REQUEST
+  }
+}
+
+function connectToExternalServiceResponse(result: SomeResult<LoginDetails | EmptyLoginDetails>): ConnectToExternalServiceActionResponse {
+  return {
+    type: ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE,
+    result: result,
   }
 }
 
 
+/**
+ * Async disconnect from external service
+ */
+export function disconnectFromExternalService(username: string, password: string): any {
+  return async function (dispatch: any) {
+    dispatch(disconnectFromExternalServiceRequest());
+    //TODO: call api
+
+    dispatch(disconnectFromExternalServiceResponse());
+  }
+}
+
+function disconnectFromExternalServiceRequest(): DisconnectFromExternalServiceActionRequest {
+  return {
+    type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST
+  }
+}
+
+function disconnectFromExternalServiceResponse(): DisconnectFromExternalServiceActionResponse {
+  return {
+    type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_RESPONSE,
+  }
+}
+
+/**
+ * Async get external login details
+ */
+export function getExternalLoginDetails(): any {
+  return async function (dispatch: any) {
+    dispatch(getExternalLoginDetailsRequest());
+    //TODO: call api
+    let result: SomeResult<EmptyLoginDetails> = {
+      type: ResultType.SUCCESS,
+      result: {
+        type: LoginDetailsType.EMPTY,
+        status: ConnectionStatus.NO_CREDENTIALS,
+      }
+    }
+    dispatch(getExternalLoginDetailsResponse(result));
+  }
+}
+
+function getExternalLoginDetailsRequest(): GetExternalLoginDetailsActionRequest {
+  return {
+    type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_REQUEST
+  }
+}
+
+function getExternalLoginDetailsResponse(result: SomeResult<LoginDetails | EmptyLoginDetails>): GetExternalLoginDetailsActionResponse {
+  return {
+    type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE,
+    result: result,
+  }
+}
+
+/**
+ * Async get user's location
+ */
+export function getGeolocation(): any {
+  return async (dispatch: any) => {
+    dispatch(getGeolocationRequest());
+
+    const result = await getLocation();
+    
+    dispatch(getGeoLocationResponse(result));
+  }
+}
+
+function getGeolocationRequest(): GetLocationActionRequest {
+  return {
+    type: ActionType.GET_LOCATION_REQUEST
+  }
+}
+
+function getGeoLocationResponse(result: SomeResult<Location>): GetLocationActionResponse   {
+  return {
+    type: ActionType.GET_LOCATION_RESPONSE,
+    result
+  }
+}
+
+/**
+ * async get the readings for a resource
+ */
+export function getReadings(resourceId: string, timeseriesId: string, startDate: number, endDate: number): any {
+  return async (dispatch: any) => {
+    dispatch(getReadingsRequest());
+
+    //TODO: call api
+    let result: SomeResult<Reading[]> = {
+      type: ResultType.SUCCESS,
+      result: []
+    }
+
+    dispatch(getReadingsResponse(result));
+  }
+}
+
+export function getReadingsRequest(): GetReadingsActionRequest {
+  return {
+    type: ActionType.GET_READINGS_REQUEST
+  }
+}
+
+export function getReadingsResponse(result: SomeResult<Reading[]> ): GetReadingsActionResponse {
+  return {
+    type: ActionType.GET_READINGS_RESPONSE,
+    result,
+  }
+}
+
+/**
+ * Async get resources near user
+ */
+export function getResources(): any {
+  return async (dispatch: any) => {
+    dispatch(getResourcesRequest());
+    //TODO: call the api
+
+    let result: SomeResult<Resource[]> = {
+      type: ResultType.SUCCESS,
+      result: []
+    }
+
+    dispatch(getResourcesResponse(result));
+  }
+}
+
+function getResourcesRequest(): GetResourcesActionRequest {
+  return {
+    type: ActionType.GET_RESOURCES_REQUEST
+  }
+}
+
+function getResourcesResponse(result: SomeResult<Resource[]>): GetResourcesActionResponse {
+  return {
+    type: ActionType.GET_RESOURCES_RESPONSE,
+    result,
+  }
+}
+
+/**
+ * Async get the user data
+ */
+export function getUser(): any {
+  return async (dispatch: any) => {
+    dispatch(getUserRequest());
+    //TODO: call the api
+
+    let result: SomeResult<OWUser> = {
+      type: ResultType.SUCCESS,
+      result: {
+        userId: 'hello',
+        recentResources: [],
+        favouriteResources: [],
+        pendingReadings: [],
+        pendingResources: [],
+      }
+    }
+    
+    dispatch(getUserResponse(result));
+  }
+}
+
+function getUserRequest(): GetUserActionRequest {
+  return { type: ActionType.GET_USER_REQUEST }
+}
+
+function getUserResponse(result: SomeResult<OWUser> ): GetUserActionResponse {
+  return {
+    type: ActionType.GET_USER_RESPONSE,
+    result,
+  }
+}
+
+/**
+ * Async remove the favourite
+ */
+export function removeFavourite(resourceId: string): any {
+  return async (dispatch: any) => {
+    dispatch(removeFavouriteRequest());
+
+    //TODO: call api
+
+    let voidResult: SomeResult<void> = {
+      type: ResultType.SUCCESS,
+      result: undefined
+    }
+
+    dispatch(removeFavouriteResponse(voidResult));
+  }
+}
+
+function removeFavouriteRequest(): RemoveFavouriteActionRequest {
+  return {
+    type: ActionType.REMOVE_FAVOURITE_REQUEST,
+  } 
+}
+
+function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActionResponse {
+  return {
+    type: ActionType.REMOVE_FAVOURITE_RESPONSE,
+    result,
+  } 
+}
+
+/**
+ * Async save reading
+ */
+
+export function saveReading(resourceId: string, timeseriesId: string, reading: Reading ): any {
+  return async (dispatch: any) => {
+    dispatch(saveReadingRequest());
+
+    //TODO: call the api
+    let voidResult: SomeResult<void> = {
+      type: ResultType.SUCCESS,
+      result: undefined
+    }
+
+    dispatch(saveReadingResponse(voidResult));
+  }
+}
+
+function saveReadingRequest(): SaveReadingActionRequest {
+  return {
+    type: ActionType.SAVE_READING_REQUEST,
+  }
+}
+
+function saveReadingResponse(result: SomeResult<void>): SaveReadingActionResponse {
+  return {
+    type: ActionType.SAVE_READING_RESPONSE,
+    result
+  }
+}
+
+
+/**
+ * Async save resource
+ */
+export function saveResource(resource: Resource ): any {
+  return async (dispatch: any) => {
+    dispatch(saveResourceRequest());
+
+    //TODO: call the api
+    let voidResult: SomeResult<void> = {
+      type: ResultType.SUCCESS,
+      result: undefined
+    }
+
+    dispatch(saveResourceResponse(voidResult));
+  }
+}
+
+function saveResourceRequest(): SaveResourceActionRequest {
+  return {
+    type: ActionType.SAVE_RESOURCE_REQUEST,
+  }
+}
+
+function saveResourceResponse(result: SomeResult<void>): SaveResourceActionResponse {
+  return {
+    type: ActionType.SAVE_RESOURCE_RESPONSE,
+    result
+  }
+}
+
+/**
+ * Async log in silently
+ */
 export function silentLogin(api: BaseApi): any {
   return async function(dispatch: any) {
     dispatch(silentLoginRequest());
@@ -148,68 +397,5 @@ function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActio
   return {
     type: ActionType.SILENT_LOGIN_RESPONSE,
     userIdResult,
-  }
-}
-
-
-/**
- * Dispatch a AddRecentRequest, do the loading, 
- * then handle the error or response
- * 
- * //TODO: figure out a better way to get the api and userId in here
- */
-export function addRecent(api: BaseApi, userId: string, resource: Resource): any {
-  return async function(dispatch: any) {
-    dispatch(addRecentRequest(resource));
-
-    console.log("adding recent resource 2");
-
-    const result = await api.addRecentResource(resource, userId);
-    console.log("adding recent resource 3", result);
-
-    //TODO: where should our error handling logic live?
-    dispatch(addRecentResponse(result));
-  }
-}
-
-export function addRecentRequest(resource: Resource): AddRecentActionRequest {
-  return {
-    type: ActionType.ADD_RECENT_REQUEST,
-    resource,
-  }
-}
-
-export function addRecentResponse(result: SomeResult<Resource[]>): AddRecentActionResponse {
-  return {
-    type: ActionType.ADD_RECENT_RESPONSE,
-    result
-  };
-}
-
-export function saveReading(reading: Reading) : SaveReadingAction {
-  return {
-    type: ActionType.SAVE_READING,
-    reading,
-  }
-}
-
-export function saveResource(resource: Resource) : SaveResourceAction {
-  return {
-    type: ActionType.SAVE_RESOURCE,
-    resource
-  }
-}
-
-export function connectToExternalService(username: string, password: string) : ConnectToExternalServiceAction {
-  return {
-    type: ActionType.CONNECT_TO_EXTERNAL_SERVICE,
-    username,
-    password
-  }
-}
-export function disconnectFromExternalService() : DisconnectFromExternalServiceAction {
-
-  return {
-    type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE,
   }
 }

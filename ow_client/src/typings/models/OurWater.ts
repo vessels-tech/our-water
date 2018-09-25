@@ -92,3 +92,14 @@ export enum TimeseriesButton {
   TWO_WEEKS,
   EXTENT,
 }
+
+/**
+ * The user saved to firebase
+ */
+export type OWUser = {
+  userId: string,
+  recentResources: Resource[],
+  favouriteResources: Resource[],
+  pendingReadings: Reading[],
+  pendingResources: Resource[],
+}

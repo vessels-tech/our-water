@@ -15,7 +15,6 @@ import OWApp from '../reducers';
 import { Provider } from 'react-redux';
 import * as appActions from '../actions/index';
 
-
 import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
@@ -33,13 +32,13 @@ export function registerScreens(config: ConfigFactory) {
 
   /* Initial actions */
   store.dispatch(appActions.silentLogin(config.appApi));
+  store.dispatch(appActions.getGeolocation());
+  // store.dispatch(appActions.getUser());
+  // store.dispatch(appActions.getExternalLoginDetails());
 
-  //TODO:
-  // - load user's location
-  // - load close resources
-  // - load user object
-  // - load the logged in state
-  
+  //TODO: get firebase listener callbacks  
+
+
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen, store, Provider);
