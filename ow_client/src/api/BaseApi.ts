@@ -79,7 +79,7 @@ export default interface BaseApi {
    * 
    * Returns a SomeResult which can either be a SuccessResult or ErrorResult
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<null>>;
+  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>>;
 
   /**
    * Save a Resource

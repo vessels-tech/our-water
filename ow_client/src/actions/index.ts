@@ -1,4 +1,4 @@
-import { Resource, Reading, OWUser } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
@@ -174,13 +174,14 @@ function getExternalLoginDetailsResponse(result: SomeResult<LoginDetails | Empty
 /**
  * Async get user's location
  */
-export function getGeolocation(): any {
+export function getGeolocation(): (dispatch: any) => Promise<SomeResult<Location>> {
   return async (dispatch: any) => {
     dispatch(getGeolocationRequest());
 
     const result = await getLocation();
 
     dispatch(getGeoLocationResponse(result));
+    return result;
   }
 }
 
@@ -313,17 +314,14 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
  * Async save reading
  */
 
-export function saveReading(resourceId: string, timeseriesId: string, reading: Reading ): any {
+export function saveReading(api: BaseApi, userId: string, resourceId: string, reading: Reading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
 
-    //TODO: call the api
-    let voidResult: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
+    const result = await api.saveReading(resourceId, userId, reading);
 
-    dispatch(saveReadingResponse(voidResult));
+    dispatch(saveReadingResponse(result));
+    return result;
   }
 }
 
@@ -333,7 +331,7 @@ function saveReadingRequest(): SaveReadingActionRequest {
   }
 }
 
-function saveReadingResponse(result: SomeResult<void>): SaveReadingActionResponse {
+function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReadingActionResponse {
   return {
     type: ActionType.SAVE_READING_RESPONSE,
     result

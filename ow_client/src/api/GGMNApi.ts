@@ -501,36 +501,32 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
    * put it on a timer/user click banner
    */
-  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<null>> {
+  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
 
-    return await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
+    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
+    if (saveResult.type === ResultType.ERROR) {
+      return {
+        type: ResultType.ERROR,
+        message: 'Could not save reading',
+      };
+    }
 
-    // .then(async () => {
-    //   try {
-    //     await this.getCredentials()
-    //   } catch (err) {
-    //     //Could not get credentials, or user hasn't logged in
-    //     return {
-    //       requiresLogin: true,
-    //     }
-    //   }
+    const credentials = await this.getExternalServiceLoginDetails();
+    if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      return {
+        type: ResultType.SUCCESS,
+        result: {
+          requiresLogin: true,
+        }
+      }
+    }
 
-    //   this.persistReadingToGGMN(reading)
-    //   .then((response: any) => {
-    //     console.log("saved reading!");
-    //     //Remove from firebase, this would trigger the update to user
-    //     //to say that 
-    //   })
-    //   .catch(err => {
-    //     console.log("Failed to save reading to GGMN", err)
-    //     // this.apiState.bannerState = BannerState.ggmnError;
-    //   });
-
-    //   return {
-    //     requiresLogin: false,
-    //   };
-
-    // });
+    return {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false,
+      }
+    }
   }
 
   async saveResource(userId: string, resource: Resource): Promise<SomeResult<null>> {

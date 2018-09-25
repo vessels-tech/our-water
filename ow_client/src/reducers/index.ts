@@ -20,7 +20,6 @@ export type AppState = {
   location: Location | NoLocation,
   locationMeta: SyncMeta,
 
-
   //Api
   resources: Resource[],
   resourcesMeta: ActionMeta,

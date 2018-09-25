@@ -23,6 +23,10 @@ import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater
 import { validateReading } from '../api/ValidationApi';
 import { AppContext, SyncMeta } from '../AppProvider';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
+import * as appActions from '../actions/index';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux'
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -36,6 +40,7 @@ export interface Props {
   config: ConfigFactory,
   userId: string,
   appApi: BaseApi,
+  // saveReading: (api: BaseApi, userId: string, resourceId: string, reading: Reading) => void,
   saveReading: any,
   pendingSavedReadingsMeta: SyncMeta,
 }
@@ -50,9 +55,13 @@ export interface State {
 
 class NewReadingScreen extends Component<Props> {
   state: State;
+  appApi: BaseApi;
 
   constructor(props: Props) {
     super(props);
+
+    //@ts-ignore
+    this.appApi = props.config.getAppApi();
 
     let timeseriesString = '';
     if (this.props.resource.timeseries[0]) {
@@ -118,7 +127,10 @@ class NewReadingScreen extends Component<Props> {
       return;
     }
 
-    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(id, validateResult.result)
+    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.props.userId, id, validateResult.result);
+    console.log("result", saveResult);
+
+    //TODO: how to do callbacks from state?
     if (saveResult.type === ResultType.ERROR) {
       displayAlert(
         'Error',
@@ -135,6 +147,7 @@ class NewReadingScreen extends Component<Props> {
     });
 
     let message = `Reading saved.`;
+    //TODO: re implement with redux
     if (saveResult.result.requiresLogin) {
       message = `Reading saved locally. Login to save to GGMN.`;
     }
@@ -350,21 +363,18 @@ class NewReadingScreen extends Component<Props> {
   }
 }
 
-const NewReadingScreenWithContext = (props: Props) => {
-  return (
-    <AppContext.Consumer>
-      {({ appApi, userId, config, pendingSavedReadingsMeta, action_saveReading }) => (
-        <NewReadingScreen
-          appApi={appApi}
-          userId={userId}
-          config={config}
-          pendingSavedReadingsMeta={pendingSavedReadingsMeta}
-          saveReading={action_saveReading}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
+const mapStateToProps = (state: AppState) => {
+
+  return {
+    pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
+  }
 }
 
-export default NewReadingScreenWithContext;
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    saveReading: (api: BaseApi, userId: string, resourceId: string, reading: Reading) => 
+      { return dispatch(appActions.saveReading(api, userId, resourceId, reading))}
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewReadingScreen);

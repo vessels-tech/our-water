@@ -43,6 +43,7 @@ export async function registerScreens(config: ConfigFactory) {
     });
   }
 
+  console.log(config.externalServiceApi);
   if (config.externalServiceApi) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }

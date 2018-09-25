@@ -9,46 +9,44 @@ import {
   getLocation,
 } from '../utils';
 import { textDark, primary } from '../utils/Colors';
+import * as appActions from '../actions/index';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux'
+import { NoLocation } from '../typings/Location';
+import { SyncMeta } from '../AppProvider';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 
 export interface Props { 
   onComplete: any,
+  location: Location | NoLocation,
+  locationMeta: SyncMeta,
+  getGeoLocation: () => SomeResult<Location>,
 }
 
 export interface State {
-  loading: boolean,
 }
 
-export default class LoadLocationButton extends Component<Props> {
-  state: State = {
-    loading: false,
-  }
+class LoadLocationButton extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
 
   }
 
-  updateGeoLocation() {
-    this.setState({
-      loading: true
-    });
+  async updateGeoLocation() {
+    console.log("HELLO");
+    const result = await this.props.getGeoLocation();
 
-    return getLocation()
-    .then(location => {
-      this.setState({loading: false});
-      this.props.onComplete(location);
-    })
-    .catch(err => {
-      //TODO: display error to user
-      console.log('err', err);
-      this.setState({loading: false});
-    });
+    //TODO: this is less than ideal
+    if (result.type === ResultType.SUCCESS) {
+      this.props.onComplete(result.result);
+    }
   }
 
   render() {
+    const { locationMeta: { loading } } = this.props;
 
     return (
-    
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
@@ -57,7 +55,7 @@ export default class LoadLocationButton extends Component<Props> {
         width:45,
         height:45,
       }}>
-        {this.state.loading ? 
+        {loading ? 
           <ActivityIndicator 
             size="large" 
             color={textDark}
@@ -78,3 +76,22 @@ export default class LoadLocationButton extends Component<Props> {
     );
   }
 }
+
+
+
+//If we don't have a user id, we should load a different app I think.
+const mapStateToProps = (state: AppState) => {
+  return {
+    location: state.location,
+    locationMeta: state.locationMeta,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getGeoLocation: () => dispatch(appActions.getGeolocation())
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoadLocationButton);

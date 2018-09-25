@@ -59,6 +59,7 @@ export interface Props {
   locationMeta: SyncMeta,
   resources: Resource[],
   resourcesMeta: SyncMeta,
+  getGeolocation: any,
 
 
   //TODO: update
@@ -393,7 +394,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     addRecent: (api: BaseApi, userId: string, resource: Resource) => {
       dispatch(appActions.addRecent(api, userId, resource))
-    }
+    },
   }
 }
 

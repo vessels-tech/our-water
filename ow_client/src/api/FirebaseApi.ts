@@ -300,7 +300,7 @@ class FirebaseApi {
    * Promise resolves when the reading appears in local cache,
    * and not actually commited to the server
    */
-  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<SomeResult<null>> {
+  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<SomeResult<void>> {
     //TODO: some form of extra validation here?
 
     /* we don't want to wait for this to resolve */
@@ -308,7 +308,7 @@ class FirebaseApi {
 
     return {
       type: ResultType.SUCCESS,
-      result: null
+      result: undefined
     };
 
 
