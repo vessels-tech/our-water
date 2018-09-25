@@ -19,6 +19,11 @@ export type AppState = {
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   locationMeta: SyncMeta,
+
+
+  //Api
+  resources: Resource[],
+  resourcesMeta: ActionMeta,
   
   //Firebase
   user: MaybeUser,
@@ -36,7 +41,7 @@ export type AppState = {
 
 const initialState: AppState = {
   //Session
-  isConnected: false,
+  isConnected: true,
   
   //Local
   externalLoginDetails: {
@@ -46,6 +51,10 @@ const initialState: AppState = {
   externalLoginDetailsMeta: { loading: false },
   location: { type: LocationType.NO_LOCATION},
   locationMeta: { loading: false },
+
+  //Api
+  resources: [],
+  resourcesMeta: { loading: false, error: false, errorMessage: '' },
 
   //Firebase
   user: {type: UserType.NO_USER}, 
@@ -68,9 +77,20 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
   //TODO: non exhaustive match ts
   switch(action.type) {
+    case ActionType.ADD_FAVOURITE_REQUEST:
+    case ActionType.REMOVE_FAVOURITE_REQUEST: {
+      const favouriteResourcesMeta =  { loading: true, error: false, errorMessage: '' };
+      return Object.assign({}, state, { favouriteResourcesMeta });
+    }
+    case ActionType.ADD_FAVOURITE_RESPONSE:
+    case ActionType.REMOVE_FAVOURITE_RESPONSE: {
+      const favouriteResourcesMeta = { loading: false, error: false, errorMessage: '' };
+
+      //Add favourite has no payload - handled as a part of the user object
+      return Object.assign({}, state, { favouriteResourcesMeta });
+    }
     case ActionType.GET_LOCATION_REQUEST: {
       const locationMeta = { loading: true};
-
       return Object.assign({}, state, { locationMeta });
     }
     case ActionType.GET_LOCATION_RESPONSE: {
@@ -107,6 +127,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let pendingSavedResources = state.pendingSavedResources;
       
       if (action.result.type !== ResultType.ERROR) {
+        console.log("")
         favouriteResources = action.result.result.favouriteResources;
         recentResources = action.result.result.recentResources;
         pendingSavedReadings = action.result.result.pendingSavedReadings;

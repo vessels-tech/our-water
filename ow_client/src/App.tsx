@@ -35,7 +35,7 @@ import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from './components/MapSection';
 import PendingChangesBannerWithContext from './components/PendingChangesBanner';
-import  { AppContext, ActionMeta } from './AppProvider';
+import  { AppContext, ActionMeta, SyncMeta } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 
 import { connect } from 'react-redux'
@@ -55,14 +55,17 @@ export interface Props {
 
   //Injected by connect function
   addRecent: any,
+  location: Location,
+  locationMeta: SyncMeta,
+  resources: Resource[],
+  resourcesMeta: SyncMeta,
+
 
   //TODO: update
   appApi: BaseApi, 
 }
 
 export interface State {
-  loading: boolean;
-  passiveLoading: boolean; //Use for a load that doesn't need to stop user from interacting
   initialRegion?: MapRegion,
   mapHeight: MapHeightOption,
   mapState: MapStateOption,
@@ -70,20 +73,22 @@ export interface State {
   selectedResource?: Resource,
   isSearching: boolean,
   isAuthenticated: boolean,
-  resources: any[],
 }
 
 class App extends Component<Props> {
     mapRef?: MapView;
     state: State = {
-      loading: true,
-      passiveLoading: false,
       mapHeight: MapHeightOption.default,
       mapState: MapStateOption.default,
       hasSelectedResource: false,
       isSearching: false,
       isAuthenticated: false,
-      resources: []
+      initialRegion: {
+        latitude: this.props.location.coords.latitude,
+        longitude: this.props.location.coords.longitude,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5,
+      },
     };
 
     hardwareBackListener: any;
@@ -100,43 +105,7 @@ class App extends Component<Props> {
     }
 
     componentWillMount() {
-      let location: Location;
-
       this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
-      this.setState({loading: true, passiveLoading: true});
-
-      //TODO: move to redux
-      return getLocation()
-      .then(_location => {
-        location = _location;
-        const initialRegion: Region = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5,
-        };
-
-        this.setState({initialRegion});
-
-        //Either load all the resources, or just those close to user's pin
-        //TODO: move to redux
-        if (this.props.config.getShouldMapLoadAllResources()) {
-          return this.appApi.getResources();
-        }
-
-        //TODO: move to redux
-        return this.appApi.getResourcesWithinRegion(initialRegion);
-      })
-      .then(resources => {
-        this.setState({
-          resources,
-          passiveLoading: false,
-        });
-
-      })
-      .catch(err => {
-        console.log(err);
-      });
     }
 
     componentWillUnmount() {
@@ -266,9 +235,10 @@ class App extends Component<Props> {
     }
 
     getPassiveLoadingIndicator() {
-      const { passiveLoading } = this.state;
+      //TODO: determine based on the resourceMeta
+      const { resourcesMeta: {loading} } = this.props;
 
-      if (!passiveLoading) {
+      if (!loading) {
         return null;
       }
 
@@ -313,6 +283,8 @@ class App extends Component<Props> {
       if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
         return null;
       }
+
+      console.log('getResourceView, selectedResource', selectedResource);
 
       return (
         <ResourceDetailSection
@@ -371,7 +343,7 @@ class App extends Component<Props> {
           <MapSection 
             mapRef={(ref: any) => {this.mapRef = ref}}
             initialRegion={initialRegion}
-            resources={this.state.resources}
+            resources={this.props.resources}
             onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
             onResourceSelected={(r: Resource) => this.selectResource(r)}
             onResourceDeselected={() => this.clearSelectedResource()}
@@ -410,6 +382,10 @@ const mapStateToProps = (state: AppState) => {
   return {
     userId,
     userIdMeta: state.userIdMeta,
+    location: state.location,
+    locationMeta: state.locationMeta,
+    resources: state.resources,
+    resourcesMeta: state.resourcesMeta,
   }
 }
 

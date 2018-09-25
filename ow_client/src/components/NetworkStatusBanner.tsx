@@ -34,20 +34,17 @@ class NetworkStatusBanner extends Component<Props> {
     }
 
 
-    render() {
-      
-      // if (this.props.isConnected) {
-      //   return null;
-      // }
+    render() {  
+      if (this.props.isConnected) {
+        return null;
+      }
 
       let text = `Network is offline.`;
-      if (this.props.isConnected) {
-        text = 'Network is online.';
-      }
+    
       return (
-        <TouchableNativeFeedback
-          onPress={() => this.props.connectionStatusChanged(!this.props.isConnected)}>
-          {/* onPress={() => this.props.dispatch(appActions.toggleConnection(!this.props.isConnected))}> */}
+        // <TouchableNativeFeedback
+          // onPress={() => this.props.connectionStatusChanged(!this.props.isConnected)}>
+          /* onPress={() => this.props.dispatch(appActions.toggleConnection(!this.props.isConnected))}> */
           <View
             style={{
               backgroundColor: bgMed,
@@ -64,29 +61,13 @@ class NetworkStatusBanner extends Component<Props> {
               {text}
             </Text>
           </View>
-        </TouchableNativeFeedback>
+        // </TouchableNativeFeedback>
       );
     }
 }
 
-// const NetworkStatusBannerWithContext = (props: any) => {
-//   return (
-//     <AppContext.Consumer>
-//       {({ isConnected, connectionStatusChanged }) => (
-//         //TODO: how to do callbacks this way?
-//         <NetworkStatusBanner
-//           isConnected={isConnected}
-//           connectionStatusChanged={connectionStatusChanged}
-//           {...props}
-//         />
-//       )}
-//     </AppContext.Consumer>
-//   );
-// };
-
 
 const mapStateToProps = (state: AppState) => {
-  console.log("mapping state to props", state);
   return {
     isConnected: state.isConnected,
   }

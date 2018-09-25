@@ -17,6 +17,8 @@ import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
 import { UserType } from '../typings/UserTypes';
+import { OWUser } from '../typings/models/OurWater';
+import { ResultType } from '../typings/AppProviderTypes';
 
 const loggerMiddleware = createLogger();
 
@@ -35,11 +37,15 @@ export async function registerScreens(config: ConfigFactory) {
   const user = store.getState().user;
   if (user.type === UserType.USER) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
+    config.appApi.subscribeToUser(user.userId, (user: OWUser) => {
+      console.log("got updated user!", user);
+      store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
+    });
   }
-  await store.dispatch(appActions.getExternalLoginDetails());
 
-  //TODO: set up firebase listener callbacks
-
+  if (config.externalServiceApi) {
+    await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
+  }
 
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);

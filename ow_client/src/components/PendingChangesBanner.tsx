@@ -139,7 +139,6 @@ const bannerHeight = 25;
 
     render() {
       const { syncStatus, pendingSavedReadings, pendingSavedResources } = this.props;
-      console.log("PendingChangesBanner, syncStatus is", syncStatus);
 
       // let syncStatus
       // if (pendingSavedReadings.length + pendingSavedResources.length > 0){
@@ -182,19 +181,4 @@ const bannerHeight = 25;
   }
 
 
-const PendingChangesBannerWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({ syncStatus, pendingSavedReadings, pendingSavedResources}) => (
-        <PendingChangesBanner 
-          syncStatus={syncStatus}
-          pendingSavedReadings={pendingSavedReadings}
-          pendingSavedResources={pendingSavedResources}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
-};
-
-export default PendingChangesBannerWithContext;
+export default PendingChangesBanner;

@@ -1,4 +1,5 @@
 import { EmptyLoginDetails, LoginDetails } from "../typings/api/ExternalServiceApi";
+import { SomeResult } from "../typings/AppProviderTypes";
 
 export default interface ExternalServiceApi {
 

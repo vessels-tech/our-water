@@ -10,6 +10,7 @@ import { getLocation } from "../utils";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
+import ExternalServiceApi from "../api/ExternalServiceApi";
 
 
 /* Step 4: Add the actions handlers here */
@@ -17,15 +18,12 @@ import UserApi from "../api/UserApi";
 /**
  * Async Add favourite
  */
-export function addFavourite(resource: Resource): any {
+export function addFavourite(api: BaseApi, userId: string, resource: Resource): any {
   return async (dispatch: any ) => {
     dispatch(addFavouriteRequest(resource));
 
-    //TODO: call api
-    let result: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
+    const result = await api.addFavouriteResource(resource, userId);
+
     dispatch(addFavouriteResponse(result));
   }
 }
@@ -136,16 +134,15 @@ function disconnectFromExternalServiceResponse(): DisconnectFromExternalServiceA
 /**
  * Async get external login details
  */
-export function getExternalLoginDetails(): any {
+export function getExternalLoginDetails(externalServiceApi: ExternalServiceApi): any {
   return async function (dispatch: any) {
     dispatch(getExternalLoginDetailsRequest());
-    //TODO: call api
-    let result: SomeResult<EmptyLoginDetails> = {
+
+    const loginDetails = await externalServiceApi.getExternalServiceLoginDetails();
+
+    let result: SomeResult<LoginDetails | EmptyLoginDetails> = {
       type: ResultType.SUCCESS,
-      result: {
-        type: LoginDetailsType.EMPTY,
-        status: ConnectionStatus.NO_CREDENTIALS,
-      }
+      result: loginDetails
     }
     dispatch(getExternalLoginDetailsResponse(result));
   }
@@ -267,7 +264,11 @@ function getUserRequest(): GetUserActionRequest {
   return { type: ActionType.GET_USER_REQUEST }
 }
 
-function getUserResponse(result: SomeResult<OWUser> ): GetUserActionResponse {
+/**
+ * This is called by the above `getUser` function, and also
+ * for the subscribeToUser callback
+ */
+export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionResponse {
   return {
     type: ActionType.GET_USER_RESPONSE,
     result,
@@ -277,18 +278,11 @@ function getUserResponse(result: SomeResult<OWUser> ): GetUserActionResponse {
 /**
  * Async remove the favourite
  */
-export function removeFavourite(resourceId: string): any {
+export function removeFavourite(api: BaseApi, userId: string, resourceId: string): any {
   return async (dispatch: any) => {
     dispatch(removeFavouriteRequest());
-
-    //TODO: call api
-
-    let voidResult: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
-
-    dispatch(removeFavouriteResponse(voidResult));
+    const result = await api.removeFavouriteResource(resourceId, userId);
+    dispatch(removeFavouriteResponse(result));
   }
 }
 

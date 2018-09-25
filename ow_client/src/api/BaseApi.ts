@@ -1,4 +1,4 @@
-import { Resource, SearchResult, Reading, SaveReadingResult } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWUser } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 
@@ -36,12 +36,12 @@ export default interface BaseApi {
   /**
    * Add a resource to the favourites list
    */
-  addFavouriteResource(resource: Resource, userId: string): Promise<any>;
+  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>>;
 
   /**
    * Remove a favourite resource from the favourites list
    */
-  removeFavouriteResource(resourceId: string, userId: string): Promise<any>;
+  removeFavouriteResource(resourceId: string, userId: string): Promise<SomeResult<void>>;
 
   /**
    * Check if a resource is in the user's favourites
@@ -87,7 +87,10 @@ export default interface BaseApi {
   saveResource(userId: string, resource: Resource): Promise<SomeResult<null>>;
 
 
-  subscribeToUser(userId: string, callback: any): string;
+  /**
+   * Subscribe to a user object, and listen for any changes
+   */
+  subscribeToUser(userId: string, callback: (user: OWUser) => void): string;
 
 
   /**

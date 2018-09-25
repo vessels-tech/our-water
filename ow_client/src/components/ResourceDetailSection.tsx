@@ -31,6 +31,12 @@ import { S_IFIFO } from 'constants';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
+import { AppState } from '../reducers';
+import * as appActions from '../actions/index';
+import { connect } from 'react-redux'
+
+
+
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
@@ -362,10 +368,10 @@ class ResourceDetailSection extends Component<Props> {
     this.setState({ isFavourite: !favourite});
 
     if (!favourite) {
-      return await this.props.action_addFavourite(this.props.resource)
+      return await this.props.action_addFavourite(this.appApi, this.props.userId, this.props.resource)
     }
 
-    return await this.props.action_removeFavourite(this.props.resource.id);
+    return await this.props.action_removeFavourite(this.appApi, this.props.userId, this.props.resource.id);
   }
 
   render() {        
@@ -381,25 +387,22 @@ class ResourceDetailSection extends Component<Props> {
   }
 };
 
+const mapStateToProps = (state: AppState) => {
 
-const ResourceDetailSectionWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({
-        favouriteResources, 
-        favouriteResourcesMeta, 
-        action_addFavourite,
-        action_removeFavourite,
-      }) => (
-        <ResourceDetailSection
-          favouriteResources={favouriteResources}
-          favouriteResourcesMeta={favouriteResourcesMeta}
-          action_addFavourite={action_addFavourite}
-          action_removeFavourite={action_removeFavourite}
-          {...props}
-        />
-      )}
-    </AppContext.Consumer>
-  );
-};
-export default ResourceDetailSectionWithContext;
+  return {
+    favouriteResourcesMeta: state.favouriteResourcesMeta,
+    favouriteResources: state.favouriteResources,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    action_addFavourite: (api: BaseApi, userId: string, resource: Resource) => 
+      dispatch(appActions.addFavourite(api, userId, resource)),
+    action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
+      dispatch(appActions.removeFavourite(api, userId, resourceId)),
+
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ResourceDetailSection);

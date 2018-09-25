@@ -18,7 +18,7 @@ import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
-import { SomeResult } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 
 // TODO: make configurable
@@ -262,12 +262,21 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
-  addFavouriteResource(resource: Resource, userId: string): Promise<any> {
-    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>> {
+
+    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
+    .then(() => {
+      const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
+      return result;
+    });
   }
 
-  removeFavouriteResource(resourceId: string, userId: string): Promise<any> {
-    return FirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId);
+  removeFavouriteResource(resourceId: string, userId: string): Promise<SomeResult<void>> {
+    return FirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId)
+    .then(() => {
+      const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
+      return result;
+    });
   }
 
   isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
@@ -572,26 +581,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * A listener function which combines callback events from the FirebaseApi and 
    * GGMN api to inform the PendingChangesBanner of any updates it needs to make
    * 
-   * returns an id of the subscription, to be used for unsubscribe events
-   * 
    * We are using this subscription to also subscribe to pending readings
    * but this is an assumption which holds only for GGMN. We will need to
    * fix this later on.
    */
   subscribeToUser(userId: string, callback: any): string {
-
     return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
-
-    // //If we haven't already subscribed to the firebase updates, do it now.
-    // if (!this.firebasePendingReadingsSubscriptionId) {
-    //   //TODO: set this value?
-    //   this.unsubscribeUser = FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => this.firebasePendingReadingsCallback(sn));
-    // }
-    // const subscriptionId = `${moment().valueOf()}`;
-    // console.log("subscribed for userId", userId);
-    // this.pendingReadingsSubscriptions.set(subscriptionId, callback);
-    
-    // return subscriptionId;
   }
 
   unsubscribeFromUser(subscriptionId: string): void {

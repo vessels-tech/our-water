@@ -487,7 +487,15 @@ class FirebaseApi {
   }
 
   static listenForUpdatedUser(orgId: string, userId: string, cb: any) {
-    return this.userDoc(orgId, userId).onSnapshot(cb);
+    const options = {
+      includeMetadataChanges: true
+    };
+    return this.userDoc(orgId, userId).onSnapshot(options, (sn: any) => {
+
+      const user: OWUser = this.snapshotToUser(sn);
+      console.log("user is", user);
+      return cb(user);
+    });
   }
 
   /**
@@ -568,10 +576,10 @@ class FirebaseApi {
     return this.userDoc(orgId, userId).get()
     .then((sn: any) => {
       //TODO: transform and map here
-      const userData: OWUser = sn.data();
+
       return {
         type: ResultType.SUCCESS,
-        result: userData,
+        result: this.snapshotToUser(sn),
       }
     })
     .catch((err: any) => {
@@ -580,6 +588,37 @@ class FirebaseApi {
         message: `Could not get user for orgId: ${orgId}, userId: ${userId}`
       }
     });
+  }
+
+
+  //
+  //Utils
+  //------------------------------------------------------------------------------
+
+  /**
+   * Map a fb snapshot to a proper OWUser object
+   */
+  static snapshotToUser(sn: any): OWUser {
+    const data = sn.data();
+
+
+    let favouriteResources: Resource[] = [];
+    const favouriteResourcesDict = data.favouriteResources;
+    if (favouriteResourcesDict) {
+      favouriteResources = Object
+        .keys(favouriteResourcesDict)
+        .map(k => favouriteResourcesDict[k])
+        .filter(v => v !== null);
+    }
+
+    return {
+      userId: sn.id,
+      recentResources: data.recentResources || [],
+      //Stored as a dict, we want an array
+      favouriteResources,
+      pendingSavedReadings: data.pendingSavedReadings || [],
+      pendingSavedResources: data.pendingSavedResources || [],
+    }
   }
 
 }

@@ -15,6 +15,9 @@ import { textDark } from '../utils/Colors';
 import { AppContext, SyncMeta } from '../AppProvider';
 import { Resource } from '../typings/models/OurWater';
 import Loading from './common/Loading';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux'
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const orgId = Config.REACT_APP_ORG_ID;
@@ -179,25 +182,20 @@ class FavouriteResourceList extends Component<Props> {
   }
 }
 
+const mapStateToProps = (state: AppState) => {
 
-const FavouriteResourceListWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({
-        favouriteResources,
-        favouriteResourcesMeta,
-        recentResources,
-        recentResourcesMeta,
-      }) => (
-          <FavouriteResourceList
-            favouriteResources={favouriteResources}
-            favouriteResourcesMeta={favouriteResourcesMeta}
-            recentResources={recentResources}
-            recentResourcesMeta={recentResourcesMeta}
-            {...props}
-          />
-        )}
-    </AppContext.Consumer>
-  );
-};
-export default FavouriteResourceListWithContext;
+  return {
+    favouriteResourcesMeta: state.favouriteResourcesMeta,
+    favouriteResources: state.favouriteResources,
+    recentResourcesMeta: state.recentResourcesMeta,
+    recentResources: state.recentResources,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+   
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FavouriteResourceList);
