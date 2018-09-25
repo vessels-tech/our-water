@@ -7,6 +7,9 @@ import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { getLocation } from "../utils";
+import { Firebase } from "react-native-firebase";
+import FirebaseApi from "../api/FirebaseApi";
+import UserApi from "../api/UserApi";
 
 
 /* Step 4: Add the actions handlers here */
@@ -169,7 +172,7 @@ export function getGeolocation(): any {
     dispatch(getGeolocationRequest());
 
     const result = await getLocation();
-    
+
     dispatch(getGeoLocationResponse(result));
   }
 }
@@ -250,22 +253,12 @@ function getResourcesResponse(result: SomeResult<Resource[]>): GetResourcesActio
 /**
  * Async get the user data
  */
-export function getUser(): any {
+export function getUser(userApi: UserApi, userId: string): any {
   return async (dispatch: any) => {
     dispatch(getUserRequest());
     //TODO: call the api
+    const result = await userApi.getUser(userId);
 
-    let result: SomeResult<OWUser> = {
-      type: ResultType.SUCCESS,
-      result: {
-        userId: 'hello',
-        recentResources: [],
-        favouriteResources: [],
-        pendingReadings: [],
-        pendingResources: [],
-      }
-    }
-    
     dispatch(getUserResponse(result));
   }
 }

@@ -47,6 +47,7 @@ export class ConfigFactory {
 
   appApi: BaseApi; //TODO: change to appApi
   externalServiceApi?: ExternalServiceApi;
+  userApi: UserApi; 
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
@@ -65,6 +66,7 @@ export class ConfigFactory {
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
+      this.userApi = ggmnApi;
     } else {
       //Default to MyWellApi
       this.appApi = new MyWellApi(this.networkApi, this.envConfig.orgId);

@@ -10,7 +10,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse, getDemoResources } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
-import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
@@ -19,6 +19,7 @@ import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult } from "../typings/AppProviderTypes";
+import UserApi from "./UserApi";
 
 // TODO: make configurable
 const timeout = 1000 * 100;
@@ -38,7 +39,7 @@ export interface GGMNApiOptions {
  * 
  * TODO: make an interface, and share components with BaseApi.js
  */
-class GGMNApi implements BaseApi, ExternalServiceApi {
+class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   auth: any = null;
   baseUrl: string;
   networkApi: NetworkApi;
@@ -677,6 +678,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi {
     console.log("Setting callback!", cb);
     this.syncStatusCallback = cb;
   }
+
+  //
+  // UserApi
+  //----------------------------------------------------------------------
+  getUser(userId: string): Promise<SomeResult<OWUser>> {
+    return FirebaseApi.getUser(this.orgId, userId);
+  }
+
+
 
   //
   // Utils

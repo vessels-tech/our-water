@@ -7,21 +7,20 @@ import EditResourceScreen from './EditResourceScreen';
 import SearchScreenWithContext from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
-import AppProvider, { AppContext } from '../AppProvider';
 import App from '../App';
 
 import { createStore, applyMiddleware } from 'redux';
 import OWApp from '../reducers';
 import { Provider } from 'react-redux';
 import * as appActions from '../actions/index';
-
 import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
+import { UserType } from '../typings/UserTypes';
 
 const loggerMiddleware = createLogger();
 
-export function registerScreens(config: ConfigFactory) {
+export async function registerScreens(config: ConfigFactory) {
 
   const store = createStore(OWApp,
     applyMiddleware(
@@ -31,12 +30,15 @@ export function registerScreens(config: ConfigFactory) {
   );
 
   /* Initial actions */
-  store.dispatch(appActions.silentLogin(config.appApi));
-  store.dispatch(appActions.getGeolocation());
-  // store.dispatch(appActions.getUser());
-  // store.dispatch(appActions.getExternalLoginDetails());
+  await store.dispatch(appActions.silentLogin(config.appApi))
+  await store.dispatch(appActions.getGeolocation());
+  const user = store.getState().user;
+  if (user.type === UserType.USER) {
+    await store.dispatch(appActions.getUser(config.userApi, user.userId));
+  }
+  await store.dispatch(appActions.getExternalLoginDetails());
 
-  //TODO: get firebase listener callbacks  
+  //TODO: set up firebase listener callbacks
 
 
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);

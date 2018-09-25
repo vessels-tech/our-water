@@ -123,6 +123,7 @@ export default interface BaseApi {
    */
   getResource(id: string): Promise<Resource>;
 
+
   //
   // Search API
   //----------------------------------------------------------------------

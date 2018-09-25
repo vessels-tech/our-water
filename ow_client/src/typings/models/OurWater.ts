@@ -100,6 +100,6 @@ export type OWUser = {
   userId: string,
   recentResources: Resource[],
   favouriteResources: Resource[],
-  pendingReadings: Reading[],
-  pendingResources: Resource[],
+  pendingSavedReadings: Reading[],
+  pendingSavedResources: Resource[],
 }

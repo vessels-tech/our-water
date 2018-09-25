@@ -14,7 +14,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource, SearchResult, Reading } from '../typings/models/OurWater';
+import { Resource, SearchResult, Reading, OWUser } from '../typings/models/OurWater';
 import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { userInfo } from 'os';
@@ -557,6 +557,29 @@ class FirebaseApi {
 
   private static readingCol(orgId: string): any {
     return fs.collection('org').doc(orgId).collection('reading');
+  }
+
+  /**
+   * getUser
+   * 
+   * Gets the entire user object from firebase
+   */
+  static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
+    return this.userDoc(orgId, userId).get()
+    .then((sn: any) => {
+      //TODO: transform and map here
+      const userData: OWUser = sn.data();
+      return {
+        type: ResultType.SUCCESS,
+        result: userData,
+      }
+    })
+    .catch((err: any) => {
+      return {
+        type: ResultType.ERROR,
+        message: `Could not get user for orgId: ${orgId}, userId: ${userId}`
+      }
+    });
   }
 
 }

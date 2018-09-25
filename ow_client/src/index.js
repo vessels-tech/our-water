@@ -30,7 +30,7 @@ Promise.resolve(true)
     orgId: Config.REACT_APP_ORG_ID,
   }
   config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
-  registerScreens(config);
+  return registerScreens(config);
 })
 .then(() => {
   Navigation.startSingleScreenApp({
