@@ -61,6 +61,7 @@ class ConnectToServiceScreen extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
+    //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
 

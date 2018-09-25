@@ -14,6 +14,10 @@ export enum ActionType {
   SAVE_RESOURCE = 'SAVE_RESOURCE',
   CONNECT_TO_EXTERNAL_SERVICE = 'CONNECT_TO_EXTERNAL_SERVICE',
   DISCONNECT_FROM_EXTERNAL_SERVICE = 'DISCONNECT_FROM_EXTERNAL_SERVICE',
+
+  //Get location
+  //get resources
+  //get resources in location
 }
 
 //Add new actions to this type
@@ -30,6 +34,15 @@ export type AnyAction =
   ConnectToExternalServiceAction |
   DisconnectFromExternalServiceAction
   ;
+
+
+/**
+ * TODO: other actions:
+ * GetLocationRequest
+ * GetLocationResponse
+ * GetResourcesRequest
+ * GetResourcesResponse
+ */
 
 export type SilentLoginActionRequest = {
   type: ActionType.SILENT_LOGIN_REQUEST

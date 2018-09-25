@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+//@ts-ignore
 import { LineChart, Grid } from 'react-native-svg-charts'
 
 class LineChartExample extends React.PureComponent {

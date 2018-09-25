@@ -73,7 +73,6 @@ Promise.resolve(true)
     },
     animationType: 'fade',
     passProps: {
-      //config will be available on all props.config?
       config,
     },
   })

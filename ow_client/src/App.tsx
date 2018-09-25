@@ -35,16 +35,20 @@ import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from './components/MapSection';
 import PendingChangesBannerWithContext from './components/PendingChangesBanner';
-import  { AppContext } from './AppProvider';
+import  { AppContext, ActionMeta } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 
 import { connect } from 'react-redux'
 import NetworkStatusBanner from './components/NetworkStatusBanner';
 import { AppState } from './reducers';
 import * as appActions from './actions/index';
+import { UserType } from './typings/UserTypes';
 
 
 export interface Props {
+  userId: string, 
+  userIdMeta: ActionMeta,
+
   navigator: any;
   config: ConfigFactory,
 
@@ -54,7 +58,6 @@ export interface Props {
 
   //TODO: update
   appApi: BaseApi, 
-  userIdChanged: any, 
 }
 
 export interface State {
@@ -67,7 +70,6 @@ export interface State {
   selectedResource?: Resource,
   isSearching: boolean,
   isAuthenticated: boolean,
-  userId: string,
   resources: any[],
 }
 
@@ -81,18 +83,16 @@ class App extends Component<Props> {
       hasSelectedResource: false,
       isSearching: false,
       isAuthenticated: false,
-      userId: 'unknown',
       resources: []
     };
 
-    fs: any;
     hardwareBackListener: any;
     appApi: BaseApi;
 
     constructor(props: Props) {
       super(props);
 
-      this.fs = firebase.firestore();
+      //@ts-ignore
       this.appApi = props.config.getAppApi();
 
       //Listen to events from the navigator
@@ -105,23 +105,8 @@ class App extends Component<Props> {
       this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
       this.setState({loading: true, passiveLoading: true});
 
-      this.appApi.silentSignin()
-      .then(signInData => {
-        //Tell global state
-        this.props.userIdChanged(signInData.user.uid);
-
-        this.setState({
-          isAuthenticated: true,
-          userId: signInData.user.uid,
-          loading: false, //we are still loading stuff, but each component can take care of itself
-        });
-
-        return getLocation();
-      })
-      .catch(err => {
-        this.setState({ isAuthenticated: false });
-        return getLocation();
-      })
+      //TODO: move to redux
+      return getLocation()
       .then(_location => {
         location = _location;
         const initialRegion: Region = {
@@ -134,10 +119,12 @@ class App extends Component<Props> {
         this.setState({initialRegion});
 
         //Either load all the resources, or just those close to user's pin
+        //TODO: move to redux
         if (this.props.config.getShouldMapLoadAllResources()) {
           return this.appApi.getResources();
         }
 
+        //TODO: move to redux
         return this.appApi.getResourcesWithinRegion(initialRegion);
       })
       .then(resources => {
@@ -194,7 +181,7 @@ class App extends Component<Props> {
           this.props.config.getConnectToButtonText(),
           {
             config: this.props.config,
-            userId: this.state.userId,
+            userId: this.props.userId,
             isConnected: false, //This is an assumption, we should probably check again...
           }
         );
@@ -256,7 +243,7 @@ class App extends Component<Props> {
         selectedResource: resource,
       });
 
-      this.props.addRecent(this.appApi, this.state.userId, resource);
+      this.props.addRecent(this.appApi, this.props.userId, resource);
     }
 
     updateGeoLocation(location: Location) {
@@ -312,7 +299,7 @@ class App extends Component<Props> {
 
       return (  
         <FavouriteResourceList
-          userId={this.state.userId}
+          userId={this.props.userId}
           onResourceCellPressed={(r: Resource) => this.selectResource(r)}
         />
       );
@@ -320,56 +307,54 @@ class App extends Component<Props> {
 
 
     getResourceView() {
-      const {hasSelectedResource, selectedResource, userId} = this.state;
+      const {hasSelectedResource, selectedResource } = this.state;
+      const {userId} = this.props;
 
       if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
         return null;
       }
 
       return (
-        // <View style={{
-        //   backgroundColor: bgLight,
-        // }}>
-          <ResourceDetailSection
-            config={this.props.config}
-            userId={userId}
-            resource={selectedResource}
-            onMorePressed={(resource: Resource) => {
-              navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
-                legacyId: resource.legacyId,
-                config: this.props.config,
-                userId: this.state.userId,
-              });
-            }}
-            onAddToFavourites={() => console.log('onAddToFavourites')}
-            onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
-            onAddReadingPressed={(resource: Resource) => {
-              navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
-                resource, 
-                config: this.props.config,
-                userId: this.state.userId
-              });
-            }} 
-          />
-        // </View>
+        <ResourceDetailSection
+          config={this.props.config}
+          userId={userId}
+          resource={selectedResource}
+          onMorePressed={(resource: Resource) => {
+            navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
+              legacyId: resource.legacyId,
+              config: this.props.config,
+              userId: this.props.userId,
+            });
+          }}
+          onAddToFavourites={() => console.log('onAddToFavourites')}
+          onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
+          onAddReadingPressed={(resource: Resource) => {
+            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
+              resource, 
+              config: this.props.config,
+              userId: this.props.userId
+            });
+          }} 
+        />
       );
     }
     
     render() {
-      const { loading, initialRegion } = this.state;
+      const { initialRegion } = this.state;
+      const { userIdMeta: { loading } } = this.props;
 
-      // if (loading) {
-      //   return (
-      //     <View style={{
-      //       justifyContent: 'center',
-      //       alignItems: 'center',
-      //       flex: 1,
-      //       backgroundColor: bgLight,
-      //     }}>
-      //       <Loading/>
-      //     </View>
-      //   );
-      // }
+      if (loading) {
+        return (
+          <View style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+            backgroundColor: bgLight,
+          }}>
+            <Loading/>
+          </View>
+        );
+      }
 
       if (!initialRegion) {
         return null;
@@ -407,37 +392,30 @@ class App extends Component<Props> {
           <PendingChangesBannerWithContext
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
           />
+          {/* Not sure how to fix this... */}
           <NetworkStatusBanner/>
         </View>
       );
     }
   }
 
-// const AppWithContext = (props: Props) => {
-//   return (
-//     <AppContext.Consumer>
-//       {({ appApi, userIdChanged, action_addRecent}) => (
-//         <App
-//           appApi={appApi}
-//           userIdChanged={userIdChanged}
-//           action_addRecent={action_addRecent}
-//           {...props}
-//         />
-//       )}
-//     </AppContext.Consumer>
-//   );
-// }
-
+//If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState) => {
-  return {
+  let userId = ''; //I don't know if this fixes the problem...
 
+  if (state.user.type === UserType.USER) {
+    userId = state.user.userId;
+  }
+
+  return {
+    userId,
+    userIdMeta: state.userIdMeta,
   }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     addRecent: (api: BaseApi, userId: string, resource: Resource) => {
-      console.log("dispatch to props, userId, resource", userId, resource);
       dispatch(appActions.addRecent(api, userId, resource))
     }
   }

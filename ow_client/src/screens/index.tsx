@@ -31,9 +31,15 @@ export function registerScreens(config: ConfigFactory) {
     )
   );
 
-  //TODO: we should log the user in here!
-  store.dispatch(appActions.silentLogin(config.appApi))
+  /* Initial actions */
+  store.dispatch(appActions.silentLogin(config.appApi));
 
+  //TODO:
+  // - load user's location
+  // - load close resources
+  // - load user object
+  // - load the logged in state
+  
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen, store, Provider);

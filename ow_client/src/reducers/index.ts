@@ -4,6 +4,7 @@ import { ActionMeta, SyncMeta } from "../AppProvider";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
+import { MaybeUser, UserType } from "../typings/UserTypes";
 
 
 export type AppState = {
@@ -15,7 +16,7 @@ export type AppState = {
   externalLoginDetailsMeta: SyncMeta,
   
   //Firebase
-  userId: string,
+  user: MaybeUser,
   userIdMeta: ActionMeta,
   syncStatus: SyncStatus,
   favouriteResources: Map<string, Resource>,
@@ -40,7 +41,7 @@ const initialState: AppState = {
   externalLoginDetailsMeta: { loading: false },
   
   //Firebase
-  userId: '', 
+  user: {type: UserType.NO_USER}, 
   userIdMeta: { loading: false, error: false, errorMessage: '' },
   syncStatus: SyncStatus.none,
   favouriteResources: new Map<string, Resource>(),
@@ -53,63 +54,62 @@ const initialState: AppState = {
   pendingSavedResourcesMeta: { loading: false },
 };
 
-export default function OWApp(state: AppState = initialState, action: AnyAction) {
+export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
+  if (!state) {
+    return initialState;
+  }
 
   //TODO: non exhaustive match ts
   switch(action.type) {
     case ActionType.SILENT_LOGIN_REQUEST: {
       const userIdMeta = {loading: true, error: false, errorMessage: ''};
-      Object.assign({}, state, { userIdMeta });
-      break;
+      
+      return Object.assign({}, state, { userIdMeta });
     }
     case ActionType.SILENT_LOGIN_RESPONSE: {
       const userIdMeta = { loading: false, error: false, errorMessage: '' };
 
       const result = action.userIdResult;
+      console.log("SILENT_LOGIN_RESPONSE", result);
       if (result.type === ResultType.ERROR) {
         userIdMeta.error = true;
         userIdMeta.errorMessage = result.message;
 
-        Object.assign({}, state, { userIdMeta });
-        return;
+        return Object.assign({}, state, { userIdMeta });
       }
 
-      Object.assign({}, state, {
-        userId: result.result,
+      return Object.assign({}, state, {
+        user: {type: UserType.USER, userId: result.result},
         userIdMeta,
       });
-
-      return;
     }
     case ActionType.ADD_FAVOURITE: {
 
       const { favouriteResources } = state;
       favouriteResources.set(action.resource.id, action.resource);
-      Object.assign({}, state, { favouriteResources });
       
-      break;
+      return Object.assign({}, state, { favouriteResources });
     }
     case ActionType.REMOVE_FAVOURITE: {
       const { favouriteResources } = state;
       favouriteResources.delete(action.resourceId);
-      Object.assign({}, state, { favouriteResources });
       
-      break;
+      return Object.assign({}, state, { favouriteResources });
     }
 
     case ActionType.ADD_RECENT_REQUEST: {
       //Set the recent resource meta to loading: true
 
       const recentResourcesMeta = {loading: true};
-      Object.assign({}, state, { recentResourcesMeta })
-      break;
+      
+      return Object.assign({}, state, { recentResourcesMeta })
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
       let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       //TODO: how to handle errors nicely in here?
       const result = action.result;
-      let resources: Resource[] = []; //TODO: should this default to the last one?
+      let recentResources: Resource[] = []; //TODO: should this default to the last one?
       if (result.type === ResultType.ERROR) {
         recentResourcesMeta = {
           loading: true,
@@ -117,17 +117,18 @@ export default function OWApp(state: AppState = initialState, action: AnyAction)
           errorMessage: result.message,
         }
       } else {
-        resources = result.result;
+        recentResources = result.result;
       }
-      Object.assign({}, state, { recentResourcesMeta, resources })
 
-      break;
+      console.log("AddRecentResponse, resources", recentResources);
+      
+      return Object.assign({}, state, { recentResourcesMeta, recentResources })
     }
 
     case ActionType.TOGGLE_CONNECTION: {
       console.log("Toggling the connection in reducer!", action);
 
-      return Object.assign({}, state, {isConnected: action.isConnected})
+      return Object.assign({}, state, {isConnected: action.isConnected});
     }
 
 
