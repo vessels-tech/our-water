@@ -10,7 +10,7 @@ import IconFormInput, { InputType } from '../../components/common/IconFormInput'
 import { ResourceTypeArray, ResourceType } from '../../enums';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { Resource, PendingResource } from '../../typings/models/OurWater';
+import { Resource, PendingResource, SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
 import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
@@ -69,14 +69,19 @@ class EditResourceScreen extends Component<Props> {
     const resource: Resource | PendingResource = {
 
     }
-    const result: SomeResult<void> = await this.props.saveResource(this.appApi, this.props.userId, resource);
+    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.props.userId, resource);
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(`Error saving Resource: ${result.message}`, ToastAndroid.SHORT);
       return;
     }
 
-    ToastAndroid.show(`Successfully Saved Resource!`, ToastAndroid.SHORT);
+    let message = `Successfully Saved Resource!`;
+    if (result.result.requiresLogin) {
+      message = `Saved resouce. Login to GGMN to sync.`
+    }
+
+    ToastAndroid.show(message, ToastAndroid.SHORT);
     this.props.navigator.pop();
   }
 

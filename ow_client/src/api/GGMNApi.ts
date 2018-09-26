@@ -10,7 +10,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse, getDemoResources } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
-import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
@@ -529,10 +529,32 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-  async saveResource(userId: string, resource: Resource): Promise<SomeResult<null>> {
-    return await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
-  }
+  async saveResource(userId: string, resource: Resource): Promise<SomeResult<SaveResourceResult>> {
+    const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+    if (saveResult.type === ResultType.ERROR) {
+      return {
+        type: ResultType.ERROR,
+        message: 'Could not save reading',
+      };
+    }
 
+    const credentials = await this.getExternalServiceLoginDetails();
+    if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      return {
+        type: ResultType.SUCCESS,
+        result: {
+          requiresLogin: true,
+        }
+      }
+    }
+
+    return {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false,
+      }
+    }
+  }
 
   private async persistReadingToGGMN(reading: Reading): Promise<any> {
     const tsId = '8cd4eec3-1c76-4ebb-84e6-57681f15424f'; //TODO: Just temporary!

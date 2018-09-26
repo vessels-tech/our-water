@@ -1,4 +1,4 @@
-import { Resource, Reading, OWUser, SaveReadingResult } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
@@ -365,17 +365,15 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, userId: string, resource: Resource ): any {
+export function saveResource(api: BaseApi, userId: string, resource: Resource ): 
+  (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
 
-    //TODO: call the api
-    let voidResult: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
+    const result = await api.saveResource(userId, resource);
 
-    dispatch(saveResourceResponse(voidResult));
+    dispatch(saveResourceResponse(result));
+    return result;
   }
 }
 
@@ -385,7 +383,7 @@ function saveResourceRequest(): SaveResourceActionRequest {
   }
 }
 
-function saveResourceResponse(result: SomeResult<void>): SaveResourceActionResponse {
+function saveResourceResponse(result: SomeResult<SaveResourceResult>): SaveResourceActionResponse {
   return {
     type: ActionType.SAVE_RESOURCE_RESPONSE,
     result

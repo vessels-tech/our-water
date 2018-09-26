@@ -1,4 +1,4 @@
-import { Resource, SearchResult, Reading, SaveReadingResult, OWUser } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 
@@ -83,8 +83,10 @@ export default interface BaseApi {
 
   /**
    * Save a Resource
+   * 
+   * Returns a Wrapped SaveResourceResult
    */
-  saveResource(userId: string, resource: Resource): Promise<SomeResult<null>>;
+  saveResource(userId: string, resource: Resource): Promise<SomeResult<SaveResourceResult>>;
 
 
   /**
