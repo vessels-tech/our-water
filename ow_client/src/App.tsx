@@ -158,11 +158,18 @@ class App extends Component<Props> {
         );
       }
 
-      //TODO: this one is tricky. If they don't have permission
-      //To save to a resource, then we need to allow the user to
-      //delete pending readings and stuff, which means we need to
-      //display a list of the pending readings with a state next to them
-      //I'll leave this now until I can think of an easier option
+      if (bannerState === SyncStatus.pendingGGMNWrites) {
+        showModal(
+          this.props,
+          'screen.menu.SyncScreen',
+          'GGMN Sync',
+          {
+            config: this.props.config,
+            userId: this.props.userId,
+          }
+        );
+      }
+ 
       if (bannerState === SyncStatus.ggmnError) {
 
       }
@@ -302,7 +309,7 @@ class App extends Component<Props> {
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
           onAddReadingPressed={(resource: Resource) => {
-            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
+            navigateTo(this.props, 'screen.menu.NewReadingScreen', 'New Reading', {
               resource, 
               config: this.props.config,
               userId: this.props.userId
