@@ -5,7 +5,7 @@ import {
   Card,
   Text,
 } from 'react-native-elements';
-import { OWTimeseries, Reading, TimeseriesButton } from '../../typings/models/OurWater';
+import { OWTimeseries, Reading, TimeseriesRange } from '../../typings/models/OurWater';
 import { View } from 'react-native';
 import { textLight, primaryDark, bgLight } from '../../utils/Colors';
 import LineChartExample from './DemoChart';
@@ -42,11 +42,11 @@ class TimeseriesCard extends Component<Props> {
   }
 
   getBottomButtons() {
-    const buttons: { text: string, value: TimeseriesButton}[] = [
-      {text: '1Y', value: TimeseriesButton.ONE_YEAR},
-      {text: '3M', value: TimeseriesButton.THREE_MONTHS},
-      {text: '2W', value: TimeseriesButton.TWO_WEEKS},
-      {text: 'EXTENT', value: TimeseriesButton.EXTENT},
+    const buttons: { text: string, value: TimeseriesRange}[] = [
+      { text: '1Y', value: TimeseriesRange.ONE_YEAR},
+      { text: '3M', value: TimeseriesRange.THREE_MONTHS},
+      { text: '2W', value: TimeseriesRange.TWO_WEEKS},
+      { text: 'EXTENT', value: TimeseriesRange.EXTENT},
     ];
 
     return (

@@ -18,6 +18,7 @@ import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
+import { UserType } from '../typings/UserTypes';
 
 
 export interface Props {
@@ -169,11 +170,14 @@ class SettingsScreen extends React.Component<Props> {
         {this.getSyncButton()}
         <ListItem
           title={this.props.config.getRegisterResourceButtonText()}
-          onPress={() =>
+          onPress={() => {
             //TODO: dismiss the sidebar
+            console.log("userId is", this.props.userId);
             navigateTo(this.props, 'screen.menu.EditResourceScreen', 'New Resource', {
               config: this.props.config,
+              userId: this.props.userId,
             })
+          }
           }
           leftIcon={{
             name: 'create',
@@ -181,7 +185,7 @@ class SettingsScreen extends React.Component<Props> {
           }}
           hideChevron
         />
-        <ListItem
+        {/* <ListItem
           title="Language"
           onPress={() => console.log("GGMN pressed")}
           leftIcon={{
@@ -190,7 +194,7 @@ class SettingsScreen extends React.Component<Props> {
           }}
           hideChevron
           disabled
-        />
+        /> */}
         {/* TODO: display conditionally, use firebase remote config */}
       </KeyboardAvoidingView>
     );
@@ -199,9 +203,15 @@ class SettingsScreen extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => {
 
+  let userId = null;
+  if (state.user.type === UserType.USER) {
+    userId = state.user.userId;
+  }
+
   return {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    userId,
   }
 }
 

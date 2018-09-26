@@ -27,6 +27,10 @@ export type Resource = {
  * externally yet
  */
 export type PendingResource = {
+  coords: OWGeoPoint,
+  resourceType: ResourceType,
+  owner: ResourceOwnerType,
+  userId: string,
 
 }
 
@@ -94,11 +98,11 @@ export type OWTimeseriesResponse = {
   results: Array<OWTimeseries>
 }
 
-export enum TimeseriesButton {
-  ONE_YEAR,
-  THREE_MONTHS,
-  TWO_WEEKS,
-  EXTENT,
+export enum TimeseriesRange {
+  ONE_YEAR = 'ONE_YEAR',
+  THREE_MONTHS = 'THREE_MONTHS',
+  TWO_WEEKS = 'TWO_WEEKS',
+  EXTENT = 'EXTENT',
 }
 
 /**

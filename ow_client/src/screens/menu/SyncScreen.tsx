@@ -10,7 +10,7 @@ import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, 
 import { Reading, Resource } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar } from '../../utils';
 import { error1 } from '../../utils/Colors';
 
 
@@ -80,6 +80,16 @@ class SyncScreen extends Component<Props> {
         key={i}
         onPress={() => {console.log("pressed resource")}}
         roundAvatar
+        rightIcon={
+          <TouchableNativeFeedback
+            onPress={() => console.log('delete this resource')}
+          >
+            <Icon
+              name='close'
+              color={error1}
+            />
+          </TouchableNativeFeedback>
+        }
         title={r.id}
         avatar={getGroundwaterAvatar()}
         subtitle={r.owner.name}/>
@@ -107,7 +117,7 @@ class SyncScreen extends Component<Props> {
           </TouchableNativeFeedback>
         }
         title={r.resourceId}
-        avatar={getGroundwaterAvatar()}
+        avatar={getReadingAvatar()}
         subtitle={r.date} />
     );
   }

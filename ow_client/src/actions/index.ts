@@ -1,4 +1,4 @@
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
@@ -228,29 +228,42 @@ export function getPendingResourcesResponse(result: SomeResult<Resource[]>): Get
 /**
  * async get the readings for a resource
  */
-export function getReadings(resourceId: string, timeseriesId: string, startDate: number, endDate: number): any {
+export function getReadings(api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange): any {
   return async (dispatch: any) => {
-    dispatch(getReadingsRequest());
+    dispatch(getReadingsRequest(timeseriesId, range));
 
-    //TODO: call api
-    let result: SomeResult<Reading[]> = {
-      type: ResultType.SUCCESS,
-      result: []
+    let result: SomeResult<Reading[]>;
+    try {
+      const readings = await api.getReadingsForTimeseries(resourceId, timeseriesId, range);
+      result = {
+        type: ResultType.SUCCESS,
+        result: readings,
+      }
+    } catch (err) {
+      result = {
+        type: ResultType.ERROR,
+        message: err.message,
+      }
     }
 
-    dispatch(getReadingsResponse(result));
+    dispatch(getReadingsResponse(timeseriesId, range, result));
   }
 }
 
-export function getReadingsRequest(): GetReadingsActionRequest {
+export function getReadingsRequest(timeseriesId: string, range: TimeseriesRange): GetReadingsActionRequest {
   return {
-    type: ActionType.GET_READINGS_REQUEST
+    type: ActionType.GET_READINGS_REQUEST,
+    timeseriesId,
+    range,
+
   }
 }
 
-export function getReadingsResponse(result: SomeResult<Reading[]> ): GetReadingsActionResponse {
+export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange, result: SomeResult<Reading[]> ): GetReadingsActionResponse {
   return {
     type: ActionType.GET_READINGS_RESPONSE,
+    timeseriesId,
+    range,
     result,
   }
 }

@@ -70,6 +70,7 @@ class ResourceDetailSection extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
+    //@ts-ignore
     this.appApi = this.props.config.getAppApi();
   }
 

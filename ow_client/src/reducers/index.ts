@@ -1,5 +1,5 @@
 
-import { Resource, Reading } from "../typings/models/OurWater";
+import { Resource, Reading, TimeseriesRange } from "../typings/models/OurWater";
 import { ActionMeta, SyncMeta } from "../AppProvider";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
@@ -9,8 +9,21 @@ import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { isNullOrUndefined } from "util";
+import { newTsRangeReadings, setLoading, addReadingsAndStopLoading } from "../utils";
 
 const RESOURCE_CACHE_MAX_SIZE = 1000;
+
+export type TimeSeriesReading = {
+  meta: { loading: boolean },
+  readings: Reading[],
+}
+
+export type TimeseriesRangeReadings = {
+  ONE_YEAR: TimeSeriesReading,
+  THREE_MONTHS: TimeSeriesReading,
+  TWO_WEEKS: TimeSeriesReading,
+  EXTENT: TimeSeriesReading,
+}
 
 export type AppState = {
   //Session based
@@ -28,6 +41,7 @@ export type AppState = {
   //Store all past resources we have seen here
   resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
+  timeseriesReadings: Map<string, TimeseriesRangeReadings> //timeseriesId -> TimeseriesRangeReadings
 
 
   /* resourceId -> resource map, containing  */
@@ -66,7 +80,7 @@ const initialState: AppState = {
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourcesCache: new Map<string, Resource>(), 
   externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
-
+  timeseriesReadings: new Map<string, TimeseriesRangeReadings>(),
 
   //Firebase
   user: {type: UserType.NO_USER}, 
@@ -159,6 +173,28 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       return Object.assign({}, state, { pendingSavedResources });
     }
+    case ActionType.GET_READINGS_REQUEST: {
+      const timeseriesReadings = setLoading(state.timeseriesReadings, action.timeseriesId, action.range, true);
+      return Object.assign({}, state, { timeseriesReadings });
+    }
+    case ActionType.GET_READINGS_RESPONSE: {
+      let timeseriesReadings;
+      if (action.result.type === ResultType.ERROR) {
+        timeseriesReadings = setLoading(state.timeseriesReadings, action.timeseriesId, action.range, false);
+        return Object.assign({}, state, { timeseriesReadings });
+      }
+
+      const readings = action.result.result;
+      //TODO: add in pending readings here
+      timeseriesReadings = addReadingsAndStopLoading(
+        readings,
+        state.timeseriesReadings,
+        action.timeseriesId,
+        action.range
+      );
+
+      return Object.assign({}, state, { timeseriesReadings });
+    }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};
 
@@ -193,7 +229,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       newResources.forEach(r => resourcesCache.set(r.id, r));
-      pendingSavedResources.forEach(r => resourcesCache.set(r.id, r));
+      //TODO: add this back
+      // pendingSavedResources.forEach(r => resourcesCache.set(r.id, r));
       [...resourcesCache.keys()].forEach(k => {
         const value = resourcesCache.get(k);
         if (value) {

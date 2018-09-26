@@ -1,6 +1,6 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { removeFavourite } from ".";
 import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -62,8 +62,8 @@ export type GetPendingReadingsRequest = { type: ActionType.GET_PENDING_READINGS_
 export type GetPendingReadingsResponse = { type: ActionType.GET_PENDING_READINGS_RESPONSE, result: SomeResult<Reading[]>};
 export type GetPendingResourcesRequest = { type: ActionType.GET_PENDING_RESOURCES_REQUEST};
 export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURCES_RESPONSE, result: SomeResult<Resource[]>};
-export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST };
-export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]> };
+export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST, timeseriesId: string, range: TimeseriesRange };
+export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]>, timeseriesId: string, range: TimeseriesRange };
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
 export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<Resource[]> };
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };

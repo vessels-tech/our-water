@@ -18,6 +18,7 @@ import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactiv
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { SyncMeta } from '../../AppProvider';
 import { TextInput } from '../../components/common/FormComponents';
+import { validateResource } from '../../api/ValidationApi';
 
 
 export interface Props { 
@@ -52,8 +53,8 @@ class EditResourceScreen extends Component<Props> {
     };
 
     this.editResourceForm = FormBuilder.group({
-      lat: ['', Validators.required],
-      lng: ['', Validators.required],
+      lat: ['', Validators.required],//, Validators.min(-90), Validators.max(90)],
+      lng: ['', Validators.required],// Validators.min(-180), Validators.max(180)],
       organisationId: ['', Validators.required],      
       asset: ['', Validators.required],
       ownerName: ['', Validators.required],
@@ -66,10 +67,27 @@ class EditResourceScreen extends Component<Props> {
     Keyboard.dismiss();
 
     //TODO: parse resource from this.editResourceForm
-    const resource: Resource | PendingResource = {
-
+    console.log("form values:", this.editResourceForm.value);
+    const unvalidatedResource = {
+      coords: {
+        latitude: this.editResourceForm.value.lat,
+        longitude: this.editResourceForm.value.lng,
+      },
+      resourceType: 'well',
+      owner: {
+        name: this.editResourceForm.value.ownerName,
+      },
+      userId: this.props.userId,
+    };
+    console.log("unvalidated resource:", unvalidatedResource);
+    
+    const validationResult: SomeResult<Resource | PendingResource> = validateResource(unvalidatedResource);
+    if (validationResult.type === ResultType.ERROR) {
+      ToastAndroid.show(`Error saving Resource: ${validationResult.message}`, ToastAndroid.SHORT);
+      return;
     }
-    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.props.userId, resource);
+
+    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.props.userId, validationResult.result);
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(`Error saving Resource: ${result.message}`, ToastAndroid.SHORT);
@@ -88,6 +106,7 @@ class EditResourceScreen extends Component<Props> {
   getForm() {
     const { pendingSavedResourcesMeta: { loading }} = this.props;
 
+    console.log("getForm form:", this.editResourceForm);
 
     return (
       <FieldGroup
@@ -99,30 +118,30 @@ class EditResourceScreen extends Component<Props> {
             <FieldControl
               name="lat"
               render={TextInput}
-              meta={{ label: "Latitude", secureTextEntry: false }}
+              meta={{ label: "Latitude", secureTextEntry: false, keyboardType: 'numeric' }}
             />
             <FieldControl
               name="lng"
               render={TextInput}
-              meta={{ label: "Longitude", secureTextEntry: false }}
+              meta={{ label: "Longitude", secureTextEntry: false, keyboardType: 'numeric' }}
             />
             {/* TODO: dropdown */}
             <FieldControl
               name="organisationId"
               render={TextInput}
-              meta={{ label: "Organisation", secureTextEntry: false }}
+              meta={{ label: "Organisation", secureTextEntry: false, keyboardType: 'default' }}
             />
 
             {/* TODO: dropdown */}
             <FieldControl
               name="asset"
               render={TextInput}
-              meta={{ label: "Asset Type", secureTextEntry: false }}
+              meta={{ label: "Asset Type", secureTextEntry: false, keyboardType: 'default' }}
             />
             <FieldControl
               name="ownerName"
               render={TextInput}
-              meta={{ label: "Owner Name", secureTextEntry: false }}
+              meta={{ label: "Owner Name", secureTextEntry: false, keyboardType: 'default' }}
             />
             <Button
               style={{
@@ -138,83 +157,6 @@ class EditResourceScreen extends Component<Props> {
         )}
       />
     );
-  }
-
-
-  //TODO: load the resource if we already have the id
-
-  // dep_getForm() {
-  //   const { lat, lng, ownerName} = this.state;
-
-  //   return (
-  //     <View style={{
-  //       width: '100%',
-  //       flexDirection: 'column'
-  //     }}>
-  //       <IconFormInput
-  //         iconName='pencil'
-  //         iconColor='#FF6767'
-  //         placeholder='latitude'
-  //         errorMessage={
-  //           lat.length > 0 && !this.isFieldValid(lat) ?
-  //             'Field is required' : null
-  //         }
-  //         onChangeText={(lat: string) => this.setState({ lat })}
-  //         onSubmitEditing={() => console.log('on submit editing')}
-  //         fieldType={InputType.fieldInput}
-  //         value={lat}
-  //         keyboardType='default'
-  //       />
-  //       <IconFormInput
-  //         iconName='pencil'
-  //         iconColor='#FF6767'
-  //         placeholder='longitude'
-  //         errorMessage={
-  //           lng.length > 0 && !this.isFieldValid(lng) ?
-  //             'Field is required' : null
-  //         }
-  //         onChangeText={(lng: string) => this.setState({ lng })}
-  //         onSubmitEditing={() => console.log('on submit editing')}
-  //         fieldType={InputType.fieldInput}
-  //         value={lng}
-  //         keyboardType='default'
-  //       />
-  //       <IconFormInput
-  //         iconName='pencil'
-  //         iconColor='#FF6767'
-  //         placeholder={`Owner`}
-  //         errorMessage={
-  //           ownerName.length > 0 && !this.isFieldValid(ownerName) ?
-  //             'Owner name is required' : null
-  //         }
-  //         onChangeText={(ownerName: string) => this.setState({ ownerName })}
-  //         onSubmitEditing={() => console.log('on submit editing')}
-  //         keyboardType='numeric'
-  //         fieldType={InputType.fieldInput}
-  //         value={ownerName}
-  //       />
-
-  //       {/* TODO: add type field, don't know what it's called */}
-
-  //     {/* TODO: load conditional fields, maybe owner is even conditional? */}
-  //     </View>
-  //   );
-  // }
-
-  isFieldValid(str: string) {
-    if (!str || str.length === 0) {
-      return false;
-    }
-
-    return true;
-  }
-
-  isResourceTypeValid(resourceType: ResourceType) {
-    if (ResourceTypeArray.indexOf(resourceType) === -1) {
-      return false;
-    }
-
-    return true;
   }
 
   render() {

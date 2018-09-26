@@ -4,11 +4,12 @@ import * as moment from 'moment';
 import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight, primaryLight } from './Colors';
 import { Location } from '../typings/Location';
-import { Resource, BasicCoords } from '../typings/models/OurWater';
+import { Resource, BasicCoords, TimeseriesRange, Reading } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { TimeseriesRangeReadings } from '../reducers';
 
 
 /**
@@ -291,6 +292,21 @@ export function getGroundwaterAvatar() {
   );
 }
 
+export function getReadingAvatar() {
+  return (
+    <Avatar
+      containerStyle={{
+        backgroundColor: primaryLight,
+        alignSelf: 'center',
+      }}
+      rounded
+      // size="large"
+      title = "R"
+      activeOpacity = { 0.7}
+    />
+  );
+}
+
 /**
    * Iterate through favourite resources, and find out
    * if this is in the list
@@ -304,4 +320,63 @@ export function isFavourite(favouriteResources: Resource[], resourceId: string) 
   }
 
   return false;
+}
+
+/**
+ * Convert a TimeseriesRange into unix typestamp start and end dates
+ */
+export function convertRangeToDates(range: TimeseriesRange): { startDate: number, endDate: number } {
+  //TODO: parse dates etc.
+  return {
+    startDate: moment().subtract(1, 'year').valueOf(),
+    endDate: moment().valueOf(),
+  }
+}
+
+
+/**
+ * Initialize an empty Timeseries range reading
+ */
+export function newTsRangeReadings(): TimeseriesRangeReadings {
+  return {
+    ONE_YEAR: { meta: { loading: false }, readings: [] },
+    THREE_MONTHS: { meta: { loading: false }, readings: [] },
+    TWO_WEEKS: { meta: { loading: false }, readings: [] },
+    EXTENT: { meta: { loading: false }, readings: [] },
+  }
+}
+
+/**
+ * Helper function to modify deeply nested data inside the metadata for a 
+ * timeseries range reading
+ */
+export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange, loading: boolean) {
+  //Set the appropriate meta to loading for the timeseries and timerange
+  let tsRangeReadings = timeseriesReadings.get(timeseriesId);
+  if (!tsRangeReadings) {
+    tsRangeReadings = newTsRangeReadings();
+  }
+  const readingsForRange = tsRangeReadings[range];
+  readingsForRange.meta = { loading };
+
+  tsRangeReadings[range] = readingsForRange;
+  timeseriesReadings.set(timeseriesId, tsRangeReadings);
+
+  return timeseriesReadings;
+}
+
+export function addReadingsAndStopLoading(readings: Reading[], timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange) {
+  //Set the appropriate meta to loading for the timeseries and timerange
+  let tsRangeReadings = timeseriesReadings.get(timeseriesId);
+  if (!tsRangeReadings) {
+    tsRangeReadings = newTsRangeReadings();
+  }
+  const readingsForRange = tsRangeReadings[range];
+  readingsForRange.meta = { loading: false };
+  readingsForRange.readings = readings,
+
+  tsRangeReadings[range] = readingsForRange;
+  timeseriesReadings.set(timeseriesId, tsRangeReadings);
+
+  return timeseriesReadings;
 }

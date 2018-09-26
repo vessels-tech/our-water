@@ -1,4 +1,4 @@
-import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 
@@ -71,8 +71,10 @@ export default interface BaseApi {
   /**
    * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN,
    * and a unique for a series of readings
+   * 
+   * //TODO: refactor for SomeResult
    */
-  getReadingsForTimeseries(resourceId: string, timeseriesId: string, startDate: number, endDate: number): Promise<Reading[]>;
+  getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<Reading[]>;
 
   /**
    * Save a reading
