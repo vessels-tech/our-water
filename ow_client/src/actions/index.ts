@@ -2,7 +2,7 @@ import { Resource, Reading, OWUser, SaveReadingResult } from "../typings/models/
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -167,7 +167,32 @@ function getExternalLoginDetailsRequest(): GetExternalLoginDetailsActionRequest 
 function getExternalLoginDetailsResponse(result: SomeResult<LoginDetails | EmptyLoginDetails>): GetExternalLoginDetailsActionResponse {
   return {
     type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE,
-    result: result,
+    result,
+  }
+}
+
+
+/**
+ * Get pending readings callback
+ * 
+ * triggered by a firebase listener
+ */
+export function getPendingReadingsResponse(result: SomeResult<Reading[]>): GetPendingReadingsResponse {
+  return {
+    type: ActionType.GET_PENDING_READINGS_RESPONSE,
+    result,
+  }
+}
+
+/**
+ * Get pending readings callback
+ * 
+ * triggered by a firebase listener
+ */
+export function getPendingResourcesResponse(result: SomeResult<Resource[]>): GetPendingResourcesResponse {
+  return {
+    type: ActionType.GET_PENDING_RESOURCES_RESPONSE,
+    result,
   }
 }
 
@@ -342,7 +367,7 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(resource: Resource ): any {
+export function saveResource(api: BaseApi, userId: string, resource: Resource ): any {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
 

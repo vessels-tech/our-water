@@ -17,7 +17,7 @@ import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
 import { UserType } from '../typings/UserTypes';
-import { OWUser } from '../typings/models/OurWater';
+import { OWUser, Reading, Resource } from '../typings/models/OurWater';
 import { ResultType } from '../typings/AppProviderTypes';
 
 const loggerMiddleware = createLogger();
@@ -32,14 +32,24 @@ export async function registerScreens(config: ConfigFactory) {
   );
 
   /* Initial actions */
-  await store.dispatch(appActions.silentLogin(config.appApi))
+  await store.dispatch(appActions.silentLogin(config.appApi));
   await store.dispatch(appActions.getGeolocation());
   const user = store.getState().user;
   if (user.type === UserType.USER) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
+    
+    /* Subscribe to firebase updates */
     config.appApi.subscribeToUser(user.userId, (user: OWUser) => {
       console.log("got updated user!", user);
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
+    });
+
+    config.appApi.subscribeToPendingReadings(user.userId, (readings: Reading[]) => {
+      store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
+    });
+
+    config.appApi.subscribeToPendingResources(user.userId, (resources: Resource[]) => {
+      store.dispatch(appActions.getPendingResourcesResponse({ type: ResultType.SUCCESS, result: resources }))
     });
   }
 

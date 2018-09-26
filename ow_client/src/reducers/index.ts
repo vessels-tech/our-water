@@ -24,6 +24,7 @@ export type AppState = {
   resources: Resource[],
   resourcesMeta: ActionMeta,
 
+
   /* resourceId -> resource map, containing  */
   //TODO: think this through better
   readingsMap: Map<string, Resource>
@@ -79,6 +80,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
   }
 
   //TODO: non exhaustive match ts
+  //TODO: figure out the cases for figuring our sync status
   switch(action.type) {
     case ActionType.CONNECT_TO_EXTERNAL_SERVICE_REQUEST:
     case ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST:

@@ -22,13 +22,18 @@ import BaseApi from '../api/BaseApi';
 import { AppContext } from '../AppProvider';
 import { SyncStatus } from '../typings/enums';
 import { Reading, Resource } from '../typings/models/OurWater';
+import { connect } from 'react-redux'
+import * as appActions from '../actions/index';
+import { AppState } from '../reducers';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
+import { O_SYNC } from 'constants';
 
 
 export interface Props {
   onBannerPressed: any;
 
   //Injected from Context
-  syncStatus: SyncStatus,
+  externalLoginDetails: LoginDetails | EmptyLoginDetails,
   pendingSavedReadings: Reading[],
   pendingSavedResources: Resource[],
 }
@@ -39,147 +44,173 @@ export interface State {
 
 const bannerHeight = 25;
  
-  export class PendingChangesBanner extends Component<Props> {
+class PendingChangesBanner extends Component<Props> {
 
-    state: State = {
-      syncStatus: SyncStatus.none,
-    };
+  state: State = {
+    syncStatus: SyncStatus.none,
+  };
 
-    constructor(props: Props) {
-      super(props);
+  constructor(props: Props) {
+    super(props);
 
-    }
-
-    getFirebaseBanner() {
-      return (
-        <View
-          style={{
-            backgroundColor: bgMed,
-            width: '100%',
-            height: bannerHeight,
-          }}
-        >
-          <Text
-            style={{
-              color: textDark,
-              textAlign: 'center',
-            }}
-          >
-            {`Syncing changes...`}
-          </Text>
-        </View>
-      );
-    }
-
-    getGGMNPendingBanner() {
-      return (
-        <View
-          style={{
-            backgroundColor: warning1,
-            width: '100%',
-            height: bannerHeight,
-          }}
-        >
-          <Text
-            style={{
-              color: textDark,
-              textAlign: 'center',
-            }}
-          >
-            {`Login to GGMN to sync changes.`}
-          </Text>
-        </View>
-      );
-    }
-
-    getGGMNBanner() {
-      return (
-        <View
-          style={{
-            backgroundColor: bgMed,
-            width: '100%',
-            height: bannerHeight,
-          }}
-        >
-          <Text
-            style={{
-              color: textDark,
-              textAlign: 'center',
-            }}
-          >
-            {`Saving changes to GGMN...`}
-          </Text>
-        </View>
-      );
-    }
-
-    getGGMNErrorBanner() {
-      return (
-        <View
-          style={{
-            backgroundColor: error1,
-            width: '100%',
-            height: bannerHeight,
-          }}
-        >
-          <Text
-            style={{
-              color: textLight,
-              textAlign: 'center',
-              alignSelf: 'center',
-            }}
-          >
-            {`Error saving to GGMN. Click here for more info.`}
-          </Text>
-        </View>
-      );
-    }
-
-    render() {
-      const { syncStatus, pendingSavedReadings, pendingSavedResources } = this.props;
-
-      // let syncStatus
-      // if (pendingSavedReadings.length + pendingSavedResources.length > 0){
-        
-      // }
-
-      let innerView;
-
-      //I don't think we should worry about local vs remote firebase syncing
-      //This will be behind the scenes and not concern the user anyway
-      switch (syncStatus) {
-        case SyncStatus.none: {
-          return null;
-        }
-        // case SyncStatus.pendingFirebaseWrites: {
-        //   innerView = this.getFirebaseBanner();
-        //   break;
-        // }
-        case SyncStatus.pendingGGMNLogin: {
-          innerView = this.getGGMNPendingBanner();
-          break;
-        }
-        case SyncStatus.pendingGGMNWrites: {
-          innerView = this.getGGMNBanner();
-          break;
-        }
-        case SyncStatus.ggmnError: {
-          innerView = this.getGGMNErrorBanner();
-          break;
-        }
-      }
-
-      //TODO: update for redux implementation
-      return null;
-
-      return (
-        <TouchableNativeFeedback
-          onPress={() => { this.props.onBannerPressed(this.state.syncStatus) }}>
-          {innerView}
-        </TouchableNativeFeedback>
-      );
-    }
   }
 
+  getFirebaseBanner() {
+    return (
+      <View
+        style={{
+          backgroundColor: bgMed,
+          width: '100%',
+          height: bannerHeight,
+        }}
+      >
+        <Text
+          style={{
+            color: textDark,
+            textAlign: 'center',
+          }}
+        >
+          {`Syncing changes...`}
+        </Text>
+      </View>
+    );
+  }
 
-export default PendingChangesBanner;
+  getGGMNPendingBanner() {
+    return (
+      <View
+        style={{
+          backgroundColor: warning1,
+          width: '100%',
+          height: bannerHeight,
+        }}
+      >
+        <Text
+          style={{
+            color: textDark,
+            textAlign: 'center',
+          }}
+        >
+          {`Login to GGMN to sync changes.`}
+        </Text>
+      </View>
+    );
+  }
+
+  getGGMNBanner() {
+    return (
+      <View
+        style={{
+          backgroundColor: bgMed,
+          width: '100%',
+          height: bannerHeight,
+        }}
+      >
+        <Text
+          style={{
+            color: textDark,
+            textAlign: 'center',
+          }}
+        >
+          {`Saving changes to GGMN...`}
+        </Text>
+      </View>
+    );
+  }
+
+  getGGMNErrorBanner() {
+    return (
+      <View
+        style={{
+          backgroundColor: error1,
+          width: '100%',
+          height: bannerHeight,
+        }}
+      >
+        <Text
+          style={{
+            color: textLight,
+            textAlign: 'center',
+            alignSelf: 'center',
+          }}
+        >
+          {`Error saving to GGMN. Click here for more info.`}
+        </Text>
+      </View>
+    );
+  }
+
+  computeSyncStatus(): SyncStatus {
+    const { pendingSavedReadings, pendingSavedResources, externalLoginDetails } = this.props;
+
+    if (pendingSavedReadings.length === 0 && pendingSavedResources.length === 0) {
+      return SyncStatus.none;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+      return SyncStatus.ggmnError;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {
+      return SyncStatus.pendingGGMNLogin;
+    }
+
+    return SyncStatus.pendingGGMNWrites;
+  }
+
+  render() {
+    const { } = this.props;
+
+    const syncStatus = this.computeSyncStatus();
+
+    let innerView;
+
+    //I don't think we should worry about local vs remote firebase syncing
+    //This will be behind the scenes and not concern the user anyway
+    switch (syncStatus) {
+      case SyncStatus.none: {
+        return null;
+      }
+      case SyncStatus.pendingGGMNLogin: {
+        innerView = this.getGGMNPendingBanner();
+        break;
+      }
+      case SyncStatus.pendingGGMNWrites: {
+        innerView = this.getGGMNBanner();
+        break;
+      }
+      case SyncStatus.ggmnError: {
+        innerView = this.getGGMNErrorBanner();
+        break;
+      }
+    }
+
+    //TODO: update for redux implementation
+    return null;
+
+    return (
+      <TouchableNativeFeedback
+        onPress={() => { this.props.onBannerPressed(this.state.syncStatus) }}>
+        {innerView}
+      </TouchableNativeFeedback>
+    );
+  }
+}
+
+const mapStateToProps = (state: AppState) => {
+
+  return {
+    pendingSavedReadings: state.pendingSavedReadings,
+    pendingSavedResources: state.pendingSavedResources,
+    externalLoginDetails: state.externalLoginDetails,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(PendingChangesBanner);

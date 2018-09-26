@@ -96,13 +96,18 @@ export default interface BaseApi {
   /**
    * set up a listener for changes to any pending readings
    */
-  subscribeToPendingReadings(userId: string, callback: any): string;
+  subscribeToPendingReadings(userId: string, callback: (readings: Reading[]) => void): void;
 
   /**
    * unsubscribe from the pending reading listener
    */
   unsubscribeFromPendingReadings(subscriptionId: string): void;
 
+
+  /**
+   * Set up a listener for changes to pending resources
+   */
+  subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void;
 
   /**
    * get the pending readings for this user

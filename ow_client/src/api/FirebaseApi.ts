@@ -265,6 +265,8 @@ class FirebaseApi {
   /**
    * saveReadingPossiblyOffline
    * 
+   * Deprecated. Use SaveReadingPossiblyOfflineToUser instead
+   * 
    * saves a reading, Promise resolves when the reading appears in local cache, 
    * and not actually commited to the server
    */
@@ -345,6 +347,8 @@ class FirebaseApi {
 
   /**
    * Get the pending readings saved to the user's `pendingReadings` collection
+   * 
+   * TODO: update to just the user object, not the pendingReadings collection
    */
   static getPendingReadingsFromUser(orgId: string, userId: string): Promise<Reading[]> {
     return this.userDoc(orgId, userId).collection('pendingReadings').get()
@@ -365,6 +369,8 @@ class FirebaseApi {
   /**
    * Get the pending readings from firestore from the user's `pendingReadings`
    * for a given resourceId
+   *    * TODO: update to just the user object, not the pendingReadings collection
+
    */
   static getPendingReadingsForUserAndResourceId(orgId: string, userId: string, resourceId: string): Promise<Reading[]> {
     return this.userDoc(orgId, userId).collection('pendingReadings')
@@ -448,6 +454,10 @@ class FirebaseApi {
     );
   }
 
+  /**
+   * Listen to pending readings that will eventually be saved to firebase.
+   * Don't use for GGMN, use listenForPendingReadingsToUser instead
+   */
   static listenForPendingReadings(orgId: string, callback: any) {
     fs.collection('org').doc(orgId).collection('reading')
       .onSnapshot(
@@ -456,6 +466,7 @@ class FirebaseApi {
         },
         //optionsOrObserverOrOnNext
         (sn) => {
+          //TODO: map snapshot to readings
           callback(sn);
         },
         //onError
@@ -475,7 +486,28 @@ class FirebaseApi {
         },
         //optionsOrObserverOrOnNext
         (sn: any) => {
-          callback(sn);
+          const readings = this.snapshotToReadings(sn);
+          callback(readings);
+        },
+        //onError
+        (error: Error) => {
+          console.log("error", error);
+          return Promise.reject(error);
+        },
+        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
+    );
+  }
+
+  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: any): string {
+    return this.userDoc(orgId, userId).collection('pendingResources')
+    .onSnapshot(
+      {
+          includeMetadataChanges: true,
+        },
+        //optionsOrObserverOrOnNext
+        (sn: any) => {
+          const resources = this.snapshotToResources(sn);
+          callback(resources);
         },
         //onError
         (error: Error) => {
@@ -493,7 +525,6 @@ class FirebaseApi {
     return this.userDoc(orgId, userId).onSnapshot(options, (sn: any) => {
 
       const user: OWUser = this.snapshotToUser(sn);
-      console.log("user is", user);
       return cb(user);
     });
   }
@@ -575,8 +606,6 @@ class FirebaseApi {
   static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
     return this.userDoc(orgId, userId).get()
     .then((sn: any) => {
-      //TODO: transform and map here
-
       return {
         type: ResultType.SUCCESS,
         result: this.snapshotToUser(sn),
@@ -601,7 +630,6 @@ class FirebaseApi {
   static snapshotToUser(sn: any): OWUser {
     const data = sn.data();
 
-
     let favouriteResources: Resource[] = [];
     const favouriteResourcesDict = data.favouriteResources;
     if (favouriteResourcesDict) {
@@ -621,6 +649,37 @@ class FirebaseApi {
     }
   }
 
+  /**
+   * Map a snapshot from pendingReadings to a readings array
+   */
+  static snapshotToReadings(sn: any): Reading[] {
+    const readings: Reading[] = [];
+    sn.forEach((doc: any) => {
+      //Get each document, put in the id
+      const data = doc.data();
+      //@ts-ignore
+      data.id = doc.id;
+      readings.push(data);
+    });
+
+    return readings;
+  }
+
+  /**
+   * Map a snapshot from pendingResources to a Resource array
+   */
+  static snapshotToResources(sn: any): Resource[] {
+    const resources: Resource[] = [];
+    sn.forEach((doc: any) => {
+      //Get each document, put in the id
+      const data = doc.data();
+      //@ts-ignore
+      data.id = doc.id;
+      resources.push(data);
+    });
+
+    return resources;
+  }
 }
 
 export default FirebaseApi;

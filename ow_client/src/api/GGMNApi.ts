@@ -597,6 +597,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
+
   firebasePendingReadingsCallback(sn: Snapshot) {
     if (sn.metadata.hasPendingWrites) {
       // this.apiState.bannerState = BannerState.pendingFirebaseWrites;

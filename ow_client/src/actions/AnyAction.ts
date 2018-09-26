@@ -19,7 +19,11 @@ export type AnyAction =
   GetExternalLoginDetailsActionRequest |
   GetExternalLoginDetailsActionResponse |
   GetLocationActionRequest |
-  GetLocationActionResponse |
+  GetLocationActionResponse | 
+  GetPendingReadingsRequest |
+  GetPendingReadingsResponse |
+  GetPendingResourcesRequest |
+  GetPendingResourcesResponse |
   GetReadingsActionRequest |
   GetReadingsActionResponse |
   GetResourcesActionRequest |
@@ -39,7 +43,6 @@ export type AnyAction =
 
 
 /* Step 2: create a new type for the request and response actions */
-//TODO: where do we get the orgId and userId from?
 export type AddFavouriteActionRequest = { type: ActionType.ADD_FAVOURITE_REQUEST, resource: Resource };
 export type AddFavouriteActionResponse = { type: ActionType.ADD_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type AddRecentActionRequest = { type: ActionType.ADD_RECENT_REQUEST, resource: Resource };
@@ -52,6 +55,10 @@ export type GetExternalLoginDetailsActionRequest = { type: ActionType.GET_EXTERN
 export type GetExternalLoginDetailsActionResponse = { type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE, result: SomeResult<LoginDetails | EmptyLoginDetails> };
 export type GetLocationActionRequest = { type: ActionType.GET_LOCATION_REQUEST };
 export type GetLocationActionResponse = { type: ActionType.GET_LOCATION_RESPONSE, result: SomeResult<Location> };
+export type GetPendingReadingsRequest = { type: ActionType.GET_PENDING_READINGS_REQUEST};
+export type GetPendingReadingsResponse = { type: ActionType.GET_PENDING_READINGS_RESPONSE, result: SomeResult<Reading[]>};
+export type GetPendingResourcesRequest = { type: ActionType.GET_PENDING_RESOURCES_REQUEST};
+export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURCES_RESPONSE, result: SomeResult<Resource[]>};
 export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST };
 export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]> };
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
