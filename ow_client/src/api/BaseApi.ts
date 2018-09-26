@@ -123,8 +123,7 @@ export default interface BaseApi {
    * Get the resources within a region.
    * May not necessarily return all resources if the region is too large
    */
-  getResourcesWithinRegion(region: Region): Promise<Array<Resource>>;
-
+  getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>>;
 
   /**
    * Get a resource for an id.

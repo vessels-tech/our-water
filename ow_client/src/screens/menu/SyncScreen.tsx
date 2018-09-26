@@ -2,15 +2,16 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from "../../config/ConfigFactory";
 import ExternalServiceApi from "../../api/ExternalServiceApi";
-import { TouchableHighlight, View } from 'react-native';
+import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'react-native';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from '../../typings/api/ExternalServiceApi';
 import { Reading, Resource } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
-import { Text, Button } from 'react-native-elements';
-
+import { Text, Button, ListItem, Icon } from 'react-native-elements';
+import { getGroundwaterAvatar } from '../../utils';
+import { error1 } from '../../utils/Colors';
 
 
 export interface Props {
@@ -63,24 +64,90 @@ class SyncScreen extends Component<Props> {
           minHeight: 50,
         }}
         loading={syncing}
-        title={syncing ? 'Syncing with GGMN' : 'Submit'}
+        title={syncing ? 'Syncing with GGMN' : 'Start Sync'}
         onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
       />
     )
   }
 
+  resourceListItem(r: Resource, i: number) {
+    return (
+      <ListItem
+        containerStyle={{
+          paddingLeft: 10,
+        }}
+        hideChevron
+        key={i}
+        onPress={() => {console.log("pressed resource")}}
+        roundAvatar
+        title={r.id}
+        avatar={getGroundwaterAvatar()}
+        subtitle={r.owner.name}/>
+    );
+  }
+
+  readingListItem(r: Reading, i: number) {
+    return (
+      <ListItem
+        containerStyle={{
+          paddingLeft: 10,
+        }}
+        // hideChevron
+        key={i}
+        onPress={() => { console.log("pressed resource") }}
+        roundAvatar
+        rightIcon={ 
+          <TouchableNativeFeedback
+            onPress={() => console.log('delete this resource')}
+          >
+            <Icon
+              name='close'
+              color={error1}
+            />
+          </TouchableNativeFeedback>
+        }
+        title={r.resourceId}
+        avatar={getGroundwaterAvatar()}
+        subtitle={r.date} />
+    );
+  }
+
+  getPendingItems() {
+    const { pendingSavedReadings, pendingSavedResources } = this.props;
+
+    return (
+      <ScrollView
+        // contentContainerStyle={{ flexGrow: 1 }}
+        // style={{
+        //   flex:6,
+        // }}
+      >
+        <Text>GroundwaterStations:</Text>
+        {pendingSavedResources.map(this.resourceListItem)}
+        <Text>Readings:</Text>
+        {pendingSavedReadings.map(this.readingListItem)}
+      </ScrollView>
+    );
+  }
+
   render() {
     return (
-      <View>
-        {this.getSyncSection()}
-
+      <View style={{
+        flexDirection: 'column',
+        // height: '100%',
+      }}>
+        {/* <View style={{
+          flex: 1,
+        }}> */}
+          {this.getSyncSection()}
+        {/* </View> */}
+        {this.getPendingItems()}
       </View>
     );
   }
 }
 
 const mapStateToProps = (state: AppState) => {
-
   return {
     externalLoginDetails: state.externalLoginDetails,
     pendingSavedReadings: state.pendingSavedReadings,

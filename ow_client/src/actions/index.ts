@@ -12,6 +12,8 @@ import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
+import { MapRegion } from "../components/MapSection";
+import { Region } from "react-native-maps";
 
 
 /* Step 4: Add the actions handlers here */
@@ -256,16 +258,12 @@ export function getReadingsResponse(result: SomeResult<Reading[]> ): GetReadings
 /**
  * Async get resources near user
  */
-export function getResources(): any {
+export function getResources(api: BaseApi, userId: string, region: Region): any {
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
-    //TODO: call the api
 
-    let result: SomeResult<Resource[]> = {
-      type: ResultType.SUCCESS,
-      result: []
-    }
-
+    //TODO: merge in with a cache somehow?
+    const result = await api.getResourcesWithinRegion(region);
     dispatch(getResourcesResponse(result));
   }
 }

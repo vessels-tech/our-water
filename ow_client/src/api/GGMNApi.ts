@@ -318,7 +318,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
   }
   
-  async getResourcesWithinRegion(region: Region): Promise<Resource[]> {
+  async getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>> {
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
@@ -342,9 +342,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     return ftch(url, options)
       .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
-      .then((response: GGMNGroundwaterStationResponse) => {
-        return response.results.map(from => GGMNApi.ggmnStationToResource(from));
-      });
+      .then((response: GGMNGroundwaterStationResponse) => {console.log('response', response); return response})
+      .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
+      .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
   }
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
@@ -603,7 +603,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
   subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void {
-    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+    FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
   }
 
 

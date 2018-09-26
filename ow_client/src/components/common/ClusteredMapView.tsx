@@ -94,18 +94,21 @@ class ClusteredMapView extends Component<Props> {
   }
 
   onRegionChangeComplete = (region: any) => {
-    return this.props.onRegionChangeComplete(region)
-    .then(() => {
-      const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
-      if (region.longitudeDelta <= 80) {
-        if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
-          || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
-          || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
-          this.calculateClustersForMap(region);
-        }
-      }
-    });
+    return this.props.onRegionChangeComplete(region);
+
+    //TODO: clusters should only be changed on a props change
+    // .then(() => {
+    //   const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
+    //   if (region.longitudeDelta <= 80) {
+    //     if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
+    //       || (Math.abs(region.longitude - longitude) >= longitudeDelta / 5)
+    //       || (Math.abs(region.latitude - latitude) >= latitudeDelta / 5)) {
+    //       this.calculateClustersForMap(region);
+    //     }
+    //   }
+    // });
   }
+
 
   createMarkersOnMap = () => {
     const markers: any[] = [];
@@ -212,6 +215,8 @@ class ClusteredMapView extends Component<Props> {
   };
 
   render() {
+    // console.log("ClusteredMapView.render()", this.props.children);
+
     return (
       <MapView
         {...this.removeChildrenFromProps(this.props)}
@@ -222,8 +227,11 @@ class ClusteredMapView extends Component<Props> {
         initialRegion={this.state.currentRegion}
         onRegionChangeComplete={this.onRegionChangeComplete}
       >
-        {this.state.clusteredMarkers}
-        {this.state.otherChildren}
+        {/* {this.state.clusteredMarkers} */}
+        {/* {this.state.otherChildren} */}
+
+        {/* TODO: this just renders the children straight away, without clustering. Eventually change back to clustering*/}
+        {this.props.children}
       </MapView>
     );
   }

@@ -234,7 +234,7 @@ export default class MapSection extends Component<Props> {
             height: mapHeight,
           }}
           radius={25}
-          clustering={true}
+          clustering={false}
           clusterColor={primaryDark}
           clusterTextColor={textLight}
           clusterBorderColor={textLight}

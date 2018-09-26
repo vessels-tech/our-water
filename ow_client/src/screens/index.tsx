@@ -19,6 +19,7 @@ import { createLogger } from 'redux-logger';
 import { UserType } from '../typings/UserTypes';
 import { OWUser, Reading, Resource } from '../typings/models/OurWater';
 import { ResultType } from '../typings/AppProviderTypes';
+import SyncScreen from './menu/SyncScreen';
 
 const loggerMiddleware = createLogger();
 
@@ -63,5 +64,6 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
+  Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
 }

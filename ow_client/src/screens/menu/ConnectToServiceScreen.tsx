@@ -228,74 +228,44 @@ class ConnectToServiceScreen extends Component<Props> {
 
     const isConnected = externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS;  
     return (
-      // <KeyboardAvoidingView
-      //   style={{ flex: 1 }}
-      //   // behavior="padding"
-      //   keyboardVerticalOffset={-500}
-      // >
-        <ScrollView
-          style={{
-            flexDirection: 'column',
-            // height: '100%',
-          }}
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps={'always'}
-        >
-          {/* Logo */}
-          <View style={{
-            width: '100%',
-            flex: 5,
-            backgroundColor: primaryDark,
-            justifyContent: 'center',
-          }}>
-            {this.getLogo()}
-          </View>
+      <ScrollView
+        style={{
+          flexDirection: 'column',
+          // height: '100%',
+        }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps={'always'}
+      >
+        {/* Logo */}
+        <View style={{
+          width: '100%',
+          flex: 5,
+          backgroundColor: primaryDark,
+          justifyContent: 'center',
+        }}>
+          {this.getLogo()}
+        </View>
 
-          {/* Text */}
-          <View style={{
-            flex: 2
-          }}>
-            <Text style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-            }}>{this.props.config.getConnectToButtonDescription()}</Text>
-            {this.getErrorMessage()}
-            {this.getConnectedSection()}
-          </View>
-        
-          {/* Form  */}
-          <View style={{flex: 5}}>
-            {isConnected ? null : this.getForm()}
-          </View>
-        </ScrollView>
-      // </KeyboardAvoidingView>
+        {/* Text */}
+        <View style={{
+          flex: 2
+        }}>
+          <Text style={{
+            paddingHorizontal: 20,
+            paddingTop: 10,
+          }}>{this.props.config.getConnectToButtonDescription()}</Text>
+          {this.getErrorMessage()}
+          {this.getConnectedSection()}
+        </View>
+      
+        {/* Form  */}
+        <View style={{flex: 5}}>
+          {isConnected ? null : this.getForm()}
+        </View>
+      </ScrollView>
     );
   }
 }
-
-// const ConnectToServiceScreenWithContext = (props: any) => {
-//   return (
-//     <AppContext.Consumer>
-//       {({
-//         externalLoginDetails,
-//         externalLoginDetailsMeta,
-//         action_connectToExternalService,
-//         action_disconnectFromExternalService,
-//       }) => (
-//           <ConnectToServiceScreen
-//             externalLoginDetails={externalLoginDetails}
-//             externalLoginDetailsMeta={externalLoginDetailsMeta}
-//             connectToExternalService={action_connectToExternalService}
-//             disconnectFromExternalService={action_disconnectFromExternalService}
-//             {...props}
-//           />
-//         )}
-//     </AppContext.Consumer>
-//   );
-// };
-
-// export default ConnectToServiceScreenWithContext;
-
 
 const mapStateToProps = (state: AppState) => {
 

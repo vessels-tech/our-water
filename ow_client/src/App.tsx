@@ -60,7 +60,7 @@ export interface Props {
   resources: Resource[],
   resourcesMeta: SyncMeta,
   getGeolocation: any,
-
+  loadResourcesForRegion: any,
 
   //TODO: update
   appApi: BaseApi, 
@@ -139,7 +139,8 @@ class App extends Component<Props> {
      * Load new resources based on where they are looking
      */
     onMapRegionChange(region: Region) {
-      return this.reloadResourcesIfNeeded(region)
+      console.log("app onMapRegionChange called");
+      return this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
     }
 
     onBannerPressed(bannerState: SyncStatus) {
@@ -276,7 +277,6 @@ class App extends Component<Props> {
       );
     }
 
-
     getResourceView() {
       const {hasSelectedResource, selectedResource } = this.state;
       const {userId} = this.props;
@@ -395,8 +395,10 @@ const mapDispatchToProps = (dispatch: any) => {
     addRecent: (api: BaseApi, userId: string, resource: Resource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
+    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => {
+      dispatch(appActions.getResources(api, userId, region))
+    },
   }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

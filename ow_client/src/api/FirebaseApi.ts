@@ -588,8 +588,6 @@ class FirebaseApi {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentSearches})
   }
 
-
-
   private static userDoc(orgId: string, userId: string): any {
     return fs.collection('org').doc(orgId).collection('user').doc(userId)
   } 

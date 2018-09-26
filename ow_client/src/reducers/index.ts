@@ -139,12 +139,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { locationMeta, location });
     }
     case ActionType.GET_PENDING_READINGS_RESPONSE: {
-      let pendingReadings = state.pendingSavedReadings;
+      let pendingSavedReadings = state.pendingSavedReadings;
       if (action.result.type !== ResultType.ERROR) {
-        pendingReadings = action.result.result;
+        pendingSavedReadings = action.result.result;
       }
 
-      return Object.assign({}, state, { pendingReadings });
+      return Object.assign({}, state, { pendingSavedReadings });
     }
     case ActionType.GET_PENDING_RESOURCES_RESPONSE: {
       let pendingSavedResources = state.pendingSavedResources;
@@ -154,48 +154,50 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       return Object.assign({}, state, { pendingSavedResources });
     }
+    case ActionType.GET_RESOURCES_REQUEST: {
+      const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};
+
+      return Object.assign({}, state, { resourcesMeta });
+    }
+    case ActionType.GET_RESOURCES_RESPONSE: {
+      let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+      let resources = state.resources;
+
+      if (action.result.type === ResultType.ERROR) {
+        resourcesMeta = {loading: false, error: true, errorMessage: action.result.message}
+        return Object.assign({}, state, { resourcesMeta, resources});
+      }
+
+      resources = action.result.result;
+      return Object.assign({}, state, { resourcesMeta, resources });
+    }
     case ActionType.GET_USER_REQUEST: {
       const favouriteResourcesMeta: ActionMeta = {loading: true, error: false, errorMessage: ''};
       const recentResourcesMeta: ActionMeta = {loading: true, error: false, errorMessage: ''};
-      const pendingSavedReadingsMeta: SyncMeta = {loading: true};
-      const pendingSavedResourcesMeta: SyncMeta = {loading: true};
 
       return Object.assign({}, state, {
         favouriteResourcesMeta,
         recentResourcesMeta,
-        pendingSavedReadingsMeta,
-        pendingSavedResourcesMeta,
       });
     }
     case ActionType.GET_USER_RESPONSE: {
       const favouriteResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       const recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-      const pendingSavedReadingsMeta: SyncMeta = { loading: false };
-      const pendingSavedResourcesMeta: SyncMeta = { loading: false };
 
       let favouriteResources = state.favouriteResources;
       let recentResources = state.recentResources;
-      let pendingSavedReadings = state.pendingSavedReadings;
-      let pendingSavedResources = state.pendingSavedResources;
       
       if (action.result.type !== ResultType.ERROR) {
-        console.log("")
         favouriteResources = action.result.result.favouriteResources;
         recentResources = action.result.result.recentResources;
-        pendingSavedReadings = action.result.result.pendingSavedReadings;
-        pendingSavedResources = action.result.result.pendingSavedResources;
       }
       
       //TODO: error handling?
       return Object.assign({}, state, {
         favouriteResources,
         recentResources,
-        pendingSavedReadings,
-        pendingSavedResources,
         favouriteResourcesMeta,
         recentResourcesMeta,
-        pendingSavedReadingsMeta,
-        pendingSavedResourcesMeta,
       });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
@@ -246,28 +248,37 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       //TODO: how to handle errors nicely in here?
       const result = action.result;
-      let recentResources: Resource[] = []; //TODO: should this default to the last one?
-      if (result.type === ResultType.ERROR) {
-        recentResourcesMeta = {
-          loading: true,
-          error: true,
-          errorMessage: result.message,
-        }
-      } else {
-        recentResources = result.result;
-      }
+      // let recentResources: Resource[] = []; //TODO: should this default to the last one?
+      // if (result.type === ResultType.ERROR) {
+      //   recentResourcesMeta = {
+      //     loading: true,
+      //     error: true,
+      //     errorMessage: result.message,
+      //   }
+      // } else {
+      //   recentResources = result.result;
+      // }
 
-      console.log("AddRecentResponse, resources", recentResources);
+      // console.log("AddRecentResponse, resources", recentResources);
       
-      return Object.assign({}, state, { recentResourcesMeta, recentResources })
+      return Object.assign({}, state, { recentResourcesMeta })
     }
 
-    case ActionType.TOGGLE_CONNECTION: {
-      console.log("Toggling the connection in reducer!", action);
 
-      return Object.assign({}, state, {isConnected: action.isConnected});
+    case ActionType.START_EXTERNAL_SYNC_REQUEST: {
+      const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.RUNNING };
+
+      //TODO: handle login error case here?
+      return Object.assign({}, state, { externalSyncStatus })
     }
 
+    case ActionType.START_EXTERNAL_SYNC_RESPONSE: {
+      const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.NOT_RUNNING };
+
+      //TODO: handle login error case here?
+      return Object.assign({}, state, { externalSyncStatus })
+
+    }
 
     default: 
       return state;
