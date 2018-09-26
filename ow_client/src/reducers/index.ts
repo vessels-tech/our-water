@@ -2,7 +2,7 @@
 import { Resource, Reading } from "../typings/models/OurWater";
 import { ActionMeta, SyncMeta } from "../AppProvider";
 import { SyncStatus } from "../typings/enums";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
 import { MaybeUser, UserType } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
@@ -23,6 +23,7 @@ export type AppState = {
   //Api
   resources: Resource[],
   resourcesMeta: ActionMeta,
+  externalSyncStatus: ExternalSyncStatus,
 
 
   /* resourceId -> resource map, containing  */
@@ -59,6 +60,8 @@ const initialState: AppState = {
   //Api
   resources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
+  externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
+
 
   //Firebase
   user: {type: UserType.NO_USER}, 

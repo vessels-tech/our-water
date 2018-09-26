@@ -2,9 +2,9 @@ import { Resource, Reading, OWUser, SaveReadingResult } from "../typings/models/
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { getLocation } from "../utils";
 import { Firebase } from "react-native-firebase";
@@ -173,30 +173,6 @@ function getExternalLoginDetailsResponse(result: SomeResult<LoginDetails | Empty
 
 
 /**
- * Get pending readings callback
- * 
- * triggered by a firebase listener
- */
-export function getPendingReadingsResponse(result: SomeResult<Reading[]>): GetPendingReadingsResponse {
-  return {
-    type: ActionType.GET_PENDING_READINGS_RESPONSE,
-    result,
-  }
-}
-
-/**
- * Get pending readings callback
- * 
- * triggered by a firebase listener
- */
-export function getPendingResourcesResponse(result: SomeResult<Resource[]>): GetPendingResourcesResponse {
-  return {
-    type: ActionType.GET_PENDING_RESOURCES_RESPONSE,
-    result,
-  }
-}
-
-/**
  * Async get user's location
  */
 export function getGeolocation(): (dispatch: any) => Promise<SomeResult<Location>> {
@@ -220,6 +196,30 @@ function getGeoLocationResponse(result: SomeResult<Location>): GetLocationAction
   return {
     type: ActionType.GET_LOCATION_RESPONSE,
     result
+  }
+}
+
+/**
+ * Get pending readings callback
+ * 
+ * triggered by a firebase listener
+ */
+export function getPendingReadingsResponse(result: SomeResult<Reading[]>): GetPendingReadingsResponse {
+  return {
+    type: ActionType.GET_PENDING_READINGS_RESPONSE,
+    result,
+  }
+}
+
+/**
+ * Get pending readings callback
+ * 
+ * triggered by a firebase listener
+ */
+export function getPendingResourcesResponse(result: SomeResult<Resource[]>): GetPendingResourcesResponse {
+  return {
+    type: ActionType.GET_PENDING_RESOURCES_RESPONSE,
+    result,
   }
 }
 
@@ -417,5 +417,38 @@ function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActio
   return {
     type: ActionType.SILENT_LOGIN_RESPONSE,
     userIdResult,
+  }
+}
+
+/**
+ * trigger an external sync
+ */
+export function startExternalSync(api: ExternalServiceApi, userId: string): (dispatch: any) => void {
+  return async function(dispatch: any) {
+    dispatch(externalSyncRequest());
+    //TODO: call the api!
+    // api.sync;
+
+    const result: SomeResult<ExternalSyncStatus> = {
+      type: ResultType.SUCCESS,
+      result: {
+        type: ExternalSyncStatusType.NOT_RUNNING,
+      }
+    }
+
+    dispatch(externalSyncResponse(result));
+  }
+}
+
+function externalSyncRequest(): StartExternalSyncActionRequest {
+  return {
+    type: ActionType.START_EXTERNAL_SYNC_REQUEST
+  }
+}
+
+function externalSyncResponse(result: SomeResult<ExternalSyncStatus>): StartExternalSyncActionResponse {
+  return {
+    type: ActionType.START_EXTERNAL_SYNC_RESPONSE,
+    result,
   }
 }

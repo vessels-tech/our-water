@@ -34,7 +34,7 @@ import { ConfigFactory } from './config/ConfigFactory';
 import { Resource, BasicCoords } from './typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from './components/MapSection';
-import PendingChangesBannerWithContext from './components/PendingChangesBanner';
+import PendingChangesBanner from './components/PendingChangesBanner';
 import  { AppContext, ActionMeta, SyncMeta } from './AppProvider';
 import { SyncStatus } from './typings/enums';
 
@@ -362,7 +362,7 @@ class App extends Component<Props> {
             {this.getResourceView()}
             {this.getFavouritesList()}
           </ScrollView>
-          <PendingChangesBannerWithContext
+          <PendingChangesBanner
             onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
           />
           {/* Not sure how to fix this... */}

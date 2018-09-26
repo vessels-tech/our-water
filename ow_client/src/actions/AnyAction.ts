@@ -2,9 +2,10 @@ import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { Resource, Reading, OWUser, SaveReadingResult } from "../typings/models/OurWater";
 import { removeFavourite } from ".";
-import { EmptyLoginDetails, LoginDetails } from "../typings/api/ExternalServiceApi";
+import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
+import { Action } from "redux";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -37,7 +38,9 @@ export type AnyAction =
   SaveResourceActionRequest |
   SaveResourceActionResponse |
   SilentLoginActionRequest |
-  SilentLoginActionResponse
+  SilentLoginActionResponse |
+  StartExternalSyncActionRequest |
+  StartExternalSyncActionResponse 
   ;
 
 
@@ -73,3 +76,5 @@ export type SaveResourceActionRequest = { type: ActionType.SAVE_RESOURCE_REQUEST
 export type SaveResourceActionResponse = { type: ActionType.SAVE_RESOURCE_RESPONSE, result: SomeResult<void> };
 export type SilentLoginActionRequest = { type: ActionType.SILENT_LOGIN_REQUEST };
 export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE, userIdResult: SomeResult<string> };
+export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST}
+export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatus>}

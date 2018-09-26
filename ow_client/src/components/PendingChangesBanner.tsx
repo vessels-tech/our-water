@@ -39,20 +39,15 @@ export interface Props {
 }
 
 export interface State {
-  syncStatus: SyncStatus,
+
 }
 
 const bannerHeight = 25;
  
 class PendingChangesBanner extends Component<Props> {
 
-  state: State = {
-    syncStatus: SyncStatus.none,
-  };
-
   constructor(props: Props) {
     super(props);
-
   }
 
   getFirebaseBanner() {
@@ -185,12 +180,9 @@ class PendingChangesBanner extends Component<Props> {
       }
     }
 
-    //TODO: update for redux implementation
-    return null;
-
     return (
       <TouchableNativeFeedback
-        onPress={() => { this.props.onBannerPressed(this.state.syncStatus) }}>
+        onPress={() => { this.props.onBannerPressed(syncStatus) }}>
         {innerView}
       </TouchableNativeFeedback>
     );

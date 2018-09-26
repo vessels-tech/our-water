@@ -112,6 +112,37 @@ class SettingsScreen extends React.Component<Props> {
     );
   }
 
+  getSyncButton() {
+
+    let leftIcon: any = {
+      name: 'sync',
+      color: textDark,
+    };
+
+    return (
+      <ListItem
+        title={'GGMN Sync'}
+        onPress={() => showModal(
+          this.props,
+          'screen.menu.SyncScreen',
+          'GGMN Sync',
+          {
+            config: this.props.config,
+            //TODO: how to get the userId in here???
+            userId: this.props.userId,
+          }
+        )}
+        disabled={false}
+        leftIcon={leftIcon}
+        hideChevron
+        // subtitle={''}
+        subtitleStyle={{
+          color: error1,
+        }}
+      />
+    );
+  }
+
   render() {
     return (
       <KeyboardAvoidingView style={{
@@ -135,6 +166,7 @@ class SettingsScreen extends React.Component<Props> {
           }}/>
         </View>
         {this.getConnectToButton()}
+        {this.getSyncButton()}
         <ListItem
           title={this.props.config.getRegisterResourceButtonText()}
           onPress={() =>

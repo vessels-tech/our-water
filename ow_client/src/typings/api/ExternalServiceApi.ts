@@ -32,3 +32,14 @@ export enum ConnectionStatus {
   SIGN_IN_ERROR = 'SIGN_IN_ERROR',   //we have credentials, but the login is invalid
   SIGN_IN_SUCCESS = 'SIGN_IN_SUCCESS', //we have credentials, and the login is valid
 }
+
+
+export enum ExternalSyncStatusType {
+  NOT_RUNNING = 'NOT_RUNNING',
+  RUNNING = 'RUNNING',
+  FAILED = 'FAILED',
+}
+
+export interface ExternalSyncStatus {
+  type: ExternalSyncStatusType
+}
