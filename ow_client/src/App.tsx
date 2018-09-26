@@ -309,7 +309,7 @@ class App extends Component<Props> {
           onAddToFavourites={() => console.log('onAddToFavourites')}
           onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
           onAddReadingPressed={(resource: Resource) => {
-            navigateTo(this.props, 'screen.menu.NewReadingScreen', 'New Reading', {
+            navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
               resource, 
               config: this.props.config,
               userId: this.props.userId

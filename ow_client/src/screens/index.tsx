@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Navigation } from 'react-native-navigation';
 
-import NewReadingScreen from './menu/NewReadingScreen';
+import NewReadingScreen from './NewReadingScreen';
 import SettingsScreen from './SettingsScreen';
-import EditResourceScreen from './EditResourceScreen';
+import EditResourceScreen from './menu/EditResourceScreen';
 import SearchScreenWithContext from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -61,9 +61,9 @@ export async function registerScreens(config: ConfigFactory) {
 
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
-  Navigation.registerComponent('screen.EditResourceScreen', () => EditResourceScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
+  Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
-  Navigation.registerComponent('screen.menu.NewReadingScreen', () => NewReadingScreen, store, Provider);
+  Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
 }

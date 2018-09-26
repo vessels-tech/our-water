@@ -22,6 +22,14 @@ export type Resource = {
   lastReadingDatetime: Date;
 }
 
+/**
+ * Pending resource models a resource which hasn't been saved
+ * externally yet
+ */
+export type PendingResource = {
+
+}
+
 export type OWGeoPoint = {
   _latitude: number,
   _longitude: number,

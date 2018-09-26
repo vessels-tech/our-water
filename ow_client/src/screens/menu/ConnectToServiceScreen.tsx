@@ -18,6 +18,7 @@ import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
+import { TextInput } from '../../components/common/FormComponents';
 
 
 export interface Props {
@@ -36,19 +37,6 @@ export interface State {
    username: string,
    password: string,
  }
-
-export type TextInputParams = {
-  handler: any, 
-  touched: boolean,
-  hasError: boolean,
-  meta: any,
-}
-
-const TextInput = ({meta, handler}: any) => (
-  <View>
-    <FormInput autoCapitalize={'none'} secureTextEntry={meta.secureTextEntry} placeholder={`${meta.label}`}{...handler()}/>
-  </View>
-)
 
 /**
  * ConnectToServiceScreen is a page allowing users to connect to external services
@@ -102,7 +90,6 @@ class ConnectToServiceScreen extends Component<Props> {
   handleSubmit = async () => {
     Keyboard.dismiss();
 
-    //Trying a more 'rusty' way of handling errors
     const result: SomeResult<null> = await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password);
 
     this.setState({

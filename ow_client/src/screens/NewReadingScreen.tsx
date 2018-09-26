@@ -23,7 +23,7 @@ import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater
 import { validateReading } from '../api/ValidationApi';
 import { AppContext, SyncMeta } from '../AppProvider';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
-import * as appActions from '../actions/index';
+import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 
