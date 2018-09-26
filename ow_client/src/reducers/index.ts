@@ -8,7 +8,9 @@ import { MaybeUser, UserType } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
+import { isNullOrUndefined } from "util";
 
+const RESOURCE_CACHE_MAX_SIZE = 1000;
 
 export type AppState = {
   //Session based
@@ -23,6 +25,8 @@ export type AppState = {
   //Api
   resources: Resource[],
   resourcesMeta: ActionMeta,
+  //Store all past resources we have seen here
+  resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
 
 
@@ -60,6 +64,7 @@ const initialState: AppState = {
   //Api
   resources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
+  resourcesCache: new Map<string, Resource>(), 
   externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
 
 
@@ -161,15 +166,43 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.GET_RESOURCES_RESPONSE: {
       let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-      let resources = state.resources;
+      let resources: Resource[] = state.resources;
+      let resourcesCache = state.resourcesCache;
+      let pendingSavedResources = state.pendingSavedResources;
 
       if (action.result.type === ResultType.ERROR) {
         resourcesMeta = {loading: false, error: true, errorMessage: action.result.message}
         return Object.assign({}, state, { resourcesMeta, resources});
       }
 
-      resources = action.result.result;
-      return Object.assign({}, state, { resourcesMeta, resources });
+      //Remove things from the cache - this targets items with low ids...
+      //TODO: ideally expire them properly, but this will work for now.
+      const over = resourcesCache.size - RESOURCE_CACHE_MAX_SIZE;
+      if (over > 0) {
+        // console.log(`Removing ${over} items from cache`);
+        const range = Array(over).fill(1).map((x, y) => x + y);
+        const keys = [...resourcesCache.keys()];
+        range.forEach(idx => {
+          const key = keys[idx];
+          if (resourcesCache.has(key)) {
+            resourcesCache.delete(key);
+          }
+        });
+      }
+
+      resources = [];
+      const newResources = action.result.result;
+      newResources.forEach(r => resourcesCache.set(r.id, r));
+      pendingSavedResources.forEach(r => resourcesCache.set(r.id, r));
+      [...resourcesCache.keys()].forEach(k => {
+        const value = resourcesCache.get(k);
+        if (value) {
+          resources.push(value)
+        }
+      });
+
+      // console.log("resources count is:", resources.length);
+      return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
     }
     case ActionType.GET_USER_REQUEST: {
       const favouriteResourcesMeta: ActionMeta = {loading: true, error: false, errorMessage: ''};
