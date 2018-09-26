@@ -598,6 +598,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
 
+  subscribeToPendingReadings(userId: string, callback: (resources: Reading[]) => void): void {
+    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  }
+
+  subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void {
+    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  }
+
+
   firebasePendingReadingsCallback(sn: Snapshot) {
     if (sn.metadata.hasPendingWrites) {
       // this.apiState.bannerState = BannerState.pendingFirebaseWrites;
@@ -664,13 +673,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
   }
 
-  //
-  // Callbacks
-  //----------------------------------------------------------------------
-  setSyncStatusChangedCallback(cb: any): void {
-    console.log("Setting callback!", cb);
-    this.syncStatusCallback = cb;
-  }
 
   //
   // UserApi

@@ -27,7 +27,7 @@ export type AppState = {
 
   /* resourceId -> resource map, containing  */
   //TODO: think this through better
-  readingsMap: Map<string, Resource>
+  // readingsMap: Map<string, Resource>
   
   //Firebase
   user: MaybeUser,
@@ -134,6 +134,22 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       return Object.assign({}, state, { locationMeta, location });
+    }
+    case ActionType.GET_PENDING_READINGS_RESPONSE: {
+      let pendingReadings = state.pendingSavedReadings;
+      if (action.result.type !== ResultType.ERROR) {
+        pendingReadings = action.result.result;
+      }
+
+      return Object.assign({}, state, { pendingReadings });
+    }
+    case ActionType.GET_PENDING_RESOURCES_RESPONSE: {
+      let pendingSavedResources = state.pendingSavedResources;
+      if (action.result.type !== ResultType.ERROR) {
+        pendingSavedResources = action.result.result;
+      }
+
+      return Object.assign({}, state, { pendingSavedResources });
     }
     case ActionType.GET_USER_REQUEST: {
       const favouriteResourcesMeta: ActionMeta = {loading: true, error: false, errorMessage: ''};
