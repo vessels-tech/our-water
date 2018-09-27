@@ -4,6 +4,7 @@ import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
+import UserApi from "../api/UserApi";
 
 
 /**
@@ -64,12 +65,17 @@ export class ConfigFactory {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
       }
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
+      //@ts-ignore
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
       this.userApi = ggmnApi;
     } else {
       //Default to MyWellApi
-      this.appApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      //@ts-ignore
+      this.appApi = mywellApi;
+      //@ts-ignore
+      this.userApi = mywellApi;
       // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
     }
 
@@ -95,6 +101,7 @@ export class ConfigFactory {
    */
   //TODO: remove the return annotation eventually.
   getAppApi(auth?: any): GGMNApi {
+    //@ts-ignore
     return this.appApi;
   }
 

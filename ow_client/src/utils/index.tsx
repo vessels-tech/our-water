@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as moment from 'moment';
 import QueryString, { stringify } from 'query-string';
 import { textDark, bgDark2, bgLight, primaryLight } from './Colors';
-import { Location } from '../typings/Location';
+import { Location, LocationType } from '../typings/Location';
 import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
@@ -87,7 +87,13 @@ export const formatCoords = (fbCoords: any) => {
 export const getLocation = (): Promise<SomeResult<Location>> => {
   return new Promise((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(
-      (l: Location) => (resolve({type: ResultType.SUCCESS, result: l})),
+      (p: Position) => {
+        const location: Location = {
+          type: LocationType.LOCATION,
+          coords: p.coords,
+        }
+        resolve({type: ResultType.SUCCESS, result: location});
+      },
       (err: any) => (reject({type: ResultType.ERROR, message: 'Error loading location.'})),
       {timeout: 5000}
     );

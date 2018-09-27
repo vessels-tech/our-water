@@ -11,7 +11,6 @@ import {
 import { primary, primaryDark, textDark, error1, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
-import { AppContext, SyncMeta } from '../AppProvider';
 import BaseApi from '../api/BaseApi';
 import { EmptyLoginDetails, LoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
 import Loading from '../components/common/Loading';
@@ -19,42 +18,37 @@ import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
+import { SyncMeta } from '../typings/Reducer';
 
-
-export interface Props {
+export interface OwnProps {
   navigator: any,
-  
-  //Injected by consumer
-  userId: string,
-  appApi: BaseApi,
   config: ConfigFactory,
+}
+
+export interface StateProps {
+  userId: string,
   externalLoginDetails: EmptyLoginDetails | LoginDetails,
   externalLoginDetailsMeta: SyncMeta,
+}
+
+export interface ActionProps {
 
 }
+
+
 
 export interface State {
 
 }
 
-class SettingsScreen extends React.Component<Props> {
+class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps> {
   state: State = {
-    //TODO: maybe have an error with external service connection flag as well?
+
   }
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
-    // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
   }
-
-  // componentWillUnmount() {
-  //   //TODO: unsubscribe
-  // }
-
-  // onNavigatorEvent() {
-
-  // }
 
   /**
    * Connect to button is only available for variants which connect to external services
@@ -201,9 +195,9 @@ class SettingsScreen extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
-  let userId = null;
+  let userId = '';
   if (state.user.type === UserType.USER) {
     userId = state.user.userId;
   }
@@ -215,7 +209,7 @@ const mapStateToProps = (state: AppState) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     
   }

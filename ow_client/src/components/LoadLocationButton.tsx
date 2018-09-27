@@ -12,23 +12,31 @@ import { textDark, primary } from '../utils/Colors';
 import * as appActions from '../actions/index';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
-import { NoLocation } from '../typings/Location';
-import { SyncMeta } from '../AppProvider';
+import { NoLocation, Location, LocationType } from '../typings/Location';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SyncMeta } from '../typings/Reducer';
 
-export interface Props { 
+export interface OwnProps {
   onComplete: any,
+}
+
+export interface StateProps {
   location: Location | NoLocation,
   locationMeta: SyncMeta,
-  getGeoLocation: () => SomeResult<Location>,
 }
+
+export interface ActionProps {
+  getGeoLocation: () => SomeResult<Location>,
+
+}
+
 
 export interface State {
 }
 
-class LoadLocationButton extends Component<Props> {
+class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> {
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
   }
@@ -79,7 +87,7 @@ class LoadLocationButton extends Component<Props> {
 
 
 //If we don't have a user id, we should load a different app I think.
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     location: state.location,
     locationMeta: state.locationMeta,

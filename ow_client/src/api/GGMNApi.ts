@@ -45,6 +45,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   networkApi: NetworkApi;
   orgId: string;
   unsubscribeUser: any;
+  pendingReadingsSubscription: any;
 
   // private syncStatusCallback: any;
 
@@ -633,9 +634,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-
   subscribeToPendingReadings(userId: string, callback: (resources: Reading[]) => void): void {
-    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+    this.pendingReadingsSubscription = FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  }
+
+  unsubscribeFromPendingReadings() {
+    if (this.pendingReadingsSubscription) {
+      this.pendingReadingsSubscription.unsubscribe();
+    }
   }
 
   subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void {
