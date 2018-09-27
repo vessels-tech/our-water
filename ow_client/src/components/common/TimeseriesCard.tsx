@@ -5,19 +5,31 @@ import {
   Card,
   Text,
 } from 'react-native-elements';
-import { OWTimeseries, Reading, TimeseriesRange } from '../../typings/models/OurWater';
+import { OWTimeseries, Reading, TimeseriesRange, TimeseriesRangeReadings, TimeseriesReadings } from '../../typings/models/OurWater';
 import { View } from 'react-native';
 import { textLight, primaryDark, bgLight } from '../../utils/Colors';
 import LineChartExample from './DemoChart';
+import { SomeResult } from '../../typings/AppProviderTypes';
+import Loading from './Loading';
+import { ConfigFactory } from '../../config/ConfigFactory';
+import BaseApi from '../../api/BaseApi';
 
+import { AppState } from '../../reducers';
+import * as appActions from '../../actions/index';
+import { connect } from 'react-redux'
+import { getTimeseriesReadingKey } from '../../utils';
 
 export interface Props {
+  config: ConfigFactory,
   timeseries: OWTimeseries,
-  initialReadings: Reading[], //The readings initially loaded, this may change if user changes the time scale
+  resourceId: string,
+
+  tsReadings: TimeseriesReadings,
+  getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
 }
 
 export interface State {
-
+  currentRange: TimeseriesRange,
 }
 
 
@@ -26,10 +38,42 @@ export interface State {
  *  along with some basic controls for changing the time scale
  */
 class TimeseriesCard extends Component<Props> {
+  appApi: BaseApi;
+  state: State = {
+    currentRange: TimeseriesRange.TWO_WEEKS,
+  }
 
+  constructor(props: Props) {
+    super(props);
+
+    //@ts-ignore
+    this.appApi = this.props.config.getAppApi();
+  }
 
   getGraphView() {
+    const { currentRange } = this.state;
+    const { tsReadings, timeseries: {id}, resourceId } = this.props;
 
+    const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
+    if (!readings) {
+      console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
+      return null;
+    }
+
+    console.log("GetGraphView for range", readings);
+
+    if (readings.meta.loading) {
+      return (
+        <View style={{
+          flex: 5,
+          justifyContent: 'center',
+        }}>
+          <Loading/>
+        </View>
+      );
+    }
+
+    //TODO: actually load readings
     return (
       <View style={{
         // backgroundColor: 'red',
@@ -69,7 +113,14 @@ class TimeseriesCard extends Component<Props> {
                 height: 30,
               }}
               title={b.text}
-              onPress={() => console.log("TODO: zoom to:", b.value)}
+              onPress={() => {
+                if (b.value === this.state.currentRange) {
+                  return;
+                }
+
+                this.setState({ currentRange: b.value });
+                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.id, b.value);
+              }}
             />
           ))}
         </View>
@@ -79,6 +130,7 @@ class TimeseriesCard extends Component<Props> {
 
   render() {
     const { timeseries: { name } } = this.props;
+    console.log("rendering TimeseriesCard");
 
     return (
       <Card
@@ -110,4 +162,19 @@ class TimeseriesCard extends Component<Props> {
   }
 }
 
-export default TimeseriesCard;
+const mapStateToProps = (state: AppState, ownProps: Props) => {
+
+  return {
+    tsReadings: state.tsReadings,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
+      dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
+
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TimeseriesCard);

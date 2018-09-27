@@ -115,3 +115,21 @@ export type OWUser = {
   pendingSavedReadings: Reading[],
   pendingSavedResources: Resource[],
 }
+
+export type TimeSeriesReading = {
+  meta: { loading: boolean },
+  readings: Reading[],
+}
+
+//TODO: remove if we don't keep using it.
+export type TimeseriesRangeReadings = {
+  ONE_YEAR: TimeSeriesReading,
+  THREE_MONTHS: TimeSeriesReading,
+  TWO_WEEKS: TimeSeriesReading,
+  EXTENT: TimeSeriesReading,
+}
+
+//simple map: key: `timeseriesId+range` => TimeseriesReading
+export type TimeseriesReadings = {
+  [id: string]: TimeSeriesReading,
+}

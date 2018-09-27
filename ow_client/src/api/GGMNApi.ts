@@ -431,8 +431,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     console.log("getReadingsForTimeseries url:", url);
 
+    // try {
+    //   const response = await ftch(url, options);
+
+    // } catch (err) {
+    //   console.log("fetch error", err);
+    // }
+
     return ftch(url, options)
     .then((response: any): Promise<GGMNTimeseriesResponse> | Promise<never> => {
+      console.log("response from ftch?", response);
       if (!response.ok) {
         return rejectRequestWithError(response.status);
       }
@@ -486,6 +494,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
           timeseriesId: timeseries.id,
         };
       });
+    })
+    .catch((err: Error) => {
+      //TODO: handle this error?
+      console.log(err);
     });
 
   }

@@ -15,12 +15,12 @@ import Loading from './common/Loading';
 import IconButton from './common/IconButton';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite,
+  getShortId, isFavourite, getTimeseriesReadingKey,
 } from '../utils';
 import FirebaseApi from '../api/FirebaseApi';
 import Config from 'react-native-config';
 import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, textMed } from '../utils/Colors';
-import { Resource, Reading, OWTimeseries } from '../typings/models/OurWater';
+import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
@@ -36,9 +36,6 @@ import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 
 
-
-const orgId = Config.REACT_APP_ORG_ID;
-
 export interface Props {
   config: ConfigFactory,
   resource: Resource,
@@ -47,99 +44,39 @@ export interface Props {
   onMorePressed: any,
   onAddToFavourites: any,
   onRemoveFromFavourites: any,
+  tsReadings: TimeseriesReadings,
 
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
   action_addFavourite: any,
   action_removeFavourite: any,
+  getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
 }
 
 export interface State {
-  loading: boolean,
-  readingsMap: Map<string, Reading[]> //key = timeseriesId, value = Reading[]
+
 }
 
 class ResourceDetailSection extends Component<Props> {
   unsubscribe: any;
   appApi: BaseApi;
-  state: State = {
-    loading: false,
-    readingsMap: new Map<string, Reading[]>(),
-  }
+  state: State = {}
 
   constructor(props: Props) {
     super(props);
 
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
+
+    const DEFAULT_RANGE = TimeseriesRange.TWO_WEEKS;
+    const { resource: { id, timeseries } } = this.props;
+    timeseries.forEach(ts => this.props.getReadings(this.appApi, id, ts.id, DEFAULT_RANGE));
   }
 
-  componentWillMount() {
-    const { resource, userId } = this.props; 
-    const { id } = resource;
-
-    //TODO: load the readings for this resource
-    //todo: find out if in favourites
-    this.setState({
-      loading: true
-    });
+  componentDidMount() {
   
-    //TODO: we need to reload this when changing resources.
-    //TODO: make configurable
-    const today: number = moment().valueOf();
-    const twoYearsAgo: number = moment().subtract(2, 'years').valueOf();
-
-    //Get all readings for each timeseries
-    //TODO: refactor to the AppApi, this is a little heavy.
-    if (!resource.timeseries) {
-      console.log("ERROR: no resource.timeseries!");
-    }
-
-    const readingsMap = new Map<string, Reading[]>();
-    return Promise.all(resource.timeseries.map((t: OWTimeseries ) => 
-      this.appApi.getReadingsForTimeseries(id, t.id, twoYearsAgo, today)
-    ))
-    .then((readingArrays: Reading[][]) => {
-      readingArrays.forEach((readings: Reading[], idx: number)  => {
-        const timeseriesId = resource.timeseries[idx].id;
-        readingsMap.set(timeseriesId, readings);
-      });
-
-      return this.appApi.getPendingReadingsForResourceId(this.props.userId, id);
-    })
-    .then((pendingReadings: Reading[]) => {
-      //Merge together pending readings with GGMN readings
-      pendingReadings.forEach((r: Reading) => {
-        const readingList: Reading[] | undefined  = readingsMap.get(r.timeseriesId);
-        if (!readingList) {
-          return;
-        }
-
-        readingList.push(r);
-        readingsMap.set(r.timeseriesId, readingList);
-      });
-    
-      return this.appApi.isResourceInFavourites(id, userId);
-    })
-    .then((isFavourite: boolean) => {
-      this.setState({
-        isFavourite, 
-        readingsMap,
-        loading:false
-      });
-    })
-    .catch((err: Error) => {
-      console.log("error", err);
-      this.setState({
-        loading: false,
-      });
-    });
-  }
-
-  onSnapshot(data: any) {
-    this.setState({
-      resource: data,
-    });
+  
+  
   }
 
   getHeadingBar() {
@@ -200,8 +137,25 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getLatestReadingsForTimeseries() {
-    const { readingsMap, loading} = this.state;
-    const { resource } = this.props;
+    const { tsReadings, resource } = this.props;
+
+    let loading = false;
+    const readingsMap = new Map<string, Reading[]>();
+
+    resource.timeseries.forEach(ts => {
+      const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.TWO_WEEKS);
+      const tsReading: TimeSeriesReading | undefined = tsReadings[key]
+      if (!tsReading) {
+        return <Loading />
+      }
+
+      //Let's say two weeks is the default, and should always be either there or pending
+      if (tsReading.meta.loading) {
+        loading = true;
+      }
+
+      readingsMap.set(ts.id, tsReading.readings);
+    });
 
     if (loading) {
       return <Loading/>
@@ -286,7 +240,7 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   getReadingsView() {
-    const { resource } = this.props;
+    const { tsReadings, resource } = this.props;
 
     return (
       <View style={{
@@ -307,14 +261,18 @@ class ResourceDetailSection extends Component<Props> {
             {this.getSummaryCard()}
           </View>
           {
-            resource.timeseries.map((ts: OWTimeseries, idx: number) => (
-              <View key={idx} style={{alignItems: 'center'}}>
-                <TimeseriesCard 
-                  timeseries={ts} 
-                  initialReadings={this.state.readingsMap.get(ts.id) || []}
-                />
-              </View>
-            ))
+            resource.timeseries.map((ts: OWTimeseries, idx: number) => {
+              return (
+                <View key={idx} style={{alignItems: 'center'}}>
+                  {/* TODO: how to fix this? the other properties are being set by redux */}
+                  <TimeseriesCard 
+                    config={this.props.config}
+                    resourceId={this.props.resource.id}
+                    timeseries={ts}
+                  />
+                </View>
+              );
+            })
           }
         </ViewPagerAndroid>
       </View>
@@ -388,11 +346,12 @@ class ResourceDetailSection extends Component<Props> {
   }
 };
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, ownProps: Props) => {
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favouriteResources: state.favouriteResources,
+    tsReadings: state.tsReadings,
   }
 }
 
@@ -402,6 +361,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(appActions.addFavourite(api, userId, resource)),
     action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
       dispatch(appActions.removeFavourite(api, userId, resourceId)),
+    getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => 
+      dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
 
   }
 }

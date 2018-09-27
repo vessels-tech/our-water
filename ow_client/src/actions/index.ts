@@ -240,6 +240,7 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesId: stri
         result: readings,
       }
     } catch (err) {
+      console.log("Error loading readings");
       result = {
         type: ResultType.ERROR,
         message: err.message,

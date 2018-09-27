@@ -22,6 +22,7 @@ export default class MyWellApi implements BaseApi {
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<any> {
+    console.log("signing in silently?");
     return FirebaseApi.signIn();
   }
 
@@ -59,7 +60,8 @@ export default class MyWellApi implements BaseApi {
    * Get the most recent resources, courtesy of the firebase api
    */
   getRecentSearches(userId: string): Promise<string[]> {
-    return FirebaseApi.getRecentSearches(this.orgId, userId);
+    return Promise.resolve(['1', '2']);
+    // return FirebaseApi.getRecentSearches(this.orgId, userId);
   }
 
   /**

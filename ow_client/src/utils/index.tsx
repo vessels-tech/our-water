@@ -359,6 +359,8 @@ export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadin
   const readingsForRange = tsRangeReadings[range];
   readingsForRange.meta = { loading };
 
+  console.log('readingsForRange', readingsForRange);
+
   tsRangeReadings[range] = readingsForRange;
   timeseriesReadings.set(timeseriesId, tsRangeReadings);
 
@@ -379,4 +381,9 @@ export function addReadingsAndStopLoading(readings: Reading[], timeseriesReading
   timeseriesReadings.set(timeseriesId, tsRangeReadings);
 
   return timeseriesReadings;
+}
+
+
+export function getTimeseriesReadingKey(timeseriesId: string, range: TimeseriesRange): string {
+  return `${timeseriesId}+${range}`;
 }
