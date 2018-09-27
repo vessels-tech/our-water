@@ -26,7 +26,6 @@ import BaseApi from '../api/BaseApi';
 import { GGMNTimeseries } from '../typings/models/GGMN';
 import * as moment from 'moment';
 import HeadingText from './common/HeadingText';
-import { AppContext, SyncMeta } from '../AppProvider';
 import { S_IFIFO } from 'constants';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
@@ -34,9 +33,11 @@ import TimeseriesCard from './common/TimeseriesCard';
 import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
+import { SyncMeta } from '../typings/Reducer';
+import { Action } from 'redux';
 
 
-export interface Props {
+export interface OwnProps {
   config: ConfigFactory,
   resource: Resource,
   userId: string,
@@ -44,10 +45,15 @@ export interface Props {
   onMorePressed: any,
   onAddToFavourites: any,
   onRemoveFromFavourites: any,
-  tsReadings: TimeseriesReadings,
+}
 
+export interface StateProps {
+  tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
+}
+
+export interface ActionProps {
   action_addFavourite: any,
   action_removeFavourite: any,
   getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
@@ -57,12 +63,12 @@ export interface State {
 
 }
 
-class ResourceDetailSection extends Component<Props> {
+class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProps> {
   unsubscribe: any;
   appApi: BaseApi;
   state: State = {}
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
@@ -74,7 +80,6 @@ class ResourceDetailSection extends Component<Props> {
   }
 
   componentDidMount() {
-  
   
   
   }
@@ -346,7 +351,7 @@ class ResourceDetailSection extends Component<Props> {
   }
 };
 
-const mapStateToProps = (state: AppState, ownProps: Props) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
@@ -355,7 +360,7 @@ const mapStateToProps = (state: AppState, ownProps: Props) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     action_addFavourite: (api: BaseApi, userId: string, resource: Resource) => 
       dispatch(appActions.addFavourite(api, userId, resource)),

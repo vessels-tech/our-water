@@ -19,12 +19,17 @@ import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
 import { getTimeseriesReadingKey } from '../../utils';
 
-export interface Props {
+export interface OwnProps {
   config: ConfigFactory,
   timeseries: OWTimeseries,
   resourceId: string,
+}
 
+export interface StateProps {
   tsReadings: TimeseriesReadings,
+}
+
+export interface ActionProps {
   getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
 }
 
@@ -32,18 +37,17 @@ export interface State {
   currentRange: TimeseriesRange,
 }
 
-
 /**
  *  TimeseriesCard is a card that displays a timeseries graph,
  *  along with some basic controls for changing the time scale
  */
-class TimeseriesCard extends Component<Props> {
+class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {
     currentRange: TimeseriesRange.TWO_WEEKS,
   }
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
@@ -162,14 +166,14 @@ class TimeseriesCard extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: Props) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     tsReadings: state.tsReadings,
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
       dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),

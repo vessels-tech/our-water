@@ -13,6 +13,7 @@ import FirebaseApi from './api/FirebaseApi';
 import ExternalServiceApi from './api/ExternalServiceApi';
 import { EmptyLoginDetails, LoginDetails, LoginDetailsType, ConnectionStatus } from './typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from './typings/AppProviderTypes';
+import { SyncMeta, ActionMeta } from './typings/Reducer';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
@@ -34,18 +35,6 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 export interface Props {
   config: ConfigFactory,
 };
-
-export type ActionMeta = {
-  loading: boolean,
-  //TODO: make more typescripty
-  error: boolean,
-  errorMessage: string,
-}
-
-export type SyncMeta = {
-  loading: boolean,
-  //TODO: Add sync states
-}
 
 export interface GlobalState {
   syncStatus: SyncStatus,         //the status of any syncs that OW needs to make
