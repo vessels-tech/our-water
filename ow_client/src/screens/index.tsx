@@ -35,6 +35,7 @@ export async function registerScreens(config: ConfigFactory) {
   /* Initial actions */
   await store.dispatch(appActions.silentLogin(config.appApi));
   //TODO: I don't know how to fix this.
+  //@ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
   const user = store.getState().user;
   if (user.type === UserType.USER) {

@@ -9,6 +9,7 @@ import { Resource, SearchResult } from '../typings/models/OurWater';
  * 
  * 
  */
+//@ts-ignore
 export default class MyWellApi implements BaseApi {
   orgId: string
   networkApi: NetworkApi;
