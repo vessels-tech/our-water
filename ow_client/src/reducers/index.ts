@@ -1,6 +1,5 @@
 
 import { Resource, Reading, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from "../typings/models/OurWater";
-import { ActionMeta, SyncMeta } from "../AppProvider";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
@@ -10,6 +9,7 @@ import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { isNullOrUndefined } from "util";
 import { newTsRangeReadings, setLoading, addReadingsAndStopLoading, getTimeseriesReadingKey } from "../utils";
+import { ActionMeta, SyncMeta } from "../typings/Reducer";
 
 const RESOURCE_CACHE_MAX_SIZE = 1000;
 
@@ -26,31 +26,27 @@ export type AppState = {
   //Api
   resources: Resource[],
   resourcesMeta: ActionMeta,
-  //Store all past resources we have seen here
   resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
-  // timeseriesReadings: Map<string, TimeseriesRangeReadings> //timeseriesId -> TimeseriesRangeReadings
 
   //simple map: key: `timeseriesId+range` => TimeseriesReading
   tsReadings: TimeseriesReadings,
-
-
-  /* resourceId -> resource map, containing  */
-  //TODO: think this through better
-  // readingsMap: Map<string, Resource>
   
   //Firebase
-  user: MaybeUser,
-  userIdMeta: ActionMeta,
-  syncStatus: SyncStatus,
   favouriteResources: Resource[],
   favouriteResourcesMeta: ActionMeta,
-  recentResources: Resource[],
-  recentResourcesMeta: ActionMeta,
-  pendingSavedReadings: Reading[], //TODO: figure out how to load from collections
+  pendingSavedReadings: Reading[],
   pendingSavedReadingsMeta: SyncMeta,
   pendingSavedResources: Resource[],
   pendingSavedResourcesMeta: SyncMeta, 
+  recentResources: Resource[],
+  recentResourcesMeta: ActionMeta,
+  recentSearches: string[],
+  syncStatus: SyncStatus,
+  searchResults: Resource[],
+  searchResultsMeta: ActionMeta,
+  user: MaybeUser,
+  userIdMeta: ActionMeta,
 }
 
 const initialState: AppState = {
@@ -82,10 +78,14 @@ const initialState: AppState = {
   favouriteResourcesMeta: { loading: false, error: false, errorMessage: '' },
   recentResources: [],
   recentResourcesMeta: { loading: false, error: false, errorMessage: '' },
+  recentSearches: [],
   pendingSavedReadings: [],
   pendingSavedReadingsMeta: { loading: false },
   pendingSavedResources: [],
   pendingSavedResourcesMeta: { loading: false },
+
+  searchResults: [],
+  searchResultsMeta: { loading: false, error: false, errorMessage: '' },
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -257,10 +257,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       let favouriteResources = state.favouriteResources;
       let recentResources = state.recentResources;
+      let recentSearches = state.recentSearches;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
         recentResources = action.result.result.recentResources;
+        recentSearches = action.result.result.recentSearches;
       }
       
       //TODO: error handling?
@@ -269,7 +271,25 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         recentResources,
         favouriteResourcesMeta,
         recentResourcesMeta,
+        recentSearches,
       });
+    }
+    case ActionType.PERFORM_SEARCH_REQUEST: {
+      const searchResultsMeta: ActionMeta ={ loading: true, error: false, errorMessage: '' };
+      return Object.assign({}, state, { searchResultsMeta })
+    }
+    case ActionType.PERFORM_SEARCH_RESPONSE: {
+      let searchResultsMeta: ActionMeta = { loading: false, error: false, errorMessage: ''};
+      
+      const result = action.result;
+      if (result.type === ResultType.ERROR) {
+        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.' };
+        return Object.assign({}, state, { searchResultsMeta });
+      }
+
+      const searchResults = result.result;
+      
+      return Object.assign({}, state, {searchResults, searchResultsMeta});
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
       const userIdMeta = {loading: true, error: false, errorMessage: ''};

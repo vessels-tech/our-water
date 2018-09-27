@@ -14,18 +14,17 @@ import Config from 'react-native-config';
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import FirebaseApi from '../api/FirebaseApi';
 import { displayAlert, getLocation } from '../utils';
 import { bgLight, primary, primaryDark, textMed, textDark} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
-import { AppContext, SyncMeta } from '../AppProvider';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
+import { SyncMeta } from '../typings/Reducer';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;

@@ -31,6 +31,8 @@ export type AnyAction =
   GetResourcesActionResponse |
   GetUserActionRequest |
   GetUserActionResponse |
+  PerformSearchActionRequest |
+  PerformSearchActionResponse |
   RemoveFavouriteActionRequest |
   RemoveFavouriteActionResponse |
   SaveReadingActionRequest |
@@ -68,6 +70,8 @@ export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST
 export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<Resource[]> };
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };
 export type GetUserActionResponse = { type: ActionType.GET_USER_RESPONSE, result: SomeResult<OWUser> };
+export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST}
+export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<Resource[]>}
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};
 export type RemoveFavouriteActionResponse = { type: ActionType.REMOVE_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type SaveReadingActionRequest = { type: ActionType.SAVE_READING_REQUEST };

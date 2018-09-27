@@ -12,54 +12,52 @@ import {
 import { Resource, SearchResult } from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
-import {debounce} from 'throttle-debounce';
-import { AppContext } from '../AppProvider';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { getGroundwaterAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
+import { SyncMeta, ActionMeta } from '../typings/Reducer';
+import { SomeResult } from '../typings/AppProviderTypes';
+import * as appActions from '../actions';
 
-// import { debounce } from "debounce";
-
-export interface Props {
+export interface OwnProps {
   onSearchResultPressed: any,
-
   navigator: any;
-
-  //Injected from Provider
-  isConnected: boolean,
-  appApi: BaseApi,
   userId: string,
   config: ConfigFactory,
 }
 
-export interface State {
-  searchQuery: string,
-  results: Resource[], //This may be more than just resources in the future
+export interface StateProps {
+  isConnected: boolean,
   recentSearches: string[],
-  isLoading: boolean,
-  error: boolean,
-  errorMessage: string
+  searchResults: Resource[], //This may be more than just resources in the future
+  searchResultsMeta: ActionMeta
 }
 
-class SearchScreen extends Component<Props> {
+export interface ActionProps { 
+  performSearch: (api: BaseApi, userId: string, searchQuery: string) => SomeResult<void>
+}
+
+export interface State {
+  searchQuery: string,
+  hasSearched: boolean,
+}
+
+class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
+  appApi: BaseApi;
   debouncedPerformSearch: any;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    //@ts-ignore
+    this.appApi = props.config.getAppApi();
 
     this.state = {
       searchQuery: '',
-      results: [],
-      recentSearches: [], //TODO: get from provider
-      isLoading: false,
-      error: false,
-      errorMessage: '',
+      hasSearched: false,
     };
-
-    // this.appApi.getRecentSearches(this.props.userId)
-    // .then(recentSearches => this.setState({recentSearches}));
   }
 
   getSearchBar() {
@@ -68,12 +66,8 @@ class SearchScreen extends Component<Props> {
       <SearchBar
         lightTheme
         noIcon
-        onChangeText={(searchQuery) => {
-          this.setState({ searchQuery });
-          //TODO: figure out how to debounce properly
-          this.performSearch();
-        }}
-        // onEndEditing={() => this.performSearch()}
+        onChangeText={(searchQuery) => this.setState({ searchQuery, hasSearched: false })}
+        onEndEditing={() => this.performSearch()}
         onClearText={() => console.log('clear text')}
         value={this.state.searchQuery}
         placeholder='Search' />
@@ -82,46 +76,12 @@ class SearchScreen extends Component<Props> {
 
   /**
    * Perform the search for the given query
-   * This is a placeholder implementation
-   * 
-   * TODO: refactor to handle offline search?
    */
-  performSearch() {
+  async performSearch() {
     const { searchQuery } = this.state;
-
-    let result: SearchResult;
-    let resources: Resource[];
-    
-    this.setState({isLoading: true});
-
-    return this.props.appApi.performSearch(searchQuery)
-    .then(_result => result = _result)
-    .then(() => {
-      console.log("search finished");
-      resources = result.resources;
-
-      //TODO: if results are larger than 0, save the search!
-      if (resources.length > 0) {
-        console.log("save recent search!");
-        return this.props.appApi.saveRecentSearch(this.props.userId, searchQuery)
-        //Non-critical error
-        .catch(err => console.log("error saving search: ", err));
-      }
-    })
-    .then(() => {
-      this.setState({
-        isLoading: false,
-        error: false,
-        results: resources,
-      });
-    })
-    .catch(err => {
-      this.setState({
-        isLoading: false,
-        error: true,
-        errorMessage: 'Something went wrong with your search. Please try again.',
-      });
-    });
+  
+    this.setState({hasSearched: true});
+    await this.props.performSearch(this.appApi, this.props.userId, searchQuery);
   }
 
   /**
@@ -129,9 +89,10 @@ class SearchScreen extends Component<Props> {
    * similar to google maps.
    */
   getSearchResults() {
-    const { results, isLoading, error, errorMessage } = this.state;
+    const { searchResults, searchResultsMeta: { loading, error, errorMessage } } = this.props;
 
-    if (isLoading) {
+
+    if (loading) {
       return (
         <View style={{
           justifyContent: 'center',
@@ -148,7 +109,7 @@ class SearchScreen extends Component<Props> {
       </View>
     };
 
-    if (results.length === 0) {
+    if (searchResults.length === 0) {
       return null;
     }
 
@@ -156,7 +117,7 @@ class SearchScreen extends Component<Props> {
       <View>
         {
           // TODO: fix this with a touchable native feedback
-          results.map((r: Resource, i) => {
+          searchResults.map((r: Resource, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -181,17 +142,18 @@ class SearchScreen extends Component<Props> {
   }
 
   getNoResultsFoundText() {
-    const { searchQuery, results, isLoading } = this.state;
+    const { hasSearched } = this.state;
+    const { searchResults, searchResultsMeta: { loading } } = this.props;
 
-    if (isLoading) { 
+    if (loading) { 
       return null;
     }
 
-    if (results.length > 0) {
+    if (searchResults.length > 0) {
       return null;
     }
 
-    if (searchQuery.length === 0) {
+    if (!hasSearched) {
       return null;
     }
 
@@ -213,9 +175,10 @@ class SearchScreen extends Component<Props> {
   }
 
   getSearchHint() {
-    const { searchQuery, results, isLoading, recentSearches } = this.state;
+    const { searchQuery } = this.state;
+    const { recentSearches, searchResultsMeta: { loading } } = this.props;
 
-    if (isLoading) {
+    if (loading) {
       return null;
     }
 
@@ -238,13 +201,13 @@ class SearchScreen extends Component<Props> {
   }
 
   getRecentSearches() {
-    const { isLoading, recentSearches, results } = this.state;
+    const { recentSearches, searchResultsMeta: {loading}, searchResults } = this.props;
 
-    if (isLoading) {
+    if (loading) {
       return null;
     }
 
-    if (results.length > 0) {
+    if (searchResults.length > 0) {
       return null;
     }
 
@@ -297,9 +260,6 @@ class SearchScreen extends Component<Props> {
   }
 
   render() {
-    console.log("SearchScreen is connected?", this.props.isConnected);
-
-
     /*
       no search + no recent searches         =>  Search Hint
       no search + recent searches            =>  Recent Searches
@@ -332,27 +292,21 @@ class SearchScreen extends Component<Props> {
   }
 }
 
-const SearchScreenWithContext = (props: any) => {
-  return (
-    <AppContext.Consumer>
-      {({ isConnected, appApi, userId, config }) => {
-        return (
-        <SearchScreen
-          appApi={appApi}
-          isConnected={isConnected}
-          userId={userId}
-          config={config}
-          {...props}
-        />
-      )}}
-    </AppContext.Consumer>
-  )
-}
-// export default SearchScreenWithContext;
 
-const mapStateToProps = (state: AppState) => {
-  return { isConnected: state.isConnected}
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  return { 
+    isConnected: state.isConnected,
+    recentSearches: state.recentSearches,
+    searchResults: state.searchResults,
+    searchResultsMeta: state.searchResultsMeta,
+  }
 }
-export default connect(mapStateToProps, null)(SearchScreen);
 
-// export default SearchScreen;
+const mapDispatchToProps = (dispatch: any): ActionProps => {
+  return {
+    performSearch: (api: BaseApi, userId: string, searchQuery: string) => 
+      dispatch(appActions.performSearch(api, userId, searchQuery))
+  }
+} 
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);

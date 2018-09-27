@@ -2,7 +2,7 @@ import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, Times
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -322,6 +322,48 @@ export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionRespo
     result,
   }
 }
+
+
+/**
+ * Async search for resources
+ */
+export function performSearch(api: BaseApi, userId: string, searchQuery: string): any {
+  return async (dispatch: any) => {
+    dispatch(performSearchRequest());
+
+    let result: SomeResult<Resource[]>;
+    try {
+      const searchResult = await api.performSearch(searchQuery);
+      if (searchResult.resources.length > 0) {
+        //Add successful search to list
+        await api.saveRecentSearch(userId, searchQuery);
+      }
+
+      result = { type: ResultType.SUCCESS, result: searchResult.resources};
+    } catch (err) {
+      result = { type: ResultType.ERROR, message: err.message };
+    }
+
+    dispatch(performSearchResponse(result))
+  }
+}
+
+function performSearchRequest(): PerformSearchActionRequest {
+  return {
+    type: ActionType.PERFORM_SEARCH_REQUEST,
+  }
+}
+
+
+function performSearchResponse(result: SomeResult<Resource[]>): PerformSearchActionResponse {
+  return {
+    type: ActionType.PERFORM_SEARCH_RESPONSE,
+    result,
+  }
+}
+
+
+
 
 /**
  * Async remove the favourite

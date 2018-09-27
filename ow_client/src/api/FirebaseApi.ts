@@ -585,7 +585,7 @@ class FirebaseApi {
       recentSearches.pop();
     }
 
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({recentSearches})
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentSearches }, { merge: true })
   }
 
   private static userDoc(orgId: string, userId: string): any {
@@ -644,6 +644,7 @@ class FirebaseApi {
       favouriteResources,
       pendingSavedReadings: data.pendingSavedReadings || [],
       pendingSavedResources: data.pendingSavedResources || [],
+      recentSearches: data.recentSearches || [],
     }
   }
 

@@ -114,6 +114,7 @@ export type OWUser = {
   favouriteResources: Resource[],
   pendingSavedReadings: Reading[],
   pendingSavedResources: Resource[],
+  recentSearches: string[],
 }
 
 export type TimeSeriesReading = {
