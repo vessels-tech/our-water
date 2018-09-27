@@ -1,6 +1,7 @@
 import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
+import { GGMNSearchEntity } from "../typings/models/GGMN";
 
 
 /**
@@ -157,5 +158,5 @@ export default interface BaseApi {
    * If the user is currently offline, API will still try and complete
    * the search if possible.
    */
-  performSearch(searchQuery: string): Promise<SearchResult>;
+  performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>>;
 }

@@ -8,8 +8,8 @@ import { default as ftch } from 'react-native-fetch-polyfill';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
-import { appendUrlParameters, rejectRequestWithError, calculateBBox, naiveParseFetchResponse, getDemoResources, convertRangeToDates } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse } from "../typings/models/GGMN";
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse } from "../utils";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
@@ -104,7 +104,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => naiveParseFetchResponse<GGMNOrganisationResponse>(response))
+      .then((response: any) => deprecated_naiveParseFetchResponse<GGMNOrganisationResponse>(response))
       .then((r: GGMNOrganisationResponse) => {
         console.log(r);
 
@@ -313,7 +313,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     return ftch(url, options)
-    .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
+    .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
     .then((response: GGMNGroundwaterStationResponse) => {
       return response.results.map(from => GGMNApi.ggmnStationToResource(from));
     });
@@ -342,7 +342,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {console.log('response', response); return response})
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
       .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
@@ -368,7 +368,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     return ftch(url, options)
-      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
+      .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
         //TODO: finish getting the resources
         return response.results.map(from => GGMNApi.ggmnStationToResource(from));
@@ -387,7 +387,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     return ftch(resourceUrl, options)
-      .then((response: any) => naiveParseFetchResponse<GGMNGroundwaterStation>(response))
+      .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStation>(response))
       .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
   }
 
@@ -599,7 +599,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     console.log("options are:", options);
 
     return ftch(url, options)
-    .then((response: any) => naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
+    .then((response: any) => deprecated_naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
     .then((response: GGMNSaveReadingResponse) => response)
     .then(() => this.removeReadingFromPendingList(reading));
 
@@ -702,17 +702,51 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
   /**
    * Perform a search using the GGMN Api
+   * 
+   * The Search on the Lizard/GGMN site also uses the mapbox api to load locations, but
+   * for now I think searching by just ids is ok.
+   * 
+   * For example:
+   * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25   
    */
-  performSearch(searchQuery: string): Promise<SearchResult> {
-
-    //TODO: implement search for offline mode
-    return Promise.resolve({
-      resources: getDemoResources(20),
-      // resources: [],
-      groups:[],
-      users: [],
-      offline: false,
+  async performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>> {
+    const readingUrl = `${this.baseUrl}/api/v3/search/`;
+    const url = appendUrlParameters(readingUrl, {
+      q: searchQuery,
+      page_size: 25,
+      page,
     });
+
+    const authHeaders = await this.getOptionalAuthHeaders();
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+    };
+
+    console.log("performSearch url:", url);
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch(err) {
+      return {
+        type: ResultType.ERROR,
+        message: "Error loading search from GGMN.",
+      }
+    }
+
+    const searchResponse = await naiveParseFetchResponse<GGMNSearchResponse>(response);
+    if (searchResponse.type === ResultType.ERROR) {
+      return searchResponse;
+    }
+
+    return {
+      type: ResultType.SUCCESS,
+      result: searchResponse.result.results,
+    }
   }
 
 

@@ -10,6 +10,7 @@ import { Location, NoLocation, LocationType } from "../typings/Location";
 import { isNullOrUndefined } from "util";
 import { newTsRangeReadings, setLoading, addReadingsAndStopLoading, getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta } from "../typings/Reducer";
+import { GGMNSearchEntity } from "../typings/models/GGMN";
 
 const RESOURCE_CACHE_MAX_SIZE = 500;
 
@@ -43,7 +44,7 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: Resource[],
+  searchResults: GGMNSearchEntity[],
   searchResultsMeta: ActionMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
@@ -276,18 +277,25 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.PERFORM_SEARCH_REQUEST: {
       const searchResultsMeta: ActionMeta ={ loading: true, error: false, errorMessage: '' };
-      return Object.assign({}, state, { searchResultsMeta })
+      let searchResults = state.searchResults;
+
+      //We are on the first page, clear out old results
+      if (action.page === 1) {
+        searchResults = [];
+      }
+
+      return Object.assign({}, state, { searchResultsMeta, searchResults })
     }
     case ActionType.PERFORM_SEARCH_RESPONSE: {
       let searchResultsMeta: ActionMeta = { loading: false, error: false, errorMessage: ''};
+      let searchResults = state.searchResults;
       
       const result = action.result;
       if (result.type === ResultType.ERROR) {
         searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.' };
         return Object.assign({}, state, { searchResultsMeta });
       }
-
-      const searchResults = result.result;
+      searchResults = searchResults.concat(result.result);
       
       return Object.assign({}, state, {searchResults, searchResultsMeta});
     }

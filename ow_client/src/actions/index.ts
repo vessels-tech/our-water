@@ -14,6 +14,7 @@ import ExternalServiceApi from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
+import { GGMNSearchEntity } from "../typings/models/GGMN";
 
 
 /* Step 4: Add the actions handlers here */
@@ -327,42 +328,37 @@ export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionRespo
 /**
  * Async search for resources
  */
-export function performSearch(api: BaseApi, userId: string, searchQuery: string): any {
+export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number): any {
   return async (dispatch: any) => {
-    dispatch(performSearchRequest());
+    dispatch(performSearchRequest(page));
 
-    let result: SomeResult<Resource[]>;
-    try {
-      const searchResult = await api.performSearch(searchQuery);
-      if (searchResult.resources.length > 0) {
-        //Add successful search to list
-        await api.saveRecentSearch(userId, searchQuery);
-      }
-
-      result = { type: ResultType.SUCCESS, result: searchResult.resources};
-    } catch (err) {
-      result = { type: ResultType.ERROR, message: err.message };
+    const searchResult = await api.performSearch(searchQuery, page);
+    if (searchResult.type === ResultType.ERROR) {
+      return searchResult;
     }
 
-    dispatch(performSearchResponse(result))
+    if (searchResult.result.length > 0) {
+      //Add successful search to list
+      await api.saveRecentSearch(userId, searchQuery);
+    }
+
+    dispatch(performSearchResponse(searchResult))
   }
 }
 
-function performSearchRequest(): PerformSearchActionRequest {
+function performSearchRequest(page: number): PerformSearchActionRequest {
   return {
     type: ActionType.PERFORM_SEARCH_REQUEST,
+    page
   }
 }
 
-
-function performSearchResponse(result: SomeResult<Resource[]>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<GGMNSearchEntity[]>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
     result,
   }
 }
-
-
 
 
 /**

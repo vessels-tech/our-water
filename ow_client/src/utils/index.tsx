@@ -28,12 +28,36 @@ export function calculateBBox(region: Region){
  * Use this for small requests with well formed responses. Otherwise you 
  * may have to do it manually.
  */
-export function naiveParseFetchResponse<T>(response: any): Promise<T> {
+export function deprecated_naiveParseFetchResponse<T>(response: any): Promise<T> {
   if (!response.ok) {
     return rejectRequestWithError(response.status);
   }
 
   return response.json();
+}
+
+export async function naiveParseFetchResponse<T>(response: any): Promise<SomeResult<T>> {
+  if (!response.ok) {
+    return {
+      type: ResultType.ERROR,
+      message: 'Network request failed',
+    };
+  }
+
+  let parsed: T;
+  try {
+    parsed = await response.json();
+  } catch (err) {
+    return {
+      type: ResultType.ERROR,
+      message: 'Error deserializing json from response.',
+    }
+  }
+
+  return {
+    type: ResultType.SUCCESS,
+    result: parsed,
+  };
 }
 
 /**

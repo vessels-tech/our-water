@@ -14,6 +14,20 @@ export type GGMNTimeseriesResponse = {
   results: Array<GGMNTimeseries>
 }
 
+export type GGMNSearchResponse = {
+  count: number,
+  next: string,
+  previous: string,
+  results: GGMNSearchEntity[],
+}
+
+export type GGMNSearchEntity = {
+  id: string, 
+  title: string,
+  entity_name: string,
+  entity_id: string,
+}
+
 export type GGMNGroundwaterStationResponse = {
   count: number,
   next: string,
