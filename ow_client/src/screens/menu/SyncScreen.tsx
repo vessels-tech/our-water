@@ -141,6 +141,24 @@ class SyncScreen extends Component<Props> {
   }
 
   render() {
+    const { pendingSavedReadings, pendingSavedResources } = this.props;
+
+    if (pendingSavedReadings.length + pendingSavedResources.length === 0) {
+      return (
+        <View style={{
+          flex: 1,
+          alignSelf: 'center',
+          justifyContent: 'center',
+          width: '50%',
+          height: '100%',
+        }}>
+          <Text style={{textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>Nothing to sync!</Text>
+          <Text style={{textAlign: "center"}}>Start taking readings or creating groundwater stations to get started.</Text>
+        </View>
+      );
+    }
+
+
     return (
       <View style={{
         flexDirection: 'column',

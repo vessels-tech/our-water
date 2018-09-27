@@ -11,7 +11,7 @@ import { isNullOrUndefined } from "util";
 import { newTsRangeReadings, setLoading, addReadingsAndStopLoading, getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta } from "../typings/Reducer";
 
-const RESOURCE_CACHE_MAX_SIZE = 1000;
+const RESOURCE_CACHE_MAX_SIZE = 500;
 
 export type AppState = {
   //Session based
