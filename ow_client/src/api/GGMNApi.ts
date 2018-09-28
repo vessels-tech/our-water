@@ -4,7 +4,8 @@ import { RNFirebase, Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
-import { default as ftch } from 'react-native-fetch-polyfill';
+// import { default as ftch } from 'react-native-fetch-polyfill';
+import fetch as fetch from 'fetch';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
@@ -340,6 +341,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
         ...authHeaders
       }
     };
+
+    console.log("options are", options);
 
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
@@ -727,7 +730,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       },
     };
 
+    
     console.log("performSearch url:", url);
+    console.log("options are", options);
     let response: any;
     try {
       response = await ftch(url, options);

@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
+import { GGMNSearchEntity } from '../typings/models/GGMN';
 
 export interface OwnProps {
   onSearchResultPressed: any,
@@ -30,17 +31,18 @@ export interface OwnProps {
 export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
-  searchResults: Resource[], //This may be more than just resources in the future
+  searchResults: GGMNSearchEntity[], //This may be more than just resources in the future
   searchResultsMeta: ActionMeta
 }
 
 export interface ActionProps { 
-  performSearch: (api: BaseApi, userId: string, searchQuery: string) => SomeResult<void>
+  performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => SomeResult<void>
 }
 
 export interface State {
   searchQuery: string,
   hasSearched: boolean,
+  page: number,
 }
 
 class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -57,6 +59,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.state = {
       searchQuery: '',
       hasSearched: false,
+      page: 1,
     };
   }
 
@@ -78,10 +81,17 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Perform the search for the given query
    */
   async performSearch() {
-    const { searchQuery } = this.state;
+    const { searchQuery, page } = this.state;
   
     this.setState({hasSearched: true});
-    await this.props.performSearch(this.appApi, this.props.userId, searchQuery);
+    await this.props.performSearch(this.appApi, this.props.userId, searchQuery, page);
+  }
+
+  async loadMore() {
+    const { page } = this.state;
+    this.setState({page});
+
+    return this.performSearch();
   }
 
   /**
@@ -117,7 +127,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         {
           // TODO: fix this with a touchable native feedback
-          searchResults.map((r: Resource, i) => {
+          searchResults.map((r: GGMNSearchEntity, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -132,11 +142,23 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 roundAvatar
                 title={r.id}
                 avatar={getGroundwaterAvatar()}
-                subtitle={r.owner.name}>
+                >
               </ListItem>
             );
-          })
+          })  
         }
+        {/* TODO: only display if we have 25 results */}
+        <ListItem
+          containerStyle={{
+            paddingLeft: 10,
+          }}
+          hideChevron
+          key={'load_more'}
+          onPress={() => {
+            this.loadMore()
+          }}
+          title={'More'}
+        />
       </View>
     );
   }
@@ -304,8 +326,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    performSearch: (api: BaseApi, userId: string, searchQuery: string) => 
-      dispatch(appActions.performSearch(api, userId, searchQuery))
+    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => 
+      dispatch(appActions.performSearch(api, userId, searchQuery, page))
   }
 } 
 
