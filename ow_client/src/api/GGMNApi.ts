@@ -4,8 +4,7 @@ import { RNFirebase, Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
-// import { default as ftch } from 'react-native-fetch-polyfill';
-import fetch as fetch from 'fetch';
+import { default as ftch } from 'react-native-fetch-polyfill';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 

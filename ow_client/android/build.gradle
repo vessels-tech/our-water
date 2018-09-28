@@ -12,11 +12,9 @@ buildscript {
         google()
     }
     dependencies {
-        // classpath 'com.android.tools.build:gradle:3.1.1'
         classpath 'com.android.tools.build:gradle:3.1.2'
 
         //Allow us to read google-services.json files
-        // classpath 'com.google.gms:google-services:3.2.0'
         classpath 'com.google.gms:google-services:3.2.1'
     }
 }
@@ -29,17 +27,6 @@ allprojects {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
-
         google()
     }
 }
-
-
-// ext {
-//     compileSdkVersion   = 26
-//     targetSdkVersion    = 26
-//     buildToolsVersion   = "26.0.2"
-//     supportLibVersion   = "26.1.0"
-//     googlePlayServicesVersion = "11.8.0"
-//     androidMapsUtilsVersion = "0.5+"
-// }

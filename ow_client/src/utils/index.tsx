@@ -37,6 +37,7 @@ export function deprecated_naiveParseFetchResponse<T>(response: any): Promise<T>
 }
 
 export async function naiveParseFetchResponse<T>(response: any): Promise<SomeResult<T>> {
+  console.log('naiveParseFetchResponse', response);
   if (!response.ok) {
     return {
       type: ResultType.ERROR,
