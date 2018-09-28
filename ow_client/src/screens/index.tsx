@@ -17,7 +17,7 @@ import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
 import { UserType } from '../typings/UserTypes';
-import { OWUser, Reading, Resource } from '../typings/models/OurWater';
+import { OWUser, Reading, Resource, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 
@@ -47,11 +47,11 @@ export async function registerScreens(config: ConfigFactory) {
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
     });
 
-    config.appApi.subscribeToPendingReadings(user.userId, (readings: Reading[]) => {
+    config.appApi.subscribeToPendingReadings(user.userId, (readings: PendingReading[]) => {
       store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
     });
 
-    config.appApi.subscribeToPendingResources(user.userId, (resources: Resource[]) => {
+    config.appApi.subscribeToPendingResources(user.userId, (resources: PendingResource[]) => {
       store.dispatch(appActions.getPendingResourcesResponse({ type: ResultType.SUCCESS, result: resources }))
     });
   }

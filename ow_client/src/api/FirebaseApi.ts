@@ -14,7 +14,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource, SearchResult, Reading, OWUser } from '../typings/models/OurWater';
+import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { userInfo } from 'os';
@@ -478,7 +478,7 @@ class FirebaseApi {
     );
   }
 
-  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: any): string {
+  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: (readings: PendingReading[]) => void): string {
     return this.userDoc(orgId, userId).collection('pendingReadings')
     .onSnapshot(
       {
@@ -486,7 +486,7 @@ class FirebaseApi {
         },
         //optionsOrObserverOrOnNext
         (sn: any) => {
-          const readings = this.snapshotToReadings(sn);
+          const readings = this.snapshotToPendingReadings(sn);
           callback(readings);
         },
         //onError
@@ -498,7 +498,7 @@ class FirebaseApi {
     );
   }
 
-  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: any): string {
+  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: (readings: PendingResource[]) => void): string {
     return this.userDoc(orgId, userId).collection('pendingResources')
     .onSnapshot(
       {
@@ -506,7 +506,7 @@ class FirebaseApi {
         },
         //optionsOrObserverOrOnNext
         (sn: any) => {
-          const resources = this.snapshotToResources(sn);
+          const resources = this.snapshotToPendingResource(sn);
           callback(resources);
         },
         //onError
@@ -627,7 +627,7 @@ class FirebaseApi {
    * Delete a pending resource
    */
   static async deletePendingResource(orgId: string, userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).collection('pendingResources').delete(pendingResourceId)
+    return this.userDoc(orgId, userId).collection('pendingResources').doc(pendingResourceId).delete()
     .then(() => {
       return {
         type: ResultType.SUCCESS,
@@ -645,7 +645,7 @@ class FirebaseApi {
    * Delete a pending reading
    */
   static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).collection('pendingReadings').delete(pendingReadingId)
+    return this.userDoc(orgId, userId).collection('pendingReadings').doc(pendingReadingId).delete()
       .then(() => {
         return {
           type: ResultType.SUCCESS,
@@ -709,6 +709,19 @@ class FirebaseApi {
     return readings;
   }
 
+  static snapshotToPendingReadings(sn: any): PendingReading[] {
+    const readings: PendingReading[] = [];
+    sn.forEach((doc: any) => {
+      //Get each document, put in the id
+      const data = doc.data();
+      //@ts-ignore
+      data.pendingId = doc.id;
+      readings.push(data);
+    });
+
+    return readings;
+  }
+
   /**
    * Map a snapshot from pendingResources to a Resource array
    */
@@ -724,6 +737,20 @@ class FirebaseApi {
 
     return resources;
   }
+
+  static snapshotToPendingResource(sn: any): PendingResource[] {
+    const readings: PendingResource[] = [];
+    sn.forEach((doc: any) => {
+      //Get each document, put in the id
+      const data = doc.data();
+      //@ts-ignore
+      data.pendingId = doc.id;
+      readings.push(data);
+    });
+
+    return readings;
+  }
+
 }
 
 export default FirebaseApi;

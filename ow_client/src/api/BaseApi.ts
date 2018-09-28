@@ -1,4 +1,4 @@
-import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
@@ -112,7 +112,7 @@ export default interface BaseApi {
   /**
    * set up a listener for changes to any pending readings
    */
-  subscribeToPendingReadings(userId: string, callback: (readings: Reading[]) => void): void;
+  subscribeToPendingReadings(userId: string, callback: (readings: PendingReading[]) => void): void;
 
   /**
    * unsubscribe from the pending reading listener
@@ -123,7 +123,7 @@ export default interface BaseApi {
   /**
    * Set up a listener for changes to pending resources
    */
-  subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void;
+  subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void;
 
   /**
    * get the pending readings for this user

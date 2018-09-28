@@ -7,40 +7,50 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from '../../typings/api/ExternalServiceApi';
-import { Reading, Resource } from '../../typings/models/OurWater';
+import { Reading, Resource, PendingReading, PendingResource } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar } from '../../utils';
 import { error1 } from '../../utils/Colors';
 
 
-export interface Props {
+export interface OwnProps {
   navigator: any,
   userId: string,
   config: ConfigFactory,
+}
+
+export interface StateProps {
   externalLoginDetails: LoginDetails | EmptyLoginDetails,
   externalSyncStatus: ExternalSyncStatus,
-  pendingSavedReadings: Reading[],
-  pendingSavedResources: Resource[],
+  pendingSavedReadings: PendingReading[],
+  pendingSavedResources: PendingResource[],
+}
 
+export interface ActionProps {
   startExternalSync: any,
+  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
+  deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
 
 export interface State {
 
 }
 
-class SyncScreen extends Component<Props> {
+class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   appApi: BaseApi;
   externalApi: ExternalServiceApi;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
+
+    this.props.deletePendingReading.bind(this);
+    this.props.deletePendingResource.bind(this);
 
     this.state = {};
   }
@@ -70,7 +80,7 @@ class SyncScreen extends Component<Props> {
     )
   }
 
-  resourceListItem(r: Resource, i: number) {
+  resourceListItem(r: PendingResource, i: number) {
     return (
       <ListItem
         containerStyle={{
@@ -82,7 +92,10 @@ class SyncScreen extends Component<Props> {
         roundAvatar
         rightIcon={
           <TouchableNativeFeedback
-            onPress={() => console.log('delete this resource')}
+            onPress={() => {
+              console.log("Deleteting resource", r);
+              this.props.deletePendingReading(this.appApi, this.props.userId, r.pendingId);
+            }}
           >
             <Icon
               name='close'
@@ -90,13 +103,15 @@ class SyncScreen extends Component<Props> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.id}
+        title={'title'}
         avatar={getGroundwaterAvatar()}
         subtitle={r.owner.name}/>
     );
   }
 
-  readingListItem(r: Reading, i: number) {
+  readingListItem(r: PendingReading, i: number) {
+    const { deletePendingReading, userId } = this.props;
+
     return (
       <ListItem
         containerStyle={{
@@ -108,7 +123,10 @@ class SyncScreen extends Component<Props> {
         roundAvatar
         rightIcon={ 
           <TouchableNativeFeedback
-            onPress={() => console.log('delete this resource')}
+            onPress={() => {
+              console.log("Deteting reading", r);
+              deletePendingReading(this.appApi, userId, r.pendingId);
+            }}
           >
             <Icon
               name='close'
@@ -116,9 +134,9 @@ class SyncScreen extends Component<Props> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.resourceId}
+        title={'test'}
         avatar={getReadingAvatar()}
-        subtitle={r.date} />
+        subtitle={'date nicely formatted?'} />
     );
   }
 
@@ -133,9 +151,9 @@ class SyncScreen extends Component<Props> {
         // }}
       >
         <Text>GroundwaterStations:</Text>
-        {pendingSavedResources.map(this.resourceListItem)}
+        {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx))}
         <Text>Readings:</Text>
-        {pendingSavedReadings.map(this.readingListItem)}
+        {pendingSavedReadings.map((reading, idx) => this.readingListItem(reading, idx))}
       </ScrollView>
     );
   }
@@ -184,10 +202,14 @@ const mapStateToProps = (state: AppState) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     startExternalSync: (api: ExternalServiceApi, userId: string) => 
-      dispatch(appActions.startExternalSync(api, userId))
+      dispatch(appActions.startExternalSync(api, userId)),
+    deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
+      dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
+    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
+      dispatch(appActions.deletePendingResource(api, userId, pendingReadingId))
   }
 }
 

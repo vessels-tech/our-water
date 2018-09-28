@@ -1,5 +1,5 @@
 
-import { Resource, Reading, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from "../typings/models/OurWater";
+import { Resource, Reading, TimeseriesReadings, TimeSeriesReading, PendingResource, PendingReading } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
@@ -7,8 +7,7 @@ import { MaybeUser, UserType } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { isNullOrUndefined } from "util";
-import { newTsRangeReadings, setLoading, addReadingsAndStopLoading, getTimeseriesReadingKey } from "../utils";
+import { getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta } from "../typings/Reducer";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
 
@@ -36,9 +35,9 @@ export type AppState = {
   //Firebase
   favouriteResources: Resource[],
   favouriteResourcesMeta: ActionMeta,
-  pendingSavedReadings: Reading[],
+  pendingSavedReadings: PendingReading[],
   pendingSavedReadingsMeta: SyncMeta,
-  pendingSavedResources: Resource[],
+  pendingSavedResources: PendingResource[],
   pendingSavedResourcesMeta: SyncMeta, 
   recentResources: Resource[],
   recentResourcesMeta: ActionMeta,

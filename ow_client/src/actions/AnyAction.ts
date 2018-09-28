@@ -1,6 +1,6 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { removeFavourite } from ".";
 import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -20,8 +20,8 @@ export type AnyAction =
   DisconnectFromExternalServiceActionResponse |
   DeletePendingReadingActionRequest |
   DeletePendingReadingActionResponse |
-  DeletePendingRequestActionRequest |
-  DeletePendingRequestActionResponse |
+  DeletePendingResourceActionRequest |
+  DeletePendingResourceActionResponse |
   GetExternalLoginDetailsActionRequest |
   GetExternalLoginDetailsActionResponse |
   GetLocationActionRequest |
@@ -69,9 +69,9 @@ export type GetExternalLoginDetailsActionResponse = { type: ActionType.GET_EXTER
 export type GetLocationActionRequest = { type: ActionType.GET_LOCATION_REQUEST };
 export type GetLocationActionResponse = { type: ActionType.GET_LOCATION_RESPONSE, result: SomeResult<Location> };
 export type GetPendingReadingsRequest = { type: ActionType.GET_PENDING_READINGS_REQUEST};
-export type GetPendingReadingsResponse = { type: ActionType.GET_PENDING_READINGS_RESPONSE, result: SomeResult<Reading[]>};
+export type GetPendingReadingsResponse = { type: ActionType.GET_PENDING_READINGS_RESPONSE, result: SomeResult<PendingReading[]>};
 export type GetPendingResourcesRequest = { type: ActionType.GET_PENDING_RESOURCES_REQUEST};
-export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURCES_RESPONSE, result: SomeResult<Resource[]>};
+export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURCES_RESPONSE, result: SomeResult<PendingResource[]>};
 export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST, timeseriesId: string, range: TimeseriesRange };
 export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]>, timeseriesId: string, range: TimeseriesRange };
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };

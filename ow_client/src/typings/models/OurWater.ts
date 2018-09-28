@@ -31,7 +31,7 @@ export type PendingResource = {
   resourceType: ResourceType,
   owner: ResourceOwnerType,
   userId: string,
-
+  pendingId: string,
 }
 
 export type OWGeoPoint = {
@@ -64,6 +64,15 @@ export type Reading = {
   location?: Location,
   timeseriesId: string, //GGMN only, TODO: make separate models
 }
+
+/**
+ * A reading saved to firebase, but not saved to external yet.
+ * This won't apply for MyWell, only GGMN
+ */
+export type PendingReading = {
+  pendingId: string,
+}
+
 
 export type SaveReadingResult = {
   requiresLogin: boolean,
@@ -112,8 +121,8 @@ export type OWUser = {
   userId: string,
   recentResources: Resource[],
   favouriteResources: Resource[],
-  pendingSavedReadings: Reading[],
-  pendingSavedResources: Resource[],
+  pendingSavedReadings: PendingReading[],
+  pendingSavedResources: PendingResource[],
   recentSearches: string[],
 }
 

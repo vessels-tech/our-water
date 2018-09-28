@@ -10,7 +10,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity } from "../typings/models/GGMN";
-import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
+import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
 import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
@@ -654,7 +654,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-  subscribeToPendingReadings(userId: string, callback: (resources: Reading[]) => void): void {
+  subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
     this.pendingReadingsSubscription = FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
   }
 
@@ -664,7 +664,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-  subscribeToPendingResources(userId: string, callback: (resources: Resource[]) => void): void {
+  subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void {
     FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
   }
 

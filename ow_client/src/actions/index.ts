@@ -1,8 +1,8 @@
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingRequest, DeletePendingReadingResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -151,7 +151,7 @@ function disconnectFromExternalServiceResponse(): DisconnectFromExternalServiceA
 export function deletePendingReading(api: BaseApi, userId: string, pendingReadingId: string): any {
   return async function(dispatch: any) {
     dispatch(deletePendingReadingRequest());
-    const result = api.deletePendingReading(userId, pendingReadingId);
+    const result = await api.deletePendingReading(userId, pendingReadingId);
     dispatch(deletePendingReadingResponse(result));
   }
 }
@@ -176,7 +176,7 @@ function deletePendingReadingResponse(result: SomeResult<void>): DeletePendingRe
 export function deletePendingResource(api: BaseApi, userId: string, pendingResourceId: string): any {
   return async function(dispatch: any) {
     dispatch(deletePendingResourceRequest()); 
-    const result = api.deletePendingResource(userId, pendingResourceId);
+    const result = await api.deletePendingResource(userId, pendingResourceId);
     dispatch(deletePendingResourceResponse(result));
   }
 }
@@ -258,7 +258,7 @@ function getGeoLocationResponse(result: SomeResult<Location>): GetLocationAction
  * 
  * triggered by a firebase listener
  */
-export function getPendingReadingsResponse(result: SomeResult<Reading[]>): GetPendingReadingsResponse {
+export function getPendingReadingsResponse(result: SomeResult<PendingReading[]>): GetPendingReadingsResponse {
   return {
     type: ActionType.GET_PENDING_READINGS_RESPONSE,
     result,
@@ -270,7 +270,7 @@ export function getPendingReadingsResponse(result: SomeResult<Reading[]>): GetPe
  * 
  * triggered by a firebase listener
  */
-export function getPendingResourcesResponse(result: SomeResult<Resource[]>): GetPendingResourcesResponse {
+export function getPendingResourcesResponse(result: SomeResult<PendingResource[]>): GetPendingResourcesResponse {
   return {
     type: ActionType.GET_PENDING_RESOURCES_RESPONSE,
     result,
