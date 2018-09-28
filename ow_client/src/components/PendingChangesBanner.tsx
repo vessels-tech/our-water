@@ -19,7 +19,6 @@ import {  textLight, bgMed, error1, textDark, warning1 } from '../utils/Colors';
 import FirebaseApi from '../api/FirebaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { AppContext } from '../AppProvider';
 import { SyncStatus } from '../typings/enums';
 import { Reading, Resource } from '../typings/models/OurWater';
 import { connect } from 'react-redux'
@@ -154,14 +153,9 @@ class PendingChangesBanner extends Component<Props> {
   }
 
   render() {
-    const { } = this.props;
-
     const syncStatus = this.computeSyncStatus();
 
     let innerView;
-
-    //I don't think we should worry about local vs remote firebase syncing
-    //This will be behind the scenes and not concern the user anyway
     switch (syncStatus) {
       case SyncStatus.none: {
         return null;
@@ -190,7 +184,6 @@ class PendingChangesBanner extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => {
-
   return {
     pendingSavedReadings: state.pendingSavedReadings,
     pendingSavedResources: state.pendingSavedResources,
@@ -198,11 +191,5 @@ const mapStateToProps = (state: AppState) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
 
-  }
-}
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(PendingChangesBanner);
+export default connect(mapStateToProps)(PendingChangesBanner);

@@ -9,6 +9,7 @@ import {
   Text,
   View,
   ProgressBarAndroid,
+  ToastAndroid,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import firebase from 'react-native-firebase';
@@ -43,6 +44,7 @@ import { AppState } from './reducers';
 import * as appActions from './actions/index';
 import { UserType } from './typings/UserTypes';
 import { ActionMeta, SyncMeta } from './typings/Reducer';
+import { ResultType, SomeResult } from './typings/AppProviderTypes';
 
 
 export interface OwnProps {
@@ -62,7 +64,7 @@ export interface StateProps {
 
 export interface ActionProps {
   addRecent: any,
-  loadResourcesForRegion: any,
+  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>
 }
 
 
@@ -138,9 +140,13 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
    * The user has dragged the map in the MapSection.
    * Load new resources based on where they are looking
    */
-  onMapRegionChange(region: Region) {
+  async onMapRegionChange(region: Region) {
     console.log("app onMapRegionChange called");
-    return this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
+    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
+
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.showWithGravity("Error loading resources. Please try again.", ToastAndroid.SHORT, ToastAndroid.TOP);
+    }
   }
 
   onBannerPressed(bannerState: SyncStatus) {
@@ -408,9 +414,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     addRecent: (api: BaseApi, userId: string, resource: Resource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
-    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => {
-      dispatch(appActions.getResources(api, userId, region))
-    },
+    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => 
+      dispatch(appActions.getResources(api, userId, region)),
   }
 }
 

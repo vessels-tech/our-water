@@ -18,6 +18,10 @@ export type AnyAction =
   ConnectToExternalServiceActionResponse |
   DisconnectFromExternalServiceActionRequest |
   DisconnectFromExternalServiceActionResponse |
+  DeletePendingReadingActionRequest |
+  DeletePendingReadingActionResponse |
+  DeletePendingRequestActionRequest |
+  DeletePendingRequestActionResponse |
   GetExternalLoginDetailsActionRequest |
   GetExternalLoginDetailsActionResponse |
   GetLocationActionRequest |
@@ -44,8 +48,7 @@ export type AnyAction =
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
   StartExternalSyncActionResponse 
-  ;
-
+;
 
 
 /* Step 2: create a new type for the request and response actions */
@@ -57,6 +60,10 @@ export type ConnectToExternalServiceActionRequest = { type: ActionType.CONNECT_T
 export type ConnectToExternalServiceActionResponse = { type: ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE, result: SomeResult<LoginDetails | EmptyLoginDetails> };
 export type DisconnectFromExternalServiceActionRequest = { type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST };
 export type DisconnectFromExternalServiceActionResponse = { type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_RESPONSE };
+export type DeletePendingReadingActionRequest = { type: ActionType.DELETE_PENDING_READING_REQUEST};
+export type DeletePendingReadingActionResponse = { type: ActionType.DELETE_PENDING_READING_RESPONSE, result: SomeResult<void>};
+export type DeletePendingResourceActionRequest = { type: ActionType.DELETE_PENDING_RESOURCE_REQUEST};
+export type DeletePendingResourceActionResponse = { type: ActionType.DELETE_PENDING_RESOURCE_RESPONSE, result: SomeResult<void>};
 export type GetExternalLoginDetailsActionRequest = { type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_REQUEST };
 export type GetExternalLoginDetailsActionResponse = { type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE, result: SomeResult<LoginDetails | EmptyLoginDetails> };
 export type GetLocationActionRequest = { type: ActionType.GET_LOCATION_REQUEST };

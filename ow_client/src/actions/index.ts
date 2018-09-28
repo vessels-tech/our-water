@@ -2,7 +2,7 @@ import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, Times
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingRequest, DeletePendingReadingResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -144,6 +144,57 @@ function disconnectFromExternalServiceResponse(): DisconnectFromExternalServiceA
   }
 }
 
+
+/**
+ * Async delete pending readings
+ */
+export function deletePendingReading(api: BaseApi, userId: string, pendingReadingId: string): any {
+  return async function(dispatch: any) {
+    dispatch(deletePendingReadingRequest());
+    const result = api.deletePendingReading(userId, pendingReadingId);
+    dispatch(deletePendingReadingResponse(result));
+  }
+}
+
+function deletePendingReadingRequest(): DeletePendingReadingActionRequest {
+  return {
+    type: ActionType.DELETE_PENDING_READING_REQUEST,
+  }
+}
+
+function deletePendingReadingResponse(result: SomeResult<void>): DeletePendingReadingActionResponse {
+  return {
+    type: ActionType.DELETE_PENDING_READING_RESPONSE,
+    result,
+  }
+} 
+
+
+/**
+ * Async delete pending resources
+ */
+export function deletePendingResource(api: BaseApi, userId: string, pendingResourceId: string): any {
+  return async function(dispatch: any) {
+    dispatch(deletePendingResourceRequest()); 
+    const result = api.deletePendingResource(userId, pendingResourceId);
+    dispatch(deletePendingResourceResponse(result));
+  }
+}
+
+function deletePendingResourceRequest(): DeletePendingResourceActionRequest {
+  return {
+    type: ActionType.DELETE_PENDING_RESOURCE_REQUEST,
+  }
+}
+
+function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingResourceActionResponse {
+  return {
+    type: ActionType.DELETE_PENDING_RESOURCE_RESPONSE,
+    result,
+  }
+}
+
+
 /**
  * Async get external login details
  */
@@ -273,13 +324,15 @@ export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange
 /**
  * Async get resources near user
  */
-export function getResources(api: BaseApi, userId: string, region: Region): any {
+export function getResources(api: BaseApi, userId: string, region: Region): (dispatch: any) => Promise<SomeResult<Resource[]>> {
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
 
     //TODO: merge in with a cache somehow?
     const result = await api.getResourcesWithinRegion(region);
     dispatch(getResourcesResponse(result));
+
+    return result;
   }
 }
 
@@ -333,16 +386,17 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
     dispatch(performSearchRequest(page));
 
     const searchResult = await api.performSearch(searchQuery, page);
-    if (searchResult.type === ResultType.ERROR) {
-      return searchResult;
-    }
 
-    if (searchResult.result.length > 0) {
+    dispatch(performSearchResponse(searchResult))
+
+    if (searchResult.type !== ResultType.ERROR && searchResult.result.length > 0) {
       //Add successful search to list
       await api.saveRecentSearch(userId, searchQuery);
     }
 
-    dispatch(performSearchResponse(searchResult))
+    console.log("searchResult", searchResult);  
+
+    return searchResult;
   }
 }
 

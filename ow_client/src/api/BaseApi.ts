@@ -93,6 +93,17 @@ export default interface BaseApi {
 
 
   /**
+   * Delete pending resource
+   */
+  deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>>;
+
+  /**
+   * Delete pending reading
+   */
+  deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>>;
+
+
+  /**
    * Subscribe to a user object, and listen for any changes
    */
   subscribeToUser(userId: string, callback: (user: OWUser) => void): string;

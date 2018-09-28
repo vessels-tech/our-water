@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import {
-  View, TouchableNativeFeedback, ScrollView, TouchableHighlight,
+  View, TouchableNativeFeedback, ScrollView, TouchableHighlight, ToastAndroid,
 } from 'react-native';
 import {
   Card,
@@ -17,7 +17,7 @@ import { getGroundwaterAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-import { SomeResult } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 
@@ -84,7 +84,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { searchQuery, page } = this.state;
   
     this.setState({hasSearched: true});
-    await this.props.performSearch(this.appApi, this.props.userId, searchQuery, page);
+    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, page);
+       
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.showWithGravity("Couldn't perform search. Please try again.", ToastAndroid.SHORT,     ToastAndroid.CENTER);
+    }
   }
 
   async loadMore() {
@@ -113,11 +117,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (error) {
-      return <View>
-        <Text>{errorMessage}</Text>
-      </View>
-    };
+    // if (error) {
+    //   return <View>
+    //     <Text>{errorMessage}</Text>
+    //   </View>            
+    // };
 
     if (searchResults.length === 0) {
       return null;

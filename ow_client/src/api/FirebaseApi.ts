@@ -523,9 +523,12 @@ class FirebaseApi {
       includeMetadataChanges: true
     };
     return this.userDoc(orgId, userId).onSnapshot(options, (sn: any) => {
-
-      const user: OWUser = this.snapshotToUser(sn);
-      return cb(user);
+      try {
+        const user: OWUser = this.snapshotToUser(sn);
+        return cb(user);
+      } catch (err) {
+        console.log('err', err);
+      }
     });
   }
 
@@ -603,13 +606,15 @@ class FirebaseApi {
    */
   static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
     return this.userDoc(orgId, userId).get()
-    .then((sn: any) => {
+    .then((sn: any) => this.snapshotToUser(sn))
+    .then((user: OWUser) => {
       return {
         type: ResultType.SUCCESS,
-        result: this.snapshotToUser(sn),
+        result: user,
       }
     })
     .catch((err: any) => {
+      console.log("Error getting user:", err);
       return {
         type: ResultType.ERROR,
         message: `Could not get user for orgId: ${orgId}, userId: ${userId}`
@@ -617,6 +622,42 @@ class FirebaseApi {
     });
   }
 
+
+  /**
+   * Delete a pending resource
+   */
+  static async deletePendingResource(orgId: string, userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId).collection('pendingResources').delete(pendingResourceId)
+    .then(() => {
+      return {
+        type: ResultType.SUCCESS,
+      };
+    })
+    .catch(() => {
+      return {
+        type: ResultType.ERROR,
+        message: 'Could not delete pending resource'
+      };
+    })
+  }
+
+  /**
+   * Delete a pending reading
+   */
+  static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId).collection('pendingReadings').delete(pendingReadingId)
+      .then(() => {
+        return {
+          type: ResultType.SUCCESS,
+        };
+      })
+      .catch(() => {
+        return {
+          type: ResultType.ERROR,
+          message: 'Could not delete pending resource'
+        };
+      })
+  }
 
   //
   //Utils
@@ -627,6 +668,10 @@ class FirebaseApi {
    */
   static snapshotToUser(sn: any): OWUser {
     const data = sn.data();
+
+    if (!data) {
+      throw new Error("Data from snapshot was undefined or null");
+    }
 
     let favouriteResources: Resource[] = [];
     const favouriteResourcesDict = data.favouriteResources;

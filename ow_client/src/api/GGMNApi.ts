@@ -4,7 +4,7 @@ import { RNFirebase, Firebase } from "react-native-firebase";
 import FirebaseApi from "./FirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
-import { default as ftch } from 'react-native-fetch-polyfill';
+import { default as ftch } from '../utils/Fetch';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
@@ -22,7 +22,7 @@ import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 
 // TODO: make configurable
-const timeout = 1000 * 100;
+const timeout = 1000 * 15; //15 seconds
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
   /**
-  * Connect to an external service.
+  * Connect to an external ser  vice.
   * This is really just a check to see that the login credentials provided work.
   * 
   * Maybe we don't need to save the sessionId. It should be handled
@@ -348,6 +348,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       .then((response: GGMNGroundwaterStationResponse) => {console.log('response', response); return response})
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
       .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
+      .catch((err: Error) => {
+        console.log("Error loading resources:", err);
+        return {type: ResultType.ERROR, message:'Error loading resources.'};
+      })
   }
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
@@ -612,6 +616,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return Promise.resolve(true);
   }
 
+  /**
+   * Delete pending resource
+   */
+  deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
+    return FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
+  }
+
+  /**
+   * Delete pending reading
+   */
+  deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    return FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
+  }
+
 
   /**
    * A listener function which combines callback events from the FirebaseApi and 
@@ -736,6 +754,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     try {
       response = await ftch(url, options);
     } catch(err) {
+      console.log("Error", err);
       return {
         type: ResultType.ERROR,
         message: "Error loading search from GGMN.",
