@@ -627,6 +627,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * Delete pending reading
    */
   deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    console.log("GGMN api delete pending reading");
     return FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
   }
 

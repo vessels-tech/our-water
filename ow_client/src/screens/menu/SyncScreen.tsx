@@ -209,7 +209,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
     deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
-      dispatch(appActions.deletePendingResource(api, userId, pendingReadingId))
+      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId))
   }
 }
 

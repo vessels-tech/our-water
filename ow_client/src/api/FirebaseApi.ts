@@ -645,6 +645,7 @@ class FirebaseApi {
    * Delete a pending reading
    */
   static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    console.log("FB deleting reading: ", orgId, userId, 'pendingReadings', pendingReadingId);
     return this.userDoc(orgId, userId).collection('pendingReadings').doc(pendingReadingId).delete()
       .then(() => {
         return {
