@@ -443,13 +443,17 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
  * Async save reading
  */
 
-export function saveReading(api: BaseApi, userId: string, resourceId: string, reading: Reading ): any {
+export function saveReading(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resourceId: string, reading: Reading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
 
     const result = await api.saveReading(resourceId, userId, reading);
 
     dispatch(saveReadingResponse(result));
+    //Attempt to do a sync
+    if (externalApi) {
+      dispatch(startExternalSync(externalApi, userId));
+    }
     return result;
   }
 }
@@ -471,14 +475,19 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, userId: string, resource: Resource ): 
+export function saveResource(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resource: Resource ): 
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
 
     const result = await api.saveResource(userId, resource);
 
-    dispatch(saveResourceResponse(result));
+    dispatch(saveResourceResponse(result));    
+    //Attempt to do a sync
+    if (externalApi){
+      dispatch(startExternalSync(externalApi, userId));
+    }
+
     return result;
   }
 }

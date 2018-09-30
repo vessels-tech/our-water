@@ -45,6 +45,7 @@ import * as appActions from './actions/index';
 import { UserType } from './typings/UserTypes';
 import { ActionMeta, SyncMeta } from './typings/Reducer';
 import { ResultType, SomeResult } from './typings/AppProviderTypes';
+import ExternalServiceApi from './api/ExternalServiceApi';
 
 
 export interface OwnProps {
@@ -64,7 +65,8 @@ export interface StateProps {
 
 export interface ActionProps {
   addRecent: any,
-  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>
+  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
+  startExternalSync: (api: ExternalServiceApi, userId: string) => void,
 }
 
 
@@ -96,12 +98,14 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
 
   hardwareBackListener: any;
   appApi: BaseApi;
+  externalApi: ExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
+    this.externalApi = props.config.getExternalServiceApi();
 
     //Listen to events from the navigator
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
@@ -110,6 +114,11 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   componentWillMount() {
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
   }
+
+  componentDidMount() {
+    this.props.startExternalSync(this.externalApi, this.props.userId);
+  }
+
 
   componentWillUnmount() {
     //TODO unsubscribe if possible?
@@ -416,6 +425,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => 
       dispatch(appActions.getResources(api, userId, region)),
+    startExternalSync: (api: ExternalServiceApi, userId: string) =>
+      dispatch(appActions.startExternalSync(api, userId)),
   }
 }
 

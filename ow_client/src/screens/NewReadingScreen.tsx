@@ -25,6 +25,7 @@ import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
+import ExternalServiceApi from '../api/ExternalServiceApi';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -55,12 +56,14 @@ export interface State {
 class NewReadingScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
+  externalApi: ExternalServiceApi;
 
   constructor(props: Props) {
     super(props);
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
+    this.externalApi = props.config.getExternalServiceApi();
 
     let timeseriesString = '';
     if (this.props.resource.timeseries[0]) {
@@ -126,7 +129,7 @@ class NewReadingScreen extends Component<Props> {
       return;
     }
 
-    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.props.userId, id, validateResult.result);
+    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
     console.log("result", saveResult);
 
     //TODO: how to do callbacks from state?
@@ -371,8 +374,8 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveReading: (api: BaseApi, userId: string, resourceId: string, reading: Reading) => 
-      { return dispatch(appActions.saveReading(api, userId, resourceId, reading))}
+    saveReading: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
+      { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))}
   }
 }
 

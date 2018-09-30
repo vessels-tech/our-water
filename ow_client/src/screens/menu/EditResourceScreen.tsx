@@ -16,9 +16,10 @@ import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
 import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
-import { SyncMeta } from '../../AppProvider';
 import { TextInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
+import ExternalServiceApi from '../../api/ExternalServiceApi';
+import { SyncMeta } from '../../typings/Reducer';
 
 
 export interface Props { 
@@ -41,6 +42,7 @@ export interface State {
 class EditResourceScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
+  externalApi: ExternalServiceApi;
   editResourceForm: any;
 
   constructor(props: Props) {
@@ -48,6 +50,8 @@ class EditResourceScreen extends Component<Props> {
 
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
+    this.externalApi = this.props.config.getExternalServiceApi();
+    
     this.state = {
       isLoading: false,
     };
@@ -87,7 +91,7 @@ class EditResourceScreen extends Component<Props> {
       return;
     }
 
-    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.props.userId, validationResult.result);
+    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.externalApi, this.props.userId, validationResult.result);
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(`Error saving Resource: ${result.message}`, ToastAndroid.SHORT);
@@ -182,8 +186,8 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, userId: string, resource: Resource) =>
-     { return dispatch(appActions.saveResource(api, userId, resource)) }
+    saveResource: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resource: Resource) =>
+     { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }
 
