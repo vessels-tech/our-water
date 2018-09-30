@@ -12,126 +12,75 @@ import {
   View,
   TouchableNativeFeedback,
 } from 'react-native';
-import { RNFirebase } from 'react-native-firebase';
-type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import {  textLight, bgMed, error1, textDark, warning1 } from '../utils/Colors';
-import FirebaseApi from '../api/FirebaseApi';
-import { ConfigFactory } from '../config/ConfigFactory';
-import BaseApi from '../api/BaseApi';
 import { SyncStatus } from '../typings/enums';
-import { Reading, Resource } from '../typings/models/OurWater';
+import { PendingReading, PendingResource } from '../typings/models/OurWater';
 import { connect } from 'react-redux'
-import * as appActions from '../actions/index';
 import { AppState } from '../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
-import { O_SYNC } from 'constants';
 
 
-export interface Props {
+export interface OwnProps {
   onBannerPressed: any;
 
-  //Injected from Context
+}
+
+export interface StateProps {
   externalLoginDetails: LoginDetails | EmptyLoginDetails,
-  pendingSavedReadings: Reading[],
-  pendingSavedResources: Resource[],
+  pendingSavedReadings: PendingReading[],
+  pendingSavedResources: PendingResource[],
+}
+
+export interface ActionProps {
+
 }
 
 export interface State {
 
 }
-
-const bannerHeight = 25;
  
-class PendingChangesBanner extends Component<Props> {
+class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps> {
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
   }
 
-  getFirebaseBanner() {
+  getBanner(backgroundColor: string, message: string) {
     return (
       <View
         style={{
-          backgroundColor: bgMed,
+          backgroundColor,
           width: '100%',
-          height: bannerHeight,
         }}
       >
         <Text
           style={{
             color: textDark,
             textAlign: 'center',
+            paddingVertical: 5,
           }}
         >
-          {`Syncing changes...`}
+          {message}
         </Text>
       </View>
     );
+  }
+
+  getFirebaseBanner() {
+    return this.getBanner(bgMed, `Syncing changes...`);
   }
 
   getGGMNPendingBanner() {
-    return (
-      <View
-        style={{
-          backgroundColor: warning1,
-          width: '100%',
-          height: bannerHeight,
-        }}
-      >
-        <Text
-          style={{
-            color: textDark,
-            textAlign: 'center',
-          }}
-        >
-          {`Login to GGMN to sync changes.`}
-        </Text>
-      </View>
-    );
+    return this.getBanner(warning1, `Login to GGMN to sync changes.`);
   }
 
   getGGMNBanner() {
-    return (
-      <View
-        style={{
-          backgroundColor: bgMed,
-          width: '100%',
-          height: bannerHeight,
-        }}
-      >
-        <Text
-          style={{
-            color: textDark,
-            textAlign: 'center',
-          }}
-        >
-          {`Saving changes to GGMN...`}
-        </Text>
-      </View>
-    );
+    return this.getBanner(bgMed, `Saving changes to GGMN...`);
   }
 
   getGGMNErrorBanner() {
-    return (
-      <View
-        style={{
-          backgroundColor: error1,
-          width: '100%',
-          height: bannerHeight,
-        }}
-      >
-        <Text
-          style={{
-            color: textLight,
-            textAlign: 'center',
-            alignSelf: 'center',
-          }}
-        >
-          {`Error saving to GGMN. Click here for more info.`}
-        </Text>
-      </View>
-    );
+    return this.getBanner(error1, `Error saving to GGMN. Click here for more info.`);
   }
 
   computeSyncStatus(): SyncStatus {
@@ -183,7 +132,7 @@ class PendingChangesBanner extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState): StateProps => {
   return {
     pendingSavedReadings: state.pendingSavedReadings,
     pendingSavedResources: state.pendingSavedResources,

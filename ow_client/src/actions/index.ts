@@ -538,7 +538,7 @@ export function startExternalSync(api: ExternalServiceApi, userId: string): (dis
   return async function(dispatch: any) {
     dispatch(externalSyncRequest());
     //TODO: call the api!
-    // api.sync;
+    console.log("TODO: syncing with GGMN api");
 
     const result: SomeResult<ExternalSyncStatus> = {
       type: ResultType.SUCCESS,

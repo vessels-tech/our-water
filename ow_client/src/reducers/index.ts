@@ -375,7 +375,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       //TODO: handle login error case here?
       return Object.assign({}, state, { externalSyncStatus })
-
     }
 
     default: 

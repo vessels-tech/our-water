@@ -417,3 +417,36 @@ export function addReadingsAndStopLoading(readings: Reading[], timeseriesReading
 export function getTimeseriesReadingKey(timeseriesId: string, range: TimeseriesRange): string {
   return `${timeseriesId}+${range}`;
 }
+
+
+
+/**
+ * A simple throttle function
+ * @param delay delay time in ms
+ * @param cb the original function
+ */
+export function throttled(delay: number, cb: any) {
+  let lastCall = 0;
+  return function (...args: any[]) {
+    const now = (new Date).getTime();
+    if (now - lastCall < delay) {
+      return;
+    }
+    lastCall = now;
+    return cb(...args);
+  }
+}
+
+// ES6
+export function debounced(delay: number, fn: any) {
+  let timerId: any;
+  return function (...args: any[]) {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+    timerId = setTimeout(() => {
+      fn(...args);
+      timerId = null;
+    }, delay);
+  }
+}

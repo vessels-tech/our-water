@@ -5,7 +5,7 @@ import { width as w, height as h } from 'react-native-dimension';
 // @ts-ignore
 import * as supercluster from 'supercluster';
 import CustomMarker from './CustomMarker';
-import { calculateBBox } from '../../utils';
+import { calculateBBox, debounced } from '../../utils';
 
 export interface Props {
   clusterBorderColor: string,
@@ -54,6 +54,7 @@ class ClusteredMapView extends Component<Props> {
   superCluster: any;
   root: any;
   state: State;
+  debouncedOnRegionChangeComplete: any;
 
   constructor(props: Props) {
     super(props);
@@ -63,6 +64,8 @@ class ClusteredMapView extends Component<Props> {
       maxZoom: 9,
       // minZoom: 1,
     });
+
+    this.debouncedOnRegionChangeComplete = debounced(2000, this.onRegionChangeComplete);
 
     this.state = {
       currentRegion: props.initialRegion,
@@ -96,7 +99,6 @@ class ClusteredMapView extends Component<Props> {
   onRegionChangeComplete = (region: any) => {
     return this.props.onRegionChangeComplete(region);
 
-    //TODO: clusters should only be changed on a props change
     // .then(() => {
     //   const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
     //   if (region.longitudeDelta <= 80) {
@@ -225,7 +227,7 @@ class ClusteredMapView extends Component<Props> {
         showsPointsOfInterest={false}
         showsUserLocation
         initialRegion={this.state.currentRegion}
-        onRegionChangeComplete={this.onRegionChangeComplete}
+        onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
       >
         {/* {this.state.clusteredMarkers} */}
         {/* {this.state.otherChildren} */}
