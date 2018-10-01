@@ -2,7 +2,6 @@ import * as React from 'react'; import { Component } from 'react';
 import {
   View,
   ViewPagerAndroid,
-  TouchableNativeFeedback
 } from 'react-native';
 import { 
   Avatar,
@@ -12,21 +11,15 @@ import {
 } from 'react-native-elements';
 
 import Loading from './common/Loading';
-import IconButton from './common/IconButton';
 import StatCard from './common/StatCard';
 import {
   getShortId, isFavourite, getTimeseriesReadingKey,
 } from '../utils';
-import FirebaseApi from '../api/FirebaseApi';
-import Config from 'react-native-config';
-import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, textMed } from '../utils/Colors';
-import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, TimeseriesRangeReadings } from '../typings/models/OurWater';
+import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, } from '../utils/Colors';
+import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { GGMNTimeseries } from '../typings/models/GGMN';
-import * as moment from 'moment';
 import HeadingText from './common/HeadingText';
-import { S_IFIFO } from 'constants';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
@@ -34,7 +27,6 @@ import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
-import { Action } from 'redux';
 
 
 export interface OwnProps {
@@ -74,7 +66,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
 
-    const DEFAULT_RANGE = TimeseriesRange.TWO_WEEKS;
+    const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
     timeseries.forEach(ts => this.props.getReadings(this.appApi, id, ts.id, DEFAULT_RANGE));
   }
@@ -148,7 +140,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     const readingsMap = new Map<string, Reading[]>();
 
     resource.timeseries.forEach(ts => {
-      const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.TWO_WEEKS);
+      const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.EXTENT);
       const tsReading: TimeSeriesReading | undefined = tsReadings[key]
       if (!tsReading) {
         return <Loading />
@@ -169,10 +161,15 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     const keys = [...readingsMap.keys()];
     return (
       keys.map((key, idx) => {
-        const value = readingsMap.get(key);
+        const readings = readingsMap.get(key);
+        let content = 'N/A';
+        if (readings) {
+          const latestReading = readings[readings.length - 1];
+          content = `${latestReading.value}`;
+        }
         const timeseries = resource.timeseries[idx];
         return (
-          <HeadingText key={key} heading={timeseries.name} content={`${value}`} />
+          <HeadingText key={key} heading={timeseries.name} content={content} />
         )
       })
     );

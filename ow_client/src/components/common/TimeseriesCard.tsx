@@ -7,7 +7,7 @@ import {
 } from 'react-native-elements';
 import { OWTimeseries, Reading, TimeseriesRange, TimeseriesRangeReadings, TimeseriesReadings } from '../../typings/models/OurWater';
 import { View } from 'react-native';
-import { textLight, primaryDark, bgLight } from '../../utils/Colors';
+import { textLight, primaryLight, primaryDark, bgLight, bgDark } from '../../utils/Colors';
 import LineChartExample from './DemoChart';
 import { SomeResult } from '../../typings/AppProviderTypes';
 import Loading from './Loading';
@@ -18,6 +18,7 @@ import { AppState } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
 import { getTimeseriesReadingKey } from '../../utils';
+import SimpleChart from './SimpleChart';
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -44,7 +45,7 @@ export interface State {
 class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {
-    currentRange: TimeseriesRange.TWO_WEEKS,
+    currentRange: TimeseriesRange.EXTENT,
   }
 
   constructor(props: OwnProps & StateProps & ActionProps) {
@@ -59,9 +60,16 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: {id}, resourceId } = this.props;
 
     const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
-    if (!readings) {
+    if (!readings || readings.readings && readings.readings.length === 0) {
       // console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
-      return null;
+      return (
+        <View style={{
+          flex: 10,
+          justifyContent: 'center',
+        }}>
+          <Text style={{textAlign: 'center'}}>Not enough readings for this time range.</Text>
+        </View>
+      )
     }
 
     console.log("GetGraphView for range", readings);
@@ -77,20 +85,21 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    //TODO: actually load readings
     return (
       <View style={{
-        // backgroundColor: 'red',
         flex: 5,
         justifyContent: 'center'
       }}>
-        <LineChartExample/>
+        <SimpleChart
+          readings={readings.readings}
+          timeseriesRange={currentRange} 
+        />
       </View>
     );
   }
 
   getBottomButtons() {
-    const buttons: { text: string, value: TimeseriesRange}[] = [
+    const buttons: { text: string, value: TimeseriesRange }[] = [
       { text: '1Y', value: TimeseriesRange.ONE_YEAR},
       { text: '3M', value: TimeseriesRange.THREE_MONTHS},
       { text: '2W', value: TimeseriesRange.TWO_WEEKS},
@@ -99,10 +108,12 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <View style={{
-          flex: 1,
+          // flex: 1,
           borderColor: textLight,
           borderTopWidth: 2,
-          maxHeight: 40,
+          paddingTop: 3,
+          marginBottom: 5,
+          height: 35,
         }}>
         <View style={{
           flexDirection: 'row-reverse',
@@ -110,9 +121,9 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
           {buttons.map(b => (
             <Button
               key={b.text}
-              color={primaryDark}
+              color={this.state.currentRange === b.value ? primaryLight : primaryDark}
               buttonStyle={{
-                backgroundColor: bgLight,
+                backgroundColor: this.state.currentRange === b.value ? primaryDark : bgLight,
                 paddingHorizontal: 5,
                 height: 30,
               }}
@@ -149,8 +160,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
           height: '100%',
         }}>
           <Text style={{
-            flex: 1,
-            paddingVertical: 10,
+            paddingVertical: 5,
             textDecorationLine: 'underline',
             fontSize: 15,
             fontWeight: '600',
