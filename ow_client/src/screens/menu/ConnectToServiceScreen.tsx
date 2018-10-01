@@ -12,12 +12,12 @@ import {
 } from "react-reactive-form";
 import BaseApi from '../../api/BaseApi';
 import ExternalServiceApi from '../../api/ExternalServiceApi';
-import { AppContext, SyncMeta } from '../../AppProvider';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
+import { SyncMeta } from '../../typings/Reducer';
 import { TextInput } from '../../components/common/FormComponents';
 
 

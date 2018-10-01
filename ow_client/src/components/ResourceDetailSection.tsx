@@ -165,7 +165,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         let content = 'N/A';
         if (readings) {
           const latestReading = readings[readings.length - 1];
-          content = `${latestReading.value}`;
+          if (latestReading) {
+            content = `${latestReading.value}`;
+          }
         }
         const timeseries = resource.timeseries[idx];
         return (
