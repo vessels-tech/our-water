@@ -413,8 +413,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;
     const url = appendUrlParameters(readingUrl, {
       uuid: timeseriesId,
-      startDate,
-      endDate,
+      start: startDate,
+      end: endDate,
       //I don't know why we need this, but it's taken straight from the GGMN site
       min_points: 320
     });
@@ -430,13 +430,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     };
 
     console.log("getReadingsForTimeseries url:", url);
-
-    // try {
-    //   const response = await ftch(url, options);
-
-    // } catch (err) {
-    //   console.log("fetch error", err);
-    // }
 
     return ftch(url, options)
     .then((response: any): Promise<GGMNTimeseriesResponse> | Promise<never> => {

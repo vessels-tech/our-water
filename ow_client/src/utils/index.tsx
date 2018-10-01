@@ -356,9 +356,29 @@ export function isFavourite(favouriteResources: Resource[], resourceId: string) 
  * Convert a TimeseriesRange into unix typestamp start and end dates
  */
 export function convertRangeToDates(range: TimeseriesRange): { startDate: number, endDate: number } {
-  //TODO: parse dates etc.
+  let startDate: number;
+  switch (range) {
+    case TimeseriesRange.TWO_WEEKS: {
+      startDate = moment().subtract(2, 'weeks').valueOf()
+      break;
+    }
+    case TimeseriesRange.THREE_MONTHS: {
+      startDate = moment().subtract(3, 'months').valueOf()
+      break;
+    }
+    case TimeseriesRange.ONE_YEAR: {
+      startDate = moment().subtract(1, 'year').valueOf()
+      break;
+    }
+    case TimeseriesRange.EXTENT:
+    default: {
+      //This may not really be the extend, but we have to start somewhere.
+      startDate = moment().subtract(10, 'years').valueOf();
+    }
+  }
+
   return {
-    startDate: moment().subtract(1, 'year').valueOf(),
+    startDate,
     endDate: moment().valueOf(),
   }
 }

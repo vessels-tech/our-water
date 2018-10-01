@@ -130,7 +130,7 @@ class FirebaseApi {
   }
 
   static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<Resource[]>> {
-
+    //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
 
     if (r.type === ResultType.ERROR) {
@@ -138,20 +138,24 @@ class FirebaseApi {
     }
 
     const recentResources = r.result;
-    //only keep the last 5 resources
-    recentResources.unshift(resource);
+    //Remove from array this resource already is present
+    const filtered = recentResources.filter(r => r.id !== resource.id)
+    //Add latest to the start
+    filtered.unshift(resource);
     
     //remove this resource from later on if it already exists
-    const dedupDict: any = {};
-    recentResources.forEach((res: any) => { dedupDict[res.id] = res});
-    const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
-    while (dedupList.length > 5) {
-      dedupList.pop();
+    // const dedupDict: any = {};
+    // recentResources.forEach((res: any) => { dedupDict[res.id] = res});
+    // const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
+
+    //Make sure we don't have more than 10
+    while (filtered.length > 10) {
+      filtered.pop();
     }
 
-    console.log("dedupList is:", orgId, userId, dedupList);
+    console.log("filtered is:", orgId, userId, filtered);
 
-    const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: dedupList }, {merge: true});
+    const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: filtered }, {merge: true});
     console.log("result is", result);
 
     return await this.getRecentResources(orgId, userId);

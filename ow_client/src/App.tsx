@@ -205,6 +205,16 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       ToastAndroid.show('Could not find the selected resource', ToastAndroid.SHORT);
       return;
     }
+    const resource = result.result;
+    //TODO: move elsewhere
+    const resourceLocation: Location = {
+      type: LocationType.LOCATION,
+      coords: {
+        latitude: resource.coords._latitude,
+        longitude: resource.coords._longitude,
+      }
+    };
+    this.updateGeoLocation(resourceLocation);
     this.selectResource(result.result);
   }
 
