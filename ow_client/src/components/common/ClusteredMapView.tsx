@@ -65,7 +65,7 @@ class ClusteredMapView extends Component<Props> {
       // minZoom: 1,
     });
 
-    this.debouncedOnRegionChangeComplete = debounced(2000, this.onRegionChangeComplete);
+    this.debouncedOnRegionChangeComplete = debounced(1000, this.onRegionChangeComplete);
 
     this.state = {
       currentRegion: props.initialRegion,
