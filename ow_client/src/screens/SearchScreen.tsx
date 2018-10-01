@@ -22,7 +22,7 @@ import * as appActions from '../actions';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 
 export interface OwnProps {
-  onSearchResultPressed: any,
+  onSearchResultPressed: (result: GGMNSearchEntity) => void,
   navigator: any;
   userId: string,
   config: ConfigFactory,
@@ -117,11 +117,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    // if (error) {
-    //   return <View>
-    //     <Text>{errorMessage}</Text>
-    //   </View>            
-    // };
 
     if (searchResults.length === 0) {
       return null;
@@ -130,7 +125,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View>
         {
-          // TODO: fix this with a touchable native feedback
           searchResults.map((r: GGMNSearchEntity, i) => {
             return (
               <ListItem
@@ -151,7 +145,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
             );
           })  
         }
-        {/* TODO: only display if we have 25 results */}
+        {/* TODO: only display if we have 25 results, 
+            we need to pass through the page size in the meta field */}
         <ListItem
           containerStyle={{
             paddingLeft: 10,
@@ -161,7 +156,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           onPress={() => {
             this.loadMore()
           }}
-          title={'More'}
+          title={'More ...'}
         />
       </View>
     );

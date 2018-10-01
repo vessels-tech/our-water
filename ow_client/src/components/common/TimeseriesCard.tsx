@@ -60,7 +60,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
     const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
     if (!readings) {
-      console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
+      // console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
       return null;
     }
 

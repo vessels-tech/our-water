@@ -46,6 +46,7 @@ import { UserType } from './typings/UserTypes';
 import { ActionMeta, SyncMeta } from './typings/Reducer';
 import { ResultType, SomeResult } from './typings/AppProviderTypes';
 import ExternalServiceApi from './api/ExternalServiceApi';
+import { GGMNSearchEntity } from './typings/models/GGMN';
 
 
 export interface OwnProps {
@@ -140,7 +141,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     if (event.id === 'search') {
       navigateTo(this.props, 'screen.SearchScreen', 'Search', {
         config: this.props.config,
-        onSearchResultPressed: (result: any) => this.onSearchResultPressed(result),
+        onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
       });
     }
   }
@@ -194,8 +195,17 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
    * Handle when a user clicks a result from the search screen.
    * 
    */
-  onSearchResultPressed(r: Resource): void {
-    this.selectResource(r);
+  async onSearchResultPressed(r: GGMNSearchEntity): Promise<void> {
+    //TODO: reimmplement selectResource for a search entity.
+    //Load the resource for the search entity?
+
+    //We can move the user there on the map before the resource has loaded...
+    const result = await this.appApi.getResourceFromSearchEntityId(this.props.userId, r.entity_id);
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show('Could not find the selected resource', ToastAndroid.SHORT);
+      return;
+    }
+    this.selectResource(result.result);
   }
 
   /**

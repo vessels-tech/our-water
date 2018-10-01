@@ -170,4 +170,11 @@ export default interface BaseApi {
    * the search if possible.
    */
   performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>>;
+
+
+  /**
+   * Once GGMN loads a resource from a search, we need to use the entityId to convert it to a fully 
+   * fledged Resource
+   */
+  getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<Resource>>;
 }

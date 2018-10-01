@@ -89,7 +89,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   */
   connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails> {
     const url = `${this.baseUrl}/api/v3/organisations/`;
-    console.log("url is", url);
+    console.log("connectToService url is", url);
     let signInResponse: LoginDetails | EmptyLoginDetails;
 
     const options = {
@@ -193,7 +193,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     let credentials;
     try {
       credentials = await this.getCredentials();
-      console.log('getExternalServiceLoginDetails got credentials', credentials);
     } catch (err) {
       //No credentials:
       return {
@@ -204,7 +203,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     try {
       const result = await this.connectToService(credentials.username, credentials.password);
-      console.log("connectToService result", result);
 
       return result;
     } catch (err) {
@@ -260,7 +258,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * Add a resource to the recently viewed list
    */
   addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
-    console.log("userId is:", userId);
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
@@ -301,7 +298,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       // page: 0,
       page_size: 100,
     });
-    console.log("URL is", url);
+    console.log("getResources URL is", url);
     
     const options = {
       timeout,
@@ -328,7 +325,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       page_size: 100,
       in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`
     });
-    console.log("URL is", url);
+    console.log("getResourcesWithinRegion. URL is", url);
 
     const authHeaders = await this.getOptionalAuthHeaders();
     const options = {
@@ -341,11 +338,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       }
     };
 
-    console.log("options are", options);
-
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
-      .then((response: GGMNGroundwaterStationResponse) => {console.log('response', response); return response})
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
       .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
       .catch((err: Error) => {
@@ -409,8 +403,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * @param resourceId: string -> The id of the resource. Not strictly required for the 
    *    GGMN api, but required to refer to the reading later on.
    * @param timeseriesId: string  -> The id of the timeseries
-   * @param startDate: string  -> Unix timestamp date. The start date of the readings
-   * @param endDate: string  -> Unix timestamp date. The end date of the readings,
+   * @param range: TimeseriesRange -> the range of the selected query
    * 
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
@@ -447,7 +440,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     return ftch(url, options)
     .then((response: any): Promise<GGMNTimeseriesResponse> | Promise<never> => {
-      console.log("response from ftch?", response);
       if (!response.ok) {
         return rejectRequestWithError(response.status);
       }
@@ -601,8 +593,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       body: JSON.stringify(data),
     };
 
-    console.log("url is", url);
-    console.log("options are:", options);
+    console.log("persistReadingToGGMN url is", url);
 
     return ftch(url, options)
     .then((response: any) => deprecated_naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
@@ -627,7 +618,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * Delete pending reading
    */
   deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
-    console.log("GGMN api delete pending reading");
     return FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
   }
 
@@ -687,7 +677,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     //TODO: add other metadata here!
     let keys = [...subscribers.keys()];
     keys.forEach(key => {
-      console.log("updatingSubscriber:", key);
       const callback = subscribers.get(key);
       //TODO: reenable
       callback(syncStatus);
@@ -750,7 +739,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     
     console.log("performSearch url:", url);
-    console.log("options are", options);
     let response: any;
     try {
       response = await ftch(url, options);
@@ -770,6 +758,40 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return {
       type: ResultType.SUCCESS,
       result: searchResponse.result.results,
+    }
+  }
+
+  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<Resource>> {
+    const url = `${this.baseUrl}/api/v3/groundwaterstations/${entityId}/`;
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+      },
+    };
+
+    console.log("getResourceFromSearchEntityUrl url:", url);
+
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      console.log("getResourceFromSearchEntityUrl error:", err);
+      return {
+        type: ResultType.ERROR,
+        message: `Error getting resource from search entity url: ${url}`,
+      }
+    }
+
+    const groundwaterStationResponse = await naiveParseFetchResponse<GGMNGroundwaterStation>(response);
+    if (groundwaterStationResponse.type === ResultType.ERROR) {
+      return groundwaterStationResponse;
+    }
+    const resource = GGMNApi.ggmnStationToResource(groundwaterStationResponse.result);
+    return {
+      type: ResultType.SUCCESS,
+      result: resource
     }
   }
 
