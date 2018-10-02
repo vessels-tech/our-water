@@ -1,4 +1,4 @@
 dep_*
 node_modules
 .env*.*
-.runtimeconfig.json
+.runtimeconfig.json.*.env

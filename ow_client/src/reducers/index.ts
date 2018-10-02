@@ -339,49 +339,39 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userIdMeta,
       });
     }
-    // case ActionType.ADD_FAVOURITE: {
 
-    //   const { favouriteResources } = state;
-    //   favouriteResources.set(action.resource.id, action.resource);
-      
-    //   return Object.assign({}, state, { favouriteResources });
-    // }
-    // case ActionType.REMOVE_FAVOURITE: {
-    //   const { favouriteResources } = state;
-    //   favouriteResources.delete(action.resourceId);
-      
-    //   return Object.assign({}, state, { favouriteResources });
-    // }
 
     case ActionType.ADD_RECENT_REQUEST: {
       //Set the recent resource meta to loading: true
-
       const recentResourcesMeta = {loading: true};
       
       return Object.assign({}, state, { recentResourcesMeta })
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-      //TODO: how to handle errors nicely in here?
-      const result = action.result;
-      // let recentResources: Resource[] = []; //TODO: should this default to the last one?
-      // if (result.type === ResultType.ERROR) {
-      //   recentResourcesMeta = {
-      //     loading: true,
-      //     error: true,
-      //     errorMessage: result.message,
-      //   }
-      // } else {
-      //   recentResources = result.result;
-      // }
-
-      // console.log("AddRecentResponse, resources", recentResources);
-      
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };      
       return Object.assign({}, state, { recentResourcesMeta })
     }
+    case ActionType.SAVE_READING_REQUEST: {
+      const pendingSavedReadingsMeta =  { loading: true };
 
+      return Object.assign({}, state, { pendingSavedReadingsMeta });
+    }
+    case ActionType.SAVE_READING_RESPONSE: {
+      const pendingSavedReadingsMeta = { loading: false };
 
+      return Object.assign({}, state, { pendingSavedReadingsMeta });
+    }
+    case ActionType.SAVE_RESOURCE_REQUEST: {
+      const pendingSavedResourcesMeta =  { loading: true };
+
+      return Object.assign({}, state, { pendingSavedResourcesMeta });
+    }
+    case ActionType.SAVE_RESOURCE_RESPONSE: {
+      const pendingSavedResourcesMeta = { loading: false };
+
+      return Object.assign({}, state, { pendingSavedResourcesMeta });
+    }
     case ActionType.START_EXTERNAL_SYNC_REQUEST: {
       const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.RUNNING };
 

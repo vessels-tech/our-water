@@ -62,7 +62,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
     const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
     if (isNullOrUndefined(readings) || isNullOrUndefined(readings.readings) || readings.readings && readings.readings.length === 0) {
-      console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
       return (
         <View style={{
           flex: 10,
