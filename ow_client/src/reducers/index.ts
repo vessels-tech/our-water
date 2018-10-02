@@ -110,7 +110,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (action.result.type === ResultType.SUCCESS) {
         const externalLoginDetails = action.result.result;
-        console.log("setting external login details", externalLoginDetails);
         return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
       }
 
@@ -235,7 +234,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TODO: ideally expire them properly, but this will work for now.
       const over = resourcesCache.size - RESOURCE_CACHE_MAX_SIZE;
       if (over > 0) {
-        // console.log(`Removing ${over} items from cache`);
         const range = Array(over).fill(1).map((x, y) => x + y);
         const keys = [...resourcesCache.keys()];
         range.forEach(idx => {
@@ -249,8 +247,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       newResources.forEach(r => resourcesCache.set(r.id, r));
-      //TODO: add this back
-      // pendingSavedResources.forEach(r => resourcesCache.set(r.id, r));
       [...resourcesCache.keys()].forEach(k => {
         const value = resourcesCache.get(k);
         if (value) {
@@ -258,7 +254,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         }
       });
 
-      // console.log("resources count is:", resources.length);
       return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
     }
     case ActionType.GET_USER_REQUEST: {
@@ -326,7 +321,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const userIdMeta = { loading: false, error: false, errorMessage: '' };
 
       const result = action.userIdResult;
-      console.log("SILENT_LOGIN_RESPONSE", result);
       if (result.type === ResultType.ERROR) {
         userIdMeta.error = true;
         userIdMeta.errorMessage = result.message;

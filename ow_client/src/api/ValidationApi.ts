@@ -3,6 +3,7 @@ import * as Joi from 'react-native-joi';
 import { Reading, PendingResource, Resource } from '../typings/models/OurWater';
 import { SomeResult, ResultType, ErrorResult, SuccessResult } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
+import { maybeLog } from '../utils';
 
 export function validateReading(reading: any): Promise<SomeResult<Reading>> {
   const schema:Joi.SchemaLike = Joi.object().keys({
@@ -24,7 +25,6 @@ export function validateReading(reading: any): Promise<SomeResult<Reading>> {
     const result = Joi.validate(reading, schema);
     
     if (result.error !== null) {
-      console.log('error', result.error);
       const errorResult: ErrorResult = {
         type: ResultType.ERROR,
         message: result.error.message,
@@ -64,7 +64,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
   const result = Joi.validate(resource, schema);
 
   if (result.error !== null) {
-    console.log("validation error", result.error);
+    maybeLog("validation error: " + result.error);
     return {
       type: ResultType.ERROR,
       message: result.error.message,

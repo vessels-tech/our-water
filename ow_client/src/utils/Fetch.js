@@ -1,3 +1,5 @@
+import { log } from "util";
+
 'use strict';
 
 var self = this || global;
@@ -76,7 +78,7 @@ export default function fetchPolyfill(input, init) {
     }
 
     xhr.onabort = function () {
-      console.log("request aborted");
+      log("request aborted");
       reject(new TypeError('Network request failed'));
     }
 

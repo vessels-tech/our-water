@@ -92,8 +92,6 @@ class EditResourceScreen extends Component<Props> {
   handleSubmit = async () => {
     Keyboard.dismiss();
 
-    //TODO: parse resource from this.editResourceForm
-    console.log("form values:", this.editResourceForm.value);
     const unvalidatedResource = {
       coords: {
         latitude: this.editResourceForm.value.lat,
@@ -105,7 +103,6 @@ class EditResourceScreen extends Component<Props> {
       },
       userId: this.props.userId,
     };
-    console.log("unvalidated resource:", unvalidatedResource);
     
     const validationResult: SomeResult<Resource | PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
@@ -145,7 +142,7 @@ class EditResourceScreen extends Component<Props> {
               <LoadLocationButton style={{
                 alignSelf: 'center',
                 // paddingLeft: 15,
-              }} onComplete={() => console.log("location loaded")}/>
+              }}/>
               <FieldControl
                 name="lat"
                 render={TextInput}

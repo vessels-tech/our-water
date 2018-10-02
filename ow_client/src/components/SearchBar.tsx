@@ -14,6 +14,7 @@ import FirebaseApi from '../api/FirebaseApi';
 
 import Config from 'react-native-config'
 import { textDark } from '../utils/Colors';
+import { maybeLog } from '../utils';
 const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
@@ -53,7 +54,7 @@ export default class SearchPanel extends Component<Props> {
         });
       })
       .catch(err => {
-        console.log('search err', err);
+        maybeLog('search err: ' + err);
         this.setState({isLoading: false});
       });
   }

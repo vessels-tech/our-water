@@ -9,6 +9,7 @@ import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { EnableLogging } from './EnvConfig';
 
 
 /**
@@ -37,7 +38,6 @@ export function deprecated_naiveParseFetchResponse<T>(response: any): Promise<T>
 }
 
 export async function naiveParseFetchResponse<T>(response: any): Promise<SomeResult<T>> {
-  console.log('naiveParseFetchResponse', response);
   if (!response.ok) {
     return {
       type: ResultType.ERROR,
@@ -93,7 +93,7 @@ export const rejectRequestWithError = (status: number) => {
 
 export const showAlert = (title: string, message: string) => {
   Alert.alert(title, message,
-    [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+    [{ text: 'OK'}],
     { cancelable: false }
   );
 }
@@ -137,9 +137,6 @@ export const pinColorForResourceType = (resourceType: any) => {
 }
 
 export const getSelectedResourceFromCoords = (resources: Resource[], coords: BasicCoords): Resource | null => {
-  console.log("coords are", coords);
-  console.log("resources length is: ", resources.length);
-
   const filtered = resources.filter((res: any) => {
     return coords.latitude === res.coords._latitude && 
       coords.longitude === res.coords._longitude;
@@ -408,8 +405,6 @@ export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadin
   const readingsForRange = tsRangeReadings[range];
   readingsForRange.meta = { loading };
 
-  console.log('readingsForRange', readingsForRange);
-
   tsRangeReadings[range] = readingsForRange;
   timeseriesReadings.set(timeseriesId, tsRangeReadings);
 
@@ -467,5 +462,30 @@ export function debounced(delay: number, fn: any) {
       fn(...args);
       timerId = null;
     }, delay);
+  }
+}
+
+
+export function getBoolean(value: any) {
+  switch (value) {
+    case true:
+    case "true":
+    case 1:
+    case "1":
+    case "on":
+    case "yes":
+      return true;
+    default:
+      return false;
+  }
+}
+
+export function maybeLog(message: any, object?: any) {
+  if (EnableLogging) {
+    if (object) {
+      console.log(message, object);
+      return;
+    }
+    console.log(message);
   }
 }

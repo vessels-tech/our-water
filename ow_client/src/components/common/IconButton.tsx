@@ -34,7 +34,6 @@ export default class IconButton extends Component<Props> {
     })
     .catch(err => {
       //TODO: display error to user
-      console.log('err', err);
       this.setState({ loading: false });
     });
   }

@@ -20,17 +20,19 @@ import { UserType } from '../typings/UserTypes';
 import { OWUser, Reading, Resource, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
+import { EnableLogging } from '../utils/EnvConfig';
 
-const loggerMiddleware = createLogger();
+
+let loggerMiddleware: any = null;
+if (EnableLogging) {
+  loggerMiddleware = createLogger();
+}
 
 export async function registerScreens(config: ConfigFactory) {
 
-  const store = createStore(OWApp,
-    applyMiddleware(
-      thunkMiddleware,
-      loggerMiddleware,
-    )
-  );
+  const middleware = loggerMiddleware ? applyMiddleware(thunkMiddleware,loggerMiddleware)
+   : applyMiddleware(thunkMiddleware);
+  const store = createStore(OWApp, middleware);
 
   /* Initial actions */
   await store.dispatch(appActions.silentLogin(config.appApi));
@@ -43,7 +45,6 @@ export async function registerScreens(config: ConfigFactory) {
     
     /* Subscribe to firebase updates */
     config.appApi.subscribeToUser(user.userId, (user: OWUser) => {
-      console.log("got updated user!", user);
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
     });
 
@@ -56,7 +57,6 @@ export async function registerScreens(config: ConfigFactory) {
     });
   }
 
-  console.log(config.externalServiceApi);
   if (config.externalServiceApi) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }

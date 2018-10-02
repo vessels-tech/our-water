@@ -5,6 +5,7 @@ import NetworkApi from "../api/NetworkApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
+import { maybeLog } from "../utils";
 
 
 /**
@@ -52,12 +53,9 @@ export class ConfigFactory {
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
-    console.log("envConfig", envConfig);
+    maybeLog("envConfig " + envConfig);
     this.envConfig = envConfig;
     this.networkApi = networkApi;
-
-    console.log("init config factory with config", this.remoteConfig);
-
 
     //Set up App Api
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
