@@ -17,6 +17,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { SyncMeta } from '../typings/Reducer';
 
 export interface OwnProps {
+  style?: any,
   onComplete: any,
 }
 
@@ -53,33 +54,41 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
   render() {
     const { locationMeta: { loading } } = this.props;
 
-    return (
-      <View style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: primary,
-        borderRadius: 50,
-        width:45,
-        height:45,
-      }}>
-        {loading ? 
-          <ActivityIndicator 
-            size="large" 
+    const viewStyle = {
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: primary,
+      borderRadius: 50,
+      width: 45,
+      height: 45,
+      ...this.props.style
+    }
+
+    if (loading) {
+      return (
+        <View style={viewStyle}>
+          <ActivityIndicator
+            size="large"
             color={textDark}
-            />:
-          <Icon 
-            reverse
-            raised
-            size={20}
-            name={"near-me"}
-            onPress={() => this.updateGeoLocation()}
-            iconStyle={{
-              color: textDark,
-            }}
-            color={primary}
           />
-        }
-      </View>
+        </View>
+      );
+    }
+
+
+    return (
+      <Icon 
+        containerStyle={viewStyle}
+        reverse
+        raised
+        size={20}
+        name={"near-me"}
+        onPress={() => this.updateGeoLocation()}
+        iconStyle={{
+          color: textDark,
+        }}
+        color={primary}
+      />
     );
   }
 }

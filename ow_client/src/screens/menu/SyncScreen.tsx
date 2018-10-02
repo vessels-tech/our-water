@@ -11,8 +11,8 @@ import { Reading, Resource, PendingReading, PendingResource } from '../../typing
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar } from '../../utils';
-import { error1 } from '../../utils/Colors';
-
+import { error1, primary, primaryDark, textDark, bgLight } from '../../utils/Colors';
+import * as moment from 'moment';
 
 export interface OwnProps {
   navigator: any,
@@ -68,15 +68,23 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     const syncing: boolean = externalSyncStatus.type === ExternalSyncStatusType.RUNNING;
 
     return (
-      <Button
-        style={{
-          paddingBottom: 20,
-          minHeight: 50,
-        }}
-        loading={syncing}
-        title={syncing ? 'Syncing with GGMN' : 'Start Sync'}
-        onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
-      />
+        <Button
+          style={{
+            paddingBottom: 20,
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            borderRadius: 15,
+            position: 'relative',
+          }}
+          color={textDark}
+          backgroundColor={primary}
+          borderRadius={15}
+          loading={syncing}
+          icon={{ name: 'cached', color: textDark }}
+          title={syncing ? 'Syncing with GGMN' : 'Start Sync'}
+          onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
+        />
     )
   }
 
@@ -84,17 +92,15 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <ListItem
         containerStyle={{
-          paddingLeft: 10,
+          paddingLeft: 6,
         }}
-        hideChevron
         key={i}
         onPress={() => {console.log("pressed resource")}}
         roundAvatar
         rightIcon={
           <TouchableNativeFeedback
             onPress={() => {
-              console.log("Deleteting resource", r);
-              this.props.deletePendingReading(this.appApi, this.props.userId, r.pendingId);
+              this.props.deletePendingResource(this.appApi, this.props.userId, r.pendingId);
             }}
           >
             <Icon
@@ -103,9 +109,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={'title'}
+        title={r.pendingId}
         avatar={getGroundwaterAvatar()}
-        subtitle={r.owner.name}/>
+        subtitle={`${r.owner.name} ${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}/>
     );
   }
 
@@ -115,7 +121,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <ListItem
         containerStyle={{
-          paddingLeft: 10,
+          paddingLeft: 6,
         }}
         // hideChevron
         key={i}
@@ -123,10 +129,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         roundAvatar
         rightIcon={ 
           <TouchableNativeFeedback
-            onPress={() => {
-              console.log("Deteting reading", r);
-              deletePendingReading(this.appApi, userId, r.pendingId);
-            }}
+            onPress={() => {deletePendingReading(this.appApi, userId, r.pendingId)}}
           >
             <Icon
               name='close'
@@ -134,25 +137,40 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={'test'}
+        title={r.pendingId}
         avatar={getReadingAvatar()}
-        subtitle={'date nicely formatted?'} />
+        subtitle={`${moment(r.createdAt).format('DD/MM/YY @ HH:mm a')}`} />
     );
   }
 
   getPendingItems() {
     const { pendingSavedReadings, pendingSavedResources } = this.props;
 
+    console.log("pendingSavedResources", pendingSavedResources);
+
     return (
       <ScrollView
-        // contentContainerStyle={{ flexGrow: 1 }}
-        // style={{
-        //   flex:6,
-        // }}
+        style={{backgroundColor: bgLight}}
       >
-        <Text>GroundwaterStations:</Text>
+        <Text 
+          style={{
+            paddingLeft: 16,
+            paddingTop: 7,
+            paddingBottom: 3,
+            fontWeight: "400",
+            color: primaryDark,
+          }}
+        >Groundwater Stations:</Text>
         {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx))}
-        <Text>Readings:</Text>
+        <Text
+          style={{
+            paddingLeft: 16,
+            paddingTop: 7,
+            paddingBottom: 3,
+            fontWeight: "400",
+            color: primaryDark,
+          }}
+        >Readings:</Text>
         {pendingSavedReadings.map((reading, idx) => this.readingListItem(reading, idx))}
       </ScrollView>
     );
@@ -180,13 +198,19 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View style={{
         flexDirection: 'column',
-        // height: '100%',
+        height: '100%',
+        backgroundColor: 'red',
       }}>
-        {/* <View style={{
+        <View style={{
           flex: 1,
-        }}> */}
+          position: "absolute",
+          bottom: 15,
+          // top: 0,
+          right: 0,
+          zIndex: 100,
+        }}>
           {this.getSyncSection()}
-        {/* </View> */}
+        </View>
         {this.getPendingItems()}
       </View>
     );

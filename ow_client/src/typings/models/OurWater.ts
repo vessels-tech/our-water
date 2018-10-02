@@ -1,6 +1,7 @@
 import { ResourceType } from "../../enums";
 import { Moment } from "moment";
 import { GGMNTimeseries } from "./GGMN";
+import { Location } from "../Location";
 
 export type Resource = {
   id: string,
@@ -27,7 +28,10 @@ export type Resource = {
  * externally yet
  */
 export type PendingResource = {
-  coords: OWGeoPoint,
+  coords: {
+    latitude: number,
+    longitude: number,
+  },
   resourceType: ResourceType,
   owner: ResourceOwnerType,
   userId: string,
@@ -71,6 +75,7 @@ export type Reading = {
  */
 export type PendingReading = {
   pendingId: string,
+  createdAt: number, //unix timestamp
 }
 
 

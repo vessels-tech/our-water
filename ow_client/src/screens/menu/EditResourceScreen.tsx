@@ -20,7 +20,11 @@ import { TextInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
 import ExternalServiceApi from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
-
+import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
+import IconButton from '../../components/common/IconButton';
+import LoadLocationButton from '../../components/LoadLocationButton';
+import { NoLocation, Location, LocationType } from '../../typings/Location';
+import * as equal from 'fast-deep-equal';
 
 export interface Props { 
   resourceId: string,
@@ -33,6 +37,9 @@ export interface Props {
   pendingSavedResourcesMeta: SyncMeta, 
   // saveResource: (api: BaseApi, userId: string, resource: Resource | PendingResource) => any,
   saveResource: any,
+  externalLoginDetails: AnyLoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
+  location: Location | NoLocation,
 }
 
 export interface State {
@@ -56,15 +63,30 @@ class EditResourceScreen extends Component<Props> {
       isLoading: false,
     };
 
-    this.editResourceForm = FormBuilder.group({
-      lat: ['', Validators.required],//, Validators.min(-90), Validators.max(90)],
-      lng: ['', Validators.required],// Validators.min(-180), Validators.max(180)],
-      organisationId: ['', Validators.required],      
-      asset: ['', Validators.required],
-      ownerName: ['', Validators.required],
+    let lat = '';
+    let lng = '';
+    if (props.location.type === LocationType.LOCATION) {
+      lat = `${props.location.coords.latitude.toFixed(4)}`;
+      lng = `${props.location.coords.longitude.toFixed(4)}`;
+    }
 
-      //TODO: add other necessary fields
+    this.editResourceForm = FormBuilder.group({
+      lat: [lat, Validators.required],
+      lng: [lng, Validators.required],
+      asset: ['Groundwater Station', Validators.required],
+      ownerName: ['', Validators.required],
     });
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    const { location } = this.props;
+
+    if (!equal(location, newProps.location)) {
+      if (newProps.location.type === LocationType.LOCATION) {
+        this.editResourceForm.get('lat').setValue(newProps.location.coords.latitude);
+        this.editResourceForm.get('lng').setValue(newProps.location.coords.longitude);
+      }
+    }
   }
 
   handleSubmit = async () => {
@@ -110,8 +132,6 @@ class EditResourceScreen extends Component<Props> {
   getForm() {
     const { pendingSavedResourcesMeta: { loading }} = this.props;
 
-    console.log("getForm form:", this.editResourceForm);
-
     return (
       <FieldGroup
         strict={false}
@@ -119,38 +139,42 @@ class EditResourceScreen extends Component<Props> {
         render={({get, invalid}) => (
           <View>
             {/* TODO: make look pretty! */}
-            <FieldControl
-              name="lat"
-              render={TextInput}
-              meta={{ label: "Latitude", secureTextEntry: false, keyboardType: 'numeric' }}
-            />
-            <FieldControl
-              name="lng"
-              render={TextInput}
-              meta={{ label: "Longitude", secureTextEntry: false, keyboardType: 'numeric' }}
-            />
-            {/* TODO: dropdown */}
-            <FieldControl
-              name="organisationId"
-              render={TextInput}
-              meta={{ label: "Organisation", secureTextEntry: false, keyboardType: 'default' }}
-            />
+            <View style={{
+              flexDirection: 'row',
+            }}>
+              <LoadLocationButton style={{
+                alignSelf: 'center',
+                // paddingLeft: 15,
+              }} onComplete={() => console.log("location loaded")}/>
+              <FieldControl
+                name="lat"
+                render={TextInput}
+                meta={{ editable: true, label: "Latitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                />
+              <FieldControl
+                name="lng"
+                render={TextInput}
+                meta={{ editable: true, label: "Longitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                />
+            </View>
 
-            {/* TODO: dropdown */}
+            {/* TODO: dropdown? */}
             <FieldControl
               name="asset"
               render={TextInput}
-              meta={{ label: "Asset Type", secureTextEntry: false, keyboardType: 'default' }}
+              meta={{ editable: false, label: "Asset Type", secureTextEntry: false, keyboardType: 'default' }}
             />
             <FieldControl
               name="ownerName"
               render={TextInput}
-              meta={{ label: "Owner Name", secureTextEntry: false, keyboardType: 'default' }}
+              meta={{ editable: true, label: "Owner Name", secureTextEntry: false, keyboardType: 'default' }}
             />
             <Button
               style={{
-                paddingBottom: 20,
                 minHeight: 50,
+              }}
+              containerViewStyle={{
+                marginVertical: 20,
               }}
               loading={loading}
               disabled={invalid}
@@ -181,6 +205,9 @@ class EditResourceScreen extends Component<Props> {
 const mapStateToProps = (state: AppState) => {
   return {
     pendingSavedResourcesMeta: state.pendingSavedResourcesMeta,
+    externalLoginDetails: state.externalLoginDetails,
+    externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    location:state.location,
   }
 }
 

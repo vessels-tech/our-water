@@ -337,18 +337,21 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * If the Keychain has credentials, then return the 
    * auth headers. Otherwise, return an empty dict
    */
-  private getOptionalAuthHeaders(): Promise<OptionalAuthHeaders> {
-    return this.deprecatedGetCredentials()
-    .then(credentials => {
-      return {
-        username: credentials.username,
-        password: credentials.password,
-      };
-    })
-    .catch(err => {
-      // this is fine, just return an empty headers object
-      return {};
-    });
+  private async getOptionalAuthHeaders(): Promise<SomeResult<OptionalAuthHeaders>> {
+    const credentialsResult = await this.getCredentials();
+    if (credentialsResult.type === ResultType.ERROR) {
+      return credentialsResult;
+    }
+
+    const headers: OptionalAuthHeaders = {
+      username: credentialsResult.result.user.username,
+      password: credentialsResult.result.password,
+    } 
+
+    return {
+      type: ResultType.SUCCESS,
+      result: headers,
+    }
   }
 
   //
@@ -428,14 +431,18 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
     console.log("getResourcesWithinRegion. URL is", url);
 
-    const authHeaders = await this.getOptionalAuthHeaders();
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    if (authHeadersResult.type === ResultType.ERROR) {
+      return authHeadersResult;
+    }
+
     const options = {
       timeout,
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...authHeaders
+        ...authHeadersResult.result,
       }
     };
 
@@ -520,7 +527,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       min_points: 320
     });
 
-    const authHeaders = await this.getOptionalAuthHeaders();
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    if (authHeadersResult.type === ResultType.ERROR) {
+      throw new Error("Authorization is required to save readings to GGMN.");
+    }
+    const authHeaders = authHeadersResult.result;
     const options = {
       timeout,
       method: 'GET',
@@ -672,11 +683,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       value: reading.value,
     }];
 
-    const authHeaders = await this.getOptionalAuthHeaders();
-    //Auth headers are required to save readings
-    if (!authHeaders.username) {
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    if (authHeadersResult.type === ResultType.ERROR) {
       throw new Error("Authorization is required to save readings to GGMN.");
     }
+    const authHeaders = authHeadersResult.result;
+
     const options = {
       timeout,
       method: 'POST',
@@ -819,7 +831,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       page,
     });
 
-    const authHeaders = await this.getOptionalAuthHeaders();
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    if (authHeadersResult.type === ResultType.ERROR) {
+      throw new Error("Authorization is required to save readings to GGMN.");
+    }
+    const authHeaders = authHeadersResult.result;
+
     const options = {
       timeout,
       method: 'GET',

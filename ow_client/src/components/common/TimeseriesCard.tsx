@@ -19,6 +19,7 @@ import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
 import { getTimeseriesReadingKey } from '../../utils';
 import SimpleChart from './SimpleChart';
+import { isNullOrUndefined, isNull } from 'util';
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -60,8 +61,8 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: {id}, resourceId } = this.props;
 
     const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
-    if (!readings || readings.readings && readings.readings.length === 0) {
-      // console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
+    if (isNullOrUndefined(readings) || isNullOrUndefined(readings.readings) || readings.readings && readings.readings.length === 0) {
+      console.warn("No readings found for key", getTimeseriesReadingKey(id, currentRange));
       return (
         <View style={{
           flex: 10,
@@ -71,8 +72,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
         </View>
       )
     }
-
-    console.log("GetGraphView for range", readings);
 
     if (readings.meta.loading) {
       return (

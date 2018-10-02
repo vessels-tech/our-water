@@ -277,8 +277,7 @@ export const defaultNavigatorStyle = {
   statusBarColor: bgLight,
   statusBarTextColorScheme: 'dark',
   screenBackgroundColor: bgLight,
-  //Bottom nav bar, android only
-  navigationBarColor: bgDark2,
+
 }
 
 export function getDemoResources(count: number): Resource[] {
