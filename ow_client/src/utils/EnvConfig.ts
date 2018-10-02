@@ -17,4 +17,5 @@ function getBoolean(value: any) {
 }
 
 
-export const EnableLogging = getBoolean(Config.ENABLE_LOGGING);
+// export const EnableLogging = getBoolean(Config.ENABLE_LOGGING);
+export const EnableLogging = true;
