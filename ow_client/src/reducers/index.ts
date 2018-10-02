@@ -1,7 +1,7 @@
 
 import { Resource, Reading, TimeseriesReadings, TimeSeriesReading, PendingResource, PendingReading } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
 import { MaybeUser, UserType } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
@@ -9,7 +9,7 @@ import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta } from "../typings/Reducer";
-import { GGMNSearchEntity } from "../typings/models/GGMN";
+import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 
 const RESOURCE_CACHE_MAX_SIZE = 500;
 
@@ -18,7 +18,7 @@ export type AppState = {
   isConnected: boolean,
   
   //Local
-  externalLoginDetails: LoginDetails | EmptyLoginDetails,
+  externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   locationMeta: SyncMeta,
@@ -28,9 +28,9 @@ export type AppState = {
   resourcesMeta: ActionMeta,
   resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
-
-  //simple map: key: `timeseriesId+range` => TimeseriesReading
-  tsReadings: TimeseriesReadings,
+  externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
+  externalOrgsMeta: ActionMeta,
+  tsReadings: TimeseriesReadings, //simple map: key: `timeseriesId+range` => TimeseriesReading
   
   //Firebase
   favouriteResources: Resource[],
@@ -67,7 +67,8 @@ const initialState: AppState = {
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourcesCache: new Map<string, Resource>(), 
   externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
-  // timeseriesReadings: new Map<string, TimeseriesRangeReadings>(),
+  externalOrgs: [],
+  externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
   tsReadings: {},
 
   //Firebase
@@ -135,6 +136,23 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       //Add favourite has no payload - handled as a part of the user object
       return Object.assign({}, state, { favouriteResourcesMeta });
+    }
+    case ActionType.GET_EXTERNAL_ORGS_REQUEST: {
+      const externalOrgsMeta: ActionMeta = { loading: true, error: false, errorMessage: '' };
+
+      return Object.assign({}, state, { externalOrgsMeta });
+    }
+    case ActionType.GET_EXTERNAL_ORGS_RESPONSE: {
+      const externalOrgsMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+
+      if (action.result.type === ResultType.ERROR) {
+        const externalOrgsMeta: ActionMeta = { loading: false, error: true, errorMessage: 'Error loading organisations.' };
+
+        return Object.assign({}, state, { externalOrgsMeta });
+      }
+
+      const externalOrgs = action.result.result;
+      return Object.assign({}, state, { externalOrgs, externalOrgsMeta });
     }
     case ActionType.GET_LOCATION_REQUEST: {
       const locationMeta = { loading: true};
@@ -375,6 +393,26 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       //TODO: handle login error case here?
       return Object.assign({}, state, { externalSyncStatus })
+    }
+
+    case ActionType.SET_EXTERNAL_ORGANISATION: {
+      const currentExternalLoginDetails = state.externalLoginDetails;
+
+      if (currentExternalLoginDetails.type === LoginDetailsType.FULL &&
+        currentExternalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS) {
+        
+          const newExternalLoginDetails: AnyLoginDetails = {
+            externalOrg: action.organisation,
+            type: LoginDetailsType.FULL,
+            status: ConnectionStatus.SIGN_IN_SUCCESS,
+            username: currentExternalLoginDetails.username,
+          }
+
+          return Object.assign({}, state, { externalLoginDetails: newExternalLoginDetails });
+      }
+
+      console.log("Current external login details no good fool.");
+      return state;
     }
 
     default: 

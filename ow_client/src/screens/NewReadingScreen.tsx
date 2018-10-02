@@ -27,10 +27,7 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
-// const SCREEN_HEIGHT = Dimensions.get('window').height;
-const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   resource: Resource,

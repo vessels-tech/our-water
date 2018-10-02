@@ -1,18 +1,28 @@
+import { GGMNOrganisation } from '../models/GGMN'; 
+
 export enum LoginDetailsType {
   EMPTY = 'EMPTY',
   FULL = 'FULL',
 }
 
+export type AnyLoginDetails = EmptyLoginDetails | ErrorLoginDetails | LoginDetails;
 
 export interface EmptyLoginDetails {
   type: LoginDetailsType.EMPTY,
   status: ConnectionStatus.NO_CREDENTIALS,
 }
 
+export interface ErrorLoginDetails {
+  type: LoginDetailsType.FULL,
+  status: ConnectionStatus.SIGN_IN_ERROR,
+  username: string,
+}
+
 export interface LoginDetails {
   type: LoginDetailsType.FULL,
-  status: ConnectionStatus.SIGN_IN_ERROR | ConnectionStatus.SIGN_IN_SUCCESS,
+  status: ConnectionStatus.SIGN_IN_SUCCESS,
   username: string,
+  externalOrg: GGMNOrganisation, //the organisation the user selected after logging in
 }
 
 export type LoginRequest = {

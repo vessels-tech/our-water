@@ -76,7 +76,7 @@ export type GGMNTimeseriesEvent = {
 export type GGMNLocation = {
   url: string,
   id: number,
-  geometry: GGMNGeometry,
+  geometry: GGMNGeometry, 
   organisation: GGMNOrganisation,
 }
 
@@ -94,5 +94,11 @@ export type GGMNOrganisationResponse = {
   count: number,
   next: string,
   prevous: string | null,
-  results: any[], //we don't really care about this for now.
+  //TODO: there might be a bug here.
+  results: GGMNOrganisation[], 
+}
+
+export type KeychainLoginDetails = {
+  username: string,
+  externalOrg: GGMNOrganisation
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
-import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard } from 'react-native';
+import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
 import { primaryDark, primary, error1 } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
@@ -12,26 +12,36 @@ import {
 } from "react-reactive-form";
 import BaseApi from '../../api/BaseApi';
 import ExternalServiceApi from '../../api/ExternalServiceApi';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { SyncMeta } from '../../typings/Reducer';
 import { TextInput } from '../../components/common/FormComponents';
+import { GGMNOrganisation } from '../../typings/models/GGMN';
+import Loading from '../../components/common/Loading';
 
 
-export interface Props {
+export interface OwnProps {
   navigator: any,
   config: ConfigFactory,
   userId: string,
-  
+}
+
+export interface StateProps {
+  externalLoginDetails: AnyLoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
+  externalOrgs: GGMNOrganisation[],
+  externalOrgsMeta: SyncMeta,
+}
+
+export interface ActionProps {
   connectToExternalService: any,
   disconnectFromExternalService: any,
-
-  externalLoginDetails: LoginDetails | EmptyLoginDetails,
-  externalLoginDetailsMeta: SyncMeta,
+  setExternalOrganisation: any,
 }
+
 
 export interface State {
    username: string,
@@ -45,13 +55,13 @@ export interface State {
  * For now, this implementation will be very GGMN-Specific, but can be adapted for other 
  * external services as OurWater expands.
  */
-class ConnectToServiceScreen extends Component<Props> {
+class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   loginForm: any;
   appApi: BaseApi;
   externalApi: ExternalServiceApi;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
@@ -73,7 +83,7 @@ class ConnectToServiceScreen extends Component<Props> {
     });
   }
 
-  componentWillReceiveProps(newProps: Props) {
+  componentWillReceiveProps(newProps: OwnProps & StateProps & ActionProps) {
     const { username } = this.state;
     const { externalLoginDetails } = newProps;
 
@@ -137,6 +147,51 @@ class ConnectToServiceScreen extends Component<Props> {
     );
   }
 
+  getExternalOrgSelector() {
+    const { externalLoginDetails, externalOrgs, externalOrgsMeta } = this.props;
+
+    
+    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+      return null;
+    }
+    
+    if (externalOrgsMeta.loading) {
+      return (
+        <Loading/>
+        );
+      }
+
+    console.log("externalLoginDetails.externalOrg is: ", externalLoginDetails.externalOrg);
+
+    return (
+      <View>
+        <Text
+          style={{
+            alignSelf: 'center',
+            paddingRight: 10,
+            fontSize: 15,
+            fontWeight: '600',
+            flex: 1,
+          }}>
+          Select an Organisation:
+        </Text>
+        <Picker
+          selectedValue={externalLoginDetails.externalOrg.unique_id}
+          style={{
+            flex: 2
+          }}
+          mode={'dropdown'}
+          onValueChange={(orgId: string, idx: number) => {
+            const org = externalOrgs[idx];
+            this.props.setExternalOrganisation(this.externalApi, org);
+          }}
+        >
+          {externalOrgs.map(org => <Picker.Item key={org.unique_id} label={org.name} value={org.unique_id}/>)}
+        </Picker>
+      </View>
+    );
+  }
+
   getConnectedSection() {
     let { username } = this.state;
     const { externalLoginDetails } = this.props;
@@ -164,6 +219,7 @@ class ConnectToServiceScreen extends Component<Props> {
         >
           {text}
         </Text>
+        {this.getExternalOrgSelector()}
         <Button
           title='Log out'
           onPress={() => this.handleLogout()}
@@ -254,21 +310,26 @@ class ConnectToServiceScreen extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState): StateProps => {
 
   return {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    externalOrgs: state.externalOrgs,
+    externalOrgsMeta: state.externalOrgsMeta,
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     connectToExternalService: (api: ExternalServiceApi, username: string, password: string) =>
       { dispatch(appActions.connectToExternalService(api, username, password)) },
 
     disconnectFromExternalService: (api: ExternalServiceApi) => 
       { dispatch(appActions.disconnectFromExternalService(api))},
+
+    setExternalOrganisation: (api: ExternalServiceApi, organisation: GGMNOrganisation) => 
+      { dispatch(appActions.setExternalOrganisation(api, organisation)) }
   }
 }
 

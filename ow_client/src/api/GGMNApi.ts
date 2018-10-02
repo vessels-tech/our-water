@@ -9,17 +9,18 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity } from "../typings/models/GGMN";
+import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi from "./ExternalServiceApi";
-import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus } from "../typings/api/ExternalServiceApi";
+import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
+import { runInThisContext } from "vm";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -87,10 +88,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   * Maybe we don't need to save the sessionId. It should be handled
   * automatically by our cookies
   */
-  connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails> {
-    const url = `${this.baseUrl}/api/v3/organisations/`;
+  connectToService(username: string, password: string, externalOrg: GGMNOrganisation | null = null): Promise<AnyLoginDetails> {
+    const organisationUrl = `${this.baseUrl}/api/v3/organisations/`;
+    const url = appendUrlParameters(organisationUrl, {
+      // page: 0,
+      page_size: 5,
+    });
     console.log("connectToService url is", url);
-    let signInResponse: LoginDetails | EmptyLoginDetails;
+    let signInResponse: AnyLoginDetails;
+    let resolvedExternalOrg: GGMNOrganisation;
 
     const options = {
       timeout,
@@ -102,16 +108,24 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
-
+  
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNOrganisationResponse>(response))
-      .then((r: GGMNOrganisationResponse) => {
-        console.log(r);
+      .then((r: GGMNOrganisationResponse): LoginDetails => {
+        console.log("Login response", r);
+        if (r.results.length === 0) {
+          throw new Error('Logged in user, but no organisations found.');
+        }
+
+        if (!externalOrg) {
+          resolvedExternalOrg = r.results[0];
+        }
 
         return {
           type: LoginDetailsType.FULL,
           status: ConnectionStatus.SIGN_IN_SUCCESS,
           username,
+          externalOrg: resolvedExternalOrg,
         };
       })
       .catch((err: Error) => {
@@ -125,8 +139,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       .then((_signInResponse: LoginDetails | EmptyLoginDetails) => {
         signInResponse = _signInResponse;
 
+        const user: KeychainLoginDetails = {
+          username,
+          externalOrg: resolvedExternalOrg,
+        }
+
         //TODO: fix this, I think it's saving the details even if the 
-        return this.saveExternalServiceLoginDetails(username, password)
+        return this.saveExternalServiceLoginDetails(user, password)
         .catch(err => {
           //Couldn't save the creds for some reason
           signInResponse = {
@@ -139,60 +158,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
   /**
-   * This is a broken implementation, we will use a different endpoint instead
-   */
-  private dep_connectToService(username: string, password: string): Promise<LoginDetails | EmptyLoginDetails> {
-    const url = `${this.baseUrl}/api-auth/login/`;
-    console.log("URL is", url);
-    
-    const rawParams: LoginRequest = {
-      username,
-      password,
-    };
-    
-    const body = Object.keys(rawParams).map((k: string) => {
-      return encodeURIComponent(k) + '=' + encodeURIComponent(rawParams[k])
-    })
-
-    const options = {
-      timeout,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: body.join('&'),
-      credentials: 'include'
-    };
-
-    //This fetch doesn't have a freaking timeout!
-    return ftch(url, options)
-    .then((response: any) => {
-      if (!response.ok) {
-        return rejectRequestWithError(response.status);
-      }
-
-      //This still comes back with html, not json thanks to the dodgy api
-      console.log(response);
-      console.log("all headers", response.headers.getAll())
-      return 
-    });
-  }
-
-  /**
    * Save the external service details, locally only
    */
-  async saveExternalServiceLoginDetails(username: string, password: string): Promise<any> {
-    await Keychain.setGenericPassword(username, password);
+  async saveExternalServiceLoginDetails(user: KeychainLoginDetails, password: string): Promise<any> {
+    await Keychain.setGenericPassword(JSON.stringify(user), password);
 
     return true 
   }
 
 
-  async getExternalServiceLoginDetails(): Promise<LoginDetails | EmptyLoginDetails> {
+  async getExternalServiceLoginDetails(): Promise<AnyLoginDetails> {
     //Try performing a login first, just in case
     let credentials;
     try {
-      credentials = await this.getCredentials();
+      credentials = await this.deprecatedGetCredentials();
     } catch (err) {
       //No credentials:
       return {
@@ -202,7 +181,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
 
     try {
-      const result = await this.connectToService(credentials.username, credentials.password);
+      const user: KeychainLoginDetails = JSON.parse(credentials.username);
+      const result = await this.connectToService(user.username, credentials.password, user.externalOrg);
 
       return result;
     } catch (err) {
@@ -219,7 +199,90 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return Keychain.resetGenericPassword();
   }
 
-  private async getCredentials(): Promise<{ service: string, username: string, password: string }> {
+  async getExternalOrganisations(): Promise<SomeResult<GGMNOrganisation[]>> {
+    const credentialsResult = await this.getCredentials();
+    if (credentialsResult.type === ResultType.ERROR) {
+      return credentialsResult;
+    }
+
+    const username = credentialsResult.result.user.username;
+    const password = credentialsResult.result.password;
+
+    const organisationUrl = `${this.baseUrl}/api/v3/organisations/`;
+    const url = appendUrlParameters(organisationUrl, {
+      page_size: 100,
+    });
+
+    console.log("connectToService url is", url);
+
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        username,
+        password,
+      },
+      credentials: 'include' //make sure fetch sets the cookie for us.
+    };
+
+    const fetchResult: any = await ftch(url, options);
+    const orgResult: SomeResult<GGMNOrganisationResponse> = await naiveParseFetchResponse<GGMNOrganisationResponse>(fetchResult);
+    if (orgResult.type === ResultType.ERROR) {
+      return orgResult;
+    }
+
+    return {
+      type: ResultType.SUCCESS,
+      result: orgResult.result.results
+    };
+  }
+
+  private async getCredentials(): Promise<SomeResult<{user: KeychainLoginDetails, password: string}>> {
+    const credentials = await Keychain.getGenericPassword();
+  
+    if (credentials === false) {
+      return {
+        type: ResultType.ERROR,
+        message: "Could not get saved credentials",
+      }
+    }
+
+    if (credentials === true) {
+      return {
+        type: ResultType.ERROR,
+        message: "Error with Keychain API",
+      }
+    }
+    
+    let user;
+    try {
+      user = JSON.parse(credentials.username);
+    } catch (err) {
+      return {
+        type: ResultType.ERROR,
+        message: "Error deserializing the user object",
+      }
+    }
+
+    if (!user) {
+      return {
+        type: ResultType.ERROR,
+        message: "Error deserializing the user object",
+      }
+    }
+
+    return {
+      type: ResultType.SUCCESS,
+      result: {
+        user,
+        password: credentials.password
+      }
+    }
+  }
+
+
+  private async deprecatedGetCredentials(): Promise<{ service: string, username: string, password: string }> {
     const credentials = await Keychain.getGenericPassword();
     if (credentials === false) {
       throw new Error("Could not get saved credentials");
@@ -233,11 +296,46 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
   /**
+   * Update the user credentials object with the new Organisation
+   */
+  async selectExternalOrganisation(organisation: GGMNOrganisation): Promise<SomeResult<void>> {
+    const credentialsResult = await this.getCredentials();
+    if (credentialsResult.type === ResultType.ERROR) {
+      return credentialsResult;
+    }
+
+    const username = credentialsResult.result.user.username
+    const password = credentialsResult.result.password;
+
+    const loginDetails: KeychainLoginDetails = {
+      username,
+      externalOrg: organisation,
+    };
+
+    try {
+      await this.saveExternalServiceLoginDetails(loginDetails, password);
+      console.log("saved credentials for org", organisation);
+    } catch (err) {
+      console.log("couldn't save external service login details");
+      return {
+        type: ResultType.ERROR,
+        message: "Error saving login details for user"
+      }
+    }
+
+    return {
+      type: ResultType.SUCCESS,
+      result: undefined,
+    }
+  }
+
+
+  /**
    * If the Keychain has credentials, then return the 
    * auth headers. Otherwise, return an empty dict
    */
   private getOptionalAuthHeaders(): Promise<OptionalAuthHeaders> {
-    return this.getCredentials()
+    return this.deprecatedGetCredentials()
     .then(credentials => {
       return {
         username: credentials.username,

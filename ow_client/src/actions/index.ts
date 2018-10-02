@@ -2,9 +2,9 @@ import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, Times
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { getLocation } from "../utils";
 import { Firebase } from "react-native-firebase";
@@ -14,7 +14,7 @@ import ExternalServiceApi from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
-import { GGMNSearchEntity } from "../typings/models/GGMN";
+import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 
 
 /* Step 4: Add the actions handlers here */
@@ -103,6 +103,9 @@ export function connectToExternalService(api: ExternalServiceApi, username: stri
       }
     }    
     dispatch(connectToExternalServiceResponse(result));
+
+    //Load the needed organisations
+    dispatch(getExternalOrgs(api));
   }
 }
 
@@ -204,11 +207,13 @@ export function getExternalLoginDetails(externalServiceApi: ExternalServiceApi):
 
     const loginDetails = await externalServiceApi.getExternalServiceLoginDetails();
 
-    let result: SomeResult<LoginDetails | EmptyLoginDetails> = {
+    let result: SomeResult<AnyLoginDetails> = {
       type: ResultType.SUCCESS,
       result: loginDetails
     }
     dispatch(getExternalLoginDetailsResponse(result));
+    //Load the needed organisations
+    dispatch(getExternalOrgs(externalServiceApi));
   }
 }
 
@@ -218,9 +223,31 @@ function getExternalLoginDetailsRequest(): GetExternalLoginDetailsActionRequest 
   }
 }
 
-function getExternalLoginDetailsResponse(result: SomeResult<LoginDetails | EmptyLoginDetails>): GetExternalLoginDetailsActionResponse {
+function getExternalLoginDetailsResponse(result: SomeResult<AnyLoginDetails>): GetExternalLoginDetailsActionResponse {
   return {
     type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE,
+    result,
+  }
+}
+
+export function getExternalOrgs(externalServiceApi: ExternalServiceApi): any {
+  return async function(dispatch: any) {
+    dispatch(getExternalOrgsRequest());
+
+    const result = await externalServiceApi.getExternalOrganisations();
+    dispatch(getExternalOrgsResponse(result));
+  }
+}
+
+function getExternalOrgsRequest(): GetExternalOrgsActionRequest {
+  return {
+    type: ActionType.GET_EXTERNAL_ORGS_REQUEST,
+  }
+}
+
+function getExternalOrgsResponse(result: SomeResult<GGMNOrganisation[]>): GetExternalOrgsActionResponse {
+  return {
+    type: ActionType.GET_EXTERNAL_ORGS_RESPONSE,
     result,
   }
 }
@@ -502,6 +529,20 @@ function saveResourceResponse(result: SomeResult<SaveResourceResult>): SaveResou
   return {
     type: ActionType.SAVE_RESOURCE_RESPONSE,
     result
+  }
+}
+
+export function setExternalOrganisation(api: ExternalServiceApi, organisation: GGMNOrganisation): any {
+  return async function(dispatch: any) {
+    //TODO: if this fails, state could get out of sync with the saved credentials.
+    // Let's worry about it later
+
+    await api.selectExternalOrganisation(organisation);
+    dispatch({
+      type: ActionType.SET_EXTERNAL_ORGANISATION,
+      organisation,
+    });
+    ToastAndroid.show("Selected Organisation", ToastAndroid.SHORT);
   }
 }
 
