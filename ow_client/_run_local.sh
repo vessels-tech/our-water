@@ -2,6 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 STAGE="ggmn_dev"
+# STAGE="ggmn_staging"
 
 ##TODO: change this depending on the stage
 cat "$DIR"/../env/.env."$STAGE".sh "$DIR"/../env/"$STAGE".env.sh > /tmp/"$STAGE"
