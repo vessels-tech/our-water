@@ -21,6 +21,7 @@ import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { runInThisContext } from "vm";
+import { resolve } from "path";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -91,12 +92,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   connectToService(username: string, password: string, externalOrg: GGMNOrganisation | null = null): Promise<AnyLoginDetails> {
     const organisationUrl = `${this.baseUrl}/api/v3/organisations/`;
     const url = appendUrlParameters(organisationUrl, {
-      // page: 0,
       page_size: 5,
     });
     console.log("connectToService url is", url);
+    console.log("connectToService, externalOrg is:", externalOrg);
+
     let signInResponse: AnyLoginDetails;
     let resolvedExternalOrg: GGMNOrganisation;
+    if (externalOrg) {
+      resolvedExternalOrg = externalOrg;
+    }
 
     const options = {
       timeout,
@@ -112,12 +117,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNOrganisationResponse>(response))
       .then((r: GGMNOrganisationResponse): LoginDetails => {
-        console.log("Login response", r);
         if (r.results.length === 0) {
           throw new Error('Logged in user, but no organisations found.');
         }
 
-        if (!externalOrg) {
+        if (!resolvedExternalOrg) {
           resolvedExternalOrg = r.results[0];
         }
 
@@ -161,7 +165,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * Save the external service details, locally only
    */
   async saveExternalServiceLoginDetails(user: KeychainLoginDetails, password: string): Promise<any> {
-    await Keychain.setGenericPassword(JSON.stringify(user), password);
+    await Keychain.setGenericPassword(encodeURIComponent(JSON.stringify(user)), password);
 
     return true 
   }
@@ -181,7 +185,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
 
     try {
-      const user: KeychainLoginDetails = JSON.parse(credentials.username);
+      const user: KeychainLoginDetails = JSON.parse(decodeURIComponent(credentials.username));
       const result = await this.connectToService(user.username, credentials.password, user.externalOrg);
 
       return result;
@@ -257,7 +261,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     
     let user;
     try {
-      user = JSON.parse(credentials.username);
+      user = JSON.parse(decodeURIComponent(credentials.username));
     } catch (err) {
       return {
         type: ResultType.ERROR,
@@ -314,7 +318,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     try {
       await this.saveExternalServiceLoginDetails(loginDetails, password);
-      console.log("saved credentials for org", organisation);
     } catch (err) {
       console.log("couldn't save external service login details");
       return {
@@ -764,8 +767,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     const subscribers = this.pendingReadingsSubscriptions;
 
-    // console.log("updating subscripers", bannerState, subscribers);
-    //TODO: add other metadata here!
     let keys = [...subscribers.keys()];
     keys.forEach(key => {
       const callback = subscribers.get(key);
