@@ -9,8 +9,13 @@ import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
+import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
+import { translationsForTranslationOrg } from 'ow_translations';
+import * as EnvironmentConfig from './utils/EnvConfig';
 
 let config: ConfigFactory;
+let translation: TranslationFile;
+const orgId = EnvironmentConfig.OrgId;
 
 Promise.resolve(true)
 .then(() => {
@@ -27,16 +32,21 @@ Promise.resolve(true)
 .then(async (_remoteConfig) => {
   const networkApi = await NetworkApi.createAndInit();
   const envConfig: EnvConfig = {
-    orgId: Config.REACT_APP_ORG_ID,
+    orgId,
   }
-  config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
+  //TODO: make more type safe
+  const translationFiles = translationsForTranslationOrg(orgId);
+  config = new ConfigFactory(_remoteConfig, envConfig, networkApi, translationFiles);
+  //Default translation?
+  translation = config.getTranslations(TranslationEnum.en_AU);
   return registerScreens(config);
 })
 .then(() => {
+  const title = translation.templates.client_app;
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
-      title: config.getApplicationName(), // title of the screen as appears in the nav bar (optional)
+      title,
       navigatorStyle: defaultNavigatorStyle,
       navigatorButtons: {
         leftButtons: [{
