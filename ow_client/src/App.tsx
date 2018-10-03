@@ -20,10 +20,8 @@ import {
   showModal,
   maybeLog,
 } from './utils';
-
 import {
   MapStateOption,
-  ResourceType,
   MapHeightOption,
 } from './enums';
 import Config from 'react-native-config';

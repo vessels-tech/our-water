@@ -35,18 +35,19 @@ Promise.resolve(true)
     orgId,
   }
   //TODO: make more type safe
-  const translationFiles = translationsForTranslationOrg(orgId);
-  config = new ConfigFactory(_remoteConfig, envConfig, networkApi, translationFiles);
+  // const translationFiles = translationsForTranslationOrg(orgId);
+  config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
+
   //Default translation?
-  translation = config.getTranslations(TranslationEnum.en_AU);
+  // translation = config.getTranslations(TranslationEnum.en_AU);
   return registerScreens(config);
 })
 .then(() => {
-  const title = translation.templates.client_app;
+  const title = 'MyWell'
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
-      title,
+      title: config.getApplicationName(),
       navigatorStyle: defaultNavigatorStyle,
       navigatorButtons: {
         leftButtons: [{

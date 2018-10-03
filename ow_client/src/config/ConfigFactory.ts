@@ -51,14 +51,12 @@ export class ConfigFactory {
   appApi: BaseApi; //TODO: change to appApi
   externalServiceApi?: ExternalServiceApi;
   userApi: UserApi; 
-  translationFiles: TranslationFiles;
 
-  constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi, translationFiles: TranslationFiles) {
+  constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
     maybeLog("envConfig " + envConfig);
     this.envConfig = envConfig;
     this.networkApi = networkApi;
-    this.translationFiles = translationFiles;
 
     //Set up App Api
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
@@ -170,34 +168,34 @@ export class ConfigFactory {
   }
 
 
-  /**
-   * Get the translations for the given user language setting
-   * 
-   * I'm thinking of a better way to do this with less typing, but at least
-   * this method is fully type safe
-   */
-  getTranslations(translation: TranslationEnum): TranslationFile {
-    switch(this.translationFiles.type) {
-      case (TranslationOrg.mywell): {
-        switch (translation) {
-          case 'en_AU': return this.translationFiles.en_AU;
-          case 'en_US': return this.translationFiles.en_US;
-          case 'guj_IN': return this.translationFiles.guj_IN;
-          case 'hi_IN': return this.translationFiles.hi_IN;
-          default: {
-            throw new Error(`Error with translations. Could not find translation: ${translation} for Org: ${this.translationFiles.type}`);
-          }
-        }
-      }
-      case (TranslationOrg.ggmn): {
-        switch (translation) {
-          case 'en_AU': return this.translationFiles.en_AU;
-          case 'nl_NL': return this.translationFiles.nl_NL;
-          default: {
-            throw new Error(`Error with translations. Could not find translation: ${translation} for Org: ${this.translationFiles.type}`);
-          }
-        }
-      }
-    }
-  }
+  // /**
+  //  * Get the translations for the given user language setting
+  //  * 
+  //  * I'm thinking of a better way to do this with less typing, but at least
+  //  * this method is fully type safe
+  //  */
+  // getTranslations(translation: TranslationEnum): TranslationFile {
+  //   switch(this.translationFiles.type) {
+  //     case (TranslationOrg.mywell): {
+  //       switch (translation) {
+  //         case 'en_AU': return this.translationFiles.en_AU;
+  //         case 'en_US': return this.translationFiles.en_US;
+  //         case 'guj_IN': return this.translationFiles.guj_IN;
+  //         case 'hi_IN': return this.translationFiles.hi_IN;
+  //         default: {
+  //           throw new Error(`Error with translations. Could not find translation: ${translation} for Org: ${this.translationFiles.type}`);
+  //         }
+  //       }
+  //     }
+  //     case (TranslationOrg.ggmn): {
+  //       switch (translation) {
+  //         case 'en_AU': return this.translationFiles.en_AU;
+  //         case 'nl_NL': return this.translationFiles.nl_NL;
+  //         default: {
+  //           throw new Error(`Error with translations. Could not find translation: ${translation} for Org: ${this.translationFiles.type}`);
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 }

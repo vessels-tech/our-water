@@ -10,8 +10,17 @@ import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta } from "../typings/Reducer";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
+import { TranslationEnum, TranslationFile } from "ow_translations/Types";
+import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
+import * as EnvConfig from '../utils/EnvConfig';
+
+const orgId = EnvConfig.OrgId;
 
 const RESOURCE_CACHE_MAX_SIZE = 500;
+
+const defaultLanguage = TranslationEnum.en_AU;
+const translations = translationsForTranslationOrg(orgId);
+const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
 
 export type AppState = {
   //Session based
@@ -22,6 +31,9 @@ export type AppState = {
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   locationMeta: SyncMeta,
+  //TODO: cache this locally as well as on firebase
+  language: TranslationEnum,
+  translation: TranslationFile,
 
   //Api
   resources: Resource[],
@@ -61,6 +73,8 @@ const initialState: AppState = {
   externalLoginDetailsMeta: { loading: false },
   location: { type: LocationType.NO_LOCATION},
   locationMeta: { loading: false },
+  language: TranslationEnum.en_AU, //default to australian english, we should probably change this.
+  translation: defaultTranslation,
 
   //Api
   resources: [],

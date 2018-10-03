@@ -15,14 +15,6 @@ export type TranslationMetadata = {
   //TODO: add more
 }
 
-
-export type TranslationFile = {
-  metadata: TranslationMetadata,
-  templates: {
-    client_app: string
-  }
-}
-
 export enum TranslationOrg {
   mywell = 'mywell',
   ggmn = 'ggmn',
@@ -43,4 +35,15 @@ export type GGMNTranslationFiles = {
   type: TranslationOrg.ggmn,
   'en_AU': TranslationFile,
   'nl_NL': TranslationFile,
+}
+
+export type TranslationFile = {
+  metadata: TranslationMetadata,
+  templates: {
+    /* add new strings here*/
+    client_app: string,
+
+    //TODO: remove
+    [index: string]: string,
+  }
 }

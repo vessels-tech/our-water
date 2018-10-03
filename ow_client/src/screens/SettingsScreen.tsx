@@ -58,8 +58,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   getConnectToButton() {
     const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
 
-    console.log("getConnectToButton, externalLoginDetails: ", externalLoginDetails);
-
     if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
@@ -92,7 +90,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           {
             config: this.props.config,
             //TODO: how to get the userId in here???
-            userId: '12345',
+            userId: this.props.userId,
             isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
           }
         )}
@@ -166,7 +164,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           title={this.props.config.getRegisterResourceButtonText()}
           onPress={() => {
             //TODO: dismiss the sidebar
-            console.log("userId is", this.props.userId);
             navigateTo(this.props, 'screen.menu.EditResourceScreen', 'New Resource', {
               config: this.props.config,
               userId: this.props.userId,

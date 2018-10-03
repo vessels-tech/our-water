@@ -266,7 +266,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getOfflineWarning() {
     const { isConnected } = this.props;
-    console.log("SearchScreen is connected?", isConnected);
 
     if (isConnected === true) {
       return null;
