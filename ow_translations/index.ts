@@ -17,9 +17,7 @@ import {
  * In this class, we pull in the common translations, and override any
  * values for the given orgId if they exist.
  */
-
-
- export function forTranslationOrg(orgId: TranslationOrg): TranslationFiles {
+ export function translationsForTranslationOrg(orgId: TranslationOrg): TranslationFiles {
 
   //TODO: Implement override
 
