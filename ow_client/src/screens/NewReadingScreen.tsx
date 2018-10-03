@@ -14,7 +14,7 @@ import Config from 'react-native-config';
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, getLocation } from '../utils';
+import { displayAlert, getLocation, maybeLog } from '../utils';
 import { bgLight, primary, primaryDark, textMed, textDark} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -86,12 +86,12 @@ class NewReadingScreen extends Component<Props> {
       }});
     })
     .catch(err => {
-      console.log("could not get location");
+      maybeLog("could not get location");
     })
   }
 
   takeImage() {
-    console.log("displaying image dialog");
+    maybeLog("TOOD: display image");
   }
 
   async saveReading() {
@@ -127,7 +127,6 @@ class NewReadingScreen extends Component<Props> {
     }
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
-    console.log("result", saveResult);
 
     //TODO: how to do callbacks from state?
     if (saveResult.type === ResultType.ERROR) {
@@ -250,7 +249,6 @@ class NewReadingScreen extends Component<Props> {
           placeholder='Reading Date'
           errorMessage={this.isDateValid() ? null : 'Invalid Date'}
           onChangeText={(date: moment.Moment) => this.setState({date})}
-          onSubmitEditing={() => console.log('on submit editing')}
           fieldType={InputType.dateTimeInput}
           value={date}
         />
@@ -263,7 +261,6 @@ class NewReadingScreen extends Component<Props> {
               'Invalid Measurement' : null
           }
           onChangeText={(measurementString: string) => this.setState({ measurementString})}
-          onSubmitEditing={() => console.log('on submit editing')}
           keyboardType='numeric'
           fieldType={InputType.fieldInput}
           value={measurementString}

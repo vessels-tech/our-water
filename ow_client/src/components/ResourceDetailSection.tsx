@@ -35,8 +35,6 @@ export interface OwnProps {
   userId: string,
   onAddReadingPressed: any,
   onMorePressed: any,
-  onAddToFavourites: any,
-  onRemoveFromFavourites: any,
 }
 
 export interface StateProps {

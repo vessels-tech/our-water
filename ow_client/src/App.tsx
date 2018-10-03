@@ -18,6 +18,7 @@ import { Location, LocationType } from './typings/Location';
 import { 
   navigateTo,
   showModal,
+  maybeLog,
 } from './utils';
 
 import {
@@ -149,7 +150,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
    * Load new resources based on where they are looking
    */
   async onMapRegionChange(region: Region) {
-    console.log("app onMapRegionChange called");
     const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
 
     if (result.type === ResultType.ERROR) {
@@ -240,7 +240,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
         });
       })
       .catch(err => {
-        console.log(err);
         this.setState({
           loading: false,
           passiveLoading: false,
@@ -265,7 +264,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       }, 1000);
       
     } else {
-      console.log("tried to animate map, but map is null");
+      maybeLog("tried to animate map, but map is null");
     }
   }
 
@@ -325,8 +324,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    console.log('getResourceView, selectedResource', selectedResource);
-
     return (
       <ResourceDetailSection
         config={this.props.config}
@@ -339,8 +336,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
             userId: this.props.userId,
           });
         }}
-        onAddToFavourites={() => console.log('onAddToFavourites')}
-        onRemoveFromFavourites={() => console.log('onRemoveFromFavourites')}
         onAddReadingPressed={(resource: Resource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
             resource, 

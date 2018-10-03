@@ -217,8 +217,6 @@ class ClusteredMapView extends Component<Props> {
   };
 
   render() {
-    // console.log("ClusteredMapView.render()", this.props.children);
-
     return (
       <MapView
         {...this.removeChildrenFromProps(this.props)}

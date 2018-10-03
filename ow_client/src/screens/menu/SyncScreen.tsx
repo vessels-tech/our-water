@@ -95,7 +95,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           paddingLeft: 6,
         }}
         key={i}
-        onPress={() => {console.log("pressed resource")}}
         roundAvatar
         rightIcon={
           <TouchableNativeFeedback
@@ -125,7 +124,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }}
         // hideChevron
         key={i}
-        onPress={() => { console.log("pressed resource") }}
         roundAvatar
         rightIcon={ 
           <TouchableNativeFeedback
@@ -145,8 +143,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getPendingItems() {
     const { pendingSavedReadings, pendingSavedResources } = this.props;
-
-    console.log("pendingSavedResources", pendingSavedResources);
 
     return (
       <ScrollView

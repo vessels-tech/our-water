@@ -6,19 +6,15 @@ import Config from 'react-native-config';
 
 import { 
   appendUrlParameters, 
-  rejectRequestWithError 
+  rejectRequestWithError, 
+  maybeLog
 } from '../utils';
-import { validateReading } from './ValidationApi';
-
 import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
-import { userInfo } from 'os';
-import { UserCredentials } from 'react-native-keychain';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -37,11 +33,11 @@ class FirebaseApi {
     return NetInfo.isConnected.fetch()
     .then(isConnected => {
       if (isConnected) {
-        console.log("FirebaseApi enableNetwork()");
+        maybeLog("FirebaseApi enableNetwork()");
         return fs.enableNetwork().then(() => true);
       }
 
-      console.log("FirebaseApi disableNetwork()");
+      maybeLog("FirebaseApi disableNetwork()");
       return fs.disableNetwork().then(() => false);
     });
   }
@@ -142,33 +138,21 @@ class FirebaseApi {
     const filtered = recentResources.filter(r => r.id !== resource.id)
     //Add latest to the start
     filtered.unshift(resource);
-    
-    //remove this resource from later on if it already exists
-    // const dedupDict: any = {};
-    // recentResources.forEach((res: any) => { dedupDict[res.id] = res});
-    // const dedupList = Object.keys(dedupDict).map(id => dedupDict[id]);
 
     //Make sure we don't have more than 10
     while (filtered.length > 10) {
       filtered.pop();
     }
-
-    console.log("filtered is:", orgId, userId, filtered);
-
     const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: filtered }, {merge: true});
-    console.log("result is", result);
-
     return await this.getRecentResources(orgId, userId);
   }
 
   static getResourcesForOrg(orgId: string): Promise<Array<Resource>> {
     return this.checkNetworkAndToggleFirestore()
-    .then(() => console.log("getting resource", orgId))
     .then(() => fs.collection('org').doc(orgId).collection('resource')
       .limit(10)
       .get())
     .then(sn => {
-      console.log('got snapshot');
       const resources: any[] = [];
       sn.forEach((doc) => {
         //Get each document, put in the id
@@ -181,7 +165,7 @@ class FirebaseApi {
       return resources;
     })
     .catch(err => {
-      console.log(err);
+      maybeLog(err);
       return Promise.reject(err);
     });
   }
@@ -215,7 +199,7 @@ class FirebaseApi {
 
         return response.json();
       })
-      .catch((err: Error) => console.log(err));
+      .catch((err: Error) => maybeLog(err));
   }
 
   /**
@@ -286,9 +270,8 @@ class FirebaseApi {
 
       this.saveReading(orgId, reading)
       //Don't resolve this - as if we are offline, it will take a long time
-      .then((result: any) => console.log('saveReading result', result))
       .catch((err: Error) => {
-        console.log('saveReading Err', err);
+        maybeLog('saveReading Err: ' +  err);
         reject(err);
       });
     });
@@ -316,25 +299,6 @@ class FirebaseApi {
       type: ResultType.SUCCESS,
       result: undefined
     };
-
-
-    // return new Promise((resolve, reject) => {
-
-    //   this.pendingReadingsListenerForUser(orgId, userId)
-    //     .then(snapshot => {
-
-    //       //Resolve once the pending reading is saved
-    //       resolve();
-    //     });
-
-    //   this.saveReadingToUser(orgId, userId, reading)
-    //   //Don't resolve this - as if we are offline, it will take a long time
-    //   .then((result: any) => console.log('saveReadingToUser result', result))
-    //   .catch((err: Error) => {
-    //     console.log('saveReading Err', err);
-    //     reject(err);
-    //   });
-    // });
   }
 
   static async saveResourceToUser(orgId: string, userId: string, resource: Resource): Promise<SomeResult<null>> {
@@ -433,13 +397,11 @@ class FirebaseApi {
           reject(new Error('recieved snapshot with no changes'))
         },
         //TODO: this needs to be fixed
-        // (sn) => console.log("observerOrOnNextOrOnError", thing), //observerOrOnNextOrOnError
         //onError
         (error: Error) => {
-          console.log("error", error);
+          maybeLog("error: " +  error);
           return reject(error);
         },
-        // (sn) => console.log('onCompletion', sn), //onCompletion
       );
     });
   }
@@ -475,11 +437,10 @@ class FirebaseApi {
         },
         //onError
         (error) => {
-          console.log("error", error);
+          maybeLog("error: " + error);
           return Promise.reject(error);
-        },
-        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
-    );
+        }
+      );
   }
 
   static listenForPendingReadingsToUser(orgId: string, userId: string, callback: (readings: PendingReading[]) => void): string {
@@ -495,11 +456,10 @@ class FirebaseApi {
         },
         //onError
         (error: Error) => {
-          console.log("error", error);
+          maybeLog("error: " + error);
           return Promise.reject(error);
-        },
-        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
-    );
+        }
+      );
   }
 
   static listenForPendingResourcesToUser(orgId: string, userId: string, callback: (readings: PendingResource[]) => void): string {
@@ -515,10 +475,9 @@ class FirebaseApi {
         },
         //onError
         (error: Error) => {
-          console.log("error", error);
+          maybeLog("error: " + error);
           return Promise.reject(error);
-        },
-        // (sn) => console.log('onCompletion', sn), //onCompletion, doesn't exist now?
+        }
     );
   }
 
@@ -531,7 +490,7 @@ class FirebaseApi {
         const user: OWUser = this.snapshotToUser(sn);
         return cb(user);
       } catch (err) {
-        console.log('err', err);
+        maybeLog("error: " + err);
       }
     });
   }
@@ -570,7 +529,6 @@ class FirebaseApi {
         }
         //@ts-ignore
         const recentSearches = sn.data().recentSearches;
-        console.log("recent searches are", recentSearches);
         return recentSearches;
       });
   }
@@ -618,7 +576,7 @@ class FirebaseApi {
       }
     })
     .catch((err: any) => {
-      console.log("Error getting user:", err);
+      maybeLog("error getting user: " + err);
       return {
         type: ResultType.ERROR,
         message: `Could not get user for orgId: ${orgId}, userId: ${userId}`
@@ -649,7 +607,6 @@ class FirebaseApi {
    * Delete a pending reading
    */
   static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
-    console.log("FB deleting reading: ", orgId, userId, 'pendingReadings', pendingReadingId);
     return this.userDoc(orgId, userId).collection('pendingReadings').doc(pendingReadingId).delete()
       .then(() => {
         return {

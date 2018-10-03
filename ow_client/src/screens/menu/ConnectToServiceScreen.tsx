@@ -161,8 +161,6 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         );
       }
 
-    console.log("externalLoginDetails.externalOrg is: ", externalLoginDetails.externalOrg);
-
     return (
       <View>
         <Text

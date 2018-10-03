@@ -32,7 +32,7 @@ export interface Props {
   iconName: string,
   placeholder: string,
   onChangeText: any,
-  onSubmitEditing: any,
+  onSubmitEditing?: any,
   keyboardType?: KeyboardTypeOptions,
   iconColor: string,
   fieldType: InputType,
@@ -42,9 +42,6 @@ class IconFormInput extends Component<Props> {
   
   shouldDisplayErrorMessage() {
     const { errorMessage } = this.props;
-
-    console.log("Error message", errorMessage);
-
     if (!errorMessage || errorMessage === '') {
       return false;
     }
@@ -89,7 +86,6 @@ class IconFormInput extends Component<Props> {
           //   // width: '100%'
           // }}
           onPress={() => {
-            console.log('present cal');
             return false; //stop propagation?
           }}
           underlayColor="transparent"
@@ -127,15 +123,12 @@ class IconFormInput extends Component<Props> {
           }
         }}
         modalOnResponderTerminationRequest={() => {
-          console.log('modalOnResponderTerminationRequest');
           return false;
         }}
         onDateChange={(date) => { this.setState({ date: date }) }}
         onOpenModal={() => {
-          console.log('onOpenModal');
           return false;
         }}
-        onCloseModal={() => console.log('onCloseModal')}
       />
     )
   }

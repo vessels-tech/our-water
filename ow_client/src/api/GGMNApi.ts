@@ -8,7 +8,7 @@ import { default as ftch } from '../utils/Fetch';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
-import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse } from "../utils";
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -94,8 +94,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     const url = appendUrlParameters(organisationUrl, {
       page_size: 5,
     });
-    console.log("connectToService url is", url);
-    console.log("connectToService, externalOrg is:", externalOrg);
+    maybeLog("connectToService url is", url);
+    maybeLog("connectToService, externalOrg is:", externalOrg);
 
     let signInResponse: AnyLoginDetails;
     let resolvedExternalOrg: GGMNOrganisation;
@@ -190,7 +190,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
       return result;
     } catch (err) {
-      console.log("error logging in", err);
+      maybeLog("error logging in", err);
       return {
         type: LoginDetailsType.FULL,
         status: ConnectionStatus.SIGN_IN_ERROR,
@@ -217,7 +217,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       page_size: 100,
     });
 
-    console.log("connectToService url is", url);
+    maybeLog("connectToService url is", url);
 
     const options = {
       timeout,
@@ -319,7 +319,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     try {
       await this.saveExternalServiceLoginDetails(loginDetails, password);
     } catch (err) {
-      console.log("couldn't save external service login details");
+      maybeLog("couldn't save external service login details");
       return {
         type: ResultType.ERROR,
         message: "Error saving login details for user"
@@ -402,7 +402,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       // page: 0,
       page_size: 100,
     });
-    console.log("getResources URL is", url);
+    maybeLog("getResources URL is", url);
     
     const options = {
       timeout,
@@ -429,7 +429,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       page_size: 100,
       in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`
     });
-    console.log("getResourcesWithinRegion. URL is", url);
+    maybeLog("getResourcesWithinRegion. URL is", url);
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
     if (authHeadersResult.type === ResultType.ERROR) {
@@ -451,7 +451,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
       .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
       .catch((err: Error) => {
-        console.log("Error loading resources:", err);
+        maybeLog("Error loading resources:", err);
         return {type: ResultType.ERROR, message:'Error loading resources.'};
       })
   }
@@ -541,7 +541,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       },
     };
 
-    console.log("getReadingsForTimeseries url:", url);
+    maybeLog("getReadingsForTimeseries url:", url);
 
     return ftch(url, options)
     .then((response: any): Promise<GGMNTimeseriesResponse> | Promise<never> => {
@@ -601,7 +601,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     })
     .catch((err: Error) => {
       //TODO: handle this error?
-      console.log(err);
+      maybeLog(err);
     });
 
   }
@@ -699,7 +699,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       body: JSON.stringify(data),
     };
 
-    console.log("persistReadingToGGMN url is", url);
+    maybeLog("persistReadingToGGMN url is", url);
 
     return ftch(url, options)
     .then((response: any) => deprecated_naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
@@ -846,13 +846,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       },
     };
 
-    
-    console.log("performSearch url:", url);
+    maybeLog("performSearch url:", url);
     let response: any;
     try {
       response = await ftch(url, options);
     } catch(err) {
-      console.log("Error", err);
+      maybeLog("error: " + err);
       return {
         type: ResultType.ERROR,
         message: "Error loading search from GGMN.",
@@ -880,13 +879,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       },
     };
 
-    console.log("getResourceFromSearchEntityUrl url:", url);
+    maybeLog("getResourceFromSearchEntityUrl url:", url);
 
     let response: any;
     try {
       response = await ftch(url, options);
     } catch (err) {
-      console.log("getResourceFromSearchEntityUrl error:", err);
+      maybeLog("getResourceFromSearchEntityUrl: " + err);
       return {
         type: ResultType.ERROR,
         message: `Error getting resource from search entity url: ${url}`,

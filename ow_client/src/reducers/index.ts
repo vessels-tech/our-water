@@ -110,7 +110,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (action.result.type === ResultType.SUCCESS) {
         const externalLoginDetails = action.result.result;
-        console.log("setting external login details", externalLoginDetails);
         return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
       }
 
@@ -235,7 +234,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TODO: ideally expire them properly, but this will work for now.
       const over = resourcesCache.size - RESOURCE_CACHE_MAX_SIZE;
       if (over > 0) {
-        // console.log(`Removing ${over} items from cache`);
         const range = Array(over).fill(1).map((x, y) => x + y);
         const keys = [...resourcesCache.keys()];
         range.forEach(idx => {
@@ -249,8 +247,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       newResources.forEach(r => resourcesCache.set(r.id, r));
-      //TODO: add this back
-      // pendingSavedResources.forEach(r => resourcesCache.set(r.id, r));
       [...resourcesCache.keys()].forEach(k => {
         const value = resourcesCache.get(k);
         if (value) {
@@ -258,7 +254,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         }
       });
 
-      // console.log("resources count is:", resources.length);
       return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
     }
     case ActionType.GET_USER_REQUEST: {
@@ -326,7 +321,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const userIdMeta = { loading: false, error: false, errorMessage: '' };
 
       const result = action.userIdResult;
-      console.log("SILENT_LOGIN_RESPONSE", result);
       if (result.type === ResultType.ERROR) {
         userIdMeta.error = true;
         userIdMeta.errorMessage = result.message;
@@ -339,49 +333,39 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userIdMeta,
       });
     }
-    // case ActionType.ADD_FAVOURITE: {
 
-    //   const { favouriteResources } = state;
-    //   favouriteResources.set(action.resource.id, action.resource);
-      
-    //   return Object.assign({}, state, { favouriteResources });
-    // }
-    // case ActionType.REMOVE_FAVOURITE: {
-    //   const { favouriteResources } = state;
-    //   favouriteResources.delete(action.resourceId);
-      
-    //   return Object.assign({}, state, { favouriteResources });
-    // }
 
     case ActionType.ADD_RECENT_REQUEST: {
       //Set the recent resource meta to loading: true
-
       const recentResourcesMeta = {loading: true};
       
       return Object.assign({}, state, { recentResourcesMeta })
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-      //TODO: how to handle errors nicely in here?
-      const result = action.result;
-      // let recentResources: Resource[] = []; //TODO: should this default to the last one?
-      // if (result.type === ResultType.ERROR) {
-      //   recentResourcesMeta = {
-      //     loading: true,
-      //     error: true,
-      //     errorMessage: result.message,
-      //   }
-      // } else {
-      //   recentResources = result.result;
-      // }
-
-      // console.log("AddRecentResponse, resources", recentResources);
-      
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };      
       return Object.assign({}, state, { recentResourcesMeta })
     }
+    case ActionType.SAVE_READING_REQUEST: {
+      const pendingSavedReadingsMeta =  { loading: true };
 
+      return Object.assign({}, state, { pendingSavedReadingsMeta });
+    }
+    case ActionType.SAVE_READING_RESPONSE: {
+      const pendingSavedReadingsMeta = { loading: false };
 
+      return Object.assign({}, state, { pendingSavedReadingsMeta });
+    }
+    case ActionType.SAVE_RESOURCE_REQUEST: {
+      const pendingSavedResourcesMeta =  { loading: true };
+
+      return Object.assign({}, state, { pendingSavedResourcesMeta });
+    }
+    case ActionType.SAVE_RESOURCE_RESPONSE: {
+      const pendingSavedResourcesMeta = { loading: false };
+
+      return Object.assign({}, state, { pendingSavedResourcesMeta });
+    }
     case ActionType.START_EXTERNAL_SYNC_REQUEST: {
       const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.RUNNING };
 

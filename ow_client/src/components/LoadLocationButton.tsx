@@ -18,7 +18,7 @@ import { SyncMeta } from '../typings/Reducer';
 
 export interface OwnProps {
   style?: any,
-  onComplete: any,
+  onComplete?: any,
 }
 
 export interface StateProps {

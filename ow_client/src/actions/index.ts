@@ -6,7 +6,7 @@ import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionR
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
-import { getLocation } from "../utils";
+import { getLocation, maybeLog } from "../utils";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
@@ -319,7 +319,6 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesId: stri
         result: readings,
       }
     } catch (err) {
-      console.log("Error loading readings");
       result = {
         type: ResultType.ERROR,
         message: err.message,
@@ -420,8 +419,6 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
       //Add successful search to list
       await api.saveRecentSearch(userId, searchQuery);
     }
-
-    console.log("searchResult", searchResult);  
 
     return searchResult;
   }
@@ -579,7 +576,7 @@ export function startExternalSync(api: ExternalServiceApi, userId: string): (dis
   return async function(dispatch: any) {
     dispatch(externalSyncRequest());
     //TODO: call the api!
-    console.log("TODO: syncing with GGMN api");
+    maybeLog("TODO: syncing with GGMN api");
 
     const result: SomeResult<ExternalSyncStatus> = {
       type: ResultType.SUCCESS,

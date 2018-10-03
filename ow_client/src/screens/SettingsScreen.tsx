@@ -12,7 +12,7 @@ import { primary, primaryDark, textDark, error1, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 import BaseApi from '../api/BaseApi';
-import { EmptyLoginDetails, LoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
+import { EmptyLoginDetails, LoginDetails, ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
 import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
@@ -27,7 +27,7 @@ export interface OwnProps {
 
 export interface StateProps {
   userId: string,
-  externalLoginDetails: EmptyLoginDetails | LoginDetails,
+  externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
 }
 
@@ -179,17 +179,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           hideChevron
         />
-        {/* <ListItem
-          title="Language"
-          onPress={() => console.log("GGMN pressed")}
-          leftIcon={{
-            name: 'language',
-            color: textDark,
-          }}
-          hideChevron
-          disabled
-        /> */}
-        {/* TODO: display conditionally, use firebase remote config */}
       </KeyboardAvoidingView>
     );
   }
