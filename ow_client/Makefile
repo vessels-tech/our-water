@@ -3,6 +3,7 @@
 #
 # SHELL := /bin/bash
 
+PATH := node_modules/.bin:$(PATH)
 PROJECT = "OW_CLIENT"
 include .ow_config
 dir = $(shell pwd)
