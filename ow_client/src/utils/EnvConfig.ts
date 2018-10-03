@@ -16,6 +16,12 @@ function getBoolean(value: any) {
   }
 }
 
+/**
+ * Get the orgId from the environment variable
+ * 
+ * This is a little crappy, as it returns a TranslationOrg,
+ * but simplifies things for now
+ */
 function getOrgId(value: any): TranslationOrg {
   if (value === 'ggmn') {
     return TranslationOrg.ggmn;

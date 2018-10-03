@@ -1,7 +1,7 @@
 import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType } from "../enums";
 
-
+//TODO: make this much more typesafe etc.
 const GGMNDevConfig: RemoteConfig = {
   applicationName: 'GGMN',
   baseApiType: BaseApiType.GGMNApi,

@@ -39,7 +39,7 @@ switch-mywell-dev:
 # runs the local bundler server
 #
 server: 
-	# export ENVFILE = /tmp/ow_env
+	@make env
 	yarn run start
 
 #
@@ -47,9 +47,11 @@ server:
 # Server must be running
 #
 android:
+	@make env
 	ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager
 
 clean:
+	rm -rf /tmp/ow_env
 	rm -rf node_modules
 
 
