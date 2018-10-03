@@ -1,4 +1,4 @@
-import { TranslationFile } from "..";
+import { TranslationFile } from "../Types";
 
 const file: TranslationFile = {
   metadata: {
@@ -6,7 +6,7 @@ const file: TranslationFile = {
     region: 'india',
   },
   templates: {
-    client_app: 'MyWell Desi version'
+    client_app: 'MyWell Desi version (Hindi)'
   }
 }
 

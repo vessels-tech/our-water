@@ -1,4 +1,4 @@
-import { TranslationFile } from "..";
+import { TranslationFile } from "../Types";
 
 const file: TranslationFile = {
   metadata: {
