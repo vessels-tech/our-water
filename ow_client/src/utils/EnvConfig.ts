@@ -1,4 +1,3 @@
-
 import Config from 'react-native-config';
 import { TranslationOrg } from 'ow_translations/Types';
 

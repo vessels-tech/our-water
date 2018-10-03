@@ -5,11 +5,8 @@ import NetworkApi from "../api/NetworkApi";
 import ExternalServiceApi from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
-<<<<<<< HEAD
-import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types';
-=======
+import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
 import { maybeLog } from "../utils";
->>>>>>> origin/migrate-to-redux
 
 
 /**
