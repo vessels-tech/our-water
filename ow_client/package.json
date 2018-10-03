@@ -18,6 +18,7 @@
     "fast-deep-equal": "^2.0.1",
     "fetch-cookie": "^0.7.2",
     "moment": "^2.22.1",
+    "ow_translations": "../ow_translations/",
     "query-string": "^6.0.0",
     "react": "16.3.1",
     "react-context-api-store": "^1.0.15",

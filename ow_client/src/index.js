@@ -9,8 +9,8 @@ import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
-import { TranslationFile, TranslationEnum } from '../../ow_translations/Types';
-import { translationsForTranslationOrg } from '../../ow_translations';
+import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
+import { translationsForTranslationOrg } from 'ow_translations';
 import * as EnvironmentConfig from './utils/EnvConfig';
 
 let config: ConfigFactory;

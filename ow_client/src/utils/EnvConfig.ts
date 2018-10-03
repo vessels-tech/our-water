@@ -1,6 +1,6 @@
 
 import Config from 'react-native-config';
-import { TranslationOrg } from '../../../ow_translations/Types';
+import { TranslationOrg } from 'ow_translations/Types';
 
 
 function getBoolean(value: any) {
@@ -30,6 +30,5 @@ function getOrgId(value: any): TranslationOrg {
 }
 
 
-// export const EnableLogging = getBoolean(Config.ENABLE_LOGGING);
-export const EnableLogging = true;
+export const EnableLogging = getBoolean(Config.ENABLE_LOGGING);
 export const OrgId: TranslationOrg = getOrgId(Config.REACT_APP_ORG_ID)

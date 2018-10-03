@@ -41,7 +41,7 @@ public class MainApplication extends NavigationApplication {
       // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
           // new MainReactPackage(),
-            new SvgPackage(),
+          new SvgPackage(),
           new RNAsyncStoragePackage(),
           new KeychainPackage(),
           new VectorIconsPackage(),
