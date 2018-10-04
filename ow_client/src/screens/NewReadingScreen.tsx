@@ -10,7 +10,6 @@ import {
 import { 
   Button, Text 
 } from 'react-native-elements';
-import Config from 'react-native-config';
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
@@ -26,20 +25,20 @@ import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import ExternalServiceApi from '../api/ExternalServiceApi';
+import { TranslationFile } from 'ow_translations/Types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface Props {
   resource: Resource,
   navigator: any,
-
-  //Injected by Consumer
   config: ConfigFactory,
   userId: string,
   appApi: BaseApi,
-  // saveReading: (api: BaseApi, userId: string, resourceId: string, reading: Reading) => void,
+
   saveReading: any,
   pendingSavedReadingsMeta: SyncMeta,
+  translation: TranslationFile,
 }
 
 export interface State {
@@ -96,9 +95,24 @@ class NewReadingScreen extends Component<Props> {
 
   async saveReading() {
     Keyboard.dismiss();
-    const { pendingSavedReadingsMeta: {loading} } = this.props;
     const {date, measurementString, coords, timeseriesString} = this.state;
-    const { resource: { id } } = this.props;
+    const { 
+      pendingSavedReadingsMeta: {loading},
+      resource: { id },
+      translation: { templates: { 
+        new_reading_invalid_error_heading, 
+        new_reading_invalid_error_description,
+        new_reading_invalid_error_ok,
+        new_reading_unknown_error_heading,
+        new_reading_unknown_error_description,
+        new_reading_unknown_error_ok,
+        new_reading_saved_popup_title,
+        new_reading_saved,
+        new_reading_warning_login_required,
+        new_reading_dialog_one_more,
+        new_reading_dialog_done,
+      }}
+    } = this.props;
 
     if (loading) {
       //Don't allow a double button press!
@@ -118,9 +132,9 @@ class NewReadingScreen extends Component<Props> {
     const validateResult = await validateReading(readingRaw);
     if (validateResult.type === ResultType.ERROR) {
       displayAlert(
-        'Error',
-        `Invalid reading. Please check and try again.`,
-        [{ text: 'OK', onPress: () => { } }]
+        new_reading_invalid_error_heading,
+        new_reading_invalid_error_description,
+        [{ text: new_reading_invalid_error_ok, onPress: () => { } }]
       );
 
       return;
@@ -131,9 +145,9 @@ class NewReadingScreen extends Component<Props> {
     //TODO: how to do callbacks from state?
     if (saveResult.type === ResultType.ERROR) {
       displayAlert(
-        'Error',
-        `There was a problem saving your reading. Please try again.`,
-        [{ text: 'OK', onPress: () => { } }]
+        new_reading_unknown_error_heading,
+        new_reading_unknown_error_description,
+        [{ text: new_reading_unknown_error_ok, onPress: () => { } }]
       );
 
       return;
@@ -144,18 +158,17 @@ class NewReadingScreen extends Component<Props> {
       measurementString: '',
     });
 
-    let message = `Reading saved.`;
-    //TODO: re implement with redux
+    let message = new_reading_saved;
     if (saveResult.result.requiresLogin) {
-      message = `Reading saved locally. Login to save to GGMN.`;
+      message = new_reading_warning_login_required;
     }
 
     displayAlert(
-      'Success', message,
+      new_reading_saved_popup_title,
+      message,
       [
-        //TODO: add a new button to take the user to the login page?
-        { text: 'One More', onPress: () => { } },
-        { text: 'Done', onPress: () => this.props.navigator.pop() },
+        { text: new_reading_dialog_one_more, onPress: () => { } },
+        { text: new_reading_dialog_done, onPress: () => this.props.navigator.pop() },
       ]
     );
   }
@@ -231,7 +244,13 @@ class NewReadingScreen extends Component<Props> {
     //TODO: get units from reading.metadata
     const units = 'metres';
     const { date, measurementString  } = this.state;
-    const { resource } = this.props;
+    const { resource, translation: { templates: {
+      new_reading_date_field,
+      new_reading_date_field_invalid,
+      new_reading_value_field,
+      new_reading_value_field_invalid,
+      new_reading_timeseries,
+    }}} = this.props;
 
     return (
       <View style={{
@@ -246,8 +265,8 @@ class NewReadingScreen extends Component<Props> {
         <IconFormInput
           iconName='calendar'
           iconColor={textMed}
-          placeholder='Reading Date'
-          errorMessage={this.isDateValid() ? null : 'Invalid Date'}
+          placeholder={new_reading_date_field}
+          errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
           onChangeText={(date: moment.Moment) => this.setState({date})}
           fieldType={InputType.dateTimeInput}
           value={date}
@@ -255,10 +274,10 @@ class NewReadingScreen extends Component<Props> {
         <IconFormInput
           iconName='pencil'
           iconColor={textMed}
-          placeholder={`Measurement in ${units}`}
+          placeholder={new_reading_value_field(units)}
           errorMessage={
             measurementString.length > 0 && !this.isMeasurementValid() ? 
-              'Invalid Measurement' : null
+              new_reading_value_field_invalid : null
           }
           onChangeText={(measurementString: string) => this.setState({ measurementString})}
           keyboardType='numeric'
@@ -278,7 +297,7 @@ class NewReadingScreen extends Component<Props> {
             fontWeight: '600', 
             flex: 1,
           }}>
-            Timeseries:
+            {`${new_reading_timeseries}:`}
           </Text>
           <Picker
             selectedValue={this.state.timeseriesString}
@@ -305,11 +324,16 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getButton() {
-    const { pendingSavedReadingsMeta: { loading } } = this.props;
+    const { 
+      pendingSavedReadingsMeta: { loading },
+      translation: { templates: {
+        new_reading_save_button
+      }}
+    } = this.props;
 
     return (
       <Button
-        title='Save'
+        title={new_reading_save_button}
         raised
         disabled={this.shouldDisableSubmitButton()}
         icon={{ name: 'save' }}
@@ -363,6 +387,7 @@ const mapStateToProps = (state: AppState) => {
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
+    translation: state.translation,
   }
 }
 

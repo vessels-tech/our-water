@@ -20,6 +20,7 @@ import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
+import { TranslationFile } from 'ow_translations/Types';
 
 export interface OwnProps {
   onSearchResultPressed: (result: GGMNSearchEntity) => void,
@@ -32,7 +33,8 @@ export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
   searchResults: GGMNSearchEntity[], //This may be more than just resources in the future
-  searchResultsMeta: ActionMeta
+  searchResultsMeta: ActionMeta,
+  translation: TranslationFile,
 }
 
 export interface ActionProps { 
@@ -64,6 +66,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getSearchBar() {
+    const { translation: { templates: { search_heading}}} = this.props;
 
     return (
       <SearchBar
@@ -71,9 +74,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         noIcon
         onChangeText={(searchQuery) => this.setState({ searchQuery, hasSearched: false })}
         onEndEditing={() => this.performSearch()}
-        onClearText={() => console.log('clear text')}
         value={this.state.searchQuery}
-        placeholder='Search' />
+        placeholder={search_heading} />
     );
   }
 
@@ -82,12 +84,14 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   async performSearch() {
     const { searchQuery, page } = this.state;
+    const { translation: { templates: { search_error } } } = this.props;
+
   
     this.setState({hasSearched: true});
     const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, page);
        
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.showWithGravity("Couldn't perform search. Please try again.", ToastAndroid.SHORT,     ToastAndroid.CENTER);
+      ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
     }
   }
 
@@ -103,7 +107,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    * similar to google maps.
    */
   getSearchResults() {
-    const { searchResults, searchResultsMeta: { loading, error, errorMessage } } = this.props;
+    const { 
+      searchResults, 
+      searchResultsMeta: { loading }, 
+      translation: { templates: { search_more } },
+    } = this.props;
 
 
     if (loading) {
@@ -116,7 +124,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         </View>
       );
     }
-
 
     if (searchResults.length === 0) {
       return null;
@@ -156,7 +163,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           onPress={() => {
             this.loadMore()
           }}
-          title={'More ...'}
+          title={search_more}
         />
       </View>
     );
@@ -164,7 +171,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getNoResultsFoundText() {
     const { hasSearched } = this.state;
-    const { searchResults, searchResultsMeta: { loading } } = this.props;
+    const { 
+      searchResults, 
+      searchResultsMeta: { loading },
+      translation: { templates: { search_no_results } },
+    } = this.props;
 
     if (loading) { 
       return null;
@@ -189,7 +200,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         <Text style={{
           textAlign: "center"
         }}>
-          No Results Found
+          {search_no_results}
           </Text>
       </View>
     );
@@ -197,7 +208,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getSearchHint() {
     const { searchQuery } = this.state;
-    const { recentSearches, searchResultsMeta: { loading } } = this.props;
+    const { 
+      recentSearches, 
+      searchResultsMeta: { loading },
+      translation: { templates: { search_hint } },
+    } = this.props;
 
     if (loading) {
       return null;
@@ -215,14 +230,19 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           <Text style={{
             textAlign: "center"
           }}
-          >{this.props.config.getSearchHint()} </Text>
+          >{search_hint} </Text>
         </View>
       );
     }
   }
 
   getRecentSearches() {
-    const { recentSearches, searchResultsMeta: {loading}, searchResults } = this.props;
+    const { 
+      recentSearches, 
+      searchResultsMeta: {loading}, 
+      searchResults,
+      translation: { templates: { search_recent_searches } },
+    } = this.props;
 
     if (loading) {
       return null;
@@ -238,7 +258,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   
     return (
       <View>
-        <Card title="Recent Searches">
+        <Card title={search_recent_searches}>
           {
             recentSearches.map((r, i) => {
               return (
@@ -265,7 +285,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getOfflineWarning() {
-    const { isConnected } = this.props;
+    const { isConnected, translation: { templates: { search_offline_line_1, search_offline_line_2 } } } = this.props;
 
     if (isConnected === true) {
       return null;
@@ -273,8 +293,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <View>
-        <Text>You are currently offline.</Text>
-        <Text>Showing limited search results.</Text>
+        <Text>{search_offline_line_1}</Text>
+        <Text>{search_offline_line_2}</Text>
       </View>
     )
   }
@@ -319,6 +339,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     recentSearches: state.recentSearches,
     searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
+    translation: state.translation,
   }
 }
 
