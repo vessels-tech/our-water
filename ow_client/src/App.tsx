@@ -24,7 +24,6 @@ import {
   MapStateOption,
   MapHeightOption,
 } from './enums';
-import Config from 'react-native-config';
 import { bgLight, primaryDark } from './utils/Colors';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import BaseApi from './api/BaseApi';
@@ -44,6 +43,7 @@ import { ActionMeta, SyncMeta } from './typings/Reducer';
 import { ResultType, SomeResult } from './typings/AppProviderTypes';
 import ExternalServiceApi from './api/ExternalServiceApi';
 import { GGMNSearchEntity } from './typings/models/GGMN';
+import { TranslationFile } from 'ow_translations/Types';
 
 
 export interface OwnProps {
@@ -59,6 +59,7 @@ export interface StateProps {
   locationMeta: SyncMeta,
   resources: Resource[],
   resourcesMeta: SyncMeta,
+  translation: TranslationFile
 }
 
 export interface ActionProps {
@@ -76,6 +77,7 @@ export interface State {
   selectedResource?: Resource,
   isSearching: boolean,
   isAuthenticated: boolean,
+
 }
 
 class App extends Component<OwnProps & StateProps & ActionProps> {
@@ -135,6 +137,8 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onNavigatorEvent(event: any) {
+    const { translation: { templates: { search_heading } } } = this.props;
+
     if (event.id === 'search') {
       navigateTo(this.props, 'screen.SearchScreen', 'Search', {
         config: this.props.config,
@@ -148,14 +152,19 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
    * Load new resources based on where they are looking
    */
   async onMapRegionChange(region: Region) {
+    const { translation: {templates:{ app_resource_load_error}}} = this.props;
+
     const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.showWithGravity("Error loading resources. Please try again.", ToastAndroid.SHORT, ToastAndroid.TOP);
+      ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.TOP);
     }
   }
 
   onBannerPressed(bannerState: SyncStatus) {
+    const { translation: { templates: { settings_sync_heading }}} = this.props;
+
+    //TODO: adapt for other environments!
     if (bannerState === SyncStatus.pendingGGMNLogin) {
       //Redirect user to settings view
       showModal(
@@ -174,7 +183,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       showModal(
         this.props,
         'screen.menu.SyncScreen',
-        'GGMN Sync',
+        settings_sync_heading,
         {
           config: this.props.config,
           userId: this.props.userId,
@@ -192,13 +201,14 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
    * 
    */
   async onSearchResultPressed(r: GGMNSearchEntity): Promise<void> {
+    const { translation: { templates: { app_resource_not_found}}} = this.props;
     //TODO: reimmplement selectResource for a search entity.
     //Load the resource for the search entity?
 
     //We can move the user there on the map before the resource has loaded...
     const result = await this.appApi.getResourceFromSearchEntityId(this.props.userId, r.entity_id);
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show('Could not find the selected resource', ToastAndroid.SHORT);
+      ToastAndroid.show(app_resource_not_found, ToastAndroid.SHORT);
       return;
     }
     const resource = result.result;
@@ -212,37 +222,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     };
     this.updateGeoLocation(resourceLocation);
     this.selectResource(result.result);
-  }
-
-  /**
-   * Only reload the resources if the api can support it
-   * otherwise it's a lot of work!
-   */
-  reloadResourcesIfNeeded(region: Region): Promise<any> {
-    //TODO: be smarter about how we determine whether or not to reload resources.
-
-    if (this.props.config.getShouldMapLoadAllResources()) {
-      //Resources are all already loaded.
-      return Promise.resolve(true);
-    }
-
-    this.setState({passiveLoading: true});
-
-    //TODO: scale the distance with the latitude and longitude deltas
-    return this.appApi.getResourcesWithinRegion(region)
-      .then(resources => {
-        this.setState({
-          loading: false,
-          passiveLoading: false,
-          resources,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          loading: false,
-          passiveLoading: false,
-        });
-      });
   }
 
   selectResource(resource: Resource) {
@@ -274,7 +253,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getPassiveLoadingIndicator() {
-    //TODO: determine based on the resourceMeta
     const { resourcesMeta: {loading} } = this.props;
 
     if (!loading) {
@@ -316,7 +294,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
 
   getResourceView() {
     const {hasSelectedResource, selectedResource } = this.state;
-    const {userId} = this.props;
+    const { userId, translation: { templates: { resource_detail_new}}} = this.props;
 
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
@@ -327,15 +305,8 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
         config={this.props.config}
         userId={userId}
         resource={selectedResource}
-        onMorePressed={(resource: Resource) => {
-          navigateTo(this.props, 'screen.ResourceDetailScreen', 'Details', {
-            legacyId: resource.legacyId,
-            config: this.props.config,
-            userId: this.props.userId,
-          });
-        }}
         onAddReadingPressed={(resource: Resource) => {
-          navigateTo(this.props, 'screen.NewReadingScreen', 'New Reading', {
+          navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resource, 
             config: this.props.config,
             userId: this.props.userId
@@ -426,6 +397,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     locationMeta: state.locationMeta,
     resources: state.resources,
     resourcesMeta: state.resourcesMeta,
+    translation: state.translation,
   }
 }
 

@@ -34,7 +34,6 @@ export interface OwnProps {
   resource: Resource,
   userId: string,
   onAddReadingPressed: any,
-  onMorePressed: any,
 }
 
 export interface StateProps {

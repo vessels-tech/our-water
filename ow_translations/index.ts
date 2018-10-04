@@ -18,8 +18,8 @@ import {
  * values for the given orgId if they exist.
  */
  export function translationsForTranslationOrg(orgId: TranslationOrg): TranslationFiles {
-
-  //TODO: Implement override
+  //TODO: Implement override for a given organisation.
+  //This isn't too urgent right now.
 
   switch (orgId) {
     case TranslationOrg.mywell: {
@@ -52,10 +52,10 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
   switch (files.type) {
     case (TranslationOrg.mywell): {
       switch (language) {
-        case 'en_AU': return this.translationFiles.en_AU;
-        case 'en_US': return this.translationFiles.en_US;
-        case 'guj_IN': return this.translationFiles.guj_IN;
-        case 'hi_IN': return this.translationFiles.hi_IN;
+        case 'en_AU': return files.en_AU;
+        case 'en_US': return files.en_US;
+        case 'guj_IN': return files.guj_IN;
+        case 'hi_IN': return files.hi_IN;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${this.translationFiles.type}`);
         }
@@ -63,8 +63,8 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
     }
     case (TranslationOrg.ggmn): {
       switch (language) {
-        case 'en_AU': return this.translationFiles.en_AU;
-        case 'nl_NL': return this.translationFiles.nl_NL;
+        case 'en_AU': return files.en_AU;
+        case 'nl_NL': return files.nl_NL;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${this.translationFiles.type}`);
         }

@@ -19,6 +19,7 @@ import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
+import { TranslationFile } from 'ow_translations/Types';
 
 export interface OwnProps {
   navigator: any,
@@ -29,6 +30,7 @@ export interface StateProps {
   userId: string,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
+  translation: TranslationFile
 }
 
 export interface ActionProps {
@@ -56,20 +58,30 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
    * if already connected, displays a button that says "Connected to XYZ"
    */
   getConnectToButton() {
-    const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
+    const { 
+      externalLoginDetails,
+      externalLoginDetailsMeta: { loading },
+      translation: { 
+        templates: { 
+          settings_connect_to_pending_title,
+          settings_connect_to_connected_title,
+          settings_connect_to_subtitle_error,
+        } 
+      }
+    } = this.props;
 
     if (!this.props.config.getShowConnectToButton()) {
       return false;
     }
 
-    let title = this.props.config.getConnectToButtonText();
+    let title = settings_connect_to_pending_title;
     let subtitle;
     if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
-      title = this.props.config.getConnectToButtonConnectedText();
+      title = settings_connect_to_connected_title;
     }
 
     if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
-      subtitle = 'Error Logging In';
+      subtitle = settings_connect_to_subtitle_error;
     }
 
     let leftIcon: any = {
@@ -86,7 +98,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         onPress={() => showModal(
           this.props, 
           'screen.menu.ConnectToServiceScreen',
-          this.props.config.getConnectToButtonText(),
+          settings_connect_to_pending_title,
           {
             config: this.props.config,
             //TODO: how to get the userId in here???
@@ -106,6 +118,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   getSyncButton() {
+    const { translation: { templates: { settings_sync_heading}}} = this.props;
 
     let leftIcon: any = {
       name: 'sync',
@@ -114,11 +127,11 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
 
     return (
       <ListItem
-        title={'GGMN Sync'}
+        title={settings_sync_heading}
         onPress={() => showModal(
           this.props,
           'screen.menu.SyncScreen',
-          'GGMN Sync',
+          settings_sync_heading,
           {
             config: this.props.config,
             //TODO: how to get the userId in here???
@@ -137,6 +150,8 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
+    const { translation: { templates: { settings_new_resource }}} = this.props;
+
     return (
       <KeyboardAvoidingView style={{
         flexDirection: 'column',
@@ -161,10 +176,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         {this.getConnectToButton()}
         {this.getSyncButton()}
         <ListItem
-          title={this.props.config.getRegisterResourceButtonText()}
+          title={settings_new_resource}
           onPress={() => {
             //TODO: dismiss the sidebar
-            navigateTo(this.props, 'screen.menu.EditResourceScreen', 'New Resource', {
+            navigateTo(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
               config: this.props.config,
               userId: this.props.userId,
             })
@@ -192,6 +207,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     userId,
+    translation: state.translation,
   }
 }
 
