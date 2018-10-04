@@ -140,7 +140,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     const { translation: { templates: { search_heading } } } = this.props;
 
     if (event.id === 'search') {
-      navigateTo(this.props, 'screen.SearchScreen', 'Search', {
+      navigateTo(this.props, 'screen.SearchScreen', search_heading, {
         config: this.props.config,
         onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
       });

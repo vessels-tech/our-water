@@ -6,6 +6,7 @@ import {
   guj_IN,
   hi_IN,
   nl_NL,
+  test_UPPER,
 } from './common';
 
 
@@ -29,6 +30,7 @@ import {
         en_US,
         guj_IN,
         hi_IN,
+        test_UPPER,
       }
     }
 
@@ -56,6 +58,7 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
         case 'en_US': return files.en_US;
         case 'guj_IN': return files.guj_IN;
         case 'hi_IN': return files.hi_IN;
+        case 'test_UPPER': return files.test_UPPER;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${this.translationFiles.type}`);
         }

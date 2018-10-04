@@ -18,7 +18,7 @@ const orgId = EnvConfig.OrgId;
 
 const RESOURCE_CACHE_MAX_SIZE = 500;
 
-const defaultLanguage = TranslationEnum.en_AU;
+const defaultLanguage = TranslationEnum.test_UPPER;
 const translations = translationsForTranslationOrg(orgId);
 const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
 
