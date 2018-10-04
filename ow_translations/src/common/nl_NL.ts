@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { TranslationFile } from "../Types";
 
 const file: TranslationFile = {
