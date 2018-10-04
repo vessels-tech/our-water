@@ -6,7 +6,7 @@ import {
   ListItem, Badge, Text,
 } from 'react-native-elements';
 import {
-  navigateTo, showModal,
+  navigateTo, showModal, showLighbox,
 } from '../utils';
 import { primary, primaryDark, textDark, error1, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -149,6 +149,27 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     );
   }
 
+  getLanguageButton() {
+    return (
+      <ListItem
+        title="Language"
+        onPress={() => showLighbox(
+          this.props,
+          'modal.SelectLanguageModal',
+          {
+            config: this.props.config,
+            userId: this.props.userId,
+          }
+        )}
+        leftIcon={{
+          name: 'language',
+          color: textDark,
+        }}
+        hideChevron
+      />
+    );
+  }
+
   render() {
     const { translation: { templates: { settings_new_resource }}} = this.props;
 
@@ -191,6 +212,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           hideChevron
         />
+        {this.getLanguageButton()}
       </KeyboardAvoidingView>
     );
   }

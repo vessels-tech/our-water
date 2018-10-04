@@ -191,6 +191,19 @@ export const showModal = (props: any, screen: any, title: any, passProps: any) =
   });
 }
 
+export const showLighbox = (props: any, screen: any, passProps: any) => {
+
+  props.navigator.showLightBox({
+    screen,
+    passProps,
+    style: {
+      backgroundBlur: 'dark', // 'dark' / 'light' / 'xlight' / 'none' - the type of blur on the background
+      // backgroundColor: '#ff000080', // tint color for the background, you can specify alpha here (optional)
+      tapBackgroundToDismiss: true // dismisses LightBox on background taps (optional)
+    }
+  });
+}
+
 export const getMinAndMaxReadingDates = (momentFormat: string): {minDate: string, maxDate: string} => {
   const today = moment();
   const twoWeeksAgo = moment().subtract(14, 'days');

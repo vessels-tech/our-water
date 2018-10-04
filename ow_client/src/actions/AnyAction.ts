@@ -7,6 +7,7 @@ import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
 import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
+import { TranslationEnum } from "ow_translations/Types";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -14,6 +15,8 @@ export type AnyAction =
   AddFavouriteActionResponse |
   AddRecentActionRequest |
   AddRecentActionResponse |
+  ChangeTranslationActionRequest |
+  ChangeTranslationActionResponse |
   ConnectToExternalServiceActionRequest |
   ConnectToExternalServiceActionResponse |
   DisconnectFromExternalServiceActionRequest |
@@ -59,6 +62,8 @@ export type AddFavouriteActionRequest = { type: ActionType.ADD_FAVOURITE_REQUEST
 export type AddFavouriteActionResponse = { type: ActionType.ADD_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type AddRecentActionRequest = { type: ActionType.ADD_RECENT_REQUEST, resource: Resource };
 export type AddRecentActionResponse = { type: ActionType.ADD_RECENT_RESPONSE, result: SomeResult<void> };
+export type ChangeTranslationActionRequest = { type: ActionType.CHANGE_TRANSLATION_REQUEST, language: TranslationEnum};
+export type ChangeTranslationActionResponse = { type: ActionType.CHANGE_TRANSLATION_RESPONSE, result: SomeResult<void>};
 export type ConnectToExternalServiceActionRequest = { type: ActionType.CONNECT_TO_EXTERNAL_SERVICE_REQUEST };
 export type ConnectToExternalServiceActionResponse = { type: ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE, result: SomeResult<AnyLoginDetails> };
 export type DisconnectFromExternalServiceActionRequest = { type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST };

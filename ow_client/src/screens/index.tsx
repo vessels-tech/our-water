@@ -21,6 +21,7 @@ import { OWUser, Reading, Resource, PendingReading, PendingResource } from '../t
 import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 import { EnableLogging } from '../utils/EnvConfig';
+import SelectLanguageModal from './menu/SelectLanguageModal';
 
 
 let loggerMiddleware: any = null;
@@ -68,4 +69,5 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
+  Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
 }

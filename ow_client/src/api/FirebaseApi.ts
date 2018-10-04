@@ -15,6 +15,7 @@ import {
 import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { TranslationEnum } from 'ow_translations/Types';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -584,6 +585,27 @@ class FirebaseApi {
     });
   }
 
+  /**
+   * changeUserLanguage
+   * 
+   * Change the language for the given user. 
+   * Triggers a user changed callback
+   */
+  static async changeUserTranslation(orgId: string, userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId).set({ translation }, { merge: true })
+    .then(() => {
+      return {
+        type: ResultType.SUCCESS,
+        result: undefined
+      }
+    })
+    .catch((err: Error) => {
+      return {
+        type: ResultType.ERROR,
+        message: err.message,
+      }
+    });
+  }
 
   /**
    * Delete a pending resource
@@ -652,6 +674,8 @@ class FirebaseApi {
       pendingSavedReadings: data.pendingSavedReadings || [],
       pendingSavedResources: data.pendingSavedResources || [],
       recentSearches: data.recentSearches || [],
+      //TODO: default translation can be overriden here
+      translation: data.translation || 'en_AU', 
     }
   }
 

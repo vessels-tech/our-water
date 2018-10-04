@@ -2,6 +2,7 @@ import { ResourceType } from "../../enums";
 import { Moment } from "moment";
 import { GGMNTimeseries } from "./GGMN";
 import { Location } from "../Location";
+import { TranslationEnum } from "ow_translations/Types";
 
 export type Resource = {
   id: string,
@@ -129,6 +130,7 @@ export type OWUser = {
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
   recentSearches: string[],
+  translation: TranslationEnum,
 }
 
 export type TimeSeriesReading = {

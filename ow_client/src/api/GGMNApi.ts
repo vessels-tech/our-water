@@ -22,6 +22,7 @@ import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { runInThisContext } from "vm";
 import { resolve } from "path";
+import { TranslationEnum } from "ow_translations/Types";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -907,11 +908,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //
   // UserApi
   //----------------------------------------------------------------------
+
   getUser(userId: string): Promise<SomeResult<OWUser>> {
     return FirebaseApi.getUser(this.orgId, userId);
   }
 
-
+  changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
+    return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
+  }
 
   //
   // Utils

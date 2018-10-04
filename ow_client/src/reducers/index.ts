@@ -73,7 +73,7 @@ const initialState: AppState = {
   externalLoginDetailsMeta: { loading: false },
   location: { type: LocationType.NO_LOCATION},
   locationMeta: { loading: false },
-  language: TranslationEnum.en_AU, //default to australian english, we should probably change this.
+  language: defaultLanguage, //default to australian english, we should probably change this.
   translation: defaultTranslation,
 
   //Api
@@ -151,6 +151,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //Add favourite has no payload - handled as a part of the user object
       return Object.assign({}, state, { favouriteResourcesMeta });
     }
+
+    case ActionType.CHANGE_TRANSLATION_REQUEST: {
+      const language = action.language;
+      const translation = getTranslationForLanguage(translations, language);
+      return Object.assign({}, state, { language, translation } );
+    }
+
     case ActionType.GET_EXTERNAL_ORGS_REQUEST: {
       const externalOrgsMeta: ActionMeta = { loading: true, error: false, errorMessage: '' };
 
@@ -286,11 +293,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let favouriteResources = state.favouriteResources;
       let recentResources = state.recentResources;
       let recentSearches = state.recentSearches;
+      let language = state.language;
+      let translation = state.translation;
+
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
         recentResources = action.result.result.recentResources;
         recentSearches = action.result.result.recentSearches;
+        language = action.result.result.translation;
+        translation = getTranslationForLanguage(translations, language);
       }
       
       //TODO: error handling?
@@ -300,6 +312,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         favouriteResourcesMeta,
         recentResourcesMeta,
         recentSearches,
+        language,
+        translation,
       });
     }
     case ActionType.PERFORM_SEARCH_REQUEST: {
