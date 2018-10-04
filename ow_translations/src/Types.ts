@@ -81,6 +81,8 @@ export type TranslationFile = {
     connect_to_service_password_invalid: string,
     connect_to_service_mobile_field: string,
     connect_to_service_mobile_invalid: string,
+    connect_to_service_verify_field: string,
+    connect_to_service_verify_invalid: string,
     connect_to_service_logout_button: string,
     connect_to_service_connected_test: (fieldName: string, username: string) => string,
     connect_to_service_error: string,
