@@ -1,10 +1,10 @@
 import { TranslationOrg, TranslationFiles, TranslationEnum } from "./Types";
 
-import en_AU from './common/en_AU';
-import en_US from './common/en_US';
-import guj_IN from './common/guj_IN';
-import hi_IN from './common/hi_IN';
-import test_UPPER from './common/test_UPPER';
+import {en_AU} from './common/en_AU';
+import {en_US} from './common/en_US';
+import {guj_IN} from './common/guj_IN';
+import {hi_IN} from './common/hi_IN';
+import {test_UPPER} from './common/test_UPPER';
 
 
 /**

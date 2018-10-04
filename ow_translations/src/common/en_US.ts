@@ -7,7 +7,7 @@
 
 import { TranslationFile } from "../Types";
 
-const file: TranslationFile = {
+const en_US: TranslationFile = {
   metadata: {
     language: 'english',
     region: 'united states',
@@ -68,4 +68,4 @@ const file: TranslationFile = {
   }
 }
 
-export default file;
+export {en_US};

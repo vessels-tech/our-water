@@ -7,10 +7,10 @@
 
 import { TranslationFile } from "../Types";
 
-const file: TranslationFile = {
+const test_UPPER: TranslationFile = {
   metadata: {
     language: 'test',
-    region: 'upper',
+    region: 'uppercase',
   },
   templates: {
     app_resource_load_error: "ERROR LOADING LOCATIONS. PLEASE TRY AGAIN.",
@@ -68,4 +68,4 @@ const file: TranslationFile = {
   }
 }
 
-export default file;
+export {test_UPPER};

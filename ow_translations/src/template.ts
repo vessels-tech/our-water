@@ -42,7 +42,7 @@ const ${translationEnum}: TranslationFile = {
   }
 }
 
-export ${translationEnum};
+export {${translationEnum}};
 `
 
   return string;
