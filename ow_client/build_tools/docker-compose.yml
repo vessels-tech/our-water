@@ -5,3 +5,5 @@ services:
     build: .
     volumes:
       - .:/root/build_tools
+      - ../android:/root/build_tools/android
+      - ../../env:/root/build_tools/env

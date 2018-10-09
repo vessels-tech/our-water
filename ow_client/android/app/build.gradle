@@ -106,7 +106,7 @@ android {
       }
 
     defaultConfig {
-        applicationId "com.ourwater"
+        applicationId "com.vesselstech.ourwater"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1

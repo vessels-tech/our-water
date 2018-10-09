@@ -1,0 +1,11 @@
+FROM ruby:alpine
+
+
+RUN apk add --update g++ make bash
+RUN gem install fastlane
+
+RUN mkdir -p /root/build_tools
+WORKDIR /root/build_tools
+RUN printf 'export LC_ALL=en_US.UTF-8\nexport LANG=en_US.UTF-8\n' > ~/.bashrc
+
+ENTRYPOINT [ "tail", "-f", "/dev/null" ]

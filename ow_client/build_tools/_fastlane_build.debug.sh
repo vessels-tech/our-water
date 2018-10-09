@@ -2,7 +2,7 @@
 
 #Run from fastline inside of docker
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ENV_DIR="$DIR"/../env
+ENV_DIR="$DIR"/env
 
 ORG="ggmn"
 STAGE="development"
@@ -18,5 +18,5 @@ export ENVFILE=/tmp/"$STAGE"
 cd "$DIR"/android/
 ./gradlew assembleDebug
 
-# cd "$DIR"/android/app/build/outputs/apk/debug/
-# adb install app-debug.apk
+cd "$DIR"/android/app/build/outputs/apk/debug/
+adb install app-debug.apk

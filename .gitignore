@@ -2,3 +2,4 @@ dep_*
 node_modules
 .env*.*
 .runtimeconfig.json.*.env
+.service*
