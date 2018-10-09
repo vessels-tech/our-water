@@ -1,0 +1,7 @@
+version: '3'
+services:
+  build_tools:
+    container_name: build_tools
+    build: .
+    volumes:
+      - .:/root/build_tools
