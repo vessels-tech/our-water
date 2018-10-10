@@ -1,4 +1,4 @@
-package com.vesselstech.ggmn;
+package com.vesselstech.mywell;
 
 import com.reactnativenavigation.controllers.SplashActivity;
 
