@@ -16,7 +16,8 @@ export ENVFILE=/tmp/"$STAGE"
 # react-native bundle --platform android --dev false --entry-file ./src/index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ || exit 1
 
 cd "$DIR"/android/
-./gradlew assembleDebug
+# ./gradlew assembleDebug
+./gradlew assembleRelease
 
 cd "$DIR"/android/app/build/outputs/apk/debug/
 adb install app-debug.apk

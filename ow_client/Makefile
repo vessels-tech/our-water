@@ -53,5 +53,22 @@ clean:
 	rm -rf /tmp/ow_env
 	rm -rf node_modules
 
+build:
+	@make env
+	@echo 'Building debug only'
+	cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug
+
+install-android:
+	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
+
+build-and-install:
+	@make build install-android
+
+hockey:
+	# @make build
+	source ../env/.env.deployment.sh && \
+		cd ${dir}/android/fastlane && \
+		fastlane upload_hockey
+
 
 .PHONY: server android clean 

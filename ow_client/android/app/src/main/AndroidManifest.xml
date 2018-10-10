@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ourwater">
+    package="com.vesselstech.ourwater">
 
       <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -7,16 +7,16 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- TODO: disable for live build? -->
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <!-- <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /> -->
 
+    <!-- TODO:  debuggable: true-->
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:allowBackup="false"
       android:theme="@style/AppTheme"
-      android:debuggable="true">
-
+    >
      <!-- Metadata, injected by react-native-config! -->
       <meta-data 
         android:name="com.google.android.geo.API_KEY"
