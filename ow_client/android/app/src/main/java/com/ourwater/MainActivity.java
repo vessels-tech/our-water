@@ -1,4 +1,4 @@
-package com.vesselstech.ourwater;
+package com.vesselstech.ggmn;
 
 import com.reactnativenavigation.controllers.SplashActivity;
 
