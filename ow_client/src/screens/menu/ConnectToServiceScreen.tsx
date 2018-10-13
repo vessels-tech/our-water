@@ -64,10 +64,11 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+    
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
-
+    
     let username = '';
     if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
       username = this.props.externalLoginDetails.username;
@@ -76,7 +77,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       username,
       password: '',
     };
-
+    
     this.loginForm = FormBuilder.group({
       username: [username, Validators.required],
       password: ["", Validators.required],
@@ -92,7 +93,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       //Update the username if we found a saved one.
       if (username !== externalLoginDetails.username) {
         this.setState({username: externalLoginDetails.username});
-        this.loginForm.get('username').setValue(externalLoginDetails.username);
+        // this.loginForm.get('username').setValue(externalLoginDetails.username);
       }
     }
   }
@@ -228,6 +229,16 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
 
   getForm() {
     const { externalLoginDetailsMeta: { loading }} = this.props;
+
+    // return null;
+
+    // return (
+    //   <FieldGroup
+    //     strict={false}
+    //     control={this.loginForm}
+    //     render={() => <View><Text>Hello World</Text> </View>}
+    //   />
+    // )
 
     return (
       <FieldGroup

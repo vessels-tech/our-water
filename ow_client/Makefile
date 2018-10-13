@@ -50,8 +50,11 @@ android:
 	ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager
 
 clean:
+	watchman watch-del-all
 	rm -rf /tmp/ow_env
 	rm -rf node_modules
+	rm -rf /tmp/metro-bundler-cache-*
+	rm -rf /tmp/haste-map-react-native-packager-*
 
 build:
 	@make env
