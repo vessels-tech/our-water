@@ -95,9 +95,10 @@ def enableSeparateBuildPerCPUArchitecture = false
  * Run Proguard to shrink the Java bytecode in release builds.
  */
 def enableProguardInReleaseBuilds = false
+def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "26.0.1"
 
     //TODO: remove this - just trying to get firebase to work
@@ -110,12 +111,11 @@ android {
         // versionName "ggmn_1.0"
         // versionCode 1
         versionName System.getenv('versionName')
-        versionCode System.getenv('versionCode')
+        versionCode appVersionCode
 
         minSdkVersion 16
-        targetSdkVersion 26
-        //TODO: this is the that changes which firebase remote config we get
-        // versionName "1.0"
+        // This needs to be 26...
+        targetSdkVersion 22
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

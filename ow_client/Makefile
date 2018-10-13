@@ -56,7 +56,7 @@ clean:
 build:
 	@make env
 	@echo 'Building debug only'
-	cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug
+	source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug
 
 install-android:
 	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
@@ -65,7 +65,7 @@ build-and-install:
 	@make build install-android
 
 hockey:
-	# @make build
+	@make build
 	source ../env/.env.deployment.sh && \
 		cd ${dir}/android/fastlane && \
 		fastlane upload_hockey
