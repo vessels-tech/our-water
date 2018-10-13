@@ -56,6 +56,7 @@ clean:
 build:
 	@make env
 	@echo 'Building debug only'
+	../env/increment_build.sh
 	source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug
 
 install-android:
