@@ -8,6 +8,32 @@ import {test_UPPER} from './common/test_UPPER';
 
 
 /**
+ * Get a list of the possible Translations for a given org
+ */
+export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEnum[] {
+  switch (orgId) {
+    case TranslationOrg.mywell: {
+      return [
+        TranslationEnum.en_AU,
+        TranslationEnum.en_US,
+        TranslationEnum.guj_IN,
+        TranslationEnum.hi_IN,
+        TranslationEnum.test_UPPER,
+      ]
+    }
+    case TranslationOrg.ggmn: {
+      return [
+        TranslationEnum.en_AU,
+        TranslationEnum.en_US,  
+        TranslationEnum.nl_NL,  
+        TranslationEnum.test_UPPER,
+      ]
+    }
+  }
+}
+
+
+/**
  * This is the root translations file. 
  * 
  * Include this to get the magical translations working.

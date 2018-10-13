@@ -433,8 +433,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     maybeLog("getResourcesWithinRegion. URL is", url);
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      return authHeadersResult;
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
 
     const options = {
@@ -443,10 +445,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...authHeadersResult.result,
+        ...authHeaders,
       }
     };
-
+    
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))

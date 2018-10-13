@@ -254,9 +254,14 @@ export default class MapSection extends Component<Props> {
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
               description={resource.resourceType}
-              image={imageForResourceType(resource.resourceType)}
+              //This is making massive images on some devices
+              // image={imageForResourceType(resource.resourceType)}
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
-            />
+            >
+              {/* <View style={{ width: 70, height: 95 }}> */}
+                {/* {imageForResourceType(resource.resourceType)} */}
+              {/* </View> */}
+            </Marker>
           }
           )}
         </ClusteredMapView>
