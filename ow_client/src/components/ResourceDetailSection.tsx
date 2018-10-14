@@ -338,7 +338,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     return (
       <View style={{
         flexDirection: 'column',
-        flex: 1,
+        flex: 5,
       }}>
         {this.getHeadingBar()}
         {this.getReadingsView()}

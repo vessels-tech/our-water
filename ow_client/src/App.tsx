@@ -45,6 +45,7 @@ import ExternalServiceApi from './api/ExternalServiceApi';
 import { GGMNSearchEntity } from './typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
 import { SearchButtonPressedEvent } from './utils/Events';
+//@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 
 
@@ -142,8 +143,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
 
   onNavigatorEvent(event: any) {
     const { translation: { templates: { search_heading } } } = this.props;
-
-    console.log("onNavigatorEvent", event);
 
     if (event === 'search') {
       navigateTo(this.props, 'screen.SearchScreen', search_heading, {
@@ -323,7 +322,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   }
   
   render() {
-    const { initialRegion } = this.state;
+    const { initialRegion, mapState } = this.state;
     const { userIdMeta: { loading } } = this.props;
 
     if (loading) {
@@ -348,6 +347,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
         marginTop: 0,
         flex: 1,
         backgroundColor: bgLight,
+        flexDirection: 'column',
       }}>
       {this.getPassiveLoadingIndicator()}
       {isNullOrUndefined(initialRegion) ? null :
@@ -359,23 +359,23 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
           onResourceSelected={(r: Resource) => this.selectResource(r)}
           onResourceDeselected={() => this.clearSelectedResource()}
           onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
+          onMapStateChanged={(m: MapStateOption) => this.setState({mapState: m})}
           selectedResource={this.state.selectedResource}
           hasSelectedResource={this.state.hasSelectedResource}
         />}
-        <ScrollView 
-          style={{
-            marginTop: 0,
-            flex: 1
-          }}
-          contentContainerStyle={{ flexGrow: 1 }}
-        >
-          {this.getResourceView()}
-          {this.getFavouritesList()}
-        </ScrollView>
-        <PendingChangesBanner
-          onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}
-        />
-        {/* Not sure how to fix this... */}
+        {mapState === MapStateOption.fullscreen ? null :
+          <ScrollView 
+            style={{
+              marginTop: 0,
+              flex: 1
+            }}
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
+            {this.getResourceView()}
+            {this.getFavouritesList()}
+          </ScrollView>
+        }
+        <PendingChangesBanner onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)}/>
         <NetworkStatusBanner/>
       </View>
     );

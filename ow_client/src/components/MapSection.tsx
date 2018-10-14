@@ -31,6 +31,7 @@ export interface Props {
   onMapRegionChange: any,
   onResourceSelected: any,
   onResourceDeselected: any,
+  onMapStateChanged: (h: MapStateOption) => void,
   initialRegion: MapRegion,
   resources: Resource[],
   selectedResource?: Resource,
@@ -132,10 +133,12 @@ export default class MapSection extends Component<Props> {
       newMapHeight = MapHeightOption.fullscreen;
     }
 
+    this.props.onMapStateChanged(newMapState);
     this.setState({
       mapState: newMapState,
       mapHeight: newMapHeight,
     });
+    
   }
 
   onRegionChange(region: any) {
@@ -221,7 +224,8 @@ export default class MapSection extends Component<Props> {
     return (
       <View style={{
         backgroundColor: bgMed,
-        // height: 500,
+        flex: 1,
+        maxHeight: mapHeight
       }}>
         <ClusteredMapView
           mapRef={(ref: any) => {
@@ -231,6 +235,7 @@ export default class MapSection extends Component<Props> {
           style={{
             position: 'relative',
             width: '100%',
+            // height: '100%',
             height: mapHeight,
           }}
           radius={25}

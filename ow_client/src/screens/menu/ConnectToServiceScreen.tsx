@@ -230,16 +230,6 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   getForm() {
     const { externalLoginDetailsMeta: { loading }} = this.props;
 
-    // return null;
-
-    // return (
-    //   <FieldGroup
-    //     strict={false}
-    //     control={this.loginForm}
-    //     render={() => <View><Text>Hello World</Text> </View>}
-    //   />
-    // )
-
     return (
       <FieldGroup
         strict={false}

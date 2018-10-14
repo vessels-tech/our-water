@@ -152,6 +152,7 @@ class IconFormInput extends Component<Props> {
         autoCorrect={false}
         keyboardType={keyboardType}
         returnKeyType='next'
+        underlineColorAndroid='transparent'
         inputStyle={{
           // height: 45,
           // marginVertical: 10,

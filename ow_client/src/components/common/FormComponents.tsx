@@ -22,6 +22,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: TextInputParams)
       // placeholder={`${meta.label}`}
       secureTextEntry={meta.secureTextEntry} 
       editable={meta.editable}
+      underlineColorAndroid='transparent'
       containerStyle={{
         borderBottomColor: textMed,
         borderBottomWidth: 1,
