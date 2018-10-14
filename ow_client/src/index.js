@@ -47,8 +47,6 @@ Promise.resolve(true)
 .then(() => {
   const title = 'MyWell'
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
-  console.log("CustomButton:", SearchButton);
-
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen

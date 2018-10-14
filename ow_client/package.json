@@ -36,6 +36,7 @@
     "react-native-map-clustering": "^1.3.0",
     "react-native-maps": "0.20.1",
     "react-native-navigation": "^1.1.480",
+    "react-native-splash-screen": "3.0.6",
     "react-native-svg": "^6.5.2",
     "react-native-svg-charts": "^5.2.0",
     "react-native-vector-icons": "^4.6.0",

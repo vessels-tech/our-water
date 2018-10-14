@@ -35,7 +35,9 @@ export async function registerScreens(config: ConfigFactory) {
    : applyMiddleware(thunkMiddleware);
   const store = createStore(OWApp, middleware);
 
-  /* Initial actions */
+  /* Initial actions
+    TODO: move these to after the initial App load?
+  */
   await store.dispatch(appActions.silentLogin(config.appApi));
   //TODO: I don't know how to fix this.
   //@ts-ignore
