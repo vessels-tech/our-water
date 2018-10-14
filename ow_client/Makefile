@@ -69,7 +69,6 @@ build-and-install:
 	@make build install-android
 
 hockey:
-	# @make build
 	source ../env/.env.deployment.sh && \
 		cd ${dir}/android/fastlane && \
 		fastlane upload_hockey

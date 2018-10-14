@@ -44,6 +44,8 @@ import { ResultType, SomeResult } from './typings/AppProviderTypes';
 import ExternalServiceApi from './api/ExternalServiceApi';
 import { GGMNSearchEntity } from './typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
+import { SearchButtonPressedEvent } from './utils/Events';
+import EventEmitter from "react-native-eventemitter";
 
 
 export interface OwnProps {
@@ -108,7 +110,8 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     this.externalApi = props.config.getExternalServiceApi();
 
     //Listen to events from the navigator
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+    // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+    EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
 
   componentWillMount() {
@@ -123,6 +126,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   componentWillUnmount() {
     //TODO unsubscribe if possible?
     // this.hardwareBackListener
+    EventEmitter.removeAllListeners(SearchButtonPressedEvent);
   }
 
   /*--- externally bound events ---*/
@@ -139,7 +143,9 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   onNavigatorEvent(event: any) {
     const { translation: { templates: { search_heading } } } = this.props;
 
-    if (event.id === 'search') {
+    console.log("onNavigatorEvent", event);
+
+    if (event === 'search') {
       navigateTo(this.props, 'screen.SearchScreen', search_heading, {
         config: this.props.config,
         onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),

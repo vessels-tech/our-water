@@ -10,8 +10,10 @@ import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
 import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
-import { translationsForTranslationOrg } from 'ow_translations';
 import * as EnvironmentConfig from './utils/EnvConfig';
+import SearchButton from './components/common/SearchButton';
+import { SearchButtonPressedEvent } from './utils/Events';
+import EventEmitter from "react-native-eventemitter";
 
 let config: ConfigFactory;
 let translation: TranslationFile;
@@ -44,6 +46,9 @@ Promise.resolve(true)
 })
 .then(() => {
   const title = 'MyWell'
+  Navigation.registerComponent('example.SearchButton', () => SearchButton);
+  console.log("CustomButton:", SearchButton);
+
   Navigation.startSingleScreenApp({
     screen: {
       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
@@ -61,14 +66,14 @@ Promise.resolve(true)
           buttonFontWeight: '600'
         }],
         rightButtons: [{
-          icon: require('./assets/search/48.png'),
-          passProps: {},
+          component: 'example.SearchButton',
+          passProps: {
+            text: 'Search',
+            onPress: () => {
+              EventEmitter.emit(SearchButtonPressedEvent, 'search');
+            }
+          },
           id: 'search',
-          disabled: false, 
-          disableIconTint: false, 
-          buttonColor: textDark, 
-          buttonFontSize: 14, 
-          buttonFontWeight: '600' 
         }],
       }
     },
