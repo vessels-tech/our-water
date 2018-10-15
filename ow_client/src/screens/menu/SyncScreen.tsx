@@ -6,13 +6,14 @@ import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'r
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType } from '../../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
 import { Reading, Resource, PendingReading, PendingResource } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar } from '../../utils';
-import { error1, primary, primaryDark, textDark, bgLight } from '../../utils/Colors';
+import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
+import { TranslationFile } from 'ow_translations/Types';
 
 export interface OwnProps {
   navigator: any,
@@ -21,10 +22,11 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-  externalLoginDetails: LoginDetails | EmptyLoginDetails,
+  externalLoginDetails: AnyLoginDetails,
   externalSyncStatus: ExternalSyncStatus,
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -56,35 +58,41 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getSyncSection() {
-    const { externalLoginDetails, externalSyncStatus } = this.props;
+    const { externalLoginDetails, externalSyncStatus, 
+      translation: { templates: {
+        sync_login_message,
+        sync_start_sync_button,
+        sync_start_sync_button_loading,
+      }}
+    } = this.props;
 
     //if no login, just display a message saying 'login to sync'
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       return <View>
-        <Text>Login to sync with GGMN</Text>
+        <Text>{sync_login_message}</Text>
       </View>
     }
 
     const syncing: boolean = externalSyncStatus.type === ExternalSyncStatusType.RUNNING;
 
     return (
-        <Button
-          style={{
-            paddingBottom: 20,
-            minHeight: 50,
-          }}
-          containerViewStyle={{
-            borderRadius: 15,
-            position: 'relative',
-          }}
-          color={textDark}
-          backgroundColor={primary}
-          borderRadius={15}
-          loading={syncing}
-          icon={{ name: 'cached', color: textDark }}
-          title={syncing ? 'Syncing with GGMN' : 'Start Sync'}
-          onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
-        />
+      <Button
+        style={{
+          paddingBottom: 20,
+          minHeight: 50,
+        }}
+        containerViewStyle={{
+          borderRadius: 15,
+          position: 'relative',
+        }}
+        color={primaryText}
+        backgroundColor={primary}
+        borderRadius={15}
+        loading={syncing}
+        icon={{ name: 'cached', color: primaryText }}
+        title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+        onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
+      />
     )
   }
 
@@ -122,7 +130,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         containerStyle={{
           paddingLeft: 6,
         }}
-        // hideChevron
         key={i}
         roundAvatar
         rightIcon={ 
@@ -142,7 +149,11 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getPendingItems() {
-    const { pendingSavedReadings, pendingSavedResources } = this.props;
+    const { pendingSavedReadings, pendingSavedResources, translation: { templates: {
+      sync_section_resources,
+      sync_section_readings,
+    }}
+    } = this.props;
 
     return (
       <ScrollView
@@ -156,7 +167,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             fontWeight: "400",
             color: primaryDark,
           }}
-        >Groundwater Stations:</Text>
+        >{sync_section_resources}</Text>
         {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx))}
         <Text
           style={{
@@ -166,14 +177,17 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             fontWeight: "400",
             color: primaryDark,
           }}
-        >Readings:</Text>
+        >{sync_section_readings}</Text>
         {pendingSavedReadings.map((reading, idx) => this.readingListItem(reading, idx))}
       </ScrollView>
     );
   }
 
   render() {
-    const { pendingSavedReadings, pendingSavedResources } = this.props;
+    const { pendingSavedReadings, pendingSavedResources, translation: { templates: {
+      sync_empty_heading,
+      sync_empty_content,
+    }} } = this.props;
 
     if (pendingSavedReadings.length + pendingSavedResources.length === 0) {
       return (
@@ -184,8 +198,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           width: '50%',
           height: '100%',
         }}>
-          <Text style={{textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>Nothing to sync!</Text>
-          <Text style={{textAlign: "center"}}>Start taking readings or creating groundwater stations to get started.</Text>
+          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{sync_empty_heading}</Text>
+          <Text style={{ textAlign: "center" }}>{sync_empty_content}</Text>
         </View>
       );
     }
@@ -219,6 +233,7 @@ const mapStateToProps = (state: AppState) => {
     pendingSavedReadings: state.pendingSavedReadings,
     pendingSavedResources: state.pendingSavedResources,
     externalSyncStatus: state.externalSyncStatus,
+    translation: state.translation,
   }
 }
 

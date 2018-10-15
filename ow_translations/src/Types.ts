@@ -53,6 +53,11 @@ export type GGMNTranslationOverrideFile = {
     connect_to_service_description: string,
     connect_to_service_connected_test: (fieldName: string, username: string) => string,
     connect_to_service_org_selector: string, 
+    sync_login_message: string,
+    sync_start_sync_button_loading: string,
+    sync_section_resources: string,
+    sync_empty_heading: string,
+    sync_empty_content: string,
   }
 }
 
@@ -122,5 +127,12 @@ export type TranslationFile = {
     recent_resource_none: string,
     resource_detail_latest: string,
     resource_detail_new: string,
+    sync_login_message: string,
+    sync_start_sync_button: string,
+    sync_start_sync_button_loading: string,
+    sync_section_resources: string,
+    sync_section_readings: string,
+    sync_empty_heading: string,
+    sync_empty_content: string,
   }
 }

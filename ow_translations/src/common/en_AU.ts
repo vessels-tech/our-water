@@ -46,11 +46,10 @@ const en_AU: TranslationFile = {
     new_reading_value_field_invalid: "Invalid Measurement",
     new_reading_timeseries: "N/A",
     new_reading_save_button: "Save",
-
     connect_to_service_username_field: "Username",
-    connect_to_service_username_invalid: "is required",
+    connect_to_service_username_invalid: "is Required.",
     connect_to_service_password_field: "Password",
-    connect_to_service_password_invalid: "is required",
+    connect_to_service_password_invalid: "is Required.",
     connect_to_service_mobile_field: "Phone number",
     connect_to_service_mobile_invalid: "Phone number is required",
     connect_to_service_verify_field: "Enter the 4 digit code we sent you.",
@@ -60,7 +59,6 @@ const en_AU: TranslationFile = {
     connect_to_service_description: "Connect to N/A to create new wells and save readings from your device.",
     connect_to_service_connected_test: (fieldName: string, username: string) => `You are connected to MyWell with the ${fieldName}: ${username}`,
     connect_to_service_error: "Error signing in. Please try again",
-    
     connect_to_service_org_selector: "N/A",
     favourite_resource_heading: "Favourites",
     favourite_resource_hint_1: "Press the",
@@ -69,6 +67,13 @@ const en_AU: TranslationFile = {
     recent_resource_none: "No recent resources",
     resource_detail_latest: "Latest readings",
     resource_detail_new: "New Reading",
+    sync_login_message: "Login to sync with MyWell",
+    sync_start_sync_button: "Start Sync",
+    sync_start_sync_button_loading: "Syncing with MyWell",
+    sync_section_resources: "Locations",
+    sync_section_readings: "Readings",
+    sync_empty_heading: "Nothing to sync!",
+    sync_empty_content: "Start taking readings or creating groundwater stations to get started.",
   }
 }
 

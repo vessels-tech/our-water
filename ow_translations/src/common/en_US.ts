@@ -15,9 +15,9 @@ const en_US: TranslationFile = {
   templates: {
     app_resource_load_error: "Error loading locations. Please try again.",
     app_resource_not_found: "Could not find the selected location",
-    settings_connect_to_pending_title: "",
-    settings_connect_to_connected_title: "",
-    settings_connect_to_subtitle_error: "",
+    settings_connect_to_pending_title: "OVERRIDE",
+    settings_connect_to_connected_title: "OVERRIDE",
+    settings_connect_to_subtitle_error: "OVERRIDE",
     settings_login_error: "Error logging in.",
     settings_sync_heading: "MyWell Sync",
     settings_new_resource: "New Location",
@@ -55,6 +55,8 @@ const en_US: TranslationFile = {
     connect_to_service_verify_field: "Enter the 4 digit code we sent you.",
     connect_to_service_verify_invalid: "You entered the wrong code. Please try again.",
     connect_to_service_logout_button: "Log Out",
+    connect_to_service_submit_button: "",
+    connect_to_service_description: "",
     connect_to_service_connected_test: (fieldName: string, username: string) => `You are connected to MyWell with the ${fieldName}: ${username}`,
     connect_to_service_error: "Error signing in. Please try again",
     connect_to_service_org_selector: "N/A",
@@ -65,6 +67,13 @@ const en_US: TranslationFile = {
     recent_resource_none: "No recent resources",
     resource_detail_latest: "Latest readings",
     resource_detail_new: "New Reading",
+    sync_login_message: "",
+    sync_start_sync_button: "",
+    sync_start_sync_button_loading: "",
+    sync_section_resources: "",
+    sync_section_readings: "",
+    sync_empty_heading: "",
+    sync_empty_content: "",
   }
 }
 

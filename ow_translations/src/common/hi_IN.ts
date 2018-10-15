@@ -15,9 +15,9 @@ const hi_IN: TranslationFile = {
   templates: {
     app_resource_load_error: "",
     app_resource_not_found: "",
-    settings_connect_to_pending_title: "",
-    settings_connect_to_connected_title: "",
-    settings_connect_to_subtitle_error: "",
+    settings_connect_to_pending_title: "OVERRIDE",
+    settings_connect_to_connected_title: "OVERRIDE",
+    settings_connect_to_subtitle_error: "OVERRIDE",
     settings_login_error: "",
     settings_sync_heading: "",
     settings_new_resource: "",
@@ -55,6 +55,8 @@ const hi_IN: TranslationFile = {
     connect_to_service_verify_field: "",
     connect_to_service_verify_invalid: "",
     connect_to_service_logout_button: "",
+    connect_to_service_submit_button: "",
+    connect_to_service_description: "",
     connect_to_service_connected_test: (fieldName: string, username: string) => `You are connected to MyWell with the ${fieldName}: ${username}`,
     connect_to_service_error: "",
     connect_to_service_org_selector: "N/A",
@@ -65,6 +67,13 @@ const hi_IN: TranslationFile = {
     recent_resource_none: "",
     resource_detail_latest: "",
     resource_detail_new: "",
+    sync_login_message: "",
+    sync_start_sync_button: "",
+    sync_start_sync_button_loading: "",
+    sync_section_resources: "",
+    sync_section_readings: "",
+    sync_empty_heading: "",
+    sync_empty_content: "",
   }
 }
 
