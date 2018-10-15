@@ -3,6 +3,7 @@ import { TranslationOrg, TranslationOverrideFile } from "../Types";
 const ggmn_en_AU: TranslationOverrideFile  = {
   org: TranslationOrg.ggmn,
   overrides: {
+    search_hint: 'Search for Groundwater Stations by their ID.',
     settings_sync_heading: "GGMN Sync",
     settings_connect_to_pending_title: 'Connect to GGMN',
     settings_connect_to_connected_title: 'Connected to GGMN',

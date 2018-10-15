@@ -25,7 +25,7 @@ const en_AU: TranslationFile = {
     search_error: "Couldn't perform search. Please try again.",
     search_more: "More...",
     search_no_results: "No Results Found",
-    search_hint: "",
+    search_hint: "Search By Id",
     search_recent_searches: "Recent Searches",
     search_offline_line_1: "You are currently offline.",
     search_offline_line_2: "Showing limited search results.",

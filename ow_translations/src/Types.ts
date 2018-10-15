@@ -46,6 +46,7 @@ export type GGMNTranslationOverrideFile = {
   org: TranslationOrg.ggmn,
   overrides: {
     /* Define the overriden variables here */
+    search_hint: string,
     settings_sync_heading: string,
     settings_connect_to_pending_title: string,
     settings_connect_to_connected_title: string,
