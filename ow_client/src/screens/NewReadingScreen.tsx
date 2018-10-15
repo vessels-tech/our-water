@@ -14,7 +14,7 @@ import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import { displayAlert, getLocation, maybeLog } from '../utils';
-import { bgLight, primary, primaryDark, textMed, textDark, secondary, secondaryText} from '../utils/Colors';
+import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
@@ -286,7 +286,7 @@ class NewReadingScreen extends Component<Props> {
         />
         <View style={{
           flexDirection: "row",
-          borderBottomColor: textDark,
+          borderBottomColor: primaryText,
           borderBottomWidth: 1,
         }}>
           <Text 

@@ -21,6 +21,7 @@ import { SyncMeta } from '../../typings/Reducer';
 import { TextInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import Loading from '../../components/common/Loading';
+import { TranslationFile } from 'ow_translations/Types';
 
 
 export interface OwnProps {
@@ -34,6 +35,7 @@ export interface StateProps {
   externalLoginDetailsMeta: SyncMeta,
   externalOrgs: GGMNOrganisation[],
   externalOrgsMeta: SyncMeta,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -143,6 +145,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         paddingHorizontal: 20,
         paddingTop: 10,
       }}>
+        here
         Error signing in. Please try again.
       </Text>
     );
@@ -173,6 +176,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
             fontWeight: '600',
             flex: 1,
           }}>
+          here
           Select an Organisation:
         </Text>
         <Picker
@@ -195,7 +199,10 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
 
   getConnectedSection() {
     let { username } = this.state;
-    const { externalLoginDetails } = this.props;
+    const { externalLoginDetails, translation: { templates: { 
+      connect_to_service_connected_test,
+      connect_to_service_logout_button
+    }}} = this.props;
 
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       return null;
@@ -205,7 +212,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       username = externalLoginDetails.username;
     }
 
-    const text = `You are connected to GGMN with username: ${username}`;
+    const text = connect_to_service_connected_test('username', username);
     return (
       <View
         style={{
@@ -233,8 +240,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
             color: secondaryText,
             fontWeight: '700',
           }}
-
-          title='Log out'
+          title={connect_to_service_logout_button}
           onPress={() => this.handleLogout()}
         />
       </View>
@@ -242,7 +248,16 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   }
 
   getForm() {
-    const { externalLoginDetailsMeta: { loading }} = this.props;
+    const { 
+      externalLoginDetailsMeta: { loading },
+      translation: { templates: { 
+        connect_to_service_username_field,
+        connect_to_service_username_invalid,
+        connect_to_service_password_field,
+        connect_to_service_password_invalid,
+        connect_to_service_submit_button
+      }},
+    } = this.props;
 
     return (
       <FieldGroup
@@ -253,12 +268,20 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
             <FieldControl
               name="username"
               render={TextInput}
-              meta={{ label: "Username", secureTextEntry: false }}
+              meta={{
+                label: connect_to_service_username_field, 
+                secureTextEntry: false, 
+                errorMessage: connect_to_service_username_invalid 
+              }}
             />
             <FieldControl
               name="password"
               render={TextInput}
-              meta={{ label: "Password", secureTextEntry: true }}
+              meta={{ 
+                label: connect_to_service_password_field, 
+                secureTextEntry: true,
+                errorMessage: connect_to_service_password_invalid,
+              }}
             />
             <Button
               style={{
@@ -274,7 +297,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
               }}
               loading={loading}
               disabled={invalid}
-              title={loading ? '' : 'Submit'}
+              title={loading ? '' : connect_to_service_submit_button}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -287,7 +310,11 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   // ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
 
   render() {
-    const { externalLoginDetails } = this.props;
+    const { externalLoginDetails, translation: {
+      templates: {
+        connect_to_service_description
+      }}
+    } = this.props;
 
     const isConnected = externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS;  
     return (
@@ -316,7 +343,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
           <Text style={{
             paddingHorizontal: 20,
             paddingTop: 10,
-          }}>{this.props.config.getConnectToButtonDescription()}</Text>
+          }}>{connect_to_service_description}</Text>
           {this.getErrorMessage()}
           {this.getConnectedSection()}
         </View>
@@ -337,6 +364,7 @@ const mapStateToProps = (state: AppState): StateProps => {
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     externalOrgs: state.externalOrgs,
     externalOrgsMeta: state.externalOrgsMeta,
+    translation: state.translation,
   }
 }
 

@@ -9,9 +9,10 @@ export type TextInputParams = {
   touched: boolean,
   hasError: any,
   meta: any,
+  errorMessage: string,
 }
 
-export const TextInput = ({ meta, handler, hasError, touched }: TextInputParams) => (
+export const TextInput = ({ meta, handler, hasError, touched, errorMessage }: any) => (
   <View style={{
     flex: 1,
   }}>
@@ -32,7 +33,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: TextInputParams)
     <FormValidationMessage>
       {touched
         && hasError("required")
-        && `${meta.label} is required`}
+        && `${meta.label} ${errorMessage}`}
     </FormValidationMessage>
   </View>
 )

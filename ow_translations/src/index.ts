@@ -1,10 +1,12 @@
-import { TranslationOrg, TranslationFiles, TranslationEnum } from "./Types";
+import { TranslationOrg, TranslationFiles, TranslationEnum, TranslationFile, TranslationOverrideFile } from "./Types";
 
 import {en_AU} from './common/en_AU';
 import {en_US} from './common/en_US';
 import {guj_IN} from './common/guj_IN';
 import {hi_IN} from './common/hi_IN';
 import {test_UPPER} from './common/test_UPPER';
+
+import { ggmn_en_AU } from './ggmn/en_AU';
 
 
 /**
@@ -60,14 +62,24 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
     case TranslationOrg.ggmn: {
       return {
         type: TranslationOrg.ggmn,
-        en_AU,
-        //TODO: fix
+        en_AU: mergeFiles(en_AU, ggmn_en_AU),
         nl_NL: en_AU,
         test_UPPER
       }
     }
   }
 } 
+
+
+function mergeFiles(original: TranslationFile, overrideFile: TranslationOverrideFile | null): TranslationFile {
+  if (overrideFile === null) {
+    return original;
+  }
+
+  const newTemplates = Object.assign(original.templates, null, { ...overrideFile.overrides });
+  original.templates = newTemplates;
+  return original;
+}
 
 /**
  * Get the translations for the given user language setting

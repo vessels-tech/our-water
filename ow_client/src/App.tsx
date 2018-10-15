@@ -24,7 +24,7 @@ import {
   MapStateOption,
   MapHeightOption,
 } from './enums';
-import { bgLight, primaryDark } from './utils/Colors';
+import { bgLight, primaryDark, primary, primaryLight } from './utils/Colors';
 import FavouriteResourceList from './components/FavouriteResourceList';
 import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
@@ -268,7 +268,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       <ProgressBarAndroid
         styleAttr="Horizontal"
         indeterminate={true}
-        color={primaryDark}
+        color={primaryLight}
         style={{
           marginVertical: -6,
           position: 'absolute',

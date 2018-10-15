@@ -40,6 +40,31 @@ export type GGMNTranslationFiles = {
   'test_UPPER': TranslationFile,
 }
 
+export type TranslationOverrideFile = GGMNTranslationOverrideFile | MyWellTranslationOverrideFile;
+
+export type GGMNTranslationOverrideFile = {
+  org: TranslationOrg.ggmn,
+  overrides: {
+    /* Define the overriden variables here */
+    settings_sync_heading: string,
+    settings_connect_to_pending_title: string,
+    settings_connect_to_connected_title: string,
+    settings_connect_to_subtitle_error: string,
+    connect_to_service_description: string,
+    connect_to_service_connected_test: (fieldName: string, username: string) => string,
+    connect_to_service_org_selector: string, 
+  }
+}
+
+export type MyWellTranslationOverrideFile = {
+  org: TranslationOrg.mywell,
+  overrides: {
+    /* Define the overriden variables here */
+    settings_sync_heading: string,
+  }
+}
+
+
 export type TranslationFile = {
   metadata: TranslationMetadata,
   templates: {
@@ -86,6 +111,8 @@ export type TranslationFile = {
     connect_to_service_verify_invalid: string,
     connect_to_service_logout_button: string,
     connect_to_service_connected_test: (fieldName: string, username: string) => string,
+    connect_to_service_submit_button: string,
+    connect_to_service_description: string,
     connect_to_service_error: string,
     connect_to_service_org_selector: string,
     favourite_resource_heading: string,
