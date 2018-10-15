@@ -74,6 +74,7 @@ const en_AU: TranslationFile = {
     sync_section_readings: "Readings",
     sync_empty_heading: "Nothing to sync!",
     sync_empty_content: "Start taking readings or creating groundwater stations to get started.",
+    select_language_heading: "Select a Language",
   }
 }
 

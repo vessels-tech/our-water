@@ -74,6 +74,7 @@ const hi_IN: TranslationFile = {
     sync_section_readings: "",
     sync_empty_heading: "",
     sync_empty_content: "",
+    select_language_heading: "",
   }
 }
 

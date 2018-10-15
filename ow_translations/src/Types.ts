@@ -59,6 +59,7 @@ export type GGMNTranslationOverrideFile = {
     sync_section_resources: string,
     sync_empty_heading: string,
     sync_empty_content: string,
+    new_reading_timeseries: string,
   }
 }
 
@@ -135,5 +136,6 @@ export type TranslationFile = {
     sync_section_readings: string,
     sync_empty_heading: string,
     sync_empty_content: string,
+    select_language_heading: string,
   }
 }

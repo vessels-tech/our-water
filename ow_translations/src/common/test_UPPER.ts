@@ -74,6 +74,7 @@ const test_UPPER: TranslationFile = {
     sync_section_readings: "",
     sync_empty_heading: "",
     sync_empty_content: "",
+    select_language_heading: "",
   }
 }
 

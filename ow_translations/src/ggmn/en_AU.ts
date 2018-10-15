@@ -16,6 +16,7 @@ const ggmn_en_AU: TranslationOverrideFile  = {
     sync_section_resources: "Groundwater Stations",
     sync_empty_heading: "Nothing to sync!",
     sync_empty_content: "Start taking readings or creating groundwater stations to get started.",
+    new_reading_timeseries: 'Timeseries',
   }
 }
 

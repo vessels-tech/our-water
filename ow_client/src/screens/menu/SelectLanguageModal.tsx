@@ -23,7 +23,7 @@ export interface OwnProps {
 
 export interface StateProps {
   selectedTranslation: TranslationEnum,
-  translations: TranslationFile,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -56,11 +56,14 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
     //this is not type safe!
     //@ts-ignore
     const translation: TranslationFile = this.allTranslations[tr];
+    if (!translation) {
+      return '';
+    }
     return `${translation.metadata.language} (${translation.metadata.region})`
   }
 
   render() {
-    const { selectedTranslation } = this.props;
+    const { selectedTranslation, translation: { templates: { select_language_heading }} } = this.props;
 
     return (
       <View 
@@ -78,7 +81,7 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
             flex: 1,
             paddingTop: 10,
           }}>
-          Select a Language
+          {select_language_heading}
         </Text>
         <Picker
           selectedValue={selectedTranslation}
@@ -103,7 +106,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   
   return {
     selectedTranslation: state.language,
-    translations: state.translation,
+    translation: state.translation,
   }
 }
 

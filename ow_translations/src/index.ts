@@ -26,7 +26,6 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
     case TranslationOrg.ggmn: {
       return [
         TranslationEnum.en_AU,
-        TranslationEnum.en_US,  
         TranslationEnum.nl_NL,  
         TranslationEnum.test_UPPER,
       ]
@@ -78,6 +77,7 @@ function mergeFiles(original: TranslationFile, overrideFile: TranslationOverride
 
   const newTemplates = Object.assign(original.templates, null, { ...overrideFile.overrides });
   original.templates = newTemplates;
+
   return original;
 }
 

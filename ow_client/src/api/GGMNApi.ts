@@ -530,11 +530,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       min_points: 320
     });
 
+
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      throw new Error("Authorization is required to save readings to GGMN.");
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
-    const authHeaders = authHeadersResult.result;
     const options = {
       timeout,
       method: 'GET',
@@ -835,10 +837,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      throw new Error("Authorization is required to save readings to GGMN.");
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
-    const authHeaders = authHeadersResult.result;
 
     const options = {
       timeout,
