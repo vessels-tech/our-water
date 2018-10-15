@@ -7,7 +7,7 @@ import {
 } from 'react-native-elements';
 import { OWTimeseries, Reading, TimeseriesRange, TimeseriesRangeReadings, TimeseriesReadings } from '../../typings/models/OurWater';
 import { View } from 'react-native';
-import { textLight, primaryLight, primaryDark, bgLight, bgDark } from '../../utils/Colors';
+import { primaryLight, primaryDark, bgLight, bgLightHighlight } from '../../utils/Colors';
 import LineChartExample from './DemoChart';
 import { SomeResult } from '../../typings/AppProviderTypes';
 import Loading from './Loading';
@@ -106,8 +106,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <View style={{
-          // flex: 1,
-          borderColor: textLight,
+          borderColor: bgLightHighlight,
           borderTopWidth: 2,
           paddingTop: 3,
           marginBottom: 5,
@@ -143,7 +142,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
   render() {
     const { timeseries: { name } } = this.props;
-    console.log("rendering TimeseriesCard");
 
     return (
       <Card
@@ -165,7 +163,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
             alignSelf: 'center',
           }}>
             {name}
-            </Text>
+          </Text>
           {this.getGraphView()}
           {this.getBottomButtons()}
         </View>

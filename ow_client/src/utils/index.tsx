@@ -1,8 +1,8 @@
 import { Alert } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
-import QueryString, { stringify } from 'query-string';
-import { textDark, bgDark2, bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
+import { stringify } from 'query-string';
+import { bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
@@ -502,4 +502,16 @@ export function maybeLog(message: any, object?: any) {
     }
     console.log(message);
   }
+}
+
+export function temporarySubtitleForTimeseriesName(name: string): string {
+  if (name.toLowerCase() === 'gwmbgs') {
+    return 'Groundwater level below ground surface'
+  }
+
+  if (name.toLowerCase() === 'gwmmsl') {
+    return  'Groundwater level above mean sea level';
+  }
+
+  return '';
 }

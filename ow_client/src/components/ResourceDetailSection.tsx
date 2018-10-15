@@ -13,13 +13,14 @@ import {
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey,
+  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
-import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
+import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
+import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
@@ -167,7 +168,12 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         }
         const timeseries = resource.timeseries[idx];
         return (
-          <HeadingText key={key} heading={timeseries.name} content={content} />
+          <HeadingSubtitleText 
+            key={key} 
+            heading={timeseries.name} 
+            subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
+            content={content} 
+          />
         )
       })
     );
@@ -194,7 +200,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             <HeadingText heading={'Status'} content={'TODO'}/>
             <Text style={{
               paddingVertical: 10,
-              textDecorationLine: 'underline',
               fontSize: 15,
               fontWeight: '600',
               alignSelf: 'center',

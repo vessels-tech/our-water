@@ -5,13 +5,14 @@ import { Text } from 'react-native-elements';
 export interface Props {
   heading: string,
   content: string,
+  subtitle: string,
   onPress?: () => void
 }
 
 export default class HeadingText extends React.PureComponent<Props> {
 
   render() {
-    const {heading, content} = this.props;
+    const {heading, content, subtitle} = this.props;
 
     return (
       <TouchableNativeFeedback
@@ -22,8 +23,14 @@ export default class HeadingText extends React.PureComponent<Props> {
           justifyContent: 'space-between',
           paddingVertical: 5,
         }}>
-          <Text style={{
-            fontSize: 17, fontWeight: '700' }}>{heading}</Text>
+          <View
+            style={{
+              flexDirection: 'column',
+            }}
+          >
+            <Text style={{fontSize: 17, fontWeight: '700' }}>{heading}</Text>
+            <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{subtitle}</Text>
+          </View>
           <Text style={{ fontSize: 17, fontWeight: '100', paddingLeft: 50 }}>{content}</Text>
         </View>
       </TouchableNativeFeedback>
