@@ -11,12 +11,12 @@ import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
-import { textDark } from '../utils/Colors';
-import { AppContext, SyncMeta } from '../AppProvider';
+import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
 import { Resource } from '../typings/models/OurWater';
 import Loading from './common/Loading';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
+import { SyncMeta } from '../typings/Reducer';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -73,7 +73,7 @@ class FavouriteResourceList extends Component<Props> {
           raised
           key={resource.id}
           title={`${getShortId(resource.id)}`}
-          color={textDark}
+          color={secondaryText}
           buttonStyle={{
             backgroundColor, 
             // borderRadius: 5,
@@ -162,10 +162,10 @@ class FavouriteResourceList extends Component<Props> {
 
     return (
       <View style={{
-          // backgroundColor: '#D9E3F0',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 5,
+        backgroundColor: bgLightHighlight,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 5,
         }}>
         <Text style={{
           marginVertical: 10,

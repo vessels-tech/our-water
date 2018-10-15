@@ -8,7 +8,7 @@ import { Icon } from 'react-native-elements';
 import {
   getLocation,
 } from '../utils';
-import { textDark, primary } from '../utils/Colors';
+import { primary, secondary, secondaryText } from '../utils/Colors';
 import * as appActions from '../actions/index';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
@@ -57,7 +57,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
     const viewStyle = {
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: primary,
+      backgroundColor: secondary,
       borderRadius: 50,
       width: 45,
       height: 45,
@@ -69,7 +69,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
         <View style={viewStyle}>
           <ActivityIndicator
             size="large"
-            color={textDark}
+            color={secondaryText}
           />
         </View>
       );
@@ -85,7 +85,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
         name={"near-me"}
         onPress={() => this.updateGeoLocation()}
         iconStyle={{
-          color: textDark,
+          color: secondaryText,
         }}
         color={primary}
       />

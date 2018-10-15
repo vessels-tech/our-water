@@ -2,7 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 
 import { TouchableNativeFeedback, View } from "react-native";
 import { Text, Icon } from 'react-native-elements';
-import { error1, textDark } from '../../utils/Colors';
+import { error1, primaryText } from '../../utils/Colors';
 
 export interface Props {
   text: string,
@@ -32,7 +32,7 @@ class SearchButton extends Component<Props> {
               paddingTop: 10,
             }}
             name='search'
-            color={textDark}
+            color={primaryText}
           />
         </View>
       </TouchableNativeFeedback>

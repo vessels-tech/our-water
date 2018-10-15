@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { textDark } from './utils/Colors';
+import { textDark, primaryText } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -62,7 +62,7 @@ Promise.resolve(true)
           id: 'sideMenu',
           disabled: false,
           disableIconTint: true,
-          buttonColor: textDark,
+          buttonColor: primaryText,
           buttonFontSize: 14,
           buttonFontWeight: '600'
         }],

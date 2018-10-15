@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import QueryString, { stringify } from 'query-string';
-import { textDark, bgDark2, bgLight, primaryLight } from './Colors';
+import { textDark, bgDark2, bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
@@ -282,12 +282,13 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: textDark, // change the text color of the title (remembered across pushes)
-  navBarBackgroundColor: bgLight,
-  statusBarColor: bgLight,
-  statusBarTextColorScheme: 'dark',
+  navBarTextColor: primaryText, // change the text color of the title (remembered across pushes)
+  navBarBackgroundColor: primary,
+  statusBarColor: primaryDark,
+  statusBarTextColorScheme: 'light',
   screenBackgroundColor: bgLight,
-
+  navBarButtonColor: primaryText,
+  drawUnderStatusBar: false,
 }
 
 export function getDemoResources(count: number): Resource[] {

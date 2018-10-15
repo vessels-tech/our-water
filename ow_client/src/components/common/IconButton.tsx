@@ -3,7 +3,7 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { primary, textDark } from '../../utils/Colors';
+import { primary, secondary, secondaryText } from '../../utils/Colors';
 import { getLocation } from '../../utils';
 
 export interface Props {
@@ -55,9 +55,9 @@ export default class IconButton extends Component<Props> {
           size={20}
           name={this.props.name}
           onPress={() => this.props.onPress()}
-          color={this.props.color ? this.props.color : primary}
+          color={this.props.color ? this.props.color : secondary}
           iconStyle={{
-            color: textDark,
+            color: secondaryText,
           }}
       />
       </View>

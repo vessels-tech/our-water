@@ -3,7 +3,6 @@ import {
   View, ActivityIndicator,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { primary, textDark } from '../../utils/Colors';
 import { getLocation } from '../../utils';
 import Loading from './Loading';
 
@@ -43,7 +42,6 @@ export default class FlatIconButton extends Component<Props> {
             size={25}
             name={this.props.name}
             onPress={() => this.props.onPress()}
-            // color={this.props.color ? this.props.color : primary}
             iconStyle={{
               color: this.props.color,
             }}

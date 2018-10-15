@@ -8,7 +8,7 @@ import {
 import {
   navigateTo, showModal, showLighbox,
 } from '../utils';
-import { primary, primaryDark, textDark, error1, } from '../utils/Colors';
+import { primary, primaryDark, textDark, error1, secondaryDark, secondary, secondaryText, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 import BaseApi from '../api/BaseApi';
@@ -86,7 +86,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
 
     let leftIcon: any = {
       name: 'account-circle',
-      color: textDark,
+      color: secondaryText,
     };
     if (loading) {
       leftIcon = <Loading style={{paddingRight: 10}} size={'small'}/>
@@ -122,7 +122,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
 
     let leftIcon: any = {
       name: 'sync',
-      color: textDark,
+      color: secondaryText,
     };
 
     return (
@@ -163,7 +163,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         )}
         leftIcon={{
           name: 'language',
-          color: textDark,
+          color: secondaryText,
         }}
         hideChevron
       />
@@ -184,14 +184,14 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         <View style={{
           width: '100%',
           height: 150,
-          backgroundColor: primaryDark,
+          backgroundColor: secondaryDark,
         }}>
           <View style={{
             alignSelf: 'center',
             marginTop: 25,
             width: 100,
             height: 100,
-            backgroundColor: primary,
+            backgroundColor: secondary,
           }}/>
         </View>
         {this.getConnectToButton()}
@@ -208,7 +208,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }
           leftIcon={{
             name: 'create',
-            color: textDark,
+            color: secondaryText,
           }}
           hideChevron
         />
