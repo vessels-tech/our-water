@@ -47,11 +47,12 @@ Promise.resolve(true)
 .then(() => {
   const title = 'MyWell'
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
-  console.log("CustomButton:", SearchButton);
+  console.log("starting app");
 
+  //Look into slowness issues: https://github.com/react-navigation/react-navigation/issues/608
   Navigation.startSingleScreenApp({
     screen: {
-      screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
+      screen: 'example.FirstTabScreen',
       title: config.getApplicationName(),
       navigatorStyle: defaultNavigatorStyle,
       navigatorButtons: {

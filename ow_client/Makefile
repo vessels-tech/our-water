@@ -62,8 +62,19 @@ build:
 	../env/increment_build.sh
 	source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug
 
+build-production:
+	@make env
+	# @echo 'Building production only'
+	# ../env/increment_build.sh
+	# source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease
+	@echo 'signing with debug key'
+	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/debug.keystore  app-release-unsigned.apk -storepass android androiddebugkey
+
 install-android:
 	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
+
+install-android-production:
+	cd ${dir}/android/app/build/outputs/apk/release/ && adb install app-release-unsigned.apk
 
 build-and-install:
 	@make build install-android
