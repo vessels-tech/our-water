@@ -4,7 +4,7 @@ import { View, ProgressBarAndroid } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
-import { bgMed, primaryDark, primaryText } from '../utils/Colors';
+import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
@@ -207,6 +207,7 @@ export default class MapSection extends Component<Props> {
         justifyContent: 'space-around',
       }}>
         <IconButton
+          color={secondary}
           name="clear"
           onPress={() => this.clearSelectedResource()}
         />

@@ -8,7 +8,7 @@ import {
 import {
   navigateTo, showModal, showLighbox,
 } from '../utils';
-import { primary, primaryDark, textDark, error1, secondaryDark, secondary, secondaryText, } from '../utils/Colors';
+import { primary, primaryDark, error1, secondaryDark, secondary, secondaryText, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 import BaseApi from '../api/BaseApi';

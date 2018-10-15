@@ -15,7 +15,7 @@ import StatCard from './common/StatCard';
 import {
   getShortId, isFavourite, getTimeseriesReadingKey,
 } from '../utils';
-import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, } from '../utils/Colors';
+import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -80,16 +80,15 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
       <View style={{
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: primaryDark,
+        backgroundColor: primaryLight,
       }}>
         <Avatar
           containerStyle={{
             marginLeft: 15,
-            backgroundColor: primaryLight,
+            backgroundColor: primary,
             alignSelf: 'center',
           }}
           rounded
-          // size="large"
           title="GW"
           activeOpacity={0.7}
         />
@@ -97,12 +96,12 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color:textLight, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
           <View style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-            <Text style={{ color: textLight, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+            <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
             {/* TODO: enable code? Most of the time it's the same as Name. */}
             {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
           </View>
@@ -180,6 +179,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         containerStyle={{
           width: '90%',
           height: '90%',
+          borderWidth: 0,
         }}
       >
         <View style={{
@@ -215,8 +215,8 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           <View style={{
             flex: 1,
             maxHeight: 30,
-            borderColor: textLight,
-            borderTopWidth: 2,
+            borderColor: bgLightHighlight,
+            borderTopWidth: 1,
             flexDirection: 'row-reverse',
           }}>
             {this.getFavouriteButton()}
@@ -246,6 +246,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     return (
       <View style={{
         flex: 15,
+        backgroundColor: bgMed,
       }}>
         <ViewPagerAndroid
           //@ts-ignore
@@ -283,7 +284,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   getReadingButton() {
     return (
       <Button
-        color={primaryDark}
+        color={secondary}
         buttonStyle={{
           backgroundColor: bgLight,
           borderRadius: 5,
@@ -313,7 +314,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
-        color={primaryDark}
+        color={secondary}
         isLoading={favouriteResourcesMeta.loading}
       />
     );
