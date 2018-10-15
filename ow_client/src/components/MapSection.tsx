@@ -99,7 +99,6 @@ export default class MapSection extends Component<Props> {
    * When user clicks on a resource, make the map small, 
    * scroll to the top of the view, and display the resource details
    * 
-   * @param {*} param0 
    */
   focusResource(coordinate: BasicCoords) {
     const resource = getSelectedResourceFromCoords(this.props.resources, coordinate);
@@ -119,6 +118,7 @@ export default class MapSection extends Component<Props> {
       hasSelectedResource: true,
     });
 
+    this.props.onMapStateChanged(MapStateOption.small);
     this.props.onResourceSelected(resource);
   }
 

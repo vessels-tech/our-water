@@ -18,7 +18,7 @@ import { SyncMeta } from '../typings/Reducer';
 
 export interface OwnProps {
   style?: any,
-  onComplete?: any,
+  onComplete?: (thing: any) => void,
 }
 
 export interface StateProps {
@@ -47,7 +47,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
     //TODO: this is less than ideal
     if (result.type === ResultType.SUCCESS) {
-      this.props.onComplete(result.result);
+      this.props.onComplete && this.props.onComplete(result.result);
     }
   }
 
@@ -61,6 +61,8 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
       borderRadius: 50,
       width: 45,
       height: 45,
+      marginHorizontal: 10,
+      marginTop: 10,
       ...this.props.style
     }
 

@@ -36,7 +36,6 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  // saveResource: (api: BaseApi, userId: string, resource: Resource | PendingResource) => any,
   saveResource: any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
@@ -84,8 +83,8 @@ class EditResourceScreen extends Component<Props> {
 
     if (!equal(location, newProps.location)) {
       if (newProps.location.type === LocationType.LOCATION) {
-        this.editResourceForm.get('lat').setValue(newProps.location.coords.latitude);
-        this.editResourceForm.get('lng').setValue(newProps.location.coords.longitude);
+        this.editResourceForm.get('lat').setValue(`${newProps.location.coords.latitude.toFixed(4)}`);
+        this.editResourceForm.get('lng').setValue(`${newProps.location.coords.longitude.toFixed(4)}`);
       }
     }
   }

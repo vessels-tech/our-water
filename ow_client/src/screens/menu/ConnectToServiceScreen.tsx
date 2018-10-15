@@ -152,7 +152,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   }
 
   getExternalOrgSelector() {
-    const { externalLoginDetails, externalOrgs, externalOrgsMeta } = this.props;
+    const { externalLoginDetails, externalOrgs, externalOrgsMeta, translation: { templates: { connect_to_service_org_selector }} } = this.props;
 
     
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
@@ -176,8 +176,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
             fontWeight: '600',
             flex: 1,
           }}>
-          here
-          Select an Organisation:
+          {connect_to_service_org_selector}
         </Text>
         <Picker
           selectedValue={externalLoginDetails.externalOrg.unique_id}
