@@ -99,7 +99,6 @@ def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "27.0.3"
 
     //TODO: remove this - just trying to get firebase to work
     lintOptions {
@@ -172,8 +171,10 @@ dependencies {
     }
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.android.support:appcompat-v7:23.0.1"
-    // implementation "com.android.support:appcompat-v7:26.0.1"
+    // implementation "com.android.support:appcompat-v7:23.0.1"
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+    
     implementation "com.facebook.react:react-native:+"  // From node_modules
     
     //react-native-maps
@@ -186,11 +187,11 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:15.0.0"
 
     //react-native-firebase
-    implementation "com.google.firebase:firebase-core:15.0.2"
-    implementation "com.google.firebase:firebase-config:15.0.0"
-    implementation "com.google.firebase:firebase-firestore:16.0.0"
-    // implementation "com.google.firebase:firebase-functions:15.0.0"
-    implementation "com.google.firebase:firebase-auth:15.1.0"
+    // implementation "com.google.firebase:firebase-core:15.0.2"
+    // implementation "com.google.firebase:firebase-config:15.0.0"
+    // implementation "com.google.firebase:firebase-firestore:16.0.0"
+    //// implementation "com.google.firebase:firebase-functions:15.0.0"
+    // implementation "com.google.firebase:firebase-auth:15.1.0"
 
 
     //react-native-navigation
