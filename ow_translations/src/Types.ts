@@ -37,6 +37,7 @@ export type GGMNTranslationFiles = {
   type: TranslationOrg.ggmn,
   'en_AU': TranslationFile,
   'nl_NL': TranslationFile,
+  'test_UPPER': TranslationFile,
 }
 
 export type TranslationFile = {

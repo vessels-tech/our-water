@@ -63,6 +63,7 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
         en_AU,
         //TODO: fix
         nl_NL: en_AU,
+        test_UPPER
       }
     }
   }
@@ -92,6 +93,7 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
       switch (language) {
         case 'en_AU': return files.en_AU;
         case 'nl_NL': return files.nl_NL;
+        case 'test_UPPER': return files.test_UPPER;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${files.type}`);
         }
