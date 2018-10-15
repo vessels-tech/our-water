@@ -172,9 +172,9 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    // implementation "com.android.support:appcompat-v7:23.0.1"
-
-    implementation 'com.android.support:appcompat-v7:27.1.0'
+    //not sure which we want?
+    implementation "com.android.support:appcompat-v7:23.0.1"
+    // implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support:design:27.1.0'
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
