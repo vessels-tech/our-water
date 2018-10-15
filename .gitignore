@@ -3,4 +3,4 @@ node_modules
 .env*.*
 .runtimeconfig.json.*.env
 .service*
-./ow_client/android/app/google-services.json
+*google-services.json
