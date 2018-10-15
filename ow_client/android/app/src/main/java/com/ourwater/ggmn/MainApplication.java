@@ -15,6 +15,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 
+import com.crashlytics.android.Crashlytics;
+
 //react-native-maps
 import com.airbnb.android.react.maps.MapsPackage;
 
@@ -74,6 +76,7 @@ public class MainApplication extends NavigationApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+    // Crashlytics.getInstance().crash(); // Force a crash
   }
 
   // private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
