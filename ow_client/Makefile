@@ -56,6 +56,19 @@ clean:
 	rm -rf /tmp/metro-bundler-cache-*
 	rm -rf /tmp/haste-map-react-native-packager-*
 
+bundle:
+	@make env
+	@echo 'Bundling react native'
+	ENVFILE=/tmp/ow_env react-native bundle \
+		--platform android \
+		--dev false \
+		--entry-file ./src/index.js \
+		--bundle-output android/app/src/main/assets/index.android.bundle \
+		--reset-cache \
+		--assets-dest android/app/src/main/res/ \
+		--assets-dest android/app/src/main/res/ \
+		|| exit 1
+
 build:
 	@make env
 	@echo 'Building debug only'
