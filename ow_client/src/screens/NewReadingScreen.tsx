@@ -14,7 +14,7 @@ import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import { displayAlert, getLocation, maybeLog } from '../utils';
-import { bgLight, primary, primaryDark, textMed, textDark} from '../utils/Colors';
+import { bgLight, primary, primaryDark, textMed, textDark, secondary, secondaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
@@ -264,7 +264,7 @@ class NewReadingScreen extends Component<Props> {
         {this.getImageSection()}
         <IconFormInput
           iconName='calendar'
-          iconColor={textMed}
+          iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
           onChangeText={(date: moment.Moment) => this.setState({date})}
@@ -273,7 +273,7 @@ class NewReadingScreen extends Component<Props> {
         />
         <IconFormInput
           iconName='pencil'
-          iconColor={textMed}
+          iconColor={primaryDark}
           placeholder={new_reading_value_field(units)}
           errorMessage={
             measurementString.length > 0 && !this.isMeasurementValid() ? 
@@ -335,11 +335,14 @@ class NewReadingScreen extends Component<Props> {
       <Button
         title={new_reading_save_button}
         raised
+        textStyle={{
+          color: secondaryText
+        }}
         disabled={this.shouldDisableSubmitButton()}
-        icon={{ name: 'save' }}
+        icon={{ name: 'save', color: secondaryText }}
         loading={loading}
-        buttonStyle={{ 
-          backgroundColor: primary,
+        buttonStyle={{
+          backgroundColor: secondary,
           width: SCREEN_WIDTH - 20,
         }}
         onPress={() => this.saveReading()}

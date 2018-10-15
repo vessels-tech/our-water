@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { View } from "react-native";
 import { FormInput, FormValidationMessage, FormLabel } from "react-native-elements";
-import { textMed } from '../../utils/Colors';
+import { bgLightHighlight } from '../../utils/Colors';
 
 export type TextInputParams = {
   handler: any,
@@ -24,8 +24,8 @@ export const TextInput = ({ meta, handler, hasError, touched }: TextInputParams)
       editable={meta.editable}
       underlineColorAndroid='transparent'
       containerStyle={{
-        borderBottomColor: textMed,
-        borderBottomWidth: 1,
+        borderBottomColor: bgLightHighlight,
+        borderBottomWidth: 2,
       }}
       {...handler()} 
     />

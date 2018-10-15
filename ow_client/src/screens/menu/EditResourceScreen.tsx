@@ -25,6 +25,7 @@ import IconButton from '../../components/common/IconButton';
 import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
+import { secondary, secondaryText } from '../../utils/Colors';
 
 export interface Props { 
   resourceId: string,
@@ -168,14 +169,22 @@ class EditResourceScreen extends Component<Props> {
             />
             <Button
               style={{
+                paddingBottom: 20,
                 minHeight: 50,
+              }}
+              buttonStyle={{
+                backgroundColor: secondary,
               }}
               containerViewStyle={{
                 marginVertical: 20,
               }}
+              textStyle={{
+                color: secondaryText,
+                fontWeight: '700',
+              }}
               loading={loading}
               disabled={invalid}
-              title={loading ? '' : 'Submit'}
+              title={loading ? '' : 'SUBMIT'}
               onPress={() => this.handleSubmit()}
             />
           </View>

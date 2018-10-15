@@ -119,7 +119,6 @@ class IconFormInput extends Component<Props> {
           dateInput: {
             // marginLeft: 36
             borderWidth: 0,
-        
           }
         }}
         modalOnResponderTerminationRequest={() => {
@@ -159,7 +158,6 @@ class IconFormInput extends Component<Props> {
         }}
         placeholder={placeholder}
         containerStyle={{
-          // backgroundColor: 'green',
           borderBottomColor: iconColor || 'rgba(0, 0, 0, 0.38)',
           flex: 5
         }}

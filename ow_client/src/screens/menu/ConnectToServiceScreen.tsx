@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
-import { primaryDark, primary, error1 } from '../../utils/Colors';
+import { primaryDark, primary, error1, secondaryText, secondary } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
   FormBuilder,
@@ -167,6 +167,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         <Text
           style={{
             alignSelf: 'center',
+            paddingTop: 20,
             paddingRight: 10,
             fontSize: 15,
             fontWeight: '600',
@@ -177,7 +178,8 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         <Picker
           selectedValue={externalLoginDetails.externalOrg.unique_id}
           style={{
-            flex: 2
+            flex: 2,
+            marginLeft: 10,
           }}
           mode={'dropdown'}
           onValueChange={(orgId: string, idx: number) => {
@@ -220,6 +222,18 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         </Text>
         {this.getExternalOrgSelector()}
         <Button
+          style={{
+            paddingBottom: 20,
+            minHeight: 50,
+          }}
+          buttonStyle={{
+            backgroundColor: secondary,
+          }}
+          textStyle={{
+            color: secondaryText,
+            fontWeight: '700',
+          }}
+
           title='Log out'
           onPress={() => this.handleLogout()}
         />
@@ -250,6 +264,13 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
               style={{
                 paddingBottom: 20,
                 minHeight: 50,
+              }}
+              buttonStyle={{
+                backgroundColor: secondary,
+              }}
+              textStyle={{
+                color: secondaryText,
+                fontWeight: '700',
               }}
               loading={loading}
               disabled={invalid}
