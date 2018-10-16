@@ -108,7 +108,8 @@ android {
       }
 
     defaultConfig {
-        applicationId "com.vesselstech.ggmn"
+        // applicationId "com.vesselstech.ggmn"
+        applicationId "com.vesselstech.mywell_development"
         /* look in env/env.deployment */
         versionName System.getenv('versionName')
         versionCode appVersionCode
