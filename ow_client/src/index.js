@@ -16,6 +16,7 @@ import { SearchButtonPressedEvent } from './utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
+import { HomeScreenType } from './enums';
 
 let config: ConfigFactory;
 let translation: TranslationFile;
@@ -45,51 +46,95 @@ Promise.resolve(true)
 .then(() => {
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
-  //Look into slowness issues: https://github.com/react-navigation/react-navigation/issues/608
-  Navigation.startSingleScreenApp({
-    screen: {
-      screen: 'screen.App',
-      title: config.getApplicationName(),
-      navigatorStyle: defaultNavigatorStyle,
-      navigatorButtons: {
-        leftButtons: [{
-          title: 'MENU',
-          passProps: {},
-          id: 'sideMenu',
-          disabled: false,
-          disableIconTint: true,
-          buttonColor: primaryText,
-          buttonFontSize: 14,
-          buttonFontWeight: '600'
-        }],
-        rightButtons: [{
-          component: 'example.SearchButton',
-          passProps: {
-            text: 'Search',
-            onPress: () => {
-              EventEmitter.emit(SearchButtonPressedEvent, 'search');
-            }
-          },
-          id: 'search',
-        }],
-      }
-    },
-    drawer: {
-      left: {
-        screen: 'screen.MenuScreen',
-        disableOpenGesture: true,
-        fixedWidth: 800,
-        passProps: {
-          config
+  const navigatorButtons = {
+    leftButtons: [{
+      title: 'MENU',
+      passProps: {},
+      id: 'sideMenu',
+      disabled: false,
+      disableIconTint: true,
+      buttonColor: primaryText,
+      buttonFontSize: 14,
+      buttonFontWeight: '600'
+    }],
+    rightButtons: [{
+      component: 'example.SearchButton',
+      passProps: {
+        text: 'Search',
+        onPress: () => {
+          EventEmitter.emit(SearchButtonPressedEvent, 'search');
         }
+      },
+      id: 'search',
+    }],
+  };
+  const drawer = {
+    left: {
+      screen: 'screen.MenuScreen',
+      disableOpenGesture: true,
+      fixedWidth: 800,
+      passProps: {
+        config
       }
-    },
-    animationType: 'fade',
-    passProps: {
-      config,
-    },
-  });
+    }
+  };
 
-  console.log("done registering main component");
+
+  switch(config.getHomeScreenType()) {
+    case (HomeScreenType.Map): {
+      Navigation.startSingleScreenApp({
+        screen: {
+          screen: 'screen.App',
+          title: config.getApplicationName(),
+          navigatorStyle: defaultNavigatorStyle,
+          navigatorButtons,
+        },
+        drawer,
+        animationType: 'fade',
+        passProps: {
+          config,
+        },
+      });
+    }
+    case (HomeScreenType.Simple): {
+      Navigation.startTabBasedApp({
+        tabs: [
+          {
+            label: 'Home', 
+            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
+            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
+            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
+            title: 'Screen One', // title of the screen as appears in the nav bar (optional)
+          },
+          {
+            label: 'Scan', // tab label as appears under the icon in iOS (optional)
+            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
+            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
+            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
+            title: 'Screen Two', // title of the screen as appears in the nav bar (optional)
+          },
+          {
+            label: 'Map', // tab label as appears under the icon in iOS (optional)
+            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
+            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
+            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
+            title: 'Screen Three', // title of the screen as appears in the nav bar (optional)
+          }
+        ],
+        tabsStyle: { // optional, add this if you want to style the tab bar beyond the defaults
+          tabBarButtonColor: '#ffff00', // optional, change the color of the tab icons and text (also unselected). On Android, add this to appStyle
+          tabBarSelectedButtonColor: '#ff9900', // optional, change the color of the selected tab icon and text (only selected). On Android, add this to appStyle
+          tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
+          initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
+        },
+        appStyle: {
+          orientation: 'portrait', // Sets a specific orientation to the entire app. Default: 'auto'. Supported values: 'auto', 'landscape', 'portrait'
+        },
+        drawer,
+        passProps: {config},
+        animationType: 'fade'
+      });
+    }
+  }
 })
 .catch((err: Error) => console.error(err));

@@ -549,7 +549,7 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource ): 
+export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource ): 
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());

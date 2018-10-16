@@ -36,7 +36,7 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource) => any,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
@@ -218,7 +218,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource) =>
+    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) =>
      { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }

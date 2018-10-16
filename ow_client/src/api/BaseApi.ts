@@ -89,7 +89,7 @@ export default interface BaseApi {
    * 
    * Returns a Wrapped SaveResourceResult
    */
-  saveResource(userId: string, resource: Resource): Promise<SomeResult<SaveResourceResult>>;
+  saveResource(userId: string, resource: Resource | PendingResource): Promise<SomeResult<SaveResourceResult>>;
 
 
   /**

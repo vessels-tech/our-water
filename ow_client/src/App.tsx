@@ -95,11 +95,13 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
         )
       }
       case (HomeScreenType.Simple): {
-        <HomeSimpleScreen
-          navigator={this.props.navigator}
-          config={this.props.config}
-          appApi={this.props.appApi}
-        />
+        return (
+          <HomeSimpleScreen
+            navigator={this.props.navigator}
+            config={this.props.config}
+            appApi={this.props.appApi}
+          />
+        );
       }
     }
   }
