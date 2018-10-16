@@ -66,7 +66,6 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
-  // Navigation.registerComponent('example.FirstTabScreen', () => TestApp, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
   Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);

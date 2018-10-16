@@ -78,7 +78,7 @@ project.ext.react = [
     root: "../../",
     bundleAssetName: "index.android.bundle",
     entryFile: "src/index.js",
-    bundleInDebug: false,
+    bundleInDebug: true,
     bundleInRelease: true,
 ]
 apply from: "../../node_modules/react-native/react.gradle"
@@ -194,7 +194,7 @@ dependencies {
     implementation "com.google.firebase:firebase-config:15.0.0"
     implementation "com.google.firebase:firebase-firestore:16.0.0"
     implementation "com.google.firebase:firebase-auth:15.1.0"
-    implementation "com.google.firebase:firebase-perf:16.1.0"
+    implementation "com.google.firebase:firebase-perf:16.0.0"
 
     //crashlytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'

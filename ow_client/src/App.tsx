@@ -94,8 +94,8 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     initialRegion: {
       latitude: this.props.location.coords.latitude,
       longitude: this.props.location.coords.longitude,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.5,
+      latitudeDelta: 3.0,
+      longitudeDelta: 3.0,
     },
   };
 
@@ -105,6 +105,8 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    console.log("App constructor");
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
@@ -116,13 +118,19 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillMount() {
+    console.log("App componentWillMount");
+
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
   }
 
   componentDidMount() {
-    this.props.startExternalSync(this.externalApi, this.props.userId);
+    console.log("App componentDidMount");
+    // this.props.startExternalSync(this.externalApi, this.props.userId);
   }
 
+  componentWillReceiveProps() {
+    console.log("App componentWillReceiveProps");
+  }
 
   componentWillUnmount() {
     //TODO unsubscribe if possible?
