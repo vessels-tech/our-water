@@ -1,4 +1,4 @@
-import { BaseApiType } from "../enums";
+import { BaseApiType, HomeScreenType } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
@@ -15,17 +15,13 @@ import { maybeLog } from "../utils";
 export type RemoteConfig = {
   applicationName: string,
   baseApiType: BaseApiType,
-  connectToButtonText: string,
   firebaseBaseUrl: string,
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
-  connectToDescription: string,
-  connectToText: string,
   map_shouldLoadAllResources: boolean,
-  settings_registerResourceText: string,
   newReading_enableImageUpload: boolean,
-  searchHint: string,
+  homeScreen: HomeScreenType,
 
 }
 
@@ -120,21 +116,6 @@ export class ConfigFactory {
     return false;
   }
 
-  getConnectToButtonText(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToButtonText);
-  }
-
-  getConnectToButtonConnectedText(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToText);
-  }
-
-  getConnectToButtonDescription(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToDescription);
-  }
-
-  getRegisterResourceButtonText(): string {
-    return this.remoteConfig.settings_registerResourceText;
-  }
 
   private checkConnectToButtonStatus(success: string) {
     if (!this.remoteConfig.showConnectToButton) {
@@ -158,12 +139,5 @@ export class ConfigFactory {
    */
   getShouldMapLoadAllResources() {
     return this.remoteConfig.map_shouldLoadAllResources;
-  }
-
-  /**
-   * Get the hint text for the default search page with no recents
-   */
-  getSearchHint() { 
-    return this.remoteConfig.searchHint;
   }
 }

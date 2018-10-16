@@ -23,3 +23,8 @@ export enum BaseApiType{
   MyWellApi = 'MyWellApi',
   GGMNApi = 'GGMNApi',
 };
+
+export enum HomeScreenType {
+  Simple = "Simple", //MyWell
+  Map = "Map", //GGMN
+}

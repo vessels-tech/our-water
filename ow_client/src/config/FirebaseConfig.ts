@@ -21,12 +21,13 @@ export class FirebaseConfig {
         const remoteConfig: RemoteConfig = {
           applicationName: obj.applicationName.val(),
           baseApiType: obj.baseApiType.val(),
-          connectToButtonText: obj.connectToButtonText.val(),
           firebaseBaseUrl: obj.firebaseBaseUrl.val(),
           ggmnBaseUrl: obj.ggmnBaseUrl.val(),
           showConnectToButton: obj.showConnectToButton.val(),
           mywellBaseUrl: obj.mywellBaseUrl.val(),
           map_shouldLoadAllResources: obj.map_shouldLoadAllResources.val(),
+          newReading_enableImageUpload: obj.newReading_enableImageUpload.val(),
+          homeScreen: obj.homeScreen.val(),
         }
         return remoteConfig;
       });
