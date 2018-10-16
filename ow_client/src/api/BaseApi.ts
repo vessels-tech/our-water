@@ -104,12 +104,6 @@ export default interface BaseApi {
 
 
   /**
-   * Subscribe to a user object, and listen for any changes
-   */
-  subscribeToUser(userId: string, callback: (user: OWUser) => void): string;
-
-
-  /**
    * set up a listener for changes to any pending readings
    */
   subscribeToPendingReadings(userId: string, callback: (readings: PendingReading[]) => void): void;

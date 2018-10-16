@@ -7,6 +7,7 @@ import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
 import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
 import { maybeLog } from "../utils";
+import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 
 
 /**
@@ -100,12 +101,19 @@ export class ConfigFactory {
     return this.appApi;
   }
 
-  getExternalServiceApi(): ExternalServiceApi {
+  //This doesn't feel like the best use of SomeResult
+  getExternalServiceApi(): SomeResult<ExternalServiceApi> {
     if (!this.externalServiceApi) {
-      throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
+      return {
+        type: ResultType.ERROR,
+        message: `ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`,
+      }
     }
 
-   return this.externalServiceApi;
+   return {
+      type: ResultType.SUCCESS,
+      result: this.externalServiceApi,
+   };
   }
 
   getShowConnectToButton() {

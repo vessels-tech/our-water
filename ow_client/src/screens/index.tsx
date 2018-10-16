@@ -48,7 +48,7 @@ export async function registerScreens(config: ConfigFactory) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
     
     /* Subscribe to firebase updates */
-    config.appApi.subscribeToUser(user.userId, (user: OWUser) => {
+    config.userApi.subscribeToUser(user.userId, (user: OWUser) => {
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
     });
 

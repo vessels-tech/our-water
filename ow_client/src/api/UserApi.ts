@@ -15,4 +15,11 @@ export default interface UserApi {
    */
   changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>>;
 
+
+  /**
+   * Subscribe to a user object, and listen for any changes
+   */
+  subscribeToUser(userId: string, callback: (user: OWUser) => void): string;
+
+
 }

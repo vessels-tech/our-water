@@ -2,10 +2,14 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { Resource, SearchResult, OWUser } from '../typings/models/OurWater';
+import { Resource, SearchResult, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
+import { RNFirebase } from "react-native-firebase";
+
+type Snapshot = RNFirebase.firestore.QuerySnapshot;
+
 
 /**
  * MyWellApi is the MyWell variant of the BaseApi
@@ -16,6 +20,8 @@ import { TranslationEnum } from 'ow_translations/Types';
 export default class MyWellApi implements BaseApi, UserApi {
   orgId: string
   networkApi: NetworkApi;
+  pendingReadingsSubscription: any;
+
 
   constructor(networkApi: NetworkApi, orgId: string) {
     this.networkApi = networkApi;
@@ -57,6 +63,24 @@ export default class MyWellApi implements BaseApi, UserApi {
   }
 
   //
+  // Subscriptions
+  //----------------------------------------------------------------
+
+  subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
+    this.pendingReadingsSubscription = FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  }
+
+  unsubscribeFromPendingReadings() {
+    if (this.pendingReadingsSubscription) {
+      this.pendingReadingsSubscription.unsubscribe();
+    }
+  }
+
+  subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void {
+    FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
+  }
+
+  //
   // Search API
   //----------------------------------------------------------------------
 
@@ -93,6 +117,18 @@ export default class MyWellApi implements BaseApi, UserApi {
 
   changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
     return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
+  }
+
+  /**
+ * A listener function which combines callback events from the FirebaseApi and 
+ * GGMN api to inform the PendingChangesBanner of any updates it needs to make
+ * 
+ * We are using this subscription to also subscribe to pending readings
+ * but this is an assumption which holds only for GGMN. We will need to
+ * fix this later on.
+ */
+  subscribeToUser(userId: string, callback: any): string {
+    return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
   }
 
 }
