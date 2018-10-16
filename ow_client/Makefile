@@ -55,6 +55,15 @@ clean:
 	rm -rf node_modules
 	rm -rf /tmp/metro-bundler-cache-*
 	rm -rf /tmp/haste-map-react-native-packager-*
+	rm -f ${dir}/android/app/src/assets/index.android.bundle
+	rm -f ${dir}/android/app/src/assets/index.android.bundle.meta
+
+clean-android:
+	rm -rf android/build
+	rm -rf android/app/build
+
+reset-gradle-cache:
+	rm -rf ${HOME}/.gradle/caches/
 
 bundle:
 	@make env

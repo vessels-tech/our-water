@@ -1,15 +1,17 @@
-package com.test1;
+package com.vesselstech.ggmn;
 
-import com.facebook.react.ReactActivity;
+import android.graphics.Color;
+import android.view.View;
 
-public class MainActivity extends ReactActivity {
+import com.reactnativenavigation.controllers.SplashActivity;
 
-    /**
-     * Returns the name of the main component registered from JavaScript.
-     * This is used to schedule rendering of the component.
-     */
-    @Override
-    protected String getMainComponentName() {
-        return "TestApp";
-    }
+public class MainActivity extends SplashActivity {
+
+    // @Override
+    // public View createSplashLayout() {
+    //     View view = new View(this);
+    //     view.setBackgroundColor(Color.BLUE);
+    //     return view;
+    // }
+
 }
