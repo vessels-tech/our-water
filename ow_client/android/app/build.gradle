@@ -113,7 +113,7 @@ android {
         versionCode appVersionCode
 
         minSdkVersion 16
-        // This needs to be 26...
+        // This needs to be 26... but breaks a whole bunch of other stuff
         targetSdkVersion 22
         ndk {
             abiFilters "armeabi-v7a", "x86"

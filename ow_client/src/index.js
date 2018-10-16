@@ -50,53 +50,53 @@ Promise.resolve(true)
   const title = 'MyWell'
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
   console.log("starting app!");
-  AppRegistry.registerComponent('TestApp', () => TestApp);
+  // AppRegistry.registerComponent('TestApp', () => TestApp);
 
 
 
   //Look into slowness issues: https://github.com/react-navigation/react-navigation/issues/608
-  // Navigation.startSingleScreenApp({
-  //   screen: {
-  //     screen: 'example.FirstTabScreen',
-  //     title: config.getApplicationName(),
-  //     navigatorStyle: defaultNavigatorStyle,
-  //     navigatorButtons: {
-  //       leftButtons: [{
-  //         title: 'MENU',
-  //         passProps: {},
-  //         id: 'sideMenu',
-  //         disabled: false,
-  //         disableIconTint: true,
-  //         buttonColor: primaryText,
-  //         buttonFontSize: 14,
-  //         buttonFontWeight: '600'
-  //       }],
-  //       rightButtons: [{
-  //         component: 'example.SearchButton',
-  //         passProps: {
-  //           text: 'Search',
-  //           onPress: () => {
-  //             EventEmitter.emit(SearchButtonPressedEvent, 'search');
-  //           }
-  //         },
-  //         id: 'search',
-  //       }],
-  //     }
-  //   },
-  //   drawer: {
-  //     left: {
-  //       screen: 'screen.MenuScreen',
-  //       disableOpenGesture: true,
-  //       fixedWidth: 800,
-  //       passProps: {
-  //         config
-  //       }
-  //     }
-  //   },
-  //   animationType: 'fade',
-  //   passProps: {
-  //     config,
-  //   },
-  // })
+  Navigation.startSingleScreenApp({
+    screen: {
+      screen: 'example.FirstTabScreen',
+      title: config.getApplicationName(),
+      navigatorStyle: defaultNavigatorStyle,
+      navigatorButtons: {
+        leftButtons: [{
+          title: 'MENU',
+          passProps: {},
+          id: 'sideMenu',
+          disabled: false,
+          disableIconTint: true,
+          buttonColor: primaryText,
+          buttonFontSize: 14,
+          buttonFontWeight: '600'
+        }],
+        rightButtons: [{
+          component: 'example.SearchButton',
+          passProps: {
+            text: 'Search',
+            onPress: () => {
+              EventEmitter.emit(SearchButtonPressedEvent, 'search');
+            }
+          },
+          id: 'search',
+        }],
+      }
+    },
+    drawer: {
+      left: {
+        screen: 'screen.MenuScreen',
+        disableOpenGesture: true,
+        fixedWidth: 800,
+        passProps: {
+          config
+        }
+      }
+    },
+    animationType: 'fade',
+    passProps: {
+      config,
+    },
+  })
 })
 .catch((err: Error) => console.error(err));
