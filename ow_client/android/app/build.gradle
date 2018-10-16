@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: 'io.fabric'
+apply plugin: "com.google.firebase.firebase-perf"
 
 import com.android.build.OutputFile
 
@@ -193,16 +194,15 @@ dependencies {
     implementation "com.google.firebase:firebase-config:15.0.0"
     implementation "com.google.firebase:firebase-firestore:16.0.0"
     implementation "com.google.firebase:firebase-auth:15.1.0"
-    
+    implementation "com.google.firebase:firebase-perf:16.1.0"
+
     //crashlytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
-
 
     //react-native-navigation
     implementation(project(':react-native-navigation')) {
         // exclude module: 'support-v4'
     }
-
 
 }
 

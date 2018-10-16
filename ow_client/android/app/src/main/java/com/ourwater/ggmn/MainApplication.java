@@ -26,6 +26,7 @@ import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
+import io.invertase.firebase.perf.RNFirebasePerformancePackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,18 +43,19 @@ public class MainApplication extends NavigationApplication {
       // Add additional packages you require here
       // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
-          // new MainReactPackage(),
-          new SvgPackage(),
-          new RNAsyncStoragePackage(),
-          new KeychainPackage(),
-          new VectorIconsPackage(),
-          new ReactNativeConfigPackage(),
-          new MapsPackage(),
-          new RNFirebasePackage(),
-          new RNFirebaseFirestorePackage(),
-          new RNFirebaseAuthPackage(),
-          new RNFirebaseRemoteConfigPackage(),
-          new RNFirebaseCrashlyticsPackage()
+            // new MainReactPackage(),
+            new SvgPackage(),
+            new RNAsyncStoragePackage(),
+            new KeychainPackage(),
+            new VectorIconsPackage(),
+            new ReactNativeConfigPackage(),
+            new MapsPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseFirestorePackage(),
+            new RNFirebaseAuthPackage(),
+            new RNFirebaseRemoteConfigPackage(),
+            new RNFirebaseCrashlyticsPackage(),
+            new RNFirebasePerformancePackage()
       );
   }
 
