@@ -114,7 +114,8 @@ android {
 
         minSdkVersion 16
         // This needs to be 26...
-        targetSdkVersion 26
+        // targetSdkVersion 26
+        targetSdkVersion 22
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

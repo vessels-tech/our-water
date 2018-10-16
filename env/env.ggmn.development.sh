@@ -1,3 +1,5 @@
+
+# Start with newline
 export REACT_APP_FB_AUTH_DOMAIN="our-water.firebaseapp.com"
 export REACT_APP_FB_DATABASE_URL="https://our-water.firebaseio.com"
 export REACT_APP_FB_PROJECT_ID="our-water"
