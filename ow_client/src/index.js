@@ -40,38 +40,15 @@ Promise.resolve(true)
   }
 
   config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
-  console.log("registering screens");
   return registerScreens(config);
 })
 .then(() => {
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
-  console.log("starting app!");
-
-  //TODO: call dispatch stuff after start app?
-
-  // AppRegistry.registerComponent('TestApp', () => TestApp);
-
-  // Navigation.startTabBasedApp({
-  //   tabs: [
-  //     {
-  //       label: 'One', // tab label as appears under the icon in iOS (optional)
-  //       screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
-  //       icon: require('./assets/blue_marker.png'), // local image asset for the tab icon unselected state (optional on iOS)
-  //     },
-  //   ],
-  //   appStyle: {
-  //     orientation: 'portrait', // Sets a specific orientation to the entire app. Default: 'auto'. Supported values: 'auto', 'landscape', 'portrait
-  //   },
-  //   passProps: { config }, // simple serializable object that will pass as props to all top screens (optional)
-  //   animationType: 'slide-down' // optional, add transition animation to root change: 'none', 'slide-down', 'fade'
-  // });
-
-
 
   //Look into slowness issues: https://github.com/react-navigation/react-navigation/issues/608
   Navigation.startSingleScreenApp({
     screen: {
-      screen: 'example.FirstTabScreen',
+      screen: 'screen.App',
       title: config.getApplicationName(),
       navigatorStyle: defaultNavigatorStyle,
       navigatorButtons: {

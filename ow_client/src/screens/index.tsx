@@ -65,7 +65,7 @@ export async function registerScreens(config: ConfigFactory) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
-  Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
+  Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
   Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
