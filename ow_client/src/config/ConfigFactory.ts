@@ -95,7 +95,7 @@ export class ConfigFactory {
    * 
    */
   //TODO: remove the return annotation eventually.
-  getAppApi(auth?: any): GGMNApi {
+  getAppApi(auth?: any): BaseApi {
     //@ts-ignore
     return this.appApi;
   }
@@ -139,5 +139,9 @@ export class ConfigFactory {
    */
   getShouldMapLoadAllResources() {
     return this.remoteConfig.map_shouldLoadAllResources;
+  }
+
+  getHomeScreenType(): HomeScreenType {
+    return this.remoteConfig.homeScreen;
   }
 }

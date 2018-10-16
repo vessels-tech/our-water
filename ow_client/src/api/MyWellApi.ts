@@ -2,7 +2,10 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { Resource, SearchResult } from '../typings/models/OurWater';
+import { Resource, SearchResult, OWUser } from '../typings/models/OurWater';
+import UserApi from './UserApi';
+import { SomeResult } from '../typings/AppProviderTypes';
+import { TranslationEnum } from 'ow_translations/Types';
 
 /**
  * MyWellApi is the MyWell variant of the BaseApi
@@ -10,7 +13,7 @@ import { Resource, SearchResult } from '../typings/models/OurWater';
  * 
  */
 //@ts-ignore
-export default class MyWellApi implements BaseApi {
+export default class MyWellApi implements BaseApi, UserApi {
   orgId: string
   networkApi: NetworkApi;
 
@@ -76,8 +79,20 @@ export default class MyWellApi implements BaseApi {
    * Peform the search with the firebase api
    * TODO: implement a better search api - will require an endpoint methinks
    */
-  performSearch(searchQuery: string): Promise<SearchResult> {
-    return FirebaseApi.performBasicSearch(this.orgId, searchQuery);
+  async performSearch(searchQuery: string): Promise<SomeResult<SearchResult>> {
+    throw new Error("Not implemented");
+  }
+
+  //
+  // UserApi
+  //----------------------------------------------------------------------
+
+  getUser(userId: string): Promise<SomeResult<OWUser>> {
+    return FirebaseApi.getUser(this.orgId, userId);
+  }
+
+  changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
+    return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
   }
 
 }

@@ -169,7 +169,7 @@ export default interface BaseApi {
    * If the user is currently offline, API will still try and complete
    * the search if possible.
    */
-  performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>>;
+  performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[] | SearchResult>>;
 
 
   /**

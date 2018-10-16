@@ -182,7 +182,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       showModal(
         this.props,
         'screen.menu.ConnectToServiceScreen',
-        this.props.config.getConnectToButtonText(),
+        settings_sync_heading,
         {
           config: this.props.config,
           userId: this.props.userId,

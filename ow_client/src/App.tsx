@@ -23,6 +23,7 @@ import {
 import {
   MapStateOption,
   MapHeightOption,
+  HomeScreenType,
 } from './enums';
 import { bgLight, primaryDark, primary, primaryLight } from './utils/Colors';
 import FavouriteResourceList from './components/FavouriteResourceList';
@@ -48,6 +49,7 @@ import { SearchButtonPressedEvent } from './utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import HomeMapScreen from './screens/HomeMapScreen';
+import HomeSimpleScreen from './screens/HomeSimpleScreen';
 
 
 export interface OwnProps {
@@ -82,15 +84,25 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     //TODO: check the settings
 
-    return (
-      <HomeMapScreen
-        navigator={this.props.navigator}
-        config={this.props.config}
-        appApi={this.props.appApi}
-      />
-    )
+    switch(this.props.config.getHomeScreenType()) {
+      case (HomeScreenType.Map): {
+        return (
+          <HomeMapScreen
+            navigator={this.props.navigator}
+            config={this.props.config}
+            appApi={this.props.appApi}
+          />
+        )
+      }
+      case (HomeScreenType.Simple): {
+        <HomeSimpleScreen
+          navigator={this.props.navigator}
+          config={this.props.config}
+          appApi={this.props.appApi}
+        />
+      }
+    }
   }
-
 }
 
 export default App;

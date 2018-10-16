@@ -15,4 +15,4 @@ export ENABLE_LOGGING='false'
 export SHOULD_USE_LOCAL_CONFIG='true'
 
 #Just for now, as we are still sorting this out.
-export CONFIG_TYPE='GGMNDevConfig'
+export CONFIG_TYPE='MyWellDevConfig'
