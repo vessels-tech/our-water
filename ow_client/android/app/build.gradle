@@ -77,9 +77,9 @@ project.ext.react = [
     root: "../../",
     bundleAssetName: "index.android.bundle",
     entryFile: "src/index.js",
-    bundleInDebug: true,
+    bundleInDebug: false,
+    bundleInRelease: true,
 ]
-
 apply from: "../../node_modules/react-native/react.gradle"
 
 /**
@@ -173,8 +173,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     //not sure which we want?
-    implementation "com.android.support:appcompat-v7:23.0.1"
-    // implementation 'com.android.support:appcompat-v7:27.1.0'
+    // implementation "com.android.support:appcompat-v7:23.0.1"
+    implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support:design:27.1.0'
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
