@@ -1,4 +1,4 @@
-package com.vesselstech.ggmn;
+package com.vesselstech.ourwater;
 
 import android.app.Application;
 

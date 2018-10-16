@@ -1,4 +1,4 @@
-package com.vesselstech.ggmn;
+package com.vesselstech.ourwater;
 
 import android.content.Intent;
 import android.os.Bundle;
