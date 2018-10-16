@@ -11,7 +11,7 @@ import {
   Validators,
 } from "react-reactive-form";
 import BaseApi from '../../api/BaseApi';
-import ExternalServiceApi from '../../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { connect } from 'react-redux'
@@ -61,7 +61,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   state: State;
   loginForm: any;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -369,13 +369,13 @@ const mapStateToProps = (state: AppState): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    connectToExternalService: (api: ExternalServiceApi, username: string, password: string) =>
+    connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string) =>
       { dispatch(appActions.connectToExternalService(api, username, password)) },
 
-    disconnectFromExternalService: (api: ExternalServiceApi) => 
+    disconnectFromExternalService: (api: MaybeExternalServiceApi) => 
       { dispatch(appActions.disconnectFromExternalService(api))},
 
-    setExternalOrganisation: (api: ExternalServiceApi, organisation: GGMNOrganisation) => 
+    setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => 
       { dispatch(appActions.setExternalOrganisation(api, organisation)) }
   }
 }

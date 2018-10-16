@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from "../../config/ConfigFactory";
-import ExternalServiceApi from "../../api/ExternalServiceApi";
+import ExternalServiceApi, { MaybeExternalServiceApi } from "../../api/ExternalServiceApi";
 import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'react-native';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
@@ -30,7 +30,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  startExternalSync: any,
+  startExternalSync: (api: MaybeExternalServiceApi, userId: string) => any,
   deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
   deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
@@ -42,7 +42,7 @@ export interface State {
 class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -239,7 +239,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    startExternalSync: (api: ExternalServiceApi, userId: string) => 
+    startExternalSync: (api: MaybeExternalServiceApi, userId: string) => 
       dispatch(appActions.startExternalSync(api, userId)),
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),

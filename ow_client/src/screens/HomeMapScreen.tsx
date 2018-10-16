@@ -41,7 +41,7 @@ import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { ActionMeta, SyncMeta } from '../typings/Reducer';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
-import ExternalServiceApi from '../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
 import { SearchButtonPressedEvent } from '../utils/Events';
@@ -71,7 +71,6 @@ export interface ActionProps {
   startExternalSync: (api: ExternalServiceApi, userId: string) => void,
 }
 
-
 export interface State {
   initialRegion?: MapRegion,
   mapHeight: MapHeightOption,
@@ -80,7 +79,6 @@ export interface State {
   selectedResource?: Resource,
   isSearching: boolean,
   isAuthenticated: boolean,
-
 }
 
 class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -101,7 +99,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   hardwareBackListener: any;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -421,7 +419,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
       dispatch(appActions.getResources(api, userId, region)),
-    startExternalSync: (api: ExternalServiceApi, userId: string) =>
+    startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
       dispatch(appActions.startExternalSync(api, userId)),
   }
 }

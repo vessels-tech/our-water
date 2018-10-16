@@ -42,7 +42,7 @@ import * as appActions from './actions/index';
 import { UserType } from './typings/UserTypes';
 import { ActionMeta, SyncMeta } from './typings/Reducer';
 import { ResultType, SomeResult } from './typings/AppProviderTypes';
-import ExternalServiceApi from './api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from './api/ExternalServiceApi';
 import { GGMNSearchEntity } from './typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
 import { SearchButtonPressedEvent } from './utils/Events';
@@ -71,7 +71,7 @@ export interface State {
 class App extends Component<OwnProps & StateProps & ActionProps> {
   state: State = {};
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);

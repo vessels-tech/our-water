@@ -12,7 +12,7 @@ import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoReso
 import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
-import ExternalServiceApi from "./ExternalServiceApi";
+import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
@@ -49,6 +49,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   orgId: string;
   unsubscribeUser: any;
   pendingReadingsSubscription: any;
+  externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
 
   // private syncStatusCallback: any;
 

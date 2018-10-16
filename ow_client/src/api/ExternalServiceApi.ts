@@ -2,7 +2,19 @@ import { EmptyLoginDetails, LoginDetails, AnyLoginDetails } from "../typings/api
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 
+export enum ExternalServiceApiType {
+  None='None',
+  Has='Has',
+}
+
+export type MaybeExternalServiceApi = NoneExternalServiceApi | ExternalServiceApi;
+
+export interface NoneExternalServiceApi {
+  externalServiceApiType: ExternalServiceApiType.None;
+};
+
 export default interface ExternalServiceApi {
+  externalServiceApiType: ExternalServiceApiType.Has;
 
   /**
    * Connect to an external service.

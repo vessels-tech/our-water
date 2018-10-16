@@ -10,7 +10,7 @@ import { getLocation, maybeLog } from "../utils";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
-import ExternalServiceApi from "../api/ExternalServiceApi";
+import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
@@ -112,9 +112,14 @@ function changeTranslationResponse(result: SomeResult<void>): ChangeTranslationA
  * Async connect to external service
  */
 
-export function connectToExternalService(api: ExternalServiceApi, username: string, password: string): any {
+export function connectToExternalService(api: MaybeExternalServiceApi, username: string, password: string): any {
   return async function (dispatch: any) {
     dispatch(connectToExternalServiceRequest());
+
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
 
     let result: SomeResult < LoginDetails | EmptyLoginDetails>; 
     const details = await api.connectToService(username, password);
@@ -156,8 +161,13 @@ function connectToExternalServiceResponse(result: SomeResult<LoginDetails | Empt
 /**
  * Async disconnect from external service
  */
-export function disconnectFromExternalService(api: ExternalServiceApi): any {
+export function disconnectFromExternalService(api: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(disconnectFromExternalServiceRequest());
     await api.forgetExternalServiceLoginDetails();
 
@@ -231,8 +241,13 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
 /**
  * Async get external login details
  */
-export function getExternalLoginDetails(externalServiceApi: ExternalServiceApi): any {
+export function getExternalLoginDetails(externalServiceApi: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
+    if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(getExternalLoginDetailsRequest());
 
     const loginDetails = await externalServiceApi.getExternalServiceLoginDetails();
@@ -260,8 +275,13 @@ function getExternalLoginDetailsResponse(result: SomeResult<AnyLoginDetails>): G
   }
 }
 
-export function getExternalOrgs(externalServiceApi: ExternalServiceApi): any {
+export function getExternalOrgs(externalServiceApi: MaybeExternalServiceApi): any {
   return async function(dispatch: any) {
+    if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(getExternalOrgsRequest());
 
     const result = await externalServiceApi.getExternalOrganisations();
@@ -497,7 +517,7 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
  * Async save reading
  */
 
-export function saveReading(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resourceId: string, reading: Reading ): any {
+export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
 
@@ -505,7 +525,7 @@ export function saveReading(api: BaseApi, externalApi: ExternalServiceApi | null
 
     dispatch(saveReadingResponse(result));
     //Attempt to do a sync
-    if (externalApi) {
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
       dispatch(startExternalSync(externalApi, userId));
     }
     return result;
@@ -529,7 +549,7 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resource: Resource ): 
+export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource ): 
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
@@ -538,7 +558,7 @@ export function saveResource(api: BaseApi, externalApi: ExternalServiceApi | nul
 
     dispatch(saveResourceResponse(result));    
     //Attempt to do a sync
-    if (externalApi){
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has){
       dispatch(startExternalSync(externalApi, userId));
     }
 
@@ -559,10 +579,15 @@ function saveResourceResponse(result: SomeResult<SaveResourceResult>): SaveResou
   }
 }
 
-export function setExternalOrganisation(api: ExternalServiceApi, organisation: GGMNOrganisation): any {
+export function setExternalOrganisation(api: MaybeExternalServiceApi, organisation: GGMNOrganisation): any {
   return async function(dispatch: any) {
     //TODO: if this fails, state could get out of sync with the saved credentials.
     // Let's worry about it later
+
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
 
     await api.selectExternalOrganisation(organisation);
     dispatch({
@@ -602,7 +627,7 @@ function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActio
 /**
  * trigger an external sync
  */
-export function startExternalSync(api: ExternalServiceApi, userId: string): (dispatch: any) => void {
+export function startExternalSync(api: MaybeExternalServiceApi, userId: string): (dispatch: any) => void {
   return async function(dispatch: any) {
     dispatch(externalSyncRequest());
     //TODO: call the api!

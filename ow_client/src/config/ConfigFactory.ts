@@ -2,7 +2,7 @@ import { BaseApiType, HomeScreenType } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
-import ExternalServiceApi from "../api/ExternalServiceApi";
+import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
 import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
@@ -46,7 +46,7 @@ export class ConfigFactory {
   networkApi: NetworkApi;
 
   appApi: BaseApi; //TODO: change to appApi
-  externalServiceApi?: ExternalServiceApi;
+  externalServiceApi: MaybeExternalServiceApi;
   userApi: UserApi; 
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
@@ -73,6 +73,7 @@ export class ConfigFactory {
       //@ts-ignore
       this.userApi = mywellApi;
       // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
+      this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
     }
 
 
@@ -101,19 +102,8 @@ export class ConfigFactory {
     return this.appApi;
   }
 
-  //This doesn't feel like the best use of SomeResult
-  getExternalServiceApi(): SomeResult<ExternalServiceApi> {
-    if (!this.externalServiceApi) {
-      return {
-        type: ResultType.ERROR,
-        message: `ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`,
-      }
-    }
-
-   return {
-      type: ResultType.SUCCESS,
-      result: this.externalServiceApi,
-   };
+  getExternalServiceApi(): MaybeExternalServiceApi {
+   return this.externalServiceApi;
   }
 
   getShowConnectToButton() {

@@ -24,7 +24,7 @@ import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
-import ExternalServiceApi from '../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -52,7 +52,7 @@ export interface State {
 class NewReadingScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: Props) {
     super(props);
@@ -396,7 +396,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveReading: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
+    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))}
   }
 }

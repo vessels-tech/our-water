@@ -18,7 +18,7 @@ import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactiv
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { TextInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
-import ExternalServiceApi from '../../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
 import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
 import IconButton from '../../components/common/IconButton';
@@ -36,7 +36,7 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  saveResource: any,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
@@ -49,7 +49,7 @@ export interface State {
 class EditResourceScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
   editResourceForm: any;
 
   constructor(props: Props) {
@@ -218,7 +218,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resource: Resource) =>
+    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource) =>
      { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }
