@@ -47,7 +47,7 @@ server:
 #
 android:
 	@make env
-	ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager
+	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager
 
 clean:
 	watchman watch-del-all
@@ -68,7 +68,7 @@ reset-gradle-cache:
 bundle:
 	@make env
 	@echo 'Bundling react native'
-	ENVFILE=/tmp/ow_env react-native bundle \
+	source /tmp/ow_env &&  ENVFILE=/tmp/ow_env react-native bundle \
 		--platform android \
 		--dev false \
 		--entry-file ./src/index.js \
@@ -84,13 +84,13 @@ build:
 	@make env
 	@echo 'Building debug only'
 	../env/increment_build.sh
-	source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug --stacktrace
+	source /tmp/ow_env && source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug --stacktrace
 
 build-production:
 	@make env
 	@echo 'Building production only'
 	../env/increment_build.sh
-	source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease
+	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease
 	@echo 'signing with debug key'
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/debug.keystore  app-release-unsigned.apk -storepass android androiddebugkey
 

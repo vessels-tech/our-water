@@ -96,7 +96,7 @@ def enableSeparateBuildPerCPUArchitecture = false
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
 
 android {
@@ -108,15 +108,14 @@ android {
       }
 
     defaultConfig {
-        // applicationId "com.vesselstech.ggmn"
-        applicationId "com.vesselstech.mywell"
+        /* look in env/env.<project>.<stage>.sh */
+        applicationId System.getenv('PACKAGE_NAME')
+
         /* look in env/env.deployment */
         versionName System.getenv('versionName')
         versionCode appVersionCode
-
         minSdkVersion 16
-        // This needs to be 26... but breaks a whole bunch of other stuff
-        targetSdkVersion 22
+        targetSdkVersion 22 // This needs to be 26... but breaks a whole bunch of other stuff
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -135,11 +134,11 @@ android {
     buildTypes {
         debug {
             debuggable true
-        //     minifyEnabled true
+            minifyEnabled false
         //     proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled enableProguardInReleaseBuilds
+            minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }

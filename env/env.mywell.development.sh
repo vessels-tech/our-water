@@ -18,4 +18,5 @@ export SHOULD_USE_LOCAL_CONFIG='true'
 export CONFIG_TYPE='MyWellDevConfig'
 
 
-export APP_NAME="MyWell"
+export APP_NAME="MyWell Dev"
+export PACKAGE_NAME="com.vesselstech.mywell.debug"

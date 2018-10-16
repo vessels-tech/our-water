@@ -14,4 +14,5 @@ export ENABLE_LOGGING='false'
 export SHOULD_USE_LOCAL_CONFIG='true'
 export CONFIG_TYPE='GGMNDevConfig'
 
-export APP_NAME="GGMN"
+export APP_NAME="GGMN Dev"
+export PACKAGE_NAME="com.vesselstech.ggmn.debug"
