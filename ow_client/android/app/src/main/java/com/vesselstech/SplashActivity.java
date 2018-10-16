@@ -1,4 +1,4 @@
-package com.vesselstech.ourwater;
+package com.vesselstech;
 
 import android.content.Intent;
 import android.os.Bundle;

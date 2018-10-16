@@ -5,6 +5,7 @@
 PATH := node_modules/.bin:$(PATH)
 PROJECT = "OW_CLIENT"
 include .ow_config
+include /tmp/ow_env 
 dir = $(shell pwd)
 
 all: env server
@@ -47,7 +48,7 @@ server:
 #
 android:
 	@make env
-	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager
+	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
 clean:
 	watchman watch-del-all

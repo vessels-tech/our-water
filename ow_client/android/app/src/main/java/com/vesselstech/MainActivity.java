@@ -1,4 +1,4 @@
-package com.vesselstech.ourwater;
+package com.vesselstech;
 
 import android.graphics.Color;
 import android.view.View;

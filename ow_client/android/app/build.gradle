@@ -78,7 +78,7 @@ project.ext.react = [
     root: "../../",
     bundleAssetName: "index.android.bundle",
     entryFile: "src/index.js",
-    bundleInDebug: true,
+    bundleInDebug: false,
     bundleInRelease: true,
 ]
 apply from: "../../node_modules/react-native/react.gradle"
@@ -109,7 +109,8 @@ android {
 
     defaultConfig {
         /* look in env/env.<project>.<stage>.sh */
-        applicationId System.getenv('PACKAGE_NAME')
+        applicationId System.getenv('PACKAGE_NAME_PREFIX')
+        applicationIdSuffix System.getenv('PACKAGE_NAME_SUFFIX')
 
         /* look in env/env.deployment */
         versionName System.getenv('versionName')
@@ -138,6 +139,7 @@ android {
         //     proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
+            debuggable false
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
