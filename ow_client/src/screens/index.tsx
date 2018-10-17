@@ -30,7 +30,10 @@ import SimpleResourceScreen from './SimpleResourceScreen';
 
 let loggerMiddleware: any = null;
 if (EnableLogging) {
+  console.log("LOGGING ENABLED")
   loggerMiddleware = createLogger();
+} else {
+  console.log("LOGGING DISABLED");
 }
 
 export async function registerScreens(config: ConfigFactory) {

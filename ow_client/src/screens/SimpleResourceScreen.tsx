@@ -71,15 +71,7 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  let userId = ''; //I don't know if this fixes the problem...
-
-  if (state.user.type === UserType.USER) {
-    userId = state.user.userId;
-  }
-
-  return {
-    userId,
-  }
+  return {};
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {

@@ -123,6 +123,10 @@ android {
         // use this when code gets too big
         // ref: https://github.com/wix/react-native-navigation/issues/1925
         multiDexEnabled true
+
+        //Required to get react-native-config to work with different package names
+        //Ref: https://github.com/luggit/react-native-config#advanced-android-setup
+        resValue "string", "build_config_package", "com.vesselstech"
     }
     splits {
         abi {

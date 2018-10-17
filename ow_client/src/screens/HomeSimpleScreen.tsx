@@ -6,6 +6,9 @@ import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback } from 'react-native';
 import { randomPrettyColorForId, navigateTo } from '../utils';
 import { ResourceType } from '../enums';
+import { connect } from 'react-redux'
+import { AppState } from '../reducers';
+import { UserType } from '../typings/UserTypes';
 
 export interface OwnProps {
   navigator: any;
@@ -103,4 +106,30 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 }
 
-export default HomeSimpleScreen;
+
+//If we don't have a user id, we should load a different app I think.
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  let userId = ''; //I don't know if this fixes the problem...
+
+  if (state.user.type === UserType.USER) {
+    userId = state.user.userId;
+  }
+
+  return {
+    userId,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any): ActionProps => {
+  return {
+    // addRecent: (api: BaseApi, userId: string, resource: Resource) => {
+    //   dispatch(appActions.addRecent(api, userId, resource))
+    // },
+    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
+    //   dispatch(appActions.getResources(api, userId, region)),
+    // startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
+    //   dispatch(appActions.startExternalSync(api, userId)),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeSimpleScreen);

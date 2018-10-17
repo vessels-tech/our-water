@@ -40,7 +40,7 @@ switch-mywell-dev:
 #
 server: 
 	@make env
-	yarn run start
+	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
 
 #
 # runs on an android device.
@@ -58,6 +58,7 @@ clean:
 	rm -rf /tmp/haste-map-react-native-packager-*
 	rm -f ${dir}/android/app/src/assets/index.android.bundle
 	rm -f ${dir}/android/app/src/assets/index.android.bundle.meta
+	touch /tmp/ow_env
 
 clean-android:
 	rm -rf android/build

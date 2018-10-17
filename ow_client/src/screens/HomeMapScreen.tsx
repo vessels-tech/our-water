@@ -35,8 +35,8 @@ import PendingChangesBanner from '../components/PendingChangesBanner';
 import { SyncStatus } from '../typings/enums';
 
 import { connect } from 'react-redux'
-import NetworkStatusBanner from '../components/NetworkStatusBanner';
 import { AppState } from '../reducers';
+import NetworkStatusBanner from '../components/NetworkStatusBanner';
 import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { ActionMeta, SyncMeta } from '../typings/Reducer';
