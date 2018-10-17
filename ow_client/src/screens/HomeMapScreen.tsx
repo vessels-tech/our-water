@@ -47,6 +47,7 @@ import { TranslationFile } from 'ow_translations/Types';
 import { SearchButtonPressedEvent } from '../utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
+import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 
 
 export interface OwnProps {
@@ -269,21 +270,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    return (
-      <ProgressBarAndroid
-        styleAttr="Horizontal"
-        indeterminate={true}
-        color={primaryLight}
-        style={{
-          marginVertical: -6,
-          position: 'absolute',
-          zIndex: 10,
-          top: 0,
-          left: 0,
-          right: 0,
-        }}
-      />
-    );
+    return <PassiveLoadingIndicator/>
   }
 
   getFavouritesList() {
@@ -312,6 +299,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <ResourceDetailSection
+        hideTopBar={false}
         config={this.props.config}
         userId={userId}
         resource={selectedResource}

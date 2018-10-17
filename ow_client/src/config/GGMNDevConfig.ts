@@ -12,7 +12,7 @@ const GGMNDevConfig: RemoteConfig = {
   map_shouldLoadAllResources: false,
   newReading_enableImageUpload: false,
   // homeScreen: HomeScreenType.Map,
-  homeScreen: HomeScreenType.Simple,
+  homeScreen: HomeScreenType.Simple, //just temp until we add resources to mywell and make it useable
 }
 
 export default GGMNDevConfig;

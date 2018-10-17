@@ -97,6 +97,8 @@ Promise.resolve(true)
           config,
         },
       });
+
+      break;
     }
     case (HomeScreenType.Simple): {
       //@ts-ignore
@@ -140,6 +142,7 @@ Promise.resolve(true)
         passProps: {config},
         animationType: 'fade'
       });
+    break;
     }
   }
 })
