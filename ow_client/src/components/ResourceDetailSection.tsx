@@ -35,6 +35,7 @@ export interface OwnProps {
   resource: Resource,
   userId: string,
   onAddReadingPressed: any,
+  hideTopBar: boolean,
 }
 
 export interface StateProps {
@@ -346,7 +347,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         flexDirection: 'column',
         flex: 5,
       }}>
-        {this.getHeadingBar()}
+        {this.props.hideTopBar ? null : this.getHeadingBar()}
         {this.getReadingsView()}
       </View>
     );
