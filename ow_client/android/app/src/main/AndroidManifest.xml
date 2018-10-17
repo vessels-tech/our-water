@@ -8,8 +8,15 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- TODO: disable for live build? -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /> -->
+
+    <!-- react-native-camera  -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- react-native-qr-scanner -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+
+
 
     <!-- TODO:  debuggable: true-->
     <application

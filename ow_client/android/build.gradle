@@ -30,8 +30,8 @@ allprojects {
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
-            // All the mavens
-            // url 'https://maven.google.com/'
+            //react-native-camera
+            // url "https://jitpack.io" 
         }
         google()
     }

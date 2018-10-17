@@ -14,6 +14,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import org.reactnative.camera.RNCameraPackage;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -55,7 +56,8 @@ public class MainApplication extends NavigationApplication {
             new RNFirebaseAuthPackage(),
             new RNFirebaseRemoteConfigPackage(),
             new RNFirebaseCrashlyticsPackage(),
-            new RNFirebasePerformancePackage()
+            new RNFirebasePerformancePackage(),
+            new RNCameraPackage()
       );
   }
 
