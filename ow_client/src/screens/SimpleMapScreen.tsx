@@ -4,7 +4,7 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
-import { randomPrettyColorForId, maybeLog } from '../utils';
+import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
 import { bgLight } from '../utils/Colors';
 import { Resource } from '../typings/models/OurWater';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
@@ -131,6 +131,14 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
+  onCalloutPressed(resource: Resource) {
+    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
+      resource,
+      config: this.props.config,
+      userId: this.props.userId
+    });
+  }
+
   render() {
     const { initialRegion } = this.state;
     const { userIdMeta: { loading } } = this.props;
@@ -173,7 +181,8 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             // Will never have a selected resource?
             hasSelectedResource={false}
             shouldShrinkForSelectedResource={false}
-            shouldShowCallout={false}
+            shouldShowCallout={true}
+            onCalloutPressed={(r: Resource) => this.onCalloutPressed(r)}
           />}
       </View>
     )

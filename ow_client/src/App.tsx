@@ -3,6 +3,7 @@
  * 
  */
 import * as React from 'react'; import { Component } from 'react';
+console.ignoredYellowBox = ['Remote debugger'];
 import {
   BackHandler,
   ScrollView,

@@ -1,15 +1,16 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View, ProgressBarAndroid, Text } from "react-native";
+import { View, ProgressBarAndroid, Text, TouchableNativeFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
+import { Button } from 'react-native-elements';
 
 export type MapRegion = {
   latitude: number,
@@ -39,6 +40,7 @@ export interface Props {
   mapRef: any,
   shouldShrinkForSelectedResource: boolean,
   shouldShowCallout: boolean,
+  onCalloutPressed?: (r: Resource) => void,
 }
 
 export default class MapSection extends Component<Props> {
@@ -235,11 +237,23 @@ export default class MapSection extends Component<Props> {
       return null;
     }
 
+    //This reveals a code smell
+    if (!this.props.onCalloutPressed) {
+      throw new Error("no onCalloutPressed, but shouldShowCallout is true");
+    }
+
     return (
-      <Callout tooltip>
-        {/* TODO Make this a nice button view, and configure for ggmn and mywell */}
-        <View>
-          <Text>Hello</Text>
+      <Callout 
+        onPress={() => this.props.onCalloutPressed && this.props.onCalloutPressed(resource)}
+        tooltip
+      >
+        <View style={{
+          flex: 1,
+          padding: 10,
+          margin: 10,
+          backgroundColor: randomPrettyColorForId(resource.id),
+        }}>
+          <Text style={{ fontWeight: '800', fontSize: 20 }}>{resource.resourceType}: {resource.id} ></Text>
         </View>
       </Callout>
     )
