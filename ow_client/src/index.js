@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { textDark, primaryText } from './utils/Colors';
+import { primaryText } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -13,6 +13,7 @@ import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
 import * as EnvironmentConfig from './utils/EnvConfig';
 import SearchButton from './components/common/SearchButton';
 import { SearchButtonPressedEvent } from './utils/Events';
+//@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
@@ -57,6 +58,7 @@ Promise.resolve(true)
       buttonFontSize: 14,
       buttonFontWeight: '600'
     }],
+    //TODO: this is broken for the tab version. Props not getting passed down
     rightButtons: [{
       component: 'example.SearchButton',
       passProps: {
@@ -97,28 +99,32 @@ Promise.resolve(true)
       });
     }
     case (HomeScreenType.Simple): {
+      //@ts-ignore
       Navigation.startTabBasedApp({
         tabs: [
           {
             label: 'Home', 
-            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
-            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
-            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
-            title: 'Screen One', // title of the screen as appears in the nav bar (optional)
+            screen: 'screen.App',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
           },
           {
-            label: 'Scan', // tab label as appears under the icon in iOS (optional)
-            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
-            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
-            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
-            title: 'Screen Two', // title of the screen as appears in the nav bar (optional)
+            label: 'Scan',
+            screen: 'screen.App',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
           },
           {
-            label: 'Map', // tab label as appears under the icon in iOS (optional)
-            screen: 'screen.App', // unique ID registered with Navigation.registerScreen
-            icon: require('./assets/other_pin.png'), // local image asset for the tab icon unselected state (optional on iOS)
-            // selectedIcon: require('../img/one_selected.png'), // local image asset for the tab icon selected state (optional, iOS only. On Android, Use `tabBarSelectedButtonColor` instead)
-            title: 'Screen Three', // title of the screen as appears in the nav bar (optional)
+            label: 'Map',
+            screen: 'screen.App',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
           }
         ],
         tabsStyle: { // optional, add this if you want to style the tab bar beyond the defaults

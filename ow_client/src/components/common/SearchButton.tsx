@@ -7,17 +7,23 @@ import { error1, primaryText } from '../../utils/Colors';
 export interface Props {
   text: string,
   navigator: any,
-  onPress: () => any,
+  onPress: () => () => void,
 }
 
 class SearchButton extends Component<Props> {
+  constructor(props: Props) {
+    super(props);
+  }
+
   render() {
+    console.log('searchbutton props: ', this.props);
+
     return (
       <TouchableNativeFeedback
         style={{
           borderRadius: 25,
         }}
-        onPress={() => this.props.onPress()}
+        onPress={() => this.props.onPress && this.props.onPress()}
       >
         <View
           style={{

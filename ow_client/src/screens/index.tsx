@@ -23,6 +23,8 @@ import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 import { EnableLogging } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
+import ScanScreen from './ScanScreen';
+import SimpleMapScreen from './SimpleMapScreen';
 
 
 let loggerMiddleware: any = null;
@@ -73,4 +75,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
   Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
+
+  Navigation.registerComponent('screen.ScanScreen', () => ScanScreen, store, Provider);
+  Navigation.registerComponent('screen.simpleMapScreen', () => SimpleMapScreen, store, Provider);
 }
