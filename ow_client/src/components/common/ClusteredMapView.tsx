@@ -226,6 +226,7 @@ class ClusteredMapView extends Component<Props> {
         showsUserLocation
         initialRegion={this.state.currentRegion}
         onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
+        onCalloutPress={() => console.log("callout pressed")}
       >
         {/* {this.state.clusteredMarkers} */}
         {/* {this.state.otherChildren} */}

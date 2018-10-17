@@ -1,7 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View, ProgressBarAndroid } from "react-native";
-import MapView, { Marker, Region } from 'react-native-maps';
+import { View, ProgressBarAndroid, Text } from "react-native";
+import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
@@ -37,7 +37,8 @@ export interface Props {
   selectedResource?: Resource,
   hasSelectedResource: boolean,
   mapRef: any,
-
+  shouldShrinkForSelectedResource: boolean,
+  shouldShowCallout: boolean,
 }
 
 export default class MapSection extends Component<Props> {
@@ -112,13 +113,27 @@ export default class MapSection extends Component<Props> {
 
   //TODO: fix infinite loop here
   selectResource(resource: Resource) {
-    this.setState({
+    let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
-      hasSelectedResource: true,
-    });
+    };
+    let newState = {
+      hasSelectedResource: true
+    };
 
-    this.props.onMapStateChanged(MapStateOption.small);
+    if (this.props.shouldShrinkForSelectedResource) {
+      this.setState({
+        ...shrinkState,
+        ...newState,
+      });
+
+      this.props.onMapStateChanged(MapStateOption.small);
+    } else {
+      this.setState({
+        ...newState,
+      });
+    }
+
     this.props.onResourceSelected(resource);
   }
 
@@ -215,6 +230,21 @@ export default class MapSection extends Component<Props> {
     );
   }
 
+  getCalloutForResource(resource: Resource) {
+    if (!this.props.shouldShowCallout) {
+      return null;
+    }
+
+    return (
+      <Callout tooltip>
+        {/* TODO Make this a nice button view, and configure for ggmn and mywell */}
+        <View>
+          <Text>Hello</Text>
+        </View>
+      </Callout>
+    )
+  }
+
 
   render() {
     const { mapHeight } = this.state;
@@ -264,9 +294,7 @@ export default class MapSection extends Component<Props> {
               // image={imageForResourceType(resource.resourceType)}
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
             >
-              {/* <View style={{ width: 70, height: 95 }}> */}
-                {/* {imageForResourceType(resource.resourceType)} */}
-              {/* </View> */}
+              {this.getCalloutForResource(resource)}
             </Marker>
           }
           )}

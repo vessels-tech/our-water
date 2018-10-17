@@ -172,9 +172,9 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
             // Will never have a selected resource?
             hasSelectedResource={false}
+            shouldShrinkForSelectedResource={false}
+            shouldShowCallout={false}
           />}
-
-        <Text>Simple Map Screen</Text>
       </View>
     )
   }

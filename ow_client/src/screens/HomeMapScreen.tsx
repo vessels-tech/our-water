@@ -355,6 +355,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
             selectedResource={this.state.selectedResource}
             hasSelectedResource={this.state.hasSelectedResource}
+            shouldShrinkForSelectedResource={true}
+            shouldShowCallout={true}
           />}
         {mapState === MapStateOption.fullscreen ? null :
           <ScrollView
