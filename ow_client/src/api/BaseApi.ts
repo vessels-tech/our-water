@@ -138,7 +138,7 @@ export default interface BaseApi {
   /**
    * Get a resource for an id.
    */
-  getResource(id: string): Promise<Resource>;
+  getResource(id: string): Promise<SomeResult<Resource>>;
 
 
   //

@@ -235,6 +235,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       tsReadings[key] = tsReading;
       return Object.assign({}, state, { tsReadings });
     }
+    case ActionType.GET_RESOURCE_REQUEST: {
+      //start loading
+
+    }
+    case ActionType.GET_RESOURCE_RESPONSE: {
+      //stop loading, add to resources list
+    }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};
 

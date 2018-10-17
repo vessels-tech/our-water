@@ -21,10 +21,6 @@ import { connect } from 'react-redux'
 import { Resource } from '../typings/models/OurWater';
 import ResourceDetailSection from '../components/ResourceDetailSection';
 import { TranslationFile } from 'ow_translations/Types';
-import Loading from '../components/common/Loading';
-import { SomeResult } from '../typings/AppProviderTypes';
-import * as appActions from '../actions/index';
-
 
 
 
@@ -32,38 +28,25 @@ export interface OwnProps {
   userId: string,
   navigator: any;
   config: ConfigFactory,
-  resourceId: string,
+  appApi: BaseApi,
+  resource: Resource,
 }
 
 export interface StateProps {
   translation: TranslationFile,
-  resource: Resource | null,
 }
 
 export interface ActionProps {
-  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<Resource>>
+
 }
 
 
 
 class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & ActionProps> {
-  appApi: BaseApi;
 
-  constructor(props: OwnProps & StateProps & ActionProps) {
-    super(props);
-
-    this.appApi = props.config.getAppApi();
-  }
 
   getResourceDetailSection() {
     const { userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
-
-    //TODO: we should try and use proper metadata instead
-    if (!resource) {
-      //This is dodgy - need to think of a better way
-      this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
-      return <Loading/>
-    }
 
     return (
       <ResourceDetailSection
@@ -100,27 +83,13 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  //Grab the resource from the list of resources
-  let resource = null;
-
-  state.resources.forEach(r => {
-    if (r.id === ownProps.resourceId) {
-      resource = r;
-    }
-  });
-
   return {
     translation: state.translation,
-    resource,
   };
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    getResource: (api: BaseApi, resourceId: string, userId: string) => {
-      return dispatch(appActions.getResource(api, resourceId, userId));
-    }
-
     // addRecent: (api: BaseApi, userId: string, resource: Resource) => {
     //   dispatch(appActions.addRecent(api, userId, resource))
     // },
