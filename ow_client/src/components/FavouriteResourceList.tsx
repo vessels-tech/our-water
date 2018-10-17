@@ -17,6 +17,7 @@ import Loading from './common/Loading';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
+import { ResourceType } from '../enums';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -25,7 +26,9 @@ const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   userId: string,
-  onResourceCellPressed: any
+  onResourceCellPressed: any,
+  //If this exists, will filter the displayed resources to be only the given resource type
+  filterResourceType?: ResourceType,
 
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
@@ -109,6 +112,7 @@ class FavouriteResourceList extends Component<Props> {
         color='yellow'
       />);
     
+      //TODO: change this hint to use translations
       return (
         <Text style={{textAlign: 'center'}}>
           Press the {icon} button to add a favourite.
@@ -123,7 +127,16 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       >
-        {firstFiveFavourites.map(resource => this.getResourceCell(resource))}
+        {firstFiveFavourites
+          .filter(r => {
+            if (!this.props.filterResourceType) {
+              return r;
+            }
+
+            return r.resourceType === this.props.filterResourceType;
+          })
+          .map(r => this.getResourceCell(r))
+        }
       </View>
     );
   }
@@ -153,7 +166,16 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       > 
-        {recentResources.map(r => this.getResourceCell(r))}
+        {recentResources
+          .filter(r => {
+            if (!this.props.filterResourceType) {
+              return r;
+            }
+
+            return r.resourceType === this.props.filterResourceType;
+          })
+          .map(r => this.getResourceCell(r))
+        }
       </View>
     );
   }

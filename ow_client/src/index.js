@@ -112,7 +112,7 @@ Promise.resolve(true)
           },
           {
             label: 'Scan',
-            screen: 'screen.App',
+            screen: 'screen.ScanScreen',
             icon: require('./assets/other_pin.png'),
             title: config.getApplicationName(),
             navigatorButtons,
@@ -120,7 +120,7 @@ Promise.resolve(true)
           },
           {
             label: 'Map',
-            screen: 'screen.App',
+            screen: 'screen.SimpleMapScreen',
             icon: require('./assets/other_pin.png'),
             title: config.getApplicationName(),
             navigatorButtons,

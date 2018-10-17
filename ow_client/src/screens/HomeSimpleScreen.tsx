@@ -4,7 +4,8 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId } from '../utils';
+import { randomPrettyColorForId, navigateTo } from '../utils';
+import { ResourceType } from '../enums';
 
 export interface OwnProps {
   navigator: any;
@@ -13,7 +14,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-
+  userId: string,
 }
 
 export interface ActionProps {
@@ -47,9 +48,18 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
   /**
    * A list of the reading options: Groundwater, Rainfall, Checkdam and Water Quality
    * 
-   * //TODO: Load based on user's settings 
+   * //TODO: Load only the icons based on user's settings 
    */
   getMenuButtons() {
+
+    const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
+      navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
+        config: this.props.config,
+        userId: this.props.userId,
+        resourceType
+      })
+    }
+
     return (
       <View style={{
         flexDirection: 'column',
@@ -62,15 +72,15 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
         }}>
           {/* TODO: translations */}
-          {MenuButton('GROUNDWATER', ()=> console.log("groundwater Pressed"))}
-          {MenuButton('RAINFALL', () => console.log("Rainfall Pressed"))}
+          {MenuButton('GROUNDWATER', () => presentResourceScreen('Wells', ResourceType.well))}
+          {MenuButton('RAINFALL', () => presentResourceScreen('Raingauges', ResourceType.raingauge))}
         </View>
         <View style={{
           flexDirection: 'row',
           flex: 1,
         }}>
-          {MenuButton('WATER QUALITY', () => console.log("water quality Pressed"))}
-          {MenuButton('CHECKDAM', () => console.log("Checkdam Pressed"))}
+          {MenuButton('WATER QUALITY', () => presentResourceScreen('Water Quality', ResourceType.quality))}
+          {MenuButton('CHECKDAM', () => presentResourceScreen('Checkdams', ResourceType.checkdam))}
         </View>
       </View>
     );

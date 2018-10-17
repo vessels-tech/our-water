@@ -25,6 +25,7 @@ import { EnableLogging } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
 import ScanScreen from './ScanScreen';
 import SimpleMapScreen from './SimpleMapScreen';
+import SimpleResourceScreen from './SimpleResourceScreen';
 
 
 let loggerMiddleware: any = null;
@@ -77,5 +78,6 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
 
   Navigation.registerComponent('screen.ScanScreen', () => ScanScreen, store, Provider);
-  Navigation.registerComponent('screen.simpleMapScreen', () => SimpleMapScreen, store, Provider);
+  Navigation.registerComponent('screen.SimpleMapScreen', () => SimpleMapScreen, store, Provider);
+  Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);
 }
