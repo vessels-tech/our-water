@@ -50,6 +50,7 @@ export async function registerScreens(config: ConfigFactory) {
   //@ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
   const user = store.getState().user;
+  console.log("got user?", user);
   if (user.type === UserType.USER) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
     

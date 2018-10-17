@@ -58,6 +58,16 @@ class FavouriteResourceList extends Component<Props> {
     }
   }
 
+  getFilteredResource(resources: Resource[], filterResourceType: ResourceType): Resource[] {
+    return resources.filter(r => {
+      if (!this.props.filterResourceType) {
+        return r;
+      }
+
+      return r.resourceType === filterResourceType;
+    })
+  }
+
   
   getResourceCell(resource: Resource) {
     //Ideally, we would display the resource image + 
@@ -94,7 +104,12 @@ class FavouriteResourceList extends Component<Props> {
 
   
   getFavouritesSection() {
-    const { favouriteResources, favouriteResourcesMeta } = this.props;
+    let favouriteResources = this.props.favouriteResources;
+    const {favouriteResourcesMeta, filterResourceType } = this.props;
+
+    if (filterResourceType) {
+      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
+    }
 
     if (favouriteResourcesMeta.loading) {
       return <Loading/>
@@ -127,22 +142,19 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       >
-        {firstFiveFavourites
-          .filter(r => {
-            if (!this.props.filterResourceType) {
-              return r;
-            }
-
-            return r.resourceType === this.props.filterResourceType;
-          })
-          .map(r => this.getResourceCell(r))
+        {firstFiveFavourites.map(r => this.getResourceCell(r))
         }
       </View>
     );
   }
 
   getRecentsSection() {
-    const { recentResources } = this.props;
+    let recentResources = this.props.recentResources;
+    const { filterResourceType } = this.props;
+
+    if (filterResourceType) {
+      recentResources = this.getFilteredResource(recentResources, filterResourceType)
+    }
 
     if (recentResources.length === 0) {
       return (
@@ -166,39 +178,102 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       > 
-        {recentResources
-          .filter(r => {
-            if (!this.props.filterResourceType) {
-              return r;
-            }
-
-            return r.resourceType === this.props.filterResourceType;
-          })
-          .map(r => this.getResourceCell(r))
+        {recentResources.map(r => this.getResourceCell(r))
         }
       </View>
     );
   }
 
-  render() {
+  getStartedSection() {
 
     return (
-      <View style={{
-        backgroundColor: bgLightHighlight,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 5,
+      <View
+        style={{
+
+          height: '100%',
+          width: '100%',
+          flexDirection: "column",
+        }}
+      >
+        <View style={{
+          flex: 1,
+          // backgroundColor: 'tomato',
+          padding: 30,
+          paddingTop: 50,
         }}>
+          <Text style={{ fontWeight: '500', fontSize: 18 }}>You haven't found any locations yet.</Text>
+          <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>Press the QR scanner or search for a resource to find a location.</Text>
+        </View>
+
+        <View style={{
+          // backgroundColor: 'purple',
+          flexDirection: 'row',
+          flex: 2,
+          justifyContent: 'space-around',
+        }}>
+          <Button 
+            style={{
+              flex: 1
+            }}
+            onPress={() => console.log("on Camera pressed")} 
+            title="SCAN"
+          />
+          <Button 
+            style={{
+              flex: 1
+            }}
+            onPress={() => console.log("on search pressed")} 
+            title="SEARCH"
+          />
+        </View>
+      </View>
+    );
+  }
+
+  getResourcesSection() {
+    return (
+      <View>
         <Text style={{
           marginVertical: 10,
+          marginLeft: 13,
         }}>
           Favourites
         </Text>
         {this.getFavouritesSection()}
-        <Text style={{
+        <Text style = {{
           marginVertical: 10,
-        }}>Recents:</Text>
+          marginLeft: 13,
+        }}>
+          Recents:
+        </Text >
         {this.getRecentsSection()}
+      </View>
+    )
+  }
+
+  render() {
+    let recentResources = this.props.recentResources;
+    let favouriteResources = this.props.favouriteResources;
+    const { filterResourceType } = this.props;
+
+    if (filterResourceType) {
+      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
+    }
+
+    if (filterResourceType) {
+      recentResources = this.getFilteredResource(recentResources, filterResourceType)
+    }
+
+
+
+    return (
+      <View style={{
+        backgroundColor: bgLightHighlight,
+        flex: 5,
+        // flexDirection: 
+        }}>
+        {favouriteResources.length + recentResources.length === 0 ? 
+          this.getStartedSection() : this.getResourcesSection()}
       </View>
     );
   }

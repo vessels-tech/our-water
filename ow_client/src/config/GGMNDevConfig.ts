@@ -11,7 +11,8 @@ const GGMNDevConfig: RemoteConfig = {
   mywellBaseUrl: '',
   map_shouldLoadAllResources: false,
   newReading_enableImageUpload: false,
-  homeScreen: HomeScreenType.Map,
+  // homeScreen: HomeScreenType.Map,
+  homeScreen: HomeScreenType.Simple,
 }
 
 export default GGMNDevConfig;

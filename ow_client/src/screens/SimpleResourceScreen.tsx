@@ -53,8 +53,9 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
       <View style={{
         width: '100%',
         height: '100%',
-        backgroundColor: 'tomato',
         alignContent: 'center',
+        flexDirection: 'column',
+        flex: 1,
       }}>
 
         {/* TODO: add filter */}
