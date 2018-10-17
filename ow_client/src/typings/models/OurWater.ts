@@ -150,3 +150,16 @@ export type TimeseriesRangeReadings = {
 export type TimeseriesReadings = {
   [id: string]: TimeSeriesReading,
 }
+
+
+/**
+ * For now a scan result can only
+ * represent a resource.
+ * 
+ * This may change in the future.
+ */
+export type ResourceScanResult = {
+  orgId: string, 
+  assetType: 'resource',
+  id: string, //for now use long id. we will change this later on.
+}

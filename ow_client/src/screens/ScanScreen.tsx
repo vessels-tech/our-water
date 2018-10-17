@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback } from 'react-native';
+import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
 import { randomPrettyColorForId, navigateTo } from '../utils';
 //@ts-ignore
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -11,6 +11,13 @@ import { bgMed } from '../utils/Colors';
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { ResourceScanResult } from '../typings/models/OurWater';
+import { validateScanResult } from '../api/ValidationApi';
+import * as EnvironmentConfig from '../utils/EnvConfig';
+
+const orgId = EnvironmentConfig.OrgId;
+
 
 export interface OwnProps {
   navigator: any;
@@ -36,21 +43,30 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
-    this.onScan.bind(this);
   }
 
-  onScan(result: ScanResult) {
-    console.log("onScan", result.data);
+  /**
+   * The scanner can scan any type of barcode or qr code.
+   * we need to verify that it is an OurWater QR code, 
+   * and that the orgId matches this app's org id
+   * 
+   * //TODO: eventally handle this with deep linking. For now, don't worry about it.
+   */
+  onScan(result: any) {
+    const validationResult: SomeResult<ResourceScanResult> = validateScanResult(result, orgId);
+    
+    if (validationResult.type === ResultType.ERROR) {
+      // TODO: Translation
+      ToastAndroid.show('Could not find a location from the QR Code. Please try scanning again.', ToastAndroid.LONG);
+      //TODO: reset the scanner somehow.
 
-    //TODO: eventally handle this with deep linking. For now, don't worry about it.
+      return;
+    }
 
-
-    //TODO: if this is a MyWell Url, handle accordingly
-    //https://mywell.vessels.tech/resource/12345
-    //Load the location by short id, then navigate to
+    const scanResult = validationResult.result;
 
     //Navigate to a standalone resource view
-    const resourceId = "12345";
+    const resourceId = scanResult.id;
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resourceId, {
       resourceId,
       config: this.props.config,
@@ -67,7 +83,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
         alignContent: 'center',
       }}>
         <QRCodeScanner
-          onRead={this.onScan}
+          onRead={(result: any) => this.onScan(result)}
           topContent={
             <Text style={{ fontWeight: '800', fontSize: 20 }}>Scan for a Location using a QR code.</Text>
           }

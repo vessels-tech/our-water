@@ -1,6 +1,6 @@
 
 import * as Joi from 'react-native-joi';
-import { Reading, PendingResource, Resource } from '../typings/models/OurWater';
+import { Reading, PendingResource, Resource, ResourceScanResult } from '../typings/models/OurWater';
 import { SomeResult, ResultType, ErrorResult, SuccessResult } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
 import { maybeLog } from '../utils';
@@ -75,4 +75,32 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
     type: ResultType.SUCCESS,
     result: result.value,
   }
+}
+
+
+
+/**
+ * Validate a scan result from the QR code scanner
+ * 
+ */
+export function validateScanResult(scanResult: any, orgId: string): SomeResult<ResourceScanResult> {
+  const schema: Joi.SchemaLike = Joi.object().keys({
+    orgId: Joi.string().valid(orgId),
+    assetType: Joi.string().valid('resource'),
+    id: Joi.string(),
+  });
+
+  const result = Joi.validate(scanResult, schema);
+  if (result.error) {
+    maybeLog('validateScanResult error: ', result.error);
+    return {
+      type: ResultType.ERROR,
+      message: result.error.message,
+    }
+  }
+
+  return {
+    type: ResultType.SUCCESS,
+    result: result.value,
+  };
 }
