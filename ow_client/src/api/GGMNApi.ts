@@ -487,7 +487,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       });
   }
 
-  getResource(id: string): Promise<Resource> {
+  getResource(id: string): Promise<SomeResult<Resource>> {
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/${id}`;
     const options = {
       timeout,
@@ -500,7 +500,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     return ftch(resourceUrl, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStation>(response))
-      .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
+      .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource))
+      .then((r: Resource) => ({type: ResultType.SUCCESS, result: r}))
+      .catch((err: Error) => {
+        maybeLog("Error loading resource:", err);
+        return { type: ResultType.ERROR, message: 'Error loading resource.' };
+      });
   }
 
 

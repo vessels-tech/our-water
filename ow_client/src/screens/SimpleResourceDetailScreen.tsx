@@ -24,6 +24,7 @@ import { TranslationFile } from 'ow_translations/Types';
 import Loading from '../components/common/Loading';
 import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
+import { ActionMeta } from '../typings/Reducer';
 
 
 
@@ -38,10 +39,15 @@ export interface OwnProps {
 export interface StateProps {
   translation: TranslationFile,
   resource: Resource | null,
+  meta: ActionMeta,
 }
 
 export interface ActionProps {
   getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<Resource>>
+}
+
+export interface State {
+
 }
 
 
@@ -51,18 +57,30 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
     this.appApi = props.config.getAppApi();
+
+    this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+  }
+
+  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State, snapshot: any) {
+    if (this.props.resourceId !== prevProps.resourceId) {
+      this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+    }
   }
 
   getResourceDetailSection() {
-    const { userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
+    const { meta, userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
 
-    //TODO: we should try and use proper metadata instead
-    if (!resource) {
-      //This is dodgy - need to think of a better way
-      this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+    if (meta.loading) {
       return <Loading/>
+    }
+
+    if (meta.error || !resource) {
+      return (
+        <View>
+          <Text>{meta.errorMessage}</Text>
+        </View>
+      )
     }
 
     return (
@@ -102,6 +120,11 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
   let resource = null;
+  let resourceMeta = state.resourceMeta;
+  let meta = resourceMeta.has(ownProps.resourceId) && resourceMeta.get(ownProps.resourceId);
+  if (!meta) {
+    meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
+  }
 
   state.resources.forEach(r => {
     if (r.id === ownProps.resourceId) {
@@ -112,6 +135,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     translation: state.translation,
     resource,
+    meta,
   };
 }
 

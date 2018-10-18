@@ -37,7 +37,9 @@ export type AppState = {
 
   //Api
   resources: Resource[],
+  myResources: Resource[],
   resourcesMeta: ActionMeta,
+  resourceMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
   resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
@@ -78,7 +80,9 @@ const initialState: AppState = {
 
   //Api
   resources: [],
+  myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
+  resourceMeta: new Map<string, ActionMeta>(),
   resourcesCache: new Map<string, Resource>(), 
   externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
   externalOrgs: [],
@@ -237,10 +241,26 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.GET_RESOURCE_REQUEST: {
       //start loading
-
+      const resourceMeta = state.resourceMeta;
+      resourceMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+      
+      return Object.assign({}, state, { resourceMeta });
     }
     case ActionType.GET_RESOURCE_RESPONSE: {
       //stop loading, add to resources list
+      const resourceMeta = state.resourceMeta;
+      let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+      if (action.result.type === ResultType.ERROR) {
+        meta = { loading: false, error: true, errorMessage: action.result.message };
+        resourceMeta.set(action.resourceId, meta);
+
+        return Object.assign({}, state, { resourceMeta });
+      }
+
+      let resources: Resource[] = state.resources;
+      resources.push(action.result.result);
+      resourceMeta.set(action.resourceId, meta);
+      return Object.assign({}, state, { resourceMeta });
     }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};

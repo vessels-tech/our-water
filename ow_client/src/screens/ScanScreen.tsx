@@ -15,6 +15,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { ResourceScanResult } from '../typings/models/OurWater';
 import { validateScanResult } from '../api/ValidationApi';
 import * as EnvironmentConfig from '../utils/EnvConfig';
+import { parse } from 'url';
 
 const orgId = EnvironmentConfig.OrgId;
 
@@ -34,15 +35,45 @@ export interface ActionProps {
 
 }
 
-export type ScanResult = {
-  data: string,
-} 
+export interface State { 
+  isScreenFocussed: boolean,
+}
 
 
 class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
+  state: State = {
+    isScreenFocussed: true,
+  };
+  navigationListener: any;
+
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+    this.navigationListener = this.props.navigator.addOnNavigatorEvent((event: any) => this.onNavigationEvent(event));
+  }
+
+  componentWillUnmount() {
+    
+    //Remove the listener. For some reason this still causes setState issues
+    this.navigationListener();
+  }
+
+  onNavigationEvent(event: any) {
+    switch(event.id) {
+      case 'willAppear': 
+        this.setState({isScreenFocussed: true});
+      break;
+      case 'willDisappear':
+        this.setState({ isScreenFocussed: false });
+      break;
+    }
+  }
+
+  handleScanError() {
+    //TODO: translate
+    ToastAndroid.show('Could not find a location from the QR Code. Please try scanning again.', ToastAndroid.LONG);
+    //TODO: reset scanner
+    return;
   }
 
   /**
@@ -53,14 +84,21 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
    * //TODO: eventally handle this with deep linking. For now, don't worry about it.
    */
   onScan(result: any) {
-    const validationResult: SomeResult<ResourceScanResult> = validateScanResult(result, orgId);
-    
-    if (validationResult.type === ResultType.ERROR) {
-      // TODO: Translation
-      ToastAndroid.show('Could not find a location from the QR Code. Please try scanning again.', ToastAndroid.LONG);
-      //TODO: reset the scanner somehow.
+    if (!result || !result.data) {
+      return this.handleScanError();
+    }
 
-      return;
+    let parsedData = null;
+    try {
+      parsedData = JSON.parse(result.data);
+    } catch(err) {
+    
+      return this.handleScanError();
+    }
+
+    const validationResult: SomeResult<ResourceScanResult> = validateScanResult(parsedData, orgId);    
+    if (validationResult.type === ResultType.ERROR) {
+      return this.handleScanError();
     }
 
     const scanResult = validationResult.result;
@@ -82,7 +120,11 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
         backgroundColor: bgMed,
         alignContent: 'center',
       }}>
+        {this.state.isScreenFocussed ? 
         <QRCodeScanner
+          reactivate={true}
+          showMarker={true}
+          reactivateTimeout={1000 * 10}
           onRead={(result: any) => this.onScan(result)}
           topContent={
             <Text style={{ fontWeight: '800', fontSize: 20 }}>Scan for a Location using a QR code.</Text>
@@ -91,6 +133,8 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
             null
           }
         />
+        : null
+        }
       </View>
     )
   }

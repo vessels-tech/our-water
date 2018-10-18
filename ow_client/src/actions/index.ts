@@ -402,23 +402,27 @@ export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange
  */
 export function getResource(api: BaseApi, resourceId: string, userId: string): (dispatch: any) => Promise<SomeResult<Resource>> {
   return async (dispatch: any) => {
-    dispatch(getResourceRequest());
+    dispatch(getResourceRequest(resourceId));
 
+    //TODO: we should only do this if we don't already have the resource...
     const result = await api.getResource(resourceId);
-    dispatch(getResourceResponse(result));
+    console.log("getResource result: ", result);
+    dispatch(getResourceResponse(resourceId, result));
     return result;
   }
 }
 
-function getResourceRequest(): GetResourceActionRequest {
+function getResourceRequest(resourceId: string): GetResourceActionRequest {
   return {
     type: ActionType.GET_RESOURCE_REQUEST,
+    resourceId,
   }
 }
 
-function getResourceResponse(result: SomeResult<Resource>): GetResourceActionResponse {
+function getResourceResponse(resourceId: string, result: SomeResult<Resource>): GetResourceActionResponse {
   return {
     type: ActionType.GET_RESOURCE_RESPONSE,
+    resourceId,
     result,
   }
 }

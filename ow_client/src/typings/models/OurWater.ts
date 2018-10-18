@@ -157,6 +157,9 @@ export type TimeseriesReadings = {
  * represent a resource.
  * 
  * This may change in the future.
+ * 
+ * Example QR code as string:
+ * {"orgId": "mywell", "assetType":"resource", "id": "12345"}
  */
 export type ResourceScanResult = {
   orgId: string, 
