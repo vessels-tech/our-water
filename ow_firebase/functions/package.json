@@ -16,6 +16,7 @@
   "dependencies": {
     "@firebase/app-types": "0.x",
     "@google-cloud/storage": "^1.7.0",
+    "@types/mocha": "^5.2.5",
     "@types/request-promise-native": "^1.0.14",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
@@ -26,20 +27,19 @@
     "firebase-app": "^0.0.1",
     "firebase-functions": "^2.0.2",
     "joi": "^13.2.0",
+    "mocha": "^5.1.1",
     "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
     "moment": "^2.22.1",
     "papaparse": "^4.4.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.5",
+    "thread-sleep": "^2.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
-    "@types/mocha": "^5.2.5",
     "assert": "^1.4.1",
     "chai": "^4.1.2",
-    "mocha": "^5.1.1",
-    "thread-sleep": "^2.0.0",
     "ts-node": "^7.0.0",
     "tslint": "^5.8.0",
     "typescript": "^2.5.3"

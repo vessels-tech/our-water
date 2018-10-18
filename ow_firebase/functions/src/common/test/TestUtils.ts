@@ -41,7 +41,7 @@ export const createNewSync = () => {
     });
 };
 
-export const getSyncRun = ({_orgId, fs, syncRunId}) => {
+export const getSyncRun = (_orgId: string, fs: any, syncRunId: string) => {
   return fs.collection('org').doc(_orgId).collection('syncRun').doc(syncRunId).get()
     .then(sn => sn.data());
 }

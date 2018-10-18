@@ -3118,9 +3118,9 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-thread-sleep@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/thread-sleep/-/thread-sleep-2.0.0.tgz#4bc400170a2f6fb52323970dc60e1c9e1e63f301"
+thread-sleep@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/thread-sleep/-/thread-sleep-2.1.0.tgz#77ebdd2e81c1953f37b03d8016d618374e21a20b"
 
 through2@^2.0.0, through2@^2.0.3:
   version "2.0.3"

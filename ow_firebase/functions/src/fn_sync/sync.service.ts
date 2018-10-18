@@ -1,3 +1,4 @@
+import 'mocha';
 import * as sleep from 'thread-sleep';
 import * as assert from 'assert';
 import * as request from 'request-promise';
@@ -68,7 +69,7 @@ describe('SyncAPI', function() {
 
           syncRunId = response.data.syncRunId;
           syncRunIds.push(syncRunId)
-          return getSyncRun({ orgId, fs, syncRunId });
+          return getSyncRun(orgId, fs, syncRunId);
         })
         .then(syncRun => {
           console.log('syncRun: ', syncRun);
@@ -127,7 +128,7 @@ describe('SyncAPI', function() {
 
           syncRunId = response.data.syncRunId;
           syncRunIds.push(syncRunId)
-          return getSyncRun({orgId, fs, syncRunId});
+          return getSyncRun(orgId, fs, syncRunId);
         })
         .then(syncRun => {
           console.log('syncRun: ', syncRun);
@@ -190,7 +191,7 @@ describe('SyncAPI', function() {
     })
     //Wait for the sync to finish
     .then(() => sleep(20000))
-    .then(() => getSyncRun({orgId, fs, syncRunId}))
+    .then(() => getSyncRun(orgId, fs, syncRunId))
     .then(syncRun => {
       console.log("syncRun is:", syncRun);
       assert.equal(syncRun.status, 'finished');
