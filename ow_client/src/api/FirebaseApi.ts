@@ -298,11 +298,45 @@ class FirebaseApi {
       return response;
     })
     .catch(err => {
-      console.log("error", err);
+      maybeLog("error", err);
       const response: SomeResult<Resource[]> = {
         type: ResultType.ERROR,
         message: err.message,
       }; 
+
+      return response;
+    });
+  }
+
+  /**
+   * getResourceForId
+   */
+  static getResourceForId(orgId: string, resourceId: string): Promise<SomeResult<Resource>> {
+    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+    .then(sn => {
+      //@ts-ignore
+      if (!sn || !sn.data()) {
+        const response: SomeResult<Resource> = {
+          type: ResultType.ERROR,
+          message: `Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`
+        };
+        return response;
+      }
+
+      const result: Resource = sn.data();
+      const response: SomeResult<Resource> = {
+        type: ResultType.SUCCESS,
+        result,
+      };
+
+      return response;
+    })
+    .catch(err => {
+      maybeLog("getResourceForId error:", err);
+      const response: SomeResult<Resource> = {
+        type: ResultType.ERROR,
+        message: err.message,
+      };
 
       return response;
     });

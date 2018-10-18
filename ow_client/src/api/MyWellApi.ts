@@ -72,6 +72,15 @@ export default class MyWellApi implements BaseApi, UserApi {
     return FirebaseApi.getResourcesWithinRegion(this.orgId, region);
   }
 
+  /**
+   * getResource
+   * 
+   * Get the resource given a resource id
+   */
+  getResource(id: string): Promise<SomeResult<Resource>> {
+    return FirebaseApi.getResourceForId(this.orgId, id);
+  }
+
 
   //
   // Subscriptions

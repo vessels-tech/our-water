@@ -143,12 +143,12 @@ export const getSelectedResourceFromCoords = (resources: Resource[], coords: Bas
   });
 
   if (filtered.length === 0) {
-    console.warn("Could not find any resource at coords");
+    maybeLog("Could not find any resource at coords");
     return null;
   }
 
   if (filtered.length > 1) {
-    console.warn("Found more than 1 resource for coords. returning just the first");
+    maybeLog("Found more than 1 resource for coords. returning just the first");
   }
 
   return filtered[0];
