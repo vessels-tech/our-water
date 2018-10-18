@@ -17,7 +17,7 @@ import { validateScanResult } from '../api/ValidationApi';
 import * as EnvironmentConfig from '../utils/EnvConfig';
 import { parse } from 'url';
 import { compose } from 'redux';
-import { withTabWrapper } from './TabWrapper';
+import { withTabWrapper } from '../components/TabWrapper';
 
 const orgId = EnvironmentConfig.OrgId;
 

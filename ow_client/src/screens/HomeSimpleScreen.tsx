@@ -13,7 +13,7 @@ import { SearchButtonPressedEvent } from '../utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { GGMNSearchEntity } from '../typings/models/GGMN';
-import { withTabWrapper } from './TabWrapper';
+import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
 
 

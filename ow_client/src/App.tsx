@@ -52,7 +52,6 @@ import { SearchButtonPressedEvent } from './utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import HomeMapScreen from './screens/HomeMapScreen';
 import HomeSimpleScreen from './screens/HomeSimpleScreen';
-import TabWrapper from './screens/TabWrapper';
 
 
 export interface OwnProps {

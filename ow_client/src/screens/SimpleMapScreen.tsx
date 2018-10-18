@@ -23,7 +23,7 @@ import MapView, { Marker, Region } from 'react-native-maps';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
-import { withTabWrapper } from './TabWrapper';
+import { withTabWrapper } from '../components/TabWrapper';
 
 
 
