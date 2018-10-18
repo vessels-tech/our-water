@@ -44,7 +44,7 @@ import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
-import { SearchButtonPressedEvent } from '../utils/Events';
+import { SearchButtonPressedEvent, SearchEventValue } from '../utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
@@ -112,7 +112,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //Listen to events from the navigator
     // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-    EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
+    // EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
 
   componentWillMount() {
@@ -147,16 +147,16 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     return false;
   }
 
-  onNavigatorEvent(event: any) {
-    const { translation: { templates: { search_heading } } } = this.props;
+  // onNavigatorEvent(event: any) {
+  //   const { translation: { templates: { search_heading } } } = this.props;
 
-    if (event === 'search') {
-      navigateTo(this.props, 'screen.SearchScreen', search_heading, {
-        config: this.props.config,
-        onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
-      });
-    }
-  }
+  //   if (event === SearchEventValue.Map) {
+  //     navigateTo(this.props, 'screen.SearchScreen', search_heading, {
+  //       config: this.props.config,
+  //       onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+  //     });
+  //   }
+  // }
 
   /**
    * The user has dragged the map in the MapSection.

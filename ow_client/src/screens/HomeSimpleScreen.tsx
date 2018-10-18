@@ -9,6 +9,13 @@ import { ResourceType } from '../enums';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
+import { SearchButtonPressedEvent } from '../utils/Events';
+//@ts-ignore
+import EventEmitter from "react-native-eventemitter";
+import { GGMNSearchEntity } from '../typings/models/GGMN';
+import { withTabWrapper } from './TabWrapper';
+import { compose } from 'redux';
+
 
 export interface OwnProps {
   navigator: any;
@@ -46,6 +53,23 @@ const MenuButton = (name: string, onPress: () => void,) => {
 
 class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
+  constructor(props: OwnProps & StateProps & ActionProps) {
+    super(props);
+
+    // EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
+  }
+
+
+  // onNavigatorEvent(event: any) {
+  //   // const { translation: { templates: { search_heading } } } = this.props;
+  //   if (event === SearchEventValue.SimpleHome) {
+  //     navigateTo(this.props, 'screen.SearchScreen', 'SEARCH', {
+  //       config: this.props.config,
+  //       // onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+  //       onSearchResultPressed: (result: GGMNSearchEntity) => console.log('search pressed'),
+  //     });
+  //   }
+  // }
 
 
   /**
@@ -132,4 +156,10 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeSimpleScreen);
+// export default connect(mapStateToProps, mapDispatchToProps)(HomeSimpleScreen);
+
+const enhance = compose(
+  withTabWrapper,
+);
+
+export default enhance(HomeSimpleScreen);

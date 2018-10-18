@@ -16,6 +16,9 @@ import { ResourceScanResult } from '../typings/models/OurWater';
 import { validateScanResult } from '../api/ValidationApi';
 import * as EnvironmentConfig from '../utils/EnvConfig';
 import { parse } from 'url';
+import TabWrapper from './TabWrapper';
+import { compose } from 'redux';
+import { withTabWrapper } from './TabWrapper';
 
 const orgId = EnvironmentConfig.OrgId;
 
@@ -166,4 +169,15 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
+// export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
+// const connected = connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
+
+// export default wrapTabComponent(connected, {});
+
+
+const enhance = compose(
+  withTabWrapper,
+  connect(mapStateToProps, mapDispatchToProps),
+)
+
+export default enhance(ScanScreen)

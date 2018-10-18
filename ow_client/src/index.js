@@ -12,7 +12,7 @@ import NetworkApi from './api/NetworkApi';
 import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
 import * as EnvironmentConfig from './utils/EnvConfig';
 import SearchButton from './components/common/SearchButton';
-import { SearchButtonPressedEvent } from './utils/Events';
+import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
@@ -63,13 +63,11 @@ Promise.resolve(true)
       component: 'example.SearchButton',
       passProps: {
         text: 'Search',
-        onPress: () => {
-          EventEmitter.emit(SearchButtonPressedEvent, 'search');
-        }
       },
       id: 'search',
     }],
   };
+
   const drawer = {
     left: {
       screen: 'screen.MenuScreen',

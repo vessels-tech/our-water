@@ -22,6 +22,8 @@ import * as appActions from '../actions/index';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
+import { compose } from 'redux';
+import { withTabWrapper } from './TabWrapper';
 
 
 
@@ -225,4 +227,11 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SimpleMapScreen);
+// export default connect(mapStateToProps, mapDispatchToProps)(SimpleMapScreen);
+
+const enhance = compose(
+  withTabWrapper,
+  connect(mapStateToProps, mapDispatchToProps),
+);
+
+export default enhance(SimpleMapScreen);

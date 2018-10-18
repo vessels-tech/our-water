@@ -11,6 +11,7 @@ import {
   View,
   ProgressBarAndroid,
   ToastAndroid,
+  TabBarIOSItem,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Loading from './components/common/Loading';
@@ -51,6 +52,7 @@ import { SearchButtonPressedEvent } from './utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import HomeMapScreen from './screens/HomeMapScreen';
 import HomeSimpleScreen from './screens/HomeSimpleScreen';
+import TabWrapper from './screens/TabWrapper';
 
 
 export interface OwnProps {
@@ -60,6 +62,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {  
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -80,8 +83,9 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
-  }
 
+  }
+  
   render() {
     //TODO: check the settings
 
@@ -108,4 +112,17 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   }
 }
 
-export default App;
+//If we don't have a user id, we should load a different app I think.
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  return {
+    translation: state.translation,
+  }
+}
+
+const mapDispatchToProps = (dispatch: any): ActionProps => {
+  return {
+    
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
