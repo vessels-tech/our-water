@@ -16,6 +16,7 @@ import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
+import { Region } from 'react-native-maps';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -206,6 +207,8 @@ class FirebaseApi {
   /**
    * Local implementation of getResourceNearLocation
    * 
+   * 
+   * deprecated. Use getResourcesWithinRegion instead
    * We use this instead of the get request, as it will default to the cache if we're offline
    * @param {*} param0 
    */
@@ -236,6 +239,69 @@ class FirebaseApi {
       });
 
       return resources;
+    });
+  }
+
+  /**
+   * getResourcesWithinRegion
+   */
+  static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<Resource[]>>{
+    // //TODO: validate assumption that lat and lng start in top left corner
+    // console.log("Region is:", region);
+    // const minLat = region.latitude;
+    // const minLng = region.longitude;
+    // const maxLat = minLat + region.latitudeDelta;
+    // const maxLng = minLng + region.longitudeDelta;
+
+    //from region, lat and lng are in centre, delta is the full width (I think)
+    console.log("Region is:", region);
+    const halfLatDelta = region.latitudeDelta / 2;
+    const halfLngDelta = region.longitudeDelta / 2;
+    const minLat = region.latitude - halfLatDelta;
+    const minLng = region.longitude - halfLngDelta;
+    const maxLat = minLat + halfLatDelta;
+    const maxLng = minLng +  halfLngDelta;
+
+    console.log(`mins: ${minLat}, ${minLng}`);
+    console.log(`max: ${maxLat}, ${maxLng}`);
+
+    return fs.collection('org').doc(orgId).collection('resource')
+      .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
+      .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+    .then(snapshot => {
+      const resources: Resource[] = []
+      snapshot.forEach(doc => {
+        //TODO: map to an actual Resource
+        const data: any = doc.data();
+        //@ts-ignore
+        data.id = doc.id;
+
+        // Filter based on longitude. TODO: remove this once google fixes the above query
+        //@ts-ignore
+        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+          return;
+        }
+
+        resources.push(data);
+      });
+
+      return resources;
+    })
+    .then(result => {
+      const response: SomeResult<Resource[]> = {
+        type: ResultType.SUCCESS,
+        result,
+      };
+
+      return response;
+    })
+    .catch(err => {
+      const response: SomeResult<Resource[]> = {
+        type: ResultType.ERROR,
+        message: err.message,
+      }; 
+
+      return response;
     });
   }
 

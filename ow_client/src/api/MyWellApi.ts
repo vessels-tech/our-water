@@ -7,6 +7,8 @@ import UserApi from './UserApi';
 import { SomeResult } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { RNFirebase } from "react-native-firebase";
+import { Region } from "react-native-maps";
+
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
@@ -36,6 +38,10 @@ export default class MyWellApi implements BaseApi, UserApi {
     return FirebaseApi.signIn();
   }
 
+  //
+  // Resource API
+  //----------------------------------------------------------------------
+
   /**
    * Add a resource to the recently viewed list
    */
@@ -61,6 +67,11 @@ export default class MyWellApi implements BaseApi, UserApi {
       distance,
     );
   }
+
+  async getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>> {
+    return FirebaseApi.getResourcesWithinRegion(this.orgId, region);
+  }
+
 
   //
   // Subscriptions
