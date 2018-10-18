@@ -44,7 +44,7 @@ import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
-import { SearchButtonPressedEvent, SearchEventValue } from '../utils/Events';
+import { SearchButtonPressedEvent } from '../utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';

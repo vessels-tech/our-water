@@ -160,6 +160,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
 
 const enhance = compose(
   withTabWrapper,
+  connect(mapStateToProps, mapDispatchToProps),
 );
 
 export default enhance(HomeSimpleScreen);

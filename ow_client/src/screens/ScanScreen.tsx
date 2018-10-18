@@ -16,7 +16,6 @@ import { ResourceScanResult } from '../typings/models/OurWater';
 import { validateScanResult } from '../api/ValidationApi';
 import * as EnvironmentConfig from '../utils/EnvConfig';
 import { parse } from 'url';
-import TabWrapper from './TabWrapper';
 import { compose } from 'redux';
 import { withTabWrapper } from './TabWrapper';
 
