@@ -6,7 +6,10 @@
     "outDir": "lib",
     "sourceMap": true,
     "target": "es6",
-    "types": ["mocha"],
+    "types": [
+      "node", 
+      "mocha"
+    ],
   },
   "compileOnSave": true,
   "include": [

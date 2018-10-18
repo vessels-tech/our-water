@@ -25,7 +25,6 @@ import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 import { LegacyMyWellReading } from '../LegacyMyWellReading';
 import { DataType } from '../../enums/FileDatasourceTypes';
 import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
-import { access } from 'fs/promises';
 
 
 export default class LegacyMyWellDatasource implements Datasource {

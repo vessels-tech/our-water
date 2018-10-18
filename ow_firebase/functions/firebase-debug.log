@@ -1,36 +1,36 @@
-[debug] [2018-08-10T23:27:05.520Z] ----------------------------------------------------------------------
-[debug] [2018-08-10T23:27:05.522Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
-[debug] [2018-08-10T23:27:05.523Z] CLI Version:   3.18.4
-[debug] [2018-08-10T23:27:05.523Z] Platform:      darwin
-[debug] [2018-08-10T23:27:05.523Z] Node Version:  v6.11.5
-[debug] [2018-08-10T23:27:05.524Z] Time:          Sat Aug 11 2018 08:57:05 GMT+0930 (ACST)
-[debug] [2018-08-10T23:27:05.524Z] ----------------------------------------------------------------------
+[debug] [2018-10-18T04:53:28.190Z] ----------------------------------------------------------------------
+[debug] [2018-10-18T04:53:28.193Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
+[debug] [2018-10-18T04:53:28.193Z] CLI Version:   3.18.4
+[debug] [2018-10-18T04:53:28.193Z] Platform:      darwin
+[debug] [2018-10-18T04:53:28.193Z] Node Version:  v6.11.5
+[debug] [2018-10-18T04:53:28.194Z] Time:          Thu Oct 18 2018 15:23:28 GMT+1030 (ACDT)
+[debug] [2018-10-18T04:53:28.194Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2018-08-10T23:27:05.538Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-08-10T23:27:05.538Z] > authorizing via signed-in user
-[debug] [2018-08-10T23:27:05.541Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+[debug] [2018-10-18T04:53:28.209Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-10-18T04:53:28.210Z] > authorizing via signed-in user
+[debug] [2018-10-18T04:53:28.212Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
   
- Sat Aug 11 2018 08:57:05 GMT+0930 (ACST)
-[debug] [2018-08-10T23:27:06.696Z] <<< HTTP RESPONSE 200
-[debug] [2018-08-10T23:27:06.697Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+ Thu Oct 18 2018 15:23:28 GMT+1030 (ACDT)
+[debug] [2018-10-18T04:53:29.159Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-18T04:53:29.161Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
   
- Sat Aug 11 2018 08:57:06 GMT+0930 (ACST)
-[debug] [2018-08-10T23:27:07.624Z] <<< HTTP RESPONSE 200
-[debug] [2018-08-10T23:27:07.625Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+ Thu Oct 18 2018 15:23:29 GMT+1030 (ACDT)
+[debug] [2018-10-18T04:53:30.363Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-18T04:53:30.364Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
   
- Sat Aug 11 2018 08:57:07 GMT+0930 (ACST)
-[debug] [2018-08-10T23:27:09.543Z] <<< HTTP RESPONSE 200
+ Thu Oct 18 2018 15:23:30 GMT+1030 (ACDT)
+[debug] [2018-10-18T04:53:32.003Z] <<< HTTP RESPONSE 200
 [info] 
 [info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
 [info] 
 [info] i  functions: Preparing to emulate functions.
-[debug] [2018-08-10T23:27:10.421Z] Fetching environment
-[debug] [2018-08-10T23:27:10.424Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+[debug] [2018-10-18T04:53:32.983Z] Fetching environment
+[debug] [2018-10-18T04:53:32.985Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
   
- Sat Aug 11 2018 08:57:10 GMT+0930 (ACST)
-[debug] [2018-08-10T23:27:12.831Z] <<< HTTP RESPONSE 200
-[debug] [2018-08-10T23:27:12.831Z] Starting @google-cloud/functions-emulator
-[debug] [2018-08-10T23:27:14.409Z] Parsing function triggers
+ Thu Oct 18 2018 15:23:32 GMT+1030 (ACDT)
+[debug] [2018-10-18T04:53:33.844Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-18T04:53:33.845Z] Starting @google-cloud/functions-emulator
+[debug] [2018-10-18T04:53:35.442Z] Parsing function triggers
 [info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
 [info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
 [info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
