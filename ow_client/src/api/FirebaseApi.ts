@@ -259,16 +259,18 @@ class FirebaseApi {
     const halfLngDelta = region.longitudeDelta / 2;
     const minLat = region.latitude - halfLatDelta;
     const minLng = region.longitude - halfLngDelta;
-    const maxLat = minLat + halfLatDelta;
-    const maxLng = minLng +  halfLngDelta;
+    const maxLat = region.latitude + halfLatDelta;
+    const maxLng = region.longitude +  halfLngDelta;
 
     console.log(`mins: ${minLat}, ${minLng}`);
     console.log(`max: ${maxLat}, ${maxLng}`);
 
-    return fs.collection('org').doc(orgId).collection('resource')
-      .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
-      .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+    console.log("orgId", orgId);
+    return fs.collection('org').doc(orgId).collection('resource').get()
+      // .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng)).get()
+      // .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     .then(snapshot => {
+      console.log("got snapshot", snapshot);
       const resources: Resource[] = []
       snapshot.forEach(doc => {
         //TODO: map to an actual Resource
@@ -296,6 +298,7 @@ class FirebaseApi {
       return response;
     })
     .catch(err => {
+      console.log("error", err);
       const response: SomeResult<Resource[]> = {
         type: ResultType.ERROR,
         message: err.message,
