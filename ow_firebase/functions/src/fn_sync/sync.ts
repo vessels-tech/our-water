@@ -112,7 +112,7 @@ module.exports = (functions, admin) => {
    * Creates a new sync with the given settings
    */ 
   const initDatasourceWithOptions = (datasource): Datasource => {
-    console.log("datasource", datasource.type);
+    console.log("datasource", datasource);
     switch(datasource.type) {
       case DatasourceType.LegacyMyWellDatasource:
         return new LegacyMyWellDatasource(datasource.url, datasource.selectedDatatypes);

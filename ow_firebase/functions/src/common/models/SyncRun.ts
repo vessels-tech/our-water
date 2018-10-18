@@ -72,6 +72,7 @@ export class SyncRun {
       //call the datasource methods, but don't commit anything to the database
       case SyncMethod.validate:
         try {
+          console.log("SyncRun.run running validate sync");
           //TODO: change this to use the a validate method instead
           const validationResult = await sync.datasource.validate(this.orgId, fs);
           this.results = validationResult.results;

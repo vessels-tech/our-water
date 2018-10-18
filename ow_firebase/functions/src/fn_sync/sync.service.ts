@@ -88,16 +88,17 @@ describe('SyncAPI', function() {
 
       const data = {
         isOneTime: false,
+        frequency: 'daily',
         datasource: {
           type: "LegacyMyWellDatasource",
           url: mywellLegacyBaseUrl,
+          selectedDatatypes: [
+            'Group',
+            'Resource',
+            'Reading',
+          ]
         },
         type: "unknown",
-        selectedDatatypes: [
-          'group',
-          'resource',
-          'reading',
-        ]
       };
 
       const createSyncOptions = {

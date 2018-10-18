@@ -167,6 +167,7 @@ export default class LegacyMyWellDatasource implements Datasource {
   public getResourcesData(orgId: string, fs): Promise<ResourceSaveResult> {
     // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     const uriResources = `${this.baseUrl}/api/resources`;
+    console.log("Getting resources data");
 
     const options = {
       method: 'GET',
@@ -301,6 +302,7 @@ export default class LegacyMyWellDatasource implements Datasource {
   }
 
   public async pullDataFromDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+    console.log("pull from data source", this.selectedDatatypes);
     let villageGroupResult = new DefaultSyncRunResult();
     let pincodeGroups = new DefaultSyncRunResult();
     let resources = new DefaultSyncRunResult();
@@ -582,6 +584,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     return {
       baseUrl: this.baseUrl,
       type: this.type.toString(),
+      selectedDatatypes: this.selectedDatatypes
     };
   }
 }
