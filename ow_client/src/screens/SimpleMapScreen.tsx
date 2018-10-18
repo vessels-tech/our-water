@@ -133,7 +133,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   onCalloutPressed(resource: Resource) {
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
-      resource,
+      resourceId: resource.id,
       config: this.props.config,
       userId: this.props.userId
     });

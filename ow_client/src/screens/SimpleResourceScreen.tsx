@@ -46,7 +46,7 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
 
     //Navigate to a standalone resource view
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
-      resource,
+      resourceId: resource.id,
       config: this.props.config,
       userId: this.props.userId
     });
