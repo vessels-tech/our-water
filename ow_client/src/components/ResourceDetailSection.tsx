@@ -77,6 +77,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
   getHeadingBar() {
     const { resource: { id, owner: { name } } } = this.props;
+    const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     return (
       <View style={{
@@ -99,14 +100,16 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           alignSelf: 'center',
         }}>
           <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-            <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
-            {/* TODO: enable code? Most of the time it's the same as Name. */}
-            {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
-          </View>
+          { showSubtitle ? 
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+              <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+              {/* TODO: enable code? Most of the time it's the same as Name. */}
+              {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
+            </View>
+            : null }
         </View>
       </View>
     )

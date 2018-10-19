@@ -23,6 +23,7 @@ export type RemoteConfig = {
   map_shouldLoadAllResources: boolean,
   newReading_enableImageUpload: boolean,
   homeScreen: HomeScreenType,
+  resourceDetail_showSubtitle: boolean,
 
 }
 
@@ -142,4 +143,9 @@ export class ConfigFactory {
   getHomeScreenType(): HomeScreenType {
     return this.remoteConfig.homeScreen;
   }
+
+  getResourceDetailShouldShowSubtitle() {
+    return this.remoteConfig.resourceDetail_showSubtitle;
+  }
+
 }

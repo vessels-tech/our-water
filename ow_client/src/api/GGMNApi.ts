@@ -879,6 +879,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       return searchResponse;
     }
 
+    console.log("performed search: ", searchResponse.result);
+
     return {
       type: ResultType.SUCCESS,
       result: searchResponse.result.results,
@@ -941,8 +943,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //it flexible later on
   static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
     const to: Resource = {
-      id: `${from.id}`,
-      legacyId: `ggmn_${from.id}`,
+      // id: `${from.id}`,
+      id: `${from.name}`,
+      legacyId: `ggmn_${from.name}`,
       groups: null,
       lastValue: 0,
       resourceType: ResourceType.well,
@@ -952,7 +955,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
         _longitude: from.geometry.coordinates[0],
       },
       owner: {
-        name: from.name,
+        name: `${from.id}`,
       },
       timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
     };

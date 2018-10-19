@@ -145,7 +145,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   this.props.onSearchResultPressed(r)
                 }}
                 roundAvatar
-                title={r.id}
+                title={r.title}
                 avatar={getGroundwaterAvatar()}
                 >
               </ListItem>

@@ -28,6 +28,7 @@ export class FirebaseConfig {
           map_shouldLoadAllResources: obj.map_shouldLoadAllResources.val(),
           newReading_enableImageUpload: obj.newReading_enableImageUpload.val(),
           homeScreen: obj.homeScreen.val(),
+          resourceDetail_showSubtitle: obj.resourceDetail_showSubtitle.val(),
         }
         return remoteConfig;
       });

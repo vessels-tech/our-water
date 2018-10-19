@@ -13,6 +13,7 @@ const MyWellDevConfig: RemoteConfig = {
   map_shouldLoadAllResources: true,
   newReading_enableImageUpload: true,
   homeScreen: HomeScreenType.Simple,
+  resourceDetail_showSubtitle: true,
 
 }
 
