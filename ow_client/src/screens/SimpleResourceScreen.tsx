@@ -64,6 +64,7 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
 
         {/* TODO: add filter */}
         <FavouriteResourceList
+          config={this.props.config}
           userId={this.props.userId}
           filterResourceType={this.props.resourceType}
           onResourceCellPressed={(r: Resource) => this.selectResource(r)}

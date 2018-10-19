@@ -8,6 +8,7 @@ import UserApi from "../api/UserApi";
 import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
 import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
+import FavouriteResourceList from "../components/FavouriteResourceList";
 
 
 /**
@@ -24,6 +25,7 @@ export type RemoteConfig = {
   newReading_enableImageUpload: boolean,
   homeScreen: HomeScreenType,
   resourceDetail_showSubtitle: boolean,
+  favouriteResourceList_showGetStartedButtons: boolean,
 
 }
 
@@ -146,6 +148,10 @@ export class ConfigFactory {
 
   getResourceDetailShouldShowSubtitle() {
     return this.remoteConfig.resourceDetail_showSubtitle;
+  }
+
+  getFavouriteResourceShouldShowGetStartedButtons() {
+    return this.remoteConfig.favouriteResourceList_showGetStartedButtons;
   }
 
 }

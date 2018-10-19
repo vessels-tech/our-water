@@ -29,6 +29,8 @@ export class FirebaseConfig {
           newReading_enableImageUpload: obj.newReading_enableImageUpload.val(),
           homeScreen: obj.homeScreen.val(),
           resourceDetail_showSubtitle: obj.resourceDetail_showSubtitle.val(),
+          favouriteResourceList_showGetStartedButtons: obj.favouriteResourceList_showGetStartedButtons.val(),
+          
         }
         return remoteConfig;
       });

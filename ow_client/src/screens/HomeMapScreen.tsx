@@ -283,6 +283,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <FavouriteResourceList
+        config={this.props.config}
         userId={this.props.userId}
         onResourceCellPressed={(r: Resource) => this.selectResource(r)}
       />

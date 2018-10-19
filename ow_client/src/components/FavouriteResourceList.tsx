@@ -18,6 +18,7 @@ import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import { ResourceType } from '../enums';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -26,6 +27,7 @@ const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   userId: string,
+  config: ConfigFactory,
   onResourceCellPressed: any,
   //If this exists, will filter the displayed resources to be only the given resource type
   filterResourceType?: ResourceType,
@@ -185,6 +187,7 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   getStartedSection() {
+    const shouldShowButtons = this.props.config.getFavouriteResourceShouldShowGetStartedButtons();
 
     return (
       <View
@@ -204,9 +207,8 @@ class FavouriteResourceList extends Component<Props> {
           <Text style={{ fontWeight: '500', fontSize: 18 }}>You haven't found any locations yet.</Text>
           <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>Press the QR scanner or search for a resource to find a location.</Text>
         </View>
-
+        { shouldShowButtons ? 
         <View style={{
-          // backgroundColor: 'purple',
           flexDirection: 'row',
           flex: 2,
           justifyContent: 'space-around',
@@ -226,6 +228,7 @@ class FavouriteResourceList extends Component<Props> {
             title="SEARCH"
           />
         </View>
+        : null }
       </View>
     );
   }
