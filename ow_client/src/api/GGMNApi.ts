@@ -501,10 +501,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return ftch(resourceUrl, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStation>(response))
       .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource))
-      .then((r: Resource) => ({type: ResultType.SUCCESS, result: r}))
+      .then((r: Resource) => {
+        const result: SomeResult<Resource> = {type: ResultType.SUCCESS, result: r};
+        return result;
+      })
       .catch((err: Error) => {
         maybeLog("Error loading resource:", err);
-        return { type: ResultType.ERROR, message: 'Error loading resource.' };
+        const result: SomeResult<Resource> = { type: ResultType.ERROR, message: 'Error loading resource.' };
+        return result;
       });
   }
 
@@ -937,9 +941,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //it flexible later on
   static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
     const to: Resource = {
-      // id: `${from.id}`,
-      id: `${from.name}`,
-      legacyId: `ggmn_${from.name}`,
+      id: `${from.id}`,
+      legacyId: `ggmn_${from.id}`,
       groups: null,
       lastValue: 0,
       resourceType: ResourceType.well,
@@ -949,7 +952,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
         _longitude: from.geometry.coordinates[0],
       },
       owner: {
-        name: `${from.id}`,
+        name: from.name,
       },
       timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
     };
