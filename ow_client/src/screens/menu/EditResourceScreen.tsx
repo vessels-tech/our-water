@@ -16,7 +16,7 @@ import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
 import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
-import { TextInput } from '../../components/common/FormComponents';
+import { TextInput, DropdownInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
 import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
@@ -158,8 +158,14 @@ class EditResourceScreen extends Component<Props> {
             {/* TODO: dropdown? */}
             <FieldControl
               name="asset"
-              render={TextInput}
-              meta={{ editable: false, label: "Asset Type", secureTextEntry: false, keyboardType: 'default' }}
+              render={DropdownInput}
+              meta={{
+                options: [{key: 'well', label: 'Groundwater Station'}],
+                editable: false,
+                label: "Asset Type",
+                secureTextEntry: false,
+                keyboardType: 'default' 
+              }}
             />
             <FieldControl
               name="ownerName"
