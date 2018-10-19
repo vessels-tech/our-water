@@ -326,6 +326,7 @@ class FirebaseApi {
         return response;
       }
 
+      //@ts-ignore
       const result: Resource = sn.data();
       result.timeseries = []; //TODO: figure out how to fix this!
       const response: SomeResult<Resource> = {

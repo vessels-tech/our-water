@@ -16,8 +16,6 @@ import { SearchButtonPressedEvent } from '../../utils/Events';
 export interface Props {
   text: string,
   navigator: any,
-  // store: any,
-  onPress: () => () => void,
 }
 
 export interface OwnProps {
@@ -47,10 +45,7 @@ class SearchButton extends Component<Props> {
           borderRadius: 25,
         }}
         onPress={() => {
-          console.log("search pressed", this.props);
           EventEmitter.emit(SearchButtonPressedEvent, 'SEARCH');
-
-          // this.props.onPress && this.props.onPress();
         }}
       >
         <View

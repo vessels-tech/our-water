@@ -112,7 +112,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //Listen to events from the navigator
     // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-    // EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
+    EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
 
   componentWillMount() {
@@ -147,16 +147,16 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     return false;
   }
 
-  // onNavigatorEvent(event: any) {
-  //   const { translation: { templates: { search_heading } } } = this.props;
+  onNavigatorEvent(event: any) {
+    const { translation: { templates: { search_heading } } } = this.props;
 
-  //   if (event === SearchEventValue.Map) {
-  //     navigateTo(this.props, 'screen.SearchScreen', search_heading, {
-  //       config: this.props.config,
-  //       onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
-  //     });
-  //   }
-  // }
+    if (event === 'SEARCH') {
+      navigateTo(this.props, 'screen.SearchScreen', search_heading, {
+        config: this.props.config,
+        onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+      });
+    }
+  }
 
   /**
    * The user has dragged the map in the MapSection.

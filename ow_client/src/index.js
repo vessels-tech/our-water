@@ -58,7 +58,6 @@ Promise.resolve(true)
       buttonFontSize: 14,
       buttonFontWeight: '600'
     }],
-    //TODO: this is broken for the tab version. Props not getting passed down
     rightButtons: [{
       component: 'example.SearchButton',
       passProps: {
