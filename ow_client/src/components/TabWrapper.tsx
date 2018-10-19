@@ -47,7 +47,7 @@ export function withTabWrapper(WrappedComponent: any) {
 
       // const { translation: { templates: { search_heading } } } = this.props;
       if (event === "SEARCH") {
-        navigateTo(this.props, 'screen.SearchScreen', 'TEST 1', {
+        navigateTo(this.props, 'screen.SearchScreen', 'Search', {
           config: this.props.config,
           onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
 

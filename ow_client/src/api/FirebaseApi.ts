@@ -284,6 +284,9 @@ class FirebaseApi {
           return;
         }
 
+        //TODO: fix this hack
+        data.timeseries = [];
+
         resources.push(data);
       });
 
@@ -324,6 +327,7 @@ class FirebaseApi {
       }
 
       const result: Resource = sn.data();
+      result.timeseries = []; //TODO: figure out how to fix this!
       const response: SomeResult<Resource> = {
         type: ResultType.SUCCESS,
         result,

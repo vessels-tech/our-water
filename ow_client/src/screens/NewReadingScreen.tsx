@@ -24,7 +24,7 @@ import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
-import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
+import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -90,7 +90,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   takeImage() {
-    maybeLog("TOOD: display image");
+    maybeLog("TODO: display image");
   }
 
   async saveReading() {
@@ -121,7 +121,8 @@ class NewReadingScreen extends Component<Props> {
 
     const readingRaw = {
       date: moment(date).utc().format(), //converts to iso string
-      timeseriesId: timeseriesString, 
+      //TODO: fix this hack
+      timeseriesId: '123', 
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,
@@ -199,6 +200,9 @@ class NewReadingScreen extends Component<Props> {
   }
 
   isTimeseriesValid() {
+    //TODO: fix this hack
+    return true;
+
     const { timeseriesString } = this.state;
     if (!timeseriesString || timeseriesString.length === 0) {
       return false;

@@ -2,9 +2,9 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { Resource, SearchResult, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { Resource, SearchResult, OWUser, PendingReading, PendingResource, Reading, SaveReadingResult } from '../typings/models/OurWater';
 import UserApi from './UserApi';
-import { SomeResult } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { RNFirebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
@@ -39,18 +39,55 @@ export default class MyWellApi implements BaseApi, UserApi {
   }
 
   //
+  // Reading API
+  // 
+  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
+    
+    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
+    if (saveResult.type === ResultType.ERROR) {
+      return saveResult;
+    }
+
+    //TODO: actually check login status of user
+    const result: SomeResult<SaveReadingResult> = {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false
+      }
+    };
+
+    return result;
+  }
+
+  //
   // Resource API
   //----------------------------------------------------------------------
 
   /**
    * Add a resource to the recently viewed list
    */
-  addRecentResource(resource: Resource, userId: string): Promise<any> {
-    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
+    return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
-  addFavouriteResource(resource: Resource, userId: string): Promise<any> {
-    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId);
+  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>> {
+    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
+      .then(() => {
+        const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
+        return result;
+      });
+  }
+
+  removeFavouriteResource(resourceId: string, userId: string): Promise<SomeResult<void>> {
+    return FirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId)
+      .then(() => {
+        const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
+        return result;
+      });
+  }
+
+  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
+    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
   }
 
   getResources() {
@@ -80,7 +117,6 @@ export default class MyWellApi implements BaseApi, UserApi {
   getResource(id: string): Promise<SomeResult<Resource>> {
     return FirebaseApi.getResourceForId(this.orgId, id);
   }
-
 
   //
   // Subscriptions
