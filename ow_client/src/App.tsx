@@ -53,6 +53,8 @@ import EventEmitter from "react-native-eventemitter";
 import HomeMapScreen from './screens/HomeMapScreen';
 import HomeSimpleScreen from './screens/HomeSimpleScreen';
 
+import SplashScreen from 'react-native-splash-screen';
+
 
 export interface OwnProps {
   navigator: any;
@@ -79,10 +81,14 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+
+    //Hide the react-native-splashscreen
+    //ref: https://medium.com/handlebar-labs/how-to-add-a-splash-screen-to-a-react-native-app-ios-and-android-30a3cec835ae
+    SplashScreen.hide()
+    
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
-
   }
   
   render() {
