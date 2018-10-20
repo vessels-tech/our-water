@@ -19,6 +19,7 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import { ResourceType } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
+import { TranslationFile } from 'ow_translations/Types';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -36,6 +37,7 @@ export interface Props {
   favouriteResources: Resource[],
   recentResourcesMeta: SyncMeta,
   recentResources: Resource[],
+  translation: TranslationFile,
 }
 
 export interface State {
@@ -106,8 +108,12 @@ class FavouriteResourceList extends Component<Props> {
 
   
   getFavouritesSection() {
+    const { 
+      favouriteResourcesMeta, 
+      filterResourceType, 
+      translation: { templates: { favourite_resource_hint_1, favourite_resource_hint_2 } } } = this.props;
+
     let favouriteResources = this.props.favouriteResources;
-    const {favouriteResourcesMeta, filterResourceType } = this.props;
 
     if (filterResourceType) {
       favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
@@ -132,7 +138,7 @@ class FavouriteResourceList extends Component<Props> {
       //TODO: change this hint to use translations
       return (
         <Text style={{textAlign: 'center'}}>
-          Press the {icon} button to add a favourite.
+          {favourite_resource_hint_1} {icon} {favourite_resource_hint_2}.
         </Text>
       );
     }
@@ -151,6 +157,7 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   getRecentsSection() {
+    const { translation: { templates: { recent_resource_none } } } = this.props;
     let recentResources = this.props.recentResources;
     const { filterResourceType } = this.props;
 
@@ -168,7 +175,7 @@ class FavouriteResourceList extends Component<Props> {
           alignItems: 'center',
         }}>
           <Text style={{ textAlign: 'center' }}>
-            No recent resources.
+            {recent_resource_none}
           </Text>
         </View>
       );
@@ -187,6 +194,8 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   getStartedSection() {
+    const { translation: { templates: { resource_detail_empty_heading, resource_detail_empty_hint}}} = this.props;
+
     const shouldShowButtons = this.props.config.getFavouriteResourceShouldShowGetStartedButtons();
 
     return (
@@ -200,12 +209,11 @@ class FavouriteResourceList extends Component<Props> {
       >
         <View style={{
           flex: 1,
-          // backgroundColor: 'tomato',
           padding: 30,
           paddingTop: 50,
         }}>
-          <Text style={{ fontWeight: '500', fontSize: 18 }}>You haven't found any locations yet.</Text>
-          <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>Press the QR scanner or search for a resource to find a location.</Text>
+          <Text style={{ fontWeight: '500', fontSize: 18 }}>{resource_detail_empty_heading}</Text>
+          <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>{resource_detail_empty_hint}</Text>
         </View>
         { shouldShowButtons ? 
         <View style={{
@@ -213,6 +221,7 @@ class FavouriteResourceList extends Component<Props> {
           flex: 2,
           justifyContent: 'space-around',
         }}>
+        {/* TODO: replace with icons */}
           <Button 
             style={{
               flex: 1
@@ -234,20 +243,22 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   getResourcesSection() {
+    const { translation: { templates: { favourite_resource_heading, recent_resource_heading}}} = this.props;
+
     return (
       <View>
         <Text style={{
           marginVertical: 10,
           marginLeft: 13,
         }}>
-          Favourites
+          {favourite_resource_heading}:
         </Text>
         {this.getFavouritesSection()}
         <Text style = {{
           marginVertical: 10,
           marginLeft: 13,
         }}>
-          Recents:
+          {recent_resource_heading}:
         </Text >
         {this.getRecentsSection()}
       </View>
@@ -289,6 +300,7 @@ const mapStateToProps = (state: AppState) => {
     favouriteResources: state.favouriteResources,
     recentResourcesMeta: state.recentResourcesMeta,
     recentResources: state.recentResources,
+    translation: state.translation,
   }
 }
 
