@@ -84,7 +84,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
 
     //Hide the react-native-splashscreen
     //ref: https://medium.com/handlebar-labs/how-to-add-a-splash-screen-to-a-react-native-app-ios-and-android-30a3cec835ae
-    SplashScreen.hide()
+    // SplashScreen.hide()
     
     //@ts-ignore
     this.appApi = props.config.getAppApi();

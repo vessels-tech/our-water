@@ -11,15 +11,15 @@ public class MainActivity extends SplashActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen.show(this);
+        SplashScreen.show(this, false);
         super.onCreate(savedInstanceState);
     }
 
-    // @Override
-    // public View createSplashLayout() {
-    //     View view = new View(this);
-    //     view.setBackgroundColor(Color.BLUE);
-    //     return view;
-    // }
+    @Override
+    public View createSplashLayout() {
+        View view = new View(this);
+        view.setBackgroundColor(Color.BLUE);
+        return view;
+    }
 
 }
