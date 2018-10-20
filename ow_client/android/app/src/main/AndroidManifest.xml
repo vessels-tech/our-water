@@ -1,4 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.vesselstech">
     <!-- package="com.vesselstech.mywell.debug" -->
   >
@@ -23,8 +25,9 @@
       android:name=".MainApplication"
       android:label="@string/APP_NAME"
       android:icon="@mipmap/ic_launcher"
-      android:allowBackup="false"
+      android:allowBackup="true"
       android:theme="@style/AppTheme"
+      tools:replace="android:allowBackup,android:label"
     >
      <!-- Metadata, injected by react-native-config! -->
       <meta-data 

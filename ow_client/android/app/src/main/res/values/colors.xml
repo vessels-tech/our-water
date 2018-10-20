@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#E1E2E1</color>
-    <color name="red">#B00020</color>
-    <color name="blue">#005198</color>
+    <color name="launch">#FFFFFF</color>
+    <!-- Only called this and not primary_dark because of issue below -->
+    <color name="primary_dark_app">#002a69</color>
+    <color name="primary">#005198</color>
     <color name="yellow">#F2E764</color>
+
 
     <!-- This is required because of a bug inside of react-native-splash-screen -->
     <color name="primary_dark">#4F6D7A</color>

@@ -2,6 +2,7 @@ package com.vesselstech;
 
 import android.graphics.Color;
 import android.view.View;
+import android.os.Bundle;
 
 import com.reactnativenavigation.controllers.SplashActivity;
 import org.devio.rn.splashscreen.SplashScreen;

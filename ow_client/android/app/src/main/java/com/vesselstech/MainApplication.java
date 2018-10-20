@@ -5,6 +5,7 @@ import android.app.Application;
 import com.reactnativenavigation.NavigationApplication;
 
 import com.facebook.react.ReactApplication;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.horcrux.svg.SvgPackage;
 import org.gamega.RNAsyncStoragePackage;
 import com.oblador.keychain.KeychainPackage;
@@ -45,6 +46,7 @@ public class MainApplication extends NavigationApplication {
       // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
             // new MainReactPackage(),
+            new SplashScreenReactPackage(),
             new SvgPackage(),
             new RNAsyncStoragePackage(),
             new KeychainPackage(),
