@@ -144,16 +144,18 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { timeseries: { name } } = this.props;
 
     return (
-      <Card
-        containerStyle={{
-          width: '90%',
-          height: '90%',
-          padding: 0,
-        }}
-        >
+      // <Card
+      //   containerStyle={{
+      //     width: '90%',
+      //     height: '90%',
+      //     padding: 0,
+      //   }}
+      //   >
         <View style={{
           flexDirection: 'column',
           height: '100%',
+          width: '100%',
+          backgroundColor: bgLight,
         }}>
           <Text style={{
             paddingVertical: 5,
@@ -167,7 +169,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
           {this.getGraphView()}
           {this.getBottomButtons()}
         </View>
-      </Card>
+      // </Card>
     )
   }
 }

@@ -11,6 +11,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
+    "@types/react-native-scrollable-tab-view": "^0.8.2",
     "@types/react-redux": "^6.0.9",
     "@types/redux-logger": "^3.0.6",
     "@types/throttle-debounce": "^1.1.0",
@@ -38,6 +39,7 @@
     "react-native-maps": "0.20.1",
     "react-native-navigation": "^1.1.480",
     "react-native-qrcode-scanner": "^1.1.0",
+    "react-native-scrollable-tab-view": "^0.8.0",
     "react-native-splash-screen": "3.0.6",
     "react-native-svg": "^6.5.2",
     "react-native-svg-charts": "^5.2.0",

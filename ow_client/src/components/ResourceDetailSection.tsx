@@ -29,6 +29,11 @@ import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 
+import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+// import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
+
+// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -185,16 +190,17 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
   getSummaryCard() {
     return (
-      <Card
-        containerStyle={{
-          width: '90%',
-          height: '90%',
-          borderWidth: 0,
-        }}
-      >
+      // <View
+        // containerStyle={{
+        //   width: '100%',
+        //   height: '100%',
+        //   borderWidth: 0,
+        // }}
+      // >
         <View style={{
           flexDirection: 'column',
           height: '100%',
+          padding: 20,
         }}>
           <View style={{
             flexDirection: 'column',
@@ -232,7 +238,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             {this.getReadingButton()}
           </View>
         </View>
-      </Card>
     );
   }
 
@@ -252,40 +257,54 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   getReadingsView() {
     const { tsReadings, resource } = this.props;
 
+    console.log("ScrollableTabView", ScrollableTabView);
+
     return (
       <View style={{
         flex: 15,
         backgroundColor: bgMed,
       }}>
-        <ViewPagerAndroid
-          //@ts-ignore
-          style={{
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
+    
+        <ScrollableTabView 
+          style={{ paddingTop: 0}}
+          containerStyle={{}}
+          tabStyle={{
+            height: 20,
           }}
-          initialPage={0}
-        >
-          <View key="1" style={{
-              alignItems: 'center',
-            }}>
+          renderTabBar={() => (
+            <ScrollableTabView.DefaultTabBar
+              tabStyle={{
+                backgroundColor: primaryLight,
+              }}
+              textStyle={{
+                color: primaryText,
+              }}
+            />
+          )}>
+          <View 
+            key="1" 
+            style={{
+              backgroundColor: bgLight,
+            }}
+            // TODO: translate
+            tabLabel="Summary"
+            >
             {this.getSummaryCard()}
           </View>
-          {
-            resource.timeseries.map((ts: OWTimeseries, idx: number) => {
-              return (
-                <View key={idx} style={{alignItems: 'center'}}>
-                  {/* TODO: how to fix this? the other properties are being set by redux */}
-                  <TimeseriesCard 
-                    config={this.props.config}
-                    resourceId={this.props.resource.id}
-                    timeseries={ts}
-                  />
-                </View>
-              );
-            })
-          }
-        </ViewPagerAndroid>
+            {
+              resource.timeseries.map((ts: OWTimeseries, idx: number) => {
+                return (
+                  <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
+                    <TimeseriesCard
+                      config={this.props.config}
+                      resourceId={this.props.resource.id}
+                      timeseries={ts}
+                    />
+                  </View>
+                );
+              })
+            }
+        </ScrollableTabView>
       </View>
     );
   }
