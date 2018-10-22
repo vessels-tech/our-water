@@ -10,7 +10,7 @@ import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, 
 import { Reading, Resource, PendingReading, PendingResource } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations/Types';
@@ -60,6 +60,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   getSyncSection() {
     const { externalLoginDetails, externalSyncStatus, 
       translation: { templates: {
+        settings_sync_heading,
         sync_login_message,
         sync_start_sync_button,
         sync_start_sync_button_loading,
@@ -68,9 +69,34 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //if no login, just display a message saying 'login to sync'
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
-      return <View>
-        <Text>{sync_login_message}</Text>
-      </View>
+      return <Button
+        style={{
+          paddingBottom: 20,
+          minHeight: 50,
+        }}
+        containerViewStyle={{
+          borderRadius: 15,
+          position: 'relative',
+        }}
+        color={primaryText}
+        backgroundColor={primary}
+        borderRadius={15}
+        icon={{ name: 'cached', color: primaryText }}
+        title={sync_login_message}
+        onPress={() => {
+          //Redirect user to settings view
+          showModal(
+            this.props,
+            'screen.menu.ConnectToServiceScreen',
+            settings_sync_heading,
+            {
+              config: this.props.config,
+              userId: this.props.userId,
+              isConnected: false, //This is an assumption, we should probably check again...
+            }
+          );
+        }}
+      />
     }
 
     const syncing: boolean = externalSyncStatus.type === ExternalSyncStatusType.RUNNING;
@@ -118,7 +144,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.pendingId}
         avatar={getGroundwaterAvatar()}
-        subtitle={`${r.owner.name} ${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}/>
+        subtitle={`${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}/>
     );
   }
 
