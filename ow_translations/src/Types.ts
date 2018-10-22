@@ -54,6 +54,7 @@ export type GGMNTranslationOverrideFile = {
     settings_connect_to_pending_title: string,
     settings_connect_to_connected_title: string,
     settings_connect_to_subtitle_error: string,
+    settings_new_resource: string,
     connect_to_service_description: string,
     connect_to_service_connected_test: (fieldName: string, username: string) => string,
     connect_to_service_org_selector: string, 
@@ -65,6 +66,11 @@ export type GGMNTranslationOverrideFile = {
     new_reading_timeseries: string,
     resource_detail_empty_heading: string,
     resource_detail_empty_hint: string,
+    new_resource_saved_dialog: string,
+    new_resource_saved_dialog_warning: string,
+    resource_name: string,
+    new_resource_asset_type_label: string,
+    new_resource_submit_button: string,
   }
 }
 
@@ -145,5 +151,13 @@ export type TranslationFile = {
     resource_detail_summary_tab: string,
     resource_detail_empty_heading: string,
     resource_detail_empty_hint: string,
+    new_resource_saved_dialog: string,
+    new_resource_saved_dialog_warning: string,
+    resource_name: string,
+    new_resource_lat: string,
+    new_resource_lng: string,
+    new_resource_asset_type_label: string,
+    new_resource_owner_name_label: string,
+    new_resource_submit_button: string,
   }
 }

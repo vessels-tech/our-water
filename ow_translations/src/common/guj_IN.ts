@@ -78,6 +78,14 @@ const guj_IN: TranslationFile = {
     resource_detail_summary_tab: "",
     resource_detail_empty_heading: "",
     resource_detail_empty_hint: "",
+    new_resource_saved_dialog: "",
+    new_resource_saved_dialog_warning: "",
+    resource_name: "",
+    new_resource_lat: "",
+    new_resource_lng: "",
+    new_resource_asset_type_label: "",
+    new_resource_owner_name_label: "",
+    new_resource_submit_button: "",
   }
 }
 

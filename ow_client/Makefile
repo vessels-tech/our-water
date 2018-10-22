@@ -73,7 +73,7 @@ bundle:
 	source /tmp/ow_env &&  ENVFILE=/tmp/ow_env react-native bundle \
 		--platform android \
 		--dev false \
-		--minify false \
+		--minify true \
 		--entry-file ./src/index.js \
 		--bundle-output android/app/src/main/assets/index.android.bundle \
 		--reset-cache \
@@ -93,7 +93,7 @@ build-production:
 	@make env
 	@echo 'Building production only'
 	../env/increment_build.sh
-	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease
+	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
 	@echo 'signing with debug key'
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/debug.keystore  app-release-unsigned.apk -storepass android androiddebugkey
 

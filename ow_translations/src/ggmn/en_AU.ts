@@ -8,6 +8,7 @@ const ggmn_en_AU: TranslationOverrideFile  = {
     settings_connect_to_pending_title: 'Connect to GGMN',
     settings_connect_to_connected_title: 'Connected to GGMN',
     settings_connect_to_subtitle_error: 'Error connecting to GGMN',
+    settings_new_resource: "New GW Station",
     connect_to_service_description: "Connect to GGMN to create new groundwater stations and save readings from your device.",
     connect_to_service_connected_test: (fieldName: string, username: string) => `You are connected to GGMN with the ${fieldName}: ${username}`,
     connect_to_service_org_selector: "Select an organisation",
@@ -18,7 +19,12 @@ const ggmn_en_AU: TranslationOverrideFile  = {
     sync_empty_content: "Start taking readings or creating groundwater stations to get started.",
     new_reading_timeseries: 'Timeseries',
     resource_detail_empty_heading: 'You haven\'t found any groundwater stations yet.',
-    resource_detail_empty_hint: 'Press the search button or browse the map to find some.'
+    resource_detail_empty_hint: 'Press the search button or browse the map to find some.',
+    new_resource_saved_dialog: "Successfully Saved Groundwater Station!",
+    new_resource_saved_dialog_warning: "Saved Location Locally. Login to GGMN to sync.",
+    resource_name: "Groundwater Station",
+    new_resource_asset_type_label: "Asset Type",
+    new_resource_submit_button: "SUBMIT",
   }
 }
 

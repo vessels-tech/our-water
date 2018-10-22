@@ -26,6 +26,7 @@ import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
 import { secondary, secondaryText } from '../../utils/Colors';
+import { TranslationFile } from 'ow_translations/Types';
 
 export interface Props { 
   resourceId: string,
@@ -40,6 +41,7 @@ export interface Props {
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
+  translation: TranslationFile,
 }
 
 export interface State {
@@ -90,6 +92,8 @@ class EditResourceScreen extends Component<Props> {
   }
 
   handleSubmit = async () => {
+    const { translation: { templates: {new_resource_saved_dialog, new_resource_saved_dialog_warning}}} = this.props;
+
     Keyboard.dismiss();
 
     const unvalidatedResource = {
@@ -117,9 +121,9 @@ class EditResourceScreen extends Component<Props> {
       return;
     }
 
-    let message = `Successfully Saved Resource!`;
+    let message = new_resource_saved_dialog ;
     if (result.result.requiresLogin) {
-      message = `Saved resouce. Login to GGMN to sync.`
+      message = new_resource_saved_dialog_warning
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
@@ -127,7 +131,10 @@ class EditResourceScreen extends Component<Props> {
   }
 
   getForm() {
-    const { pendingSavedResourcesMeta: { loading }} = this.props;
+    const {
+      pendingSavedResourcesMeta: { loading },
+      translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button}}
+    } = this.props;
 
     return (
       <FieldGroup
@@ -146,12 +153,12 @@ class EditResourceScreen extends Component<Props> {
               <FieldControl
                 name="lat"
                 render={TextInput}
-                meta={{ editable: true, label: "Latitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                meta={{ editable: true, label: new_resource_lat, secureTextEntry: false, keyboardType: 'numeric' }}
                 />
               <FieldControl
                 name="lng"
                 render={TextInput}
-                meta={{ editable: true, label: "Longitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                meta={{ editable: true, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
                 />
             </View>
 
@@ -160,7 +167,7 @@ class EditResourceScreen extends Component<Props> {
               name="asset"
               render={DropdownInput}
               meta={{
-                options: [{key: 'well', label: 'Groundwater Station'}],
+                options: [{key: 'well', label: resource_name}],
                 editable: false,
                 label: "Asset Type",
                 secureTextEntry: false,
@@ -170,7 +177,7 @@ class EditResourceScreen extends Component<Props> {
             <FieldControl
               name="ownerName"
               render={TextInput}
-              meta={{ editable: true, label: "Owner Name", secureTextEntry: false, keyboardType: 'default' }}
+              meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
             />
             <Button
               style={{
@@ -189,7 +196,7 @@ class EditResourceScreen extends Component<Props> {
               }}
               loading={loading}
               disabled={invalid}
-              title={loading ? '' : 'SUBMIT'}
+              title={loading ? '' : new_resource_submit_button}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -219,6 +226,7 @@ const mapStateToProps = (state: AppState) => {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     location:state.location,
+    translation: state.translation,
   }
 }
 
