@@ -22,6 +22,7 @@ import { TextInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import Loading from '../../components/common/Loading';
 import { TranslationFile } from 'ow_translations/Types';
+import Logo from '../../components/common/Logo';
 
 
 export interface OwnProps {
@@ -325,16 +326,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps={'always'}
       >
-        {/* Logo */}
-        <View style={{
-          width: '100%',
-          flex: 5,
-          backgroundColor: primaryDark,
-          justifyContent: 'center',
-        }}>
-          {this.getLogo()}
-        </View>
-
+        {Logo(this.props.config.getApplicationName())}
         {/* Text */}
         <View style={{
           flex: 2

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, ScrollView,
+  View, KeyboardAvoidingView, ScrollView, Image,
 } from 'react-native';
 import {
   ListItem, Badge, Text,
@@ -8,7 +8,7 @@ import {
 import {
   navigateTo, showModal, showLighbox,
 } from '../utils';
-import { primary, primaryDark, error1, secondaryDark, secondary, secondaryText, } from '../utils/Colors';
+import { primary, primaryDark, error1, secondaryDark, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import ExternalServiceApi from '../api/ExternalServiceApi';
 import BaseApi from '../api/BaseApi';
@@ -20,6 +20,7 @@ import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations/Types';
+import Logo from '../components/common/Logo';
 
 export interface OwnProps {
   navigator: any,
@@ -177,23 +178,11 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       <KeyboardAvoidingView style={{
         flexDirection: 'column',
         // justifyContent: 'space-around',
-        backgroundColor: 'white',
+        backgroundColor: bgLight,
         height: '100%',
         width: '100%'
       }}>
-        <View style={{
-          width: '100%',
-          height: 150,
-          backgroundColor: secondaryDark,
-        }}>
-          <View style={{
-            alignSelf: 'center',
-            marginTop: 25,
-            width: 100,
-            height: 100,
-            backgroundColor: secondary,
-          }}/>
-        </View>
+        {Logo(this.props.config.getApplicationName())}
         {this.getConnectToButton()}
         {this.getSyncButton()}
         <ListItem

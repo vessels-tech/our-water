@@ -14,8 +14,10 @@ export type TextInputParams = {
   handler: any,
   touched: boolean,
   hasError: any,
-  meta: any,
-  errorMessage: string,
+  meta: {
+    label: string,
+    errorMessage: string,
+  }
 }
 
 export type DropdownInputParams = {
@@ -30,8 +32,7 @@ export type DropdownInputParams = {
   errorMessage: string,
 }
 
-export const TextInput = ({ meta, handler, hasError, touched, errorMessage }: any) => {
-  console.log('handler is: ', handler);
+export const TextInput = ({ meta, handler, hasError, touched }: any) => {
 
   return (
     <View style={{
@@ -54,7 +55,7 @@ export const TextInput = ({ meta, handler, hasError, touched, errorMessage }: an
       <FormValidationMessage>
         {touched
           && hasError("required")
-          && `${meta.label} ${errorMessage}`}
+          && `${meta.label} ${meta.errorMessage}`}
       </FormValidationMessage>
     </View>
   );
