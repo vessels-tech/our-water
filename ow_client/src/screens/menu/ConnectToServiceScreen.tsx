@@ -326,7 +326,8 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps={'always'}
       >
-        {Logo(this.props.config.getApplicationName())}
+        {/* I don't like the logo here anymore */}
+        {/* {Logo(this.props.config.getApplicationName())} */}
         {/* Text */}
         <View style={{
           flex: 2
