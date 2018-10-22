@@ -96,6 +96,8 @@ class EditResourceScreen extends Component<Props> {
 
     Keyboard.dismiss();
 
+    const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
+
     const unvalidatedResource = {
       coords: {
         latitude: this.editResourceForm.value.lat,
@@ -103,7 +105,7 @@ class EditResourceScreen extends Component<Props> {
       },
       resourceType: 'well',
       owner: {
-        name: this.editResourceForm.value.ownerName,
+        name,
       },
       userId: this.props.userId,
     };
@@ -161,8 +163,6 @@ class EditResourceScreen extends Component<Props> {
                 meta={{ editable: true, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
                 />
             </View>
-
-            {/* TODO: dropdown? */}
             <FieldControl
               name="asset"
               render={DropdownInput}
@@ -174,11 +174,12 @@ class EditResourceScreen extends Component<Props> {
                 keyboardType: 'default' 
               }}
             />
-            <FieldControl
-              name="ownerName"
-              render={TextInput}
-              meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
-            />
+            { this.props.config.getEditResourceShouldShowOwnerName() ?
+              <FieldControl
+                name="ownerName"
+                render={TextInput}
+                meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
+              /> : null }
             <Button
               style={{
                 paddingBottom: 20,

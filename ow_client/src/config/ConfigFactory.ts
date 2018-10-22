@@ -27,6 +27,10 @@ export type RemoteConfig = {
   resourceDetail_showSubtitle: boolean,
   favouriteResourceList_showGetStartedButtons: boolean,
 
+  //These should eventually be moved to their own config section where we can dynamically
+  //define what resources shold look like
+  editResource_showOwerName: boolean,
+
 }
 
 /**
@@ -152,6 +156,10 @@ export class ConfigFactory {
 
   getFavouriteResourceShouldShowGetStartedButtons() {
     return this.remoteConfig.favouriteResourceList_showGetStartedButtons;
+  }
+
+  getEditResourceShouldShowOwnerName() {
+    return this.remoteConfig.editResource_showOwerName;
   }
 
 }

@@ -14,7 +14,8 @@ const MyWellDevConfig: RemoteConfig = {
   newReading_enableImageUpload: true,
   homeScreen: HomeScreenType.Simple,
   resourceDetail_showSubtitle: true,
-  favouriteResourceList_showGetStartedButtons: true
+  favouriteResourceList_showGetStartedButtons: true,
+  editResource_showOwerName: true,
 
 }
 

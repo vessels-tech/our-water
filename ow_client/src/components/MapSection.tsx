@@ -303,7 +303,8 @@ export default class MapSection extends Component<Props> {
               key={shortId}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
-              description={resource.resourceType}
+              // description={resource.resourceType}
+              
               //This is making massive images on some devices
               // image={imageForResourceType(resource.resourceType)}
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}

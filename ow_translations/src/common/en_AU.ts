@@ -80,7 +80,7 @@ const en_AU: TranslationFile = {
     resource_detail_empty_hint: "Press the QR scanner or search for a resource to find a location.",
     new_resource_saved_dialog: "Successfully Saved Location!",
     new_resource_saved_dialog_warning: "Saved Location Locally. Login to MyWell to sync.",
-    resource_name: "Groundwater Station",
+    resource_name: "Locations",
     new_resource_lat: "Latitude",
     new_resource_lng: "Longitude",
     new_resource_asset_type_label: "Asset Type",
