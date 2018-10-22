@@ -7,8 +7,11 @@ export enum TranslationEnum {
   test_UPPER = 'test_UPPER',
 }
 
-export type Language = 'dutch' | 'english' | 'hindi' | 'gujarati' | 'test';
-export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | 'uppercase';
+
+export type Language = 'dutch' | 'english' | 'hindi' | 'gujarati' | 'test' | 'spanish' | 'french';
+export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | 'uppercase' | 'france' | 'spain';
+
+//TODO: add fr_FR and es-ES
 
 export type TranslationMetadata = {
   language: Language
@@ -60,6 +63,8 @@ export type GGMNTranslationOverrideFile = {
     sync_empty_heading: string,
     sync_empty_content: string,
     new_reading_timeseries: string,
+    resource_detail_empty_heading: string,
+    resource_detail_empty_hint: string,
   }
 }
 
@@ -137,5 +142,8 @@ export type TranslationFile = {
     sync_empty_heading: string,
     sync_empty_content: string,
     select_language_heading: string,
+    resource_detail_summary_tab: string,
+    resource_detail_empty_heading: string,
+    resource_detail_empty_hint: string,
   }
 }

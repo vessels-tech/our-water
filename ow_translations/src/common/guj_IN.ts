@@ -75,6 +75,9 @@ const guj_IN: TranslationFile = {
     sync_empty_heading: "",
     sync_empty_content: "",
     select_language_heading: "",
+    resource_detail_summary_tab: "",
+    resource_detail_empty_heading: "",
+    resource_detail_empty_hint: "",
   }
 }
 

@@ -75,6 +75,9 @@ const en_US: TranslationFile = {
     sync_empty_heading: "Nothing to sync!",
     sync_empty_content: "Start taking readings or creating groundwater stations to get started.",
     select_language_heading: "",
+    resource_detail_summary_tab: "",
+    resource_detail_empty_heading: "",
+    resource_detail_empty_hint: "",
   }
 }
 
