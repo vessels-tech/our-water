@@ -44,7 +44,7 @@ class SyncRun {
      * Run the syncRun
      * @param param0
      */
-    run({ fs }) {
+    run({ firestore }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.status !== SyncRunStatus_1.SyncRunStatus.pending) {
                 throw new Error(`SyncRun can only be run when in a pending state. Found state: ${this.status}`);
@@ -52,21 +52,21 @@ class SyncRun {
             this.startedAt = moment().valueOf();
             console.log("startedAt", this.startedAt);
             this.status = SyncRunStatus_1.SyncRunStatus.running;
-            const sync = yield Sync_1.Sync.getSync({ orgId: this.orgId, id: this.syncId, fs });
+            const sync = yield Sync_1.Sync.getSync({ orgId: this.orgId, id: this.syncId, firestore });
             console.log("SyncRun.run: running sync:", sync);
             if (!sync) {
                 this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
-                return this.abortSync({ fs });
+                return this.abortSync({ firestore });
             }
             //set the state to running
-            yield this.save({ fs });
+            yield this.save({ firestore });
             switch (this.syncMethod) {
                 //call the datasource methods, but don't commit anything to the database
                 case SyncMethod_1.SyncMethod.validate:
                     try {
                         console.log("SyncRun.run running validate sync");
                         //TODO: change this to use the a validate method instead
-                        const validationResult = yield sync.datasource.validate(this.orgId, fs);
+                        const validationResult = yield sync.datasource.validate(this.orgId, firestore);
                         this.results = validationResult.results;
                         this.warnings = validationResult.warnings;
                     }
@@ -78,7 +78,7 @@ class SyncRun {
                 //Pull from the external datasource, and save to db
                 case SyncMethod_1.SyncMethod.pullFrom:
                     console.log("SyncRun.run running pullFrom sync");
-                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
+                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
                     this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
                     this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
                     this.errors = pullFromResult.errors;
@@ -86,7 +86,7 @@ class SyncRun {
                 //Get data from somewhere, and push to external datasource
                 case SyncMethod_1.SyncMethod.pushTo:
                     console.log("SyncRun.run running pushTo sync");
-                    const pushToResult = yield sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
+                    const pushToResult = yield sync.datasource.pushDataToDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
                     this.results = pushToResult.results;
                     this.warnings = pushToResult.warnings;
                     this.errors = pushToResult.errors;
@@ -98,41 +98,41 @@ class SyncRun {
             //But I think that we need to keep track of separate dates depending on the
             //method used. We will leave that for later.
             if (this.errors.length > 0) {
-                return this.abortSync({ fs });
+                return this.abortSync({ firestore });
             }
-            return this.finishSync({ fs });
+            return this.finishSync({ firestore });
         });
     }
-    abortSync({ fs }) {
+    abortSync({ firestore }) {
         return __awaiter(this, void 0, void 0, function* () {
             console.warn("aborting sync with errors:", this.errors);
             this.status = SyncRunStatus_1.SyncRunStatus.failed;
             this.finishedAt = moment().valueOf();
-            return this.save({ fs });
+            return this.save({ firestore });
         });
     }
-    finishSync({ fs }) {
+    finishSync({ firestore }) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("finished sync with results:", this.results);
             console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
             this.finishedAt = moment().valueOf();
-            return this.save({ fs });
+            return this.save({ firestore });
         });
     }
     /**
      * Create a new SyncRun in FireStore
      */
-    create({ fs }) {
+    create({ firestore }) {
         console.log('SyncRun.create');
-        const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
+        const newRef = firestore.collection('org').doc(this.orgId).collection('syncRun').doc();
         this.id = newRef.id;
-        return this.save({ fs });
+        return this.save({ firestore });
     }
-    save({ fs }) {
+    save({ firestore }) {
         console.log("saving SyncRun");
         //TODO: do we want this to merge?
-        return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
+        return firestore.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
             .set(this.serialize())
             .then(ref => {
             console.log('Finished saving SyncRun: ', this.id);
@@ -177,8 +177,8 @@ class SyncRun {
     /**
      * Get the sync rungs for a given id
      */
-    static getSyncRuns({ orgId, syncId, fs }) {
-        return fs.collection('org').doc(orgId).collection('syncRun')
+    static getSyncRuns({ orgId, syncId, firestore }) {
+        return firestore.collection('org').doc(orgId).collection('syncRun')
             .where('syncId', '==', syncId)
             .get()
             .then(sn => utils_1.snapshotToSyncRunList(sn));
@@ -187,8 +187,8 @@ class SyncRun {
      * Get the sync run for the given id
      * @param param0
      */
-    static getSyncRun({ orgId, id, fs }) {
-        return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+    static getSyncRun({ orgId, id, firestore }) {
+        return firestore.collection('org').doc(orgId).collection('syncRun').doc(id).get()
             .then(sn => SyncRun.deserialize(sn));
     }
 }

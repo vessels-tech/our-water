@@ -4,13 +4,12 @@ const validate = require("express-validation");
 const express = require("express");
 const moment = require("moment");
 const utils_1 = require("../common/utils");
+const Firestore_1 = require("../common/apis/Firestore");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin');
-module.exports = (functions, admin) => {
+module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    const fs = admin.firestore();
     //TODO: fix this error handler
     // app.use(defaultErrorHandler);
     app.use(function (err, req, res, next) {
@@ -25,7 +24,7 @@ module.exports = (functions, admin) => {
      * Get all the readings for an orgId + resourceId
      */
     const getReading = (orgId, resourceId, last_createdAt = moment().valueOf(), limit = 25) => {
-        return fs.collection('org').doc(orgId)
+        return Firestore_1.default.collection('org').doc(orgId)
             .collection('reading')
             .where('resourceId', '==', resourceId)
             .orderBy('createdAt')
@@ -72,14 +71,14 @@ module.exports = (functions, admin) => {
         //TODO: custom validate depending on resource type
         //e.g. Date can't be in the future
         //Ensure the orgId + resource exists
-        const resourceRef = fs.collection('org').doc(orgId).collection('resource').doc(resourceId);
+        const resourceRef = Firestore_1.default.collection('org').doc(orgId).collection('resource').doc(resourceId);
         return resourceRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Resource with with orgId: ${orgId}, resourceId: ${resourceId} not found`);
             }
         })
-            .then(() => fs.collection(`/org/${orgId}/reading/`).add(data))
+            .then(() => Firestore_1.default.collection(`/org/${orgId}/reading/`).add(data))
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));
     });
@@ -93,7 +92,7 @@ module.exports = (functions, admin) => {
     app.post('/legacy_save/:orgId/:legacyResourceId', validate(createReadingValidation), (req, res, next) => {
         const { orgId, legacyResourceId } = req.params;
         //First, look up the resource based on the legacy id
-        return fs.collection('org').doc(orgId).collection('resource')
+        return Firestore_1.default.collection('org').doc(orgId).collection('resource')
             .where('legacyResourceId', '==', legacyResourceId).get()
             .then(snapshot => {
             const resources = [];
@@ -111,7 +110,7 @@ module.exports = (functions, admin) => {
             .then(newResource => {
             const data = formatNewReading(req.body.data, newResource.id);
             console.log("data is:", data);
-            return fs.collection(`/org/${orgId}/reading/`).add(data);
+            return Firestore_1.default.collection(`/org/${orgId}/reading/`).add(data);
         })
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));

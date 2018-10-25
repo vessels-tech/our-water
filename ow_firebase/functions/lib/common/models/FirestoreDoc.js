@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class FirestoreDoc {
-    create({ fs }) {
-        const newRef = fs.collection('org').doc(this.orgId).collection(this.docName).doc();
+    create({ firestore }) {
+        const newRef = firestore.collection('org').doc(this.orgId).collection(this.docName).doc();
         this.id = newRef.id;
         this.createdAt = new Date();
-        return this.save({ fs });
+        return this.save({ firestore });
     }
-    save({ fs }) {
+    save({ firestore }) {
         this.updatedAt = new Date();
-        return fs.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
+        return firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
             .set(this.serialize())
             .then(ref => { return this; });
     }

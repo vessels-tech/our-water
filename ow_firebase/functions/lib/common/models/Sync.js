@@ -14,21 +14,21 @@ class Sync {
     /**
     * Create a new Sync in FireStore
     */
-    create({ fs }) {
-        const newRef = fs.collection('org').doc(this.orgId)
+    create({ firestore }) {
+        const newRef = firestore.collection('org').doc(this.orgId)
             .collection('sync').doc();
         this.id = newRef.id;
-        return this.save({ fs });
+        return this.save({ firestore });
     }
-    save({ fs }) {
-        return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
+    save({ firestore }) {
+        return firestore.collection('org').doc(this.orgId).collection('sync').doc(this.id)
             .set(this.serialize())
             .then(ref => {
             return this;
         });
     }
-    delete({ fs }) {
-        return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id).delete();
+    delete({ firestore }) {
+        return firestore.collection('org').doc(this.orgId).collection('sync').doc(this.id).delete();
     }
     serialize() {
         return {
@@ -65,8 +65,8 @@ class Sync {
      *
      * Get a list of the syncs for an org
      */
-    static getSyncs(orgId, fs) {
-        return fs.collection('org').doc(orgId).collection('sync').get()
+    static getSyncs(orgId, firestore) {
+        return firestore.collection('org').doc(orgId).collection('sync').get()
             .then(sn => utils_1.snapshotToSyncList(sn));
     }
     /**
@@ -74,9 +74,9 @@ class Sync {
      *
      * Gets the sync from the organization and sync id
      */
-    static getSync({ orgId, id, fs }) {
+    static getSync({ orgId, id, firestore }) {
         //TODO: This hangs on the 2nd time for some reason...
-        return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
+        return firestore.collection('org').doc(orgId).collection('sync').doc(id).get()
             .then(doc => Sync.fromDoc(doc));
     }
 }

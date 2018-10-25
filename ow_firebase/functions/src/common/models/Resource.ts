@@ -95,9 +95,9 @@ export class Resource extends FirestoreDoc {
    * 
    * Get the resource from an orgId and resourceId
    */
-  static getResource({orgId, id, fs}): Promise<Resource> {
+  static getResource({ orgId, id, firestore}): Promise<Resource> {
     //TODO: make sure orgId is valid first
-    return fs.collection('org').doc(orgId).collection('resource').doc(id)
+    return firestore.collection('org').doc(orgId).collection('resource').doc(id)
       .get()
       .then(doc => Resource.fromDoc(doc));
   }

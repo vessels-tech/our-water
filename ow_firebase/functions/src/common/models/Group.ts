@@ -23,28 +23,28 @@ export class Group {
     this.externalIds = externalIds;
   }
 
-  public create({ fs }): Promise<Group> {
-    const newRef = fs.collection('org').doc(this.orgId).collection('group').doc();
+  public create({ firestore }): Promise<Group> {
+    const newRef = firestore.collection('org').doc(this.orgId).collection('group').doc();
     this.id = newRef.id;
     this.createdAt = new Date();
 
-    return this.save({fs});
+    return this.save({ firestore});
   }
 
-  public save({ fs }): Promise<Group> {
+  public save({ firestore }): Promise<Group> {
     if (!this.id) {
       throw new Error('Tried to save, but object has not been created yet. Use create() instead.');
     }
     this.updatedAt = new Date();
   
-    return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
+    return firestore.collection('org').doc(this.orgId).collection('group').doc(this.id)
       .set(this.serialize())
       .then(ref => {
         return this;
       });
   }
 
-  public static saveBulkGroup(fs, groups: Array<Group>): Promise<Array<Group>> {
+  public static saveBulkGroup(firestore, groups: Array<Group>): Promise<Array<Group>> {
 
     return Promise.resolve([]);
   }

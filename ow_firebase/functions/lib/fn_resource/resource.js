@@ -21,14 +21,14 @@ const ResourceIdType_1 = require("../common/types/ResourceIdType");
 const ResourceType_1 = require("../common/enums/ResourceType");
 const FirebaseApi_1 = require("../common/apis/FirebaseApi");
 const AppProviderTypes_1 = require("../common/types/AppProviderTypes");
+const Firestore_1 = require("../common/apis/Firestore");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
 require('express-async-errors');
-module.exports = (functions, admin) => {
+module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    const fs = admin.firestore();
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
     app.use(openCors);
@@ -42,7 +42,7 @@ module.exports = (functions, admin) => {
         return res.status(500).json({ status: 500, message: err.message });
     });
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
-        return fs.collection('org').doc(orgId)
+        return Firestore_1.default.collection('org').doc(orgId)
             .collection('resource')
             .orderBy('createdAt')
             .startAfter(last_createdAt)
@@ -55,7 +55,7 @@ module.exports = (functions, admin) => {
     app.get('/:orgId', (req, res, next) => {
         const orgId = req.params.orgId;
         const { last_createdAt, limit } = req.query;
-        // const resourceRef = fs.collection('org').doc(orgId).collection('resource');
+        // const resourceRef = firestore.collection('org').doc(orgId).collection('resource');
         return getOrgs(orgId, last_createdAt, limit)
             .then(snapshot => {
             const resources = [];
@@ -77,7 +77,7 @@ module.exports = (functions, admin) => {
             new OWGeoPoint_1.default(34.34, -115.67),
         ];
         const group = new Group_1.Group('5000', orgId, GroupType_1.GroupType.Pincode, coords, null);
-        return group.create({ fs })
+        return group.create({ firestore: Firestore_1.default })
             .then((saved) => res.json(saved));
     });
     /**
@@ -130,14 +130,14 @@ module.exports = (functions, admin) => {
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
         //Ensure the orgId exists
-        const orgRef = fs.collection('org').doc(orgId);
+        const orgRef = Firestore_1.default.collection('org').doc(orgId);
         return orgRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            .then(() => fs.collection(`/org/${orgId}/resource`).add(req.body.data))
+            .then(() => Firestore_1.default.collection(`/org/${orgId}/resource`).add(req.body.data))
             .then(result => {
             console.log(JSON.stringify({ resourceId: result.id }));
             return res.json({ resource: result.id });
@@ -177,7 +177,7 @@ module.exports = (functions, admin) => {
         console.log("newData", JSON.stringify(newData, null, 2));
         try {
             //get the resource
-            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, fs });
+            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: Firestore_1.default });
             const modifiableKeys = ['owner', 'externalIds', 'resourceType', 'coords'];
             modifiableKeys.forEach(key => {
                 let newValue = newData[key];
@@ -192,7 +192,7 @@ module.exports = (functions, admin) => {
                 }
                 resource[key] = newValue;
             });
-            yield resource.save({ fs });
+            yield resource.save({ firestore: Firestore_1.default });
             return res.json(resource);
         }
         catch (err) {
@@ -221,7 +221,7 @@ module.exports = (functions, admin) => {
         // // Create a query against the collection
         // var queryRef = citiesRef.where('state', '==', 'CA');
         //TODO: implement optional type filter
-        const readingsRef = fs.collection(`/org/${orgId}/reading`)
+        const readingsRef = Firestore_1.default.collection(`/org/${orgId}/reading`)
             .where(`resourceId`, '==', resourceId).get()
             .then(snapshot => {
             const resources = [];

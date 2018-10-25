@@ -9,24 +9,24 @@ class Group {
         this.coords = coords;
         this.externalIds = externalIds;
     }
-    create({ fs }) {
-        const newRef = fs.collection('org').doc(this.orgId).collection('group').doc();
+    create({ firestore }) {
+        const newRef = firestore.collection('org').doc(this.orgId).collection('group').doc();
         this.id = newRef.id;
         this.createdAt = new Date();
-        return this.save({ fs });
+        return this.save({ firestore });
     }
-    save({ fs }) {
+    save({ firestore }) {
         if (!this.id) {
             throw new Error('Tried to save, but object has not been created yet. Use create() instead.');
         }
         this.updatedAt = new Date();
-        return fs.collection('org').doc(this.orgId).collection('group').doc(this.id)
+        return firestore.collection('org').doc(this.orgId).collection('group').doc(this.id)
             .set(this.serialize())
             .then(ref => {
             return this;
         });
     }
-    static saveBulkGroup(fs, groups) {
+    static saveBulkGroup(firestore, groups) {
         return Promise.resolve([]);
     }
     serialize() {

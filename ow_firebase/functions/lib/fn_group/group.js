@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
+const Firestore_1 = require("../common/apis/Firestore");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-module.exports = (functions, admin) => {
+module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    const fs = admin.firestore();
     // const defaultErrorHandler = require('../common/defaultErrorHandler');
     //TODO: fix this error handler
     // app.use(defaultErrorHandler);
@@ -42,14 +42,14 @@ module.exports = (functions, admin) => {
         req.body.coords = newCoords;
         console.log("org id:", orgId);
         //Ensure the orgId exists
-        const orgRef = fs.collection('org').doc(orgId);
+        const orgRef = Firestore_1.default.collection('org').doc(orgId);
         return orgRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            .then(() => fs.collection(`/org/${orgId}/group`).add(req.body))
+            .then(() => Firestore_1.default.collection(`/org/${orgId}/group`).add(req.body))
             .then(result => res.json({ groupId: result.id }))
             .catch(err => next(err));
     });
@@ -73,7 +73,7 @@ module.exports = (functions, admin) => {
         // var citiesRef = db.collection('cities');
         // // Create a query against the collection
         // var queryRef = citiesRef.where('state', '==', 'CA');
-        const readingsRef = fs.collection(`/org/${orgId}/resource`)
+        const readingsRef = Firestore_1.default.collection(`/org/${orgId}/resource`)
             .where(`groups.${groupId}`, '==', true).get()
             .then(snapshot => {
             const resources = [];
