@@ -34,6 +34,7 @@
     "firebase-admin": "^5.13.1",
     "firebase-app": "^0.0.1",
     "firebase-functions": "^2.0.2",
+    "handlebars": "^4.0.12",
     "joi": "^13.2.0",
     "jsx-to-html": "^1.1.0",
     "jsx-xml": "^0.1.1",

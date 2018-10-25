@@ -1,26 +1,39 @@
 import FOI from './FOI';
 import SerdeXML from './SerdeXML';
+import * as handlebars from 'handlebars';
 
-export default class GetFeatureOfInterestResponse implements SerdeXML {
+const GetFeatureOfInterestResponseTemplate = `
+<sos:GetFeatureOfInterestResponse>{{{innerHTML}}}
+</sos:GetFeatureOfInterestResponse>
+`
+
+export interface GetFeatureOfInterestResponseType {
+  id: string;
+  exceptionReport: any;
+  fois: FOI[];
+}
+
+
+export default class GetFeatureOfInterestResponse implements SerdeXML, GetFeatureOfInterestResponseType {
   id: string;
   exceptionReport: any;
   fois: FOI[];
 
-  constructor(fois: FOI[]) {
-    this.fois = fois;
+  constructor(init: GetFeatureOfInterestResponseType) {
+    this.id = init.id;
+    this.exceptionReport = init.exceptionReport;
+    this.fois = init.fois;
   }
 
   serialize(): string {
     // TODO: implement exception report
-    // TODO: find easier way to build xml
-    return `<sos:GetFeatureOfInterestResponse>
-    ${this.fois.map(foi => foi.serialize())}
-    </sos:GetFeatureOfInterestResponse>`
-  }
+    //TODO: figure out how to next handlebars templates inside of this?
+    const template = handlebars.compile(GetFeatureOfInterestResponseTemplate);
 
-  deserialize(xmlString: string): SerdeXML {
-    const fois = [];
-    //TODO: parse out fois
-    return new GetFeatureOfInterestResponse(fois);
+    const data = {
+      innerHTML: this.fois.map(foi => foi.serialize()),
+    };
+
+    return template(data);
   }
 }
