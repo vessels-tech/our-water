@@ -1,3 +1,4 @@
+import 'mocha';
 import * as assert from 'assert';
 import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';

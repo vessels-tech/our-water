@@ -1,5 +1,7 @@
 "use strict";
 
+require("mocha");
+
 var assert = _interopRequireWildcard(require("assert"));
 
 var _OWGeoPoint = _interopRequireDefault(require("../../models/OWGeoPoint"));
