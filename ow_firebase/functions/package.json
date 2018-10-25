@@ -10,7 +10,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "unit": "yarn run babel && ts-mocha ./**/*.unit.js",
+    "unit": "ts-mocha ./**/*.unit.ts",
     "unit_new": "mocha --require @babel/register --require @babel/polyfill ./**/*.unit.js",
     "service": "mocha -r ts-node/register ./**/*.service.ts"
   },
