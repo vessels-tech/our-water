@@ -80,7 +80,7 @@ describe('SyncAPI', function() {
   });
 
 
-  describe.only('MyWell Pull', () => {
+  describe('MyWell Pull', () => {
     it('creates a new legacy sync, and pulls the data correctly', () => {
 
       let syncId = null;

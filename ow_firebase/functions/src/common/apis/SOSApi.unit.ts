@@ -1,5 +1,4 @@
 import 'mocha'
-
 import SOSApi from './SOSApi';
 import * as assert from 'assert';
 
@@ -22,7 +21,7 @@ describe('SOSApi Unit Tests', function() {
   });
 
   describe('GetObservation', function() { 
-    it.only('handles the default request', () => {
+    it('handles the default request', () => {
       //Arrange
       const request = {};
       const expected = '';

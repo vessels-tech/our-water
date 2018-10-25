@@ -253,6 +253,12 @@ export default class SOSApi {
 //eg: http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetFeatureOfInterest&VERSION=2.0.0&SERVICE=SOS&spatialFilter=om:featureOfInterest/*/sams: shape,-116, 50.5, -75, 1.6, http://www.opengis.net/def/crs/EPSG/0/4326&namespaces=xmlns(sams,http://www.opengis.net/samplingSpatial/2.0),xmlns(om,http://www.opengis.net/om/2.0)
 
   static getFeatureOfInterest(): string {
+
+    //TODO: Parse out request and build the Firebase Query
+    //Convert from firebase Query to SOS Objects
+    //Serialize SOS Objects
+    //build the response
+
     return '';
   }
 
