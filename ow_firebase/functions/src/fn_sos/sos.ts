@@ -58,9 +58,9 @@ module.exports = (functions: any) => {
         type: GetFeatureOfInterestRequestFilterType.spatialFilter,
         namespace: 'om:featureOfInterest/*/sams:shape',
         //-116,50.5,-75,51.6,
-        lat: -116,
-        lng: 50.5,
-        zoom: 51.6,
+        lat: 50.6,
+        lng: -116,
+        zoom: 0.3,
       }
     }
 

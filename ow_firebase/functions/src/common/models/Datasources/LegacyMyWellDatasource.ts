@@ -72,13 +72,13 @@ export default class LegacyMyWellDatasource implements Datasource {
     });
   }
 
-  public saveGroups(orgId, fs, groups: Array<Group>): Promise<GroupSaveResult> {
+  public saveGroups(orgId, firestore, groups: Array<Group>): Promise<GroupSaveResult> {
     const errors = [];
     const savedGroups: Group[] = [];
 
     return Promise.all(
       groups.map(group => {
-        return group.create({ fs })
+        return group.create({ firestore })
           .then(savedGroup => savedGroups.push(savedGroup))
           .catch(err => errors.push(err))
       })
@@ -91,18 +91,18 @@ export default class LegacyMyWellDatasource implements Datasource {
     });
   }
   
-  public async getGroupAndSave(orgId: string, fs): Promise<GroupSaveResult>  {
+  public async getGroupAndSave(orgId: string, firestore): Promise<GroupSaveResult>  {
     const legacyVillages: Array<LegacyVillage> = await this.getGroupData();
     const newGroups: Array<Group> = LegacyMyWellDatasource.transformLegacyVillagesToGroups(orgId, legacyVillages);
     
-    return await this.saveGroups(orgId, fs, newGroups);
+    return await this.saveGroups(orgId, firestore, newGroups);
   }
 
   /**
    * Create groups based on inferred pincode data
    * 
    */  
-  public getPincodeData(orgId: string, fs): Promise<GroupSaveResult> {
+  public getPincodeData(orgId: string, firestore): Promise<GroupSaveResult> {
     //Get all villages, and for each village within a pincode, create a bounding box based on the center
     const uriVillage = `${this.baseUrl}/api/villages`;
 
@@ -140,7 +140,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       let errors = [];
       let savedGroups = [];
       pincodeGroups.forEach(group => {
-        return group.create({fs})
+        return group.create({firestore})
           .then(savedGroup => savedGroups.push(savedGroup))
           .catch(err => {
             console.log("err", err);
@@ -164,7 +164,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * convert legacy MyWell resources into OW resources
    * return
    */
-  public getResourcesData(orgId: string, fs): Promise<ResourceSaveResult> {
+  public getResourcesData(orgId: string, firestore): Promise<ResourceSaveResult> {
     // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     const uriResources = `${this.baseUrl}/api/resources`;
     console.log("Getting resources data");
@@ -177,7 +177,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
     let resources: Array<Resource> = [];
     let legacyGroups = null;
-    return getLegacyMyWellGroups(orgId, fs)
+    return getLegacyMyWellGroups(orgId, firestore)
     .then(_legacyGroups => legacyGroups = _legacyGroups)
     .then(() => request(options))
     .then((legacyRes: Array<LegacyResource>) => {
@@ -197,7 +197,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       let errors = [];
       let savedResources: Array<Resource> = [];
       resources.forEach(res => {
-        return res.create({ fs })
+        return res.create({ firestore })
           .then((savedRes: Resource) => savedResources.push(savedRes))
           .catch(err => errors.push(err));
       });
@@ -217,7 +217,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * Perhaps we should test with just a small number of readings for now
    * 
    */
-  public getReadingsData(orgId: string, fs): Promise<ReadingSaveResult>  {
+  public getReadingsData(orgId: string, firestore): Promise<ReadingSaveResult>  {
     const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
     // const uriReadings = `${this.baseUrl}/api/resources`;
 
@@ -236,8 +236,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     //We also need to have the groups first
 
     return Promise.all([
-      getLegacyMyWellResources(orgId, fs),
-      getLegacyMyWellGroups(orgId, fs)
+      getLegacyMyWellResources(orgId, firestore),
+      getLegacyMyWellGroups(orgId, firestore)
     ])
     .then(([_legacyResources, _legacyGroups]) => {
       legacyResources = _legacyResources;
@@ -272,7 +272,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       let savedReadings: Array<Reading> = [];
       readings.forEach(res => {
-        return res.create({ fs })
+        return res.create({ firestore })
           .then((savedRes: Reading) => savedReadings.push(savedRes))
           .catch(err => errors.push(err));
       });
@@ -295,13 +295,13 @@ export default class LegacyMyWellDatasource implements Datasource {
     });
   }
 
-  public async validate(orgId: string, fs): Promise<SyncRunResult> {
+  public async validate(orgId: string, firestore): Promise<SyncRunResult> {
     //TODO: restructure to return errors, warnings and results
     //TODO: get the api key and check that its valid
     throw new Error("validate not implemented for this data source");
   }
 
-  public async pullDataFromDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+  public async pullDataFromDataSource(orgId: string, firestore, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     console.log("pull from data source", this.selectedDatatypes);
     let villageGroupResult = new DefaultSyncRunResult();
     let pincodeGroups = new DefaultSyncRunResult();
@@ -311,14 +311,14 @@ export default class LegacyMyWellDatasource implements Datasource {
     this.selectedDatatypes.forEach(async datatypeStr => {
       switch(datatypeStr) {
         case DataType.Resource: 
-          resources = await this.getResourcesData(orgId, fs);
+          resources = await this.getResourcesData(orgId, firestore);
         break;
         case DataType.Reading:
-          readings = await this.getReadingsData(orgId, fs);
+          readings = await this.getReadingsData(orgId, firestore);
         break;
         case DataType.Group: 
-          villageGroupResult = await this.getGroupAndSave(orgId, fs);
-          pincodeGroups = await this.getPincodeData(orgId, fs)
+          villageGroupResult = await this.getGroupAndSave(orgId, firestore);
+          pincodeGroups = await this.getPincodeData(orgId, firestore)
         break;
         default:
           throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
@@ -341,8 +341,8 @@ export default class LegacyMyWellDatasource implements Datasource {
    * - externalIds.hasLegacyMyWellResourceId: a boolean flag indicating that the reading
    *     has a relationship to an external data source
    */
-  public getNewReadings(orgId: string, fs, filterAfterDate: number): Promise<Array<Reading>> {
-    return fs.collection('org').doc(orgId).collection('reading')
+  public getNewReadings(orgId: string, firestore, filterAfterDate: number): Promise<Array<Reading>> {
+    return firestore.collection('org').doc(orgId).collection('reading')
       .where('externalIds.hasLegacyMyWellResourceId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
       //TODO: we need to set a maximum on this, and paginate properly
@@ -363,8 +363,8 @@ export default class LegacyMyWellDatasource implements Datasource {
    * - does not have a MyWellId, a villageId or resourceId
    * 
    */
-  public getNewResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
-    return fs.collection('org').doc(orgId).collection('resource')
+  public getNewResources(orgId: string, firestore, filterAfterDate: number): Promise<Array<Resource>> {
+    return firestore.collection('org').doc(orgId).collection('resource')
       .where('externalIds.hasLegacyMyWellPincode', '==', true)
       .where('externalIds.hasLegacyMyWellId', '==', false)
       .where('createdAt', '>=', filterAfterDate)
@@ -376,8 +376,8 @@ export default class LegacyMyWellDatasource implements Datasource {
   /* TODO: implement and use in addition to getNewResources.
   We're not too worried about updating resources at this stage
 
-  public getUpdatedResources(orgId: string, fs, filterAfterDate: number): Promise<Array<Resource>> {
-    return fs.collection('org').doc(orgId).collection('resource')
+  public getUpdatedResources(orgId: string, firestore, filterAfterDate: number): Promise<Array<Resource>> {
+    return firestore.collection('org').doc(orgId).collection('resource')
     //TODO: should we also check for isLegacy?
       .where('externalIds.hasLegacyMyWellId', '==', true)
       .where('createdAt', '>=', filterAfterDate)
@@ -483,7 +483,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * 
    * //TODO: we assume that they will be in the same order. TODO: check this assumption!
    */
-  public async updateExistingResources(resources: Array<Resource>, ids, fs) {
+  public async updateExistingResources(resources: Array<Resource>, ids, firestore) {
 
     //Iterate through the newIds, and update OW resources to match
     return ids.reduce(async (acc: Promise<SyncRunResult>, curr: any, idx) => {
@@ -496,7 +496,7 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       const pincode = owResource.externalIds.getPostcode();
       owResource.externalIds = ResourceIdType.fromLegacyMyWellId(pincode, curr);
-      return owResource.save({ fs })
+      return owResource.save({ firestore })
       .then(() => result.results.push(curr))
       .catch((err) => result.errors.push(err.message))
       .then(() => result);
@@ -535,7 +535,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       });
   }
 
-  public async pushDataToDataSource(orgId: string, fs, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+  public async pushDataToDataSource(orgId: string, firestore, options: SyncDataSourceOptions): Promise<SyncRunResult> {
     let villageGroupResult = new DefaultSyncRunResult();
     let pincodeGroupResult = new DefaultSyncRunResult();
     let resourceResult = new DefaultSyncRunResult();
@@ -545,21 +545,21 @@ export default class LegacyMyWellDatasource implements Datasource {
     // await this.selectedDatatypes.forEach(async datatypeStr => {
       switch (datatypeStr) {
         case DataType.Reading:
-          const readings: Array<Reading> = await this.getNewReadings(orgId, fs, options.filterAfterDate);
+          const readings: Array<Reading> = await this.getNewReadings(orgId, firestore, options.filterAfterDate);
           console.log(`pushDataToDataSource, found ${readings.length} new/updated readings`);
           const legacyReadings: Array<LegacyMyWellReading> = await LegacyMyWellDatasource.transformReadingsToLegacyMyWell(readings);
           readingResult = await this.saveReadingsToLegacyMyWell(legacyReadings);
 
           break;
         case DataType.Resource:
-          const newResources: Array<Resource> = await this.getNewResources(orgId, fs, options.filterAfterDate);
+          const newResources: Array<Resource> = await this.getNewResources(orgId, firestore, options.filterAfterDate);
           console.log(`pushDataToDataSource, found ${newResources.length} new resources`);
           const ids = await this.saveNewResourcesToLegacyMyWell(newResources);
-          resourceResult = await this.updateExistingResources(newResources, ids, fs);
+          resourceResult = await this.updateExistingResources(newResources, ids, firestore);
         break;
         // case DataType.Group:
         //   //TODO: Implement for both pincodes and villages? For now only pincodes
-        //   const groups: Array<Group> = await this.getPincodeGroups(orgId, fs, options.filterAfterDate);
+        //   const groups: Array<Group> = await this.getPincodeGroups(orgId, firestore, options.filterAfterDate);
         //   console.log(`pushDataToDataSource, found ${groups.length} new/updated pincode groups`);
         //   const legacyPincodes: Array<LegacyPincode>
 

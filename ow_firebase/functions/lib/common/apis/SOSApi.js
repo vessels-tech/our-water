@@ -244,7 +244,8 @@ class SOSApi {
                     message: 'only spatial filter is currently supported',
                 };
             }
-            const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
+            // const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
+            const orgId = 'mywell'; //TODO: we need to get the orgId from the request params
             /* Make the Firebase Api call */
             //TODO: we may need to edit this zoom value
             const result = yield FirebaseApi_1.default.resourcesNearLocation(orgId, request.filter.lat, request.filter.lng, request.filter.zoom);

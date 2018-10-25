@@ -256,7 +256,8 @@ export default class SOSApi {
       }
     }
 
-    const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
+    // const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
+    const orgId = 'mywell'; //TODO: we need to get the orgId from the request params
 
     /* Make the Firebase Api call */
     //TODO: we may need to edit this zoom value

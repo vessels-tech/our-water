@@ -9,20 +9,22 @@ admin.initializeApp();
 // firestore.settings(settings)
 // */
 //Org Api
-exports.org = require('./fn_org/org')(functions, admin);
+exports.org = require('./fn_org/org')(functions);
 //Group Api
-exports.group = require('./fn_group/group')(functions, admin);
+exports.group = require('./fn_group/group')(functions);
 //Resource Api
-exports.resource = require('./fn_resource/resource')(functions, admin);
+exports.resource = require('./fn_resource/resource')(functions);
 //Reading Api
-exports.reading = require('./fn_reading/reading')(functions, admin);
+exports.reading = require('./fn_reading/reading')(functions);
 //Sync Api
-exports.sync = require('./fn_sync/sync')(functions, admin);
+exports.sync = require('./fn_sync/sync')(functions);
+//SOS Api
+exports.sos = require('./fn_sos/sos')(functions);
 //Cron Api
 _a = require('./fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
-const fs = admin.firestore();
-fs.settings({ timestampsInSnapshots: true });
 var _a;
+// const fs = admin.firestore();
+// fs.settings({timestampsInSnapshots: true});
 //TODO: move these functions to new doc
 //TODO: REENABLE
 /**
