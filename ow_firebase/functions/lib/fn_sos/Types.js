@@ -1,15 +1,22 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SOSRequestType = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 var SOSRequestType;
-exports.SOSRequestType = SOSRequestType;
-
 (function (SOSRequestType) {
-  SOSRequestType[SOSRequestType["GetCapabilities"] = 'GetCapabilities'] = "GetCapabilities";
-  SOSRequestType[SOSRequestType["DescribeSensor"] = 'DescribeSensor'] = "DescribeSensor";
-  SOSRequestType[SOSRequestType["GetObservation"] = 'GetObservation'] = "GetObservation";
-  SOSRequestType[SOSRequestType["GetFeatureOfInterest"] = 'GetFeatureOfInterest'] = "GetFeatureOfInterest";
-})(SOSRequestType || (exports.SOSRequestType = SOSRequestType = {}));
+    // SOS Core
+    SOSRequestType["GetCapabilities"] = "GetCapabilities";
+    SOSRequestType["DescribeSensor"] = "DescribeSensor";
+    SOSRequestType["GetObservation"] = "GetObservation";
+    //SOS Enhanced Operations Extension
+    SOSRequestType["GetFeatureOfInterest"] = "GetFeatureOfInterest";
+})(SOSRequestType = exports.SOSRequestType || (exports.SOSRequestType = {}));
+var GetFeatureOfInterestRequestFilterType;
+(function (GetFeatureOfInterestRequestFilterType) {
+    //only one implemented for now
+    GetFeatureOfInterestRequestFilterType["spatialFilter"] = "spatialFilter";
+    //Not yet implemented
+    //TODO: these aren't really filters... 
+    GetFeatureOfInterestRequestFilterType["procedure"] = "procedure";
+    GetFeatureOfInterestRequestFilterType["observedProperty"] = "observedProperty";
+    GetFeatureOfInterestRequestFilterType["featureOfInterest"] = "featureOfInterest";
+})(GetFeatureOfInterestRequestFilterType = exports.GetFeatureOfInterestRequestFilterType || (exports.GetFeatureOfInterestRequestFilterType = {}));
+//# sourceMappingURL=Types.js.map

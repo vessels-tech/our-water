@@ -1,32 +1,21 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.resourceTypeFromString = exports.ResourceType = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 var ResourceType;
-exports.ResourceType = ResourceType;
-
 (function (ResourceType) {
-  ResourceType[ResourceType["Well"] = 'well'] = "Well";
-  ResourceType[ResourceType["Raingauge"] = 'raingauge'] = "Raingauge";
-  ResourceType[ResourceType["Checkdam"] = 'checkdam'] = "Checkdam";
-})(ResourceType || (exports.ResourceType = ResourceType = {}));
-
-var resourceTypeFromString = function resourceTypeFromString(type) {
-  switch (type) {
-    case 'well':
-      return ResourceType.Well;
-
-    case 'raingauge':
-      return ResourceType.Raingauge;
-
-    case 'checkdam':
-      return ResourceType.Checkdam;
-
-    default:
-      throw new Error("Unknown ResourceType conversion: ".concat(type));
-  }
+    ResourceType["Well"] = "well";
+    ResourceType["Raingauge"] = "raingauge";
+    ResourceType["Checkdam"] = "checkdam";
+})(ResourceType = exports.ResourceType || (exports.ResourceType = {}));
+exports.resourceTypeFromString = (type) => {
+    switch (type) {
+        case 'well':
+            return ResourceType.Well;
+        case 'raingauge':
+            return ResourceType.Raingauge;
+        case 'checkdam':
+            return ResourceType.Checkdam;
+        default:
+            throw new Error(`Unknown ResourceType conversion: ${type}`);
+    }
 };
-
-exports.resourceTypeFromString = resourceTypeFromString;
+//# sourceMappingURL=ResourceType.js.map

@@ -1,36 +1,20 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.validateDatatypes = exports.validateDatatype = exports.SyncDatatypeList = exports.SyncDatatypes = void 0;
-var SyncDatatypes = {
-  reading: 'Reading',
-  resource: 'Resource',
-  group: 'Group'
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SyncDatatypes = {
+    reading: 'Reading',
+    resource: 'Resource',
+    group: 'Group',
 };
-exports.SyncDatatypes = SyncDatatypes;
-var SyncDatatypeList = Object.keys(SyncDatatypes).map(function (key) {
-  return SyncDatatypes[key];
-});
+exports.SyncDatatypeList = Object.keys(exports.SyncDatatypes).map(key => exports.SyncDatatypes[key]);
 /**
  * Throw if the given datatype is not in the SyncDatatypes
  */
-
-exports.SyncDatatypeList = SyncDatatypeList;
-
-var validateDatatype = function validateDatatype(datatype) {
-  if (SyncDatatypeList.indexOf(datatype) === -1) {
-    throw new Error("Could not find datatype: ".concat(datatype, " in SyncDatatypeList."));
-  }
+exports.validateDatatype = (datatype) => {
+    if (exports.SyncDatatypeList.indexOf(datatype) === -1) {
+        throw new Error(`Could not find datatype: ${datatype} in SyncDatatypeList.`);
+    }
 };
-
-exports.validateDatatype = validateDatatype;
-
-var validateDatatypes = function validateDatatypes(datatypes) {
-  datatypes.forEach(function (datatype) {
-    return validateDatatype(datatype);
-  });
+exports.validateDatatypes = (datatypes) => {
+    datatypes.forEach(datatype => exports.validateDatatype(datatype));
 };
-
-exports.validateDatatypes = validateDatatypes;
+//# sourceMappingURL=SyncDatatypes.js.map

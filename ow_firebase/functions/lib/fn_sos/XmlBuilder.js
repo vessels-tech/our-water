@@ -1,19 +1,26 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.testTsx = testTsx;
-
-var React = _interopRequireWildcard(require("react"));
-
-var _jsxToHtml = require("jsx-to-html");
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function testTsx() {
-  return (0, _jsxToHtml.render)(React.createElement("xml", {
-    tag: "123",
-    className: "Hello World"
-  }, "Hello World"));
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = require("react");
+const ReactDOMServer = require("react-dom/server");
+// const Capabilities = (children) => {
+//   return <div className="capabilities"></div>
+// }
+class ServiceIdentification extends React.Component {
+    render() {
+        return (React.createElement("hello", { className: "ServiceIdentification" }, this.props.children));
+    }
 }
+function testTsx() {
+    // return render(
+    //   <xml tag="123" className="Hello World">Hello World</xml>
+    // );
+    /*
+     * In order to get this working properly, we need to go from
+     * JSX -> React Components -> Static Markup -> PostProcessing
+     */
+    return ReactDOMServer.renderToStaticMarkup(React.createElement("div", null,
+        React.createElement(ServiceIdentification, null,
+            React.createElement("div", null, "Hello")))).replace('ows_serviceidentification', 'ows:ServiceIdentification');
+}
+exports.testTsx = testTsx;
+//# sourceMappingURL=XmlBuilder.js.map

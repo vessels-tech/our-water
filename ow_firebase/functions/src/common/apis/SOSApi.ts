@@ -24,7 +24,7 @@ export default class SOSApi {
    * @name handleRequest
    * @description Handle the basic request
    */
-  public static handleRequest(request: SOSRequest): string {
+  public static handleRequest(request: SOSRequest): Promise<SomeResult<string>> {
     //TODO: Maybe switch this out to an SOSRequest Object with different type
     switch (request.type) {
       case SOSRequestType.GetFeatureOfInterest: {
@@ -32,7 +32,8 @@ export default class SOSApi {
       }
     }
 
-    return '';
+    const res: SomeResult<string> = { type: ResultType.ERROR, message: 'Not implemented'};
+    return Promise.resolve(res);
   }
 
   //

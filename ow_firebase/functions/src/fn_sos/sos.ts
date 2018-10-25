@@ -14,7 +14,9 @@ import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
 import ErrorHandler from '../common/ErrorHandler';
-import { SOSRequestType } from './Types';
+import { SOSRequestType, GetFeatureOfInterestRequest, GetFeatureOfInterestRequestFilterType } from './Types';
+import SOSApi from '../common/apis/SOSApi';
+import { ResultType } from '../common/types/AppProviderTypes';
 
 require('express-async-errors');
 
@@ -42,14 +44,33 @@ module.exports = (functions: any) => {
   app.use(openCors);
 
 
-  app.get('*', (req, res) => {
+  app.get('*', async (req, res) => {
     //TODO: make sure is valid
     const requestType: SOSRequestType = req.query.REQUEST;
 
     //TODO: parse into the appropriate SOSRequest type
 
+    const demoRequest: GetFeatureOfInterestRequest = {
+      type: SOSRequestType.GetFeatureOfInterest,
+      version: '2.0.0',
+      service: 'SOS',
+      filter: {
+        type: GetFeatureOfInterestRequestFilterType.spatialFilter,
+        namespace: 'om:featureOfInterest/*/sams:shape',
+        //-116,50.5,-75,51.6,
+        lat: -116,
+        lng: 50.5,
+        zoom: 51.6,
+      }
+    }
 
+    const result = await SOSApi.handleRequest(demoRequest);
+    if (result.type !== ResultType.SUCCESS) { 
+      throw new Error(result.message);
+    }
 
+    res.set('Content-Type', 'text/xml');
+    res.send(result.result);
   });
   
 

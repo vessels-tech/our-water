@@ -1,14 +1,9 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.GroupType = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 var GroupType;
-exports.GroupType = GroupType;
-
 (function (GroupType) {
-  GroupType[GroupType["Village"] = 'village'] = "Village";
-  GroupType[GroupType["Pincode"] = 'pincode'] = "Pincode";
-  GroupType[GroupType["Country"] = 'country'] = "Country";
-})(GroupType || (exports.GroupType = GroupType = {}));
+    GroupType["Village"] = "village";
+    GroupType["Pincode"] = "pincode";
+    GroupType["Country"] = "country";
+})(GroupType = exports.GroupType || (exports.GroupType = {}));
+//# sourceMappingURL=GroupType.js.map

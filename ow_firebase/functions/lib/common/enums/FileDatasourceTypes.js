@@ -1,22 +1,14 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FileFormat = exports.DataType = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 var DataType;
-exports.DataType = DataType;
-
 (function (DataType) {
-  DataType[DataType["Reading"] = 'Reading'] = "Reading";
-  DataType[DataType["Resource"] = 'Resource'] = "Resource";
-  DataType[DataType["Group"] = 'Group'] = "Group";
-})(DataType || (exports.DataType = DataType = {}));
-
+    DataType["Reading"] = "Reading";
+    DataType["Resource"] = "Resource";
+    DataType["Group"] = "Group";
+})(DataType = exports.DataType || (exports.DataType = {}));
 var FileFormat;
-exports.FileFormat = FileFormat;
-
 (function (FileFormat) {
-  FileFormat[FileFormat["CSV"] = 'CSV'] = "CSV";
-  FileFormat[FileFormat["TSV"] = 'TSV'] = "TSV";
-})(FileFormat || (exports.FileFormat = FileFormat = {}));
+    FileFormat["CSV"] = "CSV";
+    FileFormat["TSV"] = "TSV";
+})(FileFormat = exports.FileFormat || (exports.FileFormat = {}));
+//# sourceMappingURL=FileDatasourceTypes.js.map

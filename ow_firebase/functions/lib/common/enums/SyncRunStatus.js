@@ -1,15 +1,10 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SyncRunStatus = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 var SyncRunStatus;
-exports.SyncRunStatus = SyncRunStatus;
-
 (function (SyncRunStatus) {
-  SyncRunStatus[SyncRunStatus["pending"] = 'pending'] = "pending";
-  SyncRunStatus[SyncRunStatus["running"] = 'running'] = "running";
-  SyncRunStatus[SyncRunStatus["finished"] = 'finished'] = "finished";
-  SyncRunStatus[SyncRunStatus["failed"] = 'failed'] = "failed";
-})(SyncRunStatus || (exports.SyncRunStatus = SyncRunStatus = {}));
+    SyncRunStatus["pending"] = "pending";
+    SyncRunStatus["running"] = "running";
+    SyncRunStatus["finished"] = "finished";
+    SyncRunStatus["failed"] = "failed";
+})(SyncRunStatus = exports.SyncRunStatus || (exports.SyncRunStatus = {}));
+//# sourceMappingURL=SyncRunStatus.js.map
