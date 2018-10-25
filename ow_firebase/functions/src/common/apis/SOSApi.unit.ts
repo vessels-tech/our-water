@@ -8,7 +8,7 @@ import * as assert from 'assert';
 
 describe('SOSApi Unit Tests', function() {
   describe('GetCapabilities', function() {
-    it.only('handles the default request', () => {
+    it('handles the default request', () => {
       //Arrange
       const request = {};
       const expected = '';
@@ -20,4 +20,19 @@ describe('SOSApi Unit Tests', function() {
       assert.equal(response, expected);
     });
   });
+
+  describe('GetObservation', function() { 
+    it.only('handles the default request', () => {
+      //Arrange
+      const request = {};
+      const expected = '';
+
+      //Act
+      const response = SOSApi.getObservation();
+
+      //Assert
+      assert.equal(response, expected);
+
+    });
+  })
 });
