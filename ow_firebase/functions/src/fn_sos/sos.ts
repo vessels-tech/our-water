@@ -15,7 +15,6 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import ErrorHandler from '../common/ErrorHandler';
 import { SOSRequestType } from './Types';
-import { SOSApi } from '../common/apis/SOSApi';
 
 require('express-async-errors');
 

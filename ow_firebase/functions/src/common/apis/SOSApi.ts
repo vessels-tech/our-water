@@ -1,7 +1,7 @@
 import * as builder from 'xmlbuilder';
 import { SOSRequestType } from "../../fn_sos/Types";
 import xmlbuilder = require('xmlbuilder');
-import { testGetCapabilities } from '../../fn_sos/XmlBuilder';
+import {testTsx } from '../../fn_sos/XmlBuilder';
 
 
 /**
@@ -44,76 +44,78 @@ export default class SOSApi {
    * eg: http://schemas.opengis.net/sos/2.0/examples/core/GetCapabilities1_response.xml
    */
   static getCapabilities(): string {
-    console.log(testGetCapabilities());
+    console.log(testTsx());
+
+    return "";
 
     // const xml = builder.create('sos:Capabilities', { version: '2.0.0', 'xsi:schemaLocation': "http://www.opengis.net/sos/2.0 http://schemas.opengis.net/sos/2.0/sos.xsd"})
     //   .ele('xmlbuilder')
     //     .ele('repo', { 'type': 'git' }, 'git://github.com/oozcitak/xmlbuilder-js.git')
     //   .end({pretty: true});
 
-    const root = xmlbuilder.begin()
-    .ele('sos:Capabilities', { version: '2.0.0', 'xsi:schemaLocation': "http://www.opengis.net/sos/2.0 http://schemas.opengis.net/sos/2.0/sos.xsd" })
-      .ele('ows:ServiceIdentification')
-        .ele('ows:Title', {}, 'OurWater SOS').up()
-        .ele('ows:Abstract', {}, 'TODO: insert abstract').up()
-        .ele('ows:Keywords').up()
-        .ele('ows:ServiceType', { codeSpace: 'http://opengeospatial.net' }, 'OGC:SOS').up()
-        .ele('ows:ServiceTypeVersion', {}, '2.0.0').up()
-        //TODO: finish later
-      .up()
+    // const root = xmlbuilder.begin()
+    // .ele('sos:Capabilities', { version: '2.0.0', 'xsi:schemaLocation': "http://www.opengis.net/sos/2.0 http://schemas.opengis.net/sos/2.0/sos.xsd" })
+    //   .ele('ows:ServiceIdentification')
+    //     .ele('ows:Title', {}, 'OurWater SOS').up()
+    //     .ele('ows:Abstract', {}, 'TODO: insert abstract').up()
+    //     .ele('ows:Keywords').up()
+    //     .ele('ows:ServiceType', { codeSpace: 'http://opengeospatial.net' }, 'OGC:SOS').up()
+    //     .ele('ows:ServiceTypeVersion', {}, '2.0.0').up()
+    //     //TODO: finish later
+    //   .up()
 
-      .ele('ows:ServiceProvider')
-        .ele('ows:ProviderName', {}, 'OurWater, from Vessels Tech').up()
-        .ele('ows:ProviderSite', {'xlink:href':'https://vesselstech.com'}).up()
-        .ele('ows:ServiceContact').up()
-      .up()
+    //   .ele('ows:ServiceProvider')
+    //     .ele('ows:ProviderName', {}, 'OurWater, from Vessels Tech').up()
+    //     .ele('ows:ProviderSite', {'xlink:href':'https://vesselstech.com'}).up()
+    //     .ele('ows:ServiceContact').up()
+    //   .up()
 
-    .ele('ows:OperationsMetadata')
-      .ele('ows:Operation', {name: 'GetCapabilities'})
-        .ele('ows:DCP')
-          .ele('ows:HTTP')
-            .ele('ows:Get', { 'xlink:href':"http://gin.gw-info.net/GinService/sos/gw?"}).up()
-            // Are we supporting post?
-            .ele('ows:Post', { 'xlink:href':"http://gin.gw-info.net/GinService/sos/gw?"}).up()
-          .up()
-        .up()
-        .ele('ows:Parameter', {name:'updateSequence'})
-          .ele('ows:AnyValue').up()
-        .up()
-        .ele('ows:Parameter', {name:'AcceptVersions'})
-          .ele('ows:AllowedValues')
-            .ele('ows:Value', {}, '2.0.0').up()
-          .up()
-        .up()
-        .ele('ows:Parameter', {name:'Sections'})
-          .ele('ows:AllowedValues')
-            .ele('ows:Value', {}, 'ServiceIdentification').up()
-            .ele('ows:Value', {}, 'ServiceProvider').up()
-            .ele('ows:Value', {}, 'OperationsMetadata').up()
-            .ele('ows:Value', {}, 'FilterCapabilities').up()
-            .ele('ows:Value', {}, 'Contents').up()
-            .ele('ows:Value', {}, 'All').up()
-          .up()
-        .up()
-        .ele('ows:Parameter', {name:'AcceptFormats'})
-          .ele('ows:AllowedValues')
-            .ele('ows:Value', {}, 'text/xml').up()
-            .ele('ows:Value', {}, 'application/zip').up()
-            // TODO: we should support application/json
-          .up()
-        .up()
+    // .ele('ows:OperationsMetadata')
+    //   .ele('ows:Operation', {name: 'GetCapabilities'})
+    //     .ele('ows:DCP')
+    //       .ele('ows:HTTP')
+    //         .ele('ows:Get', { 'xlink:href':"http://gin.gw-info.net/GinService/sos/gw?"}).up()
+    //         // Are we supporting post?
+    //         .ele('ows:Post', { 'xlink:href':"http://gin.gw-info.net/GinService/sos/gw?"}).up()
+    //       .up()
+    //     .up()
+    //     .ele('ows:Parameter', {name:'updateSequence'})
+    //       .ele('ows:AnyValue').up()
+    //     .up()
+    //     .ele('ows:Parameter', {name:'AcceptVersions'})
+    //       .ele('ows:AllowedValues')
+    //         .ele('ows:Value', {}, '2.0.0').up()
+    //       .up()
+    //     .up()
+    //     .ele('ows:Parameter', {name:'Sections'})
+    //       .ele('ows:AllowedValues')
+    //         .ele('ows:Value', {}, 'ServiceIdentification').up()
+    //         .ele('ows:Value', {}, 'ServiceProvider').up()
+    //         .ele('ows:Value', {}, 'OperationsMetadata').up()
+    //         .ele('ows:Value', {}, 'FilterCapabilities').up()
+    //         .ele('ows:Value', {}, 'Contents').up()
+    //         .ele('ows:Value', {}, 'All').up()
+    //       .up()
+    //     .up()
+    //     .ele('ows:Parameter', {name:'AcceptFormats'})
+    //       .ele('ows:AllowedValues')
+    //         .ele('ows:Value', {}, 'text/xml').up()
+    //         .ele('ows:Value', {}, 'application/zip').up()
+    //         // TODO: we should support application/json
+    //       .up()
+    //     .up()
         
-      .up()
+    //   .up()
 
 
-    .up()
+    // .up()
 
-      .ele('sos:filterCapabilities')
-      .up()
+    //   .ele('sos:filterCapabilities')
+    //   .up()
 
-      .ele('sos:contents')
-      .up()
-    return root.end({ pretty: true })
+    //   .ele('sos:contents')
+    //   .up()
+    // return root.end({ pretty: true })
   }
 
   /**

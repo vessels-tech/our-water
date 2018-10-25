@@ -9,7 +9,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "unit": "mocha -r ts-node/register ./**/*.unit.ts",
+    "unit": "ts-mocha ./**/*.unit.ts",
     "service": "mocha -r ts-node/register ./**/*.service.ts"
   },
   "main": "lib/index.js",
@@ -30,6 +30,7 @@
     "firebase-app": "^0.0.1",
     "firebase-functions": "^2.0.2",
     "joi": "^13.2.0",
+    "jsx-to-html": "^1.1.0",
     "jsx-xml": "^0.1.1",
     "mocha": "^5.1.1",
     "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
@@ -37,10 +38,12 @@
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",
     "papaparse": "^4.4.0",
+    "react": "^16.6.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "request-promise-native": "^1.0.5",
     "thread-sleep": "^2.1.0",
+    "ts-mocha": "^2.0.0",
     "xmlbuilder": "^10.1.1"
   },
   "devDependencies": {
