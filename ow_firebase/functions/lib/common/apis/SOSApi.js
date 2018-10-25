@@ -173,13 +173,16 @@ class SOSApi {
                             '@xlink:title': "ca.ab.gov.wells.667",
                         },
                         'om:result': {
-                            'wml2:MeasurementTimeSeries': Object.assign({ '@gml:id': 'ts1', 'wml2:metadata': {
+                            'wml2:MeasurementTimeSeries': {
+                                '@gml:id': 'ts1',
+                                'wml2:metadata': {
                                     'wml2:MeasurementTimeseriesMetadata': {
                                         // Param
                                         'wml2:temporalExtent': { '@xlink:href': '#go_1540419879602_ts' },
                                         'wml2:cumulative': { '#text': false },
                                     }
-                                }, 'wml2:defaultPointMetadata': {
+                                },
+                                'wml2:defaultPointMetadata': {
                                     'wml2:DefaultTVPMeasurementMetadata': {
                                         'wml2:uom': {
                                             '@code': ' m ',
@@ -187,21 +190,15 @@ class SOSApi {
                                             '@xlink:title': ' m above sea level',
                                         }
                                     }
-                                }, 
+                                },
                                 // TODO: Load these points dynamically
                                 'wml2:point': {
                                     'wml2:MeasurementTVP': {
                                         'wml2:time': '1995-01-28T17:00:00.000Z',
                                         'wml2:value': 1043.42,
                                     }
-                                }, 
-                                //TODO: this wont work - the dict type won't allow us to have duplicates!
-                                'wml2:point': {
-                                    'wml2:MeasurementTVP': {
-                                        'wml2:time': '1995-01-28T17:00:00.000Z',
-                                        'wml2:value': 1043.42,
-                                    }
-                                } }, SOSApiBuilder_1.Point('1995-01-28T17:00:00.000Z', 12220), SOSApiBuilder_1.Point('1995-01-28T17:00:00.000Z', 12221))
+                                },
+                            }
                         }
                     }
                 },

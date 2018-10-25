@@ -1,6 +1,5 @@
 import * as builder from 'xmlbuilder';
 import { SOSRequestType, SOSRequest, GetFeatureOfInterestRequest, GetFeatureOfInterestRequestFilterType } from "../../fn_sos/Types";
-import {testTsx } from '../../fn_sos/XmlBuilder';
 import xmlbuilder = require('xmlbuilder');
 import { allowedValues, serviceIdentification, serviceProvider, operationsMetadata, filterCapabilities, contents, operations, parameters, dcp, ParameterType, Point } from '../SOSApiBuilder';
 import { SomeResult, ResultType, SuccessResult } from '../types/AppProviderTypes';
@@ -204,14 +203,6 @@ export default class SOSApi {
                   }
                 },
                 //TODO: this wont work - the dict type won't allow us to have duplicates!
-                'wml2:point': {
-                  'wml2:MeasurementTVP': {
-                    'wml2:time': '1995-01-28T17:00:00.000Z',
-                    'wml2:value': 1043.42,
-                  }
-                },
-                ...Point('1995-01-28T17:00:00.000Z', 12220),
-                ...Point('1995-01-28T17:00:00.000Z', 12221),
               }
             }
           }

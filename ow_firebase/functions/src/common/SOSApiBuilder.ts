@@ -1,5 +1,4 @@
 import xmlbuilder = require('xmlbuilder');
-import { any } from 'prop-types';
 
 type nodeType = xmlbuilder.XMLElementOrXMLNode;
 

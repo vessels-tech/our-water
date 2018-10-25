@@ -4,7 +4,7 @@ const validate = require("express-validation");
 const express = require("express");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-module.exports = (functions, admin) => {
+module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
     const fs = admin.firestore();
