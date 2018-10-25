@@ -1,8 +1,12 @@
 import * as builder from 'xmlbuilder';
-import { SOSRequestType } from "../../fn_sos/Types";
+import { SOSRequestType, SOSRequest, GetFeatureOfInterestRequest, GetFeatureOfInterestRequestFilterType } from "../../fn_sos/Types";
 import {testTsx } from '../../fn_sos/XmlBuilder';
 import xmlbuilder = require('xmlbuilder');
 import { allowedValues, serviceIdentification, serviceProvider, operationsMetadata, filterCapabilities, contents, operations, parameters, dcp, ParameterType, Point } from '../SOSApiBuilder';
+import { SomeResult, ResultType, SuccessResult } from '../types/AppProviderTypes';
+import FirebaseApi from './FirebaseApi';
+import FOI from '../models/SOS/FOI';
+import GetFeatureOfInterestResponse, { GetFeatureOfInterestResponseType } from '../models/SOS/GetFeatureOfInterestResponse';
 
 
 /**
@@ -16,16 +20,15 @@ import { allowedValues, serviceIdentification, serviceProvider, operationsMetada
 export default class SOSApi {
 
 
-
   /**
    * @name handleRequest
    * @description Handle the basic request
    */
-  public static handleRequest(type: SOSRequestType): string {
+  public static handleRequest(request: SOSRequest): string {
     //TODO: Maybe switch this out to an SOSRequest Object with different type
-    switch (type) {
-      case SOSRequestType.GetCapabilities: {
-        return this.getCapabilities();
+    switch (request.type) {
+      case SOSRequestType.GetFeatureOfInterest: {
+        return this.getFeatureOfInterest(request);
       }
     }
 
@@ -252,15 +255,39 @@ export default class SOSApi {
    */
 //eg: http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetFeatureOfInterest&VERSION=2.0.0&SERVICE=SOS&spatialFilter=om:featureOfInterest/*/sams: shape,-116, 50.5, -75, 1.6, http://www.opengis.net/def/crs/EPSG/0/4326&namespaces=xmlns(sams,http://www.opengis.net/samplingSpatial/2.0),xmlns(om,http://www.opengis.net/om/2.0)
 
-  static getFeatureOfInterest(): string {
+  static async getFeatureOfInterest(request: GetFeatureOfInterestRequest): Promise<SomeResult<string>> {
 
-    //TODO: Parse out request and build the Firebase Query
-    //Convert from firebase Query to SOS Objects
-    //Serialize SOS Objects
+    if (request.filter.type !== GetFeatureOfInterestRequestFilterType.spatialFilter) {
+      return {
+        type: ResultType.ERROR,
+        message: 'only spatial filter is currently supported',
+      }
+    }
+
+    const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
+
+    /* Make the Firebase Api call */
+    //TODO: we may need to edit this zoom value
+    const result = await FirebaseApi.resourcesNearLocation(orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    /* Convert from firebase Query to SOS Objects */
+    const fois: FOI[] = result.result.map(r => FOI.fromResource(r));
+    
+    /*Serialize SOS Objects*/
+    const foiResponse: GetFeatureOfInterestResponseType = {
+      //TODO: not sure about this id
+      id: '12345',
+      fois,
+      exceptionReport: 'exceptionreport?',
+    }
+    const response = new GetFeatureOfInterestResponse(foiResponse);
+    const responseString = response.serialize();
+
     //build the response
-
-    return '';
+    const res: SomeResult<string> = { type: ResultType.SUCCESS, result: responseString};
+    return res;
   }
-
-
 }

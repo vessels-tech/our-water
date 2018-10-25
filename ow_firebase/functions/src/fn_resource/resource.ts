@@ -9,10 +9,14 @@ import { Resource } from '../common/models/Resource';
 import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../common/types/ResourceIdType';
 import { resourceTypeFromString } from '../common/enums/ResourceType';
+import FirebaseApi from '../common/apis/FirebaseApi';
+import { ResultType } from '../common/types/AppProviderTypes';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin')
+require('express-async-errors');
+
 
 module.exports = (functions, admin) => {
   const app = express();
@@ -289,39 +293,17 @@ module.exports = (functions, admin) => {
     }
   };
 
-  app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => {
+  app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), async (req, res, next) => {
     const { latitude, longitude, distance } = req.query;
     const { orgId } = req.params;
 
-    const distanceMultiplier = 100; //TODO: tune this value based on the queries we are getting back once we can see it a map
+    const result = await FirebaseApi.resourcesNearLocation(orgId, latitude,longitude, distance);
+    if (result.type === ResultType.ERROR) {
+      return next(result.message);
+    }
 
-    const minLat = latitude - distanceMultiplier * distance;
-    const minLng = longitude - distanceMultiplier * distance;
-    const maxLat = latitude + distanceMultiplier * distance;
-    const maxLng = longitude + distanceMultiplier * distance;
-
-    console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
-    
-    const readingsRef = fs.collection(`/org/${orgId}/resource`)
-      .where('coords', '>=', new OWGeoPoint(minLat, minLng))
-      .where('coords', '<=', new OWGeoPoint(maxLat, maxLng)).get()
-      .then(snapshot => {
-        const resources = []
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          data.id = doc.id;
-
-          // Filter based on longitude. TODO: remove this once google fixes this query
-          if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
-            return;
-          }
-
-          resources.push(data);
-        });
-        
-        res.json(resources);
-      })
-      .catch(err => next(err));
+    res.json(result.result);
+  
   });
 
 

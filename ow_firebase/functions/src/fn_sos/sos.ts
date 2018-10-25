@@ -46,6 +46,8 @@ module.exports = (functions: any) => {
     //TODO: make sure is valid
     const requestType: SOSRequestType = req.query.REQUEST;
 
+    //TODO: parse into the appropriate SOSRequest type
+
 
 
   });
