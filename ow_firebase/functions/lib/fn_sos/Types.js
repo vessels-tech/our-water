@@ -1,12 +1,15 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SOSRequestType = void 0;
 var SOSRequestType;
+exports.SOSRequestType = SOSRequestType;
+
 (function (SOSRequestType) {
-    // SOS Core
-    SOSRequestType["GetCapabilities"] = "GetCapabilities";
-    SOSRequestType["DescribeSensor"] = "DescribeSensor";
-    SOSRequestType["GetObservation"] = "GetObservation";
-    //SOS Enhanced Operations Extension
-    SOSRequestType["GetFeatureOfInterest"] = "GetFeatureOfInterest";
-})(SOSRequestType = exports.SOSRequestType || (exports.SOSRequestType = {}));
-//# sourceMappingURL=Types.js.map
+  SOSRequestType[SOSRequestType["GetCapabilities"] = 'GetCapabilities'] = "GetCapabilities";
+  SOSRequestType[SOSRequestType["DescribeSensor"] = 'DescribeSensor'] = "DescribeSensor";
+  SOSRequestType[SOSRequestType["GetObservation"] = 'GetObservation'] = "GetObservation";
+  SOSRequestType[SOSRequestType["GetFeatureOfInterest"] = 'GetFeatureOfInterest'] = "GetFeatureOfInterest";
+})(SOSRequestType || (exports.SOSRequestType = SOSRequestType = {}));

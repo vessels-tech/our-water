@@ -1,8 +1,13 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DatasourceType = void 0;
 var DatasourceType;
+exports.DatasourceType = DatasourceType;
+
 (function (DatasourceType) {
-    DatasourceType["LegacyMyWellDatasource"] = "LegacyMyWellDatasource";
-    DatasourceType["FileDatasource"] = "FileDatasource";
-})(DatasourceType = exports.DatasourceType || (exports.DatasourceType = {}));
-//# sourceMappingURL=DatasourceType.js.map
+  DatasourceType[DatasourceType["LegacyMyWellDatasource"] = 'LegacyMyWellDatasource'] = "LegacyMyWellDatasource";
+  DatasourceType[DatasourceType["FileDatasource"] = 'FileDatasource'] = "FileDatasource";
+})(DatasourceType || (exports.DatasourceType = DatasourceType = {}));

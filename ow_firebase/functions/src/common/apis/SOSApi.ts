@@ -1,6 +1,5 @@
 import * as builder from 'xmlbuilder';
 import { SOSRequestType } from "../../fn_sos/Types";
-import xmlbuilder = require('xmlbuilder');
 import {testTsx } from '../../fn_sos/XmlBuilder';
 
 

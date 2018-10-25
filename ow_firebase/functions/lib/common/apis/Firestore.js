@@ -1,11 +1,21 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const admin = require('firebase-admin');
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var admin = require('firebase-admin');
+
 if (admin.apps.length === 0) {
-    admin.initializeApp();
+  admin.initializeApp();
 }
-const firestore = admin.firestore();
-const settings = { /* your settings... */ timestampsInSnapshots: true };
+
+var firestore = admin.firestore();
+var settings = {
+  /* your settings... */
+  timestampsInSnapshots: true
+};
 firestore.settings(settings);
-exports.default = firestore;
-//# sourceMappingURL=Firestore.js.map
+var _default = firestore;
+exports.default = _default;

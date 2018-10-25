@@ -68,8 +68,8 @@ export class Group {
         if (!isNullOrUndefined(serializedExternalId.legacyMyWellId)) {
           base['externalIds'] = serializedExternalId;
         }
-      } catch {
-
+      } catch (err) {
+        console.log("Error", err);
       }
     }
 

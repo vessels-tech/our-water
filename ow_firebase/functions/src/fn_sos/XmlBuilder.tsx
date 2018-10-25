@@ -26,5 +26,7 @@ export function testTsx() {
   //   </capabilities>
   // );
 
-  return render(<div className="hello">Hello World</div>);
+  return render(
+    <div className="hello">Hello World</div>
+  );
 }
