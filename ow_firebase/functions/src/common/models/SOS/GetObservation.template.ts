@@ -3,9 +3,9 @@ const template =
 	<swe:extension>
 		<wml2:SOSProfileExtension>
 			<wml2:metadata>
-				<wml2:DocumentMetadata gml:id="gin.DocMd.1">
+				<wml2:DocumentMetadata gml:id="ow.DocMd.1">
 					<wml2:generationData>2018-10-27T07:08:15.242-04:00</wml2:generationData>
-					<wml2:generationSystem>Groundwater Information Network Mediator 2.0</wml2:generationSystem>
+					<wml2:generationSystem>OurWater Metadata</wml2:generationSystem>
 				</wml2:DocumentMetadata>
 			</wml2:metadata>
 			<wml2:phenomenaDictionary>
@@ -25,32 +25,32 @@ const template =
 		</wml2:SOSProfileExtension>
 	</swe:extension>
   <sos:observationData>
-    <om:OM_Observation gml:id="go_1540638495228">
+    <om:OM_Observation gml:id="{{observationId}}">
 			<om:phenomenonTime>
-				<gml:TimePeriod gml:id="go_1540638495228_ts">
-					<beginPosition xmlns="http://www.opengis.net/gml/3.2">1995-01-28T17:00:00.000Z</beginPosition>
-					<endPosition xmlns="http://www.opengis.net/gml/3.2">1995-12-27T17:00:00.000Z</endPosition>
+				<gml:TimePeriod gml:id="{timePeriodId}">
+					<beginPosition xmlns="http://www.opengis.net/gml/3.2">{{startTime}}</beginPosition>
+					<endPosition xmlns="http://www.opengis.net/gml/3.2">{{endTime}}</endPosition>
 				</gml:TimePeriod>
 			</om:phenomenonTime>
 			<om:resultTime>
-			<gml:TimeInstant gml:id="rs_time_1">
-				<gml:timePosition>2018-10-27T07:08:15.242-04:00</gml:timePosition>
-			</gml:TimeInstant>
+				<gml:TimeInstant gml:id="rs_time_1">
+					<gml:timePosition>{{responseTime}}</gml:timePosition>
+				</gml:TimeInstant>
 			</om:resultTime>
-				<procedure xlink:href="urn:ogc:object:feature:Sensor:gwprobe" xmlns="http://www.opengis.net/om/2.0"></procedure>
-				<om:observedProperty xlink:href="urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel"></om:observedProperty>
-			<om:featureOfInterest xlink:href="http://ngwd-bdnes.cits.nrcan.gc.ca/Reference/uri-cgi/feature/gsc/waterwell/ca.ab.gov.wells.667" xlink:title="ca.ab.gov.wells.667"></om:featureOfInterest>
+			<procedure xlink:href="urn:ogc:object:feature:Sensor:gwprobe" xmlns="http://www.opengis.net/om/2.0"></procedure>
+			<om:observedProperty xlink:href="{{observedPropertyUri}}"></om:observedProperty>
+			<om:featureOfInterest xlink:href="http://ngwd-bdnes.cits.nrcan.gc.ca/Reference/uri-cgi/feature/gsc/waterwell/ca.ab.gov.wells.667" xlink:title="{{featureOfInterestId}}"></om:featureOfInterest>
 			<om:result>
-			<wml2:MeasurementTimeSeries gml:id="ts1">
+			<wml2:MeasurementTimeSeries gml:id="{{measurementTimeseriesId}}">
 			<wml2:metadata>
 				<wml2:MeasurementTimeseriesMetadata>
-					<wml2:temporalExtent xlink:href="#go_1540638495228_ts"></wml2:temporalExtent>
+					<wml2:temporalExtent xlink:href="#{timePeriodId}"></wml2:temporalExtent>
 					<wml2:cumulative>false</wml2:cumulative>
 				</wml2:MeasurementTimeseriesMetadata>
 			</wml2:metadata>
 			<wml2:defaultPointMetadata>
 				<wml2:DefaultTVPMeasurementMetadata>
-					<wml2:uom code=" m " xlink:href="http://www.opengis.net/def/uom/UCUM/0/m" xlink:title="m above sea level">				</wml2:uom>
+					<wml2:uom code=" m " xlink:href="http://www.opengis.net/def/uom/UCUM/0/m" xlink:title="m above sea level"></wml2:uom>
 				</wml2:DefaultTVPMeasurementMetadata>
 			</wml2:defaultPointMetadata>
 				{{{pointHTML}}}

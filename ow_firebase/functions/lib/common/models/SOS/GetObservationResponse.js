@@ -6,6 +6,13 @@ class GetObservationResponse {
     constructor(init) {
         this.id = init.id;
         this.observationPoints = init.observationPoints;
+        this.startTime = init.startTime;
+        this.endTime = init.endTime;
+        this.responseTime = init.responseTime;
+        this.featureOfInterestId = init.featureOfInterestId;
+        this.measurementTimeseriesId = init.measurementTimeseriesId;
+        this.observationId = init.observationId;
+        this.timePeriodId = init.timePeriodId;
     }
     serialize() {
         const template = handlebars.compile(GetObservation_template_1.default);
