@@ -9,14 +9,16 @@ var SOSRequestType;
     //SOS Enhanced Operations Extension
     SOSRequestType["GetFeatureOfInterest"] = "GetFeatureOfInterest";
 })(SOSRequestType = exports.SOSRequestType || (exports.SOSRequestType = {}));
-var GetFeatureOfInterestRequestFilterType;
-(function (GetFeatureOfInterestRequestFilterType) {
+var FilterType;
+(function (FilterType) {
     //only one implemented for now
-    GetFeatureOfInterestRequestFilterType["spatialFilter"] = "spatialFilter";
-    //Not yet implemented
-    //TODO: these aren't really filters... 
-    GetFeatureOfInterestRequestFilterType["procedure"] = "procedure";
-    GetFeatureOfInterestRequestFilterType["observedProperty"] = "observedProperty";
-    GetFeatureOfInterestRequestFilterType["featureOfInterest"] = "featureOfInterest";
-})(GetFeatureOfInterestRequestFilterType = exports.GetFeatureOfInterestRequestFilterType || (exports.GetFeatureOfInterestRequestFilterType = {}));
+    FilterType["spatialFilter"] = "spatialFilter";
+    FilterType["temporalFilter"] = "temporalFilter";
+    FilterType["noFilter"] = "noFilter";
+    // //Not yet implemented
+    // //TODO: these aren't really filters... 
+    // procedure="procedure",
+    // observedProperty="observedProperty",
+    // featureOfInterest="featureOfInterest",
+})(FilterType = exports.FilterType || (exports.FilterType = {}));
 //# sourceMappingURL=Types.js.map
