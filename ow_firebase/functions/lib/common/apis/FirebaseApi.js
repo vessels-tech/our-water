@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const Firestore_1 = require("./Firestore");
-const OWGeoPoint_1 = require("../models/OWGeoPoint");
+const OWGeoPoint = require("../models/OWGeoPoint");
 class FirebaseApi {
     static resourcesNearLocation(orgId, latitude, longitude, distance) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -21,8 +21,8 @@ class FirebaseApi {
             const maxLng = longitude + distanceMultiplier * distance;
             console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
             return Firestore_1.default.collection(`/org/${orgId}/resource`)
-                .where('coords', '>=', new OWGeoPoint_1.default(minLat, minLng))
-                .where('coords', '<=', new OWGeoPoint_1.default(maxLat, maxLng)).get()
+                .where('coords', '>=', new OWGeoPoint(minLat, minLng))
+                .where('coords', '<=', new OWGeoPoint(maxLat, maxLng)).get()
                 .then(snapshot => {
                 const resources = [];
                 snapshot.forEach(doc => {

@@ -20,7 +20,6 @@ const GetFeatureOfInterestResponse_1 = require("../models/SOS/GetFeatureOfIntere
  *
  * TODO: use these to format your responses in xml:
  *  https://github.com/highsource/jsonix
- *  https://github.com/highsource/jsonix
  *
  */
 class SOSApi {
@@ -29,7 +28,6 @@ class SOSApi {
      * @description Handle the basic request
      */
     static handleRequest(request) {
-        //TODO: Maybe switch this out to an SOSRequest Object with different type
         switch (request.type) {
             case Types_1.SOSRequestType.GetFeatureOfInterest: {
                 return this.getFeatureOfInterest(request);
@@ -191,7 +189,6 @@ class SOSApi {
                                         }
                                     }
                                 },
-                                // TODO: Load these points dynamically
                                 'wml2:point': {
                                     'wml2:MeasurementTVP': {
                                         'wml2:time': '1995-01-28T17:00:00.000Z',

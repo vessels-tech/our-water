@@ -2,7 +2,7 @@ import { SomeResult, ResultType } from "../types/AppProviderTypes";
 
 import firestore from './Firestore';
 import { Resource } from "../models/Resource";
-import OWGeoPoint from '../models/OWGeoPoint';
+import * as OWGeoPoint from '../models/OWGeoPoint';
 
 
 export default class FirebaseApi {

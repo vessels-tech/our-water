@@ -5,6 +5,8 @@ import SOSApi from '../common/apis/SOSApi';
 import { ResultType } from '../common/types/AppProviderTypes';
 
 describe('SOS Handler Service tests', function () {
+  this.timeout(4000);
+
   it.only('Basic GetFeatureOfInterestRequest', async () => {
     
     //Arrange
@@ -19,10 +21,10 @@ describe('SOS Handler Service tests', function () {
         //-116,50.5,-75,51.6,
         lat: 23.5243611111111,
         lng: 73,
-        zoom: 0.1,
+        zoom: 0.0005,
       }
     }
-    const expected = '';
+    const expected = `\n<sos:GetFeatureOfInterestResponse>\n</sos:GetFeatureOfInterestResponse>\n`;
     
     //Act
     const result = await SOSApi.handleRequest(demoRequest);

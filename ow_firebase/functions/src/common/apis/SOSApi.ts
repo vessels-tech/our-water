@@ -12,7 +12,6 @@ import GetFeatureOfInterestResponse, { GetFeatureOfInterestResponseType } from '
  * 
  * TODO: use these to format your responses in xml:
  *  https://github.com/highsource/jsonix
- *  https://github.com/highsource/jsonix
  * 
  */
 
@@ -24,7 +23,6 @@ export default class SOSApi {
    * @description Handle the basic request
    */
   public static handleRequest(request: SOSRequest): Promise<SomeResult<string>> {
-    //TODO: Maybe switch this out to an SOSRequest Object with different type
     switch (request.type) {
       case SOSRequestType.GetFeatureOfInterest: {
         return this.getFeatureOfInterest(request);
@@ -195,14 +193,12 @@ export default class SOSApi {
                     }
                   }
                 },
-                // TODO: Load these points dynamically
                 'wml2:point': {
                   'wml2:MeasurementTVP': {
                     'wml2:time': '1995-01-28T17:00:00.000Z',
                     'wml2:value': 1043.42,
                   }
                 },
-                //TODO: this wont work - the dict type won't allow us to have duplicates!
               }
             }
           }
