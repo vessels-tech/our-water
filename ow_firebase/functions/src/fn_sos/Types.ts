@@ -9,7 +9,7 @@ export enum SOSRequestType {
 } 
 
 /* Add new request types here */
-export type SOSRequest = GetFeatureOfInterestRequest;
+export type SOSRequest = GetCapabilitiesRequest | DescribeSensorRequest | GetObservationRequest | GetFeatureOfInterestRequest;
 
 //http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetCapabilities&ACCEPTVERSIONS=2.0.0,1.0.0&SERVICE=SOS
 export type GetCapabilitiesRequest = {
@@ -34,7 +34,7 @@ export type DescribeSensorRequest = {
 //http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetObservation&VERSION=2.0.0&SERVICE=SOS&offering=GW_LEVEL&featureOfInterest=ab.mon.667&observedProperty=urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel
 //http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetObservation&VERSION=2.0.0&SERVICE=SOS&offering=GW_LEVEL&featureOfInterest=ab.mon.667&observedProperty=urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel&temporalFilter=om:phenomenonTime,1995-01-01T00:00:00Z/1996-01-01T00:00:00Z&&namespaces=xmlns(om,http://www.opengis.net/om/2.0)
 export type GetObservationRequest = {
-  type: SOSRequestType.DescribeSensor,
+  type: SOSRequestType.GetObservation,
   version: '2.0.0', //should be 2.0.0
   service: 'SOS',
   orgId: string,
@@ -50,7 +50,7 @@ export type GetFeatureOfInterestRequest = {
   type: SOSRequestType.GetFeatureOfInterest,
   version: '2.0.0', //should be 2.0.0
   service: 'SOS',
-  filter: TemporalFilter | NoFilter,
+  filter: SpatialFilter | NoFilter,
   orgId: string,
 }
 

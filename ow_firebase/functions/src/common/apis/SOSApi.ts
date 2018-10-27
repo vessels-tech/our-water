@@ -1,5 +1,5 @@
 import * as builder from 'xmlbuilder';
-import { SOSRequestType, SOSRequest, GetFeatureOfInterestRequest, GetFeatureOfInterestRequestFilterType } from "../../fn_sos/Types";
+import { SOSRequestType, SOSRequest, GetFeatureOfInterestRequest, FilterType, GetCapabilitiesRequest, DescribeSensorRequest, GetObservationRequest } from "../../fn_sos/Types";
 import xmlbuilder = require('xmlbuilder');
 import { allowedValues, serviceIdentification, serviceProvider, operationsMetadata, filterCapabilities, contents, operations, parameters, dcp, ParameterType, Point } from '../SOSApiBuilder';
 import { SomeResult, ResultType, SuccessResult } from '../types/AppProviderTypes';
@@ -24,13 +24,15 @@ export default class SOSApi {
    */
   public static handleRequest(request: SOSRequest): Promise<SomeResult<string>> {
     switch (request.type) {
-      case SOSRequestType.GetFeatureOfInterest: {
-        return this.getFeatureOfInterest(request);
+      case SOSRequestType.GetCapabilities: return this.getCapabilities(request);
+      case SOSRequestType.DescribeSensor: return this.describeSensor(request);
+      case SOSRequestType.GetObservation: return this.getObservation(request);
+      case SOSRequestType.GetFeatureOfInterest: return this.getFeatureOfInterest(request);
+      default: {
+        const _exhaustiveMatch = request;
+        throw new Error(`Non-exhausive match for path: ${_exhaustiveMatch}`);
       }
     }
-
-    const res: SomeResult<string> = { type: ResultType.ERROR, message: 'Not implemented'};
-    return Promise.resolve(res);
   }
 
   //
@@ -45,42 +47,8 @@ export default class SOSApi {
    * 
    * eg: http://schemas.opengis.net/sos/2.0/examples/core/GetCapabilities1_response.xml
    */
-  static getCapabilities(): string {
-
-    let node = xmlbuilder.begin().ele('sos:Capabilities', { version: '2.0.0', 'xsi:schemaLocation': "12345" });
-    serviceIdentification(node, '', '');
-    serviceProvider(node);
-    operationsMetadata(node, [
-      (innerNode) => operations(innerNode, 'GetCapabilities', [
-        (i) => dcp(i),
-        (i) => parameters(i, 'updateSequence', { type: ParameterType.ANY }),
-        (i) => parameters(i, 'AcceptVersions', { type: ParameterType.MANY, values: ['2.0.0']}),
-        (i) => parameters(i, 'Sections', { type: ParameterType.MANY, values: [
-          'ServiceIdentification',
-          'ServiceProvider',
-          'OperationsMetadata',
-          'FilterCapabilities',
-          'Contents',
-          'All'
-        ]}),
-        (i) => parameters(i, 'AcceptFormats', { type: ParameterType.MANY, values: [
-          'text/xml',
-          'application/zip'
-        ]})
-      ]),
-      (innerNode) => operations(innerNode, 'DescribeSensor', []),
-      (innerNode) => operations(innerNode, 'GetObservation', []),
-      (innerNode) => operations(innerNode, 'GetFeatureOfInterest', []),
-      (innerNode) => parameters(innerNode, 'service', {type: ParameterType.MANY, values: ['SOS']}),
-      (innerNode) => parameters(innerNode, 'version', {type: ParameterType.MANY, values: ['2.0.0']}),
-    ]);
-    filterCapabilities(node);
-    contents(node);
-    allowedValues(node, ['ServiceIdentification', 'ServiceProvider', 'OperationsMetadata','FilterCapabilities', 'Contents','All']);
-
-
-    const parsed = node.end({pretty: true});
-    return parsed;
+  static getCapabilities(request: GetCapabilitiesRequest): Promise<SomeResult<string>> {
+    return Promise.resolve(null);
   }
 
   /**
@@ -94,8 +62,8 @@ export default class SOSApi {
    * 
    * Thoughts
    */
-  static describeSensor(): string {
-    return '';
+  static describeSensor(request: DescribeSensorRequest): Promise<SomeResult<string>> {
+    return Promise.resolve(null);
   }
 
   /**
@@ -114,99 +82,10 @@ export default class SOSApi {
    *  - observedProperty
    *  - phenomenon
    */
-  static getObservation(): string {
+  static getObservation(request: GetObservationRequest): Promise<SomeResult<string>> {
 
-    //The following is the implementation copied from: 
-    // http://gin.gw-info.net/GinService/sos/gw?REQUEST=GetObservation&VERSION=2.0.0&SERVICE=SOS&offering=GW_LEVEL&featureOfInterest=ab.mon.667&observedProperty=urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel&temporalFilter=om:phenomenonTime,1995-01-01T00:00:00Z/1996-01-01T00:00:00Z&&namespaces=xmlns(om,http://www.opengis.net/om/2.0)
-    //Which I suppose is a request for id: ab.mon.667, looking at groundwater, with a time filter
-    const node = builder.create({
-      'sos:GetObservationResponse': {
-        '@xsi:schemaLocation': "http://www.opengis.net/sos/2.0 http://schemas.opengis.net/sos/2.0/sosGetObservation.xsd",
-        'swe:extension': {
-          'wml2:SOSProfileExtension': {
-            'wml2:metadata': {
-              'wml2:DocumentMetadata': {
-                // Param
-                '@gml:id': 'com.ourwater.docmd.1'
-              }
-            },
-            'wml2:phenomenaDictionary': {
-              'gml:Dictionary': {
-                // Pararm
-                '@gml:id':'ourwater_phenom_code',
-                'gml:identifier': {
-                  '@codeSpace': 'http://geoscience.data.gc.ca/id/names',
-                  "#text": 'phenom_codes_dict'
-                }
-              }
-            }
-          }
-        },
-        'sos:observationData': {
-          'om:OM_Observation': {
-            // Param
-            '@gml:id':'some_id',
-            'om:phenomenonTime': {
-              'gml:TimePeriod': {
-                // Param
-                '@gml:id': "go_1540419879602_ts",
-                // Param
-                'beginPosition': { '#text': '1995-01-28T17:00:00.000Z'},
-                // Param
-                'endPosition': { '#text': '1995-12-27T17:00:00.000Z'},
-              },
-            },
-            'om:resultTime': {
-              'gml:TimeInstant': {
-                // Param
-                '@gml:id':'rs_time_1',
-                // Param
-                'gml:timePosition': { '#text': '2018-10-24T18:24:39.611-04:00'},
-              },
-            },
-            'procedure': {
-              '@xlink:href': "urn:ogc:object:feature:Sensor:gwprobe"
-            },
-            'om:observedProperty' : {
-              '@xlink:href': "urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel",
-            },
-            'om:featureOfInterest' : {
-              '@xlink:href': "http://ngwd-bdnes.cits.nrcan.gc.ca/Reference/uri-cgi/feature/gsc/waterwell/ca.ab.gov.wells.667",
-              '@xlink:title': "ca.ab.gov.wells.667",
-            },
-            'om:result': {
-              'wml2:MeasurementTimeSeries': {
-                '@gml:id': 'ts1',
-                'wml2:metadata': {
-                  'wml2:MeasurementTimeseriesMetadata': {
-                    // Param
-                    'wml2:temporalExtent': { '@xlink:href': '#go_1540419879602_ts'},
-                    'wml2:cumulative': { '#text': false},
-                  }
-                },
-                'wml2:defaultPointMetadata': {
-                  'wml2:DefaultTVPMeasurementMetadata': {
-                    'wml2:uom': {
-                      '@code': ' m ',
-                      '@xlink:href': 'http://www.opengis.net/def/uom/UCUM/0/m',
-                      '@xlink:title': ' m above sea level',
-                    }
-                  }
-                },
-                'wml2:point': {
-                  'wml2:MeasurementTVP': {
-                    'wml2:time': '1995-01-28T17:00:00.000Z',
-                    'wml2:value': 1043.42,
-                  }
-                },
-              }
-            }
-          }
-        },
-      }
-    });
+    return Promise.resolve(null);
 
-    return node.end({ pretty: true });
   }
 
   //
@@ -245,16 +124,16 @@ export default class SOSApi {
 
   static async getFeatureOfInterest(request: GetFeatureOfInterestRequest): Promise<SomeResult<string>> {
 
-    if (request.filter.type !== GetFeatureOfInterestRequestFilterType.spatialFilter) {
-      return {
-        type: ResultType.ERROR,
-        message: 'only spatial filter is currently supported',
-      }
-    }
-
     /* Make the Firebase Api call */
     //TODO: we may need to edit this zoom value
-    const result = await FirebaseApi.resourcesNearLocation(request.orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
+    let result;
+    if (request.filter.type === FilterType.noFilter) {
+      //TODO: implement FirebaseAp call for all resources
+      // return the latest 100 only.
+      result = { type: ResultType.ERROR, message: 'TODO: implement no filter resources'};
+    } else {
+      result = await FirebaseApi.resourcesNearLocation(request.orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
+    }
     if (result.type === ResultType.ERROR) {
       return result;
     }

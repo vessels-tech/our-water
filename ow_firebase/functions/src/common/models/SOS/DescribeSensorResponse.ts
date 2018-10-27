@@ -13,7 +13,7 @@ export interface DescribeSensorResponseType {
 
 export default class DescribeSensorResponse implements SerdeXML, DescribeSensorResponseType {
   id: string;
-  observedPropertyUri: 'urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel',
+  observedPropertyUri: 'urn:ogc:def:phenomenon:OGC:1.0.30:groundwaterlevel';
 
   constructor(init: DescribeSensorResponseType) {
     this.id = init.id;

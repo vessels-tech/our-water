@@ -14,7 +14,7 @@ import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
 import ErrorHandler from '../common/ErrorHandler';
-import { SOSRequestType, GetFeatureOfInterestRequest, GetFeatureOfInterestRequestFilterType } from './Types';
+import { SOSRequestType, GetFeatureOfInterestRequest, FilterType } from './Types';
 import SOSApi from '../common/apis/SOSApi';
 import { ResultType } from '../common/types/AppProviderTypes';
 
@@ -58,7 +58,7 @@ module.exports = (functions: any) => {
       version: '2.0.0',
       service: 'SOS',
       filter: {
-        type: GetFeatureOfInterestRequestFilterType.spatialFilter,
+        type: FilterType.spatialFilter,
         namespace: 'om:featureOfInterest/*/sams:shape',
         //-116,50.5,-75,51.6,
         lat: 23.5243611111111,

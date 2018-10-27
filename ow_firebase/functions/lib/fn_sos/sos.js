@@ -55,7 +55,7 @@ module.exports = (functions) => {
             version: '2.0.0',
             service: 'SOS',
             filter: {
-                type: Types_1.GetFeatureOfInterestRequestFilterType.spatialFilter,
+                type: Types_1.FilterType.spatialFilter,
                 namespace: 'om:featureOfInterest/*/sams:shape',
                 //-116,50.5,-75,51.6,
                 lat: 23.5243611111111,
