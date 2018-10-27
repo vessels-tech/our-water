@@ -256,12 +256,9 @@ export default class SOSApi {
       }
     }
 
-    // const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
-    const orgId = 'mywell'; //TODO: we need to get the orgId from the request params
-
     /* Make the Firebase Api call */
     //TODO: we may need to edit this zoom value
-    const result = await FirebaseApi.resourcesNearLocation(orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
+    const result = await FirebaseApi.resourcesNearLocation(request.orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
     if (result.type === ResultType.ERROR) {
       return result;
     }
@@ -269,7 +266,7 @@ export default class SOSApi {
     /* Convert from firebase Query to SOS Objects */
     const fois: FOI[] = result.result.map(r => FOI.fromResource(r));
     
-    /*Serialize SOS Objects*/
+    /* Serialize SOS Objects*/
     const foiResponse: GetFeatureOfInterestResponseType = {
       //TODO: not sure about this id
       id: '12345',

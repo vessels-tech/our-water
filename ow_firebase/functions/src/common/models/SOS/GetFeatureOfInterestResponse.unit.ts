@@ -7,7 +7,7 @@ import GetFeatureOfInterestResponse, { GetFeatureOfInterestResponseType } from '
 
 
 describe('GetFoiResponse Unit Tests', function () {
-  it.only('Deserialises the feature of interest response', () => {
+  it('Deserialises the feature of interest response', () => {
     //Arrange
     const foi: FOIType = {
       id: '12345',

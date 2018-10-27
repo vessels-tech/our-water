@@ -26,8 +26,7 @@ export default class GetFeatureOfInterestResponse implements SerdeXML, GetFeatur
   }
 
   serialize(): string {
-    // TODO: implement exception report
-    //TODO: figure out how to next handlebars templates inside of this?
+    //TODO: implement exception report
     const template = handlebars.compile(GetFeatureOfInterestResponseTemplate);
 
     const data = {

@@ -44,22 +44,25 @@ module.exports = (functions: any) => {
   app.use(openCors);
 
 
-  app.get('*', async (req, res) => {
+  app.get('/:orgId/*', async (req, res) => {
+    console.log("orgId", req.params.orgId);
+    const orgId = req.params.orgId;
     //TODO: make sure is valid
     const requestType: SOSRequestType = req.query.REQUEST;
 
-    //TODO: parse into the appropriate SOSRequest type
+    //TODO: parse into the appropriate SOSRequest type, also pull our
 
     const demoRequest: GetFeatureOfInterestRequest = {
       type: SOSRequestType.GetFeatureOfInterest,
+      orgId,
       version: '2.0.0',
       service: 'SOS',
       filter: {
         type: GetFeatureOfInterestRequestFilterType.spatialFilter,
         namespace: 'om:featureOfInterest/*/sams:shape',
         //-116,50.5,-75,51.6,
-        lat: 50.6,
-        lng: -116,
+        lat: 23.5243611111111,
+        lng: 73,
         zoom: 0.3,
       }
     }

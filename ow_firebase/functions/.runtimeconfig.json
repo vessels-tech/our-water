@@ -1,9 +1,9 @@
 {
+  "config": {
+    "mywell_legacy_access_token": "R5iWDXVnb9XzywYN7b4bi8sYZFstbaiY24cHh5C3Rmz8x7Ouk1ZrI9CGkbBIhu55"
+  },
   "test": {
     "somevar": "some value",
     "one": "1"
-  },
-  "config": {
-    "mywell_legacy_access_token": "R5iWDXVnb9XzywYN7b4bi8sYZFstbaiY24cHh5C3Rmz8x7Ouk1ZrI9CGkbBIhu55"
   }
 }

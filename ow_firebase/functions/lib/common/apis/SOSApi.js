@@ -244,17 +244,15 @@ class SOSApi {
                     message: 'only spatial filter is currently supported',
                 };
             }
-            // const orgId = 'ggmn'; //TODO: we need to get the orgId from the request params
-            const orgId = 'mywell'; //TODO: we need to get the orgId from the request params
             /* Make the Firebase Api call */
             //TODO: we may need to edit this zoom value
-            const result = yield FirebaseApi_1.default.resourcesNearLocation(orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
+            const result = yield FirebaseApi_1.default.resourcesNearLocation(request.orgId, request.filter.lat, request.filter.lng, request.filter.zoom);
             if (result.type === AppProviderTypes_1.ResultType.ERROR) {
                 return result;
             }
             /* Convert from firebase Query to SOS Objects */
             const fois = result.result.map(r => FOI_1.default.fromResource(r));
-            /*Serialize SOS Objects*/
+            /* Serialize SOS Objects*/
             const foiResponse = {
                 //TODO: not sure about this id
                 id: '12345',

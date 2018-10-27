@@ -27,7 +27,6 @@ export interface FOIType {
 
 
 export default class FOI implements SerdeXML, FOIType {
-  //TODO: change to use types instead of classes
   id: string;
   description: string;
   gml_identifier: string;

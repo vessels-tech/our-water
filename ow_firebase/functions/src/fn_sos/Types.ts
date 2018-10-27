@@ -18,6 +18,7 @@ export type GetFeatureOfInterestRequest = {
   version: string, //should be 2.0.0
   service: string, //should be SOS
   filter: GetFeatureOfInterestRequestFilter
+  orgId: string,
 }
 
 export enum GetFeatureOfInterestRequestFilterType {
