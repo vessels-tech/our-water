@@ -497,21 +497,12 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
 
     dispatch(performSearchResponse(searchResult))
 
-    //TODO: implement a hasResults trait on SearchResultType that we can implement 
     if (searchResult.type !== ResultType.ERROR) {
-      if (searchResult.result.type === SearchResultType.GGMN) {
-        if (searchResult.result.results.length > 0) {
-          await api.saveRecentSearch(userId, searchQuery);
-        }
-      }
-
-      if (searchResult.result.type === SearchResultType.Default) {
         if (searchResult.result.resources.length > 0) {
           await api.saveRecentSearch(userId, searchQuery);
         }
       }
-      return searchResult;
-    }
+    return searchResult;
   }
 }
 

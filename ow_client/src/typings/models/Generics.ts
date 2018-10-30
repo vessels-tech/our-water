@@ -6,4 +6,4 @@ export enum SearchResultType {
   Default = 'Default',
 }
 
-export type AnySearchResult = GGMNSearchResult | SearchResult;
+export type AnySearchResult =  SearchResult;

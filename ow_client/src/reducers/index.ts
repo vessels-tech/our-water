@@ -13,6 +13,7 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
+import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 
 const orgId = EnvConfig.OrgId;
 
@@ -57,7 +58,7 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: GGMNSearchEntity[],
+  searchResults: AnySearchResult,
   searchResultsMeta: ActionMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
@@ -103,7 +104,7 @@ const initialState: AppState = {
   pendingSavedResources: [],
   pendingSavedResourcesMeta: { loading: false },
 
-  searchResults: [],
+  searchResults: { resources: [], hasNextPage: false},
   searchResultsMeta: { loading: false, error: false, errorMessage: '' },
 };
 
@@ -349,7 +350,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       //We are on the first page, clear out old results
       if (action.page === 1) {
-        searchResults = [];
+        searchResults = {resources: [], hasNextPage: false};
       }
 
       return Object.assign({}, state, { searchResultsMeta, searchResults })
@@ -363,7 +364,9 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.' };
         return Object.assign({}, state, { searchResultsMeta });
       }
-      searchResults = searchResults.concat(result.result);
+
+      const resources = searchResults.resources.concat(result.result.resources);
+      searchResults = { resources, hasNextPage: result.result.hasNextPage };
       
       return Object.assign({}, state, {searchResults, searchResultsMeta});
     }

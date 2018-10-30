@@ -56,11 +56,12 @@ export type ResourceOwnerType = {
 
 
 export type SearchResult = {
-  type: SearchResultType.Default,
+  hasNextPage: boolean,
+  // type: SearchResultType.Default,
   resources: Resource[],
-  groups: any[],
-  users: any[],
-  offline: boolean, //Lets us know if the search was performed offline
+  // groups: any[],
+  // users: any[],
+  // offline: boolean, //Lets us know if the search was performed offline
 }
 
 export type Reading = {

@@ -9,23 +9,22 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
+import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNSearchResult } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
-import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
+import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
-import { runInThisContext } from "vm";
-import { resolve } from "path";
 import { TranslationEnum } from "ow_translations/Types";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
+const searchPageSize = 20;
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -838,11 +837,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * For example:
    * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25   
    */
-  async performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>> {
+  async performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>> {
     const readingUrl = `${this.baseUrl}/api/v3/search/`;
     const url = appendUrlParameters(readingUrl, {
       q: searchQuery,
-      page_size: 25,
+      page_size: searchPageSize,
       page,
     });
 
@@ -881,9 +880,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     console.log("performed search: ", searchResponse.result);
 
+    const result: SearchResult = {
+      resources: searchResponse.result.results.map(e => GGMNApi.ggmnSearchEntityToResource(e)),
+      hasNextPage: searchResponse.result.count > searchPageSize,
+    }
+
     return {
       type: ResultType.SUCCESS,
-      result: searchResponse.result.results,
+      result,
     }
   }
 
@@ -962,6 +966,30 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     return to;
   }
+
+  //TODO: make a partial resource type that doesn't need all these fake fields
+  static ggmnSearchEntityToResource(from: GGMNSearchEntity): Resource {
+    const to: Resource = {
+      // id: `${from.id}`,
+      id: `${from.id}`,
+      legacyId: `ggmn_${from.id}`,
+      groups: null,
+      lastValue: 0,
+      resourceType: ResourceType.well,
+      lastReadingDatetime: new Date(),
+      coords: {
+        _latitude: 0,
+        _longitude: 0
+      },
+      owner: {
+        name: `${from.id}`,
+      },
+      timeseries: [],
+    };
+
+    return to;
+  }
+
 
   static ggmnTimeseriesToTimeseries(from: GGMNTimeseries): OWTimeseries {
     return {

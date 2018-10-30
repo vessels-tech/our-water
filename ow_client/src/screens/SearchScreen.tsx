@@ -16,14 +16,13 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import { getGroundwaterAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
-import { SyncMeta, ActionMeta } from '../typings/Reducer';
+import { ActionMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
-import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations/Types';
 
 export interface OwnProps {
-  onSearchResultPressed: (result: GGMNSearchEntity) => void,
+  onSearchResultPressed: (result: Resource) => void,
   navigator: any;
   userId: string,
   config: ConfigFactory,
@@ -32,7 +31,7 @@ export interface OwnProps {
 export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
-  searchResults: GGMNSearchEntity[], //This may be more than just resources in the future
+  searchResults: SearchResult, //This may be more than just resources in the future
   searchResultsMeta: ActionMeta,
   translation: TranslationFile,
 }
@@ -73,7 +72,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         lightTheme
         noIcon
         onChangeText={(searchQuery) => this.setState({ searchQuery, hasSearched: false })}
-        onEndEditing={() => this.performSearch()}
+        onEndEditing={() => this.performSearch(1)}
         value={this.state.searchQuery}
         placeholder={search_heading} />
     );
@@ -82,24 +81,27 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   /**
    * Perform the search for the given query
    */
-  async performSearch() {
-    const { searchQuery, page } = this.state;
+  async performSearch(pageOverride?: number) {
+    const { searchQuery } = this.state;
     const { translation: { templates: { search_error } } } = this.props;
 
-  
+
+    if (pageOverride) {
+      this.setState({page: pageOverride});
+    }
     this.setState({hasSearched: true});
-    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, page);
+    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page);
        
     if (result.type === ResultType.ERROR) {
       ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
     }
   }
 
-  async loadMore() {
+  loadMore() {
     const { page } = this.state;
-    this.setState({page});
-
-    return this.performSearch();
+    this.setState({page: page + 1}, 
+      () => this.performSearch()
+    );
   }
 
   /**
@@ -112,9 +114,10 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       searchResultsMeta: { loading }, 
       translation: { templates: { search_more } },
     } = this.props;
+    const { page } = this.state;
 
 
-    if (loading) {
+    if (loading && page === 1) {
       return (
         <View style={{
           justifyContent: 'center',
@@ -125,14 +128,14 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (searchResults.length === 0) {
+    if (searchResults.resources.length === 0) {
       return null;
     }
 
     return (
       <View>
         {
-          searchResults.map((r: GGMNSearchEntity, i) => {
+          searchResults.resources.map((r: Resource, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -145,7 +148,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   this.props.onSearchResultPressed(r)
                 }}
                 roundAvatar
-                title={r.title}
+                title={r.id}
                 avatar={getGroundwaterAvatar()}
                 >
               </ListItem>
@@ -154,17 +157,20 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         {/* TODO: only display if we have 25 results, 
             we need to pass through the page size in the meta field */}
-        <ListItem
-          containerStyle={{
-            paddingLeft: 10,
-          }}
-          hideChevron
-          key={'load_more'}
-          onPress={() => {
-            this.loadMore()
-          }}
-          title={search_more}
-        />
+        {searchResults.hasNextPage ?
+          <ListItem
+            containerStyle={{
+              paddingLeft: 10,
+            }}
+            hideChevron
+            key={'load_more'}
+            onPress={() => {
+              this.loadMore()
+            }}
+            title={loading? '' : search_more}
+            avatar={loading ? <Loading/> : undefined}
+          /> : null
+        }
       </View>
     );
   }
@@ -181,7 +187,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.length > 0) {
+    if (searchResults.resources.length > 0) {
       return null;
     }
 
@@ -210,6 +216,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { searchQuery } = this.state;
     const { 
       recentSearches, 
+      searchResults,
       searchResultsMeta: { loading },
       translation: { templates: { search_hint } },
     } = this.props;
@@ -218,7 +225,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (recentSearches.length === 0 && searchQuery.length === 0) {
+    if (recentSearches.length === 0 && searchQuery.length === 0 && searchResults.resources.length === 0) {
       return (
         <View style={{
           flex: 1,
@@ -248,7 +255,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.length > 0) {
+    if (searchResults.resources.length > 0) {
       return null;
     }
 
