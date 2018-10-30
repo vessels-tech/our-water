@@ -81,7 +81,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   getHeadingBar() {
-    const { resource: { id, owner: { name } } } = this.props;
+    const { resource: { id }} = this.props;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     return (

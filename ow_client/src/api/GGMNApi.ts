@@ -9,7 +9,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
-import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNSearchResult } from "../typings/models/GGMN";
+import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
@@ -21,7 +21,8 @@ import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations/Types";
-import { AnyResource, GGMNResource, PlatformType } from "../typings/models/Resource";
+import { AnyResource, GGMNResource } from "../typings/models/Resource";
+import { PlatformType } from "../typings/models/Platform";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -985,7 +986,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
 
-  static ggmnTimeseriesToTimeseries(from: GGMNTimeseries): OWTimeseries {
+  static ggmnTimeseriesToTimeseries(from: GGMNResponseTimeseries): OWTimeseries {
     return {
       id: from.uuid,
       name: from.name,

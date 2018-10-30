@@ -66,9 +66,36 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
       ...this.props.style
     }
 
+    return (
+      <View style={{ ...viewStyle }}>
+        {loading ? <ActivityIndicator
+          size="large"
+          color={secondaryText}
+        /> :
+          <Icon
+            containerStyle={{
+              borderRadius: 50,
+              backgroundColor: secondary,
+              width: 45,
+              height: 45,
+            }}
+            reverse
+            raised
+            // size={20}
+            name={"near-me"}
+            onPress={() => this.updateGeoLocation()}
+            iconStyle={{
+              color: secondaryText,
+            }}
+            color={primary}
+          />
+        }
+      </View>
+    )
+
     if (loading) {
       return (
-        <View style={viewStyle}>
+        <View style={{...viewStyle }}>
           <ActivityIndicator
             size="large"
             color={secondaryText}
@@ -83,7 +110,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
         containerStyle={viewStyle}
         reverse
         raised
-        size={20}
+        // size={20}
         name={"near-me"}
         onPress={() => this.updateGeoLocation()}
         iconStyle={{

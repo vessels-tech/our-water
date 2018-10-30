@@ -334,7 +334,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         }}>
           <Text style={{
             paddingHorizontal: 20,
-            paddingTop: 10,
+            paddingTop: 30,
           }}>{connect_to_service_description}</Text>
           {this.getErrorMessage()}
           {this.getConnectedSection()}

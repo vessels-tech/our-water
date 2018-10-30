@@ -1,9 +1,6 @@
 import { ResourceType } from "../../enums";
-import { Moment } from "moment";
-import { GGMNTimeseries } from "./GGMN";
 import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
-import { SearchResultType } from "./Generics";
 
 export type Resource = {
   id: string,
