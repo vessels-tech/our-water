@@ -64,6 +64,7 @@ export type SearchResult = {
   // offline: boolean, //Lets us know if the search was performed offline
 }
 
+
 export type Reading = {
   resourceId: string,
   date: string, //ISO Formatted  

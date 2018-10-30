@@ -618,10 +618,8 @@ class FirebaseApi {
     });
 
     return {
+      hasNextPage: false,
       resources,
-      groups: [],
-      users: [],
-      offline: false,
     };
   }
 
