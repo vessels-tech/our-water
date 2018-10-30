@@ -825,6 +825,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * we use the firebase api to save, as this is a user setting
    */
   saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
+    console.log("saving recent search", userId, searchQuery);
     return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
@@ -970,9 +971,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //TODO: make a partial resource type that doesn't need all these fake fields
   static ggmnSearchEntityToResource(from: GGMNSearchEntity): Resource {
     const to: Resource = {
-      // id: `${from.id}`,
-      id: `${from.id}`,
-      legacyId: `ggmn_${from.id}`,
+      id: `${from.entity_id}`,
+      legacyId: `${from.title}`,
       groups: null,
       lastValue: 0,
       resourceType: ResourceType.well,

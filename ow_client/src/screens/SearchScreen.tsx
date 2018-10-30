@@ -85,6 +85,10 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { searchQuery } = this.state;
     const { translation: { templates: { search_error } } } = this.props;
 
+    if (searchQuery === '') {
+      return;
+    }
+
 
     if (pageOverride) {
       this.setState({page: pageOverride});
@@ -148,7 +152,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   this.props.onSearchResultPressed(r)
                 }}
                 roundAvatar
-                title={r.id}
+                //TODO: this refers to the GGMN title, which we don't have in MyWell...
+                title={r.legacyId}
                 avatar={getGroundwaterAvatar()}
                 >
               </ListItem>

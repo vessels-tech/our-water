@@ -153,7 +153,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (event === 'SEARCH') {
       navigateTo(this.props, 'screen.SearchScreen', search_heading, {
         config: this.props.config,
-        onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+        userId: this.props.userId,
+        onSearchResultPressed: (result: Resource) => this.onSearchResultPressed(result),
       });
     }
   }
@@ -211,13 +212,13 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Handle when a user clicks a result from the search screen.
    * 
    */
-  async onSearchResultPressed(r: GGMNSearchEntity): Promise<void> {
+  async onSearchResultPressed(r: Resource): Promise<void> {
     const { translation: { templates: { app_resource_not_found } } } = this.props;
     //TODO: reimmplement selectResource for a search entity.
     //Load the resource for the search entity?
 
     //We can move the user there on the map before the resource has loaded...
-    const result = await this.appApi.getResourceFromSearchEntityId(this.props.userId, r.entity_id);
+    const result = await this.appApi.getResourceFromSearchEntityId(this.props.userId, r.id);
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(app_resource_not_found, ToastAndroid.SHORT);
       return;
