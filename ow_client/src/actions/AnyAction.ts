@@ -1,13 +1,13 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
-import { removeFavourite } from ".";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
 import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
 import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
+import { AnySearchResult } from "../typings/models/Generics";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -93,7 +93,7 @@ export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPON
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };
 export type GetUserActionResponse = { type: ActionType.GET_USER_RESPONSE, result: SomeResult<OWUser> };
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number}; //If page is 1, we should empty the searches
-export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<GGMNSearchEntity[]>}
+export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<AnySearchResult>}
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};
 export type RemoveFavouriteActionResponse = { type: ActionType.REMOVE_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type SaveReadingActionRequest = { type: ActionType.SAVE_READING_REQUEST };

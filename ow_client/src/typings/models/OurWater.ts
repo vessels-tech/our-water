@@ -3,6 +3,7 @@ import { Moment } from "moment";
 import { GGMNTimeseries } from "./GGMN";
 import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
+import { SearchResultType } from "./Generics";
 
 export type Resource = {
   id: string,
@@ -55,6 +56,7 @@ export type ResourceOwnerType = {
 
 
 export type SearchResult = {
+  type: SearchResultType.Default,
   resources: Resource[],
   groups: any[],
   users: any[],

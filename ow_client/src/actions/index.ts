@@ -1,4 +1,4 @@
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
@@ -16,6 +16,7 @@ import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
+import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -496,12 +497,21 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
 
     dispatch(performSearchResponse(searchResult))
 
-    if (searchResult.type !== ResultType.ERROR && searchResult.result.length > 0) {
-      //Add successful search to list
-      await api.saveRecentSearch(userId, searchQuery);
-    }
+    //TODO: implement a hasResults trait on SearchResultType that we can implement 
+    if (searchResult.type !== ResultType.ERROR) {
+      if (searchResult.result.type === SearchResultType.GGMN) {
+        if (searchResult.result.results.length > 0) {
+          await api.saveRecentSearch(userId, searchQuery);
+        }
+      }
 
-    return searchResult;
+      if (searchResult.result.type === SearchResultType.Default) {
+        if (searchResult.result.resources.length > 0) {
+          await api.saveRecentSearch(userId, searchQuery);
+        }
+      }
+      return searchResult;
+    }
   }
 }
 
@@ -512,7 +522,7 @@ function performSearchRequest(page: number): PerformSearchActionRequest {
   }
 }
 
-function performSearchResponse(result: SomeResult<GGMNSearchEntity[]>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<AnySearchResult>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
     result,

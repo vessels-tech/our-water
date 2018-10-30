@@ -312,7 +312,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View style={{
         flexDirection: 'column',
-        // backgroundColor: 'pink',
         height: '100%'
       }}>
         {this.getSearchBar()}

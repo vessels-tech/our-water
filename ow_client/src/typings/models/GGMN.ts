@@ -1,4 +1,5 @@
 import { Reading } from "./OurWater";
+import { SearchResultType } from "./Generics";
 
 export type GGMNLocationResponse = {
   count: number,
@@ -26,6 +27,15 @@ export type GGMNSearchEntity = {
   title: string,
   entity_name: string,
   entity_id: string,
+}
+
+/**
+ * The OW-Compatible Search result
+ * must contain the type field
+ */
+export type GGMNSearchResult = {
+  type: SearchResultType.GGMN,
+  results: GGMNSearchEntity[],
 }
 
 export type GGMNGroundwaterStationResponse = {
