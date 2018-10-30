@@ -8,6 +8,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { RNFirebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
+import { AnyResource } from '../typings/models/Resource';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -66,11 +67,11 @@ export default class MyWellApi implements BaseApi, UserApi {
   /**
    * Add a resource to the recently viewed list
    */
-  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
+  addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
-  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>> {
+  addFavouriteResource(resource: AnyResource, userId: string): Promise<SomeResult<void>> {
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
       .then(() => {
         const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
@@ -105,7 +106,7 @@ export default class MyWellApi implements BaseApi, UserApi {
     );
   }
 
-  async getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>> {
+  async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
     return FirebaseApi.getResourcesWithinRegion(this.orgId, region);
   }
 
@@ -114,7 +115,7 @@ export default class MyWellApi implements BaseApi, UserApi {
    * 
    * Get the resource given a resource id
    */
-  getResource(id: string): Promise<SomeResult<Resource>> {
+  getResource(id: string): Promise<SomeResult<AnyResource>> {
     return FirebaseApi.getResourceForId(this.orgId, id);
   }
 

@@ -246,7 +246,7 @@ class FirebaseApi {
   /**
    * getResourcesWithinRegion
    */
-  static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<Resource[]>>{
+  static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<AnyResource[]>>{
     // //TODO: validate assumption that lat and lng start in top left corner
     // console.log("Region is:", region);
     // const minLat = region.latitude;
@@ -272,7 +272,7 @@ class FirebaseApi {
       // .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     .then(snapshot => {
       console.log("got snapshot", snapshot);
-      const resources: Resource[] = []
+      const resources: AnyResource[] = []
       snapshot.forEach(doc => {
         //TODO: map to an actual Resource
         const data: any = doc.data();
@@ -294,7 +294,7 @@ class FirebaseApi {
       return resources;
     })
     .then(result => {
-      const response: SomeResult<Resource[]> = {
+      const response: SomeResult<AnyResource[]> = {
         type: ResultType.SUCCESS,
         result,
       };
@@ -303,7 +303,7 @@ class FirebaseApi {
     })
     .catch(err => {
       maybeLog("error", err);
-      const response: SomeResult<Resource[]> = {
+      const response: SomeResult<AnyResource[]> = {
         type: ResultType.ERROR,
         message: err.message,
       }; 
@@ -315,12 +315,12 @@ class FirebaseApi {
   /**
    * getResourceForId
    */
-  static getResourceForId(orgId: string, resourceId: string): Promise<SomeResult<Resource>> {
+  static getResourceForId(orgId: string, resourceId: string): Promise<SomeResult<AnyResource>> {
     return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
     .then(sn => {
       //@ts-ignore
       if (!sn || !sn.data()) {
-        const response: SomeResult<Resource> = {
+        const response: SomeResult<AnyResource> = {
           type: ResultType.ERROR,
           message: `Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`
         };
@@ -328,9 +328,9 @@ class FirebaseApi {
       }
 
       //@ts-ignore
-      const result: Resource = sn.data();
+      const result: AnyResource = sn.data();
       result.timeseries = []; //TODO: figure out how to fix this!
-      const response: SomeResult<Resource> = {
+      const response: SomeResult<AnyResource> = {
         type: ResultType.SUCCESS,
         result,
       };
@@ -339,7 +339,7 @@ class FirebaseApi {
     })
     .catch(err => {
       maybeLog("getResourceForId error:", err);
-      const response: SomeResult<Resource> = {
+      const response: SomeResult<AnyResource> = {
         type: ResultType.ERROR,
         message: err.message,
       };
