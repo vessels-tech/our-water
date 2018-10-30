@@ -1,5 +1,4 @@
 import { Reading } from "./OurWater";
-import { SearchResultType } from "./Generics";
 
 export type GGMNLocationResponse = {
   count: number,
@@ -12,7 +11,7 @@ export type GGMNTimeseriesResponse = {
   count: number,
   next: string,
   previous: string,
-  results: Array<GGMNTimeseries>
+  results: Array<GGMNResponseTimeseries>
 }
 
 export type GGMNSearchResponse = {
@@ -27,15 +26,6 @@ export type GGMNSearchEntity = {
   title: string,
   entity_name: string,
   entity_id: string,
-}
-
-/**
- * The OW-Compatible Search result
- * must contain the type field
- */
-export type GGMNSearchResult = {
-  type: SearchResultType.GGMN,
-  results: GGMNSearchEntity[],
 }
 
 export type GGMNGroundwaterStationResponse = {
@@ -61,10 +51,11 @@ export type GGMNGroundwaterStation = {
 }
 
 export type GGMNFilterResponse = {
-  timeseries: Array<GGMNTimeseries>,
+  timeseries: Array<GGMNResponseTimeseries>,
 }
 
-export type GGMNTimeseries = {
+//TODO: find better name!
+export type GGMNResponseTimeseries = {
   uuid: string,
   name: string,
   parameter: string,

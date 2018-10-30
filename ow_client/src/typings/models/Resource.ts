@@ -1,10 +1,6 @@
 import { OWGeoPoint, Resource, OWTimeseries, ResourceOwnerType } from './OurWater';
 import { ResourceType } from '../../enums';
-
-export enum PlatformType {
-  MYWELL = 'MYWELL',
-  GGMN = 'GGMN',
-}
+import { PlatformType } from './Platform';
 
 export type AnyResource = MyWellResource | GGMNResource;
 
