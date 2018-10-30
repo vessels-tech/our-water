@@ -1,7 +1,6 @@
 
 export type ActionMeta = {
   loading: boolean,
-  //TODO: make more typescripty
   error: boolean,
   errorMessage: string,
 }
@@ -9,4 +8,11 @@ export type ActionMeta = {
 export type SyncMeta = {
   loading: boolean,
   //TODO: Add sync states
+}
+
+export type SearchResultsMeta = {
+  loading: boolean,
+  searchQuery: string,
+  error: boolean,
+  errorMessage: string,
 }

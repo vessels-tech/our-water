@@ -16,7 +16,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import { getGroundwaterAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
-import { ActionMeta } from '../typings/Reducer';
+import { ActionMeta, SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { TranslationFile } from 'ow_translations/Types';
@@ -32,7 +32,7 @@ export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
   searchResults: SearchResult, //This may be more than just resources in the future
-  searchResultsMeta: ActionMeta,
+  searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
 }
 
@@ -58,7 +58,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = props.config.getAppApi();
 
     this.state = {
-      searchQuery: '',
+      searchQuery: props.searchResultsMeta.searchQuery,
       hasSearched: false,
       page: 1,
     };
@@ -224,6 +224,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (loading) {
       return null;
     }
+
+    //TODO: SearchResults is somehow undefined here
 
     if (recentSearches.length === 0 && searchQuery.length === 0 && searchResults.resources.length === 0) {
       return (

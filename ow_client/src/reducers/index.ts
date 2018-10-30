@@ -8,7 +8,7 @@ import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey } from "../utils";
-import { ActionMeta, SyncMeta } from "../typings/Reducer";
+import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
@@ -59,7 +59,7 @@ export type AppState = {
   recentSearches: string[],
   syncStatus: SyncStatus,
   searchResults: AnySearchResult,
-  searchResultsMeta: ActionMeta,
+  searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
 }
@@ -105,7 +105,7 @@ const initialState: AppState = {
   pendingSavedResourcesMeta: { loading: false },
 
   searchResults: { resources: [], hasNextPage: false},
-  searchResultsMeta: { loading: false, error: false, errorMessage: '' },
+  searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -345,8 +345,9 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       });
     }
     case ActionType.PERFORM_SEARCH_REQUEST: {
-      const searchResultsMeta: ActionMeta ={ loading: true, error: false, errorMessage: '' };
+      const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
       let searchResults = state.searchResults;
+      searchResultsMeta.searchQuery = action.searchQuery;
 
       //We are on the first page, clear out old results
       if (action.page === 1) {
@@ -356,12 +357,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { searchResultsMeta, searchResults })
     }
     case ActionType.PERFORM_SEARCH_RESPONSE: {
-      let searchResultsMeta: ActionMeta = { loading: false, error: false, errorMessage: ''};
+      let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
+      let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery};
       let searchResults = state.searchResults;
       
       const result = action.result;
       if (result.type === ResultType.ERROR) {
-        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.' };
+        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.', searchQuery: lastSearchResultsMeta.searchQuery };
         return Object.assign({}, state, { searchResultsMeta });
       }
 

@@ -491,7 +491,7 @@ export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionRespo
  */
 export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number): any {
   return async (dispatch: any) => {
-    dispatch(performSearchRequest(page));
+    dispatch(performSearchRequest(page, searchQuery));
 
     const searchResult = await api.performSearch(searchQuery, page);
 
@@ -506,10 +506,11 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
   }
 }
 
-function performSearchRequest(page: number): PerformSearchActionRequest {
+function performSearchRequest(page: number, searchQuery: string): PerformSearchActionRequest {
   return {
     type: ActionType.PERFORM_SEARCH_REQUEST,
-    page
+    page,
+    searchQuery,
   }
 }
 
