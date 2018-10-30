@@ -5,7 +5,7 @@
         android:drawable="@color/primary_dark_app"/>
 
     <item
-        android:width="200dp"
+        android:width="220dp"
         android:height="200dp"
         android:drawable="@mipmap/splash"
         android:gravity="center" />
