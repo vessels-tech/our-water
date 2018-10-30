@@ -21,6 +21,7 @@ import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations/Types";
+import { AnyResource, GGMNResource, PlatformType } from "../typings/models/Resource";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -362,11 +363,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   /**
    * Add a resource to the recently viewed list
    */
-  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
+  addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
-  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>> {
+  addFavouriteResource(resource: AnyResource, userId: string): Promise<SomeResult<void>> {
 
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
     .then(() => {
@@ -421,7 +422,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
   }
   
-  async getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>> {
+  async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
@@ -459,7 +460,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       })
   }
 
-  getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
+  getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<AnyResource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
@@ -486,7 +487,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       });
   }
 
-  getResource(id: string): Promise<SomeResult<Resource>> {
+  getResource(id: string): Promise<SomeResult<AnyResource>> {
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/${id}`;
     const options = {
       timeout,
@@ -892,7 +893,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<Resource>> {
+  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/groundwaterstations/${entityId}/`;
     const options = {
       timeout,
@@ -946,21 +947,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //TODO: this will fall apart, as we need a specific GGMNResource type :(
   //For now, we can make OurWater handle all the fields, and worry about making
   //it flexible later on
-  static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
-    const to: Resource = {
+  static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
+    const to: GGMNResource = {
       // id: `${from.id}`,
+      type: PlatformType.GGMN,
       id: `${from.name}`,
-      legacyId: `ggmn_${from.name}`,
-      groups: null,
-      lastValue: 0,
-      resourceType: ResourceType.well,
-      lastReadingDatetime: new Date(),
       coords: {
         _latitude: from.geometry.coordinates[1],
         _longitude: from.geometry.coordinates[0],
-      },
-      owner: {
-        name: `${from.id}`,
       },
       timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
     };

@@ -17,6 +17,7 @@ import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResourc
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
+import { AnyResource } from '../typings/models/Resource';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -107,11 +108,11 @@ class FirebaseApi {
     .onSnapshot(sn => onSnapshot(sn.data()));
   }
 
-  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
+  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
   
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
-        const response: SomeResult<Resource[]> = {
+        const response: SomeResult<AnyResource[]> = {
           type: ResultType.SUCCESS,
           result: [],
         };
@@ -127,7 +128,7 @@ class FirebaseApi {
       });
   }
 
-  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<Resource[]>> {
+  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<AnyResource[]>> {
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
 

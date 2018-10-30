@@ -1,6 +1,7 @@
 import { OWGeoPoint, Resource, OWTimeseries, ResourceOwnerType } from './OurWater';
+import { ResourceType } from '../../enums';
 
-export enum ResourceType {
+export enum PlatformType {
   MYWELL = 'MYWELL',
   GGMN = 'GGMN',
 }
@@ -8,7 +9,7 @@ export enum ResourceType {
 export type AnyResource = MyWellResource | GGMNResource;
 
 export type MyWellResource = {
-  type: ResourceType.MYWELL,
+  type: PlatformType.MYWELL,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,
@@ -25,7 +26,7 @@ export type MyWellResource = {
 
 
 export type GGMNResource = {
-  type: ResourceType.GGMN,
+  type: PlatformType.GGMN,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,

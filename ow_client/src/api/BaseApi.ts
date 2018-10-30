@@ -3,6 +3,7 @@ import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
 import { AnySearchResult } from "../typings/models/Generics";
+import { AnyResource } from "../typings/models/Resource";
 
 
 /**
@@ -33,12 +34,12 @@ export default interface BaseApi {
    * Add a resource to the recently viewed list
    * Most likely will use Firebase
    */
-  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>>;
+  addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>>;
 
   /**
    * Add a resource to the favourites list
    */
-  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>>;
+  addFavouriteResource(resource: AnyResource, userId: string): Promise<SomeResult<void>>;
 
   /**
    * Remove a favourite resource from the favourites list
@@ -64,7 +65,7 @@ export default interface BaseApi {
     latitude: number,
     longitude: number,
     distance: number
-  ): Promise<Array<Resource>>;
+  ): Promise<Array<AnyResource>>;
 
   //
   // Reading API
@@ -134,12 +135,12 @@ export default interface BaseApi {
    * Get the resources within a region.
    * May not necessarily return all resources if the region is too large
    */
-  getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>>;
+  getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>>;
 
   /**
    * Get a resource for an id.
    */
-  getResource(id: string): Promise<SomeResult<Resource>>;
+  getResource(id: string): Promise<SomeResult<AnyResource>>;
 
 
   //
@@ -171,5 +172,5 @@ export default interface BaseApi {
    * Once GGMN loads a resource from a search, we need to use the entityId to convert it to a fully 
    * fledged Resource
    */
-  getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<Resource>>;
+  getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>>;
 }
