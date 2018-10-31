@@ -19,7 +19,6 @@
     "moment": "^2.22.1",
     "ow_translations": "../ow_translations/lib",
     "prop-types": "^15.6.0",
-    "query-string": "^6.0.0",
     "react": "16.3.1",
     "react-context-api-store": "^1.0.15",
     "react-native": "0.55.3",
