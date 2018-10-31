@@ -52,7 +52,6 @@ const MyWellReadingSchema = {
 
 
 export function validateReading(orgType: OrgType, reading: any): SomeResult<AnyReading> {
-  console.log("Validating reading:", orgType, reading);
   switch (orgType) {
     case OrgType.GGMN: return validateReadingGGMN(reading);
     case OrgType.MYWELL: return validateReadingMyWell(reading);
@@ -61,7 +60,10 @@ export function validateReading(orgType: OrgType, reading: any): SomeResult<AnyR
 
 function validateReadingGGMN(reading: GGMNReading): SomeResult<GGMNReading> {
   const schema: Joi.SchemaLike = GGMNReadingSchema;
-  const result: Joi.ValidationResult<GGMNReading> = Joi.validate(reading, schema);
+  const options = {
+    stripUnknown: true,
+  }
+  const result: Joi.ValidationResult<GGMNReading> = Joi.validate(reading, schema, options);
   if (result.error !== null) {
     return {
       type: ResultType.ERROR,

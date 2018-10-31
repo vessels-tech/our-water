@@ -18,7 +18,7 @@ import { displayAlert, getLocation, maybeLog, navigateTo, showModal } from '../u
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { Reading, DeprecatedResource, SaveReadingResult } from '../typings/models/OurWater';
+import { Reading, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
@@ -28,11 +28,8 @@ import { SyncMeta } from '../typings/Reducer';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
-import { RNCamera } from 'react-native-camera';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 import IconButton from '../components/common/IconButton';
-import { AnyReading } from '../typings/models/Reading';
-import { Location } from '../typings/Location';
 import { MaybeReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -135,8 +132,6 @@ class NewReadingScreen extends Component<Props> {
   }
 
   clearReadingImage() {
-    console.log("Clear reading image");
-
     this.setState({
       readingImage: {
         type: ReadingImageType.NONE,
@@ -184,7 +179,6 @@ class NewReadingScreen extends Component<Props> {
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
-    console.log("validateResult", validateResult);
     if (validateResult.type === ResultType.ERROR) {
       displayAlert(
         new_reading_invalid_error_heading,

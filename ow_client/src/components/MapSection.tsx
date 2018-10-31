@@ -2,7 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
 import { View, ProgressBarAndroid, Text, TouchableNativeFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
-import { Resource, BasicCoords } from '../typings/models/OurWater';
+import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId } from '../utils';
@@ -34,13 +34,13 @@ export interface Props {
   onResourceDeselected: any,
   onMapStateChanged: (h: MapStateOption) => void,
   initialRegion: MapRegion,
-  resources: Resource[],
-  selectedResource?: Resource,
+  resources: DeprecatedResource[],
+  selectedResource?: DeprecatedResource,
   hasSelectedResource: boolean,
   mapRef: any,
   shouldShrinkForSelectedResource: boolean,
   shouldShowCallout: boolean,
-  onCalloutPressed?: (r: Resource) => void,
+  onCalloutPressed?: (r: DeprecatedResource) => void,
 }
 
 export default class MapSection extends Component<Props> {
@@ -114,7 +114,7 @@ export default class MapSection extends Component<Props> {
   }
 
   //TODO: fix infinite loop here
-  selectResource(resource: Resource) {
+  selectResource(resource: DeprecatedResource) {
     let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
@@ -232,7 +232,7 @@ export default class MapSection extends Component<Props> {
     );
   }
 
-  getCalloutForResource(resource: Resource) {
+  getCalloutForResource(resource: DeprecatedResource) {
     if (!this.props.shouldShowCallout) {
       return null;
     }

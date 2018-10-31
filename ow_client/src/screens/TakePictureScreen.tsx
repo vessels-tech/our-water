@@ -92,22 +92,22 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
       return;
     }
 
-    this.setState({loading: true});
-    if (this.camera) {
-      const options = { 
-        quality: 0.1, 
-        base64: true,
-        fixOrientation: true,
-      };
-      try {
-        const data = await this.camera.takePictureAsync(options)
-        return this.props.onTakePicture(data.base64);
-      } catch (err) {
-        return this.props.onTakePictureError(err);
+    this.setState({loading: true}, async () => {
+      if (this.camera) {
+        const options = { 
+          quality: 0.1, 
+          base64: true,
+          fixOrientation: true,
+        };
+        try {
+          const data = await this.camera.takePictureAsync(options)
+          return this.props.onTakePicture(data.base64);
+        } catch (err) {
+          return this.props.onTakePictureError(err);
+        }
       }
-    } 
-
-    this.props.onTakePictureError('Camera was not initalized');
+      this.props.onTakePictureError('Camera was not initalized');
+    });
   };
 }
 
