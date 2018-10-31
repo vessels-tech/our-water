@@ -108,17 +108,9 @@ android {
       }
 
     defaultConfig {
-<<<<<<< HEAD
-        applicationId "com.vesselstech.mywell"
-        // versionName "ggmn_1.0"
-        // versionCode 1
-        versionName System.getenv('versionName')
-        versionCode System.getenv('versionCode')
-=======
         /* look in env/env.<project>.<stage>.sh */
         applicationId System.getenv('PACKAGE_NAME_PREFIX')
         applicationIdSuffix System.getenv('PACKAGE_NAME_SUFFIX')
->>>>>>> 66987e42d3c77574205226bd1cc5b266ead3c8ff
 
         /* look in env/env.deployment */
         versionName System.getenv('versionName')

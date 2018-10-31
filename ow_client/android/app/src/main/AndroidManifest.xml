@@ -1,14 +1,9 @@
-<<<<<<< HEAD
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.vesselstech.mywell">
-=======
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.vesselstech">
     <!-- package="com.vesselstech.mywell.debug" -->
   >
->>>>>>> 66987e42d3c77574205226bd1cc5b266ead3c8ff
 
       <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,8 +16,6 @@
 
     <!-- react-native-qr-scanner -->
     <uses-permission android:name="android.permission.VIBRATE"/>
-
-
 
 
     <!-- TODO:  debuggable: true-->
