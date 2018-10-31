@@ -6,8 +6,7 @@ import {
 import {
   Button
 } from 'react-native-elements';
-import IconFormInput, { InputType } from '../../components/common/IconFormInput';
-import { ResourceTypeArray, ResourceType } from '../../enums';
+import { ResourceType } from '../../enums';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
 import { DeprecatedResource, PendingResource, SaveResourceResult } from '../../typings/models/OurWater';
@@ -18,10 +17,9 @@ import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactiv
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { TextInput, DropdownInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
-import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
+import { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
 import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
-import IconButton from '../../components/common/IconButton';
 import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
@@ -37,7 +35,7 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) => any,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: DeprecatedResource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
@@ -71,11 +69,12 @@ class EditResourceScreen extends Component<Props> {
       lat = `${props.location.coords.latitude.toFixed(4)}`;
       lng = `${props.location.coords.longitude.toFixed(4)}`;
     }
-
+    
+    const defaultResourceType = props.config.getAvailableResourceTypes()[0];
     this.editResourceForm = FormBuilder.group({
       lat: [lat, Validators.required],
       lng: [lng, Validators.required],
-      asset: ['Groundwater Station', Validators.required],
+      asset: [defaultResourceType, Validators.required],
       ownerName: ['', Validators.required],
     });
   }
@@ -129,7 +128,8 @@ class EditResourceScreen extends Component<Props> {
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
-    this.props.navigator.pop();
+    // this.props.navigator.pop();
+    this.props.navigator.dismissModal();
   }
 
   getForm() {

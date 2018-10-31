@@ -2,7 +2,7 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { Resource, SearchResult, OWUser, PendingReading, PendingResource, Reading, SaveReadingResult } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, OWUser, PendingReading, PendingResource, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
@@ -117,6 +117,39 @@ export default class MyWellApi implements BaseApi, UserApi {
    */
   getResource(id: string): Promise<SomeResult<AnyResource>> {
     return FirebaseApi.getResourceForId(this.orgId, id);
+  }
+
+
+  /**
+   * saveResource
+   */
+  async saveResource(userId: string, resource: DeprecatedResource): Promise<SomeResult<SaveResourceResult>> {
+    const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+    if (saveResult.type === ResultType.ERROR) {
+      return {
+        type: ResultType.ERROR,
+        message: 'Could not save reading',
+      };
+    }
+
+    // const credentials = await this.getExternalServiceLoginDetails();
+    // if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+    //   return {
+    //     type: ResultType.SUCCESS,
+    //     result: {
+    //       requiresLogin: true,
+    //     }
+    //   }
+    // }
+
+    //TODO: Implement a simliar login check as with GGMN, but ensure user doesn't have an anonymous login status
+    //and their account isn't restricted.
+    return {
+      type: ResultType.SUCCESS,
+      result: {
+        requiresLogin: false,
+      }
+    }
   }
 
   //

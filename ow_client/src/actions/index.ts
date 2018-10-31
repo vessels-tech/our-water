@@ -16,7 +16,6 @@ import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
-import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -514,7 +513,7 @@ function performSearchRequest(page: number, searchQuery: string): PerformSearchA
   }
 }
 
-function performSearchResponse(result: SomeResult<AnySearchResult>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<SearchResult>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
     result,

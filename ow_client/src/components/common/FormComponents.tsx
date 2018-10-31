@@ -66,7 +66,7 @@ export const DropdownInput = (params: DropdownInputParams) => {
   const { type, handler, meta: { label, options }, errorMessage, hasError } = params;
 
   console.log('handler.getHandler is: ', handler);
-  // console.log('handler.getHandler is: ', handler.getHandler());
+  console.log('handler() is: ', handler());
 
   return (
     <View style={{
@@ -74,13 +74,13 @@ export const DropdownInput = (params: DropdownInputParams) => {
     }}>
       <FormLabel>{label}</FormLabel>
       <Picker
-        selectedValue={'test1'}
+        selectedValue={handler().value}
         style={{
           flex: 2,
           marginLeft: 10,
         }}
         mode={'dropdown'}
-        onValueChange={(e: any) => console.log("onValueChange", e)}
+        onValueChange={(e: any) => handler().onChange(e)}
       >
         {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key} />)}
       </Picker>
