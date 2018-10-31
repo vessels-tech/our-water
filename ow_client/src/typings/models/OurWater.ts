@@ -1,6 +1,4 @@
 import { ResourceType } from "../../enums";
-import { Moment } from "moment";
-import { GGMNTimeseries } from "./GGMN";
 import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
 
@@ -55,11 +53,14 @@ export type ResourceOwnerType = {
 
 
 export type SearchResult = {
+  hasNextPage: boolean,
+  // type: SearchResultType.Default,
   resources: Resource[],
-  groups: any[],
-  users: any[],
-  offline: boolean, //Lets us know if the search was performed offline
+  // groups: any[],
+  // users: any[],
+  // offline: boolean, //Lets us know if the search was performed offline
 }
+
 
 export type Reading = {
   resourceId: string,
@@ -149,4 +150,20 @@ export type TimeseriesRangeReadings = {
 //simple map: key: `timeseriesId+range` => TimeseriesReading
 export type TimeseriesReadings = {
   [id: string]: TimeSeriesReading,
+}
+
+
+/**
+ * For now a scan result can only
+ * represent a resource.
+ * 
+ * This may change in the future.
+ * 
+ * Example QR code as string:
+ * {"orgId": "mywell", "assetType":"resource", "id": "12345"}
+ */
+export type ResourceScanResult = {
+  orgId: string, 
+  assetType: 'resource',
+  id: string, //for now use long id. we will change this later on.
 }

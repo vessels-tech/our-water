@@ -13,13 +13,14 @@ import {
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey,
+  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
-import { primary, textDark, bgMed, primaryDark, bgDark, primaryLight, bgDark2, textLight, bgLight, } from '../utils/Colors';
+import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
+import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
@@ -28,12 +29,18 @@ import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 
+import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+// import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
+
+// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+
 
 export interface OwnProps {
   config: ConfigFactory,
   resource: Resource,
   userId: string,
   onAddReadingPressed: any,
+  hideTopBar: boolean,
 }
 
 export interface StateProps {
@@ -74,22 +81,22 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   getHeadingBar() {
-    const { resource: { id, owner: { name } } } = this.props;
+    const { resource: { id }} = this.props;
+    const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     return (
       <View style={{
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: primaryDark,
+        backgroundColor: primaryLight,
       }}>
         <Avatar
           containerStyle={{
             marginLeft: 15,
-            backgroundColor: primaryLight,
+            backgroundColor: primary,
             alignSelf: 'center',
           }}
           rounded
-          // size="large"
           title="GW"
           activeOpacity={0.7}
         />
@@ -97,15 +104,17 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color:textLight, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-            <Text style={{ color: textLight, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
-            {/* TODO: enable code? Most of the time it's the same as Name. */}
-            {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
-          </View>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
+          { showSubtitle ? 
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+              <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+              {/* TODO: enable code? Most of the time it's the same as Name. */}
+              {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
+            </View>
+            : null }
         </View>
       </View>
     )
@@ -168,7 +177,12 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         }
         const timeseries = resource.timeseries[idx];
         return (
-          <HeadingText key={key} heading={timeseries.name} content={content} />
+          <HeadingSubtitleText 
+            key={key} 
+            heading={timeseries.name} 
+            subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
+            content={content} 
+          />
         )
       })
     );
@@ -176,15 +190,17 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
   getSummaryCard() {
     return (
-      <Card
-        containerStyle={{
-          width: '90%',
-          height: '90%',
-        }}
-      >
+      // <View
+        // containerStyle={{
+        //   width: '100%',
+        //   height: '100%',
+        //   borderWidth: 0,
+        // }}
+      // >
         <View style={{
           flexDirection: 'column',
           height: '100%',
+          padding: 20,
         }}>
           <View style={{
             flexDirection: 'column',
@@ -194,7 +210,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             <HeadingText heading={'Status'} content={'TODO'}/>
             <Text style={{
               paddingVertical: 10,
-              textDecorationLine: 'underline',
               fontSize: 15,
               fontWeight: '600',
               alignSelf: 'center',
@@ -215,15 +230,14 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           <View style={{
             flex: 1,
             maxHeight: 30,
-            borderColor: textLight,
-            borderTopWidth: 2,
+            borderColor: bgLightHighlight,
+            borderTopWidth: 1,
             flexDirection: 'row-reverse',
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
           </View>
         </View>
-      </Card>
     );
   }
 
@@ -243,39 +257,54 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   getReadingsView() {
     const { tsReadings, resource } = this.props;
 
+    console.log("ScrollableTabView", ScrollableTabView);
+
     return (
       <View style={{
         flex: 15,
+        backgroundColor: bgMed,
       }}>
-        <ViewPagerAndroid
-          //@ts-ignore
-          style={{
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
+    
+        <ScrollableTabView 
+          style={{ paddingTop: 0}}
+          containerStyle={{}}
+          tabStyle={{
+            height: 20,
           }}
-          initialPage={0}
-        >
-          <View key="1" style={{
-              alignItems: 'center',
-            }}>
+          renderTabBar={() => (
+            <ScrollableTabView.DefaultTabBar
+              tabStyle={{
+                backgroundColor: primaryLight,
+              }}
+              textStyle={{
+                color: primaryText,
+              }}
+            />
+          )}>
+          <View 
+            key="1" 
+            style={{
+              backgroundColor: bgLight,
+            }}
+            // TODO: translate
+            tabLabel="Summary"
+            >
             {this.getSummaryCard()}
           </View>
-          {
-            resource.timeseries.map((ts: OWTimeseries, idx: number) => {
-              return (
-                <View key={idx} style={{alignItems: 'center'}}>
-                  {/* TODO: how to fix this? the other properties are being set by redux */}
-                  <TimeseriesCard 
-                    config={this.props.config}
-                    resourceId={this.props.resource.id}
-                    timeseries={ts}
-                  />
-                </View>
-              );
-            })
-          }
-        </ViewPagerAndroid>
+            {
+              resource.timeseries.map((ts: OWTimeseries, idx: number) => {
+                return (
+                  <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
+                    <TimeseriesCard
+                      config={this.props.config}
+                      resourceId={this.props.resource.id}
+                      timeseries={ts}
+                    />
+                  </View>
+                );
+              })
+            }
+        </ScrollableTabView>
       </View>
     );
   }
@@ -283,7 +312,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   getReadingButton() {
     return (
       <Button
-        color={primaryDark}
+        color={secondary}
         buttonStyle={{
           backgroundColor: bgLight,
           borderRadius: 5,
@@ -313,7 +342,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
-        color={primaryDark}
+        color={secondary}
         isLoading={favouriteResourcesMeta.loading}
       />
     );
@@ -338,9 +367,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     return (
       <View style={{
         flexDirection: 'column',
-        flex: 1,
+        flex: 5,
       }}>
-        {this.getHeadingBar()}
+        {this.props.hideTopBar ? null : this.getHeadingBar()}
         {this.getReadingsView()}
       </View>
     );

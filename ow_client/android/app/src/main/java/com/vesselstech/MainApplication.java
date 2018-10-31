@@ -1,10 +1,11 @@
-package com.vesselstech.mywell;
+package com.vesselstech;
 
 import android.app.Application;
 
 import com.reactnativenavigation.NavigationApplication;
 
 import com.facebook.react.ReactApplication;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.horcrux.svg.SvgPackage;
 import org.gamega.RNAsyncStoragePackage;
 import com.oblador.keychain.KeychainPackage;
@@ -14,6 +15,9 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import org.reactnative.camera.RNCameraPackage;
+
+import com.crashlytics.android.Crashlytics;
 
 //react-native-maps
 import com.airbnb.android.react.maps.MapsPackage;
@@ -23,7 +27,8 @@ import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
-// import io.invertase.firebase.functions.RNFirebaseFunctionsPackage;
+import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
+import io.invertase.firebase.perf.RNFirebasePerformancePackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,18 +45,21 @@ public class MainApplication extends NavigationApplication {
       // Add additional packages you require here
       // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
-          // new MainReactPackage(),
-          new SvgPackage(),
-          new RNAsyncStoragePackage(),
-          new KeychainPackage(),
-          new VectorIconsPackage(),
-          new ReactNativeConfigPackage(),
-          new MapsPackage(),
-          new RNFirebasePackage(),
-          new RNFirebaseFirestorePackage(),
-          new RNFirebaseAuthPackage(),
-          new RNFirebaseRemoteConfigPackage()
-        //   new RNFirebaseFunctionsPackage()
+            // new MainReactPackage(),
+            new SplashScreenReactPackage(),
+            new SvgPackage(),
+            new RNAsyncStoragePackage(),
+            new KeychainPackage(),
+            new VectorIconsPackage(),
+            new ReactNativeConfigPackage(),
+            new MapsPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseFirestorePackage(),
+            new RNFirebaseAuthPackage(),
+            new RNFirebaseRemoteConfigPackage(),
+            new RNFirebaseCrashlyticsPackage(),
+            new RNFirebasePerformancePackage(),
+            new RNCameraPackage()
       );
   }
 
@@ -74,6 +82,7 @@ public class MainApplication extends NavigationApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+    // Crashlytics.getInstance().crash(); // Force a crash
   }
 
   // private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {

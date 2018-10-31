@@ -11,7 +11,7 @@ export type GGMNTimeseriesResponse = {
   count: number,
   next: string,
   previous: string,
-  results: Array<GGMNTimeseries>
+  results: Array<GGMNResponseTimeseries>
 }
 
 export type GGMNSearchResponse = {
@@ -51,10 +51,11 @@ export type GGMNGroundwaterStation = {
 }
 
 export type GGMNFilterResponse = {
-  timeseries: Array<GGMNTimeseries>,
+  timeseries: Array<GGMNResponseTimeseries>,
 }
 
-export type GGMNTimeseries = {
+//TODO: find better name!
+export type GGMNResponseTimeseries = {
   uuid: string,
   name: string,
   parameter: string,

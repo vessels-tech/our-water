@@ -1,15 +1,16 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View, ProgressBarAndroid } from "react-native";
-import MapView, { Marker, Region } from 'react-native-maps';
+import { View, ProgressBarAndroid, Text, TouchableNativeFeedback } from "react-native";
+import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { Resource, BasicCoords } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
-import { bgMed, primaryDark, textLight } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords } from '../utils';
+import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
+import { Button } from 'react-native-elements';
 
 export type MapRegion = {
   latitude: number,
@@ -31,12 +32,15 @@ export interface Props {
   onMapRegionChange: any,
   onResourceSelected: any,
   onResourceDeselected: any,
+  onMapStateChanged: (h: MapStateOption) => void,
   initialRegion: MapRegion,
   resources: Resource[],
   selectedResource?: Resource,
   hasSelectedResource: boolean,
   mapRef: any,
-
+  shouldShrinkForSelectedResource: boolean,
+  shouldShowCallout: boolean,
+  onCalloutPressed?: (r: Resource) => void,
 }
 
 export default class MapSection extends Component<Props> {
@@ -98,7 +102,6 @@ export default class MapSection extends Component<Props> {
    * When user clicks on a resource, make the map small, 
    * scroll to the top of the view, and display the resource details
    * 
-   * @param {*} param0 
    */
   focusResource(coordinate: BasicCoords) {
     const resource = getSelectedResourceFromCoords(this.props.resources, coordinate);
@@ -112,11 +115,26 @@ export default class MapSection extends Component<Props> {
 
   //TODO: fix infinite loop here
   selectResource(resource: Resource) {
-    this.setState({
+    let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
-      hasSelectedResource: true,
-    });
+    };
+    let newState = {
+      hasSelectedResource: true
+    };
+
+    if (this.props.shouldShrinkForSelectedResource) {
+      this.setState({
+        ...shrinkState,
+        ...newState,
+      });
+
+      this.props.onMapStateChanged(MapStateOption.small);
+    } else {
+      this.setState({
+        ...newState,
+      });
+    }
 
     this.props.onResourceSelected(resource);
   }
@@ -132,10 +150,12 @@ export default class MapSection extends Component<Props> {
       newMapHeight = MapHeightOption.fullscreen;
     }
 
+    this.props.onMapStateChanged(newMapState);
     this.setState({
       mapState: newMapState,
       mapHeight: newMapHeight,
     });
+    
   }
 
   onRegionChange(region: any) {
@@ -204,11 +224,39 @@ export default class MapSection extends Component<Props> {
         justifyContent: 'space-around',
       }}>
         <IconButton
+          color={secondary}
           name="clear"
           onPress={() => this.clearSelectedResource()}
         />
       </View>
     );
+  }
+
+  getCalloutForResource(resource: Resource) {
+    if (!this.props.shouldShowCallout) {
+      return null;
+    }
+
+    //This reveals a code smell
+    if (!this.props.onCalloutPressed) {
+      throw new Error("no onCalloutPressed, but shouldShowCallout is true");
+    }
+
+    return (
+      <Callout 
+        onPress={() => this.props.onCalloutPressed && this.props.onCalloutPressed(resource)}
+        tooltip
+      >
+        <View style={{
+          flex: 1,
+          padding: 10,
+          margin: 10,
+          backgroundColor: randomPrettyColorForId(resource.id),
+        }}>
+          <Text style={{ fontWeight: '800', fontSize: 20 }}>{resource.resourceType}: {resource.id} ></Text>
+        </View>
+      </Callout>
+    )
   }
 
 
@@ -221,7 +269,8 @@ export default class MapSection extends Component<Props> {
     return (
       <View style={{
         backgroundColor: bgMed,
-        // height: 500,
+        flex: 1,
+        maxHeight: mapHeight
       }}>
         <ClusteredMapView
           mapRef={(ref: any) => {
@@ -231,13 +280,14 @@ export default class MapSection extends Component<Props> {
           style={{
             position: 'relative',
             width: '100%',
+            // height: '100%',
             height: mapHeight,
           }}
           radius={25}
           clustering={false}
           clusterColor={primaryDark}
-          clusterTextColor={textLight}
-          clusterBorderColor={textLight}
+          clusterTextColor={primaryText}
+          clusterBorderColor={primaryText}
           onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
           initialRegion={initialRegion}
           onRegionChangeComplete={(region: Region) => this.props.onMapRegionChange(region)}
@@ -253,10 +303,14 @@ export default class MapSection extends Component<Props> {
               key={shortId}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
-              description={resource.resourceType}
-              image={imageForResourceType(resource.resourceType)}
+              // description={resource.resourceType}
+              
+              //This is making massive images on some devices
+              // image={imageForResourceType(resource.resourceType)}
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
-            />
+            >
+              {this.getCalloutForResource(resource)}
+            </Marker>
           }
           )}
         </ClusteredMapView>

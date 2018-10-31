@@ -1,5 +1,5 @@
 export enum MapHeightOption {
-  default = 300,
+  default = '100%',
   small = 100,
   fullscreen = '100%',
 };
@@ -14,6 +14,7 @@ export enum ResourceType {
   well = 'well',
   raingauge = 'raingauge',
   checkdam = 'checkdam',
+  quality = 'quality',
   custom = 'custom',
 }
 
@@ -23,3 +24,8 @@ export enum BaseApiType{
   MyWellApi = 'MyWellApi',
   GGMNApi = 'GGMNApi',
 };
+
+export enum HomeScreenType {
+  Simple = "Simple", //MyWell
+  Map = "Map", //GGMN
+}

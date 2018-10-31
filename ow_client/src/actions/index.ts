@@ -1,8 +1,8 @@
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -10,12 +10,13 @@ import { getLocation, maybeLog } from "../utils";
 import { Firebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
-import ExternalServiceApi from "../api/ExternalServiceApi";
+import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
+import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -112,9 +113,14 @@ function changeTranslationResponse(result: SomeResult<void>): ChangeTranslationA
  * Async connect to external service
  */
 
-export function connectToExternalService(api: ExternalServiceApi, username: string, password: string): any {
+export function connectToExternalService(api: MaybeExternalServiceApi, username: string, password: string): any {
   return async function (dispatch: any) {
     dispatch(connectToExternalServiceRequest());
+
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
 
     let result: SomeResult < LoginDetails | EmptyLoginDetails>; 
     const details = await api.connectToService(username, password);
@@ -156,8 +162,13 @@ function connectToExternalServiceResponse(result: SomeResult<LoginDetails | Empt
 /**
  * Async disconnect from external service
  */
-export function disconnectFromExternalService(api: ExternalServiceApi): any {
+export function disconnectFromExternalService(api: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(disconnectFromExternalServiceRequest());
     await api.forgetExternalServiceLoginDetails();
 
@@ -231,8 +242,13 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
 /**
  * Async get external login details
  */
-export function getExternalLoginDetails(externalServiceApi: ExternalServiceApi): any {
+export function getExternalLoginDetails(externalServiceApi: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
+    if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(getExternalLoginDetailsRequest());
 
     const loginDetails = await externalServiceApi.getExternalServiceLoginDetails();
@@ -260,8 +276,13 @@ function getExternalLoginDetailsResponse(result: SomeResult<AnyLoginDetails>): G
   }
 }
 
-export function getExternalOrgs(externalServiceApi: ExternalServiceApi): any {
+export function getExternalOrgs(externalServiceApi: MaybeExternalServiceApi): any {
   return async function(dispatch: any) {
+    if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
+
     dispatch(getExternalOrgsRequest());
 
     const result = await externalServiceApi.getExternalOrganisations();
@@ -378,6 +399,37 @@ export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange
 }
 
 /**
+ * Async get resource given a short Id
+ */
+export function getResource(api: BaseApi, resourceId: string, userId: string): (dispatch: any) => Promise<SomeResult<Resource>> {
+  return async (dispatch: any) => {
+    dispatch(getResourceRequest(resourceId));
+
+    //TODO: we should only do this if we don't already have the resource...
+    const result = await api.getResource(resourceId);
+    console.log("getResource result: ", result);
+    dispatch(getResourceResponse(resourceId, result));
+    return result;
+  }
+}
+
+function getResourceRequest(resourceId: string): GetResourceActionRequest {
+  return {
+    type: ActionType.GET_RESOURCE_REQUEST,
+    resourceId,
+  }
+}
+
+function getResourceResponse(resourceId: string, result: SomeResult<Resource>): GetResourceActionResponse {
+  return {
+    type: ActionType.GET_RESOURCE_RESPONSE,
+    resourceId,
+    result,
+  }
+}
+
+
+/**
  * Async get resources near user
  */
 export function getResources(api: BaseApi, userId: string, region: Region): (dispatch: any) => Promise<SomeResult<Resource[]>> {
@@ -439,29 +491,30 @@ export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionRespo
  */
 export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number): any {
   return async (dispatch: any) => {
-    dispatch(performSearchRequest(page));
+    dispatch(performSearchRequest(page, searchQuery));
 
     const searchResult = await api.performSearch(searchQuery, page);
 
     dispatch(performSearchResponse(searchResult))
 
-    if (searchResult.type !== ResultType.ERROR && searchResult.result.length > 0) {
-      //Add successful search to list
-      await api.saveRecentSearch(userId, searchQuery);
-    }
-
+    if (searchResult.type !== ResultType.ERROR) {
+        if (searchResult.result.resources.length > 0) {
+          await api.saveRecentSearch(userId, searchQuery);
+        }
+      }
     return searchResult;
   }
 }
 
-function performSearchRequest(page: number): PerformSearchActionRequest {
+function performSearchRequest(page: number, searchQuery: string): PerformSearchActionRequest {
   return {
     type: ActionType.PERFORM_SEARCH_REQUEST,
-    page
+    page,
+    searchQuery,
   }
 }
 
-function performSearchResponse(result: SomeResult<GGMNSearchEntity[]>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<AnySearchResult>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
     result,
@@ -497,7 +550,7 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
  * Async save reading
  */
 
-export function saveReading(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resourceId: string, reading: Reading ): any {
+export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
 
@@ -505,7 +558,7 @@ export function saveReading(api: BaseApi, externalApi: ExternalServiceApi | null
 
     dispatch(saveReadingResponse(result));
     //Attempt to do a sync
-    if (externalApi) {
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
       dispatch(startExternalSync(externalApi, userId));
     }
     return result;
@@ -529,7 +582,7 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, externalApi: ExternalServiceApi | null, userId: string, resource: Resource ): 
+export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource ): 
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
@@ -538,7 +591,7 @@ export function saveResource(api: BaseApi, externalApi: ExternalServiceApi | nul
 
     dispatch(saveResourceResponse(result));    
     //Attempt to do a sync
-    if (externalApi){
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has){
       dispatch(startExternalSync(externalApi, userId));
     }
 
@@ -559,10 +612,15 @@ function saveResourceResponse(result: SomeResult<SaveResourceResult>): SaveResou
   }
 }
 
-export function setExternalOrganisation(api: ExternalServiceApi, organisation: GGMNOrganisation): any {
+export function setExternalOrganisation(api: MaybeExternalServiceApi, organisation: GGMNOrganisation): any {
   return async function(dispatch: any) {
     //TODO: if this fails, state could get out of sync with the saved credentials.
     // Let's worry about it later
+
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return;
+    }
 
     await api.selectExternalOrganisation(organisation);
     dispatch({
@@ -602,7 +660,7 @@ function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActio
 /**
  * trigger an external sync
  */
-export function startExternalSync(api: ExternalServiceApi, userId: string): (dispatch: any) => void {
+export function startExternalSync(api: MaybeExternalServiceApi, userId: string): (dispatch: any) => void {
   return async function(dispatch: any) {
     dispatch(externalSyncRequest());
     //TODO: call the api!

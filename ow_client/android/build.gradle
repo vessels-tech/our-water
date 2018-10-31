@@ -2,31 +2,37 @@
 
 buildscript {
     repositories {
-        
-        jcenter()
-        //Required by maps, firebase
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
+
+            //Crashlytics dependencies via maven
+            url 'https://maven.fabric.io/public'
         }
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.2'
-
-        //Allow us to read google-services.json files
+        //Allow us to read google-services.json files and use firebase
         classpath 'com.google.gms:google-services:3.2.1'
+        //Crashlytics dependencies
+        classpath 'io.fabric.tools:gradle:1.25.4'
+        //Firebase performance dependencies
+        classpath 'com.google.firebase:firebase-plugins:1.1.1'
     }
 }
 
 allprojects {
     repositories {
         mavenLocal()
-        jcenter()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
+            //react-native-camera
+            // url "https://jitpack.io" 
         }
         google()
+        jcenter()
     }
 }

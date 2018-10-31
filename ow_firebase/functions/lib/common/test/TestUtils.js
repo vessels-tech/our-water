@@ -36,7 +36,7 @@ exports.createNewSync = () => {
         return Promise.reject(err);
     });
 };
-exports.getSyncRun = ({ _orgId, fs, syncRunId }) => {
+exports.getSyncRun = (_orgId, fs, syncRunId) => {
     return fs.collection('org').doc(_orgId).collection('syncRun').doc(syncRunId).get()
         .then(sn => sn.data());
 };

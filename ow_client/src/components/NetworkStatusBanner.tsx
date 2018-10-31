@@ -1,7 +1,7 @@
 import * as React from 'react'; 
 import { Component } from 'react';
 import { View, TouchableNativeFeedback } from "react-native";
-import { bgMed, textLight, textDark } from "../utils/Colors";
+import { bgMed, secondaryText } from "../utils/Colors";
 import { Text } from "react-native-elements";
 import { ConfigFactory } from '../config/ConfigFactory';
 import NetworkApi from '../api/NetworkApi';
@@ -57,7 +57,7 @@ class NetworkStatusBanner extends Component<OwnProps & StateProps & ActionProps>
           >
           <Text
             style={{
-              color: textDark,
+              color: secondaryText,
               textAlign: 'center',
             }}
             >

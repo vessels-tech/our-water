@@ -1,16 +1,16 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import OWGeoPoint from '../common/models/OWGeoPoint';
+import firestore from '../common/apis/Firestore';
 
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 
 
-module.exports = (functions, admin) => {
+module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-  const fs = admin.firestore();
 
 
   // const defaultErrorHandler = require('../common/defaultErrorHandler');
@@ -57,14 +57,14 @@ module.exports = (functions, admin) => {
     console.log("org id:", orgId );
 
     //Ensure the orgId exists
-    const orgRef = fs.collection('org').doc(orgId)
+    const orgRef = firestore.collection('org').doc(orgId)
     return orgRef.get()
     .then(doc => {
       if (!doc.exists) {
         throw new Error(`Org with id: ${orgId} not found`);
       }
     })
-    .then(() => fs.collection(`/org/${orgId}/group`).add(req.body))
+    .then(() => firestore.collection(`/org/${orgId}/group`).add(req.body))
     .then(result => res.json({ groupId: result.id }))
     .catch(err => next(err));
   });
@@ -93,7 +93,7 @@ module.exports = (functions, admin) => {
 
     // // Create a query against the collection
     // var queryRef = citiesRef.where('state', '==', 'CA');
-    const readingsRef = fs.collection(`/org/${orgId}/resource`)
+    const readingsRef = firestore.collection(`/org/${orgId}/resource`)
       .where(`groups.${groupId}`, '==', true).get()
       .then(snapshot => {
         const resources = []

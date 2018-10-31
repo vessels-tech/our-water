@@ -16,15 +16,17 @@ import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
 import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
-import { TextInput } from '../../components/common/FormComponents';
+import { TextInput, DropdownInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
-import ExternalServiceApi from '../../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
 import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
 import IconButton from '../../components/common/IconButton';
 import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
+import { secondary, secondaryText } from '../../utils/Colors';
+import { TranslationFile } from 'ow_translations/Types';
 
 export interface Props { 
   resourceId: string,
@@ -35,11 +37,11 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  // saveResource: (api: BaseApi, userId: string, resource: Resource | PendingResource) => any,
-  saveResource: any,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
+  translation: TranslationFile,
 }
 
 export interface State {
@@ -49,7 +51,7 @@ export interface State {
 class EditResourceScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
   editResourceForm: any;
 
   constructor(props: Props) {
@@ -83,14 +85,18 @@ class EditResourceScreen extends Component<Props> {
 
     if (!equal(location, newProps.location)) {
       if (newProps.location.type === LocationType.LOCATION) {
-        this.editResourceForm.get('lat').setValue(newProps.location.coords.latitude);
-        this.editResourceForm.get('lng').setValue(newProps.location.coords.longitude);
+        this.editResourceForm.get('lat').setValue(`${newProps.location.coords.latitude.toFixed(4)}`);
+        this.editResourceForm.get('lng').setValue(`${newProps.location.coords.longitude.toFixed(4)}`);
       }
     }
   }
 
   handleSubmit = async () => {
+    const { translation: { templates: {new_resource_saved_dialog, new_resource_saved_dialog_warning}}} = this.props;
+
     Keyboard.dismiss();
+
+    const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
 
     const unvalidatedResource = {
       coords: {
@@ -99,7 +105,7 @@ class EditResourceScreen extends Component<Props> {
       },
       resourceType: 'well',
       owner: {
-        name: this.editResourceForm.value.ownerName,
+        name,
       },
       userId: this.props.userId,
     };
@@ -117,9 +123,9 @@ class EditResourceScreen extends Component<Props> {
       return;
     }
 
-    let message = `Successfully Saved Resource!`;
+    let message = new_resource_saved_dialog ;
     if (result.result.requiresLogin) {
-      message = `Saved resouce. Login to GGMN to sync.`
+      message = new_resource_saved_dialog_warning
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
@@ -127,7 +133,10 @@ class EditResourceScreen extends Component<Props> {
   }
 
   getForm() {
-    const { pendingSavedResourcesMeta: { loading }} = this.props;
+    const {
+      pendingSavedResourcesMeta: { loading },
+      translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button}}
+    } = this.props;
 
     return (
       <FieldGroup
@@ -146,36 +155,49 @@ class EditResourceScreen extends Component<Props> {
               <FieldControl
                 name="lat"
                 render={TextInput}
-                meta={{ editable: true, label: "Latitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                meta={{ editable: true, label: new_resource_lat, secureTextEntry: false, keyboardType: 'numeric' }}
                 />
               <FieldControl
                 name="lng"
                 render={TextInput}
-                meta={{ editable: true, label: "Longitude", secureTextEntry: false, keyboardType: 'numeric' }}
+                meta={{ editable: true, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
                 />
             </View>
-
-            {/* TODO: dropdown? */}
             <FieldControl
               name="asset"
-              render={TextInput}
-              meta={{ editable: false, label: "Asset Type", secureTextEntry: false, keyboardType: 'default' }}
+              render={DropdownInput}
+              meta={{
+                options: [{key: 'well', label: resource_name}],
+                editable: false,
+                label: "Asset Type",
+                secureTextEntry: false,
+                keyboardType: 'default' 
+              }}
             />
-            <FieldControl
-              name="ownerName"
-              render={TextInput}
-              meta={{ editable: true, label: "Owner Name", secureTextEntry: false, keyboardType: 'default' }}
-            />
+            { this.props.config.getEditResourceShouldShowOwnerName() ?
+              <FieldControl
+                name="ownerName"
+                render={TextInput}
+                meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
+              /> : null }
             <Button
               style={{
+                paddingBottom: 20,
                 minHeight: 50,
+              }}
+              buttonStyle={{
+                backgroundColor: secondary,
               }}
               containerViewStyle={{
                 marginVertical: 20,
               }}
+              textStyle={{
+                color: secondaryText,
+                fontWeight: '700',
+              }}
               loading={loading}
               disabled={invalid}
-              title={loading ? '' : 'Submit'}
+              title={loading ? '' : new_resource_submit_button}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -205,12 +227,13 @@ const mapStateToProps = (state: AppState) => {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     location:state.location,
+    translation: state.translation,
   }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resource: Resource) =>
+    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) =>
      { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }

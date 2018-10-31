@@ -7,8 +7,11 @@ export enum TranslationEnum {
   test_UPPER = 'test_UPPER',
 }
 
-export type Language = 'dutch' | 'english' | 'hindi' | 'gujarati' | 'test';
-export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | 'uppercase';
+
+export type Language = 'dutch' | 'english' | 'hindi' | 'gujarati' | 'test' | 'spanish' | 'french';
+export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | 'uppercase' | 'france' | 'spain';
+
+//TODO: add fr_FR and es-ES
 
 export type TranslationMetadata = {
   language: Language
@@ -37,7 +40,48 @@ export type GGMNTranslationFiles = {
   type: TranslationOrg.ggmn,
   'en_AU': TranslationFile,
   'nl_NL': TranslationFile,
+  'test_UPPER': TranslationFile,
 }
+
+export type TranslationOverrideFile = GGMNTranslationOverrideFile | MyWellTranslationOverrideFile;
+
+export type GGMNTranslationOverrideFile = {
+  org: TranslationOrg.ggmn,
+  overrides: {
+    /* Define the overriden variables here */
+    search_hint: string,
+    settings_sync_heading: string,
+    settings_connect_to_pending_title: string,
+    settings_connect_to_connected_title: string,
+    settings_connect_to_subtitle_error: string,
+    settings_new_resource: string,
+    connect_to_service_description: string,
+    connect_to_service_connected_test: (fieldName: string, username: string) => string,
+    connect_to_service_org_selector: string, 
+    sync_login_message: string,
+    sync_start_sync_button_loading: string,
+    sync_section_resources: string,
+    sync_empty_heading: string,
+    sync_empty_content: string,
+    new_reading_timeseries: string,
+    resource_detail_empty_heading: string,
+    resource_detail_empty_hint: string,
+    new_resource_saved_dialog: string,
+    new_resource_saved_dialog_warning: string,
+    resource_name: string,
+    new_resource_asset_type_label: string,
+    new_resource_submit_button: string,
+  }
+}
+
+export type MyWellTranslationOverrideFile = {
+  org: TranslationOrg.mywell,
+  overrides: {
+    /* Define the overriden variables here */
+    settings_sync_heading: string,
+  }
+}
+
 
 export type TranslationFile = {
   metadata: TranslationMetadata,
@@ -85,6 +129,8 @@ export type TranslationFile = {
     connect_to_service_verify_invalid: string,
     connect_to_service_logout_button: string,
     connect_to_service_connected_test: (fieldName: string, username: string) => string,
+    connect_to_service_submit_button: string,
+    connect_to_service_description: string,
     connect_to_service_error: string,
     connect_to_service_org_selector: string,
     favourite_resource_heading: string,
@@ -94,5 +140,24 @@ export type TranslationFile = {
     recent_resource_none: string,
     resource_detail_latest: string,
     resource_detail_new: string,
+    sync_login_message: string,
+    sync_start_sync_button: string,
+    sync_start_sync_button_loading: string,
+    sync_section_resources: string,
+    sync_section_readings: string,
+    sync_empty_heading: string,
+    sync_empty_content: string,
+    select_language_heading: string,
+    resource_detail_summary_tab: string,
+    resource_detail_empty_heading: string,
+    resource_detail_empty_hint: string,
+    new_resource_saved_dialog: string,
+    new_resource_saved_dialog_warning: string,
+    resource_name: string,
+    new_resource_lat: string,
+    new_resource_lng: string,
+    new_resource_asset_type_label: string,
+    new_resource_owner_name_label: string,
+    new_resource_submit_button: string,
   }
 }

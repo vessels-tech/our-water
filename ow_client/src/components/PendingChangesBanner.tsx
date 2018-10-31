@@ -13,12 +13,12 @@ import {
   TouchableNativeFeedback,
 } from 'react-native';
 
-import {  textLight, bgMed, error1, textDark, warning1 } from '../utils/Colors';
+import { bgMed, error1, secondaryLight, secondaryText, primaryLight } from '../utils/Colors';
 import { SyncStatus } from '../typings/enums';
 import { PendingReading, PendingResource } from '../typings/models/OurWater';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus } from '../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
 
 
 export interface OwnProps {
@@ -27,7 +27,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-  externalLoginDetails: LoginDetails | EmptyLoginDetails,
+  externalLoginDetails: AnyLoginDetails,
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
 }
@@ -56,7 +56,7 @@ class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps
       >
         <Text
           style={{
-            color: textDark,
+            color: secondaryText,
             textAlign: 'center',
             paddingVertical: 5,
           }}
@@ -68,11 +68,11 @@ class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps
   }
 
   getFirebaseBanner() {
-    return this.getBanner(bgMed, `Syncing changes...`);
+    return this.getBanner(primaryLight, `Syncing changes...`);
   }
 
   getGGMNPendingBanner() {
-    return this.getBanner(warning1, `Login to GGMN to sync changes.`);
+    return this.getBanner(secondaryLight, `Login to GGMN to sync changes.`);
   }
 
   getGGMNBanner() {
@@ -88,10 +88,6 @@ class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps
 
     if (pendingSavedReadings.length === 0 && pendingSavedResources.length === 0) {
       return SyncStatus.none;
-    }
-
-    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
-      return SyncStatus.ggmnError;
     }
 
     if (externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS) {

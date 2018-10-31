@@ -5,7 +5,7 @@ import * as assert from 'assert';
 
 describe('SyncApi Unit Tests', function() {
 
-  describe.only('CreateSync', function() {
+  describe('CreateSync', function() {
     
     it('validates the POST /:orgId method correctly', () => {
       //Arrange

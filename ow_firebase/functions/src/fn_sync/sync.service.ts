@@ -1,3 +1,4 @@
+import 'mocha';
 import * as sleep from 'thread-sleep';
 import * as assert from 'assert';
 import * as request from 'request-promise';
@@ -68,7 +69,7 @@ describe('SyncAPI', function() {
 
           syncRunId = response.data.syncRunId;
           syncRunIds.push(syncRunId)
-          return getSyncRun({ orgId, fs, syncRunId });
+          return getSyncRun(orgId, fs, syncRunId);
         })
         .then(syncRun => {
           console.log('syncRun: ', syncRun);
@@ -79,7 +80,7 @@ describe('SyncAPI', function() {
   });
 
 
-  describe.skip('MyWell Pull', () => {
+  describe('MyWell Pull', () => {
     it('creates a new legacy sync, and pulls the data correctly', () => {
 
       let syncId = null;
@@ -87,16 +88,17 @@ describe('SyncAPI', function() {
 
       const data = {
         isOneTime: false,
+        frequency: 'daily',
         datasource: {
           type: "LegacyMyWellDatasource",
           url: mywellLegacyBaseUrl,
+          selectedDatatypes: [
+            'Group',
+            'Resource',
+            'Reading',
+          ]
         },
         type: "unknown",
-        selectedDatatypes: [
-          'group',
-          'resource',
-          'reading',
-        ]
       };
 
       const createSyncOptions = {
@@ -107,6 +109,8 @@ describe('SyncAPI', function() {
           data
         }
       };
+
+      console.log("createSyncOptions", createSyncOptions);
 
       return request(createSyncOptions)
         .then(response => {
@@ -127,7 +131,7 @@ describe('SyncAPI', function() {
 
           syncRunId = response.data.syncRunId;
           syncRunIds.push(syncRunId)
-          return getSyncRun({orgId, fs, syncRunId});
+          return getSyncRun(orgId, fs, syncRunId);
         })
         .then(syncRun => {
           console.log('syncRun: ', syncRun);
@@ -190,7 +194,7 @@ describe('SyncAPI', function() {
     })
     //Wait for the sync to finish
     .then(() => sleep(20000))
-    .then(() => getSyncRun({orgId, fs, syncRunId}))
+    .then(() => getSyncRun(orgId, fs, syncRunId))
     .then(syncRun => {
       console.log("syncRun is:", syncRun);
       assert.equal(syncRun.status, 'finished');

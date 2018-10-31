@@ -9,18 +9,18 @@ export default abstract class FirestoreDoc {
   updatedAt: Date
 
 
-  public create({ fs }): Promise<FirestoreDoc> {
-    const newRef = fs.collection('org').doc(this.orgId).collection(this.docName).doc();
+  public create({ firestore }): Promise<FirestoreDoc> {
+    const newRef = firestore.collection('org').doc(this.orgId).collection(this.docName).doc();
     this.id = newRef.id;
     this.createdAt = new Date();
 
-    return this.save({ fs });
+    return this.save({ firestore });
   }
 
-  public save({ fs }): Promise<FirestoreDoc> {
+  public save({ firestore }): Promise<FirestoreDoc> {
     this.updatedAt = new Date();
     
-    return fs.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
+    return firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
       .set(this.serialize())
       .then(ref => { return this; });
   }

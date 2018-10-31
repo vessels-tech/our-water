@@ -1,10 +1,37 @@
-import { TranslationOrg, TranslationFiles, TranslationEnum } from "./Types";
+import { TranslationOrg, TranslationFiles, TranslationEnum, TranslationFile, TranslationOverrideFile } from "./Types";
 
 import {en_AU} from './common/en_AU';
 import {en_US} from './common/en_US';
 import {guj_IN} from './common/guj_IN';
 import {hi_IN} from './common/hi_IN';
 import {test_UPPER} from './common/test_UPPER';
+
+import { ggmn_en_AU } from './ggmn/en_AU';
+
+
+/**
+ * Get a list of the possible Translations for a given org
+ */
+export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEnum[] {
+  switch (orgId) {
+    case TranslationOrg.mywell: {
+      return [
+        TranslationEnum.en_AU,
+        TranslationEnum.en_US,
+        TranslationEnum.guj_IN,
+        TranslationEnum.hi_IN,
+        TranslationEnum.test_UPPER,
+      ]
+    }
+    case TranslationOrg.ggmn: {
+      return [
+        TranslationEnum.en_AU,
+        TranslationEnum.nl_NL,  
+        TranslationEnum.test_UPPER,
+      ]
+    }
+  }
+}
 
 
 /**
@@ -34,13 +61,25 @@ import {test_UPPER} from './common/test_UPPER';
     case TranslationOrg.ggmn: {
       return {
         type: TranslationOrg.ggmn,
-        en_AU,
-        //TODO: fix
+        en_AU: mergeFiles(en_AU, ggmn_en_AU),
         nl_NL: en_AU,
+        test_UPPER
       }
     }
   }
 } 
+
+
+function mergeFiles(original: TranslationFile, overrideFile: TranslationOverrideFile | null): TranslationFile {
+  if (overrideFile === null) {
+    return original;
+  }
+
+  const newTemplates = Object.assign(original.templates, null, { ...overrideFile.overrides });
+  original.templates = newTemplates;
+
+  return original;
+}
 
 /**
  * Get the translations for the given user language setting
@@ -66,6 +105,7 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
       switch (language) {
         case 'en_AU': return files.en_AU;
         case 'nl_NL': return files.nl_NL;
+        case 'test_UPPER': return files.test_UPPER;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${files.type}`);
         }

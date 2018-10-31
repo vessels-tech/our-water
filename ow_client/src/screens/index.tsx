@@ -8,6 +8,7 @@ import SearchScreenWithContext from './SearchScreen';
 import ConnectToServiceScreen from './menu/ConnectToServiceScreen';
 import { ConfigFactory } from '../config/ConfigFactory';
 import App from '../App';
+import TestApp from '../TestApp';
 
 import { createStore, applyMiddleware } from 'redux';
 import OWApp from '../reducers';
@@ -22,11 +23,18 @@ import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 import { EnableLogging } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
+import ScanScreen from './ScanScreen';
+import SimpleMapScreen from './SimpleMapScreen';
+import SimpleResourceScreen from './SimpleResourceScreen';
+import SimpleResourceDetailScreen from './SimpleResourceDetailScreen';
 
 
 let loggerMiddleware: any = null;
 if (EnableLogging) {
+  console.log("LOGGING ENABLED")
   loggerMiddleware = createLogger();
+} else {
+  console.log("LOGGING DISABLED");
 }
 
 export async function registerScreens(config: ConfigFactory) {
@@ -35,17 +43,20 @@ export async function registerScreens(config: ConfigFactory) {
    : applyMiddleware(thunkMiddleware);
   const store = createStore(OWApp, middleware);
 
-  /* Initial actions */
+  /* Initial actions
+    TODO: move these to after the initial App load?
+  */
   await store.dispatch(appActions.silentLogin(config.appApi));
   //TODO: I don't know how to fix this.
   //@ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
   const user = store.getState().user;
+  console.log("got user?", user);
   if (user.type === UserType.USER) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
     
     /* Subscribe to firebase updates */
-    config.appApi.subscribeToUser(user.userId, (user: OWUser) => {
+    config.userApi.subscribeToUser(user.userId, (user: OWUser) => {
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
     });
 
@@ -62,7 +73,7 @@ export async function registerScreens(config: ConfigFactory) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
-  Navigation.registerComponent('example.FirstTabScreen', () => App, store, Provider);
+  Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
   Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
@@ -70,4 +81,11 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
   Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
+
+  Navigation.registerComponent('screen.ScanScreen', () => ScanScreen, store, Provider);
+  Navigation.registerComponent('screen.SimpleMapScreen', () => SimpleMapScreen, store, Provider);
+  Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);
+  Navigation.registerComponent('screen.SimpleResourceDetailScreen', () => SimpleResourceDetailScreen, store, Provider);
+
+  return store;
 }

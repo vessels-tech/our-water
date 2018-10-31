@@ -1,8 +1,8 @@
 import { Alert } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
-import QueryString, { stringify } from 'query-string';
-import { textDark, bgDark2, bgLight, primaryLight } from './Colors';
+import { stringify } from 'query-string';
+import { bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
@@ -143,12 +143,12 @@ export const getSelectedResourceFromCoords = (resources: Resource[], coords: Bas
   });
 
   if (filtered.length === 0) {
-    console.warn("Could not find any resource at coords");
+    maybeLog("Could not find any resource at coords");
     return null;
   }
 
   if (filtered.length > 1) {
-    console.warn("Found more than 1 resource for coords. returning just the first");
+    maybeLog("Found more than 1 resource for coords. returning just the first");
   }
 
   return filtered[0];
@@ -282,12 +282,13 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: textDark, // change the text color of the title (remembered across pushes)
-  navBarBackgroundColor: bgLight,
-  statusBarColor: bgLight,
-  statusBarTextColorScheme: 'dark',
+  navBarTextColor: primaryText, // change the text color of the title (remembered across pushes)
+  navBarBackgroundColor: primary,
+  statusBarColor: primaryDark,
+  statusBarTextColorScheme: 'light',
   screenBackgroundColor: bgLight,
-
+  navBarButtonColor: primaryText,
+  drawUnderStatusBar: false,
 }
 
 export function getDemoResources(count: number): Resource[] {
@@ -501,4 +502,16 @@ export function maybeLog(message: any, object?: any) {
     }
     console.log(message);
   }
+}
+
+export function temporarySubtitleForTimeseriesName(name: string): string {
+  if (name.toLowerCase() === 'gwmbgs') {
+    return 'Groundwater level below ground surface'
+  }
+
+  if (name.toLowerCase() === 'gwmmsl') {
+    return  'Groundwater level above mean sea level';
+  }
+
+  return '';
 }

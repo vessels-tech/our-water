@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
-import { primaryDark, primary, error1 } from '../../utils/Colors';
+import { primaryDark, primary, error1, secondaryText, secondary } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
   FormBuilder,
@@ -11,7 +11,7 @@ import {
   Validators,
 } from "react-reactive-form";
 import BaseApi from '../../api/BaseApi';
-import ExternalServiceApi from '../../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { connect } from 'react-redux'
@@ -21,6 +21,8 @@ import { SyncMeta } from '../../typings/Reducer';
 import { TextInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import Loading from '../../components/common/Loading';
+import { TranslationFile } from 'ow_translations/Types';
+import Logo from '../../components/common/Logo';
 
 
 export interface OwnProps {
@@ -34,6 +36,7 @@ export interface StateProps {
   externalLoginDetailsMeta: SyncMeta,
   externalOrgs: GGMNOrganisation[],
   externalOrgsMeta: SyncMeta,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -59,15 +62,16 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   state: State;
   loginForm: any;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+    
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
-
+    
     let username = '';
     if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
       username = this.props.externalLoginDetails.username;
@@ -76,7 +80,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       username,
       password: '',
     };
-
+    
     this.loginForm = FormBuilder.group({
       username: [username, Validators.required],
       password: ["", Validators.required],
@@ -92,7 +96,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       //Update the username if we found a saved one.
       if (username !== externalLoginDetails.username) {
         this.setState({username: externalLoginDetails.username});
-        this.loginForm.get('username').setValue(externalLoginDetails.username);
+        // this.loginForm.get('username').setValue(externalLoginDetails.username);
       }
     }
   }
@@ -142,13 +146,14 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         paddingHorizontal: 20,
         paddingTop: 10,
       }}>
+        here
         Error signing in. Please try again.
       </Text>
     );
   }
 
   getExternalOrgSelector() {
-    const { externalLoginDetails, externalOrgs, externalOrgsMeta } = this.props;
+    const { externalLoginDetails, externalOrgs, externalOrgsMeta, translation: { templates: { connect_to_service_org_selector }} } = this.props;
 
     
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
@@ -166,17 +171,19 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         <Text
           style={{
             alignSelf: 'center',
+            paddingTop: 20,
             paddingRight: 10,
             fontSize: 15,
             fontWeight: '600',
             flex: 1,
           }}>
-          Select an Organisation:
+          {connect_to_service_org_selector}
         </Text>
         <Picker
           selectedValue={externalLoginDetails.externalOrg.unique_id}
           style={{
-            flex: 2
+            flex: 2,
+            marginLeft: 10,
           }}
           mode={'dropdown'}
           onValueChange={(orgId: string, idx: number) => {
@@ -192,7 +199,10 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
 
   getConnectedSection() {
     let { username } = this.state;
-    const { externalLoginDetails } = this.props;
+    const { externalLoginDetails, translation: { templates: { 
+      connect_to_service_connected_test,
+      connect_to_service_logout_button
+    }}} = this.props;
 
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       return null;
@@ -202,7 +212,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
       username = externalLoginDetails.username;
     }
 
-    const text = `You are connected to GGMN with username: ${username}`;
+    const text = connect_to_service_connected_test('username', username);
     return (
       <View
         style={{
@@ -219,7 +229,18 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         </Text>
         {this.getExternalOrgSelector()}
         <Button
-          title='Log out'
+          style={{
+            paddingBottom: 20,
+            minHeight: 50,
+          }}
+          buttonStyle={{
+            backgroundColor: secondary,
+          }}
+          textStyle={{
+            color: secondaryText,
+            fontWeight: '700',
+          }}
+          title={connect_to_service_logout_button}
           onPress={() => this.handleLogout()}
         />
       </View>
@@ -227,7 +248,16 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   }
 
   getForm() {
-    const { externalLoginDetailsMeta: { loading }} = this.props;
+    const { 
+      externalLoginDetailsMeta: { loading },
+      translation: { templates: { 
+        connect_to_service_username_field,
+        connect_to_service_username_invalid,
+        connect_to_service_password_field,
+        connect_to_service_password_invalid,
+        connect_to_service_submit_button
+      }},
+    } = this.props;
 
     return (
       <FieldGroup
@@ -238,21 +268,36 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
             <FieldControl
               name="username"
               render={TextInput}
-              meta={{ label: "Username", secureTextEntry: false }}
+              meta={{
+                label: connect_to_service_username_field, 
+                secureTextEntry: false, 
+                errorMessage: connect_to_service_username_invalid 
+              }}
             />
             <FieldControl
               name="password"
               render={TextInput}
-              meta={{ label: "Password", secureTextEntry: true }}
+              meta={{ 
+                label: connect_to_service_password_field, 
+                secureTextEntry: true,
+                errorMessage: connect_to_service_password_invalid,
+              }}
             />
             <Button
               style={{
                 paddingBottom: 20,
                 minHeight: 50,
               }}
+              buttonStyle={{
+                backgroundColor: secondary,
+              }}
+              textStyle={{
+                color: secondaryText,
+                fontWeight: '700',
+              }}
               loading={loading}
               disabled={invalid}
-              title={loading ? '' : 'Submit'}
+              title={loading ? '' : connect_to_service_submit_button}
               onPress={() => this.handleSubmit()}
             />
           </View>
@@ -265,7 +310,11 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   // ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
 
   render() {
-    const { externalLoginDetails } = this.props;
+    const { externalLoginDetails, translation: {
+      templates: {
+        connect_to_service_description
+      }}
+    } = this.props;
 
     const isConnected = externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS;  
     return (
@@ -277,24 +326,16 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps={'always'}
       >
-        {/* Logo */}
-        <View style={{
-          width: '100%',
-          flex: 5,
-          backgroundColor: primaryDark,
-          justifyContent: 'center',
-        }}>
-          {this.getLogo()}
-        </View>
-
+        {/* I don't like the logo here anymore */}
+        {/* {Logo(this.props.config.getApplicationName())} */}
         {/* Text */}
         <View style={{
           flex: 2
         }}>
           <Text style={{
             paddingHorizontal: 20,
-            paddingTop: 10,
-          }}>{this.props.config.getConnectToButtonDescription()}</Text>
+            paddingTop: 30,
+          }}>{connect_to_service_description}</Text>
           {this.getErrorMessage()}
           {this.getConnectedSection()}
         </View>
@@ -315,18 +356,19 @@ const mapStateToProps = (state: AppState): StateProps => {
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     externalOrgs: state.externalOrgs,
     externalOrgsMeta: state.externalOrgsMeta,
+    translation: state.translation,
   }
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    connectToExternalService: (api: ExternalServiceApi, username: string, password: string) =>
+    connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string) =>
       { dispatch(appActions.connectToExternalService(api, username, password)) },
 
-    disconnectFromExternalService: (api: ExternalServiceApi) => 
+    disconnectFromExternalService: (api: MaybeExternalServiceApi) => 
       { dispatch(appActions.disconnectFromExternalService(api))},
 
-    setExternalOrganisation: (api: ExternalServiceApi, organisation: GGMNOrganisation) => 
+    setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => 
       { dispatch(appActions.setExternalOrganisation(api, organisation)) }
   }
 }

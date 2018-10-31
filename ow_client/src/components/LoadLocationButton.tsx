@@ -8,7 +8,7 @@ import { Icon } from 'react-native-elements';
 import {
   getLocation,
 } from '../utils';
-import { textDark, primary } from '../utils/Colors';
+import { primary, secondary, secondaryText } from '../utils/Colors';
 import * as appActions from '../actions/index';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
@@ -18,7 +18,7 @@ import { SyncMeta } from '../typings/Reducer';
 
 export interface OwnProps {
   style?: any,
-  onComplete?: any,
+  onComplete?: (thing: any) => void,
 }
 
 export interface StateProps {
@@ -47,7 +47,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
     //TODO: this is less than ideal
     if (result.type === ResultType.SUCCESS) {
-      this.props.onComplete(result.result);
+      this.props.onComplete && this.props.onComplete(result.result);
     }
   }
 
@@ -57,19 +57,48 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
     const viewStyle = {
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: primary,
+      backgroundColor: secondary,
       borderRadius: 50,
       width: 45,
       height: 45,
+      marginHorizontal: 10,
+      marginTop: 10,
       ...this.props.style
     }
 
+    return (
+      <View style={{ ...viewStyle }}>
+        {loading ? <ActivityIndicator
+          size="large"
+          color={secondaryText}
+        /> :
+          <Icon
+            containerStyle={{
+              borderRadius: 50,
+              backgroundColor: secondary,
+              width: 45,
+              height: 45,
+            }}
+            reverse
+            raised
+            // size={20}
+            name={"near-me"}
+            onPress={() => this.updateGeoLocation()}
+            iconStyle={{
+              color: secondaryText,
+            }}
+            color={primary}
+          />
+        }
+      </View>
+    )
+
     if (loading) {
       return (
-        <View style={viewStyle}>
+        <View style={{...viewStyle }}>
           <ActivityIndicator
             size="large"
-            color={textDark}
+            color={secondaryText}
           />
         </View>
       );
@@ -81,11 +110,11 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
         containerStyle={viewStyle}
         reverse
         raised
-        size={20}
+        // size={20}
         name={"near-me"}
         onPress={() => this.updateGeoLocation()}
         iconStyle={{
-          color: textDark,
+          color: secondaryText,
         }}
         color={primary}
       />

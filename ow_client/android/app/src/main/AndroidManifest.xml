@@ -1,21 +1,38 @@
+<<<<<<< HEAD
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.vesselstech.mywell">
+=======
+<manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.vesselstech">
+    <!-- package="com.vesselstech.mywell.debug" -->
+  >
+>>>>>>> 66987e42d3c77574205226bd1cc5b266ead3c8ff
 
       <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- TODO: disable for live build? -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /> -->
+
+    <!-- react-native-camera  -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- react-native-qr-scanner -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+
+
 
     <!-- TODO:  debuggable: true-->
     <application
       android:name=".MainApplication"
-      android:label="@string/app_name"
+      android:label="@string/APP_NAME"
       android:icon="@mipmap/ic_launcher"
-      android:allowBackup="false"
+      android:allowBackup="true"
       android:theme="@style/AppTheme"
+      tools:replace="android:allowBackup,android:label"
     >
      <!-- Metadata, injected by react-native-config! -->
       <meta-data 
@@ -23,16 +40,25 @@
         android:value="@string/GOOGLE_MAPS_ANDROID_API_KEY"
       />
 
-
       <activity
-        android:name=".MainActivity"
-        android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-        android:windowSoftInputMode="adjustResize">
+        android:name=".SplashActivity"
+        android:theme="@style/SplashTheme"
+        android:label="@string/APP_NAME">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
+      </activity>
+
+      <activity
+        android:name=".MainActivity"
+        android:label="@string/APP_NAME"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true"
+        android:theme="@style/AppTheme"
+      >
+        
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>

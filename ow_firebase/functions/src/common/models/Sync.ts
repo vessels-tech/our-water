@@ -29,25 +29,25 @@ export class Sync {
   /**
   * Create a new Sync in FireStore
   */
-  public create({ fs }): Promise<Sync> {
-    const newRef = fs.collection('org').doc(this.orgId)
+  public create({ firestore }): Promise<Sync> {
+    const newRef = firestore.collection('org').doc(this.orgId)
       .collection('sync').doc();
       this.id = newRef.id;
 
-      return this.save({fs});
+      return this.save({firestore});
   }
 
-  public save({ fs }): Promise<Sync> {
+  public save({ firestore }): Promise<Sync> {
 
-    return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id)
+    return firestore.collection('org').doc(this.orgId).collection('sync').doc(this.id)
       .set(this.serialize())
       .then(ref => {
         return this;
       });
   }
 
-  public delete({ fs }): Promise<boolean> {
-    return fs.collection('org').doc(this.orgId).collection('sync').doc(this.id).delete();
+  public delete({ firestore }): Promise<boolean> {
+    return firestore.collection('org').doc(this.orgId).collection('sync').doc(this.id).delete();
   }
 
 
@@ -100,8 +100,8 @@ export class Sync {
    * 
    * Get a list of the syncs for an org
    */
-  static getSyncs(orgId, fs): Promise<Array<Sync>> {
-    return fs.collection('org').doc(orgId).collection('sync').get()
+  static getSyncs(orgId, firestore): Promise<Array<Sync>> {
+    return firestore.collection('org').doc(orgId).collection('sync').get()
       .then(sn => snapshotToSyncList(sn));
   }
 
@@ -110,9 +110,9 @@ export class Sync {
    * 
    * Gets the sync from the organization and sync id
    */
-  static getSync({ orgId, id, fs }): Promise<Sync> {
+  static getSync({ orgId, id, firestore }): Promise<Sync> {
     //TODO: This hangs on the 2nd time for some reason...
-    return fs.collection('org').doc(orgId).collection('sync').doc(id).get()
+    return firestore.collection('org').doc(orgId).collection('sync').doc(id).get()
       .then(doc => Sync.fromDoc(doc));
   }
 }

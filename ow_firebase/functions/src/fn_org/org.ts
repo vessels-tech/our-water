@@ -1,13 +1,15 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
+import firestore from '../common/apis/Firestore';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 
-module.exports = (functions, admin) => {
+
+
+module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-  const fs = admin.firestore();
 
   app.get('/', (req, res) => {
     console.log("TODO")
@@ -26,7 +28,7 @@ module.exports = (functions, admin) => {
 
   app.post('/', validate(createOrgValidation), (req, res) => {
 
-    return fs.collection('org').add(req.body)
+    return firestore.collection('org').add(req.body)
     .then(result => {
       return res.json({orgId: result.id});
     });

@@ -1,7 +1,7 @@
 export const SyncDatatypes = {
-  reading: 'reading',
-  resource: 'resource',
-  group: 'group',
+  reading: 'Reading',
+  resource: 'Resource',
+  group: 'Group',
 };
 
 export const SyncDatatypeList = Object.keys(SyncDatatypes).map(key => SyncDatatypes[key]);

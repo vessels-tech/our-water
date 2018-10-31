@@ -27,14 +27,13 @@ import { createSyncValidation } from './validate';
 import { resolve } from 'dns';
 import { puts } from 'util';
 
-module.exports = (functions, admin) => {
+import firestore from '../common/apis/Firestore';
+
+module.exports = (functions) => {
   const app = express();
 
   app.use(fileUpload());
   app.use(bodyParser.json());
-
-  const fs = admin.firestore();
-  const storage = admin.storage().bucket();
 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
@@ -60,7 +59,7 @@ module.exports = (functions, admin) => {
     let syncsJson;
 
     try {
-      const syncs = await Sync.getSyncs(orgId, fs);
+      const syncs = await Sync.getSyncs(orgId, firestore);
       syncsJson = syncs.map(sync => sync.serialize());
     } catch (err) {
       return next(err);
@@ -79,7 +78,7 @@ module.exports = (functions, admin) => {
 
     let syncRunsJson;
     try {
-      const syncRuns = await SyncRun.getSyncRuns({orgId, syncId, fs});
+      const syncRuns = await SyncRun.getSyncRuns({orgId, syncId, firestore});
       syncRunsJson = syncRuns.map(syncRun => syncRun.serialize());
     } catch(err) {
       return next(err);
@@ -97,8 +96,8 @@ module.exports = (functions, admin) => {
     const { orgId, id } = req.params;
 
     try {
-      const sync = await Sync.getSync({orgId, id, fs});
-      sync.delete({fs});
+      const sync = await Sync.getSync({orgId, id, firestore});
+      sync.delete({firestore});
     } catch(err) {
       return next(err);
     }
@@ -112,7 +111,7 @@ module.exports = (functions, admin) => {
    * Creates a new sync with the given settings
    */ 
   const initDatasourceWithOptions = (datasource): Datasource => {
-    console.log("datasource", datasource.type);
+    console.log("datasource", datasource);
     switch(datasource.type) {
       case DatasourceType.LegacyMyWellDatasource:
         return new LegacyMyWellDatasource(datasource.url, datasource.selectedDatatypes);
@@ -134,7 +133,7 @@ module.exports = (functions, admin) => {
     const ds = initDatasourceWithOptions(datasource);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], frequency);
     
-    return sync.create({fs})
+    return sync.create({firestore})
     .then((createdSync: Sync) => {
       return res.json({data:{syncId: createdSync.id}});
     })
@@ -174,7 +173,7 @@ module.exports = (functions, admin) => {
     const {method} = req.query;
 
     console.log("getting sync", orgId, syncId);
-    return Sync.getSync({orgId, id: syncId, fs})
+    return Sync.getSync({orgId, id: syncId, firestore})
     .then((sync: Sync) => {
       if (sync.isOneTime && moment(sync.lastSyncDate).unix() !== 0) {
         throw new Error(`Cannot run sync twice. Sync is marked as one time only`);
@@ -182,13 +181,13 @@ module.exports = (functions, admin) => {
 
       //TODO: put in proper email addresses
       const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
-      return run.create({fs});
+      return run.create({firestore});
     })
     .then((run: SyncRun) => {
       //Resolve before we actually process the run
       res.json({data: {syncRunId: run.id}});
 
-      return run.run({fs})
+      return run.run({firestore})
         .catch(err => console.error(`Error running syncRun of id ${run.id}. Message: ${err.message}`));
     })
     .catch(err => {

@@ -48,7 +48,7 @@ export class SyncRun {
    * Run the syncRun
    * @param param0 
    */
-  public async run({ fs }): Promise<SyncRun> {
+  public async run({ firestore }): Promise<SyncRun> {
     if (this.status !== SyncRunStatus.pending) {
       throw new Error(`SyncRun can only be run when in a pending state. Found state: ${this.status}`);
     }
@@ -56,24 +56,25 @@ export class SyncRun {
     this.startedAt = moment().valueOf();
     console.log("startedAt", this.startedAt);
     this.status = SyncRunStatus.running;
-    const sync: Sync = await Sync.getSync({orgId: this.orgId, id: this.syncId, fs });
+    const sync: Sync = await Sync.getSync({orgId: this.orgId, id: this.syncId, firestore });
 
     console.log("SyncRun.run: running sync:", sync);
 
     if (!sync) {
       this.errors.push(`Could not find sync with SyncId: ${this.syncId}`);
-      return this.abortSync({fs});
+      return this.abortSync({ firestore});
     }
     
     //set the state to running
-    await this.save({fs});
+    await this.save({ firestore});
 
     switch(this.syncMethod) {
       //call the datasource methods, but don't commit anything to the database
       case SyncMethod.validate:
         try {
+          console.log("SyncRun.run running validate sync");
           //TODO: change this to use the a validate method instead
-          const validationResult = await sync.datasource.validate(this.orgId, fs);
+          const validationResult = await sync.datasource.validate(this.orgId, firestore);
           this.results = validationResult.results;
           this.warnings = validationResult.warnings;
           
@@ -88,7 +89,7 @@ export class SyncRun {
       case SyncMethod.pullFrom:
         console.log("SyncRun.run running pullFrom sync");
 
-        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, fs, {filterAfterDate: sync.lastSyncDate});
+        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, firestore, {filterAfterDate: sync.lastSyncDate});
         this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
         this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
         this.errors = pullFromResult.errors;
@@ -97,7 +98,7 @@ export class SyncRun {
       //Get data from somewhere, and push to external datasource
       case SyncMethod.pushTo:
         console.log("SyncRun.run running pushTo sync");
-        const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, fs, { filterAfterDate: sync.lastSyncDate });
+        const pushToResult = await sync.datasource.pushDataToDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
         this.results = pushToResult.results;
         this.warnings = pushToResult.warnings;
         this.errors = pushToResult.errors;
@@ -112,45 +113,45 @@ export class SyncRun {
     //method used. We will leave that for later.
 
     if (this.errors.length > 0) {
-      return this.abortSync({fs});
+      return this.abortSync({ firestore});
     }
 
-    return this.finishSync({fs});
+    return this.finishSync({ firestore});
   }
 
-  private async abortSync({ fs }): Promise<SyncRun> {
+  private async abortSync({ firestore }): Promise<SyncRun> {
     console.warn("aborting sync with errors:", this.errors);
 
     this.status = SyncRunStatus.failed;
     this.finishedAt = moment().valueOf();
 
-    return this.save({fs});
+    return this.save({firestore});
   }
 
-  private async finishSync({ fs }): Promise<SyncRun> {
+  private async finishSync({ firestore }): Promise<SyncRun> {
     console.log("finished sync with results:", this.results);
     console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
     this.finishedAt = moment().valueOf();
 
-    return this.save({fs});
+    return this.save({firestore});
   }
 
   /**
    * Create a new SyncRun in FireStore
    */
-  public create({fs}): SyncRun {
+  public create({firestore}): SyncRun {
     console.log('SyncRun.create');
-    const newRef = fs.collection('org').doc(this.orgId).collection('syncRun').doc();
+    const newRef = firestore.collection('org').doc(this.orgId).collection('syncRun').doc();
     this.id = newRef.id;
     
-    return this.save({fs});
+    return this.save({firestore});
   }
   
-  public save({fs}): SyncRun {
+  public save({firestore}): SyncRun {
     console.log("saving SyncRun");
     //TODO: do we want this to merge?
-    return fs.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
+    return firestore.collection('org').doc(this.orgId).collection('syncRun').doc(this.id)
       .set(this.serialize())
       .then(ref => {
         console.log('Finished saving SyncRun: ', this.id);
@@ -213,8 +214,8 @@ export class SyncRun {
   /**
    * Get the sync rungs for a given id
    */
-  static getSyncRuns({orgId, syncId, fs}): Promise<Array<SyncRun>> {
-    return fs.collection('org').doc(orgId).collection('syncRun')
+  static getSyncRuns({orgId, syncId, firestore}): Promise<Array<SyncRun>> {
+    return firestore.collection('org').doc(orgId).collection('syncRun')
       .where('syncId', '==', syncId)
       .get()
       .then(sn => snapshotToSyncRunList(sn));
@@ -224,8 +225,8 @@ export class SyncRun {
    * Get the sync run for the given id
    * @param param0 
    */
-  static getSyncRun({ orgId, id, fs }): Promise<SyncRun> {
-    return fs.collection('org').doc(orgId).collection('syncRun').doc(id).get()
+  static getSyncRun({ orgId, id, firestore }): Promise<SyncRun> {
+    return firestore.collection('org').doc(orgId).collection('syncRun').doc(id).get()
     .then(sn => SyncRun.deserialize(sn));
   }
 

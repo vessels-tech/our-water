@@ -1,5 +1,7 @@
 
+# Start with newline
 export REACT_APP_ORG_ID="mywell"
+# export REACT_APP_ORG_ID="test_20180810T105542"
 export REACT_APP_FB_AUTH_DOMAIN="our-water.firebaseapp.com"
 export REACT_APP_FB_DATABASE_URL="https://our-water.firebaseio.com"
 export REACT_APP_FB_PROJECT_ID="our-water"
@@ -14,4 +16,9 @@ export ENABLE_LOGGING='true'
 export SHOULD_USE_LOCAL_CONFIG='true'
 
 #Just for now, as we are still sorting this out.
-export CONFIG_TYPE='GGMNDevConfig'
+export CONFIG_TYPE='MyWellDevConfig'
+
+
+export APP_NAME="MyWell Dev"
+export PACKAGE_NAME_PREFIX="com.vesselstech"
+export PACKAGE_NAME_SUFFIX="mywell.debug"

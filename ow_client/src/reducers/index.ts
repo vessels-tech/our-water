@@ -8,17 +8,18 @@ import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey } from "../utils";
-import { ActionMeta, SyncMeta } from "../typings/Reducer";
+import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
+import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 
 const orgId = EnvConfig.OrgId;
 
 const RESOURCE_CACHE_MAX_SIZE = 500;
 
-const defaultLanguage = TranslationEnum.test_UPPER;
+const defaultLanguage = TranslationEnum.en_AU;
 const translations = translationsForTranslationOrg(orgId);
 const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
 
@@ -37,7 +38,9 @@ export type AppState = {
 
   //Api
   resources: Resource[],
+  myResources: Resource[],
   resourcesMeta: ActionMeta,
+  resourceMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
   resourcesCache: Map<string, Resource>, //A super simple cache implementation
   externalSyncStatus: ExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
@@ -55,8 +58,8 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: GGMNSearchEntity[],
-  searchResultsMeta: ActionMeta,
+  searchResults: AnySearchResult,
+  searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
 }
@@ -78,7 +81,9 @@ const initialState: AppState = {
 
   //Api
   resources: [],
+  myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
+  resourceMeta: new Map<string, ActionMeta>(),
   resourcesCache: new Map<string, Resource>(), 
   externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
   externalOrgs: [],
@@ -99,8 +104,8 @@ const initialState: AppState = {
   pendingSavedResources: [],
   pendingSavedResourcesMeta: { loading: false },
 
-  searchResults: [],
-  searchResultsMeta: { loading: false, error: false, errorMessage: '' },
+  searchResults: { resources: [], hasNextPage: false},
+  searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -235,6 +240,29 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       tsReadings[key] = tsReading;
       return Object.assign({}, state, { tsReadings });
     }
+    case ActionType.GET_RESOURCE_REQUEST: {
+      //start loading
+      const resourceMeta = state.resourceMeta;
+      resourceMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+      
+      return Object.assign({}, state, { resourceMeta });
+    }
+    case ActionType.GET_RESOURCE_RESPONSE: {
+      //stop loading, add to resources list
+      const resourceMeta = state.resourceMeta;
+      let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+      if (action.result.type === ResultType.ERROR) {
+        meta = { loading: false, error: true, errorMessage: action.result.message };
+        resourceMeta.set(action.resourceId, meta);
+
+        return Object.assign({}, state, { resourceMeta });
+      }
+
+      let resources: Resource[] = state.resources;
+      resources.push(action.result.result);
+      resourceMeta.set(action.resourceId, meta);
+      return Object.assign({}, state, { resourceMeta });
+    }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};
 
@@ -317,26 +345,30 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       });
     }
     case ActionType.PERFORM_SEARCH_REQUEST: {
-      const searchResultsMeta: ActionMeta ={ loading: true, error: false, errorMessage: '' };
+      const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
       let searchResults = state.searchResults;
+      searchResultsMeta.searchQuery = action.searchQuery;
 
       //We are on the first page, clear out old results
       if (action.page === 1) {
-        searchResults = [];
+        searchResults = {resources: [], hasNextPage: false};
       }
 
       return Object.assign({}, state, { searchResultsMeta, searchResults })
     }
     case ActionType.PERFORM_SEARCH_RESPONSE: {
-      let searchResultsMeta: ActionMeta = { loading: false, error: false, errorMessage: ''};
+      let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
+      let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery};
       let searchResults = state.searchResults;
       
       const result = action.result;
       if (result.type === ResultType.ERROR) {
-        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.' };
+        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.', searchQuery: lastSearchResultsMeta.searchQuery };
         return Object.assign({}, state, { searchResultsMeta });
       }
-      searchResults = searchResults.concat(result.result);
+
+      const resources = searchResults.resources.concat(result.result.resources);
+      searchResults = { resources, hasNextPage: result.result.hasNextPage };
       
       return Object.assign({}, state, {searchResults, searchResultsMeta});
     }

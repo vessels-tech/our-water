@@ -1,37 +1,93 @@
 import * as React from 'react';
 import { Component } from "react";
-import { View } from "react-native";
+import { View, Picker } from "react-native";
 import { FormInput, FormValidationMessage, FormLabel } from "react-native-elements";
-import { textMed } from '../../utils/Colors';
+import { bgLightHighlight } from '../../utils/Colors';
+
+export enum InputParams {
+  Text = 'Text',
+  Dropdown = 'Dropdown',
+}
 
 export type TextInputParams = {
+  type: InputParams.Text,
   handler: any,
   touched: boolean,
   hasError: any,
-  meta: any,
+  meta: {
+    label: string,
+    errorMessage: string,
+  }
 }
 
-export const TextInput = ({ meta, handler, hasError, touched }: TextInputParams) => (
-  <View style={{
-    flex: 1,
-  }}>
-    <FormLabel>{meta.label}</FormLabel>
-    <FormInput
-      autoCapitalize={'none'} 
-      keyboardType={meta.keyboardType}
-      // placeholder={`${meta.label}`}
-      secureTextEntry={meta.secureTextEntry} 
-      editable={meta.editable}
-      containerStyle={{
-        borderBottomColor: textMed,
-        borderBottomWidth: 1,
-      }}
-      {...handler()} 
-    />
-    <FormValidationMessage>
-      {touched
-        && hasError("required")
-        && `${meta.label} is required`}
-    </FormValidationMessage>
-  </View>
-)
+export type DropdownInputParams = {
+  type: InputParams.Dropdown,
+  handler: any,
+  meta: {
+    label: string,
+    //key is the actual value, label for translations
+    options: {key: string, label: string}[],
+  },
+  hasError: (key: string) => boolean
+  errorMessage: string,
+}
+
+export const TextInput = ({ meta, handler, hasError, touched }: any) => {
+
+  return (
+    <View style={{
+      flex: 1,
+    }}>
+      <FormLabel>{meta.label}</FormLabel>
+      <FormInput
+        autoCapitalize={'none'} 
+        keyboardType={meta.keyboardType}
+        // placeholder={`${meta.label}`}
+        secureTextEntry={meta.secureTextEntry} 
+        editable={meta.editable}
+        underlineColorAndroid='transparent'
+        containerStyle={{
+          borderBottomColor: bgLightHighlight,
+          borderBottomWidth: 2,
+        }}
+        {...handler()} 
+      />
+      <FormValidationMessage>
+        {touched
+          && hasError("required")
+          && `${meta.label} ${meta.errorMessage}`}
+      </FormValidationMessage>
+    </View>
+  );
+}
+
+
+export const DropdownInput = (params: DropdownInputParams) => {
+  const { type, handler, meta: { label, options }, errorMessage, hasError } = params;
+
+  console.log('handler.getHandler is: ', handler);
+  // console.log('handler.getHandler is: ', handler.getHandler());
+
+  return (
+    <View style={{
+      flex: 1,
+    }}>
+      <FormLabel>{label}</FormLabel>
+      <Picker
+        selectedValue={'test1'}
+        style={{
+          flex: 2,
+          marginLeft: 10,
+        }}
+        mode={'dropdown'}
+        onValueChange={(e: any) => console.log("onValueChange", e)}
+      >
+        {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key} />)}
+      </Picker>
+      <FormValidationMessage>
+        {hasError("required")
+          && `${label} ${errorMessage}`}
+      </FormValidationMessage>
+    </View>
+  );
+}

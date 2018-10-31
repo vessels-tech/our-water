@@ -9,27 +9,30 @@ admin.initializeApp();
 // */
 
 //Org Api
-export const org = require('./fn_org/org')(functions, admin);
+export const org = require('./fn_org/org')(functions);
 
 //Group Api
-export const group = require('./fn_group/group')(functions, admin);
+export const group = require('./fn_group/group')(functions);
 
 //Resource Api
-export const resource = require('./fn_resource/resource')(functions, admin);
+export const resource = require('./fn_resource/resource')(functions);
 
 //Reading Api
-export const reading = require('./fn_reading/reading')(functions, admin);
+export const reading = require('./fn_reading/reading')(functions);
 
 //Sync Api
-export const sync = require('./fn_sync/sync')(functions, admin);
+export const sync = require('./fn_sync/sync')(functions);
+
+//SOS Api
+export const sos = require('./fn_sos/sos')(functions);
 
 //Cron Api
 export const { hourly_job, daily_job, weekly_job} = require('./fn_cron/cron');
 
 
 
-const fs = admin.firestore();
-fs.settings({timestampsInSnapshots: true});
+// const fs = admin.firestore();
+// fs.settings({timestampsInSnapshots: true});
 
 //TODO: move these functions to new doc
 

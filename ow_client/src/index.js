@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { textDark } from './utils/Colors';
+import { primaryText } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -10,8 +10,14 @@ import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
 import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
-import { translationsForTranslationOrg } from 'ow_translations';
 import * as EnvironmentConfig from './utils/EnvConfig';
+import SearchButton from './components/common/SearchButton';
+import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';
+//@ts-ignore
+import EventEmitter from "react-native-eventemitter";
+import { AppRegistry } from 'react-native';
+import TestApp from './TestApp';
+import { HomeScreenType } from './enums';
 
 let config: ConfigFactory;
 let translation: TranslationFile;
@@ -34,58 +40,109 @@ Promise.resolve(true)
   const envConfig: EnvConfig = {
     orgId,
   }
-  //TODO: make more type safe
-  // const translationFiles = translationsForTranslationOrg(orgId);
-  config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
 
-  //Default translation?
-  // translation = config.getTranslations(TranslationEnum.en_AU);
+  config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
   return registerScreens(config);
 })
 .then(() => {
-  const title = 'MyWell'
-  Navigation.startSingleScreenApp({
-    screen: {
-      screen: 'example.FirstTabScreen', // unique ID registered with Navigation.registerScreen
-      title: config.getApplicationName(),
-      navigatorStyle: defaultNavigatorStyle,
-      navigatorButtons: {
-        leftButtons: [{
-          title: 'MENU',
-          passProps: {},
-          id: 'sideMenu',
-          disabled: false,
-          disableIconTint: true,
-          buttonColor: textDark,
-          buttonFontSize: 14,
-          buttonFontWeight: '600'
-        }],
-        rightButtons: [{
-          icon: require('./assets/search/48.png'),
-          passProps: {},
-          id: 'search',
-          disabled: false, 
-          disableIconTint: false, 
-          buttonColor: textDark, 
-          buttonFontSize: 14, 
-          buttonFontWeight: '600' 
-        }],
+  AppRegistry.registerComponent('App', () => TestApp);
+
+  Navigation.registerComponent('example.SearchButton', () => SearchButton);
+
+  const navigatorButtons = {
+    leftButtons: [{
+      title: 'MENU',
+      passProps: {},
+      id: 'sideMenu',
+      disabled: false,
+      disableIconTint: true,
+      buttonColor: primaryText,
+      buttonFontSize: 14,
+      buttonFontWeight: '600'
+    }],
+    rightButtons: [{
+      component: 'example.SearchButton',
+      passProps: {
+        text: 'Search',
+      },
+      id: 'search',
+    }],
+  };
+
+  const drawer = {
+    left: {
+      screen: 'screen.MenuScreen',
+      disableOpenGesture: true,
+      fixedWidth: 800,
+      passProps: {
+        config
       }
-    },
-    drawer: {
-      left: {
-        screen: 'screen.MenuScreen',
-        disableOpenGesture: true,
-        fixedWidth: 800,
+    }
+  };
+
+
+  switch(config.getHomeScreenType()) {
+    case (HomeScreenType.Map): {
+      Navigation.startSingleScreenApp({
+        screen: {
+          screen: 'screen.App',
+          title: config.getApplicationName(),
+          navigatorStyle: defaultNavigatorStyle,
+          navigatorButtons,
+        },
+        drawer,
+        animationType: 'fade',
         passProps: {
-          config
-        }
-      }
-    },
-    animationType: 'fade',
-    passProps: {
-      config,
-    },
-  })
+          config,
+        },
+      });
+
+      break;
+    }
+    case (HomeScreenType.Simple): {
+      //@ts-ignore
+      Navigation.startTabBasedApp({
+        tabs: [
+          {
+            label: 'Home', 
+            screen: 'screen.App',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
+          },
+          {
+            label: 'Scan',
+            screen: 'screen.ScanScreen',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
+          },
+          {
+            label: 'Map',
+            screen: 'screen.SimpleMapScreen',
+            icon: require('./assets/other_pin.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
+          }
+        ],
+        tabsStyle: { // optional, add this if you want to style the tab bar beyond the defaults
+          tabBarButtonColor: '#ffff00', // optional, change the color of the tab icons and text (also unselected). On Android, add this to appStyle
+          tabBarSelectedButtonColor: '#ff9900', // optional, change the color of the selected tab icon and text (only selected). On Android, add this to appStyle
+          tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
+          initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
+        },
+        appStyle: {
+          orientation: 'portrait', // Sets a specific orientation to the entire app. Default: 'auto'. Supported values: 'auto', 'landscape', 'portrait'
+        },
+        drawer,
+        passProps: {config},
+        animationType: 'fade'
+      });
+    break;
+    }
+  }
 })
 .catch((err: Error) => console.error(err));

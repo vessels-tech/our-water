@@ -1,12 +1,14 @@
-import { BaseApiType } from "../enums";
+import { BaseApiType, HomeScreenType } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
-import ExternalServiceApi from "../api/ExternalServiceApi";
+import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
 import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
 import { maybeLog } from "../utils";
+import { SomeResult, ResultType } from "../typings/AppProviderTypes";
+import FavouriteResourceList from "../components/FavouriteResourceList";
 
 
 /**
@@ -15,17 +17,19 @@ import { maybeLog } from "../utils";
 export type RemoteConfig = {
   applicationName: string,
   baseApiType: BaseApiType,
-  connectToButtonText: string,
   firebaseBaseUrl: string,
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
-  connectToDescription: string,
-  connectToText: string,
   map_shouldLoadAllResources: boolean,
-  settings_registerResourceText: string,
   newReading_enableImageUpload: boolean,
-  searchHint: string,
+  homeScreen: HomeScreenType,
+  resourceDetail_showSubtitle: boolean,
+  favouriteResourceList_showGetStartedButtons: boolean,
+
+  //These should eventually be moved to their own config section where we can dynamically
+  //define what resources shold look like
+  editResource_showOwerName: boolean,
 
 }
 
@@ -49,7 +53,7 @@ export class ConfigFactory {
   networkApi: NetworkApi;
 
   appApi: BaseApi; //TODO: change to appApi
-  externalServiceApi?: ExternalServiceApi;
+  externalServiceApi: MaybeExternalServiceApi;
   userApi: UserApi; 
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
@@ -76,6 +80,7 @@ export class ConfigFactory {
       //@ts-ignore
       this.userApi = mywellApi;
       // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
+      this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
     }
 
 
@@ -99,16 +104,12 @@ export class ConfigFactory {
    * 
    */
   //TODO: remove the return annotation eventually.
-  getAppApi(auth?: any): GGMNApi {
+  getAppApi(auth?: any): BaseApi {
     //@ts-ignore
     return this.appApi;
   }
 
-  getExternalServiceApi(): ExternalServiceApi {
-    if (!this.externalServiceApi) {
-      throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
-    }
-
+  getExternalServiceApi(): MaybeExternalServiceApi {
    return this.externalServiceApi;
   }
 
@@ -120,21 +121,6 @@ export class ConfigFactory {
     return false;
   }
 
-  getConnectToButtonText(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToButtonText);
-  }
-
-  getConnectToButtonConnectedText(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToText);
-  }
-
-  getConnectToButtonDescription(): string {
-    return this.checkConnectToButtonStatus(this.remoteConfig.connectToDescription);
-  }
-
-  getRegisterResourceButtonText(): string {
-    return this.remoteConfig.settings_registerResourceText;
-  }
 
   private checkConnectToButtonStatus(success: string) {
     if (!this.remoteConfig.showConnectToButton) {
@@ -160,10 +146,20 @@ export class ConfigFactory {
     return this.remoteConfig.map_shouldLoadAllResources;
   }
 
-  /**
-   * Get the hint text for the default search page with no recents
-   */
-  getSearchHint() { 
-    return this.remoteConfig.searchHint;
+  getHomeScreenType(): HomeScreenType {
+    return this.remoteConfig.homeScreen;
   }
+
+  getResourceDetailShouldShowSubtitle() {
+    return this.remoteConfig.resourceDetail_showSubtitle;
+  }
+
+  getFavouriteResourceShouldShowGetStartedButtons() {
+    return this.remoteConfig.favouriteResourceList_showGetStartedButtons;
+  }
+
+  getEditResourceShouldShowOwnerName() {
+    return this.remoteConfig.editResource_showOwerName;
+  }
+
 }

@@ -11,12 +11,15 @@ import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
-import { textDark } from '../utils/Colors';
-import { AppContext, SyncMeta } from '../AppProvider';
+import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
 import { Resource } from '../typings/models/OurWater';
 import Loading from './common/Loading';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
+import { SyncMeta } from '../typings/Reducer';
+import { ResourceType } from '../enums';
+import { ConfigFactory } from '../config/ConfigFactory';
+import { TranslationFile } from 'ow_translations/Types';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -25,12 +28,16 @@ const orgId = Config.REACT_APP_ORG_ID;
 
 export interface Props {
   userId: string,
-  onResourceCellPressed: any
+  config: ConfigFactory,
+  onResourceCellPressed: any,
+  //If this exists, will filter the displayed resources to be only the given resource type
+  filterResourceType?: ResourceType,
 
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
   recentResourcesMeta: SyncMeta,
   recentResources: Resource[],
+  translation: TranslationFile,
 }
 
 export interface State {
@@ -55,6 +62,16 @@ class FavouriteResourceList extends Component<Props> {
     }
   }
 
+  getFilteredResource(resources: Resource[], filterResourceType: ResourceType): Resource[] {
+    return resources.filter(r => {
+      if (!this.props.filterResourceType) {
+        return r;
+      }
+
+      return r.resourceType === filterResourceType;
+    })
+  }
+
   
   getResourceCell(resource: Resource) {
     //Ideally, we would display the resource image + 
@@ -73,7 +90,7 @@ class FavouriteResourceList extends Component<Props> {
           raised
           key={resource.id}
           title={`${getShortId(resource.id)}`}
-          color={textDark}
+          color={secondaryText}
           buttonStyle={{
             backgroundColor, 
             // borderRadius: 5,
@@ -91,7 +108,16 @@ class FavouriteResourceList extends Component<Props> {
 
   
   getFavouritesSection() {
-    const { favouriteResources, favouriteResourcesMeta } = this.props;
+    const { 
+      favouriteResourcesMeta, 
+      filterResourceType, 
+      translation: { templates: { favourite_resource_hint_1, favourite_resource_hint_2 } } } = this.props;
+
+    let favouriteResources = this.props.favouriteResources;
+
+    if (filterResourceType) {
+      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
+    }
 
     if (favouriteResourcesMeta.loading) {
       return <Loading/>
@@ -109,9 +135,10 @@ class FavouriteResourceList extends Component<Props> {
         color='yellow'
       />);
     
+      //TODO: change this hint to use translations
       return (
         <Text style={{textAlign: 'center'}}>
-          Press the {icon} button to add a favourite.
+          {favourite_resource_hint_1} {icon} {favourite_resource_hint_2}.
         </Text>
       );
     }
@@ -123,13 +150,20 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       >
-        {firstFiveFavourites.map(resource => this.getResourceCell(resource))}
+        {firstFiveFavourites.map(r => this.getResourceCell(r))
+        }
       </View>
     );
   }
 
   getRecentsSection() {
-    const { recentResources } = this.props;
+    const { translation: { templates: { recent_resource_none } } } = this.props;
+    let recentResources = this.props.recentResources;
+    const { filterResourceType } = this.props;
+
+    if (filterResourceType) {
+      recentResources = this.getFilteredResource(recentResources, filterResourceType)
+    }
 
     if (recentResources.length === 0) {
       return (
@@ -141,7 +175,7 @@ class FavouriteResourceList extends Component<Props> {
           alignItems: 'center',
         }}>
           <Text style={{ textAlign: 'center' }}>
-            No recent resources.
+            {recent_resource_none}
           </Text>
         </View>
       );
@@ -153,30 +187,107 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       > 
-        {recentResources.map(r => this.getResourceCell(r))}
+        {recentResources.map(r => this.getResourceCell(r))
+        }
       </View>
     );
   }
 
+  getStartedSection() {
+    const { translation: { templates: { resource_detail_empty_heading, resource_detail_empty_hint}}} = this.props;
+
+    const shouldShowButtons = this.props.config.getFavouriteResourceShouldShowGetStartedButtons();
+
+    return (
+      <View
+        style={{
+
+          height: '100%',
+          width: '100%',
+          flexDirection: "column",
+        }}
+      >
+        <View style={{
+          flex: 1,
+          padding: 30,
+          paddingTop: 50,
+        }}>
+          <Text style={{ fontWeight: '500', fontSize: 18 }}>{resource_detail_empty_heading}</Text>
+          <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>{resource_detail_empty_hint}</Text>
+        </View>
+        { shouldShowButtons ? 
+        <View style={{
+          flexDirection: 'row',
+          flex: 2,
+          justifyContent: 'space-around',
+        }}>
+        {/* TODO: replace with icons */}
+          <Button 
+            style={{
+              flex: 1
+            }}
+            onPress={() => console.log("on Camera pressed")} 
+            title="SCAN"
+          />
+          <Button 
+            style={{
+              flex: 1
+            }}
+            onPress={() => console.log("on search pressed")} 
+            title="SEARCH"
+          />
+        </View>
+        : null }
+      </View>
+    );
+  }
+
+  getResourcesSection() {
+    const { translation: { templates: { favourite_resource_heading, recent_resource_heading}}} = this.props;
+
+    return (
+      <View>
+        <Text style={{
+          marginVertical: 10,
+          marginLeft: 13,
+        }}>
+          {favourite_resource_heading}:
+        </Text>
+        {this.getFavouritesSection()}
+        <Text style = {{
+          marginVertical: 10,
+          marginLeft: 13,
+        }}>
+          {recent_resource_heading}:
+        </Text >
+        {this.getRecentsSection()}
+      </View>
+    )
+  }
+
   render() {
+    let recentResources = this.props.recentResources;
+    let favouriteResources = this.props.favouriteResources;
+    const { filterResourceType } = this.props;
+
+    if (filterResourceType) {
+      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
+    }
+
+    if (filterResourceType) {
+      recentResources = this.getFilteredResource(recentResources, filterResourceType)
+    }
+
+
 
     return (
       <View style={{
-          // backgroundColor: '#D9E3F0',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 5,
+        backgroundColor: bgLightHighlight,
+        flex: 5,
+        // flexDirection: 
         }}>
-        <Text style={{
-          marginVertical: 10,
-        }}>
-          Favourites
-        </Text>
-        {this.getFavouritesSection()}
-        <Text style={{
-          marginVertical: 10,
-        }}>Recents:</Text>
-        {this.getRecentsSection()}
+        {favouriteResources.length + recentResources.length === 0 ? 
+          this.getStartedSection() : this.getResourcesSection()}
       </View>
     );
   }
@@ -189,6 +300,7 @@ const mapStateToProps = (state: AppState) => {
     favouriteResources: state.favouriteResources,
     recentResourcesMeta: state.recentResourcesMeta,
     recentResources: state.recentResources,
+    translation: state.translation,
   }
 }
 

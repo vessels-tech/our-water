@@ -16,6 +16,8 @@ import NetworkApi from './NetworkApi';
 import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
+import { Region } from 'react-native-maps';
+import { AnyResource } from '../typings/models/Resource';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -106,11 +108,11 @@ class FirebaseApi {
     .onSnapshot(sn => onSnapshot(sn.data()));
   }
 
-  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
+  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
   
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
-        const response: SomeResult<Resource[]> = {
+        const response: SomeResult<AnyResource[]> = {
           type: ResultType.SUCCESS,
           result: [],
         };
@@ -126,7 +128,7 @@ class FirebaseApi {
       });
   }
 
-  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<Resource[]>> {
+  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<AnyResource[]>> {
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
 
@@ -206,6 +208,8 @@ class FirebaseApi {
   /**
    * Local implementation of getResourceNearLocation
    * 
+   * 
+   * deprecated. Use getResourcesWithinRegion instead
    * We use this instead of the get request, as it will default to the cache if we're offline
    * @param {*} param0 
    */
@@ -236,6 +240,111 @@ class FirebaseApi {
       });
 
       return resources;
+    });
+  }
+
+  /**
+   * getResourcesWithinRegion
+   */
+  static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<AnyResource[]>>{
+    // //TODO: validate assumption that lat and lng start in top left corner
+    // console.log("Region is:", region);
+    // const minLat = region.latitude;
+    // const minLng = region.longitude;
+    // const maxLat = minLat + region.latitudeDelta;
+    // const maxLng = minLng + region.longitudeDelta;
+
+    //from region, lat and lng are in centre, delta is the full width (I think)
+    console.log("Region is:", region);
+    const halfLatDelta = region.latitudeDelta / 2;
+    const halfLngDelta = region.longitudeDelta / 2;
+    const minLat = region.latitude - halfLatDelta;
+    const minLng = region.longitude - halfLngDelta;
+    const maxLat = region.latitude + halfLatDelta;
+    const maxLng = region.longitude +  halfLngDelta;
+
+    console.log(`mins: ${minLat}, ${minLng}`);
+    console.log(`max: ${maxLat}, ${maxLng}`);
+
+    console.log("orgId", orgId);
+    return fs.collection('org').doc(orgId).collection('resource').get()
+      // .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng)).get()
+      // .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+    .then(snapshot => {
+      console.log("got snapshot", snapshot);
+      const resources: AnyResource[] = []
+      snapshot.forEach(doc => {
+        //TODO: map to an actual Resource
+        const data: any = doc.data();
+        //@ts-ignore
+        data.id = doc.id;
+
+        // Filter based on longitude. TODO: remove this once google fixes the above query
+        //@ts-ignore
+        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+          return;
+        }
+
+        //TODO: fix this hack
+        data.timeseries = [];
+
+        resources.push(data);
+      });
+
+      return resources;
+    })
+    .then(result => {
+      const response: SomeResult<AnyResource[]> = {
+        type: ResultType.SUCCESS,
+        result,
+      };
+
+      return response;
+    })
+    .catch(err => {
+      maybeLog("error", err);
+      const response: SomeResult<AnyResource[]> = {
+        type: ResultType.ERROR,
+        message: err.message,
+      }; 
+
+      return response;
+    });
+  }
+
+  /**
+   * getResourceForId
+   */
+  static getResourceForId(orgId: string, resourceId: string): Promise<SomeResult<AnyResource>> {
+    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
+    .then(sn => {
+      //@ts-ignore
+      if (!sn || !sn.data()) {
+        const response: SomeResult<AnyResource> = {
+          type: ResultType.ERROR,
+          message: `Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`
+        };
+        return response;
+      }
+
+      //@ts-ignore
+      const result: AnyResource = sn.data();
+      result.timeseries = []; //TODO: figure out how to fix this!
+      const response: SomeResult<AnyResource> = {
+        type: ResultType.SUCCESS,
+        result,
+      };
+
+      return response;
+    })
+    .catch(err => {
+      maybeLog("getResourceForId error:", err);
+      const response: SomeResult<AnyResource> = {
+        type: ResultType.ERROR,
+        message: err.message,
+      };
+
+      return response;
     });
   }
 
@@ -510,10 +619,8 @@ class FirebaseApi {
     });
 
     return {
+      hasNextPage: false,
       resources,
-      groups: [],
-      users: [],
-      offline: false,
     };
   }
 

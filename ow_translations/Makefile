@@ -7,7 +7,7 @@ PATH := node_modules/.bin:$(PATH)
 dir = $(shell pwd)
 
 
-all: build parse
+all: parse build
 
 build:
 	yarn run build

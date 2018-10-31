@@ -12,11 +12,12 @@ platform :android do
     hockey(
       api_token: ENV["HOCKEY_APP_API_KEY"],
       apk: ENV["APK_PATH"],
-      # create_update: false,
       # public_identifier: ENV["public_identifier"],
       # bundle_short_version: ENV["bundle_short_version"],
       # bundle_version: ENV["bundle_version"],
       notes: "Changelog",
+      strategy: "replace" # Replace existing builds with the same build number
+      # create_update: true,
     )
   end
 

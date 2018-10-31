@@ -119,7 +119,6 @@ class IconFormInput extends Component<Props> {
           dateInput: {
             // marginLeft: 36
             borderWidth: 0,
-        
           }
         }}
         modalOnResponderTerminationRequest={() => {
@@ -152,13 +151,13 @@ class IconFormInput extends Component<Props> {
         autoCorrect={false}
         keyboardType={keyboardType}
         returnKeyType='next'
+        underlineColorAndroid='transparent'
         inputStyle={{
           // height: 45,
           // marginVertical: 10,
         }}
         placeholder={placeholder}
         containerStyle={{
-          // backgroundColor: 'green',
           borderBottomColor: iconColor || 'rgba(0, 0, 0, 0.38)',
           flex: 5
         }}

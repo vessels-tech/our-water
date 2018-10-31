@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("mocha");
 const assert = require("assert");
 const OWGeoPoint_1 = require("../../models/OWGeoPoint");
 const moment = require("moment");
@@ -265,4 +266,4 @@ describe('pushDataToDataSource', function () {
         });
     });
 });
-//# sourceMappingURL=LegacyMyWellDatasource.unit.js.map
+//# sourceMappingURL=LegacyMyWellDatasource.unit_dep.js.map

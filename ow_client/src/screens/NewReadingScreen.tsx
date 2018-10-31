@@ -14,7 +14,7 @@ import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
 import { displayAlert, getLocation, maybeLog } from '../utils';
-import { bgLight, primary, primaryDark, textMed, textDark} from '../utils/Colors';
+import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
@@ -24,7 +24,7 @@ import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
-import ExternalServiceApi from '../api/ExternalServiceApi';
+import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -52,7 +52,7 @@ export interface State {
 class NewReadingScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
-  externalApi: ExternalServiceApi;
+  externalApi: MaybeExternalServiceApi;
 
   constructor(props: Props) {
     super(props);
@@ -90,7 +90,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   takeImage() {
-    maybeLog("TOOD: display image");
+    maybeLog("TODO: display image");
   }
 
   async saveReading() {
@@ -121,7 +121,8 @@ class NewReadingScreen extends Component<Props> {
 
     const readingRaw = {
       date: moment(date).utc().format(), //converts to iso string
-      timeseriesId: timeseriesString, 
+      //TODO: fix this hack
+      timeseriesId: '123', 
       resourceId: id,
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,
@@ -199,6 +200,9 @@ class NewReadingScreen extends Component<Props> {
   }
 
   isTimeseriesValid() {
+    //TODO: fix this hack
+    return true;
+
     const { timeseriesString } = this.state;
     if (!timeseriesString || timeseriesString.length === 0) {
       return false;
@@ -264,7 +268,7 @@ class NewReadingScreen extends Component<Props> {
         {this.getImageSection()}
         <IconFormInput
           iconName='calendar'
-          iconColor={textMed}
+          iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
           onChangeText={(date: moment.Moment) => this.setState({date})}
@@ -273,7 +277,7 @@ class NewReadingScreen extends Component<Props> {
         />
         <IconFormInput
           iconName='pencil'
-          iconColor={textMed}
+          iconColor={primaryDark}
           placeholder={new_reading_value_field(units)}
           errorMessage={
             measurementString.length > 0 && !this.isMeasurementValid() ? 
@@ -286,7 +290,7 @@ class NewReadingScreen extends Component<Props> {
         />
         <View style={{
           flexDirection: "row",
-          borderBottomColor: textDark,
+          borderBottomColor: primaryText,
           borderBottomWidth: 1,
         }}>
           <Text 
@@ -335,11 +339,14 @@ class NewReadingScreen extends Component<Props> {
       <Button
         title={new_reading_save_button}
         raised
+        textStyle={{
+          color: secondaryText
+        }}
         disabled={this.shouldDisableSubmitButton()}
-        icon={{ name: 'save' }}
+        icon={{ name: 'save', color: secondaryText }}
         loading={loading}
-        buttonStyle={{ 
-          backgroundColor: primary,
+        buttonStyle={{
+          backgroundColor: secondary,
           width: SCREEN_WIDTH - 20,
         }}
         onPress={() => this.saveReading()}
@@ -393,7 +400,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveReading: (api: BaseApi, externalApi: ExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
+    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))}
   }
 }

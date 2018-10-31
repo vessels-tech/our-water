@@ -27,7 +27,7 @@ function getOrgId(value: any): TranslationOrg {
     return TranslationOrg.ggmn;
   }
   
-  if (value === 'mywell') {
+  if (value === 'mywell' || value === 'test_20180810T105542') {
     return TranslationOrg.mywell;
   }
 

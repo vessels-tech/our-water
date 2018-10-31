@@ -9,23 +9,24 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
-import { GGMNLocationResponse, GGMNLocation, GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNTimeseries, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
+import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries } from "../typings/models/GGMN";
 import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
-import ExternalServiceApi from "./ExternalServiceApi";
-import { LoginRequest, OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
+import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
+import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
-import { runInThisContext } from "vm";
-import { resolve } from "path";
 import { TranslationEnum } from "ow_translations/Types";
+import { AnyResource, GGMNResource } from "../typings/models/Resource";
+import { PlatformType } from "../typings/models/Platform";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
+const searchPageSize = 20;
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -49,6 +50,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   orgId: string;
   unsubscribeUser: any;
   pendingReadingsSubscription: any;
+  externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
 
   // private syncStatusCallback: any;
 
@@ -362,11 +364,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   /**
    * Add a resource to the recently viewed list
    */
-  addRecentResource(resource: Resource, userId: string): Promise<SomeResult<Resource[]>> {
+  addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
-  addFavouriteResource(resource: Resource, userId: string): Promise<SomeResult<void>> {
+  addFavouriteResource(resource: AnyResource, userId: string): Promise<SomeResult<void>> {
 
     return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
     .then(() => {
@@ -421,7 +423,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     });
   }
   
-  async getResourcesWithinRegion(region: Region): Promise<SomeResult<Resource[]>> {
+  async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
@@ -433,8 +435,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     maybeLog("getResourcesWithinRegion. URL is", url);
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      return authHeadersResult;
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
 
     const options = {
@@ -443,10 +447,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...authHeadersResult.result,
+        ...authHeaders,
       }
     };
-
+    
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
@@ -457,7 +461,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       })
   }
 
-  getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<Resource>> {
+  getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<AnyResource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
@@ -484,7 +488,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       });
   }
 
-  getResource(id: string): Promise<Resource> {
+  getResource(id: string): Promise<SomeResult<AnyResource>> {
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/${id}`;
     const options = {
       timeout,
@@ -497,7 +501,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
 
     return ftch(resourceUrl, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStation>(response))
-      .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource));
+      .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource))
+      .then((r: Resource) => {
+        const result: SomeResult<Resource> = {type: ResultType.SUCCESS, result: r};
+        return result;
+      })
+      .catch((err: Error) => {
+        maybeLog("Error loading resource:", err);
+        const result: SomeResult<Resource> = { type: ResultType.ERROR, message: 'Error loading resource.' };
+        return result;
+      });
   }
 
 
@@ -528,11 +541,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       min_points: 320
     });
 
+
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      throw new Error("Authorization is required to save readings to GGMN.");
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
-    const authHeaders = authHeadersResult.result;
     const options = {
       timeout,
       method: 'GET',
@@ -812,6 +827,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * we use the firebase api to save, as this is a user setting
    */
   saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
+    console.log("saving recent search", userId, searchQuery);
     return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
@@ -824,19 +840,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * For example:
    * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25   
    */
-  async performSearch(searchQuery: string, page: number): Promise<SomeResult<GGMNSearchEntity[]>> {
+  async performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>> {
     const readingUrl = `${this.baseUrl}/api/v3/search/`;
     const url = appendUrlParameters(readingUrl, {
       q: searchQuery,
-      page_size: 25,
+      page_size: searchPageSize,
       page,
     });
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      throw new Error("Authorization is required to save readings to GGMN.");
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
     }
-    const authHeaders = authHeadersResult.result;
 
     const options = {
       timeout,
@@ -864,13 +881,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       return searchResponse;
     }
 
+    console.log("performed search: ", searchResponse.result);
+
+    const result: SearchResult = {
+      resources: searchResponse.result.results.map(e => GGMNApi.ggmnSearchEntityToResource(e)),
+      hasNextPage: searchResponse.result.count > searchPageSize,
+    }
+
     return {
       type: ResultType.SUCCESS,
-      result: searchResponse.result.results,
+      result,
     }
   }
 
-  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<Resource>> {
+  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/groundwaterstations/${entityId}/`;
     const options = {
       timeout,
@@ -924,20 +948,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   //TODO: this will fall apart, as we need a specific GGMNResource type :(
   //For now, we can make OurWater handle all the fields, and worry about making
   //it flexible later on
-  static ggmnStationToResource(from: GGMNGroundwaterStation): Resource {
-    const to: Resource = {
-      id: `${from.id}`,
-      legacyId: `ggmn_${from.id}`,
-      groups: null,
-      lastValue: 0,
-      resourceType: ResourceType.well,
-      lastReadingDatetime: new Date(),
+  static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
+    const to: GGMNResource = {
+      // id: `${from.id}`,
+      type: PlatformType.GGMN,
+      id: `${from.name}`,
       coords: {
         _latitude: from.geometry.coordinates[1],
         _longitude: from.geometry.coordinates[0],
-      },
-      owner: {
-        name: from.name,
       },
       timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
     };
@@ -945,7 +963,30 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return to;
   }
 
-  static ggmnTimeseriesToTimeseries(from: GGMNTimeseries): OWTimeseries {
+  //TODO: make a partial resource type that doesn't need all these fake fields
+  static ggmnSearchEntityToResource(from: GGMNSearchEntity): Resource {
+    const to: Resource = {
+      id: `${from.entity_id}`,
+      legacyId: `${from.title}`,
+      groups: null,
+      lastValue: 0,
+      resourceType: ResourceType.well,
+      lastReadingDatetime: new Date(),
+      coords: {
+        _latitude: 0,
+        _longitude: 0
+      },
+      owner: {
+        name: `${from.id}`,
+      },
+      timeseries: [],
+    };
+
+    return to;
+  }
+
+
+  static ggmnTimeseriesToTimeseries(from: GGMNResponseTimeseries): OWTimeseries {
     return {
       id: from.uuid,
       name: from.name,
