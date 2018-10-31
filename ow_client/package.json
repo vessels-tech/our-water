@@ -14,8 +14,6 @@
     "@types/react-native-scrollable-tab-view": "^0.8.2",
     "@types/react-redux": "^6.0.9",
     "@types/redux-logger": "^3.0.6",
-    "bundle-analyzer": "^0.0.6",
-    "debounce": "^1.2.0",
     "fast-deep-equal": "^2.0.1",
     "fetch-cookie": "^0.7.2",
     "moment": "^2.22.1",

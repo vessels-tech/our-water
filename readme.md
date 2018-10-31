@@ -329,3 +329,8 @@ https://material.io/tools/color/#!/?view.left=0&view.right=0&primary.color=BBDEF
   onPress={() => console.log("language pressed")}
 />
 ```
+
+
+## Packages to remove:
+
+- fast-deep-equal (only used once)
