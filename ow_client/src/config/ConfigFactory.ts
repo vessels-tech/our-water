@@ -1,4 +1,4 @@
-import { BaseApiType, HomeScreenType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
@@ -10,6 +10,7 @@ import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
+
 
 
 /**
@@ -31,6 +32,7 @@ export type RemoteConfig = {
   //These should eventually be moved to their own config section where we can dynamically
   //define what resources shold look like
   editResource_showOwerName: boolean,
+  editResource_availableTypes: ResourceType[],
 
 }
 
@@ -162,5 +164,9 @@ export class ConfigFactory {
 
   getEditResourceShouldShowOwnerName() {
     return this.remoteConfig.editResource_showOwerName;
+  }
+
+  getAvailableResourceTypes(): ResourceType[]{
+    return this.remoteConfig.editResource_availableTypes;
   }
 }

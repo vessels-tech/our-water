@@ -30,7 +30,8 @@ import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 import IconButton from '../components/common/IconButton';
-import { MaybeReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
+import { MaybeReadingLocation, ReadingLocationType, ReadingLocation } from '../typings/models/ReadingLocation';
+import { MaybeLocation, LocationType } from '../typings/Location';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -44,6 +45,8 @@ export interface Props {
   saveReading: any,
   pendingSavedReadingsMeta: SyncMeta,
   translation: TranslationFile,
+  getGeolocation: () => void,
+  location: MaybeLocation,
 }
 
 export interface State {
@@ -51,7 +54,6 @@ export interface State {
   timeseriesString: string,
   enableSubmitButton: boolean,
   date: moment.Moment,
-  location: MaybeReadingLocation,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
 }
@@ -80,9 +82,6 @@ class NewReadingScreen extends Component<Props> {
       date: moment(),
       measurementString: '',
       timeseriesString,
-      location: {
-        type: ReadingLocationType.NONE,
-      },
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
     };
@@ -96,17 +95,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   componentWillMount() {
-    //Load the users location - don't inform user
-    getLocation()
-    .then((location: any) => {
-      this.setState({coords: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }});
-    })
-    .catch(err => {
-      maybeLog("could not get location");
-    })
+    this.props.getGeolocation();
   }
 
   showTakePictureScreen() {
@@ -141,10 +130,11 @@ class NewReadingScreen extends Component<Props> {
 
   async saveReading() {
     Keyboard.dismiss();
-    const { date, measurementString, location, timeseriesString, readingImage} = this.state;
+    const { date, measurementString, timeseriesString, readingImage} = this.state;
     const { 
       pendingSavedReadingsMeta: {loading},
       resource: { id },
+      location, 
       translation: { templates: { 
         new_reading_invalid_error_heading, 
         new_reading_invalid_error_description,
@@ -165,6 +155,20 @@ class NewReadingScreen extends Component<Props> {
       return;
     }
 
+    //Map from a state location to reading location.
+    //This is mainly because Firebase has a specific type of location it likes
+    let readingLocation: MaybeReadingLocation = { type: ReadingLocationType.NONE};
+    if (location.type === LocationType.LOCATION) {
+      readingLocation = {
+        type: ReadingLocationType.LOCATION,
+        location: {
+          _latitude: location.coords.latitude,
+          _longitude: location.coords.longitude,
+        }
+
+      }
+    }
+
     const readingRaw: any = {
       type: this.props.config.orgType,
       resourceId: id,
@@ -172,10 +176,10 @@ class NewReadingScreen extends Component<Props> {
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
 
-      //Hopefully these fields will be stripped by Joi
+      //if we are in GGMN, these fields will be stripped by Joi
       userId: this.props.userId,
       image: readingImage,
-      location,
+      location: readingLocation,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -470,13 +474,15 @@ const mapStateToProps = (state: AppState) => {
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
+    location: state.location,
   }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
-      { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))}
+      { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))},
+    getGeolocation: () => dispatch(appActions.getGeolocation())
   }
 }
 

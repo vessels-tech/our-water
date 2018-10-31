@@ -17,5 +17,3 @@ export const resourceTypeFromString = (type: string) => {
       throw new Error(`Unknown ResourceType conversion: ${type}`);
   }
 }
-
-

@@ -10,7 +10,7 @@ import IconFormInput, { InputType } from '../../components/common/IconFormInput'
 import { ResourceTypeArray, ResourceType } from '../../enums';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { Resource, PendingResource, SaveResourceResult } from '../../typings/models/OurWater';
+import { DeprecatedResource, PendingResource, SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
 import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
@@ -110,7 +110,7 @@ class EditResourceScreen extends Component<Props> {
       userId: this.props.userId,
     };
     
-    const validationResult: SomeResult<Resource | PendingResource> = validateResource(unvalidatedResource);
+    const validationResult: SomeResult<DeprecatedResource | PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
       ToastAndroid.show(`Error saving Resource: ${validationResult.message}`, ToastAndroid.SHORT);
       return;
@@ -135,8 +135,16 @@ class EditResourceScreen extends Component<Props> {
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
-      translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button}}
+      translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button, new_resource_asset_type_label}}
     } = this.props;
+
+    const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
+      return {
+        key: t,
+        //TODO: translate based on language settings
+        label: t,
+      }
+    });
 
     return (
       <FieldGroup
@@ -167,9 +175,9 @@ class EditResourceScreen extends Component<Props> {
               name="asset"
               render={DropdownInput}
               meta={{
-                options: [{key: 'well', label: resource_name}],
+                options: localizedResourceTypes,
                 editable: false,
-                label: "Asset Type",
+                label: new_resource_asset_type_label,
                 secureTextEntry: false,
                 keyboardType: 'default' 
               }}
@@ -233,7 +241,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource) =>
+    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: DeprecatedResource | PendingResource) =>
      { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }

@@ -1,5 +1,5 @@
 import { RemoteConfig } from "./ConfigFactory";
-import { BaseApiType, HomeScreenType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
 
 
 const MyWellDevConfig: RemoteConfig = {
@@ -16,6 +16,12 @@ const MyWellDevConfig: RemoteConfig = {
   resourceDetail_showSubtitle: true,
   favouriteResourceList_showGetStartedButtons: true,
   editResource_showOwerName: true,
+  editResource_availableTypes: [
+    ResourceType.well,
+    ResourceType.raingauge,
+    ResourceType.quality,
+    ResourceType.checkdam,
+  ]
 
 }
 

@@ -1,5 +1,5 @@
 import { RemoteConfig } from "./ConfigFactory";
-import { BaseApiType, HomeScreenType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
 
 //TODO: make this much more typesafe etc.
 const GGMNDevConfig: RemoteConfig = {
@@ -16,6 +16,9 @@ const GGMNDevConfig: RemoteConfig = {
   resourceDetail_showSubtitle: false,
   favouriteResourceList_showGetStartedButtons: false,
   editResource_showOwerName: false,
+  editResource_availableTypes: [
+    ResourceType.well, 
+  ]
 }
 
 export default GGMNDevConfig;

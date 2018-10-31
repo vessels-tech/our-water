@@ -1,3 +1,5 @@
+export type MaybeLocation = Location | NoLocation;
+
 export enum LocationType {
   LOCATION = 'LOCATION',
   NO_LOCATION = 'NO_LOCATION'

@@ -189,7 +189,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           title={settings_new_resource}
           onPress={() => {
             //TODO: dismiss the sidebar
-            navigateTo(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
+            showModal(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
               config: this.props.config,
               userId: this.props.userId,
             })
