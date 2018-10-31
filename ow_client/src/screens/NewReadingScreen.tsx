@@ -31,6 +31,9 @@ import { AnyResource } from '../typings/models/Resource';
 import { RNCamera } from 'react-native-camera';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 import IconButton from '../components/common/IconButton';
+import { AnyReading } from '../typings/models/Reading';
+import { Location } from '../typings/Location';
+import { MaybeReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -51,7 +54,7 @@ export interface State {
   timeseriesString: string,
   enableSubmitButton: boolean,
   date: moment.Moment,
-  coords: any,
+  location: MaybeReadingLocation,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
 }
@@ -69,7 +72,8 @@ class NewReadingScreen extends Component<Props> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    let timeseriesString = '';
+    //TODO: fix this later:
+    let timeseriesString = 'default_1';
     if (this.props.resource.timeseries[0]) {
       timeseriesString = this.props.resource.timeseries[0].id;
     }
@@ -79,7 +83,9 @@ class NewReadingScreen extends Component<Props> {
       date: moment(),
       measurementString: '',
       timeseriesString,
-      coords: {},
+      location: {
+        type: ReadingLocationType.NONE,
+      },
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
     };
@@ -89,6 +95,7 @@ class NewReadingScreen extends Component<Props> {
     this.onTakePicture = this.onTakePicture.bind(this);
     this.onTakePictureError = this.onTakePictureError.bind(this);
     this.clearReadingImage = this.clearReadingImage.bind(this);
+    this.saveReading = this.saveReading.bind(this);
   }
 
   componentWillMount() {
@@ -139,7 +146,7 @@ class NewReadingScreen extends Component<Props> {
 
   async saveReading() {
     Keyboard.dismiss();
-    const {date, measurementString, coords, timeseriesString} = this.state;
+    const { date, measurementString, location, timeseriesString, readingImage} = this.state;
     const { 
       pendingSavedReadingsMeta: {loading},
       resource: { id },
@@ -163,18 +170,21 @@ class NewReadingScreen extends Component<Props> {
       return;
     }
 
-    const readingRaw = {
-      date: moment(date).utc().format(), //converts to iso string
-      //TODO: fix this hack
-      timeseriesId: '123', 
+    const readingRaw: any = {
+      type: this.props.config.orgType,
       resourceId: id,
+      timeseriesId: timeseriesString, //TODO actually get a timeseries ID somehow
+      date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
+
+      //Hopefully these fields will be stripped by Joi
       userId: this.props.userId,
-      imageUrl: "http://placekitten.com/g/200/300",
-      coords
+      image: readingImage,
+      location,
     };
 
-    const validateResult = await validateReading(readingRaw);
+    const validateResult = validateReading(this.props.config.orgType, readingRaw);
+    console.log("validateResult", validateResult);
     if (validateResult.type === ResultType.ERROR) {
       displayAlert(
         new_reading_invalid_error_heading,
@@ -420,7 +430,7 @@ class NewReadingScreen extends Component<Props> {
           backgroundColor: secondary,
           width: SCREEN_WIDTH - 20,
         }}
-        onPress={() => this.saveReading()}
+        onPress={this.saveReading}
         underlayColor="transparent"
       />
     );

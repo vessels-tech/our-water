@@ -95,13 +95,12 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
     this.setState({loading: true});
     if (this.camera) {
       const options = { 
-        quality: 0.5, 
+        quality: 0.1, 
         base64: true,
         fixOrientation: true,
       };
       try {
         const data = await this.camera.takePictureAsync(options)
-        console.log(data.uri);
         return this.props.onTakePicture(data.base64);
       } catch (err) {
         return this.props.onTakePictureError(err);

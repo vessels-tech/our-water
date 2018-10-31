@@ -2,6 +2,8 @@ import { OrgType } from "./OrgType";
 import { MaybeReadingImage } from "./ReadingImage";
 import { MaybeReadingLocation } from "./ReadingLocation";
 
+export type AnyReading = MyWellReading | GGMNReading;
+
 export type MyWellReading = {
   type: OrgType.MYWELL,
 
@@ -12,7 +14,8 @@ export type MyWellReading = {
   value: number,
 
   /* Platform Specific */
-  imageUrl: MaybeReadingImage,
+  userId: string,
+  image: MaybeReadingImage,
   location: MaybeReadingLocation,
 }
 

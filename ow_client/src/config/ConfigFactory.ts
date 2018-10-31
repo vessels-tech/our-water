@@ -9,6 +9,7 @@ import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } fr
 import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";
+import { OrgType } from "../typings/models/OrgType";
 
 
 /**
@@ -55,6 +56,7 @@ export class ConfigFactory {
   appApi: BaseApi; //TODO: change to appApi
   externalServiceApi: MaybeExternalServiceApi;
   userApi: UserApi; 
+  public orgType: OrgType;
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
@@ -72,6 +74,7 @@ export class ConfigFactory {
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
       this.userApi = ggmnApi;
+      this.orgType = OrgType.GGMN
     } else {
       //Default to MyWellApi
       const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
@@ -81,9 +84,8 @@ export class ConfigFactory {
       this.userApi = mywellApi;
       // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
       this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
+      this.orgType = OrgType.MYWELL
     }
-
-
   }
 
   /**
@@ -161,5 +163,4 @@ export class ConfigFactory {
   getEditResourceShouldShowOwnerName() {
     return this.remoteConfig.editResource_showOwerName;
   }
-
 }
