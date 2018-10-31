@@ -6,7 +6,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Platform,
+  PermissionsAndroid
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { bgLight } from '../utils/Colors';
@@ -23,6 +25,31 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
 
     //Binds
     this.takePicture = this.takePicture.bind(this);
+  }
+
+  _requestPermissions = async () => {
+    if (Platform.OS === 'android') {
+      const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA)
+      console.log("result", result);
+      return result === PermissionsAndroid.RESULTS.GRANTED || result === true
+    }
+    return true
+  }
+
+  _takePicture = async () => {
+    if (this.camera) {
+      const options = { quality: 0.5, base64: true }
+      const data = await this.camera.takePictureAsync(options)
+      console.log(data.uri)
+    }
+  }
+
+  componentDidMount = () => {
+    ({ _, status }: any) => {
+      if (status !== 'PERMISSION_GRANTED') {
+        this._requestPermissions()
+      }
+    }
   }
 
   render() {
@@ -42,9 +69,6 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
-          onGoogleVisionBarcodesDetected={({ barcodes }) => {
-            console.log(barcodes)
-          }}
         />
         <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center', }}>
           <TouchableOpacity
