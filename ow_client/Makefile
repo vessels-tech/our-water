@@ -79,6 +79,7 @@ bundle:
 		--reset-cache \
 		--assets-dest android/app/src/main/res/ \
 		--assets-dest android/app/src/main/res/ \
+		--sourcemap-output ./sourcemap.js \
 		|| exit 1
 	rm -f ${dir}/android/app/src/main/res/drawable-mdpi/src*
 	rm -f ${dir}/android/app/src/main/res/drawable-mdpi/node*

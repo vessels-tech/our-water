@@ -80,6 +80,7 @@ project.ext.react = [
     entryFile: "src/index.js",
     bundleInDebug: false,
     bundleInRelease: true,
+    extraPackagerArgs: [ "--sourcemap-output", file("$buildDir/../../../sourcemap.android.js")]
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"

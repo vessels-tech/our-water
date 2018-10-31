@@ -27,8 +27,6 @@ module.exports = (functions) => {
     return res.status(500).json({ status: 500, message: err.message });
   });
 
-
-
   /**
    * GET reading
    * Get all the readings for an orgId + resourceId

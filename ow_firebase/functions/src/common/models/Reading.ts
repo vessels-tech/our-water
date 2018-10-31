@@ -119,6 +119,4 @@ export class Reading extends FirestoreDoc {
 
     return des;
   }
-
-
 }
