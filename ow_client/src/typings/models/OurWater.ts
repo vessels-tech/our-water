@@ -2,7 +2,7 @@ import { ResourceType } from "../../enums";
 import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
 
-export type Resource = {
+export type DeprecatedResource = {
   id: string,
   //TODO: remove this, it no longer applies
   legacyId: string,
@@ -55,7 +55,7 @@ export type ResourceOwnerType = {
 export type SearchResult = {
   hasNextPage: boolean,
   // type: SearchResultType.Default,
-  resources: Resource[],
+  resources: DeprecatedResource[],
   // groups: any[],
   // users: any[],
   // offline: boolean, //Lets us know if the search was performed offline
@@ -126,8 +126,8 @@ export enum TimeseriesRange {
  */
 export type OWUser = {
   userId: string,
-  recentResources: Resource[],
-  favouriteResources: Resource[],
+  recentResources: DeprecatedResource[],
+  favouriteResources: DeprecatedResource[],
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
   recentSearches: string[],

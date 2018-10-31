@@ -1,12 +1,14 @@
-import { PlatformType } from "./Platform";
+import { OrgType } from "./OrgType";
 import { Reading } from "./OurWater";
 
 export type AnyTimeseries = MyWellTimeseries | GGMNTimeseries;
 
 export type MyWellTimeseries = {
-  type: PlatformType.MYWELL,
+  type: OrgType.MYWELL,
   
   /* Common values*/
+  id: string,
+  name: string,
   reading: Reading[],
   parameter: string, //eg. groundwater measure, water quality type
 
@@ -15,15 +17,17 @@ export type MyWellTimeseries = {
 
 
 export type GGMNTimeseries = {
-  type: PlatformType.GGMN,
+  type: OrgType.GGMN,
 
   /* Common values*/
+  id: string,
+  name: string,
   reading: Reading[],
   parameter: string, //eg. groundwater measure, water quality type
 
   
   /* Platform Specific */
-  id: string,
+  
 }
 
 //TODO: Map from GGMNResponseTimeseries to GGMNTimeseries

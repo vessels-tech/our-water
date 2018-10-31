@@ -27,6 +27,7 @@ import ScanScreen from './ScanScreen';
 import SimpleMapScreen from './SimpleMapScreen';
 import SimpleResourceScreen from './SimpleResourceScreen';
 import SimpleResourceDetailScreen from './SimpleResourceDetailScreen';
+import TakePictureScreen from './TakePictureScreen';
 
 
 let loggerMiddleware: any = null;
@@ -86,6 +87,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.SimpleMapScreen', () => SimpleMapScreen, store, Provider);
   Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);
   Navigation.registerComponent('screen.SimpleResourceDetailScreen', () => SimpleResourceDetailScreen, store, Provider);
+  Navigation.registerComponent('modal.TakePictureScreen', () => TakePictureScreen, store, Provider);
 
   return store;
 }

@@ -1,15 +1,16 @@
-import { OWGeoPoint, Resource, OWTimeseries, ResourceOwnerType } from './OurWater';
+import { OWGeoPoint, OWTimeseries, ResourceOwnerType } from './OurWater';
 import { ResourceType } from '../../enums';
-import { PlatformType } from './Platform';
+import { OrgType } from './OrgType';
+import { AnyTimeseries } from './Timeseries';
 
 export type AnyResource = MyWellResource | GGMNResource;
 
 export type MyWellResource = {
-  type: PlatformType.MYWELL,
+  type: OrgType.MYWELL,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,
-  timeseries: OWTimeseries[],
+  timeseries: AnyTimeseries[],
 
   /* Platform Specific */
   shortId: string,
@@ -22,11 +23,11 @@ export type MyWellResource = {
 
 
 export type GGMNResource = {
-  type: PlatformType.GGMN,
+  type: OrgType.GGMN,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,
-  timeseries: OWTimeseries[],
+  timeseries: AnyTimeseries[],
 
   /* Platform Specific */
 }

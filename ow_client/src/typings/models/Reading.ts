@@ -1,7 +1,9 @@
-import { PlatformType } from "./Platform";
+import { OrgType } from "./OrgType";
+import { MaybeReadingImage } from "./ReadingImage";
+import { MaybeReadingLocation } from "./ReadingLocation";
 
 export type MyWellReading = {
-  type: PlatformType.MYWELL,
+  type: OrgType.MYWELL,
 
   /* Common values*/
   resourceId: string,
@@ -10,12 +12,12 @@ export type MyWellReading = {
   value: number,
 
   /* Platform Specific */
-  imageUrl?: string,
-  location?: Location,
+  imageUrl: MaybeReadingImage,
+  location: MaybeReadingLocation,
 }
 
 export type GGMNReading = {
-  type: PlatformType.GGMN,
+  type: OrgType.GGMN,
 
   /* Common values*/
   resourceId: string,

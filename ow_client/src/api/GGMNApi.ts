@@ -22,7 +22,7 @@ import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations/Types";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
-import { PlatformType } from "../typings/models/Platform";
+import { OrgType } from "../typings/models/OrgType";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -951,7 +951,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
     const to: GGMNResource = {
       // id: `${from.id}`,
-      type: PlatformType.GGMN,
+      type: OrgType.GGMN,
       id: `${from.name}`,
       coords: {
         _latitude: from.geometry.coordinates[1],

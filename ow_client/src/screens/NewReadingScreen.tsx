@@ -13,11 +13,11 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, getLocation, maybeLog } from '../utils';
+import { displayAlert, getLocation, maybeLog, navigateTo, showModal } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { Reading, Resource, SaveReadingResult } from '../typings/models/OurWater';
+import { Reading, DeprecatedResource, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
@@ -26,11 +26,15 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
+import { AnyResource } from '../typings/models/Resource';
+import { RNCamera } from 'react-native-camera';
+import ReadingCamera from '../components/ReadingCamera';
+import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface Props {
-  resource: Resource,
+  resource: AnyResource,
   navigator: any,
   config: ConfigFactory,
   userId: string,
@@ -46,13 +50,16 @@ export interface State {
   timeseriesString: string,
   enableSubmitButton: boolean,
   date: moment.Moment,
-  coords: any
+  coords: any,
+  shouldShowCamera: boolean,
+  readingImage: MaybeReadingImage,
 }
 
 class NewReadingScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
+  camera: any;
 
   constructor(props: Props) {
     super(props);
@@ -72,7 +79,13 @@ class NewReadingScreen extends Component<Props> {
       measurementString: '',
       timeseriesString,
       coords: {},
+      shouldShowCamera: false,
+      readingImage: { type: ReadingImageType.NONE }
     };
+
+    //Binds
+    this.showTakePictureScreen = this.showTakePictureScreen.bind(this);
+    this.onTakePicture = this.onTakePicture.bind(this)
   }
 
   componentWillMount() {
@@ -89,8 +102,23 @@ class NewReadingScreen extends Component<Props> {
     })
   }
 
-  takeImage() {
+  showTakePictureScreen() {
     maybeLog("TODO: display image");
+
+    showModal(this.props, 'modal.TakePictureScreen', 'Take Picture', {
+      onTakePicture: this.onTakePicture,
+    });
+  }
+
+  onTakePicture(dataUri: string) {
+    console.log("took picture", dataUri);
+    this.props.navigator.dismissModal();
+    this.setState({
+      readingImage: {
+        type: ReadingImageType.IMAGE,
+        url: dataUri
+      }
+    });
   }
 
   async saveReading() {
@@ -230,16 +258,9 @@ class NewReadingScreen extends Component<Props> {
           buttonStyle={{
             backgroundColor: primary,
           }}
-          // titleStyle={{
-          //   fontWeight: 'bold',
-          //   fontSize: 23,
-          // }}
-          // containerStyle={{
-          // }}
-          onPress={() => this.takeImage()}
+          onPress={this.showTakePictureScreen}
           underlayColor="transparent"
-        />
-
+          />
       </View>
     );
   }
@@ -265,7 +286,6 @@ class NewReadingScreen extends Component<Props> {
         flexDirection: 'column',
         paddingBottom: 10,
       }}>
-        {this.getImageSection()}
         <IconFormInput
           iconName='calendar'
           iconColor={primaryDark}
@@ -307,8 +327,6 @@ class NewReadingScreen extends Component<Props> {
             selectedValue={this.state.timeseriesString}
             style={{
               flex: 2
-              // width: '100%',
-              // backgroundColor: 'red' 
             }}
             mode={'dropdown'}
             onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
@@ -316,6 +334,7 @@ class NewReadingScreen extends Component<Props> {
             {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.id}/>)}
           </Picker>
         </View>
+        {this.getImageSection()}
       </View>
     );
   }
