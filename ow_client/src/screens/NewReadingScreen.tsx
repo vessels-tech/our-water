@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   Picker,
   Keyboard,
+  Image,
 } from 'react-native';
 import { 
   Button, Text 
@@ -28,8 +29,8 @@ import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
 import { RNCamera } from 'react-native-camera';
-import ReadingCamera from '../components/ReadingCamera';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
+import IconButton from '../components/common/IconButton';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -80,12 +81,14 @@ class NewReadingScreen extends Component<Props> {
       timeseriesString,
       coords: {},
       shouldShowCamera: false,
-      readingImage: { type: ReadingImageType.NONE }
+      readingImage: { type: ReadingImageType.NONE },
     };
 
     //Binds
     this.showTakePictureScreen = this.showTakePictureScreen.bind(this);
-    this.onTakePicture = this.onTakePicture.bind(this)
+    this.onTakePicture = this.onTakePicture.bind(this);
+    this.onTakePictureError = this.onTakePictureError.bind(this);
+    this.clearReadingImage = this.clearReadingImage.bind(this);
   }
 
   componentWillMount() {
@@ -103,15 +106,13 @@ class NewReadingScreen extends Component<Props> {
   }
 
   showTakePictureScreen() {
-    maybeLog("TODO: display image");
-
     showModal(this.props, 'modal.TakePictureScreen', 'Take Picture', {
       onTakePicture: this.onTakePicture,
+      onTakePictureError: this.onTakePictureError,
     });
   }
 
   onTakePicture(dataUri: string) {
-    console.log("took picture", dataUri);
     this.props.navigator.dismissModal();
     this.setState({
       readingImage: {
@@ -119,6 +120,21 @@ class NewReadingScreen extends Component<Props> {
         url: dataUri
       }
     });
+  }
+
+  onTakePictureError(message: string) {
+    maybeLog('Error taking picture', message);
+    this.props.navigator.dismissModal();
+  }
+
+  clearReadingImage() {
+    console.log("Clear reading image");
+
+    this.setState({
+      readingImage: {
+        type: ReadingImageType.NONE,
+      }
+    })
   }
 
   async saveReading() {
@@ -240,27 +256,63 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getImageSection() {
+    const { readingImage } = this.state;
+
     if (!this.props.config.getNewReadingShouldShowImageUpload()) {
       return null;
     }
 
     return (
       <View style={{
-        height: 150,
+        height: 300,
         backgroundColor: primaryDark,
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <Button
-          title="Add an Image"
-          raised
-          icon={{ name: 'camera' }}
-          buttonStyle={{
-            backgroundColor: primary,
-          }}
-          onPress={this.showTakePictureScreen}
-          underlayColor="transparent"
-          />
+        { readingImage.type === ReadingImageType.NONE ? 
+          <Button
+            title="Add an Image"
+            raised
+            icon={{ name: 'camera' }}
+            buttonStyle={{
+              backgroundColor: primary,
+            }}
+            onPress={this.showTakePictureScreen}
+            underlayColor="transparent"
+          /> : null
+        }
+        { readingImage.type === ReadingImageType.IMAGE ? 
+          <View 
+            style={{
+              backgroundColor: primaryDark,
+              flex: 1,
+              width: '100%',
+              height: 300,
+            }}
+          >
+            <View 
+              style={{
+                position: 'absolute',
+                zIndex: 10,
+                right: 10,
+                top: 10,
+              }}
+            >
+              <IconButton
+                name={'close'}
+                onPress={this.clearReadingImage}
+              />
+            </View>
+            <Image
+              style={{
+                width: '100%',
+                height: 300,
+              }}
+              source={{ uri: `data:image/png;base64,${readingImage.url}`}}
+            /> 
+          </View> : null
+        }
+        
       </View>
     );
   }

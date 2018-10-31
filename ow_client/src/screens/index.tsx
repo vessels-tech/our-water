@@ -18,7 +18,7 @@ import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
 import { UserType } from '../typings/UserTypes';
-import { OWUser, Reading, Resource, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { ResultType } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 import { EnableLogging } from '../utils/EnvConfig';

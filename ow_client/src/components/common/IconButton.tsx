@@ -11,6 +11,7 @@ export interface Props {
   onPress: any,
   color?: string,
   name: string,
+  style?: any,
 }
 
 export interface State {
@@ -23,26 +24,13 @@ export default class IconButton extends Component<Props> {
     super(props);
   }
 
-  updateGeoLocation() {
-    this.setState({
-      loading: true
-    });
-
-    return getLocation()
-    .then(location => {
-      this.props.onComplete(location);
-    })
-    .catch(err => {
-      //TODO: display error to user
-      this.setState({ loading: false });
-    });
-  }
 
   render() {
 
     return (
 
       <View style={{
+        ...this.props.style,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 50,

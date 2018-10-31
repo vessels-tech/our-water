@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { gql, graphql } from 'react-apollo'
 import PropTypes from 'prop-types'
-import { throttle } from 'throttle-debounce';
 
 import ResourceList from './ResourceList'
 import { Loading } from '../common'

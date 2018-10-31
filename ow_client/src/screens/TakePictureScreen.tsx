@@ -8,48 +8,36 @@ import {
   TouchableOpacity,
   View,
   Platform,
-  PermissionsAndroid
+  PermissionsAndroid,
+  TouchableNativeFeedback
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { bgLight } from '../utils/Colors';
+import Loading from '../components/common/Loading';
 
 export interface Props {
   onTakePicture: (dataUri: string) => void,
+  onTakePictureError: (message: string) => void,
+}
+
+
+export interface State {
+  loading: boolean
 }
 
 export default class TakePictureScreen extends React.PureComponent<Props> {
   camera: any;
+  state: State;
 
   constructor(props: Props) {
     super(props);
 
+    this.state = {
+      loading: false,
+    }
+
     //Binds
     this.takePicture = this.takePicture.bind(this);
-  }
-
-  _requestPermissions = async () => {
-    if (Platform.OS === 'android') {
-      const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA)
-      console.log("result", result);
-      return result === PermissionsAndroid.RESULTS.GRANTED || result === true
-    }
-    return true
-  }
-
-  _takePicture = async () => {
-    if (this.camera) {
-      const options = { quality: 0.5, base64: true }
-      const data = await this.camera.takePictureAsync(options)
-      console.log(data.uri)
-    }
-  }
-
-  componentDidMount = () => {
-    ({ _, status }: any) => {
-      if (status !== 'PERMISSION_GRANTED') {
-        this._requestPermissions()
-      }
-    }
   }
 
   render() {
@@ -64,32 +52,63 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           ref={ref => {
             this.camera = ref;
           }}
-          style={styles.preview}
+          style={{
+            flex: 5,
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+          }}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
         />
-        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center', }}>
-          <TouchableOpacity
-            onPress={this.takePicture}
-            style={styles.capture}
-          >
-            <Text style={{ fontSize: 22, fontWeight: '700' }}> SNAP </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableNativeFeedback
+          onPress={this.takePicture}
+          style={{
+            flex: 1,
+          }}
+        >
+          <View style={{
+            justifyContent: 'center',
+            flex: 1,
+           }}>   
+            { this.state.loading ?  
+              <Loading/> :
+              <Text style={{
+                alignSelf: 'center',
+                textAlign: "center",
+                fontSize: 22,
+                fontWeight: '700' 
+              }}> SNAP </Text>
+            }
+          </View>
+        </TouchableNativeFeedback>
       </View>
     );
   }
 
   takePicture = async function () {
-    console.log("this.camera", this.camera);
-    if (this.camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await this.camera.takePictureAsync(options)
-      console.log(data.uri);
+    if (this.state.loading) {
+      return;
     }
-    this.props.onTakePicture("12345");
+
+    this.setState({loading: true});
+    if (this.camera) {
+      const options = { 
+        quality: 0.5, 
+        base64: true,
+        fixOrientation: true,
+      };
+      try {
+        const data = await this.camera.takePictureAsync(options)
+        console.log(data.uri);
+        return this.props.onTakePicture(data.base64);
+      } catch (err) {
+        return this.props.onTakePictureError(err);
+      }
+    } 
+
+    this.props.onTakePictureError('Camera was not initalized');
   };
 }
 
@@ -104,13 +123,4 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
-  capture: {
-    flex: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 15,
-    paddingHorizontal: 20,
-    alignSelf: 'center',
-    margin: 20
-  }
 });
