@@ -334,3 +334,5 @@ https://material.io/tools/color/#!/?view.left=0&view.right=0&primary.color=BBDEF
 ## Packages to remove:
 
 - fast-deep-equal (only used once)
+- react-native-vector-icons - used only twice
+- fork react-native-camera and remove lodash, which is only used once, or at least make it a peer dependency

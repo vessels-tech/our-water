@@ -13,7 +13,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { Resource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
@@ -150,7 +150,7 @@ class FirebaseApi {
     return await this.getRecentResources(orgId, userId);
   }
 
-  static getResourcesForOrg(orgId: string): Promise<Array<Resource>> {
+  static getResourcesForOrg(orgId: string): Promise<Array<DeprecatedResource>> {
     return this.checkNetworkAndToggleFirestore()
     .then(() => fs.collection('org').doc(orgId).collection('resource')
       .limit(10)
@@ -223,7 +223,7 @@ class FirebaseApi {
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     })
     .then(snapshot => {
-      const resources: Resource[] = []
+      const resources: DeprecatedResource[] = []
       snapshot.forEach(doc => {
         //TODO: map to an actual Resource
         const data: any = doc.data();
@@ -411,7 +411,7 @@ class FirebaseApi {
     };
   }
 
-  static async saveResourceToUser(orgId: string, userId: string, resource: Resource): Promise<SomeResult<null>> {
+  static async saveResourceToUser(orgId: string, userId: string, resource: DeprecatedResource): Promise<SomeResult<null>> {
     //TODO: some form of extra validation here?
 
     /* we don't want to wait for this to resolve */
@@ -764,7 +764,7 @@ class FirebaseApi {
       throw new Error("Data from snapshot was undefined or null");
     }
 
-    let favouriteResources: Resource[] = [];
+    let favouriteResources: DeprecatedResource[] = [];
     const favouriteResourcesDict = data.favouriteResources;
     if (favouriteResourcesDict) {
       favouriteResources = Object
@@ -818,8 +818,8 @@ class FirebaseApi {
   /**
    * Map a snapshot from pendingResources to a Resource array
    */
-  static snapshotToResources(sn: any): Resource[] {
-    const resources: Resource[] = [];
+  static snapshotToResources(sn: any): DeprecatedResource[] {
+    const resources: DeprecatedResource[] = [];
     sn.forEach((doc: any) => {
       //Get each document, put in the id
       const data = doc.data();

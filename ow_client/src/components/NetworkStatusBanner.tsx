@@ -6,7 +6,6 @@ import { Text } from "react-native-elements";
 import { ConfigFactory } from '../config/ConfigFactory';
 import NetworkApi from '../api/NetworkApi';
 //@ts-ignore
-// import { connect } from 'react-context-api-store';
 
 import * as appActions from '../actions/index';
 
