@@ -1,4 +1,12 @@
 
+export type FirestoreDocTypes = {
+  docName: string,
+  orgId: string,
+  id: string,
+  createdAt: Date,
+  updatedAt: Date,
+}
+
 
 export default abstract class FirestoreDoc {
 

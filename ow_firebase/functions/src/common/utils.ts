@@ -329,3 +329,11 @@ export const resultWithError = (error: Error): SyncRunResult => {
     errors: [error]
   };
 }
+
+export function pad(number: number, size: number) {
+  var s = String(number);
+  while (s.length < (size || 2)) { s = "0" + s; }
+  return s;
+}
+
+

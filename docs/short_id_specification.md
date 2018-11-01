@@ -41,7 +41,7 @@ are all valid ShortIds.
 This enables us to keep the shortId easy to write and understand for users, but also enables us to have the flexibilty to expand this to allow for more uniqueness if required.
 
 ### Rule 3:
-Short Ids should be created sequentially, starting from `100-000`
+Short Ids should be created sequentially, starting from `000-100-000`
 
 
 
@@ -98,3 +98,9 @@ latest=>{ id: 000123459, lock: false}
 
 
 ## Implementation
+
+
+### Client side
+
+- caching on the client side will be quite necessary to reduce a the burden of calling getShortId every time a resource is loaded.
+- once the basic implementation is done, we can also think about other ways to do this.

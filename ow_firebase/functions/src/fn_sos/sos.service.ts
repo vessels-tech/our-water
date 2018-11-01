@@ -7,7 +7,7 @@ import { ResultType } from '../common/types/AppProviderTypes';
 describe('SOS Handler Service tests', function () {
   this.timeout(4000);
 
-  it.only('Basic GetFeatureOfInterestRequest', async () => {
+  it('Basic GetFeatureOfInterestRequest', async () => {
     
     //Arrange
     const demoRequest: GetFeatureOfInterestRequest = {
