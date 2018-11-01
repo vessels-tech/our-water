@@ -197,7 +197,7 @@ export default class FirebaseApi {
     })
 
     const batch = firestore.batch();
-    batch.update(lockRef, { lock: true });
+    batch.update(lockRef, {id: nextId, lock: true });
     batch.set(shortIdRef, shortId.serialize());
     //I'm not 100% sure this will work as intended
     batch.update(lockRef, { id: nextId, lock: false });
