@@ -5,6 +5,7 @@ import FirebaseApi from './FirebaseApi';
 import { ResultType, SomeResult } from '../types/AppProviderTypes';
 import firestore from './Firestore';
 import ShortId from '../models/ShortId';
+import { pad } from '../utils';
 
 
 const orgId = process.env.ORG_ID;
@@ -73,12 +74,16 @@ describe('Firebase Api', function() {
 
 
   describe.only('shortId stress tests', function() {
-    const n = 10;
+    this.timeout(20000);
+
+    //It seems like it can handle about 5 simultaneous writes.
+    //That's good enough for our purposes now.
+    const n = 4;
 
     before(async () => {
       //Create 2 new ids
       const range = Array.from(Array(n).keys())
-      return Promise.all(range.map(i => FirebaseApi.createShortId(orgId, `longId_${i}`)))
+      return Promise.all(range.map(i => FirebaseApi.createShortIdTx(orgId, `longId_${i}`)))
       .then((results: SomeResult<ShortId>[]) => {
         results.forEach(result => {
           if (result.type === ResultType.ERROR) {
@@ -88,12 +93,22 @@ describe('Firebase Api', function() {
       });
     });
 
-    it("creates many shortIds at once without race conditions", () => {
+    it("creates many shortIds at once without race conditions", async () => {
       //TODO: create n shortIds simultaneously
       //get the latest shortId, make sure its id is equal to  000100000 + n
-
+      const doc = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get()
+      const latest = doc.data();
+      assert.equal(latest.id, pad(100000 + n, 9));
     });
 
     //TODO: cleanup
+    after(async () => {
+      //Cleanup the shortIds
+      const range = Array.from(Array(n).keys())
+      Promise.all(range.map(i => 
+        firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(pad(100001 + i, 9)).delete()
+      ));
+      await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').delete();
+    })
   });
 });

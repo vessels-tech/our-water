@@ -148,6 +148,74 @@ export default class FirebaseApi {
 
 
   /**
+   * CreateShortId
+   * 
+   * Test of CreateShortId with Firebase Transactions
+   */
+  public static async createShortIdTx(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+
+    //I think the transactions handle the retries for us
+    const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
+    let shortIdLock: ShortIdLock;
+    let shortIdRef;
+    let shortId;
+
+    return firestore.runTransaction(tx => {
+      return tx.get(lockRef)
+      .then(doc => {
+        shortIdLock = doc.data();
+        //Lock has never been created. Set to initial value
+        if (!shortIdLock) {
+          shortIdLock = { id: '100000', lock: false };
+          return tx.set(lockRef, shortIdLock);
+        }
+        //Another write is currently happening
+        if(shortIdLock.lock === true) {
+          //Hopefully throwing an error here will make the tx retry
+          console.log(`tx is locked for shortIdLock: ${shortIdLock}.`);
+          throw new Error(`tx is locked for shortIdLock: ${shortIdLock}.`);
+        }
+      })
+      .then(() => {
+        //Lock:
+        shortIdLock.lock = true;
+        return tx.set(lockRef, shortIdLock);
+      })
+      .then(() => {
+        //Set the new value
+        const nextId = pad(parseInt(shortIdLock.id) + 1, 9);
+        shortIdRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(nextId);
+        shortId = ShortId.fromShortId(orgId, {
+          shortId: nextId,
+          longId,
+          lastUsed: new Date(),
+        });
+
+        return tx.set(shortIdRef, shortId.serialize());
+      })
+      .then(() => {
+        //Unlock
+        return tx.set(lockRef, { id: shortId.shortId, lock: false });
+      })
+    })
+    .then(result => {
+      // console.log("TX success, result", result);
+      return {
+        type: ResultType.SUCCESS,
+        result: shortId
+      }
+    })    
+    .catch(err => {
+      console.log("TX Error", err);
+      return {
+        type: ResultType.ERROR,
+        message: err.message,
+      }
+    });
+  }
+
+
+  /**
    * CreateNewShortId
    * 
    * Creates a new shortId for the given resource.
@@ -157,7 +225,7 @@ export default class FirebaseApi {
    * 
    * @returns ShortId, wrapped in a Promise & SomeResult
    */
-  public static  async createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
+  public static async createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
     console.log(`CreateShortId with retries: ${retries}, timeoutMs: ${timeoutMs}`)
 
     //0: Check to make sure the id hasn't already been created
@@ -170,11 +238,15 @@ export default class FirebaseApi {
     const result = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get();
     let shortIdLock: ShortIdLock = result.data();
 
+    console.log("1. shortIdLock:", shortIdLock);
+
+    //TODO: use timeout instead of lock
     if (!shortIdLock) {
       //This must be the first time
       shortIdLock = {id: '100000', lock: false};
       await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').set(shortIdLock);
     } else if (shortIdLock.lock === true) {
+      console.log("lock is locked. Sleeping and trying again");
       if (retries === 0) {
         return {
           type: ResultType.ERROR,
@@ -185,7 +257,6 @@ export default class FirebaseApi {
       sleep(timeoutMs);
       return this.createShortId(orgId, longId, retries - 1, timeoutMs * 2);
     }
-    
 
     const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
     const nextId = pad(parseInt(shortIdLock.id) + 1, 9);
@@ -194,29 +265,48 @@ export default class FirebaseApi {
       shortId: nextId,
       longId,
       lastUsed: new Date(),
-    })
-
-    const batch = firestore.batch();
-    batch.update(lockRef, {id: nextId, lock: true });
-    batch.set(shortIdRef, shortId.serialize());
-    //I'm not 100% sure this will work as intended
-    batch.update(lockRef, { id: nextId, lock: false });
-    
-    return batch.commit()
-    .then((batchResult: any) => {
-      console.log("batchResult", batchResult);
-
+    });
+  
+    try {
+      await lockRef.set({id: nextId, lock: true});
+      await shortIdRef.set(shortId.serialize());
+      await lockRef.set({ lock: false });
+      
       return {
         type: ResultType.SUCCESS,
         result: shortId,
       }
-    })
-    .catch((err: any) => {
-      console.log("error saving batch: ", err);
+    } catch(err) {
+      console.log("Error", err);
       return {
         type: ResultType.ERROR,
-        message: err.message
+        message: err.message,
       }
-    });
+    }
+
+   
+
+    // const batch = firestore.batch();
+    // batch.update(lockRef, {id: nextId, lock: true });
+    // batch.set(shortIdRef, shortId.serialize());
+    // //I'm not 100% sure this will work as intended
+    // batch.update(lockRef, { id: nextId, lock: false });
+    
+    // return batch.commit()
+    // .then((batchResult: any) => {
+    //   console.log("batchResult", batchResult);
+
+    //   return {
+    //     type: ResultType.SUCCESS,
+    //     result: shortId,
+    //   }
+    // })
+    // .catch((err: any) => {
+    //   console.log("error saving batch: ", err);
+    //   return {
+    //     type: ResultType.ERROR,
+    //     message: err.message
+    //   }
+    // });
   }
 }
