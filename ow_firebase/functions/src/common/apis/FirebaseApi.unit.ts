@@ -11,7 +11,7 @@ import { pad } from '../utils';
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
 
-describe('Firebase Api', function() {
+describe.only('Firebase Api', function() {
   this.timeout(10000);
 
   describe('ShortIds', function() {
@@ -73,7 +73,7 @@ describe('Firebase Api', function() {
   });
 
 
-  describe.only('shortId stress tests', function() {
+  describe('shortId stress tests', function() {
     this.timeout(20000);
 
     //It seems like it can handle about 5 simultaneous writes.
@@ -83,7 +83,7 @@ describe('Firebase Api', function() {
     before(async () => {
       //Create 2 new ids
       const range = Array.from(Array(n).keys())
-      return Promise.all(range.map(i => FirebaseApi.createShortIdTx(orgId, `longId_${i}`)))
+      return Promise.all(range.map(i => FirebaseApi.createShortId(orgId, `longId_${i}`)))
       .then((results: SomeResult<ShortId>[]) => {
         results.forEach(result => {
           if (result.type === ResultType.ERROR) {

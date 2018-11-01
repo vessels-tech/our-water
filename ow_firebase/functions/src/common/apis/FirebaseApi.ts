@@ -152,7 +152,7 @@ export default class FirebaseApi {
    * 
    * Test of CreateShortId with Firebase Transactions
    */
-  public static async createShortIdTx(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+  public static async createShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
 
     //I think the transactions handle the retries for us
     const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
@@ -225,7 +225,7 @@ export default class FirebaseApi {
    * 
    * @returns ShortId, wrapped in a Promise & SomeResult
    */
-  public static async createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
+  public static async dep_createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
     console.log(`CreateShortId with retries: ${retries}, timeoutMs: ${timeoutMs}`)
 
     //0: Check to make sure the id hasn't already been created
@@ -255,7 +255,7 @@ export default class FirebaseApi {
       }
 
       sleep(timeoutMs);
-      return this.createShortId(orgId, longId, retries - 1, timeoutMs * 2);
+      return this.dep_createShortId(orgId, longId, retries - 1, timeoutMs * 2);
     }
 
     const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
