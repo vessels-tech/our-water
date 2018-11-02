@@ -99,6 +99,9 @@ export const showAlert = (title: string, message: string) => {
 }
 
 export const appendUrlParameters = (url: string, qs: any) => {
+  if (Object.keys(qs).length === 0) {
+    return url;
+  }
   return `${url}?${stringify(qs)}`;
 }
 

@@ -155,6 +155,7 @@ class FavouriteResourceList extends Component<Props> {
       >
         {firstFiveFavourites.map(r => (
           <ResourceCell 
+            key={r.id}
             config={this.props.config} 
             resource={r} 
             onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
@@ -198,6 +199,7 @@ class FavouriteResourceList extends Component<Props> {
       > 
         {recentResources.map(r => (
           <ResourceCell
+            key={r.id}
             config={this.props.config}
             resource={r}
             onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}

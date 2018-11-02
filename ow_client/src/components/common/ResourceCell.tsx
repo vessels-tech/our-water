@@ -1,4 +1,4 @@
-import * as React from 'react'; import { PureComponent } from 'react';
+import * as React from 'react'; import { Component } from 'react';
 import { randomPrettyColorForId } from '../../utils';
 import { DeprecatedResource } from '../../typings/models/OurWater';
 import { View, Dimensions } from 'react-native';
@@ -32,7 +32,7 @@ export interface ActionProps {
 }
 
 
-class ResourceCell extends PureComponent<OwnProps & StateProps & ActionProps> {
+class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 

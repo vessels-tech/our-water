@@ -767,7 +767,7 @@ class FirebaseApi {
     return col.where('longId', '==', longId).get()
     .then((sn: any) => this.snapshotToShortIds(sn))
     .then((shortIds: ShortId[]) => {
-      if (shortIds.length > 0) {
+      if (shortIds.length > 1) {
         maybeLog(`Found more than 1 short Id for longId: ${longId}. Returning the first.`);
       }
 
@@ -775,7 +775,10 @@ class FirebaseApi {
         throw new Error(`ShortId not found for longId: ${longId}`);
       }
 
-      return shortIds[0].id;
+      return {
+        type: ResultType.SUCCESS,
+        result: shortIds[0].id,
+      };
     })
     .catch((err: Error) => {
       return {
@@ -793,7 +796,7 @@ class FirebaseApi {
    * but is a necessary compromise for now
    */
   public static async createShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
-    const shortIdUrl = `${baseUrl}/shortId/`;
+    const shortIdUrl = `${baseUrl}/shortId/${orgId}`;
     const url = appendUrlParameters(shortIdUrl, {});
 
     const options = {
@@ -802,8 +805,12 @@ class FirebaseApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify({resourceId: longId})
     };
+
+    maybeLog("CreateShortId url: ", url);
+    maybeLog("CreateShortId options: ", options);
 
     return ftch(url, options)
     .then((response: any) => {
@@ -814,10 +821,13 @@ class FirebaseApi {
       return response.json();
     })
     .then((shortId: ShortId) => {
-      return shortId.shortId;
+      return {
+        type: ResultType.SUCCESS,
+        result: shortId.shortId,
+      }
     })
     .catch((err: Error) => {
-      maybeLog(err);
+      maybeLog(`CreateShortId Error: ${err}`);
       return {
         type: ResultType.ERROR,
         message: err.message

@@ -470,6 +470,7 @@ export function getShortId(api: BaseApi, resourceId: string): any {
     dispatch(getShortIdRequest(resourceId));
 
     const result = await api.getShortId(resourceId);
+    console.log("getShortId result", result);
 
     dispatch(getShortIdResponse(resourceId, result));
   }
