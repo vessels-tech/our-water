@@ -196,7 +196,8 @@ module.exports = (functions) => {
             return res.json(resource);
         }
         catch (err) {
-            return next(err);
+            next(err);
+            return;
         }
     }));
     /**
@@ -264,7 +265,8 @@ module.exports = (functions) => {
         const { orgId } = req.params;
         const result = yield FirebaseApi_1.default.resourcesNearLocation(orgId, latitude, longitude, distance);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
-            return next(result.message);
+            next(result.message);
+            return;
         }
         res.json(result.result);
     }));

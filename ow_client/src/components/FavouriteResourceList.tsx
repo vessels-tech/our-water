@@ -12,7 +12,7 @@ import { randomPrettyColorForId, getShortId } from '../utils';
 
 import Config from 'react-native-config'
 import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
-import { Resource } from '../typings/models/OurWater';
+import { DeprecatedResource } from '../typings/models/OurWater';
 import Loading from './common/Loading';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import { SyncMeta } from '../typings/Reducer';
 import { ResourceType } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations/Types';
+import ResourceCell from './common/ResourceCell';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -34,9 +35,9 @@ export interface Props {
   filterResourceType?: ResourceType,
 
   favouriteResourcesMeta: SyncMeta,
-  favouriteResources: Resource[],
+  favouriteResources: DeprecatedResource[],
   recentResourcesMeta: SyncMeta,
-  recentResources: Resource[],
+  recentResources: DeprecatedResource[],
   translation: TranslationFile,
 }
 
@@ -62,7 +63,7 @@ class FavouriteResourceList extends Component<Props> {
     }
   }
 
-  getFilteredResource(resources: Resource[], filterResourceType: ResourceType): Resource[] {
+  getFilteredResource(resources: DeprecatedResource[], filterResourceType: ResourceType): DeprecatedResource[] {
     return resources.filter(r => {
       if (!this.props.filterResourceType) {
         return r;
@@ -73,10 +74,12 @@ class FavouriteResourceList extends Component<Props> {
   }
 
   
-  getResourceCell(resource: Resource) {
+  getResourceCell(resource: DeprecatedResource) {
     //Ideally, we would display the resource image + 
     //if we don't have the image, pick a random color from a nice set maybe?
     const backgroundColor = randomPrettyColorForId(resource.id);
+
+    //If we don't have a shortId, display a blurred short version of the existing Id.
 
     return (
       <View style={{
@@ -150,7 +153,13 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       >
-        {firstFiveFavourites.map(r => this.getResourceCell(r))
+        {firstFiveFavourites.map(r => (
+          <ResourceCell 
+            config={this.props.config} 
+            resource={r} 
+            onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+          />
+        ))
         }
       </View>
     );
@@ -187,7 +196,13 @@ class FavouriteResourceList extends Component<Props> {
         flexDirection: 'row',
       }}
       > 
-        {recentResources.map(r => this.getResourceCell(r))
+        {recentResources.map(r => (
+          <ResourceCell
+            config={this.props.config}
+            resource={r}
+            onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+          />
+        ))
         }
       </View>
     );

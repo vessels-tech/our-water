@@ -221,7 +221,8 @@ module.exports = (functions) => {
       await resource.save({ firestore});
       return res.json(resource);
     } catch (err) {
-      return next(err);
+      next(err);
+      return;
     }
   });
 
@@ -299,7 +300,8 @@ module.exports = (functions) => {
 
     const result = await FirebaseApi.resourcesNearLocation(orgId, latitude,longitude, distance);
     if (result.type === ResultType.ERROR) {
-      return next(result.message);
+      next(result.message);
+      return;
     }
 
     res.json(result.result);

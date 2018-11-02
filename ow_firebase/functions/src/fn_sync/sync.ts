@@ -22,10 +22,7 @@ import Datasource from '../common/models/Datasources/Datasource';
 import { DatasourceType } from '../common/enums/DatasourceType';
 import { FileDatasource } from '../common/models/Datasources/FileDatasource';
 import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
-import { SyncDatatypeList } from '../common/types/SyncDatatypes';
 import { createSyncValidation } from './validate';
-import { resolve } from 'dns';
-import { puts } from 'util';
 
 import firestore from '../common/apis/Firestore';
 
@@ -62,7 +59,8 @@ module.exports = (functions) => {
       const syncs = await Sync.getSyncs(orgId, firestore);
       syncsJson = syncs.map(sync => sync.serialize());
     } catch (err) {
-      return next(err);
+      next(err);
+      return;
     }
 
     return res.json({ data: syncsJson });
@@ -81,7 +79,8 @@ module.exports = (functions) => {
       const syncRuns = await SyncRun.getSyncRuns({orgId, syncId, firestore});
       syncRunsJson = syncRuns.map(syncRun => syncRun.serialize());
     } catch(err) {
-      return next(err);
+      next(err);
+      return;
     }
 
     return res.json({data: syncRunsJson});
@@ -99,7 +98,8 @@ module.exports = (functions) => {
       const sync = await Sync.getSync({orgId, id, firestore});
       sync.delete({firestore});
     } catch(err) {
-      return next(err);
+      next(err);
+      return;
     }
     return res.json({data:true});
   });
@@ -128,7 +128,7 @@ module.exports = (functions) => {
 
   app.post('/:orgId', validate(createSyncValidation), (req, res, next) => {
     const { orgId } = req.params;
-    const { isOneTime, datasource, type, frequency} = req.body.data;
+    const { isOneTime, datasource, frequency} = req.body.data;
 
     const ds = initDatasourceWithOptions(datasource);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], frequency);
@@ -140,6 +140,7 @@ module.exports = (functions) => {
     .catch(err => {
       console.log(err);
       next(err);
+      return;
     });
   });
 
@@ -193,6 +194,7 @@ module.exports = (functions) => {
     .catch(err => {
       console.log('error in runSync:', err);
       next(err);
+      return;
     });
    });
 
@@ -213,7 +215,7 @@ module.exports = (functions) => {
     }
 
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-    let readingsFile = req['files'].readingsFile;
+    const readingsFile = req['files'].readingsFile;
 
     //Save to local first:
     const localFilename = `/tmp/${moment().toISOString()}_${readingsFile.name}`;
@@ -232,7 +234,9 @@ module.exports = (functions) => {
     .then(sn => res.json({ fileUrl: `http://storage.googleapis.com/${bucketName}/${destination}`}))
     .catch(err => {
       console.log('POST uploadFile err', err);
-      return next(err);
+      next(err);
+      
+      return;
     });
   });
 

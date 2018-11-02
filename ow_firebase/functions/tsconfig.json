@@ -2,7 +2,8 @@
   "compilerOptions": {
     "lib": ["es6"],
     "module": "commonjs",
-    "noImplicitReturns": true,
+    //TODO: disable this eventually, 
+    "noImplicitReturns": false,
     "outDir": "lib",
     "sourceMap": true,
     "target": "es6",

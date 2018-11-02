@@ -438,6 +438,10 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
 
     //TODO: merge in with a cache 
     const result = await api.getResourcesWithinRegion(region);
+    
+    //Load the shortIds for each resource in the response
+    // TODO: figure out how to see what's in the cache
+
     dispatch(getResourcesResponse(result));
 
     return result;

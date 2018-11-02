@@ -55,7 +55,8 @@ module.exports = (functions) => {
             syncsJson = syncs.map(sync => sync.serialize());
         }
         catch (err) {
-            return next(err);
+            next(err);
+            return;
         }
         return res.json({ data: syncsJson });
     }));
@@ -72,7 +73,8 @@ module.exports = (functions) => {
             syncRunsJson = syncRuns.map(syncRun => syncRun.serialize());
         }
         catch (err) {
-            return next(err);
+            next(err);
+            return;
         }
         return res.json({ data: syncRunsJson });
     }));
@@ -88,7 +90,8 @@ module.exports = (functions) => {
             sync.delete({ firestore: Firestore_1.default });
         }
         catch (err) {
-            return next(err);
+            next(err);
+            return;
         }
         return res.json({ data: true });
     }));
@@ -111,7 +114,7 @@ module.exports = (functions) => {
     };
     app.post('/:orgId', validate(validate_1.createSyncValidation), (req, res, next) => {
         const { orgId } = req.params;
-        const { isOneTime, datasource, type, frequency } = req.body.data;
+        const { isOneTime, datasource, frequency } = req.body.data;
         const ds = initDatasourceWithOptions(datasource);
         const sync = new Sync_1.Sync(isOneTime, ds, orgId, [SyncMethod_1.SyncMethod.validate], frequency);
         return sync.create({ firestore: Firestore_1.default })
@@ -121,6 +124,7 @@ module.exports = (functions) => {
             .catch(err => {
             console.log(err);
             next(err);
+            return;
         });
     });
     /**
@@ -167,6 +171,7 @@ module.exports = (functions) => {
             .catch(err => {
             console.log('error in runSync:', err);
             next(err);
+            return;
         });
     });
     /**
@@ -182,7 +187,7 @@ module.exports = (functions) => {
             return res.status(400).send('file with param readingsFile is required');
         }
         // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-        let readingsFile = req['files'].readingsFile;
+        const readingsFile = req['files'].readingsFile;
         //Save to local first:
         const localFilename = `/tmp/${moment().toISOString()}_${readingsFile.name}`;
         const destination = `${orgId}/sync/${readingsFile.name}`;
@@ -200,7 +205,8 @@ module.exports = (functions) => {
             .then(sn => res.json({ fileUrl: `http://storage.googleapis.com/${bucketName}/${destination}` }))
             .catch(err => {
             console.log('POST uploadFile err', err);
-            return next(err);
+            next(err);
+            return;
         });
     });
     return functions.https.onRequest(app);
