@@ -20,6 +20,8 @@ exports.reading = require('./fn_reading/reading')(functions);
 exports.sync = require('./fn_sync/sync')(functions);
 //SOS Api
 exports.sos = require('./fn_sos/sos')(functions);
+//ShortId Api
+exports.shortId = require('./fn_shortId/shortId')(functions);
 //Cron Api
 _a = require('./fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
 var _a;

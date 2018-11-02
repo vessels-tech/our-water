@@ -18,6 +18,9 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
+import { ShortId } from '../typings/models/ShortId';
+import { Err } from 'react-native-joi';
+import { isNullOrUndefined } from 'util';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -669,6 +672,10 @@ class FirebaseApi {
     return fs.collection('org').doc(orgId).collection('reading');
   }
 
+  private static shortIdCol(orgId: string): any {
+    return fs.collection('org').doc(orgId).collection('shortId');
+  }
+
   /**
    * getUser
    * 
@@ -749,6 +756,51 @@ class FirebaseApi {
         };
       })
   }
+
+  /**
+   * getShortId
+   * 
+   * Get the shortId for the given long Id.
+   * Uses firestore, not Rest API
+   */
+  public static async getShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
+    const col = this.shortIdCol(orgId);
+    return col.where('longId', '==', longId).get()
+    .then((sn: any) => this.snapshotToShortIds(sn))
+    .then((shortIds: ShortId[]) => {
+      if (shortIds.length > 0) {
+        maybeLog(`Found more than 1 short Id for longId: ${longId}. Returning the first.`);
+      }
+
+      if (shortIds.length === 0 || isNullOrUndefined(shortIds[0])) {
+        throw new Error(`ShortId not found for longId: ${longId}`);
+      }
+
+      return shortIds[0].id;
+    })
+    .catch((err: Error) => {
+      return {
+        type: ResultType.ERROR,
+        message: err.message,
+      }
+    });
+  }
+
+  /**
+   * createShortId
+   * 
+   * Creates a short id for the given long id. Uses the REST Api instead
+   * of the firestore Api. This limits the offline usability of shortIds,
+   * but is a necessary compromise for now
+   */
+  public static async createShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
+    
+  }
+
+
+
+
+
 
   //
   //Utils
@@ -842,6 +894,19 @@ class FirebaseApi {
     });
 
     return readings;
+  }
+
+  static snapshotToShortIds(sn: any): ShortId[] {
+    const shortIds: ShortId[] = [];
+    sn.forEach((doc: any) => {
+      //Get each document, put in the id
+      const data = doc.data();
+      //@ts-ignore
+      data.pendingId = doc.id;
+      shortIds.push(data);
+    });
+
+    return shortIds;
   }
 
 }

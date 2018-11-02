@@ -152,6 +152,18 @@ export default class MyWellApi implements BaseApi, UserApi {
     }
   }
 
+  /**
+   * GetShortId
+   * 
+   * MyWell uses the default firebase implementation. 
+   * 
+   */
+  getShortId(resource: AnyResource): Promise<SomeResult<string>> {
+    //TODO: implement some hefty caching
+
+    return FirebaseApi.getShortId(this.orgId, resource.id);
+  }
+
   //
   // Subscriptions
   //----------------------------------------------------------------
@@ -194,6 +206,7 @@ export default class MyWellApi implements BaseApi, UserApi {
    * TODO: implement a better search api - will require an endpoint methinks
    */
   async performSearch(searchQuery: string): Promise<SomeResult<SearchResult>> {
+    //TODO: also implement search for short id
     throw new Error("Not implemented");
   }
 

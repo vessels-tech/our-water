@@ -26,8 +26,14 @@ export const sync = require('./fn_sync/sync')(functions);
 //SOS Api
 export const sos = require('./fn_sos/sos')(functions);
 
+//ShortId Api
+export const shortId = require('./fn_shortId/shortId')(functions);
+
+
 //Cron Api
 export const { hourly_job, daily_job, weekly_job} = require('./fn_cron/cron');
+
+
 
 
 

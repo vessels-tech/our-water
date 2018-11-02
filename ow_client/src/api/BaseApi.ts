@@ -143,6 +143,14 @@ export default interface BaseApi {
   getResource(id: string): Promise<SomeResult<AnyResource>>;
 
 
+  /**
+   * GetShortId
+   * 
+   * Gets the shortened id for the given resource
+   */
+  getShortId(resource: AnyResource): Promise<SomeResult<string>>;
+
+
   //
   // Search API
   //----------------------------------------------------------------------

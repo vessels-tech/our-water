@@ -106,7 +106,7 @@ export default class FirebaseApi {
    * 
    * Get the shortId given the longId and orgId
    */
-  public static  async getShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+  public static async getShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
     //TODO: update the lastUsed
 
     return firestore.collection('org').doc(orgId).collection(ShortId.docName)
@@ -153,6 +153,10 @@ export default class FirebaseApi {
    * Test of CreateShortId with Firebase Transactions
    */
   public static async createShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+    const existingShortIdResult = await this.getShortId(orgId, longId);
+    if (existingShortIdResult.type === ResultType.SUCCESS) {
+      return existingShortIdResult;
+    }
 
     //I think the transactions handle the retries for us
     const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
