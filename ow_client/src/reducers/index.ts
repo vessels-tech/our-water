@@ -14,6 +14,7 @@ import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
 import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
+import { string } from "react-native-joi";
 
 const orgId = EnvConfig.OrgId;
 
@@ -46,6 +47,8 @@ export type AppState = {
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
   tsReadings: TimeseriesReadings, //simple map: key: `timeseriesId+range` => TimeseriesReading
+  shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
+  shortIdCache: Map<string, string>, //resourceId => shortId
   
   //Firebase
   favouriteResources: Resource[],
@@ -89,6 +92,8 @@ const initialState: AppState = {
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
   tsReadings: {},
+  shortIdMeta: new Map<string, ActionMeta>(),
+  shortIdCache: new Map<string, string>(),
 
   //Firebase
   user: {type: UserType.NO_USER}, 

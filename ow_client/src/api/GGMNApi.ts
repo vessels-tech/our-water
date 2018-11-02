@@ -518,8 +518,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * 
    * GGMN doesn't use shortened ids.
    */
-  getShortId(resource: AnyResource): Promise<SomeResult<string>> {
-    const result: SomeResult<string> = { type: ResultType.SUCCESS, result: resource.id };
+  getShortId(resourceId: string): Promise<SomeResult<string>> {
+    const result: SomeResult<string> = { type: ResultType.SUCCESS, result: resourceId };
     return Promise.resolve(result);
   }
 

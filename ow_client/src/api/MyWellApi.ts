@@ -107,7 +107,15 @@ export default class MyWellApi implements BaseApi, UserApi {
   }
 
   async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
-    return FirebaseApi.getResourcesWithinRegion(this.orgId, region);
+    //TODO: for all of the resources, also get the short Id before returning  
+    const getResourcesResult = await FirebaseApi.getResourcesWithinRegion(this.orgId, region);
+    if (getResourcesResult.type === ResultType.ERROR) {
+      return getResourcesResult;
+    }
+
+    return getResourcesResult;
+
+    //TODO: "warm up" the shortId cache
   }
 
   /**
@@ -116,6 +124,7 @@ export default class MyWellApi implements BaseApi, UserApi {
    * Get the resource given a resource id
    */
   getResource(id: string): Promise<SomeResult<AnyResource>> {
+    //Also get shortId
     return FirebaseApi.getResourceForId(this.orgId, id);
   }
 
@@ -158,15 +167,15 @@ export default class MyWellApi implements BaseApi, UserApi {
    * MyWell uses the default firebase implementation. 
    * 
    */
-  async getShortId(resource: AnyResource): Promise<SomeResult<string>> {
+  async getShortId(resourceId: string): Promise<SomeResult<string>> {
     //TODO: implement some hefty caching
 
-    const getShortIdResult = await FirebaseApi.getShortId(this.orgId, resource.id);
+    const getShortIdResult = await FirebaseApi.getShortId(this.orgId, resourceId);
     //If we don't have a ShortId, create a new one.
     if (getShortIdResult.type === ResultType.ERROR) {
       //TODO: should this have another result type?
 
-      return FirebaseApi.createShortId(this.orgId, resource.id);
+      return FirebaseApi.createShortId(this.orgId, resourceId);
     }
 
     return getShortIdResult;

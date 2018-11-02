@@ -2,7 +2,7 @@ import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, Times
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -435,7 +435,7 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
 
-    //TODO: merge in with a cache somehow?
+    //TODO: merge in with a cache 
     const result = await api.getResourcesWithinRegion(region);
     dispatch(getResourcesResponse(result));
 
@@ -455,6 +455,38 @@ function getResourcesResponse(result: SomeResult<Resource[]>): GetResourcesActio
     result,
   }
 }
+
+
+/**
+ * Async get short id for a resourceId
+ */
+export function getShortId(api: BaseApi, resourceId: string): any {
+  return async (dispatch: any) => {
+    dispatch(getShortIdRequest(resourceId));
+
+    const result = await api.getShortId(resource)
+
+
+  }
+}
+
+function getShortIdRequest(resourceId: string): GetShortIdActionRequest {
+  return {
+    type: ActionType.GET_SHORT_ID_REQUEST,
+    resourceId,
+  }
+}
+
+
+function getShortIdResponse(resourceId: string, shortId: string): GetShortIdActionResponse {
+  return {
+    type: ActionType.GET_SHORT_ID_RESPONSE,
+    resourceId,
+    shortId
+  }
+}
+
+
 
 /**
  * Async get the user data

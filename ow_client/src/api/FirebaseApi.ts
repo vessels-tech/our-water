@@ -19,7 +19,6 @@ import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';
-import { Err } from 'react-native-joi';
 import { isNullOrUndefined } from 'util';
 
 const fs = firebase.firestore();
