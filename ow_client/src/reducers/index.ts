@@ -1,5 +1,5 @@
 
-import { Resource, Reading, TimeseriesReadings, TimeSeriesReading, PendingResource, PendingReading } from "../typings/models/OurWater";
+import { Resource, Reading, TimeseriesReadings, TimeSeriesReading, PendingResource, PendingReading, SearchResult } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { ResultType } from "../typings/AppProviderTypes";
@@ -13,7 +13,6 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
-import { AnySearchResult, SearchResultType } from "../typings/models/Generics";
 import { string } from "react-native-joi";
 
 const orgId = EnvConfig.OrgId;
@@ -61,7 +60,7 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: AnySearchResult,
+  searchResults: SearchResult,
   searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
@@ -266,7 +265,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let resources: Resource[] = state.resources;
       resources.push(action.result.result);
       resourceMeta.set(action.resourceId, meta);
-      return Object.assign({}, state, { resourceMeta });
+      //I think this was missing resources
+      return Object.assign({}, state, { resourceMeta, resources });
     }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};
@@ -309,6 +309,29 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       });
 
       return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
+    }
+    case ActionType.GET_SHORT_ID_REQUEST: {
+      const shortIdMeta = state.shortIdMeta;
+      shortIdMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+
+      return Object.assign({}, state, { shortIdMeta });
+    }
+    case ActionType.GET_SHORT_ID_RESPONSE: {
+      let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+      const shortIdMeta = state.shortIdMeta;
+      const shortIdCache = state.shortIdCache;
+
+      if (action.result.type === ResultType.ERROR) {
+        meta = { loading: false, error: true, errorMessage: action.result.message };
+        shortIdMeta.set(action.resourceId, meta);
+
+        return Object.assign({}, state, { shortIdMeta });
+      }
+
+      shortIdCache.set(action.resourceId, action.result.result);
+      shortIdMeta.set(action.resourceId, meta);
+
+      return Object.assign({}, state, { shortIdCache, shortIdMeta });
     }
     case ActionType.GET_USER_REQUEST: {
       const favouriteResourcesMeta: ActionMeta = {loading: true, error: false, errorMessage: ''};

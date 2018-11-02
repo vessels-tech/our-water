@@ -16,6 +16,7 @@ import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
+import { ShortId } from "../typings/models/ShortId";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -464,9 +465,9 @@ export function getShortId(api: BaseApi, resourceId: string): any {
   return async (dispatch: any) => {
     dispatch(getShortIdRequest(resourceId));
 
-    const result = await api.getShortId(resource)
+    const result = await api.getShortId(resourceId);
 
-
+    dispatch(getShortIdResponse(resourceId, result));
   }
 }
 
@@ -478,14 +479,13 @@ function getShortIdRequest(resourceId: string): GetShortIdActionRequest {
 }
 
 
-function getShortIdResponse(resourceId: string, shortId: string): GetShortIdActionResponse {
+function getShortIdResponse(resourceId: string, result: SomeResult<string>): GetShortIdActionResponse {
   return {
     type: ActionType.GET_SHORT_ID_RESPONSE,
     resourceId,
-    shortId
+    result,
   }
 }
-
 
 
 /**

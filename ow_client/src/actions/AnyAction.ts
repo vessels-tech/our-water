@@ -7,6 +7,7 @@ import { Region } from "react-native-maps";
 import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
+import { ShortId } from "../typings/models/ShortId";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -92,7 +93,7 @@ export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
 export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<DeprecatedResource[]> };
 export type GetShortIdActionRequest = { type: ActionType.GET_SHORT_ID_REQUEST, resourceId: string};
-export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE, resourceId: string, shortId: string};
+export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE, resourceId: string, result: SomeResult<string>};
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };
 export type GetUserActionResponse = { type: ActionType.GET_USER_RESPONSE, result: SomeResult<OWUser> };
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
