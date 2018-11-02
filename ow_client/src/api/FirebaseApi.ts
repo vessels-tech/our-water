@@ -794,13 +794,37 @@ class FirebaseApi {
    * but is a necessary compromise for now
    */
   public static async createShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
-    
+    const shortIdUrl = `${baseUrl}/shortId/`;
+    const url = appendUrlParameters(shortIdUrl, {});
+
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
+
+    return ftch(url, options)
+    .then((response: any) => {
+      if (!response.ok) {
+        return rejectRequestWithError(response.status);
+      }
+
+      return response.json();
+    })
+    .then((shortId: ShortId) => {
+      return shortId.shortId;
+    })
+    .catch((err: Error) => {
+      maybeLog(err);
+      return {
+        type: ResultType.ERROR,
+        message: err.message
+      };
+    });
   }
-
-
-
-
-
 
   //
   //Utils

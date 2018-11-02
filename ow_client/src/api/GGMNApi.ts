@@ -10,7 +10,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries } from "../typings/models/GGMN";
-import { Resource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
@@ -397,7 +397,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
    * TODO: figure out pagination and whatnot!
    * Maybe we can sort by updatedAt
    */
-  getResources(): Promise<Array<Resource>> {
+  getResources(): Promise<Array<DeprecatedResource>> {
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
     // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
@@ -454,7 +454,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
-      .then((resources: Resource[]) => ({type: ResultType.SUCCESS, result: resources}))
+      .then((resources: DeprecatedResource[]) => ({type: ResultType.SUCCESS, result: resources}))
       .catch((err: Error) => {
         maybeLog("Error loading resources:", err);
         return {type: ResultType.ERROR, message:'Error loading resources.'};
@@ -502,13 +502,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     return ftch(resourceUrl, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStation>(response))
       .then((resource: GGMNGroundwaterStation) => GGMNApi.ggmnStationToResource(resource))
-      .then((r: Resource) => {
-        const result: SomeResult<Resource> = {type: ResultType.SUCCESS, result: r};
+      .then((r: DeprecatedResource) => {
+        const result: SomeResult<DeprecatedResource> = {type: ResultType.SUCCESS, result: r};
         return result;
       })
       .catch((err: Error) => {
         maybeLog("Error loading resource:", err);
-        const result: SomeResult<Resource> = { type: ResultType.ERROR, message: 'Error loading resource.' };
+        const result: SomeResult<DeprecatedResource> = { type: ResultType.ERROR, message: 'Error loading resource.' };
         return result;
       });
   }
@@ -673,7 +673,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
     }
   }
 
-  async saveResource(userId: string, resource: Resource): Promise<SomeResult<SaveResourceResult>> {
+  async saveResource(userId: string, resource: DeprecatedResource): Promise<SomeResult<SaveResourceResult>> {
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
@@ -974,8 +974,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   }
 
   //TODO: make a partial resource type that doesn't need all these fake fields
-  static ggmnSearchEntityToResource(from: GGMNSearchEntity): Resource {
-    const to: Resource = {
+  static ggmnSearchEntityToResource(from: GGMNSearchEntity): DeprecatedResource {
+    const to: DeprecatedResource = {
       id: `${from.entity_id}`,
       legacyId: `${from.title}`,
       groups: null,

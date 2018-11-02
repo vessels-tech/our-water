@@ -1,8 +1,7 @@
-import { Resource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
-import { AnySearchResult } from "../typings/models/Generics";
 import { AnyResource } from "../typings/models/Resource";
 
 
@@ -91,7 +90,7 @@ export default interface BaseApi {
    * 
    * Returns a Wrapped SaveResourceResult
    */
-  saveResource(userId: string, resource: Resource | PendingResource): Promise<SomeResult<SaveResourceResult>>;
+  saveResource(userId: string, resource: DeprecatedResource | PendingResource): Promise<SomeResult<SaveResourceResult>>;
 
 
   /**
@@ -173,7 +172,7 @@ export default interface BaseApi {
    * If the user is currently offline, API will still try and complete
    * the search if possible.
    */
-  performSearch(searchQuery: string, page: number): Promise<SomeResult<AnySearchResult>>;
+  performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>>;
 
 
   /**

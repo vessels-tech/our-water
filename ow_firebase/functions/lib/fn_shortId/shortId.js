@@ -41,7 +41,7 @@ module.exports = (functions) => {
    * it returns the existing one.
    *
    *
-   * POST /:orgId/shortId
+   * POST /:orgId/
    * body: { resourceId: string }
    */
     const createShortIdValidation = {

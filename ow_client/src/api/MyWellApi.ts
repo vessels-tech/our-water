@@ -158,10 +158,18 @@ export default class MyWellApi implements BaseApi, UserApi {
    * MyWell uses the default firebase implementation. 
    * 
    */
-  getShortId(resource: AnyResource): Promise<SomeResult<string>> {
+  async getShortId(resource: AnyResource): Promise<SomeResult<string>> {
     //TODO: implement some hefty caching
 
-    return FirebaseApi.getShortId(this.orgId, resource.id);
+    const getShortIdResult = await FirebaseApi.getShortId(this.orgId, resource.id);
+    //If we don't have a ShortId, create a new one.
+    if (getShortIdResult.type === ResultType.ERROR) {
+      //TODO: should this have another result type?
+
+      return FirebaseApi.createShortId(this.orgId, resource.id);
+    }
+
+    return getShortIdResult;
   }
 
   //
