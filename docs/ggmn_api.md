@@ -144,3 +144,84 @@ Now we need to find the Groundwater station this is attached to.
 
 1536227365000
 1904208000000
+
+
+## Making manual upload option:
+
+- We __can__ upload files shapefiles (along with associated metadata) to create gw stations in GGMN. 
+- Need to figure out the right format and way to save (eg. GeoJSON -> Shapefile -> .zip)
+
+### Finding uploaded resources:
+
+Shapefile contains Features. Features have an ID_1 field. Once it's been uploaded, it shows up as a "description" field in the search:
+
+>https://ggmn.lizard.net/api/v3/search/?q=1696&page_size=25
+results:
+```json
+{
+    "id": 624901,
+    "title": "02.06.103",
+    "description": "1696",
+    "rank": 0.5,
+    "entity_name": "groundwaterstation",
+    "entity_id": 60061,
+    "entity_uuid": null,
+    "entity_url": "https://ggmn.lizard.net/api/v3/groundwaterstations/60061/",
+    "view": [
+        41.95268570657572,
+        -5.068848461502114,
+        15
+    ]
+}
+```
+
+We can then use this entityId, and loop up the associated groundwaterstation:
+
+>https://ggmn.lizard.net/api/v3/groundwaterstations/60061/
+```json
+{
+    "url": "https://ggmn.lizard.net/api/v3/groundwaterstations/60061/",
+    "id": 60061,
+    "timeseries": [],
+    "filters": [
+        {
+            "url": "https://ggmn.lizard.net/api/v3/filters/116509/",
+            "id": 116509,
+            "timeseries": [],
+            "top_level": null,
+            "filter_top_level": null,
+            "filter_bottom_level": null,
+            "aquifer_confiment": null,
+            "litology": null,
+            "high_groundwater_level": null,
+            "low_groundwater_level": null,
+            "code": "1696"
+        }
+    ],
+    "scale": "wereld",
+    "station_type": "basis",
+    "status": "actief",
+    "image_url": "",
+    "code": "1696",
+    "name": "02.06.103",
+    "surface_level": 757.74799,
+    "top_level": null,
+    "bottom_level": null,
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            -5.068848461502114,
+            41.95268570657572,
+            0
+        ]
+    }
+}
+```
+
+
+
+
+
+The next challenge is that for some reason, we can't seem to find the timeseries associated with these uploaded resources. We need these timeseries Ids in order to upload the readings!
+
+
