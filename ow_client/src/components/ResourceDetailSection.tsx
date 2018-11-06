@@ -30,6 +30,7 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+import { TranslationFile } from 'ow_translations/Types';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -47,6 +48,7 @@ export interface StateProps {
   tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: Resource[],
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -67,18 +69,13 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
-    //@ts-ignore
     this.appApi = this.props.config.getAppApi();
 
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
-    timeseries.forEach(ts => this.props.getReadings(this.appApi, id, ts.id, DEFAULT_RANGE));
+    timeseries.forEach((ts: any) => this.props.getReadings(this.appApi, id, ts.id, DEFAULT_RANGE));
   }
 
-  componentDidMount() {
-  
-  
-  }
 
   getHeadingBar() {
     const { resource: { id }} = this.props;
@@ -110,6 +107,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
+              {/* TODO: input translation: resource_detail_name_label */}
               <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
               {/* TODO: enable code? Most of the time it's the same as Name. */}
               {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
@@ -145,7 +143,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     let loading = false;
     const readingsMap = new Map<string, Reading[]>();
 
-    resource.timeseries.forEach(ts => {
+    resource.timeseries.forEach((ts: any) => {
       const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.EXTENT);
       const tsReading: TimeSeriesReading | undefined = tsReadings[key]
       if (!tsReading) {
@@ -189,14 +187,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   getSummaryCard() {
+    const { translation: { templates: { resource_detail_latest }}} = this.props;
+
     return (
-      // <View
-        // containerStyle={{
-        //   width: '100%',
-        //   height: '100%',
-        //   borderWidth: 0,
-        // }}
-      // >
         <View style={{
           flexDirection: 'column',
           height: '100%',
@@ -206,15 +199,15 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             flexDirection: 'column',
             flex: 2,
           }}>
-            <HeadingText heading={'Station Type:'} content={'TODO'}/>
-            <HeadingText heading={'Status'} content={'TODO'}/>
+            {/* <HeadingText heading={'Station Type:'} content={'TODO'}/> */}
+            {/* <HeadingText heading={'Status'} content={'TODO'}/> */}
             <Text style={{
               paddingVertical: 10,
               fontSize: 15,
               fontWeight: '600',
               alignSelf: 'center',
             }}>
-              Latest Readings:
+              {resource_detail_latest}
             </Text>
           </View>
 
@@ -255,16 +248,13 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   getReadingsView() {
-    const { tsReadings, resource } = this.props;
-
-    console.log("ScrollableTabView", ScrollableTabView);
+    const { resource, translation: { templates: { resource_detail_summary_tab }} } = this.props;
 
     return (
       <View style={{
         flex: 15,
         backgroundColor: bgMed,
       }}>
-    
         <ScrollableTabView 
           style={{ paddingTop: 0}}
           containerStyle={{}}
@@ -286,14 +276,15 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             style={{
               backgroundColor: bgLight,
             }}
-            // TODO: translate
-            tabLabel="Summary"
+            // @ts-ignore
+            tabLabel={resource_detail_summary_tab}
             >
             {this.getSummaryCard()}
           </View>
             {
               resource.timeseries.map((ts: OWTimeseries, idx: number) => {
                 return (
+                  // @ts-ignore
                   <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
                     <TimeseriesCard
                       config={this.props.config}
@@ -382,6 +373,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favouriteResources: state.favouriteResources,
     tsReadings: state.tsReadings,
+    translation: state.translation,
   }
 }
 

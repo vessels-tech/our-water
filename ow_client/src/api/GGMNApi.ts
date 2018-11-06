@@ -8,7 +8,7 @@ import { default as ftch } from '../utils/Fetch';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
-import { appendUrlParameters, rejectRequestWithError, calculateBBox, getDemoResources, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries } from "../typings/models/GGMN";
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
@@ -578,6 +578,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
       return response.json();
     })
     .then((parsed: GGMNTimeseriesResponse) => {
+      console.log('parsed', parsed);
+
       return {
         count: parsed.count,
         next: parsed.next,

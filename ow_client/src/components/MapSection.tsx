@@ -264,8 +264,6 @@ export default class MapSection extends Component<Props> {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources } = this.props;
 
-    // console.log("MapSection rendering:", resources.length, "resources.");
-
     return (
       <View style={{
         backgroundColor: bgMed,
@@ -279,7 +277,6 @@ export default class MapSection extends Component<Props> {
           style={{
             position: 'relative',
             width: '100%',
-            // height: '100%',
             height: mapHeight,
           }}
           radius={25}
