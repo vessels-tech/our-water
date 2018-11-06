@@ -2,15 +2,17 @@ import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
 import { View, ProgressBarAndroid, Text, TouchableNativeFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
-import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
+import { BasicCoords, DeprecatedResource, PendingResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
 import { Button } from 'react-native-elements';
+import { AnyResource } from '../typings/models/Resource';
+import { OrgType } from '../typings/models/OrgType';
 
 export type MapRegion = {
   latitude: number,
@@ -30,17 +32,18 @@ export interface Props {
   // mapState: MapStateOption,
   onGetUserLocation: any,
   onMapRegionChange: any,
-  onResourceSelected: any,
+  onResourceSelected: (r: AnyResource | PendingResource) => void,
   onResourceDeselected: any,
   onMapStateChanged: (h: MapStateOption) => void,
   initialRegion: MapRegion,
-  resources: DeprecatedResource[],
+  resources: AnyResource[],
+  pendingResources: PendingResource[],
   selectedResource?: DeprecatedResource,
   hasSelectedResource: boolean,
   mapRef: any,
   shouldShrinkForSelectedResource: boolean,
   shouldShowCallout: boolean,
-  onCalloutPressed?: (r: DeprecatedResource) => void,
+  onCalloutPressed?: (r: AnyResource) => void,
 }
 
 export default class MapSection extends Component<Props> {
@@ -113,8 +116,18 @@ export default class MapSection extends Component<Props> {
     this.selectResource(resource);
   }
 
+  focusPendingResource(coordinate: BasicCoords) {
+    const resource = getSelectedPendingResourceFromCoords(this.props.pendingResources, coordinate);
+    if (isNullOrUndefined(resource)) {
+      console.warn("tried to call focusResource, but resource was null");
+      return;
+    }
+
+    this.selectResource(resource);
+  }
+
   //TODO: fix infinite loop here
-  selectResource(resource: DeprecatedResource) {
+  selectResource(resource: AnyResource | PendingResource) {
     let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
@@ -232,9 +245,14 @@ export default class MapSection extends Component<Props> {
     );
   }
 
-  getCalloutForResource(resource: DeprecatedResource) {
+  getCalloutForResource(resource: AnyResource) {
     if (!this.props.shouldShowCallout) {
       return null;
+    }
+
+    if (resource.type === OrgType.GGMN) {
+      //GGMN Resources don't have callouts
+      return;
     }
 
     //This reveals a code smell
@@ -262,7 +280,7 @@ export default class MapSection extends Component<Props> {
 
   render() {
     const { mapHeight, mapState } = this.state;
-    const { initialRegion, resources } = this.props;
+    const { initialRegion, resources, pendingResources } = this.props;
 
     return (
       <View style={{
@@ -299,6 +317,8 @@ export default class MapSection extends Component<Props> {
               key={shortId}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
+              pinColor={secondary}
+
               // description={resource.resourceType}
               
               //This is making massive images on some devices
@@ -309,6 +329,23 @@ export default class MapSection extends Component<Props> {
             </Marker>
           }
           )}
+          {pendingResources.map(p => {
+            return <Marker
+              //@ts-ignore
+              collapsable={true}
+              key={p.pendingId}
+              coordinate={p.coords}
+              title={`${p.pendingId}`}
+              // description={resource.resourceType}
+
+              //This is making massive images on some devices
+              // image={imageForResourceType(resource.resourceType)}
+              // TODO: make this work for pending resource
+              onPress={(e: any) => this.focusPendingResource(e.nativeEvent.coordinate)}
+            >
+              {/* {this.getCalloutForResource(resource)} */}
+            </Marker>
+          })}
         </ClusteredMapView>
         <View style={{
           position: 'absolute',

@@ -1,4 +1,4 @@
-import { OWGeoPoint, OWTimeseries, ResourceOwnerType } from './OurWater';
+import { OWGeoPoint, OWTimeseries, ResourceOwnerType, PendingResource } from './OurWater';
 import { ResourceType } from '../../enums';
 import { OrgType } from './OrgType';
 import { AnyTimeseries } from './Timeseries';
@@ -31,3 +31,7 @@ export type GGMNResource = {
 
   /* Platform Specific */
 }
+
+
+//This is getting pretty silly
+export type MaybePendingResource = AnyResource | PendingResource;

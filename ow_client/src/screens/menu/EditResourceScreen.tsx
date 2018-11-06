@@ -71,12 +71,16 @@ class EditResourceScreen extends Component<Props> {
     }
     
     const defaultResourceType = props.config.getAvailableResourceTypes()[0];
-    this.editResourceForm = FormBuilder.group({
+
+    const formBuilderGroup: any = {
       lat: [lat, Validators.required],
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
-      ownerName: ['', Validators.required],
-    });
+    };
+    if (this.props.config.getEditResourceShouldShowOwnerName()) {
+      formBuilderGroup['ownerName'] = ['', Validators.required];
+    }
+    this.editResourceForm = FormBuilder.group(formBuilderGroup);
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -102,6 +106,7 @@ class EditResourceScreen extends Component<Props> {
         latitude: this.editResourceForm.value.lat,
         longitude: this.editResourceForm.value.lng,
       },
+      //TODO: make this dynamic
       resourceType: 'well',
       owner: {
         name,

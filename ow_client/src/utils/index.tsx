@@ -4,12 +4,13 @@ import * as moment from 'moment';
 import { stringify } from 'query-string';
 import { bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
 import { Location, LocationType } from '../typings/Location';
-import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
+import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings, PendingResource } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { EnableLogging } from './EnvConfig';
+import { AnyResource } from '../typings/models/Resource';
 
 
 /**
@@ -139,10 +140,28 @@ export const pinColorForResourceType = (resourceType: any) => {
   }
 }
 
-export const getSelectedResourceFromCoords = (resources: Resource[], coords: BasicCoords): Resource | null => {
+export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: BasicCoords): Resource | null => {
   const filtered = resources.filter((res: any) => {
     return coords.latitude === res.coords._latitude && 
       coords.longitude === res.coords._longitude;
+  });
+
+  if (filtered.length === 0) {
+    maybeLog("Could not find any resource at coords");
+    return null;
+  }
+
+  if (filtered.length > 1) {
+    maybeLog("Found more than 1 resource for coords. returning just the first");
+  }
+
+  return filtered[0];
+}
+
+export const getSelectedPendingResourceFromCoords = (resources: PendingResource[], coords: BasicCoords): Resource | null => {
+  const filtered = resources.filter((res: PendingResource) => {
+    return coords.latitude === res.coords.latitude && 
+      coords.longitude === res.coords.longitude;
   });
 
   if (filtered.length === 0) {

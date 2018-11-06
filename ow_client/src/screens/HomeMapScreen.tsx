@@ -28,7 +28,7 @@ import { bgLight, primaryDark, primary, primaryLight } from '../utils/Colors';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import BaseApi from '../api/BaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { Resource, BasicCoords } from '../typings/models/OurWater';
+import { Resource, BasicCoords, PendingResource } from '../typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from '../components/MapSection';
 import PendingChangesBanner from '../components/PendingChangesBanner';
@@ -62,6 +62,7 @@ export interface StateProps {
   location: Location,
   locationMeta: SyncMeta,
   resources: Resource[],
+  pendingResources: PendingResource[],
   resourcesMeta: SyncMeta,
   translation: TranslationFile
 }
@@ -350,6 +351,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             mapRef={(ref: any) => { this.mapRef = ref }}
             initialRegion={initialRegion}
             resources={this.props.resources}
+            pendingResources={this.props.pendingResources}
             onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
             onResourceSelected={(r: Resource) => this.selectResource(r)}
             onResourceDeselected={() => this.clearSelectedResource()}
@@ -399,6 +401,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     location,
     locationMeta: state.locationMeta,
     resources: state.resources,
+    pendingResources: state.pendingSavedResources,
     resourcesMeta: state.resourcesMeta,
     translation: state.translation,
   }

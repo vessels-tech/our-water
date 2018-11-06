@@ -284,7 +284,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         return Object.assign({}, state, { resourcesMeta, resources});
       }
 
-      //Remove things from the cache - this targets items with low ids...
+      /*Remove things from the cache - this targets items with low ids...*/
       //TODO: ideally expire them properly, but this will work for now.
       const over = resourcesCache.size - RESOURCE_CACHE_MAX_SIZE;
       if (over > 0) {
@@ -300,7 +300,9 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       resources = [];
       const newResources = action.result.result;
+      /* Save to cache */
       newResources.forEach(r => resourcesCache.set(r.id, r));
+      /* Transform cache to list of resources*/
       [...resourcesCache.keys()].forEach(k => {
         const value = resourcesCache.get(k);
         if (value) {
