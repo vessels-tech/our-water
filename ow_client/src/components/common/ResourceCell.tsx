@@ -66,7 +66,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
       <View style={{
         margin: 0,
         // marginBottom: 15,
-        width: 140,
+        // width: 140,
         ...this.props.style,
       }}
         key={resource.id}

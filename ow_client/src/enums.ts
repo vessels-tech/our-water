@@ -1,6 +1,6 @@
 export enum MapHeightOption {
   default = '100%',
-  small = 100,
+  small = '100%',
   fullscreen = '100%',
 };
 

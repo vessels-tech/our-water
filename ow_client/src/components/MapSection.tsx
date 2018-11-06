@@ -261,7 +261,7 @@ export default class MapSection extends Component<Props> {
 
 
   render() {
-    const { mapHeight } = this.state;
+    const { mapHeight, mapState } = this.state;
     const { initialRegion, resources } = this.props;
 
     // console.log("MapSection rendering:", resources.length, "resources.");
@@ -269,7 +269,7 @@ export default class MapSection extends Component<Props> {
     return (
       <View style={{
         backgroundColor: bgMed,
-        flex: 2,
+        flex: mapState === MapStateOption.small ? 0.75 : 2.2,
         maxHeight: mapHeight
       }}>
         <ClusteredMapView
