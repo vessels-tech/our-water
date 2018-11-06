@@ -7,6 +7,7 @@ export type AnyResource = MyWellResource | GGMNResource;
 
 export type MyWellResource = {
   type: OrgType.MYWELL,
+  pending: false,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,
@@ -24,6 +25,7 @@ export type MyWellResource = {
 
 export type GGMNResource = {
   type: OrgType.GGMN,
+  pending: false,
   /* Common values*/
   id: string,
   coords: OWGeoPoint,
@@ -31,7 +33,3 @@ export type GGMNResource = {
 
   /* Platform Specific */
 }
-
-
-//This is getting pretty silly
-export type MaybePendingResource = AnyResource | PendingResource;

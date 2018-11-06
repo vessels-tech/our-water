@@ -48,6 +48,7 @@ import { SearchButtonPressedEvent } from '../utils/Events';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
+import { AnyResource } from '../typings/models/Resource';
 
 
 export interface OwnProps {
@@ -78,7 +79,7 @@ export interface State {
   mapHeight: MapHeightOption,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
-  selectedResource?: Resource,
+  selectedResource?: AnyResource | PendingResource,
   isSearching: boolean,
   isAuthenticated: boolean,
 }
@@ -237,7 +238,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.selectResource(result.result);
   }
 
-  selectResource(resource: Resource) {
+  selectResource(resource: AnyResource | PendingResource) {
     this.setState({
       hasSelectedResource: true,
       selectedResource: resource,
@@ -300,6 +301,13 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
+    console.log(selectedResource);
+
+    if (selectedResource.pending) {
+      //TODO: implement a similar but different PendingResourceDetailSection, which allows users to make new readings
+      return null;
+    }
+
     return (
       <ResourceDetailSection
         hideTopBar={false}
@@ -353,7 +361,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             resources={this.props.resources}
             pendingResources={this.props.pendingResources}
             onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
-            onResourceSelected={(r: Resource) => this.selectResource(r)}
+            onResourceSelected={(r: PendingResource | AnyResource) => this.selectResource(r)}
             onResourceDeselected={() => this.clearSelectedResource()}
             onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
             onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
@@ -371,7 +379,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             contentContainerStyle={{ flexGrow: 1 }}
           >
             {this.getResourceView()}
-            {this.getFavouritesList()}
+            {/* {this.getFavouritesList()} */}
           </ScrollView>
         }
         <PendingChangesBanner onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)} />

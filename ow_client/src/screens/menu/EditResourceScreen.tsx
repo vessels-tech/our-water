@@ -102,6 +102,7 @@ class EditResourceScreen extends Component<Props> {
     const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
 
     const unvalidatedResource = {
+      pending: true,
       coords: {
         latitude: this.editResourceForm.value.lat,
         longitude: this.editResourceForm.value.lng,

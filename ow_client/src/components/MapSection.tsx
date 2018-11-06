@@ -1,6 +1,6 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View, ProgressBarAndroid, Text, TouchableNativeFeedback } from "react-native";
+import { View } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource, PendingResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
@@ -10,7 +10,6 @@ import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
-import { Button } from 'react-native-elements';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 
@@ -38,7 +37,7 @@ export interface Props {
   initialRegion: MapRegion,
   resources: AnyResource[],
   pendingResources: PendingResource[],
-  selectedResource?: DeprecatedResource,
+  selectedResource?: AnyResource | PendingResource,
   hasSelectedResource: boolean,
   mapRef: any,
   shouldShrinkForSelectedResource: boolean,
@@ -58,7 +57,6 @@ export default class MapSection extends Component<Props> {
       mapHeight: MapHeightOption.default,
       mapState: MapStateOption.default,
     }
-    
   }
 
   componentWillReceiveProps(nextProps: Props) {

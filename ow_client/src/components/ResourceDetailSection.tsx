@@ -16,7 +16,7 @@ import {
   getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
+import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
@@ -31,6 +31,8 @@ import { SyncMeta } from '../typings/Reducer';
 
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations/Types';
+import { AnyReading } from '../typings/models/Reading';
+import { AnyResource } from '../typings/models/Resource';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -38,7 +40,7 @@ import { TranslationFile } from 'ow_translations/Types';
 
 export interface OwnProps {
   config: ConfigFactory,
-  resource: Resource,
+  resource: AnyResource,
   userId: string,
   onAddReadingPressed: any,
   hideTopBar: boolean,

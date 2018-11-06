@@ -104,6 +104,7 @@ function validateReadingMyWell(reading: MyWellReading): SomeResult<MyWellReading
  */
 export function validateResource(resource: any): SomeResult<PendingResource> {
   const schema: Joi.SchemaLike = Joi.object().keys({
+    pending: Joi.boolean().allow(true).required(),
     coords: Joi.object().keys({
       latitude: Joi.number(),
       longitude: Joi.number(),

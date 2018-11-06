@@ -27,6 +27,7 @@ export type DeprecatedResource = {
  * externally yet
  */
 export type PendingResource = {
+  pending: true,
   coords: {
     latitude: number,
     longitude: number,
