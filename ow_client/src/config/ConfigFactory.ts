@@ -1,4 +1,4 @@
-import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
@@ -33,6 +33,7 @@ export type RemoteConfig = {
   //define what resources shold look like
   editResource_showOwerName: boolean,
   editResource_availableTypes: ResourceType[],
+  favouriteResource_scrollDirection: ScrollDirection,
 
 }
 
@@ -168,5 +169,9 @@ export class ConfigFactory {
 
   getAvailableResourceTypes(): ResourceType[]{
     return this.remoteConfig.editResource_availableTypes;
+  }
+
+  getFavouriteResourceScrollDirection(): ScrollDirection {
+    return this.remoteConfig.favouriteResource_scrollDirection;
   }
 }

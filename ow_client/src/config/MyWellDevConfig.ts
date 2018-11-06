@@ -1,5 +1,5 @@
 import { RemoteConfig } from "./ConfigFactory";
-import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
 
 
 const MyWellDevConfig: RemoteConfig = {
@@ -21,8 +21,8 @@ const MyWellDevConfig: RemoteConfig = {
     ResourceType.raingauge,
     ResourceType.quality,
     ResourceType.checkdam,
-  ]
-
+  ],
+  favouriteResource_scrollDirection: ScrollDirection.Vertical,
 }
 
 export default MyWellDevConfig;

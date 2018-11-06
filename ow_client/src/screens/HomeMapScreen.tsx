@@ -364,7 +364,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
           <ScrollView
             style={{
               marginTop: 0,
-              flex: 1
+              flex: 1,
             }}
             contentContainerStyle={{ flexGrow: 1 }}
           >

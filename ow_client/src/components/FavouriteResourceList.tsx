@@ -3,6 +3,7 @@ import {
   Text,
   View,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -17,7 +18,7 @@ import Loading from './common/Loading';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
-import { ResourceType } from '../enums';
+import { ResourceType, ScrollDirection } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations/Types';
 import ResourceCell from './common/ResourceCell';
@@ -147,22 +148,44 @@ class FavouriteResourceList extends Component<Props> {
     }
 
     const firstFiveFavourites = favouriteResources.slice(0,5);
+    if (this.props.config.getFavouriteResourceScrollDirection() === ScrollDirection.Vertical) {
+      return (
+        <View style={{
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+        }}
+        >
+          {firstFiveFavourites.map(r => (
+            <ResourceCell 
+              style={{marginBottom: 15}}
+              key={r.id}
+              config={this.props.config} 
+              resource={r} 
+              onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+            />
+          ))
+          }
+        </View>
+      );
+    }
+
     return (
-      <View style={{
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-      }}
+      <ScrollView 
+        style={{ paddingBottom: 7 }}
+        horizontal={true}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         {firstFiveFavourites.map(r => (
-          <ResourceCell 
+          <ResourceCell
+            style={{}}
             key={r.id}
-            config={this.props.config} 
-            resource={r} 
+            config={this.props.config}
+            resource={r}
             onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
           />
         ))
         }
-      </View>
+      </ScrollView>
     );
   }
 
@@ -191,14 +214,36 @@ class FavouriteResourceList extends Component<Props> {
       );
     }
 
+    if (this.props.config.getFavouriteResourceScrollDirection() === ScrollDirection.Vertical) {
+      return (
+        <View style={{
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+        }}
+        > 
+          {recentResources.map(r => (
+            <ResourceCell
+              style={{ marginBottom: 15 }}
+              key={r.id}
+              config={this.props.config}
+              resource={r}
+              onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+            />
+          ))
+          }
+        </View>
+      );
+    }
+
     return (
-      <View style={{
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-      }}
-      > 
+      <ScrollView
+        style={{paddingBottom: 7}}
+        horizontal={true}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         {recentResources.map(r => (
           <ResourceCell
+            style={{}}
             key={r.id}
             config={this.props.config}
             resource={r}
@@ -206,7 +251,7 @@ class FavouriteResourceList extends Component<Props> {
           />
         ))
         }
-      </View>
+      </ScrollView>
     );
   }
 
@@ -218,7 +263,6 @@ class FavouriteResourceList extends Component<Props> {
     return (
       <View
         style={{
-
           height: '100%',
           width: '100%',
           flexDirection: "column",
@@ -295,13 +339,10 @@ class FavouriteResourceList extends Component<Props> {
       recentResources = this.getFilteredResource(recentResources, filterResourceType)
     }
 
-
-
     return (
-      <View style={{
-        backgroundColor: bgLightHighlight,
-        flex: 5,
-        // flexDirection: 
+      <View 
+        style={{
+          backgroundColor: bgLightHighlight,
         }}>
         {favouriteResources.length + recentResources.length === 0 ? 
           this.getStartedSection() : this.getResourcesSection()}

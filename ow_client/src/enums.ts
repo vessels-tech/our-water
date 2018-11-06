@@ -29,3 +29,8 @@ export enum HomeScreenType {
   Simple = "Simple", //MyWell
   Map = "Map", //GGMN
 }
+
+export enum ScrollDirection {
+  Horizontal = "Horizontal",
+  Vertical = "Vertical",
+}

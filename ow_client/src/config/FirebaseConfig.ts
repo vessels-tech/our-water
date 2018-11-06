@@ -31,6 +31,8 @@ export class FirebaseConfig {
           resourceDetail_showSubtitle: obj.resourceDetail_showSubtitle.val(),
           favouriteResourceList_showGetStartedButtons: obj.favouriteResourceList_showGetStartedButtons.val(),
           editResource_showOwerName: obj.editResource_showOwerName.val(),
+          editResource_availableTypes: obj.editResource_availableTypes.val(),
+          favouriteResource_scrollDirection: obj.favouriteResource_scrollDirection.val(),
           
         }
         return remoteConfig;

@@ -269,12 +269,11 @@ export default class MapSection extends Component<Props> {
     return (
       <View style={{
         backgroundColor: bgMed,
-        flex: 1,
+        flex: 2,
         maxHeight: mapHeight
       }}>
         <ClusteredMapView
           mapRef={(ref: any) => {
-            // console.log("ClusteredMapView.render ref is", ref);
             this.props.mapRef(ref);
           }}
           style={{

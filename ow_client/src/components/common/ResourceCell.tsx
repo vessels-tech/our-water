@@ -18,6 +18,7 @@ export interface OwnProps {
   config: ConfigFactory,
   resource: DeprecatedResource,
   onResourceCellPressed: (resource: DeprecatedResource) => void,
+  style: any,
 
 }
 
@@ -64,9 +65,9 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View style={{
         margin: 0,
-        marginBottom: 15,
-        //TODO: replace this with flex
-        width: SCREEN_WIDTH / 2,
+        // marginBottom: 15,
+        width: 140,
+        ...this.props.style,
       }}
         key={resource.id}
       >

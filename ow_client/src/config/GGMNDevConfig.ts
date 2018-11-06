@@ -1,5 +1,5 @@
 import { RemoteConfig } from "./ConfigFactory";
-import { BaseApiType, HomeScreenType, ResourceType } from "../enums";
+import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
 
 //TODO: make this much more typesafe etc.
 const GGMNDevConfig: RemoteConfig = {
@@ -18,7 +18,8 @@ const GGMNDevConfig: RemoteConfig = {
   editResource_showOwerName: false,
   editResource_availableTypes: [
     ResourceType.well, 
-  ]
+  ],
+  favouriteResource_scrollDirection: ScrollDirection.Horizontal,
 }
 
 export default GGMNDevConfig;
