@@ -1,6 +1,6 @@
 
 import * as Joi from 'react-native-joi';
-import { Reading, PendingResource, ResourceScanResult } from '../typings/models/OurWater';
+import { Reading, ResourceScanResult } from '../typings/models/OurWater';
 import { SomeResult, ResultType, ErrorResult, SuccessResult } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
 import { maybeLog } from '../utils';
@@ -9,6 +9,7 @@ import { OrgType } from "../typings/models/OrgType";
 import { ReadingImageType } from '../typings/models/ReadingImage';
 import { string } from 'prop-types';
 import { ReadingLocationType } from '../typings/models/ReadingLocation';
+import { PendingResource } from '../typings/models/PendingResource';
 
 /* Make sure these match the fields in ../typings/models/Reading */
 
@@ -104,6 +105,7 @@ function validateReadingMyWell(reading: MyWellReading): SomeResult<MyWellReading
  */
 export function validateResource(resource: any): SomeResult<PendingResource> {
   const schema: Joi.SchemaLike = Joi.object().keys({
+    // TODO: Add id
     pending: Joi.boolean().allow(true).required(),
     coords: Joi.object().keys({
       latitude: Joi.number(),
@@ -115,6 +117,12 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       name: Joi.string().required(),
     }).required(),
     userId: Joi.string().required(),
+    timeseries: Joi.array().items(Joi.object().keys({
+      name: Joi.string().required(),
+      parameter: Joi.string().required(),
+      //This may change in the future if we allow users to create resources with readings already
+      readings: Joi.array().empty().required(),
+    })).required(),
   });
 
   const result = Joi.validate(resource, schema);

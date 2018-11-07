@@ -18,7 +18,7 @@ import { displayAlert, getLocation, maybeLog, navigateTo, showModal } from '../u
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { Reading, SaveReadingResult, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { Reading, SaveReadingResult } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
@@ -32,6 +32,7 @@ import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingIm
 import IconButton from '../components/common/IconButton';
 import { MaybeReadingLocation, ReadingLocationType, ReadingLocation } from '../typings/models/ReadingLocation';
 import { MaybeLocation, LocationType } from '../typings/Location';
+import { PendingResource } from '../typings/models/PendingResource';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -74,7 +75,7 @@ class NewReadingScreen extends Component<Props> {
     //TODO: fix this later:
     let timeseriesString = 'default_1';
     if (this.props.resource.timeseries[0]) {
-      timeseriesString = this.props.resource.timeseries[0].id;
+      timeseriesString = this.props.resource.timeseries[0].name
     }
 
     this.state = {
@@ -390,8 +391,9 @@ class NewReadingScreen extends Component<Props> {
             }}
             mode={'dropdown'}
             onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
-            }>
-            {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.id}/>)}
+          }>
+          {/* TODO: fix for pending reading */}
+            {/* {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.id}/>)} */}
           </Picker>
         </View>
         {this.getImageSection()}

@@ -117,13 +117,13 @@ class EditResourceScreen extends Component<Props> {
       },
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
-      timeseries: [,
+      timeseries: [
         { name: 'GWmMSL', parameter: 'gwmmsl', readings: []},
         { name: 'GWmBGS', parameter: 'gwmbgs', readings: []},
       ]
     };
     
-    const validationResult: SomeResult<DeprecatedResource | PendingResource> = validateResource(unvalidatedResource);
+    const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
       ToastAndroid.show(`Error saving Resource: ${validationResult.message}`, ToastAndroid.SHORT);
       return;

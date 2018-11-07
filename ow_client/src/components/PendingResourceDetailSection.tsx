@@ -15,7 +15,7 @@ import {
   getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
@@ -32,6 +32,7 @@ import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
+import { PendingResource } from '../typings/models/PendingResource';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -71,7 +72,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
 
   getHeadingBar() {
-    const { pendingResource: { pendingId, owner: {name} } } = this.props;
+    const { pendingResource: { id, owner: {name} } } = this.props;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     return (
@@ -94,7 +95,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${pendingId}`}</Text>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${id}`}</Text>
           {showSubtitle ?
             <View style={{
               flexDirection: 'row',

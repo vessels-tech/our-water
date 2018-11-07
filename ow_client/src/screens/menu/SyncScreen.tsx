@@ -7,13 +7,14 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
-import { Reading, Resource, PendingReading, PendingResource } from '../../typings/models/OurWater';
+import { Reading, Resource, PendingReading } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations/Types';
+import { PendingResource } from '../../typings/models/PendingResource';
 
 export interface OwnProps {
   navigator: any,
@@ -133,7 +134,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         rightIcon={
           <TouchableNativeFeedback
             onPress={() => {
-              this.props.deletePendingResource(this.appApi, this.props.userId, r.pendingId);
+              this.props.deletePendingResource(this.appApi, this.props.userId, r.id);
             }}
           >
             <Icon
@@ -142,7 +143,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.pendingId}
+        title={r.id}
         avatar={getGroundwaterAvatar()}
         subtitle={`${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}/>
     );

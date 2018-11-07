@@ -922,7 +922,7 @@ class FirebaseApi {
       //Get each document, put in the id
       const data = doc.data();
       //@ts-ignore
-      data.pendingId = doc.id;
+      data.id = doc.id;
       readings.push(data);
     });
 

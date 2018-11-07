@@ -2,7 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
 import { View } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
-import { BasicCoords, DeprecatedResource, PendingResource } from '../typings/models/OurWater';
+import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords } from '../utils';
@@ -12,6 +12,7 @@ import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
+import { PendingResource } from '../typings/models/PendingResource';
 
 export type MapRegion = {
   latitude: number,
@@ -327,13 +328,13 @@ export default class MapSection extends Component<Props> {
             </Marker>
           }
           )}
-          {pendingResources.map(p => {
+          {pendingResources.map((p: PendingResource) => {
             return <Marker
               //@ts-ignore
               collapsable={true}
-              key={p.pendingId}
+              key={p.id}
               coordinate={p.coords}
-              title={`${p.pendingId}`}
+              title={`${p.id}`}
               // description={resource.resourceType}
 
               //This is making massive images on some devices
