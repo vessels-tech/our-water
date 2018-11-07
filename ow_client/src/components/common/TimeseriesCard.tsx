@@ -20,10 +20,11 @@ import { connect } from 'react-redux'
 import { getTimeseriesReadingKey } from '../../utils';
 import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
+import { AnyTimeseries } from '../../typings/models/Timeseries';
 
 export interface OwnProps {
   config: ConfigFactory,
-  timeseries: OWTimeseries,
+  timeseries: AnyTimeseries,
   resourceId: string,
 }
 

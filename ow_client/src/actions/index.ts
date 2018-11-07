@@ -17,6 +17,7 @@ import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
 import { ShortId } from "../typings/models/ShortId";
+import { AnyResource } from "../typings/models/Resource";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -28,7 +29,7 @@ type asyncDispatchResult<T> = (dispatch: any) => Promise<SomeResult<T>>
 /**
  * Async Add favourite
  */
-export function addFavourite(api: BaseApi, userId: string, resource: Resource): any {
+export function addFavourite(api: BaseApi, userId: string, resource: AnyResource): any {
   return async (dispatch: any ) => {
     dispatch(addFavouriteRequest(resource));
 

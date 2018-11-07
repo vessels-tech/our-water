@@ -16,7 +16,7 @@ import {
   getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Resource, Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
@@ -33,6 +33,7 @@ import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations/Types';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
+import { AnyTimeseries } from '../typings/models/Timeseries';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -49,7 +50,7 @@ export interface OwnProps {
 export interface StateProps {
   tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
-  favouriteResources: Resource[],
+  favouriteResources: AnyResource[],
   translation: TranslationFile,
 }
 
@@ -284,7 +285,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             {this.getSummaryCard()}
           </View>
             {
-              resource.timeseries.map((ts: OWTimeseries, idx: number) => {
+              resource.timeseries.map((ts: AnyTimeseries, idx: number) => {
                 return (
                   // @ts-ignore
                   <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
@@ -381,7 +382,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    action_addFavourite: (api: BaseApi, userId: string, resource: Resource) => 
+    action_addFavourite: (api: BaseApi, userId: string, resource: AnyResource) => 
       dispatch(appActions.addFavourite(api, userId, resource)),
     action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
       dispatch(appActions.removeFavourite(api, userId, resourceId)),
