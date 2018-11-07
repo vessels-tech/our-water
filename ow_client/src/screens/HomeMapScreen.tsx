@@ -28,7 +28,7 @@ import { bgLight, primaryDark, primary, primaryLight } from '../utils/Colors';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import BaseApi from '../api/BaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { Resource, BasicCoords, PendingResource } from '../typings/models/OurWater';
+import { PendingResource } from '../typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from '../components/MapSection';
 import PendingChangesBanner from '../components/PendingChangesBanner';
@@ -63,7 +63,7 @@ export interface StateProps {
   userIdMeta: ActionMeta,
   location: Location,
   locationMeta: SyncMeta,
-  resources: Resource[],
+  resources: AnyResource[],
   pendingResources: PendingResource[],
   resourcesMeta: SyncMeta,
   translation: TranslationFile
@@ -157,7 +157,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       navigateTo(this.props, 'screen.SearchScreen', search_heading, {
         config: this.props.config,
         userId: this.props.userId,
-        onSearchResultPressed: (result: Resource) => this.onSearchResultPressed(result),
+        onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressed(result),
       });
     }
   }
@@ -215,7 +215,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Handle when a user clicks a result from the search screen.
    * 
    */
-  async onSearchResultPressed(r: Resource): Promise<void> {
+  async onSearchResultPressed(r: AnyResource): Promise<void> {
     const { translation: { templates: { app_resource_not_found } } } = this.props;
     //TODO: reimmplement selectResource for a search entity.
     //Load the resource for the search entity?
@@ -293,7 +293,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       <FavouriteResourceList
         config={this.props.config}
         userId={this.props.userId}
-        onResourceCellPressed={(r: Resource) => this.selectResource(r)}
+        onResourceCellPressed={(r: AnyResource) => this.selectResource(r)}
       />
     );
   }
@@ -431,7 +431,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    addRecent: (api: BaseApi, userId: string, resource: Resource) => {
+    addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>

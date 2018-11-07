@@ -22,22 +22,6 @@ export type DeprecatedResource = {
   lastReadingDatetime: Date;
 }
 
-/**
- * Pending resource models a resource which hasn't been saved
- * externally yet
- */
-export type PendingResource = {
-  pending: true,
-  coords: {
-    latitude: number,
-    longitude: number,
-  },
-  resourceType: ResourceType,
-  owner: ResourceOwnerType,
-  userId: string,
-  pendingId: string,
-}
-
 export type OWGeoPoint = {
   _latitude: number,
   _longitude: number,

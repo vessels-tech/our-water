@@ -9,7 +9,7 @@ export type MyWellTimeseries = {
   /* Common values*/
   id: string,
   name: string,
-  reading: Reading[],
+  readings: Reading[],
   parameter: string, //eg. groundwater measure, water quality type
 
 }
@@ -22,7 +22,7 @@ export type GGMNTimeseries = {
   /* Common values*/
   id: string,
   name: string,
-  reading: Reading[],
+  readings: Reading[],
   parameter: string, //eg. groundwater measure, water quality type
 
   
@@ -31,3 +31,4 @@ export type GGMNTimeseries = {
 }
 
 //TODO: Map from GGMNResponseTimeseries to GGMNTimeseries
+//maybe we can make a mapper utility class

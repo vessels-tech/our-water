@@ -1,4 +1,4 @@
-import { OWGeoPoint, OWTimeseries, ResourceOwnerType, PendingResource } from './OurWater';
+import { OWGeoPoint, ResourceOwnerType } from './OurWater';
 import { ResourceType } from '../../enums';
 import { OrgType } from './OrgType';
 import { AnyTimeseries } from './Timeseries';

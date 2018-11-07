@@ -9,7 +9,7 @@ import {
 import { ResourceType } from '../../enums';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { DeprecatedResource, PendingResource, SaveResourceResult } from '../../typings/models/OurWater';
+import { DeprecatedResource, SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
 import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
@@ -25,6 +25,8 @@ import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
 import { secondary, secondaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations/Types';
+import { PendingResource } from '../../typings/models/PendingResource';
+import { OrgType } from '../../typings/models/OrgType';
 
 export interface Props { 
   resourceId: string,
@@ -101,6 +103,7 @@ class EditResourceScreen extends Component<Props> {
 
     const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
 
+    //TODO: get org specific default values, eg. for timeseries and stuff
     const unvalidatedResource = {
       pending: true,
       coords: {
@@ -113,6 +116,11 @@ class EditResourceScreen extends Component<Props> {
         name,
       },
       userId: this.props.userId,
+      //TODO: load from default configs for each org + resource type
+      timeseries: [,
+        { name: 'GWmMSL', parameter: 'gwmmsl', readings: []},
+        { name: 'GWmBGS', parameter: 'gwmbgs', readings: []},
+      ]
     };
     
     const validationResult: SomeResult<DeprecatedResource | PendingResource> = validateResource(unvalidatedResource);
