@@ -65,7 +65,6 @@ export interface State {
 }
 
 class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProps> {
-  unsubscribe: any;
   appApi: BaseApi;
   state: State = {}
 

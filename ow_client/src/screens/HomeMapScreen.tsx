@@ -49,6 +49,7 @@ import { SearchButtonPressedEvent } from '../utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { AnyResource } from '../typings/models/Resource';
+import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
 
 
 export interface OwnProps {
@@ -244,7 +245,11 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       selectedResource: resource,
     });
 
-    this.props.addRecent(this.appApi, this.props.userId, resource);
+    //TECH DEBT
+    //Only add full resources to the recent list:
+    if (!resource.pending) {
+      this.props.addRecent(this.appApi, this.props.userId, resource);
+    }
   }
 
   updateGeoLocation(location: Location) {
@@ -301,11 +306,20 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    console.log(selectedResource);
-
     if (selectedResource.pending) {
-      //TODO: implement a similar but different PendingResourceDetailSection, which allows users to make new readings
-      return null;
+      return <PendingResourceDetailSection
+        hideTopBar={false}
+        config={this.props.config}
+        userId={userId}
+        pendingResource={selectedResource}
+        onAddReadingPressed={(resource: AnyResource | PendingResource) => {
+          navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+            resource,
+            config: this.props.config,
+            userId: this.props.userId
+          });
+        }}
+      />
     }
 
     return (
@@ -314,7 +328,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         config={this.props.config}
         userId={userId}
         resource={selectedResource}
-        onAddReadingPressed={(resource: Resource) => {
+        onAddReadingPressed={(resource: AnyResource | PendingResource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resource,
             config: this.props.config,
@@ -379,7 +393,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             contentContainerStyle={{ flexGrow: 1 }}
           >
             {this.getResourceView()}
-            {/* {this.getFavouritesList()} */}
+            {this.getFavouritesList()}
           </ScrollView>
         }
         <PendingChangesBanner onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)} />

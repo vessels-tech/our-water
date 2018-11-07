@@ -18,7 +18,7 @@ import { displayAlert, getLocation, maybeLog, navigateTo, showModal } from '../u
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { Reading, SaveReadingResult } from '../typings/models/OurWater';
+import { Reading, SaveReadingResult, PendingReading, PendingResource } from '../typings/models/OurWater';
 import { validateReading } from '../api/ValidationApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
@@ -36,7 +36,7 @@ import { MaybeLocation, LocationType } from '../typings/Location';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface Props {
-  resource: AnyResource,
+  resource: AnyResource | PendingResource,
   navigator: any,
   config: ConfigFactory,
   userId: string,
