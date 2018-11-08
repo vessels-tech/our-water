@@ -28,10 +28,11 @@ const morgan = require("morgan");
 //@ts-ignore
 const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
+const EmailApi_1 = require("../common/apis/EmailApi");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
-// require('express-async-errors');
+require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
@@ -204,6 +205,11 @@ module.exports = (functions) => {
     }));
     app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         //TODO: build an email and send it.
+        const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, 'HELLO', null);
+        if (sendEmailResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            console.log("Error sending emails:", sendEmailResult.message);
+            throw new Error(sendEmailResult.message);
+        }
         res.json(true);
     }));
     /**

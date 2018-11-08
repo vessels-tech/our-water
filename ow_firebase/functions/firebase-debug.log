@@ -1,43 +1,716 @@
-[debug] [2018-11-08T07:27:54.327Z] ----------------------------------------------------------------------
-[debug] [2018-11-08T07:27:54.330Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
-[debug] [2018-11-08T07:27:54.330Z] CLI Version:   3.18.4
-[debug] [2018-11-08T07:27:54.330Z] Platform:      darwin
-[debug] [2018-11-08T07:27:54.330Z] Node Version:  v6.11.5
-[debug] [2018-11-08T07:27:54.331Z] Time:          Thu Nov 08 2018 17:57:54 GMT+1030 (ACDT)
-[debug] [2018-11-08T07:27:54.331Z] ----------------------------------------------------------------------
+[debug] [2018-11-08T08:47:53.880Z] ----------------------------------------------------------------------
+[debug] [2018-11-08T08:47:53.883Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase deploy --only functions
+[debug] [2018-11-08T08:47:53.883Z] CLI Version:   4.0.3
+[debug] [2018-11-08T08:47:53.883Z] Platform:      darwin
+[debug] [2018-11-08T08:47:53.883Z] Node Version:  v8.11.1
+[debug] [2018-11-08T08:47:53.884Z] Time:          Thu Nov 08 2018 19:17:53 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:47:53.884Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2018-11-08T07:27:54.345Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-11-08T07:27:54.345Z] > authorizing via signed-in user
-[debug] [2018-11-08T07:27:54.347Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+[debug] [2018-11-08T08:47:53.894Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-11-08T08:47:53.894Z] > authorizing via signed-in user
+[debug] [2018-11-08T08:47:53.896Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
   
- Thu Nov 08 2018 17:57:54 GMT+1030 (ACDT)
-[debug] [2018-11-08T07:27:55.362Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-08T07:27:55.363Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+ Thu Nov 08 2018 19:17:53 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:47:55.023Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:47:55.024Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
   
- Thu Nov 08 2018 17:57:55 GMT+1030 (ACDT)
-[debug] [2018-11-08T07:27:56.117Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-08T07:27:56.118Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
-  
- Thu Nov 08 2018 17:57:56 GMT+1030 (ACDT)
-[debug] [2018-11-08T07:27:57.597Z] <<< HTTP RESPONSE 200
+ Thu Nov 08 2018 19:17:55 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:47:56.341Z] <<< HTTP RESPONSE 200
 [info] 
-[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
+[info] === Deploying to 'our-water'...
 [info] 
-[info] i  functions: Preparing to emulate functions.
-[debug] [2018-11-08T07:27:58.423Z] Fetching environment
-[debug] [2018-11-08T07:27:58.425Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+[info] i  deploying functions
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script.
+[debug] [2018-11-08T08:48:06.363Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc",
+    "babel": "babel ./src --out-dir lib --extensions '.ts,.tsx'",
+    "watch": "tsc --watch",
+    "serve": "npm run build && firebase serve --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "unit": "ts-mocha ./**/*.unit.ts",
+    "unit_new": "mocha --require @babel/register --require @babel/polyfill ./**/*.unit.js",
+    "service": "mocha -r ts-node/register ./**/*.service.ts"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/app-types": "0.x",
+    "@google-cloud/storage": "^1.7.0",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.0",
+    "@types/request-promise-native": "^1.0.14",
+    "@types/xmlbuilder": "^0.0.34",
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-async-errors": "^3.1.1",
+    "express-fileupload": "^0.4.0",
+    "express-validation": "^1.0.2",
+    "firebase-admin": "^5.13.1",
+    "firebase-app": "^0.0.1",
+    "firebase-functions": "^2.0.2",
+    "handlebars": "^4.0.12",
+    "joi": "^13.2.0",
+    "jsx-to-html": "^1.1.0",
+    "jsx-xml": "^0.1.1",
+    "mocha": "^5.1.1",
+    "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
+    "moment": "^2.22.1",
+    "morgan": "^1.9.1",
+    "morgan-body": "^2.4.5",
+    "nodemailer": "^4.6.8",
+    "papaparse": "^4.4.0",
+    "request": "^2.85.0",
+    "request-promise": "^4.2.2",
+    "request-promise-native": "^1.0.5",
+    "soap": "^0.25.0",
+    "thread-sleep": "^2.1.0",
+    "ts-mocha": "^2.0.0",
+    "typescript": "2.6.2",
+    "xmlbuilder": "^10.1.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "assert": "^1.4.1",
+    "chai": "^4.1.2",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.8.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[debug] [2018-11-08T08:48:06.364Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
   
- Thu Nov 08 2018 17:57:58 GMT+1030 (ACDT)
-[debug] [2018-11-08T07:27:59.025Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-08T07:27:59.025Z] Starting @google-cloud/functions-emulator
-[debug] [2018-11-08T07:28:00.595Z] Parsing function triggers
-[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
-[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
-[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
-[info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
-[info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
-[info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading
-[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
-[info] ✔  functions: shortId: http://localhost:5000/our-water/us-central1/shortId
-[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
-[info] ✔  functions: sos: http://localhost:5000/our-water/us-central1/sos
+ Thu Nov 08 2018 19:18:06 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:06.365Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+  
+ Thu Nov 08 2018 19:18:06 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:08.587Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:08.928Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: all necessary APIs are enabled
+[debug] [2018-11-08T08:48:08.930Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+  
+ Thu Nov 08 2018 19:18:08 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:10.763Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:10.763Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+  
+ Thu Nov 08 2018 19:18:10 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:11.929Z] <<< HTTP RESPONSE 200
+[info] i  functions: preparing functions directory for uploading...
+[debug] [2018-11-08T08:48:11.932Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
+  
+ Thu Nov 08 2018 19:18:11 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:13.544Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:13.545Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables  
+  
+ Thu Nov 08 2018 19:18:13 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:13.546Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables  
+  
+ Thu Nov 08 2018 19:18:13 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:14.663Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:14.665Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/test_email_whitelist  
+  
+ Thu Nov 08 2018 19:18:14 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:14.665Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/mywell_legacy_access_token  
+  
+ Thu Nov 08 2018 19:18:14 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:14.666Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_address  
+  
+ Thu Nov 08 2018 19:18:14 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:14.666Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_password  
+  
+ Thu Nov 08 2018 19:18:14 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:14.666Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/should_send_emails  
+  
+ Thu Nov 08 2018 19:18:14 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:15.732Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:15.733Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:15.733Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:15.780Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:15.783Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:15.783Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables/one  
+  
+ Thu Nov 08 2018 19:18:15 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:15.784Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables/somevar  
+  
+ Thu Nov 08 2018 19:18:15 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:16.641Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:16.686Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:16.885Z] <<< HTTP RESPONSE 200
+[info] i  functions: packaged functions (406.11 KB) for uploading
+[debug] [2018-11-08T08:48:18.022Z] >>> HTTP REQUEST POST https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions:generateUploadUrl  
+  
+ Thu Nov 08 2018 19:18:18 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:19.138Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:19.138Z] >>> HTTP REQUEST PUT https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D  
+ ReadStream {
+  _readableState: 
+   ReadableState {
+     objectMode: false,
+     highWaterMark: 65536,
+     buffer: BufferList { head: [Object], tail: [Object], length: 1 },
+     length: 65536,
+     pipes: null,
+     pipesCount: 0,
+     flowing: null,
+     ended: false,
+     endEmitted: false,
+     reading: false,
+     sync: false,
+     needReadable: false,
+     emittedReadable: true,
+     readableListening: false,
+     resumeScheduled: false,
+     destroyed: false,
+     defaultEncoding: 'utf8',
+     awaitDrain: 0,
+     readingMore: false,
+     decoder: null,
+     encoding: null },
+  readable: true,
+  domain: null,
+  _events: { end: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  path: '/var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/firebase-functions-225954OUyiGCMen6H.zip',
+  fd: 18,
+  flags: 'r',
+  mode: 438,
+  start: 0,
+  end: Infinity,
+  autoClose: true,
+  pos: 65536,
+  bytesRead: 65536 } 
+ Thu Nov 08 2018 19:18:19 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:22.363Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: functions folder uploaded successfully
+[debug] [2018-11-08T08:48:22.365Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/-/functions  
+  
+ Thu Nov 08 2018 19:18:22 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.633Z] <<< HTTP RESPONSE 200
+[info] i  functions: updating Node.js 6 function org(us-central1)...
+[debug] [2018-11-08T08:48:23.637Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function group(us-central1)...
+[debug] [2018-11-08T08:48:23.637Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function resource(us-central1)...
+[debug] [2018-11-08T08:48:23.637Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function reading(us-central1)...
+[debug] [2018-11-08T08:48:23.638Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function sync(us-central1)...
+[debug] [2018-11-08T08:48:23.638Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function sos(us-central1)...
+[debug] [2018-11-08T08:48:23.638Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function shortId(us-central1)...
+[debug] [2018-11-08T08:48:23.638Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function hourly_job(us-central1)...
+[debug] [2018-11-08T08:48:23.639Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/hourly-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 6 function daily_job(us-central1)...
+[debug] [2018-11-08T08:48:23.639Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/daily-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 6 function weekly_job(us-central1)...
+[debug] [2018-11-08T08:48:23.639Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/weekly-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[debug] [2018-11-08T08:48:23.641Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/org 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/org',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.643Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/group 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/group',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.644Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/resource 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/resource',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.644Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/reading 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/reading',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.645Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/sync 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/sync',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.645Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/sos 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/sos',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.645Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/shortId 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/shortId',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.646Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/hourly_job 
+query params: {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/hourly_job',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  eventTrigger: 
+   { resource: 'projects/our-water/topics/hourly-tick',
+     eventType: 'google.pubsub.topic.publish',
+     service: 'pubsub.googleapis.com' } } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.646Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/daily_job 
+query params: {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/daily_job',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  eventTrigger: 
+   { resource: 'projects/our-water/topics/daily-tick',
+     eventType: 'google.pubsub.topic.publish',
+     service: 'pubsub.googleapis.com' } } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:23.647Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/weekly_job 
+query params: {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/168aae52-d767-4146-b67e-08b0196e66cb.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1541668698&Signature=CcGLFMg%2BaWyoIuwoP%2FoJjWW%2FfCiJecGhVY5KppmpRjXOvAku6vAVOsoHmeIer2izqaQUgbx1mJXItLJ4HyFvLRIuF2miCa6kcAakQsBBq%2FCjtfB%2BOwxpQxhAKWTcLZAjT9YTgGR0LJcdyXMoDa%2F3JuNdk3z%2FF7Eljea0fD0ZAVvSyrpZoPyQ20kL59KOmGTkDF%2FJovnt2GoDi1bmvndxxIUKjKGdzoiYCtD2fLm%2BWhzVxR1cpXhSPUvQpADjpJLkaVlIYkDFzZzDCzG%2Br8JpSXDlAfoSZLzXm%2F5DxkhyvE0msHk3pNkT6G1wOENZLalvEDyyErOZ6oa4pBUX5crahQ%3D%3D',
+  name: 'projects/our-water/locations/us-central1/functions/weekly_job',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  eventTrigger: 
+   { resource: 'projects/our-water/topics/weekly-tick',
+     eventType: 'google.pubsub.topic.publish',
+     service: 'pubsub.googleapis.com' } } 
+ Thu Nov 08 2018 19:18:23 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:24.676Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.706Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.815Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.833Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.834Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.927Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:24.964Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:25.055Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:25.177Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:25.177Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:25.179Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/-/functions  
+  
+ Thu Nov 08 2018 19:18:25 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.329Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:26.332Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.335Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.335Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.337Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:26.337Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:26 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:27.043Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.120Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.197Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.284Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.316Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.351Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.381Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.414Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.419Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:27.419Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:29.047Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.122Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.199Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.288Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.321Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.355Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.382Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.415Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.423Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:29.423Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:29 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:30.018Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.159Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.170Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.341Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.344Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.344Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.424Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.427Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.429Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:30.544Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:32.018Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.162Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.173Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.346Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.347Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.347Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.428Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.429Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.432Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.544Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:32 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:32.784Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:32.919Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.051Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.051Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.052Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.093Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.333Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.335Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.335Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:33.371Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:34.786Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:34 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:34.922Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:34 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.056Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.057Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.057Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.098Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.340Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.340Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.340Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.377Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:35 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:35.504Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:35.706Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:35.995Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:35.998Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:35.999Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:36.007Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:36.259Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:36.259Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:36.260Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:36.322Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:37.507Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:37 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:37.708Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:37 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:37.999Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:37 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:37.999Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:37 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.003Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.008Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.096Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:38.262Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.263Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.263Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.323Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:38 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:38.629Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:38.902Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:38.938Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:38.938Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:39.035Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:39.180Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:39.228Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:39.228Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:39.229Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:40.101Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:40 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:40.631Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:40 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:40.635Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:40.909Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:40 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:40.942Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:40 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:40.942Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:40 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.038Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:41 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.184Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:41 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.232Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:41 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.233Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:41 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.233Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:41 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:41.494Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:41.744Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:41.803Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:41.820Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:41.870Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:41.871Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:42.029Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:42.030Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:42.068Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:42.639Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:42 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.450Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:43.500Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.749Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.808Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.821Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.873Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:43.874Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:43 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:44.032Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:44 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:44.032Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:44 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:44.068Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:44 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:44.088Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.395Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.644Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.669Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.793Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.798Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.900Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.952Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:44.953Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:45.455Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:45 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.091Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.332Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:46.398Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.644Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.658Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:46.671Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.795Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.798Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.904Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.952Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:46.953Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:46 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:47.293Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.533Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.659Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.664Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.716Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.871Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.872Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:47.872Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:48.336Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:48 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:48.660Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:48 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.251Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:49.299Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.537Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.593Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:49.662Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.665Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.720Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.872Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.872Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:49.875Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:49 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:50.398Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.549Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.594Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.595Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.774Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.851Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.853Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:50.853Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:51.253Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:51 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:51.599Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:51 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.248Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:52.402Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3dlZWtseV9qb2IvSGU4OHEtUWhJMHc  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.553Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nob3J0SWQvSVBqUVJ5a2c3X28  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.575Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:52.600Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2dyb3VwL1FLUDk5Ymh5Z0w4  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.600Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2hvdXJseV9qb2IvSURTYWF2cWN2c00  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.778Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Jlc291cmNlL29DdnA0RGVKeG1B  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.852Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3N5bmMveWpuSENWWnF1V3M  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.853Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL2RhaWx5X2pvYi9YNG1RZ1FfakNqYw  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:52.855Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3Nvcy94MnZFejZTdkV0TQ  
+  
+ Thu Nov 08 2018 19:18:52 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:53.312Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.503Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.561Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.697Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.698Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.716Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.777Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:53.891Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-08T08:48:54.249Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL3JlYWRpbmcvUWJ0Z1FBeTg2dnc  
+  
+ Thu Nov 08 2018 19:18:54 GMT+1030 (ACDT)
+[debug] [2018-11-08T08:48:54.576Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/b3VyLXdhdGVyL3VzLWNlbnRyYWwxL29yZy9lSVFhd1ZRRGh6cw  
+  
+ Thu Nov 08 2018 19:18:54 GMT+1030 (ACDT)

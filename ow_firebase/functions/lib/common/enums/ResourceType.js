@@ -5,6 +5,10 @@ var ResourceType;
     ResourceType["Well"] = "well";
     ResourceType["Raingauge"] = "raingauge";
     ResourceType["Checkdam"] = "checkdam";
+    // TODO: remove this! HAck for the front end to work
+    ResourceType["well"] = "well";
+    ResourceType["raingauge"] = "raingauge";
+    ResourceType["checkdam"] = "checkdam";
 })(ResourceType = exports.ResourceType || (exports.ResourceType = {}));
 exports.resourceTypeFromString = (type) => {
     switch (type) {

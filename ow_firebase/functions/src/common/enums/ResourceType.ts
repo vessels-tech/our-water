@@ -2,6 +2,10 @@ export enum ResourceType {
   Well = 'well',
   Raingauge = 'raingauge',
   Checkdam = 'checkdam',
+  // TODO: remove this! HAck for the front end to work
+  well = 'well',
+  raingauge = 'raingauge',
+  checkdam = 'checkdam',
 }
 
 

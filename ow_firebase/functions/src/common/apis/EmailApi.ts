@@ -12,16 +12,6 @@ import {
 const functions = require('firebase-functions');
 const nodemailer = require('nodemailer');
 
-
-
-
-// Configure the email transport using the default SMTP transport and a GMail account.
-// For Gmail, enable these:
-// 1. https://www.google.com/settings/security/lesssecureapps
-// 2. https://accounts.google.com/DisplayUnlockCaptcha
-// For other types of transports such as Sendgrid see https://nodemailer.com/transports/
-
-
 //TODO: configure a zoho address for ourwater@vessels.tech here: https://stackoverflow.com/questions/45772221/nodemailer-with-zoho-mail
 const mailTransport = nodemailer.createTransport({
   service: 'gmail',
@@ -33,29 +23,33 @@ const mailTransport = nodemailer.createTransport({
 
 const APP_NAME = 'GGMN';
 
-export async function sendResourceEmail(email, message, attachments): Promise<SomeResult<void>> {
-  //TODO: add attachments in the form of a zip file.
-  
-  const mailOptions: any = {
-    from: `${APP_NAME} <noreply@firebase.com>`,
-    to: email,
-  };
+export default class EmailApi {
+  public static sendResourceEmail(email, message, attachments): Promise<SomeResult<void>> {
+    //TODO: add attachments in the form of a zip file.
 
-  // The user subscribed to the newsletter.
-  mailOptions.subject = `Welcome to ${APP_NAME}!`;
-  mailOptions.text = `Welcome to ${APP_NAME}. I hope you will enjoy our service.`;
+    const mailOptions: any = {
+      from: `${APP_NAME} <noreply@firebase.com>`,
+      to: email,
+    };
 
-  if (!shouldSendEmails && testEmailWhitelist.indexOf(email) === -1) {
-    console.log(`Not sending emails as shouldSendEmails is false, and ${email} is not in the whitelist.`);
+    // The user subscribed to the newsletter.
+    mailOptions.subject = `Welcome to ${APP_NAME}!`;
+    mailOptions.text = `Welcome to ${APP_NAME}. I hope you will enjoy our service.`;
 
-    return Promise.resolve(makeSuccess(undefined));
+    if (!shouldSendEmails && testEmailWhitelist.indexOf(email) === -1) {
+      console.log(`Not sending emails as shouldSendEmails is false, and ${email} is not in the whitelist.`);
+
+      return Promise.resolve(makeSuccess(undefined));
+    }
+    console.log(`Sending email to ${email}`);
+
+    return mailTransport.sendMail(mailOptions)
+    .then(() => {
+      return makeSuccess(undefined);
+    })
+    .catch((err: Error) => {
+      return makeError(err.message);
+    });
   }
 
-  return mailTransport.sendMail(mailOptions)
-  .then(() => {
-    return makeSuccess(undefined);
-  })
-  .catch((err: Error) => {
-    return makeError(err.message);
-  });
 }

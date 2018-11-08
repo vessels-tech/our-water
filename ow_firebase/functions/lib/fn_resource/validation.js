@@ -27,10 +27,8 @@ exports.ggmnResourceEmailValidation = {
         allowUnknownBody: true,
     },
     body: {
-        data: {
-            email: Joi.string().email().required(),
-            pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
-        }
+        email: Joi.string().email().required(),
+        pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
     }
 };
 //# sourceMappingURL=validation.js.map

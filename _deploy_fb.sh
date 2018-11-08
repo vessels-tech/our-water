@@ -10,7 +10,7 @@ source "$DIR/env/.env.test.sh"
 # set the firebase env variables
 firebase functions:config:set \
   config.mywell_legacy_access_token=$MYWELL_LEGACY_ACCESS_TOKEN \
-  config.outbound_email_address=$outbound_email_address \ 
+  config.outbound_email_address=$outbound_email_address \
   config.outbound_email_password=$outbound_email_password \
   config.should_send_emails=$should_send_emails \
   config.test_email_whitelist=$test_email_whitelist
@@ -27,3 +27,6 @@ firebase deploy --only functions
 #cd functions-cron/appengine
 #pip install -t lib -r requirements.txt
 #gcloud app deploy app.yaml cron.yaml
+
+## Get any remote firebase config
+firebase functions:config:get > "$DIR"/ow_firebase/functions/.runtimeconfig.json

@@ -30,10 +30,8 @@ export const ggmnResourceEmailValidation = {
     allowUnknownBody: true,
   },
   body: {
-    data: {
       email: Joi.string().email().required(),
       pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
-    }
   } 
 }
 

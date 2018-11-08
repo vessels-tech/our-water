@@ -849,7 +849,7 @@ class FirebaseApi {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, pendingResources })
+      body: JSON.stringify({ email, pendingResources }),
     };
 
     maybeLog("SendResourceEmail url: ", url);

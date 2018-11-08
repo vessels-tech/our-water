@@ -20,11 +20,12 @@ import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
+import EmailApi from '../common/apis/EmailApi';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin')
-// require('express-async-errors');
+require('express-async-errors');
 
 module.exports = (functions) => {
   const app = express();
@@ -225,7 +226,12 @@ module.exports = (functions) => {
 
   app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
     //TODO: build an email and send it.
-    
+
+    const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', null);
+    if (sendEmailResult.type === ResultType.ERROR) {
+      console.log("Error sending emails:", sendEmailResult.message);
+      throw new Error(sendEmailResult.message);
+    }
 
     res.json(true);
   });
