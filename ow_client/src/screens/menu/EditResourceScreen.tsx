@@ -145,8 +145,8 @@ class EditResourceScreen extends Component<Props> {
 
     const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
 
-    //TODO: get org specific default values, eg. for timeseries and stuff
-    const unvalidatedResource = {
+    //TODO: make more type safe
+    const unvalidatedResource: any = {
       //TODO: load the id?
       pending: true,
       coords: {
@@ -165,6 +165,10 @@ class EditResourceScreen extends Component<Props> {
         { name: 'GWmBGS', parameter: 'gwmbgs', readings: []},
       ]
     };
+
+    if (this.props.config.getEditResourceAllowCustomId()) {
+      unvalidatedResource.id = this.editResourceForm.value.id;
+    }
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {

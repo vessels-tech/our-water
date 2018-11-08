@@ -14,7 +14,7 @@ import {
 } from '../utils';
 import NetworkApi from './NetworkApi';
 import { DeprecatedResource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
-import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
@@ -402,8 +402,6 @@ class FirebaseApi {
    * and not actually commited to the server
    */
   static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<SomeResult<void>> {
-    //TODO: some form of extra validation here?
-
     /* we don't want to wait for this to resolve */
     this.saveReadingToUser(orgId, userId, reading);
 
@@ -414,15 +412,14 @@ class FirebaseApi {
   }
 
   static async saveResourceToUser(orgId: string, userId: string, resource: DeprecatedResource): Promise<SomeResult<null>> {
-    //TODO: some form of extra validation here?
-
     /* we don't want to wait for this to resolve */
-    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+    if (resource.id) {
+      this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
+      return makeSuccess(null);
+    }
 
-    return {
-      type: ResultType.SUCCESS,
-      result: null
-    };
+    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+    return makeSuccess(null);
   }
 
   /**
