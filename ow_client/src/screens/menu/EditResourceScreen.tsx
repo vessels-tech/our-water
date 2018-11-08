@@ -99,7 +99,11 @@ class EditResourceScreen extends Component<Props> {
   async asyncIdValidator(control: AbstractControl) {
     //TODO: load translations
     const new_resource_id_check_error = 'Error checking the Id. Please try again.';
-    const new_resource_id_check_taken = 'This Id is already taken. Please enter a different id';
+
+    //TODO: make sure the id is longer than 4 digits or something
+    if (control.value.length < 4) {
+      throw { invalidId: true };
+    }
 
     if (this.extendedResourceApi.extendedResourceApiType === ExtendedResourceApiType.None) {
       //Tried to check, but this call is invalid.
@@ -242,6 +246,7 @@ class EditResourceScreen extends Component<Props> {
             </View>
             <FieldControl
               name="asset"
+              // @ts-ignore
               render={DropdownInput}
               meta={{
                 options: localizedResourceTypes,

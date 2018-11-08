@@ -855,8 +855,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25   
    */
   async performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>> {
-    const readingUrl = `${this.baseUrl}/api/v3/search/`;
-    const url = appendUrlParameters(readingUrl, {
+    const searchUrl = `${this.baseUrl}/api/v3/search/`;
+    const url = appendUrlParameters(searchUrl, {
       q: searchQuery,
       page_size: searchPageSize,
       page,
@@ -963,17 +963,61 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   /**
    * checkNewId
    * 
-   * Check with the GGMN system that the new Id is valid
+   * Check with the GGMN system that the new Id is valid. Uses a basic search, 
+   * as GGMN doesn't provide an easy way for us to check the ids
+   * 
+   * If someResult.type is error, something went wrong
+   * if someResult.result is true, id is valid, otherwise, id is invalid.
    */
   async checkNewId(id: string): Promise<SomeResult<boolean>> {
+    /* perform a generic search */
+    //https://ggmn.lizard.net/api/v3/search/?q=123&page_size=25
 
-    //TODO: implement
+    const searchUrl = `${this.baseUrl}/api/v3/search/`;
+    const url = appendUrlParameters(searchUrl, {
+      q: id,
+      page_size: searchPageSize,
+      page: 1,
+    });
 
-    if (id === '12345') {
-      return Promise.resolve(makeError<boolean>('Error connecting'));
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+      },
+    };
+
+    maybeLog("checkNewId search url:", url);
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      maybeLog("error: " + err);
+      return {
+        type: ResultType.ERROR,
+        message: "Error loading search from GGMN.",
+      }
     }
 
-    return Promise.resolve(makeSuccess<boolean>(true));
+    const searchResponse = await naiveParseFetchResponse<GGMNSearchResponse>(response);
+    if (searchResponse.type === ResultType.ERROR) {
+      return searchResponse;
+    }
+
+    //if the results count is too high, id isn't specific enough.
+    if (searchResponse.result.count >= searchPageSize) {
+      return makeSuccess<boolean>(false);
+    }
+
+    const searchEntities = searchResponse.result.results;
+    searchEntities.forEach(s => {
+      if (s.title === id) {
+        return makeSuccess<boolean>(false);
+      }
+    });
+
+    return makeSuccess(true);
   }
 
 

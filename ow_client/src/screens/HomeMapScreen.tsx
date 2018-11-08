@@ -28,7 +28,6 @@ import { bgLight, primaryDark, primary, primaryLight } from '../utils/Colors';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import BaseApi from '../api/BaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { PendingResource } from '../typings/models/OurWater';
 import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from '../components/MapSection';
 import PendingChangesBanner from '../components/PendingChangesBanner';
@@ -50,6 +49,7 @@ import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { AnyResource } from '../typings/models/Resource';
 import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 export interface OwnProps {
