@@ -1,8 +1,8 @@
 import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
-import { SomeResult, ResultType } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
@@ -664,6 +664,41 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
       organisation,
     });
     ToastAndroid.show("Selected Organisation", ToastAndroid.SHORT);
+  }
+}
+
+
+/**
+ * Get the user's email and trigger a resource creation email
+ * 
+ */
+export function sendResourceEmail(api: MaybeExternalServiceApi, userId: string): (dispatch: any) => Promise<SomeResult<void>> {
+  return async function(dispatch: any) {
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return makeSuccess<void>(undefined);
+    }
+
+    dispatch(sendResourceEmailRequest());
+    //TODO: actually send the email
+    const result = makeSuccess<void>(undefined);
+
+    dispatch(sendResourceEmailResponse(result));
+
+    return result;
+  }
+}
+
+function sendResourceEmailRequest(): SendResourceEmailActionRequest {
+  return {
+    type: ActionType.SEND_RESOURCE_EMAIL_REQUEST,
+  }
+}
+
+function sendResourceEmailResponse(result: SomeResult<void>): SendResourceEmailActionResponse {
+  return {
+    type: ActionType.SEND_RESOURCE_EMAIL_RESPONSE,
+    result,
   }
 }
 

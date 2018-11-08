@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Text, Button } from 'react-native-elements';
+import { Button, Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
+import { View, TouchableNativeFeedback, ToastAndroid, ScrollView, TextStyle } from 'react-native';
 import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
-import { bgLight } from '../utils/Colors';
-import { Resource } from '../typings/models/OurWater';
+import { bgLight, primaryDark, primaryText, secondaryLight, secondaryText } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { TranslationFile } from 'ow_translations/Types';
@@ -66,32 +65,74 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
+
+    /* Binds */
+    this.sendEmailPressed = this.sendEmailPressed.bind(this);
+  }
+
+  sendEmailPressed() {
+
   }
 
 
   render() {
+
+    const headingStyle: TextStyle = {
+      paddingTop: 20,
+      fontWeight: "600",
+      color: primaryDark,
+    };
+
+    const sectionStyle = {
+      paddingTop: 10,
+
+    }
+
     return (
-      <View
-        style={{backgroundColor: bgLight}}
+      <ScrollView
+        style={{
+          backgroundColor: bgLight,
+          paddingHorizontal: 20,
+          // paddingTop: 10,
+          // paddingBottom: 10,
+        }}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        <Text>In order to finish saving your groundwater stations to GGMN, you need to manually register them on the GGMN site.</Text>
+        <Text 
+          style={{
+            paddingTop: 20,
+            fontWeight: '600',
+          }}
+        >In order to finish saving your groundwater stations to GGMN, you need to manually register them on the GGMN site.</Text>
 
-        <Text>Step 1.</Text>
-        <Text>Click the "Send Email" button below to send an email to your GGMN account. This email will contain the shapefiles needed to register the groundwater stations</Text>
-        <Button onPress={() => console.log("hey")} title="Send Email"/>
+        <Text style={headingStyle}>Step 1.</Text>
+        <Text style={sectionStyle}>Click the "Send Email" button below to send an email to your GGMN account. This email will contain the shapefiles needed to register the groundwater stations</Text>
+        <Button
+          containerViewStyle={{
+            marginTop: 20,
+          }}
+          buttonStyle={{
+            height: 50,
+          }}
+          color={secondaryText}
+          backgroundColor={secondaryLight}
+          borderRadius={15}
+          onPress={this.sendEmailPressed}
+          title={'Send Email'}
+        />
 
-        <Text>Step 2.</Text>
-        <Text>Once you have recieved the email, log into GGMN at https://ggmn.un-igrac.org/ and select "Upload" in the top right corner.</Text>
+        <Text style={headingStyle}>Step 2.</Text>
+        <Text style={sectionStyle}>Once you have recieved the email, log into GGMN at https://ggmn.un-igrac.org/ and select "Upload" in the top right corner.</Text>
 
-        <Text>Step 3.</Text>
-        <Text>Scroll down to 'Import a SufHyd or shape File' select the organisation your account is associated with, and the file from the email.</Text>
+        <Text style={headingStyle}>Step 3.</Text>
+        <Text style={sectionStyle}>Scroll down to 'Import a SufHyd or shape File' select the organisation your account is associated with, and the file from the email.</Text>
         
-        <Text>Step 4.</Text>
-        <Text>Once this is done, log back into GGMN on your device, and you will see that resources have changed color, and and pending reaadings will start to save.</Text>
+        <Text style={headingStyle}>Step 4.</Text>
+        <Text style={sectionStyle}>Once this is done, log back into GGMN on your device, and you will see that resources have changed color, and and pending reaadings will start to save.</Text>
 
-        <Text>Need some help?</Text>
-        <Text>Just reach out to ____ at ____. We'd be glad to assist you.</Text>
-      </View>
+        <Text style={headingStyle}>Need some help?</Text>
+        <Text style={{ paddingBottom: 20, ...sectionStyle }}>Just reach out to ____ at ____. We'd be glad to assist you.</Text>
+      </ScrollView>
     );
   }
 
@@ -110,11 +151,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    addRecent: (api: BaseApi, userId: string, resource: Resource) => {
-      dispatch(appActions.addRecent(api, userId, resource))
-    },
-    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-      dispatch(appActions.getResources(api, userId, region)),
+   
   };
 }
 

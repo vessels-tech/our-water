@@ -54,6 +54,8 @@ export type AnyAction =
   SaveResourceActionRequest |
   SaveResourceActionResponse |
   SetExternalOrganisation |
+  SendResourceEmailActionRequest |
+  SendResourceEmailActionResponse |
   SilentLoginActionRequest |
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
@@ -107,5 +109,7 @@ export type SaveResourceActionResponse = { type: ActionType.SAVE_RESOURCE_RESPON
 export type SilentLoginActionRequest = { type: ActionType.SILENT_LOGIN_REQUEST };
 export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE, userIdResult: SomeResult<string> };
 export type SetExternalOrganisation = { type: ActionType.SET_EXTERNAL_ORGANISATION, organisation: GGMNOrganisation};
+export type SendResourceEmailActionRequest = {type: ActionType.SEND_RESOURCE_EMAIL_REQUEST};
+export type SendResourceEmailActionResponse = {type: ActionType.SEND_RESOURCE_EMAIL_RESPONSE, result: SomeResult<void>};
 export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST}
 export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatus>}
