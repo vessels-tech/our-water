@@ -19,6 +19,7 @@ const GGMNDevConfig: RemoteConfig = {
   editResource_availableTypes: [
     ResourceType.well, 
   ],
+  editResource_allowCustomId: true,
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
 }
 

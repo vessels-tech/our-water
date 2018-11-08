@@ -10,6 +10,7 @@ import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
+import ExtendedResourceCreationApi from "../api/ExtendedResourceCreationApi";
 
 
 
@@ -33,6 +34,7 @@ export type RemoteConfig = {
   //define what resources shold look like
   editResource_showOwerName: boolean,
   editResource_availableTypes: ResourceType[],
+  editResource_allowCustomId: boolean,
   favouriteResource_scrollDirection: ScrollDirection,
 
 }
@@ -59,6 +61,7 @@ export class ConfigFactory {
   appApi: BaseApi; //TODO: change to appApi
   externalServiceApi: MaybeExternalServiceApi;
   userApi: UserApi; 
+  extendedResourceCreationApi: MaybeExternalServiceApi;
   public orgType: OrgType;
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
@@ -77,7 +80,9 @@ export class ConfigFactory {
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
       this.userApi = ggmnApi;
+      this.extendedResourceCreationApi = ggmnApi;
       this.orgType = OrgType.GGMN
+
     } else {
       //Default to MyWellApi
       const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
@@ -85,8 +90,8 @@ export class ConfigFactory {
       this.appApi = mywellApi;
       //@ts-ignore
       this.userApi = mywellApi;
-      // throw new Error(`ExternalServiceApi not available for baseApiType: ${this.remoteConfig.baseApiType}`);
       this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
+      this.extendedResourceCreationApi = { externalServiceApiType: ExternalServiceApiType.None};
       this.orgType = OrgType.MYWELL
     }
   }
@@ -117,6 +122,8 @@ export class ConfigFactory {
   getExternalServiceApi(): MaybeExternalServiceApi {
    return this.externalServiceApi;
   }
+
+  
 
   getShowConnectToButton() {
     if (this.remoteConfig.showConnectToButton) {
@@ -169,6 +176,10 @@ export class ConfigFactory {
 
   getAvailableResourceTypes(): ResourceType[]{
     return this.remoteConfig.editResource_availableTypes;
+  }
+
+  getEditResourceAllowCustomId(): boolean {
+    return this.remoteConfig.editResource_allowCustomId;
   }
 
   getFavouriteResourceScrollDirection(): ScrollDirection {

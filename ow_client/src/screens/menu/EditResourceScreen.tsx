@@ -79,9 +79,15 @@ class EditResourceScreen extends Component<Props> {
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
     };
+    
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
       formBuilderGroup['ownerName'] = ['', Validators.required];
     }
+
+    if (this.props.config.getEditResourceAllowCustomId()) {
+      formBuilderGroup['id'] = ['', Validators.required];
+    }
+
     this.editResourceForm = FormBuilder.group(formBuilderGroup);
   }
 
@@ -152,6 +158,9 @@ class EditResourceScreen extends Component<Props> {
       translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button, new_resource_asset_type_label}}
     } = this.props;
 
+    //TODO: translate
+    const new_resource_id = 'ID';
+
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
         key: t,
@@ -170,6 +179,12 @@ class EditResourceScreen extends Component<Props> {
             <View style={{
               flexDirection: 'row',
             }}>
+              {this.props.config.getEditResourceAllowCustomId() ?
+                <FieldControl
+                  name="id"
+                  render={TextInput}
+                  meta={{ editable: true, label: new_resource_id, secureTextEntry: false, keyboardType: 'default' }}
+                /> : null}
               <LoadLocationButton style={{
                 alignSelf: 'center',
                 // paddingLeft: 15,

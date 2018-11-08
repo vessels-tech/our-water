@@ -18,11 +18,12 @@ import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
-import { SomeResult, ResultType } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType, success, makeError, makeSuccess } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations/Types";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
+import ExtendedResourceCreationApi from "./ExtendedResourceCreationApi";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -43,7 +44,7 @@ export interface GGMNApiOptions {
  * 
  * TODO: make an interface, and share components with BaseApi.js
  */
-class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
+class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceCreationApi {
   auth: any = null;
   baseUrl: string;
   networkApi: NetworkApi;
@@ -952,6 +953,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi {
   changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
     return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
   }
+
+
+  //
+  // ExtendedResourceCreationApi
+  //----------------------------------------------------------------------
+  async checkNewId(id: string): Promise<SomeResult<boolean>> {
+
+    return Promise.resolve(makeSuccess<boolean>(false));
+  }
+
 
   //
   // Utils

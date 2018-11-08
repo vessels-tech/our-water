@@ -22,6 +22,7 @@ const MyWellDevConfig: RemoteConfig = {
     ResourceType.quality,
     ResourceType.checkdam,
   ],
+  editResource_allowCustomId: false,
   favouriteResource_scrollDirection: ScrollDirection.Vertical,
 }
 

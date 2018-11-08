@@ -103,7 +103,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   hardwareBackListener: any;
   appApi: BaseApi;
-  externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -111,7 +110,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
-    this.externalApi = props.config.getExternalServiceApi();
 
     //Listen to events from the navigator
     // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
@@ -126,7 +124,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   componentDidMount() {
     console.log("App componentDidMount");
-    // this.props.startExternalSync(this.externalApi, this.props.userId);
   }
 
   componentWillReceiveProps() {

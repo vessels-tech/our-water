@@ -32,6 +32,7 @@ export class FirebaseConfig {
           favouriteResourceList_showGetStartedButtons: obj.favouriteResourceList_showGetStartedButtons.val(),
           editResource_showOwerName: obj.editResource_showOwerName.val(),
           editResource_availableTypes: obj.editResource_availableTypes.val(),
+          editResource_allowCustomId: obj.editResource_allowCustomId.val(),
           favouriteResource_scrollDirection: obj.favouriteResource_scrollDirection.val(),
           
         }

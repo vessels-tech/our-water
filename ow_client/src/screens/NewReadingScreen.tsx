@@ -33,6 +33,8 @@ import IconButton from '../components/common/IconButton';
 import { MaybeReadingLocation, ReadingLocationType, ReadingLocation } from '../typings/models/ReadingLocation';
 import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingResource } from '../typings/models/PendingResource';
+import { PendingTimeseries } from '../typings/models/PendingTimeseries';
+import { AnyTimeseries } from '../typings/models/Timeseries';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -393,7 +395,11 @@ class NewReadingScreen extends Component<Props> {
             onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
           }>
           {/* TODO: fix for pending reading */}
-            {/* {resource.timeseries.map(ts => <Picker.Item key={ts.id} label={ts.name} value={ts.id}/>)} */}
+            {resource.pending ? 
+              resource.timeseries.map((ts: PendingTimeseries)  => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter}/>) 
+              :
+              resource.timeseries.map((ts: AnyTimeseries) => <Picker.Item key={ts.id} label={ts.name} value={ts.id} />) 
+            }
           </Picker>
         </View>
         {this.getImageSection()}
