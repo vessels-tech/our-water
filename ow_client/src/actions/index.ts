@@ -18,7 +18,7 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
 import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
-import { PendingResource } from "../typings/models/PendingResource";
+import { PendingResource, PendingResource } from "../typings/models/PendingResource";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -738,18 +738,17 @@ function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActio
 /**
  * trigger an external sync
  */
-export function startExternalSync(api: MaybeExternalServiceApi, userId: string): (dispatch: any) => void {
+export function startExternalSync(api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): (dispatch: any) => void {
   return async function(dispatch: any) {
-    dispatch(externalSyncRequest());
-    //TODO: call the api!
-    maybeLog("TODO: syncing with GGMN api");
-
-    const result: SomeResult<ExternalSyncStatus> = {
-      type: ResultType.SUCCESS,
-      result: {
-        type: ExternalSyncStatusType.NOT_RUNNING,
-      }
+    if (api.externalServiceApiType === ExternalServiceApiType.None) {
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return makeSuccess<void>(undefined);
     }
+
+    dispatch(externalSyncRequest());
+    
+    maybeLog("TODO: syncing with GGMN api");
+    const result = await api.runExternalSync(userId, pendingResources, pendingReadings);
 
     dispatch(externalSyncResponse(result));
   }

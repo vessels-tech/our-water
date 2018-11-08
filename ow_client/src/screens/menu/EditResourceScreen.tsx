@@ -167,7 +167,9 @@ class EditResourceScreen extends Component<Props> {
     };
 
     if (this.props.config.getEditResourceAllowCustomId()) {
-      unvalidatedResource.id = this.editResourceForm.value.id;
+      // unvalidatedResource.id = this.editResourceForm.value.id;
+      //TODO: temp for testing only
+      unvalidatedResource.id = '1696';
     }
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);

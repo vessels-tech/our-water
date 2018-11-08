@@ -24,6 +24,7 @@ export type GGMNSearchResponse = {
 export type GGMNSearchEntity = {
   id: string, 
   title: string,
+  description: string,
   entity_name: string,
   entity_id: string,
 }

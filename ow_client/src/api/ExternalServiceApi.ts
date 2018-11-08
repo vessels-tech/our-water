@@ -1,7 +1,8 @@
-import { EmptyLoginDetails, LoginDetails, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
+import { EmptyLoginDetails, LoginDetails, AnyLoginDetails, ExternalSyncStatus } from "../typings/api/ExternalServiceApi";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { PendingResource } from "../typings/models/PendingResource";
+import { PendingReading } from "../typings/models/OurWater";
 
 export enum ExternalServiceApiType {
   None='None',
@@ -72,4 +73,12 @@ export default interface ExternalServiceApi {
    */
   sendResourceEmail(email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>>;
 
+
+  /**
+   * StartExternalSync
+   * 
+   * Sync the locally saved resources and readings with the external service
+   * User must be logged in
+   */
+  runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatus>>;
 }

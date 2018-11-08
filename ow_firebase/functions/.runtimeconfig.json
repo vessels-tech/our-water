@@ -1,10 +1,10 @@
 {
   "config": {
     "should_send_emails": "false",
-    "outbound_email_address": "lwdaly92@gmail.com",
-    "test_email_whitelist": "lewisdaly@me.com,lewis@vesselstech.com",
     "outbound_email_password": "Lop323Wr/",
-    "mywell_legacy_access_token": "R5iWDXVnb9XzywYN7b4bi8sYZFstbaiY24cHh5C3Rmz8x7Ouk1ZrI9CGkbBIhu55"
+    "test_email_whitelist": "lewisdaly@me.com,lewis@vesselstech.com",
+    "mywell_legacy_access_token": "R5iWDXVnb9XzywYN7b4bi8sYZFstbaiY24cHh5C3Rmz8x7Ouk1ZrI9CGkbBIhu55",
+    "outbound_email_address": "lwdaly92@gmail.com"
   },
   "test": {
     "somevar": "some value",

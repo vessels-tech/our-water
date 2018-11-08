@@ -14,7 +14,7 @@ import {
 } from '../utils';
 import NetworkApi from './NetworkApi';
 import { DeprecatedResource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
-import { SomeResult, ResultType, makeSuccess } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
@@ -414,13 +414,26 @@ class FirebaseApi {
   static async saveResourceToUser(orgId: string, userId: string, resource: DeprecatedResource): Promise<SomeResult<null>> {
     /* we don't want to wait for this to resolve */
     if (resource.id) {
-      this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
+      await this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
       return makeSuccess(null);
     }
 
-    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+    await this.userDoc(orgId, userId).collection('pendingResources').add(resource);
     return makeSuccess(null);
   }
+
+
+  /**
+   * deletePendingResource
+   * 
+   * Delete a pending resource from the user's pending resource list
+   */
+  static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
+    return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
+    .then(() => makeSuccess(undefined))
+    .catch((err: Error) => makeError(err.message));
+  }
+
 
   /**
    * Get the pending readings saved to the user's `pendingReadings` collection

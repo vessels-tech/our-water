@@ -45,6 +45,7 @@ export enum ConnectionStatus {
 
 
 export enum ExternalSyncStatusType {
+  COMPLETE = 'COMPLETE',
   NOT_RUNNING = 'NOT_RUNNING',
   RUNNING = 'RUNNING',
   FAILED = 'FAILED',

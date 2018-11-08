@@ -13,7 +13,7 @@ import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwat
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
-import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
+import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
@@ -1011,6 +1011,57 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return FirebaseApi.sendResourceEmail(this.orgId, email, pendingResources);
   }
 
+  /**
+   * StartExternalSync
+   * 
+   * Sync the locally saved resources and readings with the external service
+   * User must be logged in
+   * 
+   * Calls dispatch with an app action when sync is done.
+   */
+  async runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatus>> {
+    const savedResourceIds: string[] = [];
+    
+    /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
+    const checkResourcesResults: Array<SomeResult<boolean>> = await Promise.all(pendingResources.map(res => this.checkNewId(res.id)))
+      .then((results: Array<SomeResult<boolean>>) => results);
+    console.log('checkResourcesResults', checkResourcesResults);
+
+    checkResourcesResults.forEach((r, idx) => {
+      if (r.type === ResultType.ERROR) {
+        return r;
+      }
+
+      if (r.result === false) {
+        /*Id exists in GGMN */
+        savedResourceIds.push(pendingResources[idx].id);
+      }
+    });
+
+    maybeLog("Saved resources: ", savedResourceIds);
+
+    const removePendingResults: Array<SomeResult<void>> = await Promise.all(  
+      savedResourceIds.map(id => FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id))
+    );
+    removePendingResults.forEach(r => {
+      if (r.type === ResultType.ERROR) {
+        return r;
+      }
+    });
+
+    console.log("removePendingResults", removePendingResults);
+
+
+
+    return Promise.resolve(makeSuccess({type: ExternalSyncStatusType.COMPLETE}));
+
+
+    /* For each reading, make sure the resource has been saved first.
+    
+      find the timeseries associated with the reading, and save it using the GGMN api.
+    */
+
+  }
 
   //
   // UserApi
@@ -1080,13 +1131,18 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
 
     const searchEntities = searchResponse.result.results;
+    let exists = true;
     searchEntities.forEach(s => {
-      if (s.title === id) {
-        return makeSuccess<boolean>(false);
+      console.log("search entity", s.description);
+      console.log("id is", id);
+
+      if (s.description === `${id}`) {
+        exists = false;
       }
     });
 
-    return makeSuccess(true);
+
+    return makeSuccess<boolean>(exists);
   }
 
 

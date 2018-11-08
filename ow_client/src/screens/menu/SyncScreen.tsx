@@ -31,7 +31,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  startExternalSync: (api: MaybeExternalServiceApi, userId: string) => any,
+  startExternalSync: (api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => any,
   deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
   deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
@@ -85,7 +85,11 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 
   getSyncSection() {
-    const { externalLoginDetails, externalSyncStatus, 
+    const { 
+      externalLoginDetails, 
+      externalSyncStatus, 
+      pendingSavedResources,
+      pendingSavedReadings, 
       translation: { templates: {
         settings_sync_heading,
         sync_login_message,
@@ -144,7 +148,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         loading={syncing}
         icon={{ name: 'cached', color: primaryText }}
         title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-        onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId)}
+        onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
       />
     )
   }
@@ -352,8 +356,8 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    startExternalSync: (api: MaybeExternalServiceApi, userId: string) => 
-      dispatch(appActions.startExternalSync(api, userId)),
+    startExternalSync: (api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => 
+      dispatch(appActions.startExternalSync(api, userId, pendingResources, pendingReadings)),
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
     deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
