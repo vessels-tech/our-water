@@ -1,5 +1,5 @@
 import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
-import { SomeResult, ResultType, makeSuccess } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
 import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse } from "./AnyAction";
@@ -18,6 +18,7 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
 import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
+import { PendingResource } from "../typings/models/PendingResource";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -671,8 +672,9 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
 /**
  * Get the user's email and trigger a resource creation email
  * 
+ * //TODO: should we pass in pending resources?
  */
-export function sendResourceEmail(api: MaybeExternalServiceApi, userId: string): (dispatch: any) => Promise<SomeResult<void>> {
+export function sendResourceEmail(api: MaybeExternalServiceApi, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
   return async function(dispatch: any) {
     if (api.externalServiceApiType === ExternalServiceApiType.None) {
       maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
@@ -681,7 +683,7 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, userId: string):
 
     dispatch(sendResourceEmailRequest());
     //TODO: actually send the email
-    const result = makeSuccess<void>(undefined);
+    const result = makeError<void>('nah');
 
     dispatch(sendResourceEmailResponse(result));
 

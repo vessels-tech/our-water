@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Button, Text } from 'react-native-elements';
+import { Button, Text, FormValidationMessage } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback, ToastAndroid, ScrollView, TextStyle } from 'react-native';
@@ -19,10 +19,11 @@ import MapSection, { MapRegion } from '../components/MapSection';
 import { MapStateOption } from '../enums';
 import * as appActions from '../actions/index';
 import MapView, { Marker, Region } from 'react-native-maps';
-import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 
@@ -33,6 +34,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
+  pendingResources: PendingResource[],
   // userId: string,
   // userIdMeta: ActionMeta,
   // location: Location,
@@ -44,19 +46,19 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  addRecent: any,
-  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
+  sendResourceEmail: (api: MaybeExternalServiceApi, pendingResources: PendingResource[]) => any,
 }
 
 
 export interface State {
+  isEmailLoading: boolean,
 }
 
 class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
   state: State = {
-
+    isEmailLoading: false
   }
 
   constructor(props: OwnProps & StateProps & ActionProps) {
@@ -71,11 +73,24 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
   }
 
   sendEmailPressed() {
+    //TODO: translate
+    const sync_email_error = 'There was a problem sending the email. Please try again.';
+    const sync_email_success = 'Email Sent!';
 
+    this.setState({isEmailLoading: true}, async () => {
+      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, this.props.pendingResources);
+      if (result.type === ResultType.ERROR) {
+        ToastAndroid.show(sync_email_error, ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show(sync_email_success, ToastAndroid.SHORT);
+      }
+
+      this.setState({isEmailLoading: false});
+    });
   }
 
-
   render() {
+    const { isEmailLoading } = this.state;
 
     const headingStyle: TextStyle = {
       paddingTop: 20,
@@ -114,6 +129,7 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
           buttonStyle={{
             height: 50,
           }}
+          loading={isEmailLoading}
           color={secondaryText}
           backgroundColor={secondaryLight}
           borderRadius={15}
@@ -144,14 +160,15 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 
   return {
-    // userId,
-    // userIdMeta: state.userIdMeta,
+    pendingResources: state.pendingSavedResources,
   }
 }
 
+
+
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-   
+    sendResourceEmail: (api: MaybeExternalServiceApi, pendingResources: PendingResource[]) => dispatch(appActions.sendResourceEmail(api, pendingResources))
   };
 }
 
