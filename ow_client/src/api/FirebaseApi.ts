@@ -832,6 +832,53 @@ class FirebaseApi {
     });
   }
 
+  /**
+   * SendResourceEmail
+   * 
+   * Trigger the Firebase Api to send an email containing shapefiles for the given resources
+   */
+  static async sendResourceEmail(orgId: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
+    const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
+
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, pendingResources })
+    };
+
+    maybeLog("CreateShortId url: ", url);
+    maybeLog("CreateShortId options: ", options);
+
+    return ftch(url, options)
+      .then((response: any) => {
+        if (!response.ok) {
+          return rejectRequestWithError(response.status);
+        }
+
+        return response.json();
+      })
+      .then((shortId: ShortId) => {
+        return {
+          type: ResultType.SUCCESS,
+          result: shortId.shortId,
+        }
+      })
+      .catch((err: Error) => {
+        maybeLog(`CreateShortId Error: ${err}`);
+        return {
+          type: ResultType.ERROR,
+          message: err.message
+        };
+      });
+
+
+  }
+
+
   //
   //Utils
   //------------------------------------------------------------------------------

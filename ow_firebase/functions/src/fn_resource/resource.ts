@@ -12,6 +12,14 @@ import { resourceTypeFromString } from '../common/enums/ResourceType';
 import FirebaseApi from '../common/apis/FirebaseApi';
 import { ResultType } from '../common/types/AppProviderTypes';
 import firestore from '../common/apis/Firestore';
+import ErrorHandler from '../common/ErrorHandler';
+
+
+//@ts-ignore
+import * as morgan from 'morgan';
+//@ts-ignore
+import * as morganBody from 'morgan-body';
+import { ggmnResourceEmailValidation } from './validation';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -23,9 +31,13 @@ module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
 
-  /* CORS Configuration */
-  const openCors = cors({origin: '*'});
-  app.use(openCors);
+  if (process.env.VERBOSE_LOG === 'false') {
+    console.log('Using simple log');
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+  } else {
+    console.log('Using verbose log');
+    morganBody(app);
+  }
 
 
   //TODO: fix this error handler
@@ -226,6 +238,14 @@ module.exports = (functions) => {
     }
   });
 
+  app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
+    //TODO: build an email and send it.
+
+    
+
+    res.json(true);
+  });
+
   /**
    * getReadingsForResource
    * 
@@ -308,7 +328,13 @@ module.exports = (functions) => {
   
   });
 
+  /* CORS Configuration */
+  const openCors = cors({ origin: '*' });
+  app.use(openCors);
 
+
+  /*Error Handling - must be at bottom!*/
+  app.use(ErrorHandler);
 
   return functions.https.onRequest(app);
 };

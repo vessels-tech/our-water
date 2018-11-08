@@ -1,6 +1,7 @@
 import { EmptyLoginDetails, LoginDetails, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
+import { PendingResource } from "../typings/models/PendingResource";
 
 export enum ExternalServiceApiType {
   None='None',
@@ -53,5 +54,22 @@ export default interface ExternalServiceApi {
    * Select an organisation
    */
   selectExternalOrganisation(organisation: GGMNOrganisation): Promise<SomeResult<void>>;
+
+
+  /**
+   * GetEmail
+   * 
+   * Get user email address from GGMN username
+   * 
+   * User must be logged in.
+   * GGMN only
+   */
+  getEmail(username: string): Promise<SomeResult<string>>;
+
+  /**
+   * Send Resource Email
+   * GGMN only
+   */
+  sendResourceEmail(email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>>;
 
 }

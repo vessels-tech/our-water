@@ -674,7 +674,7 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
  * 
  * //TODO: should we pass in pending resources?
  */
-export function sendResourceEmail(api: MaybeExternalServiceApi, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
+export function sendResourceEmail(api: MaybeExternalServiceApi, username: string, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
   return async function(dispatch: any) {
     if (api.externalServiceApiType === ExternalServiceApiType.None) {
       maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
@@ -682,12 +682,17 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, pendingResources
     }
 
     dispatch(sendResourceEmailRequest());
-    //TODO: actually send the email
-    const result = makeError<void>('nah');
+    const emailResult = await api.getEmail(username);
+    if (emailResult.type === ResultType.ERROR) {
+      return emailResult;
+    }
 
-    dispatch(sendResourceEmailResponse(result));
+    const email = emailResult.result;
+    const sendEmailResult = await api.sendResourceEmail(email, pendingResources);
 
-    return result;
+    dispatch(sendResourceEmailResponse(sendEmailResult));
+
+    return sendEmailResult;
   }
 }
 

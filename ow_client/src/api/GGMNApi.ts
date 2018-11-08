@@ -9,7 +9,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
-import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries } from "../typings/models/GGMN";
+import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries, GGMNUsersResponse } from "../typings/models/GGMN";
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
@@ -940,6 +940,75 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       type: ResultType.SUCCESS,
       result: resource
     }
+  }
+
+  //
+  // ExternalServiceApi
+  //------------------------------------------------------------------------
+
+
+  /**
+   * GetEmail
+   * 
+   * Get user email address from GGMN username
+   * 
+   * example url: https://ggmn.lizard.net/api/v3/users/?username=lewis_daly
+   * 
+   * User must be logged in.
+   * GGMN only
+   */
+  async getEmail(username: string): Promise<SomeResult<string>> {
+    const usersUrl = `${this.baseUrl}/api/v3/users/`;
+    const url = appendUrlParameters(usersUrl, {
+      username,
+    });
+
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    let authHeaders = {};
+
+    if (authHeadersResult.type === ResultType.ERROR) {
+      return makeError('You must log in before sending the email');
+    }
+
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+    };
+
+    maybeLog("getEmail url:", url);
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      maybeLog("error: " + err);
+      return {
+        type: ResultType.ERROR,
+        message: "Error loading search from GGMN.",
+      }
+    }
+
+    const getUsersResponse = await naiveParseFetchResponse<GGMNUsersResponse>(response);
+    if (getUsersResponse.type === ResultType.ERROR) {
+      return getUsersResponse;
+    }
+
+    if (getUsersResponse.result.results.length === 0) {
+      return makeError(`Couldn't find user for username: ${username}`);
+    }
+
+    const email = getUsersResponse.result.results[0].email;
+    return makeSuccess(email);
+  }
+
+  /**
+   * Send Resource Email
+   */
+  sendResourceEmail(email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
+    return FirebaseApi.sendResourceEmail(this.orgId, email, pendingResources);
   }
 
 

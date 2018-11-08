@@ -28,6 +28,22 @@ export type GGMNSearchEntity = {
   entity_id: string,
 }
 
+export type GGMNUsersResponse = {
+  count: number,
+  next: string,
+  previous: string,
+  results: GGMNUser[],
+}
+
+export type GGMNUser = {
+  url: string,
+  username: string,
+  first_name: string,
+  last_name: string,
+  email: string,
+  organisations_url: string,
+}
+
 export type GGMNGroundwaterStationResponse = {
   count: number,
   next: string,

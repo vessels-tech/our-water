@@ -24,6 +24,7 @@ import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
+import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 
 
 
@@ -35,18 +36,12 @@ export interface OwnProps {
 
 export interface StateProps {
   pendingResources: PendingResource[],
-  // userId: string,
-  // userIdMeta: ActionMeta,
-  // location: Location,
-  // locationMeta: SyncMeta,
-  // resources: Resource[],
-  // resourcesMeta: SyncMeta,
-  // translation: TranslationFile
-
+  externalLoginDetails: AnyLoginDetails,
+  externalLoginDetailsMeta: SyncMeta,
 }
 
 export interface ActionProps {
-  sendResourceEmail: (api: MaybeExternalServiceApi, pendingResources: PendingResource[]) => any,
+  sendResourceEmail: (api: MaybeExternalServiceApi, username: string, pendingResources: PendingResource[]) => any,
 }
 
 
@@ -73,14 +68,20 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
   }
 
   sendEmailPressed() {
+    const { externalLoginDetails } = this.props;
+
+    if (externalLoginDetails.type !== LoginDetailsType.FULL) {
+      return;
+    }
     //TODO: translate
     const sync_email_error = 'There was a problem sending the email. Please try again.';
     const sync_email_success = 'Email Sent!';
 
     this.setState({isEmailLoading: true}, async () => {
-      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, this.props.pendingResources);
+      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, externalLoginDetails.username, this.props.pendingResources);
       if (result.type === ResultType.ERROR) {
-        ToastAndroid.show(sync_email_error, ToastAndroid.SHORT);
+        //TODO: translate the error message
+        ToastAndroid.show(result.message, ToastAndroid.SHORT);
       } else {
         ToastAndroid.show(sync_email_success, ToastAndroid.SHORT);
       }
@@ -90,6 +91,7 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
   }
 
   render() {
+    const { externalLoginDetails } = this.props;
     const { isEmailLoading } = this.state;
 
     const headingStyle: TextStyle = {
@@ -122,20 +124,22 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
 
         <Text style={headingStyle}>Step 1.</Text>
         <Text style={sectionStyle}>Click the "Send Email" button below to send an email to your GGMN account. This email will contain the shapefiles needed to register the groundwater stations</Text>
-        <Button
-          containerViewStyle={{
-            marginTop: 20,
-          }}
-          buttonStyle={{
-            height: 50,
-          }}
-          loading={isEmailLoading}
-          color={secondaryText}
-          backgroundColor={secondaryLight}
-          borderRadius={15}
-          onPress={this.sendEmailPressed}
-          title={'Send Email'}
-        />
+        {externalLoginDetails.type === LoginDetailsType.FULL ?
+          <Button
+            containerViewStyle={{
+              marginTop: 20,
+            }}
+            buttonStyle={{
+              height: 50,
+            }}
+            loading={isEmailLoading}
+            color={secondaryText}
+            backgroundColor={secondaryLight}
+            borderRadius={15}
+            onPress={this.sendEmailPressed}
+            title={'Send Email'}
+          />
+        : null }
 
         <Text style={headingStyle}>Step 2.</Text>
         <Text style={sectionStyle}>Once you have recieved the email, log into GGMN at https://ggmn.un-igrac.org/ and select "Upload" in the top right corner.</Text>
@@ -161,6 +165,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     pendingResources: state.pendingSavedResources,
+    externalLoginDetails: state.externalLoginDetails,
+    externalLoginDetailsMeta: state.externalLoginDetailsMeta,
   }
 }
 
@@ -168,7 +174,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    sendResourceEmail: (api: MaybeExternalServiceApi, pendingResources: PendingResource[]) => dispatch(appActions.sendResourceEmail(api, pendingResources))
+    sendResourceEmail: (api: MaybeExternalServiceApi, email: string, pendingResources: PendingResource[]) => 
+      dispatch(appActions.sendResourceEmail(api, email, pendingResources))
   };
 }
 
