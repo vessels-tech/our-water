@@ -13,9 +13,9 @@ import { DeprecatedResource, SaveResourceResult } from '../../typings/models/Our
 import * as appActions from '../../actions';
 import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
-import { FormBuilder, Validators, FieldGroup, FieldControl } from 'react-reactive-form';
+import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
-import { TextInput, DropdownInput } from '../../components/common/FormComponents';
+import { TextInput, DropdownInput, TextIdInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
 import { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
@@ -27,6 +27,7 @@ import { secondary, secondaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations/Types';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { OrgType } from '../../typings/models/OrgType';
+import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/ExtendedResourceApi';
 
 export interface Props { 
   resourceId: string,
@@ -48,10 +49,12 @@ export interface State {
 
 }
 
+
 class EditResourceScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
+  extendedResourceApi: MaybeExtendedResourceApi
   editResourceForm: any;
 
   constructor(props: Props) {
@@ -60,11 +63,14 @@ class EditResourceScreen extends Component<Props> {
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
+    this.extendedResourceApi = this.props.config.getExtendedResourceApi();
     
-    this.state = {
-      isLoading: false,
-    };
+    this.state = {};
 
+    /* Binds */
+    this.asyncIdValidator = this.asyncIdValidator.bind(this);
+
+    /* Set up the form */
     let lat = '';
     let lng = '';
     if (props.location.type === LocationType.LOCATION) {
@@ -85,10 +91,36 @@ class EditResourceScreen extends Component<Props> {
     }
 
     if (this.props.config.getEditResourceAllowCustomId()) {
-      formBuilderGroup['id'] = ['', Validators.required];
+      formBuilderGroup['id'] = ['', Validators.required, this.asyncIdValidator];
+    }
+    this.editResourceForm = FormBuilder.group(formBuilderGroup);
+  }
+
+  async asyncIdValidator(control: AbstractControl) {
+    //TODO: load translations
+    const new_resource_id_check_error = 'Error checking the Id. Please try again.';
+    const new_resource_id_check_taken = 'This Id is already taken. Please enter a different id';
+
+    if (this.extendedResourceApi.extendedResourceApiType === ExtendedResourceApiType.None) {
+      //Tried to check, but this call is invalid.
+      return Promise.resolve(null);
     }
 
-    this.editResourceForm = FormBuilder.group(formBuilderGroup);
+    const result = await this.extendedResourceApi.checkNewId(control.value);
+
+    if (result.type === ResultType.ERROR) {
+      //TODO: translations
+      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
+
+      throw { invalidId: true };
+    }
+
+    if (result.result === false) {
+      // ToastAndroid.show(new_resource_id_check_taken, ToastAndroid.SHORT);
+      throw { invalidId: true };
+    }
+
+    return null;
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -111,6 +143,7 @@ class EditResourceScreen extends Component<Props> {
 
     //TODO: get org specific default values, eg. for timeseries and stuff
     const unvalidatedResource = {
+      //TODO: load the id?
       pending: true,
       coords: {
         latitude: this.editResourceForm.value.lat,
@@ -158,8 +191,9 @@ class EditResourceScreen extends Component<Props> {
       translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button, new_resource_asset_type_label}}
     } = this.props;
 
-    //TODO: translate
+    //TODO: translation
     const new_resource_id = 'ID';
+    const new_resource_id_check_taken = 'Id is not valid or already taken.';
 
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
@@ -175,20 +209,26 @@ class EditResourceScreen extends Component<Props> {
         control={this.editResourceForm}
         render={({get, invalid}) => (
           <View>
-            {/* TODO: make look pretty! */}
+            {/* TODO: loading indicator, check for validity */}
+            {this.props.config.getEditResourceAllowCustomId() ?
+              <FieldControl
+                name="id"
+                render={TextIdInput}
+                meta={{ 
+                  editable: true, 
+                  label: new_resource_id, 
+                  secureTextEntry: false, 
+                  keyboardType: 'numeric' ,
+                  asyncErrorMessage: new_resource_id_check_taken,
+                }}
+              /> : null}
             <View style={{
               flexDirection: 'row',
             }}>
-              {this.props.config.getEditResourceAllowCustomId() ?
-                <FieldControl
-                  name="id"
-                  render={TextInput}
-                  meta={{ editable: true, label: new_resource_id, secureTextEntry: false, keyboardType: 'default' }}
-                /> : null}
-              <LoadLocationButton style={{
-                alignSelf: 'center',
-                // paddingLeft: 15,
-              }}/>
+              <LoadLocationButton 
+                style={{
+                  alignSelf: 'center',
+                }}/>
               <FieldControl
                 name="lat"
                 render={TextInput}

@@ -10,7 +10,7 @@ import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
-import ExtendedResourceCreationApi from "../api/ExtendedResourceCreationApi";
+import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
 
 
 
@@ -61,7 +61,7 @@ export class ConfigFactory {
   appApi: BaseApi; //TODO: change to appApi
   externalServiceApi: MaybeExternalServiceApi;
   userApi: UserApi; 
-  extendedResourceCreationApi: MaybeExternalServiceApi;
+  extendedResourceApi: MaybeExtendedResourceApi;
   public orgType: OrgType;
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
@@ -80,7 +80,7 @@ export class ConfigFactory {
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
       this.userApi = ggmnApi;
-      this.extendedResourceCreationApi = ggmnApi;
+      this.extendedResourceApi = ggmnApi;
       this.orgType = OrgType.GGMN
 
     } else {
@@ -91,7 +91,7 @@ export class ConfigFactory {
       //@ts-ignore
       this.userApi = mywellApi;
       this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
-      this.extendedResourceCreationApi = { externalServiceApiType: ExternalServiceApiType.None};
+      this.extendedResourceApi = {externalServiceApiType: ExtendedResourceApiType.None};
       this.orgType = OrgType.MYWELL
     }
   }
@@ -123,7 +123,9 @@ export class ConfigFactory {
    return this.externalServiceApi;
   }
 
-  
+  getExtendedResourceApi(): MaybeExtendedResourceApi {
+    return this.extendedResourceApi;
+  }
 
   getShowConnectToButton() {
     if (this.remoteConfig.showConnectToButton) {

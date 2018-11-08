@@ -18,12 +18,12 @@ import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
-import { SomeResult, ResultType, success, makeError, makeSuccess } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations/Types";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
-import ExtendedResourceCreationApi from "./ExtendedResourceCreationApi";
+import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResourceApi";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -44,7 +44,7 @@ export interface GGMNApiOptions {
  * 
  * TODO: make an interface, and share components with BaseApi.js
  */
-class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceCreationApi {
+class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceApi {
   auth: any = null;
   baseUrl: string;
   networkApi: NetworkApi;
@@ -52,6 +52,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceC
   unsubscribeUser: any;
   pendingReadingsSubscription: any;
   externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
+  extendedResourceApiType: ExtendedResourceApiType.Has = ExtendedResourceApiType.Has;
 
   // private syncStatusCallback: any;
 
@@ -956,11 +957,23 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceC
 
 
   //
-  // ExtendedResourceCreationApi
+  // ExtendedResourceApi
   //----------------------------------------------------------------------
+
+  /**
+   * checkNewId
+   * 
+   * Check with the GGMN system that the new Id is valid
+   */
   async checkNewId(id: string): Promise<SomeResult<boolean>> {
 
-    return Promise.resolve(makeSuccess<boolean>(false));
+    //TODO: implement
+
+    if (id === '12345') {
+      return Promise.resolve(makeError<boolean>('Error connecting'));
+    }
+
+    return Promise.resolve(makeSuccess<boolean>(true));
   }
 
 

@@ -20,6 +20,18 @@ export type TextInputParams = {
   }
 }
 
+export type TextIdInputParams = {
+  type: InputParams.Text,
+  handler: any,
+  touched: boolean,
+  hasError: any,
+  meta: {
+    label: string,
+    errorMessage: string,
+    asyncErrorMessage: string,
+  }
+}
+
 export type DropdownInputParams = {
   type: InputParams.Dropdown,
   handler: any,
@@ -33,7 +45,7 @@ export type DropdownInputParams = {
 }
 
 export const TextInput = ({ meta, handler, hasError, touched }: any) => {
-
+  
   return (
     <View style={{
       flex: 1,
@@ -60,13 +72,41 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
     </View>
   );
 }
+export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
+
+  console.log("hasError", hasError('invalidId'));
+
+  return (
+    <View style={{
+      flex: 1,
+    }}>
+      <FormLabel>{meta.label}</FormLabel>
+      <FormInput
+        autoCapitalize={'none'} 
+        keyboardType={meta.keyboardType}
+        // placeholder={`${meta.label}`}
+        secureTextEntry={meta.secureTextEntry} 
+        editable={meta.editable}
+        underlineColorAndroid='transparent'
+        containerStyle={{
+          borderBottomColor: bgLightHighlight,
+          borderBottomWidth: 2,
+        }}
+        {...handler()} 
+      />
+      <FormValidationMessage>
+        {touched
+          && hasError("required")
+          && `${meta.label} ${meta.errorMessage}`}
+        {hasError('invalidId') && meta.asyncErrorMessage}
+      </FormValidationMessage>
+    </View>
+  );
+}
 
 
 export const DropdownInput = (params: DropdownInputParams) => {
   const { type, handler, meta: { label, options }, errorMessage, hasError } = params;
-
-  console.log('handler.getHandler is: ', handler);
-  console.log('handler() is: ', handler());
 
   return (
     <View style={{
