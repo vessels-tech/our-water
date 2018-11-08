@@ -15,3 +15,17 @@ export enum ResultType {
   ERROR = 'ERROR',
   SUCCESS = 'SUCCESS',
 }
+
+export function makeSuccess<T>(result: T): SomeResult<T> {
+  return {
+    type: ResultType.SUCCESS,
+    result,
+  };
+}
+
+export function makeError<T>(message: string): SomeResult<T> {
+  return {
+    type: ResultType.ERROR,
+    message,
+  };
+}

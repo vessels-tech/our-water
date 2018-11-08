@@ -24,8 +24,7 @@ import { ggmnResourceEmailValidation } from './validation';
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin')
-require('express-async-errors');
-
+// require('express-async-errors');
 
 module.exports = (functions) => {
   const app = express();
@@ -38,20 +37,6 @@ module.exports = (functions) => {
     console.log('Using verbose log');
     morganBody(app);
   }
-
-
-  //TODO: fix this error handler
-  // app.use(defaultErrorHandler);
-
-  app.use(function (err, req, res, next) {
-    console.log("error", err);
-
-    if (err.status) {
-      return res.status(err.status).json(err);
-    }
-
-    return res.status(500).json({ status: 500, message: err.message });
-  });
 
 
   const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
@@ -223,7 +208,7 @@ module.exports = (functions) => {
           newValue = ResourceIdType.deserialize(newValue);
         }
 
-        if (key == 'resourceType') {
+        if (key === 'resourceType') {
           newValue = resourceTypeFromString(newValue);
         }
 
@@ -240,7 +225,6 @@ module.exports = (functions) => {
 
   app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
     //TODO: build an email and send it.
-
     
 
     res.json(true);
@@ -331,7 +315,6 @@ module.exports = (functions) => {
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);
-
 
   /*Error Handling - must be at bottom!*/
   app.use(ErrorHandler);

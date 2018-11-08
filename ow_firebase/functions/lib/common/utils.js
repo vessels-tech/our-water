@@ -275,4 +275,22 @@ function pad(number, size) {
     return s;
 }
 exports.pad = pad;
+function getBoolean(value) {
+    switch (value) {
+        case true:
+        case "true":
+        case 1:
+        case "1":
+        case "on":
+        case "yes":
+            return true;
+        default:
+            return false;
+    }
+}
+exports.getBoolean = getBoolean;
+function asList(value) {
+    return value.split(',');
+}
+exports.asList = asList;
 //# sourceMappingURL=utils.js.map

@@ -835,6 +835,8 @@ class FirebaseApi {
   /**
    * SendResourceEmail
    * 
+   * http://localhost:5000/our-water/us-central1/resource/ggmn/ggmnResourceEmail
+   * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
    */
   static async sendResourceEmail(orgId: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
@@ -850,8 +852,8 @@ class FirebaseApi {
       body: JSON.stringify({ email, pendingResources })
     };
 
-    maybeLog("CreateShortId url: ", url);
-    maybeLog("CreateShortId options: ", options);
+    maybeLog("SendResourceEmail url: ", url);
+    maybeLog("SendResourceEmail options: ", options);
 
     return ftch(url, options)
       .then((response: any) => {

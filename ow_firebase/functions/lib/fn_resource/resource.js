@@ -22,25 +22,27 @@ const ResourceType_1 = require("../common/enums/ResourceType");
 const FirebaseApi_1 = require("../common/apis/FirebaseApi");
 const AppProviderTypes_1 = require("../common/types/AppProviderTypes");
 const Firestore_1 = require("../common/apis/Firestore");
+const ErrorHandler_1 = require("../common/ErrorHandler");
+//@ts-ignore
+const morgan = require("morgan");
+//@ts-ignore
+const morganBody = require("morgan-body");
+const validation_1 = require("./validation");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
-require('express-async-errors');
+// require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    /* CORS Configuration */
-    const openCors = cors({ origin: '*' });
-    app.use(openCors);
-    //TODO: fix this error handler
-    // app.use(defaultErrorHandler);
-    app.use(function (err, req, res, next) {
-        console.log("error", err);
-        if (err.status) {
-            return res.status(err.status).json(err);
-        }
-        return res.status(500).json({ status: 500, message: err.message });
-    });
+    if (process.env.VERBOSE_LOG === 'false') {
+        console.log('Using simple log');
+        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+    }
+    else {
+        console.log('Using verbose log');
+        morganBody(app);
+    }
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return Firestore_1.default.collection('org').doc(orgId)
             .collection('resource')
@@ -187,7 +189,7 @@ module.exports = (functions) => {
                 if (key === 'externalIds') {
                     newValue = ResourceIdType_1.default.deserialize(newValue);
                 }
-                if (key == 'resourceType') {
+                if (key === 'resourceType') {
                     newValue = ResourceType_1.resourceTypeFromString(newValue);
                 }
                 resource[key] = newValue;
@@ -199,6 +201,10 @@ module.exports = (functions) => {
             next(err);
             return;
         }
+    }));
+    app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+        //TODO: build an email and send it.
+        res.json(true);
     }));
     /**
      * getReadingsForResource
@@ -270,6 +276,11 @@ module.exports = (functions) => {
         }
         res.json(result.result);
     }));
+    /* CORS Configuration */
+    const openCors = cors({ origin: '*' });
+    app.use(openCors);
+    /*Error Handling - must be at bottom!*/
+    app.use(ErrorHandler_1.default);
     return functions.https.onRequest(app);
 };
 //# sourceMappingURL=resource.js.map

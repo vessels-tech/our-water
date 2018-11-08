@@ -26,10 +26,15 @@ const pendingResourceValidation = Joi.object().keys({
 });
 
 export const ggmnResourceEmailValidation = {
+  options: {
+    allowUnknownBody: true,
+  },
   body: {
-    email: Joi.string().email().required(),
-    pendingResources: Joi.array().items(pendingResourceValidation),
-  }
+    data: {
+      email: Joi.string().email().required(),
+      pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
+    }
+  } 
 }
 
 
