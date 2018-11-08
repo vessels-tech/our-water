@@ -28,6 +28,7 @@ import SimpleMapScreen from './SimpleMapScreen';
 import SimpleResourceScreen from './SimpleResourceScreen';
 import SimpleResourceDetailScreen from './SimpleResourceDetailScreen';
 import TakePictureScreen from './TakePictureScreen';
+import GroundwaterSyncScreen from './GroundwaterSyncScreen';
 
 
 let loggerMiddleware: any = null;
@@ -88,6 +89,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);
   Navigation.registerComponent('screen.SimpleResourceDetailScreen', () => SimpleResourceDetailScreen, store, Provider);
   Navigation.registerComponent('modal.TakePictureScreen', () => TakePictureScreen, store, Provider);
+  Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
 
   return store;
 }

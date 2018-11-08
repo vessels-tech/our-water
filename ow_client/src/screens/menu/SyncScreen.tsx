@@ -10,7 +10,7 @@ import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, 
 import { Reading, Resource, PendingReading } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations/Types';
@@ -52,11 +52,37 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
 
+    /* Binds */
     this.props.deletePendingReading.bind(this);
     this.props.deletePendingResource.bind(this);
+    this.groundwaterSyncPressed = this.groundwaterSyncPressed.bind(this);
 
     this.state = {};
   }
+
+  //Bound functions
+  groundwaterSyncPressed() {
+    const { externalLoginDetails, externalSyncStatus,
+      translation: { templates: {
+        settings_sync_heading,
+        sync_login_message,
+        sync_start_sync_button,
+        sync_start_sync_button_loading,
+      } }
+    } = this.props;
+
+    // screen.GroundwaterSyncScreen
+    navigateTo(
+      this.props,
+      'screen.GroundwaterSyncScreen',
+      settings_sync_heading,
+      {
+        config: this.props.config,
+        userId: this.props.userId,
+      }
+    );
+  }
+
 
   getSyncSection() {
     const { externalLoginDetails, externalSyncStatus, 
@@ -175,37 +201,97 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
-  getPendingItems() {
-    const { pendingSavedReadings, pendingSavedResources, translation: { templates: {
-      sync_section_resources,
-      sync_section_readings,
-    }}
+  getResourcesSection() {
+    const { 
+      pendingSavedResources, 
+      translation: { 
+        templates: {
+          sync_section_resources,
+        } 
+      }
     } = this.props;
 
+    const sync_manual_text = 'Groundwater Stations need to be synced manually.';
+    const sync_manual_show_me_how = 'Show Me How';
+
+    if (pendingSavedResources.length === 0) {
+      return null;
+    }
+
     return (
-      <ScrollView
-        style={{backgroundColor: bgLight}}
-      >
-        <Text 
-          style={{
-            paddingLeft: 16,
-            paddingTop: 7,
-            paddingBottom: 3,
-            fontWeight: "400",
-            color: primaryDark,
-          }}
-        >{sync_section_resources}</Text>
-        {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx))}
+      <View>
         <Text
           style={{
             paddingLeft: 16,
             paddingTop: 7,
             paddingBottom: 3,
-            fontWeight: "400",
+            fontWeight: "600",
+            color: primaryDark,
+          }}
+        >{sync_section_resources}
+        </Text>
+          {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx)) }
+          <Text 
+            style={{
+              paddingLeft: 16,
+              paddingTop: 7,
+              paddingBottom: 3,
+              fontStyle: 'italic',
+              fontWeight: "400",
+            }}>
+            {sync_manual_text}
+          </Text>
+          <Button
+            containerViewStyle={{
+              marginBottom: 40,
+            }}
+            buttonStyle={{
+              height: 30,
+            }}
+            color={primaryText}
+            backgroundColor={primaryDark}
+            borderRadius={15}
+            onPress={this.groundwaterSyncPressed}
+            title={sync_manual_show_me_how}
+          />
+      </View>
+    )
+  }
+
+  getReadingsSection() {
+    const { pendingSavedReadings, translation: { templates: {
+      sync_section_resources,
+      sync_section_readings,
+    } }
+    } = this.props;
+
+    if (pendingSavedReadings.length === 0) {
+      return null;
+    }
+
+    return (
+      <View>
+        <Text
+          style={{
+            paddingLeft: 16,
+            paddingTop: 7,
+            paddingBottom: 3,
+            fontWeight: "600",
             color: primaryDark,
           }}
         >{sync_section_readings}</Text>
         {pendingSavedReadings.map((reading, idx) => this.readingListItem(reading, idx))}
+      </View>
+    );
+  }
+
+  getPendingItems() {
+    return (
+      <ScrollView
+        style={{backgroundColor: bgLight}}
+      >
+        {this.getResourcesSection()}
+        {this.getReadingsSection()}
       </ScrollView>
     );
   }
