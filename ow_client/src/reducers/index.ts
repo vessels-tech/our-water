@@ -1,8 +1,8 @@
 
-import { Resource, Reading, TimeseriesReadings, TimeSeriesReading, PendingResource, PendingReading, SearchResult } from "../typings/models/OurWater";
+import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
-import { ResultType } from "../typings/AppProviderTypes";
+import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
+import { ResultType, SomeResult } from "../typings/AppProviderTypes";
 import { MaybeUser, UserType } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
@@ -15,6 +15,8 @@ import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_tra
 import * as EnvConfig from '../utils/EnvConfig';
 import { string } from "react-native-joi";
 import { AnyResource } from "../typings/models/Resource";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
 
 const orgId = EnvConfig.OrgId;
 
@@ -38,12 +40,12 @@ export type AppState = {
   translation: TranslationFile,
 
   //Api
-  resources: Resource[],
-  myResources: Resource[],
+  resources: AnyResource[],
+  myResources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  resourcesCache: Map<string, Resource>, //A super simple cache implementation
-  externalSyncStatus: ExternalSyncStatus,
+  resourcesCache: Map<string, AnyResource>, //A super simple cache implementation
+  externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
   tsReadings: TimeseriesReadings, //simple map: key: `timeseriesId+range` => TimeseriesReading
@@ -51,13 +53,13 @@ export type AppState = {
   shortIdCache: Map<string, string>, //resourceId => shortId
   
   //Firebase
-  favouriteResources: Resource[],
+  favouriteResources: AnyResource[],
   favouriteResourcesMeta: ActionMeta,
   pendingSavedReadings: PendingReading[],
   pendingSavedReadingsMeta: SyncMeta,
   pendingSavedResources: PendingResource[],
   pendingSavedResourcesMeta: SyncMeta, 
-  recentResources: Resource[],
+  recentResources: AnyResource[],
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
@@ -87,8 +89,12 @@ const initialState: AppState = {
   myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourceMeta: new Map<string, ActionMeta>(),
-  resourcesCache: new Map<string, Resource>(), 
-  externalSyncStatus: {type: ExternalSyncStatusType.NOT_RUNNING},
+  resourcesCache: new Map<string, AnyResource>(), 
+  externalSyncStatus: { 
+    status: ExternalSyncStatusType.COMPLETE,
+    pendingResourcesResults: new Map<string, SomeResult<any>>(),
+    pendingReadingsResults: new Map<string, SomeResult<any>>(),
+  },
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
   tsReadings: {},
@@ -263,7 +269,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         return Object.assign({}, state, { resourceMeta });
       }
 
-      let resources: Resource[] = state.resources;
+      let resources: AnyResource[] = state.resources;
       resources.push(action.result.result);
       resourceMeta.set(action.resourceId, meta);
       //I think this was missing resources
@@ -276,7 +282,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.GET_RESOURCES_RESPONSE: {
       let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-      let resources: Resource[] = state.resources;
+      let resources: AnyResource[] = state.resources;
       let resourcesCache = state.resourcesCache;
       let pendingSavedResources = state.pendingSavedResources;
 
@@ -458,16 +464,25 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { pendingSavedResourcesMeta });
     }
     case ActionType.START_EXTERNAL_SYNC_REQUEST: {
-      const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.RUNNING };
+      const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
 
       //TODO: handle login error case here?
       return Object.assign({}, state, { externalSyncStatus })
     }
 
-    case ActionType.START_EXTERNAL_SYNC_RESPONSE: {
-      const externalSyncStatus: ExternalSyncStatus = { type: ExternalSyncStatusType.NOT_RUNNING };
+    case ActionType.START_EXTERNAL_SYNC_RESPONSE: {      
+      //If this errored out, then something serious went wrong
+      if (action.result.type === ResultType.ERROR) {
+        const externalSyncStatus: ExternalSyncStatusComplete = { 
+          status: ExternalSyncStatusType.COMPLETE,  
+          pendingResourcesResults: new Map<string, SomeResult<any>>(),
+          pendingReadingsResults: new Map<string, SomeResult<any>>(),
+        };
 
-      //TODO: handle login error case here?
+        return Object.assign({}, state, { externalSyncStatus })
+      }
+
+      const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
       return Object.assign({}, state, { externalSyncStatus })
     }
 

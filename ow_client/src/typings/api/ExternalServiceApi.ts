@@ -1,4 +1,5 @@
 import { GGMNOrganisation } from '../models/GGMN'; 
+import { SomeResult } from '../AppProviderTypes';
 
 export enum LoginDetailsType {
   EMPTY = 'EMPTY',
@@ -51,6 +52,14 @@ export enum ExternalSyncStatusType {
   FAILED = 'FAILED',
 }
 
-export interface ExternalSyncStatus {
-  type: ExternalSyncStatusType
+export type AnyExternalSyncStatus = ExternalSyncStatusComplete | ExternalSyncStatusRunning;
+
+export type ExternalSyncStatusComplete = {
+  status: ExternalSyncStatusType.COMPLETE,
+  pendingResourcesResults: Map<string, SomeResult<any>>,
+  pendingReadingsResults: Map<string, SomeResult<any>>,
+}
+
+export type ExternalSyncStatusRunning = { 
+  status: ExternalSyncStatusType.RUNNING,
 }

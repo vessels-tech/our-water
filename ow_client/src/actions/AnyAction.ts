@@ -1,7 +1,7 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
 import {  Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
-import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
+import { AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
 import { Action } from "redux";
@@ -115,4 +115,4 @@ export type SetExternalOrganisation = { type: ActionType.SET_EXTERNAL_ORGANISATI
 export type SendResourceEmailActionRequest = {type: ActionType.SEND_RESOURCE_EMAIL_REQUEST};
 export type SendResourceEmailActionResponse = {type: ActionType.SEND_RESOURCE_EMAIL_RESPONSE, result: SomeResult<void>};
 export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST}
-export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatus>}
+export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>}

@@ -34,6 +34,7 @@ import { TranslationFile } from 'ow_translations/Types';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
+import { OrgType } from '../typings/models/OrgType';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -80,10 +81,17 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
 
   getHeadingBar() {
-    const { resource: { id }} = this.props;
+    const { resource, translation: { templates: { }} } = this.props;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     /* TODO: input translation: resource_detail_name_label */
+    const resource_detail_name_label = 'Title';
+    let title;
+    if (resource.type === OrgType.GGMN) {
+      title = resource.title;
+    } else {
+      title = resource.owner.name;
+    }
 
     return (
       <View style={{
@@ -105,13 +113,13 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${getShortId(id)}`}</Text>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '800' }}>{`Id: ${getShortId(resource.id)}`}</Text>
           { showSubtitle ? 
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-              <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+              <Text style={{ color: primaryText, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label}: ${title}`}</Text>
             </View>
             : null }
         </View>

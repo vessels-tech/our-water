@@ -12,8 +12,7 @@ const GGMNDevConfig: RemoteConfig = {
   map_shouldLoadAllResources: false,
   newReading_enableImageUpload: false,
   homeScreen: HomeScreenType.Map,
-  // homeScreen: HomeScreenType.Simple, //just temp until we add resources to mywell and make it useable
-  resourceDetail_showSubtitle: false,
+  resourceDetail_showSubtitle: true,
   favouriteResourceList_showGetStartedButtons: false,
   editResource_showOwerName: false,
   editResource_availableTypes: [

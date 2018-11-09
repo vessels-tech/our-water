@@ -227,7 +227,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     let result: SomeResult<AnyResource> | null = null;
     if (r.type === OrgType.GGMN) {
       //TODO: This is a hack because the GGMN api is broken - need to fix this properly
-      result = await this.appApi.getResourceFromSearchDescription(this.props.userId, r.description);
+      result = await this.appApi.getResourceFromSearchDescription(this.props.userId, r.description, r.title);
       if (result.type === ResultType.ERROR) {
         //Try using old method
         result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id);

@@ -1,4 +1,4 @@
-import { EmptyLoginDetails, LoginDetails, AnyLoginDetails, ExternalSyncStatus } from "../typings/api/ExternalServiceApi";
+import { EmptyLoginDetails, LoginDetails, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { PendingResource } from "../typings/models/PendingResource";
@@ -80,5 +80,5 @@ export default interface ExternalServiceApi {
    * Sync the locally saved resources and readings with the external service
    * User must be logged in
    */
-  runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatus>>;
+  runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatusComplete>>;
 }

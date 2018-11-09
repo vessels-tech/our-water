@@ -6,7 +6,7 @@ import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'r
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
@@ -15,6 +15,7 @@ import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations/Types';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
+import { ResultType } from '../../typings/AppProviderTypes';
 
 export interface OwnProps {
   navigator: any,
@@ -24,7 +25,7 @@ export interface OwnProps {
 
 export interface StateProps {
   externalLoginDetails: AnyLoginDetails,
-  externalSyncStatus: ExternalSyncStatus,
+  externalSyncStatus: AnyExternalSyncStatus,
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
   translation: TranslationFile,
@@ -130,7 +131,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       />
     }
 
-    const syncing: boolean = externalSyncStatus.type === ExternalSyncStatusType.RUNNING;
+    const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
 
     return (
       <Button
@@ -146,14 +147,14 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         backgroundColor={primary}
         borderRadius={15}
         loading={syncing}
-        icon={{ name: 'cached', color: primaryText }}
+        icon={syncing ? undefined : { name: 'cached', color: primaryText }}
         title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
         onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
       />
     )
   }
 
-  resourceListItem(r: PendingResource, i: number) {
+  resourceListItem(r: PendingResource, i: number, message?: string) {
     return (
       <ListItem
         containerStyle={{
@@ -175,11 +176,13 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.id}
         avatar={getGroundwaterAvatar()}
-        subtitle={`${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}/>
+        subtitle={message || `${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}
+        subtitleStyle={{ color: message ? error1 : primaryDark }}
+      />
     );
   }
 
-  readingListItem(r: PendingReading, i: number) {
+  readingListItem(r: PendingReading, i: number, message?: string) {
     const { deletePendingReading, userId } = this.props;
 
     return (
@@ -201,13 +204,16 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.id}
         avatar={getReadingAvatar()}
-        subtitle={`${moment(r.date).format('DD/MM/YY @ HH:mm a')}`} />
+        subtitle={message || `${moment(r.date).format('DD/MM/YY @ HH:mm a')}`} 
+        subtitleStyle={{ color: message ? error1 : primaryDark }}
+      />
     );
   }
 
   getResourcesSection() {
     const { 
       pendingSavedResources, 
+      externalSyncStatus,
       translation: { 
         templates: {
           sync_section_resources,
@@ -234,7 +240,18 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           }}
         >{sync_section_resources}
         </Text>
-          {pendingSavedResources.map((resource, idx) => this.resourceListItem(resource, idx)) }
+          {pendingSavedResources.map((resource, idx) => {
+            let message: string | undefined;
+            if (externalSyncStatus.status === ExternalSyncStatusType.COMPLETE) {
+              if (externalSyncStatus.pendingResourcesResults.has(resource.id)) {
+                const result = externalSyncStatus.pendingResourcesResults.get(resource.id);
+                if (result && result.type === ResultType.ERROR) {
+                  message = result.message;
+                }
+              }
+            }
+            return this.resourceListItem(resource, idx, message);
+          }) }
           <Text 
             style={{
               paddingLeft: 16,
@@ -263,11 +280,18 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getReadingsSection() {
-    const { pendingSavedReadings, translation: { templates: {
-      sync_section_resources,
-      sync_section_readings,
-    } }
+    const { 
+      pendingSavedReadings, 
+      translation: { 
+        templates: {
+          sync_section_resources,
+          sync_section_readings,
+        }
+      },
+      externalSyncStatus,
     } = this.props;
+
+    console.log('getReadingsSection', pendingSavedReadings);
 
     if (pendingSavedReadings.length === 0) {
       return null;
@@ -284,7 +308,18 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             color: primaryDark,
           }}
         >{sync_section_readings}</Text>
-        {pendingSavedReadings.map((reading, idx) => this.readingListItem(reading, idx))}
+        {pendingSavedReadings.map((reading, idx) => {
+          let message: string | undefined;
+          if (externalSyncStatus.status === ExternalSyncStatusType.COMPLETE) {
+            if (externalSyncStatus.pendingReadingsResults.has(reading.id)) {
+              const result = externalSyncStatus.pendingReadingsResults.get(reading.id);
+              if (result && result.type === ResultType.ERROR) {
+                message = result.message;
+              }
+            }
+          }
+          return this.readingListItem(reading, idx, message);
+        })}
       </View>
     );
   }

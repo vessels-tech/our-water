@@ -11,9 +11,8 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries, GGMNUsersResponse } from "../typings/models/GGMN";
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
-import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
-import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
+import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined } from "util";
 import * as moment from 'moment';
@@ -27,8 +26,7 @@ import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResource
 import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
-import { string } from "prop-types";
-import { AnyTimeseries, GGMNTimeseries } from "../typings/models/Timeseries";
+import { GGMNTimeseries } from "../typings/models/Timeseries";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -957,7 +955,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * 
    * example url:   // https://ggmn.lizard.net/api/v3/timeseries/?location__name=1696
    */
-  public async getResourceFromSearchDescription(userId: string, description: string): Promise<SomeResult<AnyResource>> {
+  public async getResourceFromSearchDescription(userId: string, description: string, title?: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/timeseries/?location__name=${description}`;
     const options = {
       timeout,
@@ -989,7 +987,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return makeError(`Couldn't find timeseries for description: ${description}`);
     }
     try {
-      const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results);
+      const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results, title);
       return makeSuccess(resource);
     } catch (err) {
       return makeError('Sucessfully loaded timeseries, but response was invalid.');
@@ -1073,7 +1071,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * 
    * Calls dispatch with an app action when sync is done.
    */
-  async runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatus>> {
+  async runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatusComplete>> {
     const savedResourceIds: string[] = [];
     
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
@@ -1081,29 +1079,34 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       .then((results: Array<SomeResult<boolean>>) => results);
     console.log('checkResourcesResults', checkResourcesResults);
 
-    checkResourcesResults.forEach((r, idx) => {
-      if (r.type === ResultType.ERROR) {
-        return r;
-      }
+    // checkResourcesResults.forEach((r, idx) => {
+    //   if (r.type === ResultType.ERROR) {
+    //     return r;
+    //   }
 
-      if (r.result === false) {
-        /*Id exists in GGMN */
-        savedResourceIds.push(pendingResources[idx].id);
-      }
-    });
+    //   if (r.result === false) {
+    //     /*Id exists in GGMN */
+    //     savedResourceIds.push(pendingResources[idx].id);
+    //   }
+    // });
 
     maybeLog("Saved resources: ", savedResourceIds);
 
-    const removePendingResults: Array<SomeResult<void>> = await Promise.all(  
-      savedResourceIds.map(id => FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id))
-    );
-    removePendingResults.forEach(r => {
-      if (r.type === ResultType.ERROR) {
-        return r;
-      }
-    });
+    const removePendingResults: Array<SomeResult<any>> = await Promise.all(  
+      checkResourcesResults.map(async (result, idx) => {
+        if (result.type === ResultType.ERROR) {
+          return result;
+        }
 
-    console.log("removePendingResults", removePendingResults);
+        if (result.result === true) {
+          return makeError<void>('Station hasn\'t been saved yet');
+        }
+
+        const id = pendingResources[idx].id;
+        return await FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id)
+      })
+    );
+   
 
     /* 
       For each reading, make sure the resource has been saved first.    
@@ -1141,9 +1144,26 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       
     maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
 
-    //TODO: make a sync result type which contains warnings for each.
-   
-   return Promise.resolve(makeSuccess({type: ExternalSyncStatusType.COMPLETE}));
+    //TODO: line up the results with ids
+    const pendingResourcesResults = new Map<string, SomeResult<any>>();
+    const pendingReadingsResults = new Map<string, SomeResult<any>>();
+    
+    removePendingResults.forEach((result, idx) => {
+      const id = pendingResources[idx].id;
+      pendingResourcesResults.set(id, result);
+    });
+
+    //TODO: copy for PendingResourcesResults
+    saveReadingResults.forEach((result, idx) => {
+      const id = pendingReadings[idx].id;
+      pendingReadingsResults.set(id, result);
+    });
+
+    return Promise.resolve(makeSuccess<ExternalSyncStatusComplete>({
+      pendingResourcesResults,
+      pendingReadingsResults,
+      status: ExternalSyncStatusType.COMPLETE,
+    }));
   }
 
   //
@@ -1362,7 +1382,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     const to: GGMNResource = {
       // id: `${from.id}`,
       id: `${from.name}`,
+
       //TODO: not sure about this!
+      title: `${from.name}`,
       description: `${from.name}`,
       pending: false,
       type: OrgType.GGMN,
@@ -1377,7 +1399,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return to;
   }
 
-  private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[]): GGMNResource {
+  private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[], title?: string): GGMNResource {
     console.log('ggmnTimeseriesToResource', from);
     const location = from[0].location;
     const geometry = from[0].location.geometry;
@@ -1387,6 +1409,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       pending: false,
       // This may not be correct, but since we can't always get the entity_id or groundwaterstation id, this may have to do
       id: location.name,
+      //TODO: not sure how to get this in.
+      title: title || location.name,
       description,
       coords: {
         _latitude: geometry.coordinates[1],
@@ -1404,6 +1428,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       type: OrgType.GGMN,
       pending: false,
       id: `${from.entity_id}`,
+      title: `${from.title}`,
       // legacyId: `${from.title}`,
       description: from.description,
       // groups: null,

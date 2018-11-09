@@ -188,5 +188,5 @@ export default interface BaseApi {
    * Once GGMN loads a resource from search, use the description field - which is actually a location name to
    * get a full resource
    */
-  getResourceFromSearchDescription(userId: string, description: string): Promise<SomeResult<AnyResource>>;
+  getResourceFromSearchDescription(userId: string, description: string, title?: string): Promise<SomeResult<AnyResource>>;
 }

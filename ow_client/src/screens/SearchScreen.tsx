@@ -9,7 +9,7 @@ import {
   SearchBar,
   Text,
 } from 'react-native-elements';
-import { Resource, SearchResult } from '../typings/models/OurWater';
+import { SearchResult } from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -21,6 +21,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
+import { OrgType } from '../typings/models/OrgType';
 
 export interface OwnProps {
   onSearchResultPressed: (result: AnyResource) => void,
@@ -153,9 +154,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   this.props.onSearchResultPressed(r)
                 }}
                 roundAvatar
-                //TODO: this refers to the GGMN title, which we don't have in MyWell...
-                //TODO: make description?
-                title={r.id}
+                title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
                 >
               </ListItem>

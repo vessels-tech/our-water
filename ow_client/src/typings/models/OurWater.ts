@@ -104,8 +104,8 @@ export enum TimeseriesRange {
  */
 export type OWUser = {
   userId: string,
-  recentResources: DeprecatedResource[],
-  favouriteResources: DeprecatedResource[],
+  recentResources: AnyResource[],
+  favouriteResources: AnyResource[],
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
   recentSearches: string[],
