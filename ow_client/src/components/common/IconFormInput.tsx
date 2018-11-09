@@ -190,7 +190,6 @@ class IconFormInput extends Component<Props> {
         }}>
           <Icon
             style={{
-              // backgroundColor: 'blue',
               flex: 1,
             }}
 

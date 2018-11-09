@@ -283,7 +283,8 @@ export default class MapSection extends Component<Props> {
 
     return (
       <View style={{
-        backgroundColor: bgMed,
+        // backgroundColor: bgMed,
+        backgroundColor: 'pink',
         flex: mapState === MapStateOption.small ? 0.75 : 2.2,
         maxHeight: mapHeight
       }}>

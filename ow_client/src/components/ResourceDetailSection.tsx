@@ -83,6 +83,8 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     const { resource: { id }} = this.props;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
+    /* TODO: input translation: resource_detail_name_label */
+
     return (
       <View style={{
         flex: 1,
@@ -109,10 +111,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-              {/* TODO: input translation: resource_detail_name_label */}
               <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
-              {/* TODO: enable code? Most of the time it's the same as Name. */}
-              {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
             </View>
             : null }
         </View>
@@ -196,6 +195,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           flexDirection: 'column',
           height: '100%',
           padding: 20,
+          flex: 1,
         }}>
           <View style={{
             flexDirection: 'column',
@@ -224,10 +224,13 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           {/* Bottom Buttons */}
           <View style={{
             flex: 1,
-            maxHeight: 30,
+            // maxHeight: 30,
             borderColor: bgLightHighlight,
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
+            // backgroundColor: 'red',
+            paddingBottom: 20,
+            alignContent: 'center',
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -254,12 +257,17 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
     return (
       <View style={{
-        flex: 15,
+        flex: 20,
         backgroundColor: bgMed,
       }}>
         <ScrollableTabView 
-          style={{ paddingTop: 0}}
-          containerStyle={{}}
+          style={{ 
+            paddingTop: 0,
+            // backgroundColor: 'tomato',
+          }}
+          containerStyle={{
+            marginBottom: 20,
+          }}
           tabStyle={{
             height: 20,
           }}
@@ -276,7 +284,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           <View 
             key="1" 
             style={{
+              // backgroundColor: 'blue',
               backgroundColor: bgLight,
+              flex: 1,
             }}
             // @ts-ignore
             tabLabel={resource_detail_summary_tab}
@@ -332,6 +342,10 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
     return (
       <FlatIconButton
+        style={{
+          marginTop: 9,
+          height: '100%',
+        }}
         // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
@@ -360,7 +374,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     return (
       <View style={{
         flexDirection: 'column',
-        flex: 5,
+        flex: 1,
+        // minHeight: 500,
+        backgroundColor: 'blue',
       }}>
         {this.props.hideTopBar ? null : this.getHeadingBar()}
         {this.getReadingsView()}

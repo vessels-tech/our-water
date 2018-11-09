@@ -12,6 +12,7 @@ export interface Props {
   color: string,
   name: string,
   isLoading: boolean,
+  style?: any,
 }
 
 export interface State {
@@ -22,6 +23,7 @@ export default class FlatIconButton extends Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
   }
 
   render() {
@@ -30,6 +32,7 @@ export default class FlatIconButton extends Component<Props> {
       <View style={{
         justifyContent: 'center',
         alignItems: 'center',
+        ...this.props.style,
       }}>
         { isLoading ? 
           <ActivityIndicator

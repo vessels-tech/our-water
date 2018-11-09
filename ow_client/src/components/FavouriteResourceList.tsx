@@ -237,9 +237,8 @@ class FavouriteResourceList extends Component<Props> {
 
     return (
       <ScrollView
-        style={{paddingBottom: 7}}
         horizontal={true}
-        contentContainerStyle={{ flexGrow: 1 }}
+        showsHorizontalScrollIndicator={false}
       >
         {recentResources.map(r => (
           <ResourceCell
@@ -307,7 +306,11 @@ class FavouriteResourceList extends Component<Props> {
     const { translation: { templates: { favourite_resource_heading, recent_resource_heading}}} = this.props;
 
     return (
-      <View>
+      <View 
+        style={{
+          flex: 1,
+        }}
+      >
         <Text style={{
           marginVertical: 10,
           marginLeft: 13,
@@ -323,7 +326,7 @@ class FavouriteResourceList extends Component<Props> {
         </Text >
         {this.getRecentsSection()}
       </View>
-    )
+    );
   }
 
   render() {
@@ -343,9 +346,9 @@ class FavouriteResourceList extends Component<Props> {
       <View 
         style={{
           backgroundColor: bgLightHighlight,
+          flex: 1,
         }}>
-        {favouriteResources.length + recentResources.length === 0 ? 
-          this.getStartedSection() : this.getResourcesSection()}
+        {favouriteResources.length + recentResources.length === 0 ? this.getStartedSection() : this.getResourcesSection()}
       </View>
     );
   }
