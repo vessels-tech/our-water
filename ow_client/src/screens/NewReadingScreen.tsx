@@ -178,8 +178,7 @@ class NewReadingScreen extends Component<Props> {
       type: this.props.config.orgType,
       pending: true,
       resourceId: id,
-      //TODO: figure out timeseriesId for resources which haven't yet been created
-      timeseriesId: timeseriesString, //TODO actually get a timeseries ID somehow
+      timeseriesName: timeseriesString, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,

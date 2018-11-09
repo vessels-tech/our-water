@@ -3,6 +3,7 @@ import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
 import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
+import { AnyResource } from "./Resource";
 
 export type DeprecatedResource = {
   id: string,
@@ -42,7 +43,7 @@ export type ResourceOwnerType = {
 export type SearchResult = {
   hasNextPage: boolean,
   // type: SearchResultType.Default,
-  resources: DeprecatedResource[],
+  resources: AnyResource[],
   // groups: any[],
   // users: any[],
   // offline: boolean, //Lets us know if the search was performed offline

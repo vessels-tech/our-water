@@ -50,6 +50,7 @@ import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicato
 import { AnyResource } from '../typings/models/Resource';
 import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
 import { PendingResource } from '../typings/models/PendingResource';
+import { OrgType } from '../typings/models/OrgType';
 
 
 export interface OwnProps {
@@ -154,6 +155,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       navigateTo(this.props, 'screen.SearchScreen', search_heading, {
         config: this.props.config,
         userId: this.props.userId,
+        // TODO: AnyResource needs to be something else
         onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressed(result),
       });
     }
@@ -217,8 +219,19 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     //TODO: reimmplement selectResource for a search entity.
     //Load the resource for the search entity?
 
+    //TODO: get the description
+    console.log("onSearchResultPressed", r);
+    // const description = 
+
     //We can move the user there on the map before the resource has loaded...
-    const result = await this.appApi.getResourceFromSearchEntityId(this.props.userId, r.id);
+    let result: SomeResult<AnyResource> | null = null;
+    //TODO: This is a hack because the GGMN api is broken - need to fix this properly
+    if (r.type === OrgType.GGMN) {
+      result = await this.appApi.getResourceFromSearchDescription(this.props.userId, r.description);
+    } else {
+      result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id)
+    }
+
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(app_resource_not_found, ToastAndroid.SHORT);
       return;

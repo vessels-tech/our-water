@@ -14,6 +14,7 @@ import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
 import { string } from "react-native-joi";
+import { AnyResource } from "../typings/models/Resource";
 
 const orgId = EnvConfig.OrgId;
 
@@ -397,7 +398,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         return Object.assign({}, state, { searchResultsMeta });
       }
 
-      const resources = searchResults.resources.concat(result.result.resources);
+      const resources: AnyResource[] = searchResults.resources.concat(result.result.resources);
       searchResults = { resources, hasNextPage: result.result.hasNextPage };
       
       return Object.assign({}, state, {searchResults, searchResultsMeta});

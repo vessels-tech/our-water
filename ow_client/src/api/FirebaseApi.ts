@@ -531,6 +531,17 @@ class FirebaseApi {
     });
   }
 
+  /**
+  * deletePendingReadingFromUser
+  * 
+  * Delete a pending reading from the user's pending reading list
+  */
+  static async deletePendingReadingFromUser(orgId: string, userId: string, id: string): Promise<SomeResult<void>> {
+    return await this.userDoc(orgId, userId).collection('pendingReadings').doc(id).delete()
+      .then(() => makeSuccess(undefined))
+      .catch((err: Error) => makeError(err.message));
+  }
+
   static pendingReadingsListener(orgId: string) {
     return this.listenForPendingWrites(this.readingCol(orgId));
   }

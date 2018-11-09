@@ -181,5 +181,12 @@ export default interface BaseApi {
    * Once GGMN loads a resource from a search, we need to use the entityId to convert it to a fully 
    * fledged Resource
    */
-  getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>>;
+  deprecated_getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>>;
+
+
+  /**
+   * Once GGMN loads a resource from search, use the description field - which is actually a location name to
+   * get a full resource
+   */
+  getResourceFromSearchDescription(userId: string, description: string): Promise<SomeResult<AnyResource>>;
 }

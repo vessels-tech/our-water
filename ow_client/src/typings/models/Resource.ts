@@ -2,6 +2,7 @@ import { OWGeoPoint, ResourceOwnerType } from './OurWater';
 import { ResourceType } from '../../enums';
 import { OrgType } from './OrgType';
 import { AnyTimeseries } from './Timeseries';
+import { description } from 'react-native-joi';
 
 export type AnyResource = MyWellResource | GGMNResource;
 
@@ -30,6 +31,7 @@ export type GGMNResource = {
   id: string,
   coords: OWGeoPoint,
   timeseries: AnyTimeseries[],
-
+  
   /* Platform Specific */
+  description: string,
 }

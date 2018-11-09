@@ -25,8 +25,10 @@ import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResourceApi";
 import { PendingReading } from "../typings/models/PendingReading";
-import { AnyReading } from "../typings/models/Reading";
+import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
+import { string } from "prop-types";
+import { AnyTimeseries, GGMNTimeseries } from "../typings/models/Timeseries";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -707,39 +709,39 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
   }
 
-  private async persistReadingToGGMN(reading: Reading): Promise<any> {
-    const tsId = '8cd4eec3-1c76-4ebb-84e6-57681f15424f'; //TODO: Just temporary!
-    // const tsId = reading.timeseriesId;
-    const url = `${this.baseUrl}/api/v3/timeseries/${tsId}/data/`;
-    const data = [{
-      datetime: reading.date, //this must be in UTC, otherwise we get a 500.
-      value: reading.value,
-    }];
+  // private async persistReadingToGGMN(reading: Reading): Promise<any> {
+  //   const tsId = '8cd4eec3-1c76-4ebb-84e6-57681f15424f'; //TODO: Just temporary!
+  //   // const tsId = reading.timeseriesId;
+  //   const url = `${this.baseUrl}/api/v3/timeseries/${tsId}/data/`;
+  //   const data = [{
+  //     datetime: reading.date, //this must be in UTC, otherwise we get a 500.
+  //     value: reading.value,
+  //   }];
 
-    const authHeadersResult = await this.getOptionalAuthHeaders();
-    if (authHeadersResult.type === ResultType.ERROR) {
-      throw new Error("Authorization is required to save readings to GGMN.");
-    }
-    const authHeaders = authHeadersResult.result;
+  //   const authHeadersResult = await this.getOptionalAuthHeaders();
+  //   if (authHeadersResult.type === ResultType.ERROR) {
+  //     throw new Error("Authorization is required to save readings to GGMN.");
+  //   }
+  //   const authHeaders = authHeadersResult.result;
 
-    const options = {
-      timeout,
-      method: 'POST',
-      headers: {
-        ...defaultHeaders,
-        ...authHeaders,
-      },
-      body: JSON.stringify(data),
-    };
+  //   const options = {
+  //     timeout,
+  //     method: 'POST',
+  //     headers: {
+  //       ...defaultHeaders,
+  //       ...authHeaders,
+  //     },
+  //     body: JSON.stringify(data),
+  //   };
 
-    maybeLog("persistReadingToGGMN url is", url);
+  //   maybeLog("persistReadingToGGMN url is", url);
 
-    return ftch(url, options)
-    .then((response: any) => deprecated_naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
-    .then((response: GGMNSaveReadingResponse) => response)
-    .then(() => this.removeReadingFromPendingList(reading));
+  //   return ftch(url, options)
+  //   .then((response: any) => deprecated_naiveParseFetchResponse<GGMNSaveReadingResponse>(response))
+  //   .then((response: GGMNSaveReadingResponse) => response)
+  //   .then(() => this.removeReadingFromPendingList(reading));
 
-  }
+  // }
 
   //TODO: should we implement some sort of id? It is in a firebase collection after all...
   private removeReadingFromPendingList(reading: Reading): Promise<any> {
@@ -911,7 +913,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
   }
 
-  async getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>> {
+  /**
+   * deprecated_getResourceFromSearchEntityId
+   * 
+   * For some reason, the GGMN API returns a 404 for this for some entityIds. 
+   */
+  async deprecated_getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/groundwaterstations/${entityId}/`;
     const options = {
       timeout,
@@ -945,10 +952,50 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
   }
 
+  /**
+   * 
+   * 
+   * example url:   // https://ggmn.lizard.net/api/v3/timeseries/?location__name=1696
+   */
+  public async getResourceFromSearchDescription(userId: string, description: string): Promise<SomeResult<AnyResource>> {
+    const url = `${this.baseUrl}/api/v3/timeseries/?location__name=${description}`;
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+      },
+    };
+
+    maybeLog("getResourceFromSearchDescription url:", url);
+
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      maybeLog("getResourceFromSearchDescription: " + err);
+      return {
+        type: ResultType.ERROR,
+        message: `Error getResourceFromSearchDescription. Url: ${url}`,
+      }
+    }
+
+    const timeseriesResponse = await naiveParseFetchResponse<GGMNTimeseriesResponse>(response);
+    if (timeseriesResponse.type === ResultType.ERROR) {
+      return timeseriesResponse;
+    }
+
+    if (timeseriesResponse.result.results.length === 0) {
+      return makeError(`Couldn't find timeseries for description: ${description}`);
+    }
+    const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results);
+    return makeSuccess(resource);
+  }
+
+
   //
   // ExternalServiceApi
   //------------------------------------------------------------------------
-
 
   /**
    * GetEmail
@@ -1054,11 +1101,43 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     console.log("removePendingResults", removePendingResults);
 
-    /* For each reading, make sure the resource has been saved first.    
-       find the timeseries associated with the reading, and save it using the GGMN api.
+    /* 
+      For each reading, make sure the resource has been saved first.    
+      find the timeseriesId associated with the reading, and save it using the GGMN api.
     */
+    const timeseriesIdResults: Array<SomeResult<string>> = await Promise.all(
+      pendingReadings.map(p => this.getTimeseriesId(p.resourceId, p.timeseriesName))
+    );
 
-  
+    const saveReadingResults: Array<SomeResult<any>> = await Promise.all(
+      timeseriesIdResults.map(async (result, idx) => {
+        //Skip the failed timeseries
+        if (result.type === ResultType.ERROR) {
+          return result;
+        }
+
+        const pendingReading = pendingReadings[idx];
+        return await this.saveReadingToGGMN(pendingReading, result.result);
+      })
+    );
+
+    maybeLog("SaveReadingResults:", saveReadingResults);
+
+    /* For each successful reading save, remove it from Firebase */
+    const removePendingReadingsResults: Array<SomeResult<void>> = await Promise.all(
+      saveReadingResults.map(async (result, idx) =>  {
+        if (result.type === ResultType.ERROR) {
+          return result;
+        }
+        const reading = pendingReadings[idx];
+
+        return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
+      })
+    );
+      
+    maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
+
+    //TODO: make a sync result type which contains warnings for each.
    
    return Promise.resolve(makeSuccess({type: ExternalSyncStatusType.COMPLETE}));
   }
@@ -1147,6 +1226,128 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   //
+  // Private GGMN Calls
+  //---------------------------------------------------------------------------------
+
+  /**
+   * getTimeseriesId
+   * 
+   * Gets the Id of the timeseries from the location and and timeseries code.
+   * The GGMN api is rather inconsistent, so locationName is most likely the
+   * title or description of a groundwater station, and code is `GWmBGS` or `GWmMSL`
+   * 
+   * example url: `https://ggmn.lizard.net/api/v3/timeseries/?location__name=85570`
+   * 
+   */
+  private async getTimeseriesId(locationName: string, code: string): Promise<SomeResult<string>> {
+    const url = appendUrlParameters(`${this.baseUrl}/api/v3/timeseries/`, {
+      location__name: locationName,
+    });
+
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    let authHeaders = {};
+    //We don't really care if the user is logged in, but just in case...
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
+    }
+
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+    };
+
+    maybeLog("getTimeseriesId url:", url);
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      maybeLog("error: " + err);
+      return makeError('Error requesting timeseriesId: ' + err.message);
+    }
+
+    const searchResponse = await naiveParseFetchResponse<GGMNTimeseriesResponse>(response);
+    if (searchResponse.type === ResultType.ERROR) {
+      return searchResponse;
+    }
+
+    if (searchResponse.result.results.length > 2) {
+      return makeError(`Found too many timeseries for location name: ${locationName}`);
+    } 
+
+    if (searchResponse.result.results.length < 1) {
+      return makeError(`Could not find any timeseries for location name: ${locationName}`);
+    }
+
+    let timeseriesId = null;
+    searchResponse.result.results.forEach(ts => {
+      if (ts.code === code) {
+        timeseriesId = ts.uuid;
+      }
+    });
+
+    if (!timeseriesId) {
+      return makeError(`Couldn't find timeseries for location name: ${locationName} and code: ${code}`);
+    }
+
+    return makeSuccess(timeseriesId);
+  }
+
+
+  /**
+   * saveReadingToGGMN
+   * 
+   * Save the reading to ggmn
+   */
+  private async saveReadingToGGMN(reading: PendingReading, timeseriesId: string): Promise<SomeResult<void>> {
+    const url = appendUrlParameters(`${this.baseUrl}/api/v3/timeseries/${timeseriesId}/data/`, {});
+    const data = [{
+      datetime: reading.date, //this must be in UTC, otherwise we get a 500.
+      value: reading.value,
+    }];
+
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    if (authHeadersResult.type === ResultType.ERROR) {
+      return makeError("User must be logged in to saveReadings To GGMN");
+    }
+    const authHeaders = authHeadersResult.result;
+
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+      },
+      body: JSON.stringify(data),
+    };
+
+    maybeLog("saveReadingToGGMN url is", url);
+    maybeLog("saveReadingToGGMN options are", options);
+
+    return ftch(url, options)
+    .then((response: any) => {
+      console.log("raw response", response);
+      return naiveParseFetchResponse<GGMNSaveReadingResponse>(response);
+    })
+    .then((res: SomeResult<GGMNSaveReadingResponse>) => {
+      if (res.type === ResultType.ERROR) {
+        return res;
+      }
+      console.log('saveReadingToGGMN response:', res);
+      return makeSuccess(undefined);
+    })
+    .catch((err: Error) => {
+      maybeLog(err);
+      return makeError(err.message);
+    });
+  }
+
+
+  //
   // Utils
   //----------------------------------------------------------------------
 
@@ -1156,34 +1357,62 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
     const to: GGMNResource = {
       // id: `${from.id}`,
-      type: OrgType.GGMN,
       id: `${from.name}`,
+      //TODO: not sure about this!
+      description: `${from.name}`,
+      pending: false,
+      type: OrgType.GGMN,
       coords: {
         _latitude: from.geometry.coordinates[1],
         _longitude: from.geometry.coordinates[0],
       },
-      timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(ts))
+      // Not sure if from.name is correct... the GGMN api is really inconsistent
+      timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts))
+    };
+
+    return to;
+  }
+
+  private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[]): GGMNResource {
+    console.log('ggmnTimeseriesToResource', from);
+    const location = from[0].location;
+    const geometry = from[0].location.geometry;
+
+    const to: GGMNResource = {
+      type: OrgType.GGMN,
+      pending: false,
+      // This may not be correct, but since we can't always get the entity_id or groundwaterstation id, this may have to do
+      id: location.name,
+      description,
+      coords: {
+        _latitude: geometry.coordinates[1],
+        _longitude: geometry.coordinates[0],
+      }, 
+      timeseries: from.map(ts => this.ggmnTimeseriesToTimeseries(location.name, ts))
     };
 
     return to;
   }
 
   //TODO: make a partial resource type that doesn't need all these fake fields
-  static ggmnSearchEntityToResource(from: GGMNSearchEntity): DeprecatedResource {
-    const to: DeprecatedResource = {
+  static ggmnSearchEntityToResource(from: GGMNSearchEntity): GGMNResource {
+    const to: GGMNResource = {
+      type: OrgType.GGMN,
+      pending: false,
       id: `${from.entity_id}`,
-      legacyId: `${from.title}`,
-      groups: null,
-      lastValue: 0,
-      resourceType: ResourceType.well,
-      lastReadingDatetime: new Date(),
+      // legacyId: `${from.title}`,
+      description: from.description,
+      // groups: null,
+      // lastValue: 0,
+      // resourceType: ResourceType.well,
+      // lastReadingDatetime: new Date(),
       coords: {
         _latitude: 0,
         _longitude: 0
       },
-      owner: {
-        name: `${from.id}`,
-      },
+      // owner: {
+      //   name: `${from.id}`,
+      // },
       timeseries: [],
     };
 
@@ -1191,19 +1420,28 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
 
-  static ggmnTimeseriesToTimeseries(from: GGMNResponseTimeseries): OWTimeseries {
+  static ggmnTimeseriesToTimeseries(resourceId: string, from: GGMNResponseTimeseries): GGMNTimeseries {
+    let readings: GGMNReading[] = [];
+    if (from.events && from.events.length > 0) {
+      readings = from.events.map(e => this.ggmnEventToReading(resourceId, from.uuid, e))
+    }
     return {
+      type: OrgType.GGMN,
       id: from.uuid,
       name: from.name,
       parameter: from.parameter,
-      unit: from.unit,
-      referenceFrame: from.reference_frame,
-      scale: from.scale,
-      valueType: from.value_type,
-      location: from.location,
-      lastValue: from.last_value,
-      events: !from.events ? [] : from.events.map((e: GGMNTimeseriesEvent) => ({timestamp: e.timestamp, value: e.value}))
+      readings,
     };
+  }
+
+  static ggmnEventToReading(resourceId: string, timeseriesId: string, event: GGMNTimeseriesEvent): GGMNReading {
+    return {
+      type: OrgType.GGMN,
+      resourceId,
+      timeseriesId,
+      date: moment(event.timestamp).toISOString(),
+      value: event.value,
+    }
   }
 }
 

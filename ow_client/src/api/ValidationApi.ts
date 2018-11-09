@@ -17,7 +17,7 @@ const PendingReadingSchema = {
   id: Joi.string(), //Id will probably be undefined
   pending: Joi.boolean().required(),
   resourceId: Joi.string().required(),
-  timeseriesId: Joi.string().required(),
+  timeseriesName: Joi.string().required(),
   date: Joi.string().isoDate().required(),
   value: Joi.number().required(),
   image: Joi.allow([

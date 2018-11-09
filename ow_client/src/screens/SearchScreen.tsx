@@ -20,9 +20,10 @@ import { ActionMeta, SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { TranslationFile } from 'ow_translations/Types';
+import { AnyResource } from '../typings/models/Resource';
 
 export interface OwnProps {
-  onSearchResultPressed: (result: Resource) => void,
+  onSearchResultPressed: (result: AnyResource) => void,
   navigator: any;
   userId: string,
   config: ConfigFactory,
@@ -139,7 +140,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View>
         {
-          searchResults.resources.map((r: Resource, i) => {
+          searchResults.resources.map((r: AnyResource, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -153,7 +154,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
                 roundAvatar
                 //TODO: this refers to the GGMN title, which we don't have in MyWell...
-                title={r.legacyId}
+                //TODO: make description?
+                title={r.id}
                 avatar={getGroundwaterAvatar()}
                 >
               </ListItem>

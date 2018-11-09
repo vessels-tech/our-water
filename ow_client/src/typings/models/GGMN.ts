@@ -75,12 +75,18 @@ export type GGMNFilterResponse = {
 export type GGMNResponseTimeseries = {
   uuid: string,
   name: string,
+  code: string,
   parameter: string,
   unit: string,
   reference_frame: string,
   scale: string,
   value_type: string,
-  location: string,
+  location: {
+    name: string,
+    geometry: {
+      coordinates: number[],
+    }
+  },
   last_value: number,
   events: Array<GGMNTimeseriesEvent>,
 }
