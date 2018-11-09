@@ -17,7 +17,7 @@ import { bgMed, error1, secondaryLight, secondaryText, primaryLight } from '../u
 import { SyncStatus } from '../typings/enums';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatus, ExternalSyncStatusType } from '../typings/api/ExternalServiceApi';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 
@@ -29,6 +29,7 @@ export interface OwnProps {
 
 export interface StateProps {
   externalLoginDetails: AnyLoginDetails,
+  externalSyncStatus: ExternalSyncStatus,
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
 }
@@ -111,7 +112,12 @@ class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps
         break;
       }
       case SyncStatus.pendingGGMNWrites: {
-        innerView = this.getGGMNBanner();
+        //Only display when we are syncing
+        if (this.props.externalSyncStatus.type === ExternalSyncStatusType.RUNNING) {
+          innerView = this.getGGMNBanner();
+        } else {
+          return null;
+        }
         break;
       }
       case SyncStatus.ggmnError: {
@@ -132,6 +138,7 @@ class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps
 const mapStateToProps = (state: AppState): StateProps => {
   return {
     pendingSavedReadings: state.pendingSavedReadings,
+    externalSyncStatus: state.externalSyncStatus,
     pendingSavedResources: state.pendingSavedResources,
     externalLoginDetails: state.externalLoginDetails,
   }

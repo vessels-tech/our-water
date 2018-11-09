@@ -73,7 +73,6 @@ export interface StateProps {
 export interface ActionProps {
   addRecent: any,
   loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
-  startExternalSync: (api: ExternalServiceApi, userId: string) => void,
 }
 
 export interface State {
@@ -452,8 +451,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
       dispatch(appActions.getResources(api, userId, region)),
-    startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
-      dispatch(appActions.startExternalSync(api, userId)),
   }
 }
 

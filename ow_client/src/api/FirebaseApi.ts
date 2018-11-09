@@ -155,7 +155,7 @@ class FirebaseApi {
     return await this.getRecentResources(orgId, userId);
   }
 
-  static getResourcesForOrg(orgId: string): Promise<Array<DeprecatedResource>> {
+  static getResourcesForOrg(orgId: string): Promise<Array<AnyResource>> {
     return this.checkNetworkAndToggleFirestore()
     .then(() => fs.collection('org').doc(orgId).collection('resource')
       .limit(10)
