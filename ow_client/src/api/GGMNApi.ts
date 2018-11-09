@@ -988,8 +988,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     if (timeseriesResponse.result.results.length === 0) {
       return makeError(`Couldn't find timeseries for description: ${description}`);
     }
-    const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results);
-    return makeSuccess(resource);
+    try {
+      const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results);
+      return makeSuccess(resource);
+    } catch (err) {
+      return makeError('Sucessfully loaded timeseries, but response was invalid.');
+    }
   }
 
 

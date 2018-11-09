@@ -224,10 +224,16 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     // const description = 
 
     //We can move the user there on the map before the resource has loaded...
+    //TODO: Refactor, this is getting really messy.
     let result: SomeResult<AnyResource> | null = null;
-    //TODO: This is a hack because the GGMN api is broken - need to fix this properly
     if (r.type === OrgType.GGMN) {
+      //TODO: This is a hack because the GGMN api is broken - need to fix this properly
       result = await this.appApi.getResourceFromSearchDescription(this.props.userId, r.description);
+      if (result.type === ResultType.ERROR) {
+        //Try using old method
+        result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id);
+      }
+
     } else {
       result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id)
     }
