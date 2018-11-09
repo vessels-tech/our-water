@@ -596,11 +596,10 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
 
     dispatch(saveReadingResponse(result));
 
-    //Attempt to do a sync
-    //TODO: re enable
-    // if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
-    //   dispatch(startExternalSync(externalApi, userId));
-    // }
+    //Attempt to do a sync, just this resource
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
+      dispatch(startExternalSync(externalApi, userId, [], [reading]));
+    }
 
     return result;
   }
@@ -632,11 +631,10 @@ export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi,
 
     dispatch(saveResourceResponse(result));    
 
-    //Attempt to do a sync
-    //TODO: re-enable once sync is done
-    // if (externalApi.externalServiceApiType === ExternalServiceApiType.Has){
-    //   dispatch(startExternalSync(externalApi, userId));
-    // }
+    //Attempt to do a sync, only this resource
+    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has && resource.pending === true){
+      dispatch(startExternalSync(externalApi, userId, [resource], []));
+    }
 
     return result;
   }
@@ -753,7 +751,6 @@ export function startExternalSync(api: MaybeExternalServiceApi, userId: string, 
 
     dispatch(externalSyncRequest());
     
-    maybeLog("TODO: syncing with GGMN api");
     const result = await api.runExternalSync(userId, pendingResources, pendingReadings);
 
     dispatch(externalSyncResponse(result));
