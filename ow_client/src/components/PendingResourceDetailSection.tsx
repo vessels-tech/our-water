@@ -194,6 +194,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
         flexDirection: 'column',
         height: '100%',
         padding: 20,
+        flex: 1,
       }}>
         <View style={{
           flexDirection: 'column',
@@ -220,10 +221,11 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
         {/* Bottom Buttons */}
         <View style={{
           flex: 1,
-          maxHeight: 30,
           borderColor: bgLightHighlight,
           borderTopWidth: 1,
           flexDirection: 'row-reverse',
+          paddingBottom: 20,
+          alignContent: 'center',
         }}>
           {this.getReadingButton()}
         </View>
@@ -249,11 +251,14 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
     return (
       <View style={{
-        flex: 15,
+        flex: 20,
         backgroundColor: bgMed,
       }}>
         <ScrollableTabView
-          style={{ paddingTop: 0 }}
+          style={{ 
+            paddingTop: 0,
+            flex: 1 
+          }}
           containerStyle={{}}
           tabStyle={{
             height: 20,
@@ -272,6 +277,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             key="1"
             style={{
               backgroundColor: bgLight,
+              flex: 1,
             }}
             // @ts-ignore
             tabLabel={resource_detail_summary_tab}
@@ -320,7 +326,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     return (
       <View style={{
         flexDirection: 'column',
-        flex: 5,
+        flex: 1,
       }}>
         {this.props.hideTopBar ? null : this.getHeadingBar()}
         {this.getReadingsView()}

@@ -224,11 +224,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           {/* Bottom Buttons */}
           <View style={{
             flex: 1,
-            // maxHeight: 30,
             borderColor: bgLightHighlight,
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
-            // backgroundColor: 'red',
             paddingBottom: 20,
             alignContent: 'center',
           }}>
@@ -263,7 +261,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         <ScrollableTabView 
           style={{ 
             paddingTop: 0,
-            // backgroundColor: 'tomato',
           }}
           containerStyle={{
             marginBottom: 20,
