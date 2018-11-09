@@ -13,13 +13,16 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { DeprecatedResource, SearchResult, Reading, OWUser, PendingReading, PendingResource } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, Reading, OWUser} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';
 import { isNullOrUndefined } from 'util';
+import { AnyReading } from '../typings/models/Reading';
+import { PendingReading } from '../typings/models/PendingReading';
+import { PendingResource } from '../typings/models/PendingResource';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -401,7 +404,7 @@ class FirebaseApi {
    * Promise resolves when the reading appears in local cache,
    * and not actually commited to the server
    */
-  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: Reading): Promise<SomeResult<void>> {
+  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<void>> {
     /* we don't want to wait for this to resolve */
     this.saveReadingToUser(orgId, userId, reading);
 
@@ -411,7 +414,7 @@ class FirebaseApi {
     };
   }
 
-  static async saveResourceToUser(orgId: string, userId: string, resource: DeprecatedResource): Promise<SomeResult<null>> {
+  static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {
     /* we don't want to wait for this to resolve */
     if (resource.id) {
       await this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
@@ -503,7 +506,7 @@ class FirebaseApi {
     return this.readingCol(orgId).add(reading);
   }
 
-  static saveReadingToUser(orgId: string, userId: string, reading: Reading) {
+  static saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading) {
     return this.userDoc(orgId, userId).collection('pendingReadings').add(reading);
   }
 
@@ -950,9 +953,8 @@ class FirebaseApi {
     const readings: PendingReading[] = [];
     sn.forEach((doc: any) => {
       //Get each document, put in the id
-      const data = doc.data();
-      //@ts-ignore
-      data.pendingId = doc.id;
+      const data: PendingReading = doc.data();
+      data.id = doc.id;
       readings.push(data);
     });
 

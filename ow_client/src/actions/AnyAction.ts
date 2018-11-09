@@ -1,6 +1,6 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
-import { DeprecatedResource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
+import {  Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
 import { EmptyLoginDetails, LoginDetails, ExternalSyncStatus, AnyLoginDetails } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
@@ -8,6 +8,9 @@ import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
 import { ShortId } from "../typings/models/ShortId";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
+import { AnyResource } from "../typings/models/Resource";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -64,9 +67,9 @@ export type AnyAction =
 
 
 /* Step 2: create a new type for the request and response actions */
-export type AddFavouriteActionRequest = { type: ActionType.ADD_FAVOURITE_REQUEST, resource: DeprecatedResource };
+export type AddFavouriteActionRequest = { type: ActionType.ADD_FAVOURITE_REQUEST, resource: AnyResource };
 export type AddFavouriteActionResponse = { type: ActionType.ADD_FAVOURITE_RESPONSE, result: SomeResult<void> };
-export type AddRecentActionRequest = { type: ActionType.ADD_RECENT_REQUEST, resource: DeprecatedResource };
+export type AddRecentActionRequest = { type: ActionType.ADD_RECENT_REQUEST, resource: AnyResource };
 export type AddRecentActionResponse = { type: ActionType.ADD_RECENT_RESPONSE, result: SomeResult<void> };
 export type ChangeTranslationActionRequest = { type: ActionType.CHANGE_TRANSLATION_REQUEST, language: TranslationEnum};
 export type ChangeTranslationActionResponse = { type: ActionType.CHANGE_TRANSLATION_RESPONSE, result: SomeResult<void>};
@@ -91,9 +94,9 @@ export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURC
 export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST, timeseriesId: string, range: TimeseriesRange };
 export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]>, timeseriesId: string, range: TimeseriesRange };
 export type GetResourceActionRequest = { type: ActionType.GET_RESOURCE_REQUEST, resourceId: string };
-export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<DeprecatedResource>}
+export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<AnyResource>}
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
-export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<DeprecatedResource[]> };
+export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<AnyResource[]> };
 export type GetShortIdActionRequest = { type: ActionType.GET_SHORT_ID_REQUEST, resourceId: string};
 export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE, resourceId: string, result: SomeResult<string>};
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };

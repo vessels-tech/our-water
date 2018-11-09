@@ -1,7 +1,7 @@
 
 import * as Joi from 'react-native-joi';
 import { Reading, ResourceScanResult } from '../typings/models/OurWater';
-import { SomeResult, ResultType, ErrorResult, SuccessResult } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, ErrorResult, SuccessResult, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
 import { maybeLog } from '../utils';
 import { AnyReading, GGMNReading, MyWellReading } from '../typings/models/Reading';
@@ -10,24 +10,16 @@ import { ReadingImageType } from '../typings/models/ReadingImage';
 import { string } from 'prop-types';
 import { ReadingLocationType } from '../typings/models/ReadingLocation';
 import { PendingResource } from '../typings/models/PendingResource';
+import { PendingReading } from '../typings/models/PendingReading';
 
-/* Make sure these match the fields in ../typings/models/Reading */
 
-const GGMNReadingSchema = Joi.object().keys({
-  type: Joi.string().equal(OrgType.GGMN).required(),
+const PendingReadingSchema = {
+  id: Joi.string(), //Id will probably be undefined
+  pending: Joi.boolean().required(),
   resourceId: Joi.string().required(),
   timeseriesId: Joi.string().required(),
   date: Joi.string().isoDate().required(),
   value: Joi.number().required(),
-});
-
-const MyWellReadingSchema = {
-  type: Joi.string().equal(OrgType.MYWELL).required(),
-  resourceId: Joi.string().required(),
-  timeseriesId: Joi.string().required(),
-  date: Joi.string().isoDate().required(),
-  value: Joi.number().required(),
-  userId: Joi.string().required(),
   image: Joi.allow([
     Joi.object().keys({
       type: Joi.string().equal(ReadingImageType.NONE)
@@ -48,54 +40,22 @@ const MyWellReadingSchema = {
         _longitude: Joi.number().required(),
       })
     })
-  ]).required(),
+  ]).required()
 }
 
 
-export function validateReading(orgType: OrgType, reading: any): SomeResult<AnyReading> {
-  switch (orgType) {
-    case OrgType.GGMN: return validateReadingGGMN(reading);
-    case OrgType.MYWELL: return validateReadingMyWell(reading);
-  } 
-}
-
-function validateReadingGGMN(reading: GGMNReading): SomeResult<GGMNReading> {
-  const schema: Joi.SchemaLike = GGMNReadingSchema;
+export function validateReading(orgType: OrgType, reading: any): SomeResult<PendingReading> {
+  const schema: Joi.SchemaLike = PendingReadingSchema;
   const options = {
     stripUnknown: true,
-  }
-  const result: Joi.ValidationResult<GGMNReading> = Joi.validate(reading, schema, options);
-  if (result.error !== null) {
-    return {
-      type: ResultType.ERROR,
-      message: result.error.message,
-    };
-  }
-
-  const successResult: SuccessResult<GGMNReading> = {
-    type: ResultType.SUCCESS,
-    result: result.value,
-  };
-  
-  return successResult
-}
-
-function validateReadingMyWell(reading: MyWellReading): SomeResult<MyWellReading> {
-  const schema: Joi.SchemaLike = MyWellReadingSchema;
-  const result: Joi.ValidationResult<MyWellReading> = Joi.validate(reading, schema);
-  if (result.error !== null) {
-    return {
-      type: ResultType.ERROR,
-      message: result.error.message,
-    };
-  }
-
-  const successResult: SuccessResult<MyWellReading> = {
-    type: ResultType.SUCCESS,
-    result: result.value,
   };
 
-  return successResult
+  const result: Joi.ValidationResult<PendingReading> = Joi.validate(reading, schema, options);
+  if (result.error !== null) {
+    return makeError(result.error.message);
+  }
+
+  return makeSuccess<PendingReading>(result.value); 
 }
 
 /**

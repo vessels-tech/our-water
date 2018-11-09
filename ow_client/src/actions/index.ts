@@ -1,4 +1,4 @@
-import { Resource, Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource, SearchResult } from "../typings/models/OurWater";
+import { Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
@@ -18,7 +18,8 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum } from "ow_translations/Types";
 import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
-import { PendingResource, PendingResource } from "../typings/models/PendingResource";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -40,7 +41,7 @@ export function addFavourite(api: BaseApi, userId: string, resource: AnyResource
   }
 }
 
-function addFavouriteRequest(resource: Resource): AddFavouriteActionRequest {
+function addFavouriteRequest(resource: AnyResource): AddFavouriteActionRequest {
   return {
     type: ActionType.ADD_FAVOURITE_REQUEST,
     resource,
@@ -58,7 +59,7 @@ function addFavouriteResponse(result: SomeResult<void>): AddFavouriteActionRespo
 /**
  * Async add recent
  */
-export function addRecent(api: BaseApi, userId: string, resource: Resource): any {
+export function addRecent(api: BaseApi, userId: string, resource: AnyResource): any {
   return async function (dispatch: any) {
     dispatch(addRecentRequest(resource));
     const result = await api.addRecentResource(resource, userId);
@@ -72,7 +73,7 @@ export function addRecent(api: BaseApi, userId: string, resource: Resource): any
   }
 }
 
-function addRecentRequest(resource: Resource): AddRecentActionRequest {
+function addRecentRequest(resource: AnyResource): AddRecentActionRequest {
   return {
     type: ActionType.ADD_RECENT_REQUEST,
     resource,
@@ -403,7 +404,7 @@ export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange
 /**
  * Async get resource given a short Id
  */
-export function getResource(api: BaseApi, resourceId: string, userId: string): (dispatch: any) => Promise<SomeResult<Resource>> {
+export function getResource(api: BaseApi, resourceId: string, userId: string): (dispatch: any) => Promise<SomeResult<AnyResource>> {
   return async (dispatch: any) => {
     dispatch(getResourceRequest(resourceId));
 
@@ -422,7 +423,7 @@ function getResourceRequest(resourceId: string): GetResourceActionRequest {
   }
 }
 
-function getResourceResponse(resourceId: string, result: SomeResult<Resource>): GetResourceActionResponse {
+function getResourceResponse(resourceId: string, result: SomeResult<AnyResource>): GetResourceActionResponse {
   return {
     type: ActionType.GET_RESOURCE_RESPONSE,
     resourceId,
@@ -434,7 +435,7 @@ function getResourceResponse(resourceId: string, result: SomeResult<Resource>): 
 /**
  * Async get resources near user
  */
-export function getResources(api: BaseApi, userId: string, region: Region): (dispatch: any) => Promise<SomeResult<Resource[]>> {
+export function getResources(api: BaseApi, userId: string, region: Region): (dispatch: any) => Promise<SomeResult<AnyResource[]>> {
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
 
@@ -456,7 +457,7 @@ function getResourcesRequest(): GetResourcesActionRequest {
   }
 }
 
-function getResourcesResponse(result: SomeResult<Resource[]>): GetResourcesActionResponse {
+function getResourcesResponse(result: SomeResult<AnyResource[]>): GetResourcesActionResponse {
   return {
     type: ActionType.GET_RESOURCES_RESPONSE,
     result,
@@ -587,17 +588,20 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
  * Async save reading
  */
 
-export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading ): any {
+export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
 
     const result = await api.saveReading(resourceId, userId, reading);
 
     dispatch(saveReadingResponse(result));
+
     //Attempt to do a sync
-    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
-      dispatch(startExternalSync(externalApi, userId));
-    }
+    //TODO: re enable
+    // if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
+    //   dispatch(startExternalSync(externalApi, userId));
+    // }
+
     return result;
   }
 }
@@ -619,7 +623,7 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReading
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: Resource | PendingResource ): 
+export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource ): 
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
@@ -627,10 +631,12 @@ export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi,
     const result = await api.saveResource(userId, resource);
 
     dispatch(saveResourceResponse(result));    
+
     //Attempt to do a sync
-    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has){
-      dispatch(startExternalSync(externalApi, userId));
-    }
+    //TODO: re-enable once sync is done
+    // if (externalApi.externalServiceApiType === ExternalServiceApiType.Has){
+    //   dispatch(startExternalSync(externalApi, userId));
+    // }
 
     return result;
   }

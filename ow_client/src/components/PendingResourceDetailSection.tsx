@@ -15,7 +15,7 @@ import {
   getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReading } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
@@ -33,6 +33,7 @@ import { TranslationFile } from 'ow_translations/Types';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { PendingResource } from '../typings/models/PendingResource';
+import { PendingReading } from '../typings/models/PendingReading';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';

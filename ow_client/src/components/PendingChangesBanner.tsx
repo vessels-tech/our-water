@@ -15,10 +15,11 @@ import {
 
 import { bgMed, error1, secondaryLight, secondaryText, primaryLight } from '../utils/Colors';
 import { SyncStatus } from '../typings/enums';
-import { PendingReading, PendingResource } from '../typings/models/OurWater';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
+import { PendingReading } from '../typings/models/PendingReading';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 export interface OwnProps {

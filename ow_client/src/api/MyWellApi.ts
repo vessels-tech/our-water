@@ -2,13 +2,16 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { DeprecatedResource, SearchResult, OWUser, PendingReading, PendingResource, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations/Types';
 import { RNFirebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
 import { AnyResource } from '../typings/models/Resource';
+import { AnyReading } from '../typings/models/Reading';
+import { PendingReading } from '../typings/models/PendingReading';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -42,7 +45,7 @@ export default class MyWellApi implements BaseApi, UserApi {
   //
   // Reading API
   // 
-  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
+  async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
     
     const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {

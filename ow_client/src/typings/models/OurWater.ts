@@ -1,6 +1,8 @@
 import { ResourceType } from "../../enums";
 import { Location } from "../Location";
 import { TranslationEnum } from "ow_translations/Types";
+import { PendingResource } from "./PendingResource";
+import { PendingReading } from "./PendingReading";
 
 export type DeprecatedResource = {
   id: string,
@@ -55,16 +57,6 @@ export type Reading = {
   location?: Location,
   timeseriesId: string, //GGMN only, TODO: make separate models
 }
-
-/**
- * A reading saved to firebase, but not saved to external yet.
- * This won't apply for MyWell, only GGMN
- */
-export type PendingReading = {
-  pendingId: string,
-  createdAt: number, //unix timestamp
-}
-
 
 export type SaveReadingResult = {
   requiresLogin: boolean,

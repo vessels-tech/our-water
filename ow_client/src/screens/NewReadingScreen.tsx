@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, getLocation, maybeLog, navigateTo, showModal } from '../utils';
+import { displayAlert, maybeLog, showModal } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -35,6 +35,8 @@ import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingTimeseries } from '../typings/models/PendingTimeseries';
 import { AnyTimeseries } from '../typings/models/Timeseries';
+import { PendingReading } from '../typings/models/PendingReading';
+import { valid } from 'react-native-joi';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -45,7 +47,7 @@ export interface Props {
   userId: string,
   appApi: BaseApi,
 
-  saveReading: any,
+  saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
   pendingSavedReadingsMeta: SyncMeta,
   translation: TranslationFile,
   getGeolocation: () => void,
@@ -174,12 +176,12 @@ class NewReadingScreen extends Component<Props> {
 
     const readingRaw: any = {
       type: this.props.config.orgType,
+      pending: true,
       resourceId: id,
+      //TODO: figure out timeseriesId for resources which haven't yet been created
       timeseriesId: timeseriesString, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
-
-      //if we are in GGMN, these fields will be stripped by Joi
       userId: this.props.userId,
       image: readingImage,
       location: readingLocation,
@@ -187,6 +189,8 @@ class NewReadingScreen extends Component<Props> {
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
     if (validateResult.type === ResultType.ERROR) {
+      maybeLog(validateResult.message);
+
       displayAlert(
         new_reading_invalid_error_heading,
         new_reading_invalid_error_description,
@@ -198,7 +202,6 @@ class NewReadingScreen extends Component<Props> {
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
 
-    //TODO: how to do callbacks from state?
     if (saveResult.type === ResultType.ERROR) {
       displayAlert(
         new_reading_unknown_error_heading,
@@ -255,9 +258,6 @@ class NewReadingScreen extends Component<Props> {
   }
 
   isTimeseriesValid() {
-    //TODO: fix this hack
-    return true;
-
     const { timeseriesString } = this.state;
     if (!timeseriesString || timeseriesString.length === 0) {
       return false;
@@ -488,7 +488,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: Reading) => 
+    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => 
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))},
     getGeolocation: () => dispatch(appActions.getGeolocation())
   }

@@ -10,7 +10,7 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries, GGMNUsersResponse } from "../typings/models/GGMN";
-import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatus, ExternalSyncStatusType } from "../typings/api/ExternalServiceApi";
@@ -24,6 +24,9 @@ import { TranslationEnum } from "ow_translations/Types";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResourceApi";
+import { PendingReading } from "../typings/models/PendingReading";
+import { AnyReading } from "../typings/models/Reading";
+import { PendingResource } from "../typings/models/PendingResource";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -649,7 +652,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
    * put it on a timer/user click banner
    */
-  async saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>> {
+  async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
 
     const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
@@ -677,7 +680,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
   }
 
-  async saveResource(userId: string, resource: DeprecatedResource): Promise<SomeResult<SaveResourceResult>> {
+  async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
@@ -1051,16 +1054,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     console.log("removePendingResults", removePendingResults);
 
-
-
-    return Promise.resolve(makeSuccess({type: ExternalSyncStatusType.COMPLETE}));
-
-
-    /* For each reading, make sure the resource has been saved first.
-    
-      find the timeseries associated with the reading, and save it using the GGMN api.
+    /* For each reading, make sure the resource has been saved first.    
+       find the timeseries associated with the reading, and save it using the GGMN api.
     */
 
+  
+   
+   return Promise.resolve(makeSuccess({type: ExternalSyncStatusType.COMPLETE}));
   }
 
   //

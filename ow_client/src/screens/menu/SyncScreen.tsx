@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatus, ExternalSyncStatusType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
-import { Reading, Resource, PendingReading } from '../../typings/models/OurWater';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
@@ -15,6 +14,7 @@ import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, p
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations/Types';
 import { PendingResource } from '../../typings/models/PendingResource';
+import { PendingReading } from '../../typings/models/PendingReading';
 
 export interface OwnProps {
   navigator: any,
@@ -191,7 +191,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         roundAvatar
         rightIcon={ 
           <TouchableNativeFeedback
-            onPress={() => {deletePendingReading(this.appApi, userId, r.pendingId)}}
+            onPress={() => {deletePendingReading(this.appApi, userId, r.id)}}
           >
             <Icon
               name='close'
@@ -199,9 +199,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.pendingId}
+        title={r.id}
         avatar={getReadingAvatar()}
-        subtitle={`${moment(r.createdAt).format('DD/MM/YY @ HH:mm a')}`} />
+        subtitle={`${moment(r.date).format('DD/MM/YY @ HH:mm a')}`} />
     );
   }
 

@@ -1,8 +1,11 @@
-import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange, PendingReading, PendingResource } from "../typings/models/OurWater";
+import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
 import { AnyResource } from "../typings/models/Resource";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
+import { AnyReading } from "../typings/models/Reading";
 
 
 /**
@@ -83,14 +86,14 @@ export default interface BaseApi {
    * 
    * Returns a SomeResult which can either be a SuccessResult or ErrorResult
    */
-  saveReading(resourceId: string, userId: string, reading: Reading): Promise<SomeResult<SaveReadingResult>>;
+  saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>>;
 
   /**
    * Save a Resource
    * 
    * Returns a Wrapped SaveResourceResult
    */
-  saveResource(userId: string, resource: DeprecatedResource | PendingResource): Promise<SomeResult<SaveResourceResult>>;
+  saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>>;
 
 
   /**
