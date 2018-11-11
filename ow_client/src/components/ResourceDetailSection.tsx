@@ -184,6 +184,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
 
         let content = 'N/A';
+        let contentSubtitle;
         let timeStart;
         let timeEnd;
 
@@ -191,7 +192,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         if (latestReading) {
           content = `${latestReading.value}`;
           // TODO: translate
-          timeEnd = moment(latestReading.dateString).format();
+          contentSubtitle = moment(latestReading.dateString).format();
         }
 
         //This may fail...
@@ -209,8 +210,10 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             heading={timeseries.name} 
             subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
             content={content}
-            timeStart={timeStart}
-            timeEnd={timeEnd}
+            content_subtitle={contentSubtitle}
+            // Removing these for now, it't too hard to get the start date
+            // timeStart={timeStart}
+            // timeEnd={timeEnd}
           />
         )
       })
@@ -251,12 +254,13 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
           {/* Bottom Buttons */}
           <View style={{
-            flex: 1,
+            flex: 0.5,
             borderColor: bgLightHighlight,
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
             paddingBottom: 20,
             alignContent: 'center',
+            // maxHeight: 50,
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
