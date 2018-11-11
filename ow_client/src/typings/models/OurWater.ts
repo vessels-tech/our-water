@@ -116,7 +116,6 @@ export type OWUser = {
 export type TimeSeriesReading = {
   meta: { loading: boolean },
   readings: AnyReading[],
-  pendingReadings: PendingReading[],
 }
 
 //TODO: remove if we don't keep using it.
@@ -130,6 +129,11 @@ export type TimeseriesRangeReadings = {
 //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
 export type TimeseriesReadings = {
   [id: string]: TimeSeriesReading,
+}
+
+ //Dict: tsName=>PendingReading[]
+export type PendingReadingsByTimeseriesName = {
+  [id: string]: PendingReading[]
 }
 
 

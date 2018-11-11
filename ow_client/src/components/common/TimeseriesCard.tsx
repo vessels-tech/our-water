@@ -21,11 +21,13 @@ import { getTimeseriesReadingKey } from '../../utils';
 import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
+import { PendingReading } from '../../typings/models/PendingReading';
 
 export interface OwnProps {
   config: ConfigFactory,
   timeseries: AnyTimeseries,
   resourceId: string,
+  pendingReadings: PendingReading[],
 }
 
 export interface StateProps {
@@ -90,7 +92,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (readings.pendingReadings.length + readings.readings.length === 0) {
+    if (readings.readings.length === 0 && this.props.pendingReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
     }
 
@@ -100,7 +102,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
         justifyContent: 'center'
       }}>
         <SimpleChart
-          pendingReadings={readings.pendingReadings}
+          pendingReadings={this.props.pendingReadings}
           readings={readings.readings}
           timeseriesRange={currentRange} 
         />

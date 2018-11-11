@@ -210,6 +210,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         pendingSavedReadings = action.result.result;
       }
 
+      //TODO: add to the timeseries readings?
+
       return Object.assign({}, state, { pendingSavedReadings });
     }
     case ActionType.GET_PENDING_RESOURCES_RESPONSE: {
@@ -224,13 +226,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TODO: fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
       const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[], pendingReadings: [] };
+      let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[] };
       let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
       if (existingReading) {
         tsReading = {
           meta: {loading: true},
           readings: existingReading.readings,
-          pendingReadings: existingReading.pendingReadings,
         }
       }
 
@@ -241,7 +242,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TD fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
       const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [], pendingReadings: [] };
+      let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
       //TD this could be done more efficently than looking through an array each time -
       //eg. building an index based on the resourceId and timeseriesName
       const pendingReadings: PendingReading[] = state.pendingSavedReadings
@@ -250,9 +251,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       if (action.result.type === ResultType.SUCCESS) {
         tsReading.readings = action.result.result;
       }
-
-      //Merge in pending readings for this ID
-      tsReading.pendingReadings = pendingReadings;
 
       tsReadings[key] = tsReading;
       return Object.assign({}, state, { tsReadings });

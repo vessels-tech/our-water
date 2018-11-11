@@ -16,7 +16,7 @@ import {
   getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import HeadingText from './common/HeadingText';
@@ -35,6 +35,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
+import { PendingReading } from '../typings/models/PendingReading';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -53,6 +54,7 @@ export interface StateProps {
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: AnyResource[],
   translation: TranslationFile,
+  pendingReadings: PendingReading[],
 }
 
 export interface ActionProps {
@@ -307,6 +309,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
                       config={this.props.config}
                       resourceId={this.props.resource.id}
                       timeseries={ts}
+                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesName === ts.name)}
                     />
                   </View>
                 );
@@ -390,11 +393,15 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
 
+  const allPendingReadings = state.pendingSavedReadings
+
+
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favouriteResources: state.favouriteResources,
     tsReadings: state.tsReadings,
     translation: state.translation,
+    pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resource.id),
   }
 }
 
