@@ -127,7 +127,7 @@ export type TimeseriesRangeReadings = {
   EXTENT: TimeSeriesReading,
 }
 
-//simple map: key: `timeseriesId+range` => TimeseriesReading
+//simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
 export type TimeseriesReadings = {
   [id: string]: TimeSeriesReading,
 }

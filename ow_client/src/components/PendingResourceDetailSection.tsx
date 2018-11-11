@@ -346,10 +346,10 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    action_addFavourite: (api: BaseApi, userId: string, resource: AnyResource) =>
-      dispatch(appActions.addFavourite(api, userId, resource)),
-    action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
-      dispatch(appActions.removeFavourite(api, userId, resourceId)),
+    // action_addFavourite: (api: BaseApi, userId: string, resource: AnyResource) =>
+    //   dispatch(appActions.addFavourite(api, userId, resource)),
+    // action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
+    //   dispatch(appActions.removeFavourite(api, userId, resourceId)),
     getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
       dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
 

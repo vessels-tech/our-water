@@ -365,7 +365,7 @@ export function getPendingResourcesResponse(result: SomeResult<PendingResource[]
  */
 export function getReadings(api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string,range: TimeseriesRange): any {
   return async (dispatch: any) => {
-    dispatch(getReadingsRequest(timeseriesId, range));
+    dispatch(getReadingsRequest(resourceId, timeseriesName, timeseriesId, range));
 
     let result: SomeResult<AnyReading[]>;
     try {
@@ -385,9 +385,11 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesName: st
   }
 }
 
-export function getReadingsRequest(timeseriesId: string, range: TimeseriesRange): GetReadingsActionRequest {
+export function getReadingsRequest(resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): GetReadingsActionRequest {
   return {
     type: ActionType.GET_READINGS_REQUEST,
+    resourceId,
+    timeseriesName,
     timeseriesId,
     range,
 

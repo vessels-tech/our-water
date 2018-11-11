@@ -152,8 +152,8 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     let loading = false;
     const readingsMap = new Map<string, AnyReading[]>();
 
-    resource.timeseries.forEach((ts: any) => {
-      const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.EXTENT);
+    resource.timeseries.forEach(ts => {
+      const key = getTimeseriesReadingKey(resource.id, ts.name, TimeseriesRange.EXTENT);
       const tsReading: TimeSeriesReading | undefined = tsReadings[key]
       if (!tsReading) {
         return <Loading />
@@ -290,7 +290,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           <View 
             key="1" 
             style={{
-              // backgroundColor: 'blue',
               backgroundColor: bgLight,
               flex: 1,
             }}

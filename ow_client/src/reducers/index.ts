@@ -48,7 +48,7 @@ export type AppState = {
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
-  tsReadings: TimeseriesReadings, //simple map: key: `timeseriesId+range` => TimeseriesReading
+  tsReadings: TimeseriesReadings, //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
   shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
   shortIdCache: Map<string, string>, //resourceId => shortId
   
@@ -223,7 +223,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_READINGS_REQUEST: {
       //TODO: fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      const key = getTimeseriesReadingKey(action.timeseriesId, action.range);
+      const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
       let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[], pendingReadings: [] };
       let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
       if (existingReading) {
@@ -240,7 +240,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_READINGS_RESPONSE: {
       //TD fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      const key = getTimeseriesReadingKey(action.timeseriesId, action.range);
+      const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
       let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [], pendingReadings: [] };
       //TD this could be done more efficently than looking through an array each time -
       //eg. building an index based on the resourceId and timeseriesName

@@ -11,6 +11,7 @@ import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { EnableLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
+import { AnyReading } from '../typings/models/Reading';
 
 
 /**
@@ -447,7 +448,7 @@ export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadin
   return timeseriesReadings;
 }
 
-export function addReadingsAndStopLoading(readings: Reading[], timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange) {
+export function addReadingsAndStopLoading(readings: AnyReading[], timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange) {
   //Set the appropriate meta to loading for the timeseries and timerange
   let tsRangeReadings = timeseriesReadings.get(timeseriesId);
   if (!tsRangeReadings) {
@@ -464,11 +465,13 @@ export function addReadingsAndStopLoading(readings: Reading[], timeseriesReading
 }
 
 
-export function getTimeseriesReadingKey(timeseriesId: string, range: TimeseriesRange): string {
+export function deprecatedGetTimeseriesReadingKey(timeseriesId: string, range: TimeseriesRange): string {
   return `${timeseriesId}+${range}`;
 }
 
-
+export function getTimeseriesReadingKey(resourceId: string, timeseriesName: string, range: TimeseriesRange): string {
+  return `${resourceId}+${timeseriesName}+${range}`;
+}
 
 /**
  * A simple throttle function

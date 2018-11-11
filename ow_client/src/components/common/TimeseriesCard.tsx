@@ -33,7 +33,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
+  getReadings: (api: BaseApi, resourceId: string, timeseriesName:string, timeseriesId: string, range: TimeseriesRange) => any,
 }
 
 export interface State {
@@ -57,21 +57,27 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = this.props.config.getAppApi();
   }
 
+  getNotEnoughReadingsDialog() {
+    //TODO: translations
+    return (
+      <View style={{
+        flex: 10,
+        justifyContent: 'center',
+      }}>
+        <Text style={{ textAlign: 'center' }}>Not enough readings for this time range.</Text>
+      </View>
+    );
+  }
+
   getGraphView() {
     const { currentRange } = this.state;
-    const { tsReadings, timeseries: {id}, resourceId } = this.props;
+    const { tsReadings, timeseries: {name}, resourceId } = this.props;
 
-    const readings = tsReadings[getTimeseriesReadingKey(id, currentRange)];
-    if (isNullOrUndefined(readings) || isNullOrUndefined(readings.readings) || readings.readings && readings.readings.length === 0) {
-      return (
-        <View style={{
-          flex: 10,
-          justifyContent: 'center',
-        }}>
-          <Text style={{textAlign: 'center'}}>Not enough readings for this time range.</Text>
-        </View>
-      )
-    }
+    const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
+
+    if (!readings) {
+      return this.getNotEnoughReadingsDialog();
+    }  
 
     if (readings.meta.loading) {
       return (
@@ -79,9 +85,13 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
           flex: 5,
           justifyContent: 'center',
         }}>
-          <Loading/>
+          <Loading />
         </View>
       );
+    }
+
+    if (readings.pendingReadings.length + readings.readings.length === 0) {
+      return this.getNotEnoughReadingsDialog();
     }
 
     return (
@@ -90,6 +100,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
         justifyContent: 'center'
       }}>
         <SimpleChart
+          pendingReadings={readings.pendingReadings}
           readings={readings.readings}
           timeseriesRange={currentRange} 
         />
@@ -132,7 +143,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
                 }
 
                 this.setState({ currentRange: b.value });
-                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.id, b.value);
+                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.name, this.props.timeseries.id, b.value);
               }}
             />
           ))}
@@ -145,33 +156,28 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { timeseries: { name } } = this.props;
 
     return (
-      // <Card
-      //   containerStyle={{
-      //     width: '90%',
-      //     height: '90%',
-      //     padding: 0,
-      //   }}
-      //   >
-        <View style={{
+      <View 
+        style={{
           flexDirection: 'column',
           height: '100%',
           width: '100%',
           backgroundColor: bgLight,
-        }}>
-          <Text style={{
+        }}
+      >
+        <Text 
+          style={{
             paddingVertical: 5,
             textDecorationLine: 'underline',
             fontSize: 15,
             fontWeight: '600',
             alignSelf: 'center',
           }}>
-            {name}
-          </Text>
-          {this.getGraphView()}
-          {this.getBottomButtons()}
-        </View>
-      // </Card>
-    )
+          {name}
+        </Text>
+        {this.getGraphView()}
+        {this.getBottomButtons()}
+      </View>
+    );
   }
 }
 
@@ -184,8 +190,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
-      dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
+    getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) =>
+      dispatch(appActions.getReadings(api, resourceId, timeseriesName, timeseriesId, range)),
 
   }
 }
