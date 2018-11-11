@@ -393,9 +393,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
 
-  const allPendingReadings = state.pendingSavedReadings
-
-
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favouriteResources: state.favouriteResources,

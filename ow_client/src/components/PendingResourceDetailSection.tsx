@@ -34,6 +34,8 @@ import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
+import PendingTimeseriesCard from './common/PendingTimeseriesCard';
+import { PendingTimeseries } from '../typings/models/PendingTimeseries';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -51,6 +53,7 @@ export interface StateProps {
   pendingReadings: PendingReading[]
   pendingReadingsMeta: SyncMeta,
   translation: TranslationFile,
+  
 }
 
 export interface ActionProps {
@@ -247,7 +250,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
   }
 
   getReadingsView() {
-    const { translation: { templates: { resource_detail_summary_tab } } } = this.props;
+    const { pendingResource, translation: { templates: { resource_detail_summary_tab } } } = this.props;
 
     return (
       <View style={{
@@ -284,22 +287,22 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
           >
             {this.getSummaryCard()}
           </View>
-          {/* TODO: load the timeseries graphs for pending readings */}
 
-          {/* {
-            resource.timeseries.map((ts: AnyTimeseries, idx: number) => {
+          {
+            pendingResource.timeseries.map((ts: PendingTimeseries, idx: number) => {
               return (
                 // @ts-ignore
                 <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
-                  <TimeseriesCard
+                  <PendingTimeseriesCard
                     config={this.props.config}
-                    resourceId={this.props.resource.id}
+                    pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesName === ts.name)}
+                    resourceId={this.props.pendingResource.id}
                     timeseries={ts}
                   />
                 </View>
               );
             })
-          } */}
+          }
         </ScrollableTabView>
       </View>
     );
@@ -338,7 +341,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
-    pendingReadings: state.pendingSavedReadings,
+    pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.pendingResource.id),
     pendingReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
   }
@@ -350,8 +353,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     //   dispatch(appActions.addFavourite(api, userId, resource)),
     // action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
     //   dispatch(appActions.removeFavourite(api, userId, resourceId)),
-    getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
-      dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
+    // getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) =>
+    //   dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
 
   }
 }
