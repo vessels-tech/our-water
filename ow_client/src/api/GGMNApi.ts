@@ -14,7 +14,7 @@ import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeser
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
-import { isNullOrUndefined } from "util";
+import { isNullOrUndefined, isNull } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
@@ -429,8 +429,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
   
   async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
-    //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations
-    // const resourceUrl = `${this.baseUrl}/api/v3/locations/`;
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const bBox = calculateBBox(region);
     const url = appendUrlParameters(resourceUrl, {
@@ -459,7 +457,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
-      .then((resources: DeprecatedResource[]) => ({type: ResultType.SUCCESS, result: resources}))
+      .then((resources: AnyResource[]) => ({type: ResultType.SUCCESS, result: resources}))
       .catch((err: Error) => {
         maybeLog("Error loading resources:", err);
         return {type: ResultType.ERROR, message:'Error loading resources.'};
@@ -1377,10 +1375,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   // Utils
   //----------------------------------------------------------------------
 
-  //TODO: this will fall apart, as we need a specific GGMNResource type :(
-  //For now, we can make OurWater handle all the fields, and worry about making
-  //it flexible later on
+
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
+
     const to: GGMNResource = {
       // id: `${from.id}`,
       id: `${from.name}`,
@@ -1462,6 +1459,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       name: from.name,
       parameter: from.parameter,
       readings,
+      firstReadingDateString: isNullOrUndefined(from.start) ? moment(0).toISOString() : moment(from.start).toISOString(),
     };
   }
 

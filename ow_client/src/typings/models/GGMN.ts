@@ -89,6 +89,7 @@ export type GGMNResponseTimeseries = {
   },
   last_value: number,
   events: Array<GGMNTimeseriesEvent>,
+  start: number, //unix timestamp
 }
 
 

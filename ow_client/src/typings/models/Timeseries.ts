@@ -27,6 +27,7 @@ export type GGMNTimeseries = {
 
   
   /* Platform Specific */
+  firstReadingDateString: string,
   
 }
 

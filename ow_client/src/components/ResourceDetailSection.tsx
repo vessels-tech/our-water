@@ -37,6 +37,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingReading } from '../typings/models/PendingReading';
+import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -183,13 +184,14 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
 
         let content = 'N/A';
-        let content_subtitle;
+        let timeStart;
+        let timeEnd;
 
         const latestReading = allReadings[allReadings.length - 1];
         if (latestReading) {
           content = `${latestReading.value}`;
           // TODO: translate
-          content_subtitle = moment(latestReading.dateString).fromNow();
+          timeEnd = moment(latestReading.dateString).format();
         }
 
         //This may fail...
@@ -197,13 +199,18 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         if (!timeseries) { 
           return null
         };
+
+        if (timeseries.type === OrgType.GGMN) {
+          timeStart = moment(timeseries.firstReadingDateString).format();
+        }
         return (
-          <HeadingSubtitleText 
+          <TimeseriesSummaryText 
             key={key} 
             heading={timeseries.name} 
             subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
-            content={content} 
-            content_subtitle={content_subtitle}
+            content={content}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
           />
         )
       })
@@ -220,12 +227,10 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
           padding: 20,
           flex: 1,
         }}>
-          <View style={{
+          {/* <View style={{
             flexDirection: 'column',
             flex: 2,
           }}>
-            {/* <HeadingText heading={'Station Type:'} content={'TODO'}/> */}
-            {/* <HeadingText heading={'Status'} content={'TODO'}/> */}
             <Text style={{
               paddingVertical: 10,
               fontSize: 15,
@@ -234,7 +239,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
             }}>
               {resource_detail_latest}
             </Text>
-          </View>
+          </View> */}
 
           <View style={{
             flexDirection: 'column',
