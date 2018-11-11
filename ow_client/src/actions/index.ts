@@ -20,6 +20,7 @@ import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
+import { AnyReading } from "../typings/models/Reading";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -360,12 +361,13 @@ export function getPendingResourcesResponse(result: SomeResult<PendingResource[]
 
 /**
  * async get the readings for a resource
+ * //TD - remove the need for timeseriesId
  */
-export function getReadings(api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange): any {
+export function getReadings(api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string,range: TimeseriesRange): any {
   return async (dispatch: any) => {
     dispatch(getReadingsRequest(timeseriesId, range));
 
-    let result: SomeResult<Reading[]>;
+    let result: SomeResult<AnyReading[]>;
     try {
       const readings = await api.getReadingsForTimeseries(resourceId, timeseriesId, range);
       result = {
@@ -379,7 +381,7 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesId: stri
       }
     }
 
-    dispatch(getReadingsResponse(timeseriesId, range, result));
+    dispatch(getReadingsResponse(timeseriesId, resourceId, timeseriesName, range, result));
   }
 }
 
@@ -392,9 +394,11 @@ export function getReadingsRequest(timeseriesId: string, range: TimeseriesRange)
   }
 }
 
-export function getReadingsResponse(timeseriesId: string, range: TimeseriesRange, result: SomeResult<Reading[]> ): GetReadingsActionResponse {
+export function getReadingsResponse(timeseriesId: string, resourceId: string, timeseriesName: string, range: TimeseriesRange, result: SomeResult<AnyReading[]> ): GetReadingsActionResponse {
   return {
     type: ActionType.GET_READINGS_RESPONSE,
+    resourceId,
+    timeseriesName,
     timeseriesId,
     range,
     result,

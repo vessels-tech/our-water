@@ -4,6 +4,7 @@ import { TranslationEnum } from "ow_translations/Types";
 import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";
+import { AnyReading } from "./Reading";
 
 export type DeprecatedResource = {
   id: string,
@@ -114,7 +115,8 @@ export type OWUser = {
 
 export type TimeSeriesReading = {
   meta: { loading: boolean },
-  readings: Reading[],
+  readings: AnyReading[],
+  pendingReadings: PendingReading[],
 }
 
 //TODO: remove if we don't keep using it.

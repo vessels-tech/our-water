@@ -542,9 +542,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * @param timeseriesId: string  -> The id of the timeseries
    * @param range: TimeseriesRange -> the range of the selected query
    * 
+   * //TD - update to return a SomeResult
+   * 
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
-  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<Reading[]> {
+  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
     const { startDate, endDate } = convertRangeToDates(range)
 
     const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;

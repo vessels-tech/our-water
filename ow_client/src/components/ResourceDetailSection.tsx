@@ -58,7 +58,7 @@ export interface StateProps {
 export interface ActionProps {
   action_addFavourite: any,
   action_removeFavourite: any,
-  getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => any,
+  getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => any,
 }
 
 export interface State {
@@ -76,7 +76,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
-    timeseries.forEach((ts: any) => this.props.getReadings(this.appApi, id, ts.id, DEFAULT_RANGE));
+    timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE));
   }
 
 
@@ -150,7 +150,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     const { tsReadings, resource } = this.props;
 
     let loading = false;
-    const readingsMap = new Map<string, Reading[]>();
+    const readingsMap = new Map<string, AnyReading[]>();
 
     resource.timeseries.forEach((ts: any) => {
       const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.EXTENT);
@@ -164,6 +164,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         loading = true;
       }
 
+      //TODO: add pending readings?
       readingsMap.set(ts.id, tsReading.readings);
     });
 
@@ -380,8 +381,6 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
       <View style={{
         flexDirection: 'column',
         flex: 1,
-        // minHeight: 500,
-        backgroundColor: 'blue',
       }}>
         {this.props.hideTopBar ? null : this.getHeadingBar()}
         {this.getReadingsView()}
@@ -406,8 +405,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
       dispatch(appActions.addFavourite(api, userId, resource)),
     action_removeFavourite: (api: BaseApi, userId: string, resourceId: string) =>
       dispatch(appActions.removeFavourite(api, userId, resourceId)),
-    getReadings: (api: BaseApi, resourceId: string, timeseriesId: string, range: TimeseriesRange) => 
-      dispatch(appActions.getReadings(api, resourceId, timeseriesId, range)),
+    getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => 
+      dispatch(appActions.getReadings(api, resourceId, timeseriesName, timeseriesId, range)),
 
   }
 }

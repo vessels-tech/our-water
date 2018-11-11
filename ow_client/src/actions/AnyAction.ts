@@ -11,6 +11,7 @@ import { ShortId } from "../typings/models/ShortId";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyResource } from "../typings/models/Resource";
+import { AnyReading } from "../typings/models/Reading";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -92,7 +93,8 @@ export type GetPendingReadingsResponse = { type: ActionType.GET_PENDING_READINGS
 export type GetPendingResourcesRequest = { type: ActionType.GET_PENDING_RESOURCES_REQUEST};
 export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURCES_RESPONSE, result: SomeResult<PendingResource[]>};
 export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST, timeseriesId: string, range: TimeseriesRange };
-export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<Reading[]>, timeseriesId: string, range: TimeseriesRange };
+//We only need timeseries id here to lookup in GGMN. Ideally we could use resourceId + timeseriesName instead
+export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<AnyReading[]>, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange };
 export type GetResourceActionRequest = { type: ActionType.GET_RESOURCE_REQUEST, resourceId: string };
 export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<AnyResource>}
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };

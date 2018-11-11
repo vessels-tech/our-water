@@ -224,12 +224,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TODO: fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
       const key = getTimeseriesReadingKey(action.timeseriesId, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[] };
+      let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[], pendingReadings: [] };
       let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
       if (existingReading) {
         tsReading = {
           meta: {loading: true},
           readings: existingReading.readings,
+          pendingReadings: existingReading.pendingReadings,
         }
       }
 
@@ -237,16 +238,21 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, {tsReadings});
     }
     case ActionType.GET_READINGS_RESPONSE: {
-      //TODO: fix this hack for a deep clone
+      //TD fix this hack for a deep clone
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
       const key = getTimeseriesReadingKey(action.timeseriesId, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
+      let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [], pendingReadings: [] };
+      //TD this could be done more efficently than looking through an array each time -
+      //eg. building an index based on the resourceId and timeseriesName
+      const pendingReadings: PendingReading[] = state.pendingSavedReadings
+        .filter(r => r.resourceId === action.resourceId && r.timeseriesName === action.timeseriesName);
       
       if (action.result.type === ResultType.SUCCESS) {
         tsReading.readings = action.result.result;
       }
 
-      //TODO: merge in pending readings here.
+      //Merge in pending readings for this ID
+      tsReading.pendingReadings = pendingReadings;
 
       tsReadings[key] = tsReading;
       return Object.assign({}, state, { tsReadings });
