@@ -8,6 +8,7 @@ import {
   Card,
   Text,
 } from 'react-native-elements';
+import * as moment from 'moment';
 
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
@@ -136,27 +137,13 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
   }
 
   getLatestReadingsForTimeseries() {
-    //TODO: load the pending readings
-    return null;
-
-    const { tsReadings, resource } = this.props;
+    const { pendingResource, pendingReadings } = this.props;
 
     let loading = false;
-    const readingsMap = new Map<string, Reading[]>();
+    const readingsMap = new Map<string, PendingReading[]>();
 
-    resource.timeseries.forEach((ts: any) => {
-      const key = getTimeseriesReadingKey(ts.id, TimeseriesRange.EXTENT);
-      const tsReading: TimeSeriesReading | undefined = tsReadings[key]
-      if (!tsReading) {
-        return <Loading />
-      }
-
-      //Let's say two weeks is the default, and should always be either there or pending
-      if (tsReading.meta.loading) {
-        loading = true;
-      }
-
-      readingsMap.set(ts.id, tsReading.readings);
+    pendingResource.timeseries.forEach(ts => {
+      readingsMap.set(ts.name, pendingReadings.filter(r => r.timeseriesName === ts.name));
     });
 
     if (loading) {
@@ -165,22 +152,25 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
     const keys = [...readingsMap.keys()];
     return (
-      keys.map((key, idx) => {
-        const readings = readingsMap.get(key);
+      keys.map((key) => {
+        const readings = readingsMap.get(key) || [];
         let content = 'N/A';
-        if (readings) {
-          const latestReading = readings[readings.length - 1];
-          if (latestReading) {
-            content = `${latestReading.value}`;
-          }
+        let content_subtitle;
+
+        const latestReading = readings[readings.length - 1];
+        if (latestReading) {
+          content = `${latestReading.value}`;
+          // TODO: translate
+          content_subtitle = moment(latestReading.date).fromNow();
         }
-        const timeseries = resource.timeseries[idx];
+
         return (
           <HeadingSubtitleText
             key={key}
-            heading={timeseries.name}
-            subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
+            heading={key}
+            subtitle={temporarySubtitleForTimeseriesName(key)}
             content={content}
+            content_subtitle={content_subtitle}
           />
         )
       })

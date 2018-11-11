@@ -12,6 +12,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { EnableLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
+import { PendingReading } from '../typings/models/PendingReading';
 
 
 /**
@@ -539,4 +540,25 @@ export function temporarySubtitleForTimeseriesName(name: string): string {
   }
 
   return '';
+}
+
+
+export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingReading[], readings: AnyReading[]): { dateString: string, value: number }[] {
+  /* merge together readings, sorted by the creation date */
+  const allReadings: { dateString: string, value: number }[] = pendingReadings
+    .map(r => ({ dateString: r.date, value: r.value }))
+    .concat(readings.map(r => ({ dateString: r.date, value: r.value })));
+  allReadings.sort((a, b) => {
+    if (a.dateString > b.dateString) {
+      return 1;
+    }
+
+    if (a.dateString < b.dateString) {
+      return -1;
+    }
+
+    return 0;
+  });
+
+  return allReadings;
 }

@@ -10,6 +10,7 @@ import {Moment} from 'moment';
 import * as moment from 'moment'
 import { AnyReading } from '../../typings/models/Reading';
 import { PendingReading } from '../../typings/models/PendingReading';
+import { mergePendingAndSavedReadingsAndSort } from '../../utils';
 
 export type Props = {
   readings: AnyReading[],
@@ -73,23 +74,7 @@ class SimpleChart extends React.PureComponent<Props> {
     const yAxisWidth = 40;
 
     /* merge together readings, sorted by the creation date */
-    const allReadings: { dateString: string, value: number }[] = pendingReadings
-      .map(r => ({ dateString: r.date, value: r.value}))
-      .concat(readings.map(r => ({ dateString: r.date, value: r.value })));
-    allReadings.sort((a, b) => {
-      if (a.dateString > b.dateString) {
-        return 1;
-      } 
-
-      if (a.dateString < b.dateString) {
-        return -1;
-      }
-
-      return 0;
-    });
-
-    console.log("All readings: ", allReadings);
-
+    const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
     const dates = allReadings.map(r => moment(r.dateString));
     const values = allReadings.map(r => r.value);
 

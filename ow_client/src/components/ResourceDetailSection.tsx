@@ -9,11 +9,12 @@ import {
   Card, 
   Text,
 } from 'react-native-elements';
+import * as moment from 'moment';
 
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
+  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName, mergePendingAndSavedReadingsAndSort,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -167,7 +168,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
       }
 
       //TODO: add pending readings?
-      readingsMap.set(ts.id, tsReading.readings);
+      readingsMap.set(ts.name, tsReading.readings);
     });
 
     if (loading) {
@@ -176,22 +177,33 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 
     const keys = [...readingsMap.keys()];
     return (
-      keys.map((key, idx) => {
-        const readings = readingsMap.get(key);
+      keys.map((key) => {
+        const readings = readingsMap.get(key) || [];
+        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesName === key);
+        const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
+
         let content = 'N/A';
-        if (readings) {
-          const latestReading = readings[readings.length - 1];
-          if (latestReading) {
-            content = `${latestReading.value}`;
-          }
+        let content_subtitle;
+
+        const latestReading = allReadings[allReadings.length - 1];
+        if (latestReading) {
+          content = `${latestReading.value}`;
+          // TODO: translate
+          content_subtitle = moment(latestReading.dateString).fromNow();
         }
-        const timeseries = resource.timeseries[idx];
+
+        //This may fail...
+        const timeseries = resource.timeseries.filter(t => t.name === key)[0];
+        if (!timeseries) { 
+          return null
+        };
         return (
           <HeadingSubtitleText 
             key={key} 
             heading={timeseries.name} 
             subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
             content={content} 
+            content_subtitle={content_subtitle}
           />
         )
       })
