@@ -1,3 +1,7 @@
+/**
+ * Enums
+ */
+
 export enum ResourceType {
   well = 'well',
   raingauge = 'raingauge',
@@ -7,6 +11,7 @@ export enum ResourceType {
 }
 
 export const ResourceTypeArray: Array<string> = Object.keys(ResourceType);
+
 
 export enum BaseApiType {
   MyWellApi = 'MyWellApi',

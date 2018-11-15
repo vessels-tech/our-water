@@ -49,7 +49,9 @@
     "thread-sleep": "^2.1.0",
     "ts-mocha": "^2.0.0",
     "typescript": "2.6.2",
-    "xmlbuilder": "^10.1.1"
+    "xmlbuilder": "^10.1.1",
+    "ow_types": "../../ow_types/lib",
+    "ow_translations": "../../ow_translations/lib"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
