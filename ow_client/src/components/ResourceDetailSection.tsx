@@ -54,7 +54,8 @@ export interface OwnProps {
 export interface StateProps {
   tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
-  favouriteResources: AnyResource[],
+  // favouriteResources: AnyResource[],
+  favourite: boolean,
   translation: TranslationFile,
   pendingReadings: PendingReading[],
 }
@@ -69,7 +70,7 @@ export interface State {
 
 }
 
-class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProps> {
+class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {}
 
@@ -77,7 +78,18 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     super(props);
 
     this.appApi = this.props.config.getAppApi();
+    
+    
+    this.loadTimeseries();
+  }
 
+  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
+    if (prevProps.resource.id !== this.props.resource.id) {
+      this.loadTimeseries();
+    }
+  }
+
+  loadTimeseries() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
     timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE));
@@ -358,11 +370,8 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   getFavouriteButton() {
-    const { favouriteResourcesMeta } = this.props;
-    const favourite = isFavourite(
-      this.props.favouriteResources,
-      this.props.resource.id
-    );
+    const { favourite, favouriteResourcesMeta } = this.props;
+  
 
     let iconName = 'star-half';
     if (favourite) {
@@ -385,11 +394,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   async toggleFavourites() {
-    const favourite = isFavourite(
-      this.props.favouriteResources,
-      this.props.resource.id
-    );
-  
+    const { favourite } = this.props;
     this.setState({ isFavourite: !favourite});
 
     if (!favourite) {
@@ -413,10 +418,12 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
 };
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
+  const favourite = isFavourite(state.favouriteResources, ownProps.resource.id);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
-    favouriteResources: state.favouriteResources,
+    // favouriteResources: state.favouriteResources,
+    favourite,
     tsReadings: state.tsReadings,
     translation: state.translation,
     pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resource.id),
