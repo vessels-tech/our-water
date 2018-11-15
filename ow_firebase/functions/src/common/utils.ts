@@ -12,6 +12,8 @@ import SyncRunResult from "./types/SyncRunResult";
 import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
+var fs = require("fs");
+
 
 
 /**
@@ -354,4 +356,17 @@ export function getBoolean(value: any) {
 
 export function asList(value: string): string[] {
   return value.split(',');
+}
+
+
+export function writeFileAsync(filename: string, content: any) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filename, content, (err) => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve(true);
+    });
+  });
 }

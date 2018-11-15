@@ -11,7 +11,7 @@ import { pad } from '../utils';
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
 
-describe.only('Firebase Api', function() {
+describe('Firebase Api', function() {
   this.timeout(10000);
 
   describe('ShortIds', function() {

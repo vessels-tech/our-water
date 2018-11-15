@@ -226,8 +226,14 @@ module.exports = (functions) => {
 
   app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
     //TODO: build an email and send it.
+    
 
-    const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', null);
+    const attachments = [{
+      filename: 'id.zip',
+      //TODO: insert path
+      path: '/path/to/file.txt'
+    }];
+    const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', attachments);
     if (sendEmailResult.type === ResultType.ERROR) {
       console.log("Error sending emails:", sendEmailResult.message);
       throw new Error(sendEmailResult.message);

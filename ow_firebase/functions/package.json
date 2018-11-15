@@ -35,12 +35,16 @@
     "joi": "^13.2.0",
     "jsx-to-html": "^1.1.0",
     "jsx-xml": "^0.1.1",
+    "dbf": "0.1.4",
+    "jszip": "2.5.0",
     "mocha": "^5.1.1",
     "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
     "moment": "^2.22.1",
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",
     "nodemailer": "^4.6.8",
+    "ow_translations": "../../ow_translations/lib",
+    "ow_types": "../../ow_types/lib",
     "papaparse": "^4.4.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
@@ -49,9 +53,7 @@
     "thread-sleep": "^2.1.0",
     "ts-mocha": "^2.0.0",
     "typescript": "2.6.2",
-    "xmlbuilder": "^10.1.1",
-    "ow_types": "../../ow_types/lib",
-    "ow_translations": "../../ow_translations/lib"
+    "xmlbuilder": "^10.1.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",

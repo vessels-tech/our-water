@@ -30,6 +30,7 @@ export default class EmailApi {
     const mailOptions: any = {
       from: `${APP_NAME} <noreply@firebase.com>`,
       to: email,
+      attachments,
     };
 
     // The user subscribed to the newsletter.
