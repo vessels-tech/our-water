@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const utils_1 = require("../utils");
-const zip = require('./ShapeWrite/zip');
+const Zip_1 = require("./Zip");
 class GGMNApi {
     /**
      * pendingResourceToZip
@@ -23,7 +23,7 @@ class GGMNApi {
             }
         };
         /*Convert GeoJSON to .zip */
-        const zipped = zip(json, options);
+        const zipped = Zip_1.zipGeoJson(json, options);
         const filename = `/tmp/${pendingResources[0].id}.zip`;
         /*Save to disk */
         return utils_1.writeFileAsync(filename, zipped)

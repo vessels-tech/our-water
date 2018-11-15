@@ -1,8 +1,7 @@
 import { PendingResource } from 'ow_types/PendingResource';
 import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
 import { writeFileAsync } from '../utils';
-
-const zip = require('./ShapeWrite/zip')
+import { zipGeoJson } from './Zip';
 
 export default class GGMNApi {
 
@@ -27,7 +26,7 @@ export default class GGMNApi {
     };
 
     /*Convert GeoJSON to .zip */
-    const zipped = zip(json, options);
+    const zipped = zipGeoJson(json, options);
     const filename = `/tmp/${pendingResources[0].id}.zip`;
 
     /*Save to disk */

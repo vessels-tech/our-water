@@ -1,78 +1,42 @@
-[debug] [2018-11-15T05:23:42.390Z] ----------------------------------------------------------------------
-[debug] [2018-11-15T05:23:42.393Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase functions:config:get
-[debug] [2018-11-15T05:23:42.393Z] CLI Version:   3.18.4
-[debug] [2018-11-15T05:23:42.393Z] Platform:      darwin
-[debug] [2018-11-15T05:23:42.393Z] Node Version:  v6.11.5
-[debug] [2018-11-15T05:23:42.394Z] Time:          Thu Nov 15 2018 15:53:42 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:42.394Z] ----------------------------------------------------------------------
+[debug] [2018-11-15T05:42:06.993Z] ----------------------------------------------------------------------
+[debug] [2018-11-15T05:42:06.995Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
+[debug] [2018-11-15T05:42:06.996Z] CLI Version:   3.18.4
+[debug] [2018-11-15T05:42:06.996Z] Platform:      darwin
+[debug] [2018-11-15T05:42:06.996Z] Node Version:  v6.11.5
+[debug] [2018-11-15T05:42:06.996Z] Time:          Thu Nov 15 2018 16:12:06 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:42:06.997Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2018-11-15T05:23:42.406Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-11-15T05:23:42.406Z] > authorizing via signed-in user
-[debug] [2018-11-15T05:23:42.409Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+[debug] [2018-11-15T05:42:07.011Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-11-15T05:42:07.011Z] > authorizing via signed-in user
+[debug] [2018-11-15T05:42:07.013Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
   
- Thu Nov 15 2018 15:53:42 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:43.675Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:43.676Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+ Thu Nov 15 2018 16:12:07 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:42:08.082Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:42:08.083Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
   
- Thu Nov 15 2018 15:53:43 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:44.493Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:44.494Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+ Thu Nov 15 2018 16:12:08 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:42:08.865Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:42:08.866Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
   
- Thu Nov 15 2018 15:53:44 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:46.608Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:46.610Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
+ Thu Nov 15 2018 16:12:08 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:42:09.432Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-11-15T05:42:10.093Z] Fetching environment
+[debug] [2018-11-15T05:42:10.095Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
   
- Thu Nov 15 2018 15:53:46 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.202Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:47.204Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.205Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.734Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:47.736Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/mywell_legacy_access_token  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_address  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_password  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/should_send_emails  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:47.738Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/test_email_whitelist  
-  
- Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:48.239Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:48.255Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:48.266Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:48.287Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:48.290Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:58.646Z] ----------------------------------------------------------------------
-[debug] [2018-11-15T05:23:58.649Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase functions:config:get
-[debug] [2018-11-15T05:23:58.649Z] CLI Version:   3.18.4
-[debug] [2018-11-15T05:23:58.649Z] Platform:      darwin
-[debug] [2018-11-15T05:23:58.649Z] Node Version:  v6.11.5
-[debug] [2018-11-15T05:23:58.650Z] Time:          Thu Nov 15 2018 15:53:58 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:58.650Z] ----------------------------------------------------------------------
-[debug] 
-[debug] [2018-11-15T05:23:58.663Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-11-15T05:23:58.664Z] > authorizing via signed-in user
-[debug] [2018-11-15T05:23:58.666Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
-  
- Thu Nov 15 2018 15:53:58 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:23:59.697Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:23:59.698Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
-  
- Thu Nov 15 2018 15:53:59 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:24:00.520Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:24:00.522Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
-  
- Thu Nov 15 2018 15:54:00 GMT+1030 (ACDT)
-[debug] [2018-11-15T05:24:02.771Z] <<< HTTP RESPONSE 200
-[debug] [2018-11-15T05:24:02.772Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
-  
- Thu Nov 15 2018 15:54:02 GMT+1030 (ACDT)
+ Thu Nov 15 2018 16:12:10 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:42:10.633Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:42:10.634Z] Starting @google-cloud/functions-emulator
+[debug] [2018-11-15T05:42:12.237Z] Parsing function triggers
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
+[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
+[info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
+[info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading
+[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
+[info] ✔  functions: shortId: http://localhost:5000/our-water/us-central1/shortId

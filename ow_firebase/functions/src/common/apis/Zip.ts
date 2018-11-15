@@ -1,13 +1,13 @@
-const write = require('./write');
-const geojson = require('./geojson');
-const prj = require('./prj');
+const geojson = require('shp-write/src/geojson');
+const prj = require('shp-write/src/prj');
+const write = require('shp-write/src/write');
 const JSZip = require('jszip');
 
-module.exports = function (gj, options) {
 
+export function zipGeoJson(geoJson: any, options: any) {
   var zip = new JSZip();
 
-  [geojson.point(gj), geojson.line(gj), geojson.polygon(gj)]
+  [geojson.point(geoJson), geojson.line(geoJson), geojson.polygon(geoJson)]
     .forEach(function (l) {
       if (l.geometries.length && l.geometries[0].length) {
         write(
@@ -46,7 +46,7 @@ first = 2_code
 fields = [code]`
 
   zip.file("myshapes.ini", iniContents);
-  var generateOptions = { 
+  var generateOptions = {
     compression: 'STORE',
     type: 'nodebuffer',
   };
