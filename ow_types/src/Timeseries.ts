@@ -1,5 +1,5 @@
 import { OrgType } from "./OrgType";
-import { Reading } from "./OurWater";
+import { AnyReading } from "./Reading";
 
 export type AnyTimeseries = MyWellTimeseries | GGMNTimeseries;
 
@@ -9,7 +9,7 @@ export type MyWellTimeseries = {
   /* Common values*/
   id: string,
   name: string,
-  readings: Reading[],
+  readings: AnyReading[],
   parameter: string, //eg. groundwater measure, water quality type
 
 }
@@ -22,7 +22,7 @@ export type GGMNTimeseries = {
   /* Common values*/
   id: string,
   name: string,
-  readings: Reading[],
+  readings: AnyReading[],
   parameter: string, //eg. groundwater measure, water quality type
 
   

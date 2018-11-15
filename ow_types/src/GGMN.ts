@@ -1,5 +1,3 @@
-import { Reading } from "./OurWater";
-
 export type GGMNLocationResponse = {
   count: number,
   next: string,

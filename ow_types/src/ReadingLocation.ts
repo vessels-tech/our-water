@@ -1,4 +1,4 @@
-import { OWGeoPoint } from "./OurWater";
+import { GeoPoint } from "./GeoPoint";
 
 export type MaybeReadingLocation = ReadingLocation | NoReadingLocation;
 
@@ -9,7 +9,7 @@ export enum ReadingLocationType {
 
 export type ReadingLocation = {
   type: ReadingLocationType.LOCATION,
-  location: OWGeoPoint,
+  location: GeoPoint,
 }
 
 export type NoReadingLocation = {
