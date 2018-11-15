@@ -21,6 +21,8 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../common/apis/EmailApi';
+import { PendingResource } from 'ow_types/PendingResource';
+import GGMNApi from '../common/apis/GGMNApi';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -226,12 +228,17 @@ module.exports = (functions) => {
 
   app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
     //TODO: build an email and send it.
-    
+    const pendingResources: PendingResource[] = req.body.pendingResources;
+    const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
+
+    if (generateZipResult.type === ResultType.ERROR) {
+      throw new Error(generateZipResult.message);
+    }
 
     const attachments = [{
       filename: 'id.zip',
       //TODO: insert path
-      path: '/path/to/file.txt'
+      path: generateZipResult.result,
     }];
     const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', attachments);
     if (sendEmailResult.type === ResultType.ERROR) {

@@ -8,7 +8,7 @@ import { ResourceType } from 'ow_types/Enums';
 
 describe('GGMNApi', function () {
   describe('pendingResourceToZip', function() {
-    it.only('saves a pending resource to .zip shapefile', async () => {
+    it('saves a pending resource to .zip shapefile', async () => {
       //Arrange
       const pendingResources: PendingResource[] = [
         {
@@ -34,7 +34,7 @@ describe('GGMNApi', function () {
     ];
 
       //Act
-      const result = await GGMNApi.pendingResourceToZip(pendingResources);
+      const result = await GGMNApi.pendingResourcesToZip(pendingResources);
 
       //Assert
       if (result.type === ResultType.ERROR) {

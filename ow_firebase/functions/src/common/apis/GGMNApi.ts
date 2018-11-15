@@ -14,7 +14,7 @@ export default class GGMNApi {
    * 
    * @returns Promise<SomeResult<string>> the path of the zip file
    */
-  public static pendingResourceToZip(pendingResources: PendingResource[]): Promise<SomeResult<string>> {
+  public static pendingResourcesToZip(pendingResources: PendingResource[]): Promise<SomeResult<string>> {
 
     /*Convert PendingResource to GeoJSON*/
     const json = GGMNApi._generateGeoJSON(pendingResources);
