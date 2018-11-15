@@ -22,6 +22,7 @@ class EmailApi {
         const mailOptions = {
             from: `${APP_NAME} <noreply@firebase.com>`,
             to: email,
+            attachments,
         };
         // The user subscribed to the newsletter.
         mailOptions.subject = `Welcome to ${APP_NAME}!`;

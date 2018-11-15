@@ -29,6 +29,7 @@ const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
 const EmailApi_1 = require("../common/apis/EmailApi");
+const GGMNApi_1 = require("../common/apis/GGMNApi");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -205,7 +206,17 @@ module.exports = (functions) => {
     }));
     app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         //TODO: build an email and send it.
-        const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, 'HELLO', null);
+        const pendingResources = req.body.pendingResources;
+        const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
+        if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            throw new Error(generateZipResult.message);
+        }
+        const attachments = [{
+                filename: 'id.zip',
+                //TODO: insert path
+                path: generateZipResult.result,
+            }];
+        const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, 'HELLO', attachments);
         if (sendEmailResult.type === AppProviderTypes_1.ResultType.ERROR) {
             console.log("Error sending emails:", sendEmailResult.message);
             throw new Error(sendEmailResult.message);

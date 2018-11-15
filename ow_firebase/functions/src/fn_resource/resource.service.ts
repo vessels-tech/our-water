@@ -8,7 +8,7 @@ describe('fn_resource', function () {
   const baseUrl = process.env.BASE_URL;
 
 
-  describe('ggmnResourceEmail', function () {
+  describe.only('ggmnResourceEmail', function () {
     it('sends the resource email', async () => {
       //Arrange
       const body = {

@@ -7,6 +7,7 @@ const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
+var fs = require("fs");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
  * iterate through and return a list of resources
@@ -293,4 +294,15 @@ function asList(value) {
     return value.split(',');
 }
 exports.asList = asList;
+function writeFileAsync(filename, content) {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(filename, content, (err) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(true);
+        });
+    });
+}
+exports.writeFileAsync = writeFileAsync;
 //# sourceMappingURL=utils.js.map

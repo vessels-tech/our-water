@@ -1,0 +1,78 @@
+[debug] [2018-11-15T05:23:42.390Z] ----------------------------------------------------------------------
+[debug] [2018-11-15T05:23:42.393Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase functions:config:get
+[debug] [2018-11-15T05:23:42.393Z] CLI Version:   3.18.4
+[debug] [2018-11-15T05:23:42.393Z] Platform:      darwin
+[debug] [2018-11-15T05:23:42.393Z] Node Version:  v6.11.5
+[debug] [2018-11-15T05:23:42.394Z] Time:          Thu Nov 15 2018 15:53:42 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:42.394Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-11-15T05:23:42.406Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-11-15T05:23:42.406Z] > authorizing via signed-in user
+[debug] [2018-11-15T05:23:42.409Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+  
+ Thu Nov 15 2018 15:53:42 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:43.675Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:43.676Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+  
+ Thu Nov 15 2018 15:53:43 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:44.493Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:44.494Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+  
+ Thu Nov 15 2018 15:53:44 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:46.608Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:46.610Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
+  
+ Thu Nov 15 2018 15:53:46 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.202Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:47.204Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.205Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.734Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:47.736Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/mywell_legacy_access_token  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_address  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_password  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.737Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/should_send_emails  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:47.738Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/test_email_whitelist  
+  
+ Thu Nov 15 2018 15:53:47 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:48.239Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:48.255Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:48.266Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:48.287Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:48.290Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:58.646Z] ----------------------------------------------------------------------
+[debug] [2018-11-15T05:23:58.649Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase functions:config:get
+[debug] [2018-11-15T05:23:58.649Z] CLI Version:   3.18.4
+[debug] [2018-11-15T05:23:58.649Z] Platform:      darwin
+[debug] [2018-11-15T05:23:58.649Z] Node Version:  v6.11.5
+[debug] [2018-11-15T05:23:58.650Z] Time:          Thu Nov 15 2018 15:53:58 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:58.650Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-11-15T05:23:58.663Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-11-15T05:23:58.664Z] > authorizing via signed-in user
+[debug] [2018-11-15T05:23:58.666Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+  
+ Thu Nov 15 2018 15:53:58 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:23:59.697Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:23:59.698Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+  
+ Thu Nov 15 2018 15:53:59 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:24:00.520Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:24:00.522Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+  
+ Thu Nov 15 2018 15:54:00 GMT+1030 (ACDT)
+[debug] [2018-11-15T05:24:02.771Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-15T05:24:02.772Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
+  
+ Thu Nov 15 2018 15:54:02 GMT+1030 (ACDT)

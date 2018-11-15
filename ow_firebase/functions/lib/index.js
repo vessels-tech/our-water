@@ -18,8 +18,6 @@ exports.resource = require('./fn_resource/resource')(functions);
 exports.reading = require('./fn_reading/reading')(functions);
 //Sync Api
 exports.sync = require('./fn_sync/sync')(functions);
-//SOS Api
-exports.sos = require('./fn_sos/sos')(functions);
 //ShortId Api
 exports.shortId = require('./fn_shortId/shortId')(functions);
 //Cron Api
