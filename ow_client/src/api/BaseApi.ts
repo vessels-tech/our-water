@@ -6,6 +6,7 @@ import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
+import { AnonymousUser } from "../typings/api/FirebaseApi";
 
 
 /**
@@ -21,7 +22,7 @@ export default interface BaseApi {
    * Sign in the user sliently.
    * Most likely, this will use the FirebaseAPI behind the scenes
    */
-  silentSignin(): Promise<SomeResult<string>>;
+  silentSignin(): Promise<SomeResult<AnonymousUser>>;
 
 
   

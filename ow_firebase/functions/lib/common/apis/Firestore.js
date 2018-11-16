@@ -1,10 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin = require('firebase-admin');
-if (admin.apps.length === 0) {
-    admin.initializeApp();
-}
-const firestore = admin.firestore();
+const FirebaseAdmin_1 = require("./FirebaseAdmin");
+const firestore = FirebaseAdmin_1.default.firestore();
 const settings = { /* your settings... */ timestampsInSnapshots: true };
 firestore.settings(settings);
 exports.default = firestore;

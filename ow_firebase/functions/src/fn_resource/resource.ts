@@ -23,6 +23,7 @@ import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../common/apis/EmailApi';
 import { PendingResource } from 'ow_types/src/PendingResource';
 import GGMNApi from '../common/apis/GGMNApi';
+import { validateFirebaseIdToken } from '../middleware';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -41,6 +42,7 @@ module.exports = (functions) => {
     morganBody(app);
   }
 
+  app.use(validateFirebaseIdToken);
 
   const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
     return firestore.collection('org').doc(orgId)

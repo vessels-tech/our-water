@@ -1,9 +1,9 @@
 import 'mocha'
 
 import * as request from 'request-promise-native';
-import { PendingResource } from 'ow_types/PendingResource';
-import { OrgType } from 'ow_types/OrgType';
-import { ResourceType } from 'ow_types/Enums';
+import { PendingResource } from 'ow_types/lib/PendingResource';
+import { OrgType } from 'ow_types/lib/OrgType';
+import { ResourceType } from 'ow_types/lib/Enums';
 
 
 describe('fn_resource', function () {

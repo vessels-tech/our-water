@@ -12,6 +12,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
+import { AnonymousUser } from '../typings/api/FirebaseApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -37,7 +38,7 @@ export default class MyWellApi implements BaseApi, UserApi {
   /**
    * Sign the user in anonymously with Firebase
    */
-  silentSignin(): Promise<any> {
+  silentSignin(): Promise<SomeResult<AnonymousUser>> {
     console.log("signing in silently?");
     return FirebaseApi.signIn();
   }
@@ -135,7 +136,7 @@ export default class MyWellApi implements BaseApi, UserApi {
   /**
    * saveResource
    */
-  async saveResource(userId: string, resource: DeprecatedResource): Promise<SomeResult<SaveResourceResult>> {
+  async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {

@@ -1,0 +1,42 @@
+[debug] [2018-11-16T04:25:00.817Z] ----------------------------------------------------------------------
+[debug] [2018-11-16T04:25:00.819Z] Command:       /Users/ldaly/.nvm/versions/node/v6.11.5/bin/node /Users/ldaly/.nvm/versions/node/v6.11.5/bin/firebase serve --only functions
+[debug] [2018-11-16T04:25:00.820Z] CLI Version:   3.18.4
+[debug] [2018-11-16T04:25:00.820Z] Platform:      darwin
+[debug] [2018-11-16T04:25:00.820Z] Node Version:  v6.11.5
+[debug] [2018-11-16T04:25:00.821Z] Time:          Fri Nov 16 2018 14:55:00 GMT+1030 (ACDT)
+[debug] [2018-11-16T04:25:00.821Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-11-16T04:25:00.835Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-11-16T04:25:00.835Z] > authorizing via signed-in user
+[debug] [2018-11-16T04:25:00.837Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/our-water  
+  
+ Fri Nov 16 2018 14:55:00 GMT+1030 (ACDT)
+[debug] [2018-11-16T04:25:02.013Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-16T04:25:02.015Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/our-water/tokens  
+  
+ Fri Nov 16 2018 14:55:02 GMT+1030 (ACDT)
+[debug] [2018-11-16T04:25:03.034Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-16T04:25:03.036Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+  
+ Fri Nov 16 2018 14:55:03 GMT+1030 (ACDT)
+[debug] [2018-11-16T04:25:04.672Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-11-16T04:25:05.255Z] Fetching environment
+[debug] [2018-11-16T04:25:05.257Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+  
+ Fri Nov 16 2018 14:55:05 GMT+1030 (ACDT)
+[debug] [2018-11-16T04:25:05.901Z] <<< HTTP RESPONSE 200
+[debug] [2018-11-16T04:25:05.902Z] Starting @google-cloud/functions-emulator
+[debug] [2018-11-16T04:25:07.489Z] Parsing function triggers
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] i  functions: No HTTPS functions found. Use firebase functions:shell if you would like to emulate other types of functions.
+[info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
+[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
+[info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
+[info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading
+[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
+[info] ✔  functions: shortId: http://localhost:5000/our-water/us-central1/shortId

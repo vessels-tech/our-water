@@ -14,7 +14,7 @@ const nodemailer = require('nodemailer');
 
 //TODO: configure a zoho address for ourwater@vessels.tech here: https://stackoverflow.com/questions/45772221/nodemailer-with-zoho-mail
 const mailTransport = nodemailer.createTransport({
-  host: 'smtp.zoho.eu',
+  host: 'smtp.zoho.com',
   port: 465,
   secure: true,
   auth: {
@@ -30,7 +30,7 @@ export default class EmailApi {
     //TODO: add attachments in the form of a zip file.
 
     const mailOptions: any = {
-      from: `${APP_NAME} <noreply@vessels.tech>`,
+      from: `${APP_NAME} <admin@vessels.tech>`,
       to: email,
       attachments,
     };

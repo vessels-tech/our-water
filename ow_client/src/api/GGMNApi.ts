@@ -27,6 +27,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { GGMNTimeseries } from "../typings/models/Timeseries";
+import { AnonymousUser } from "../typings/api/FirebaseApi";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -86,7 +87,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   /**
    * Sign the user in anonymously with Firebase
    */
-  silentSignin(): Promise<SomeResult<string>> {
+  silentSignin(): Promise<SomeResult<AnonymousUser>> {
     return FirebaseApi.signIn();
   }
 

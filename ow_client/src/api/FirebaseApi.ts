@@ -23,12 +23,14 @@ import { isNullOrUndefined } from 'util';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
+import { AnonymousUser } from '../typings/api/FirebaseApi';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
 
 const baseUrl = Config.REACT_APP_BASE_URL;
 const timeout = 1000 * 10;
+
 
 class FirebaseApi {
 
@@ -51,8 +53,7 @@ class FirebaseApi {
   }
 
   
-  static async signIn(): Promise<SomeResult<string>> {
-
+  static async deprecated_signIn(): Promise<SomeResult<string>> {
     try {
       const userCredential = await auth.signInAnonymouslyAndRetrieveData();
       return {
@@ -65,6 +66,32 @@ class FirebaseApi {
         message: 'Could not sign in.'
       }
     }
+  }
+
+
+  /**
+   * Sign in anonymously to firebase and get the user's Id token
+   */
+  static async signIn(): Promise<SomeResult<AnonymousUser>> {
+    let userId: string;
+
+    return auth.signInAnonymouslyAndRetrieveData()
+    .then(userCredential => {
+      userId = userCredential.user.uid;
+      return auth.getIdToken()
+    })
+    .catch(err => makeError<AnonymousUser>('Error logging in' + err.message))
+    .then(token => makeSuccess<AnonymousUser>({userId, token}))
+    .catch(err => makeError<AnonymousUser>('Logged in successfully, but could not get token'));
+  }
+
+  /**
+   * Get the JWT token of the user
+   */
+  static async getIdToken(): Promise<SomeResult<string>> {
+    return auth.getIdToken()
+    .then((token: string) => makeSuccess(token))
+    .catch((err: Error) => makeError(err.message))
   }
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
@@ -865,6 +892,8 @@ class FirebaseApi {
    * http://localhost:5000/our-water/us-central1/resource/ggmn/ggmnResourceEmail
    * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
+   * 
+   * //TODO: update to use firebase client library instead
    */
   static async sendResourceEmail(orgId: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
@@ -922,7 +951,7 @@ class FirebaseApi {
       throw new Error("Data from snapshot was undefined or null");
     }
 
-    let favouriteResources: DeprecatedResource[] = [];
+    let favouriteResources: AnyResource[] = [];
     const favouriteResourcesDict = data.favouriteResources;
     if (favouriteResourcesDict) {
       favouriteResources = Object

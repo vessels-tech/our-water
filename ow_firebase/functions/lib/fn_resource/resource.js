@@ -30,6 +30,7 @@ const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
 const EmailApi_1 = require("../common/apis/EmailApi");
 const GGMNApi_1 = require("../common/apis/GGMNApi");
+const middleware_1 = require("../middleware");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -45,6 +46,7 @@ module.exports = (functions) => {
         console.log('Using verbose log');
         morganBody(app);
     }
+    app.use(middleware_1.validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return Firestore_1.default.collection('org').doc(orgId)
             .collection('resource')
