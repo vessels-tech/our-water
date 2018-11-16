@@ -12,7 +12,7 @@ import SyncRunResult from "./types/SyncRunResult";
 import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
-var fs = require("fs");
+var filesystem = require("fs");
 
 
 
@@ -361,12 +361,14 @@ export function asList(value: string): string[] {
 
 export function writeFileAsync(filename: string, content: any) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(filename, content, (err) => {
+    filesystem.writeFile(filename, content, (err) => {
       if (err) {
-        return reject(err);
+        reject(err);
+        return;
       }
 
-      return resolve(true);
+      resolve(true);
+      return;
     });
   });
 }

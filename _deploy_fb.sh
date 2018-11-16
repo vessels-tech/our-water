@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"/ow_firebase/functions/
 
 ##TODO: set separate project
-source "$DIR/env/.env.test.sh"
+source "$DIR/env/.env.development.sh"
 
 # set the firebase env variables
 firebase functions:config:set \

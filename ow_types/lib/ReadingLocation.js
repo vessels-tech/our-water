@@ -1,0 +1,14 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ReadingLocationType = void 0;
+var ReadingLocationType;
+exports.ReadingLocationType = ReadingLocationType;
+
+(function (ReadingLocationType) {
+  ReadingLocationType["NONE"] = "NONE";
+  ReadingLocationType["LOCATION"] = "LOCATION";
+})(ReadingLocationType || (exports.ReadingLocationType = ReadingLocationType = {}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL3NyYy9SZWFkaW5nTG9jYXRpb24udHMiXSwibmFtZXMiOlsiUmVhZGluZ0xvY2F0aW9uVHlwZSJdLCJtYXBwaW5ncyI6Ijs7Ozs7O0lBSVlBLG1COzs7V0FBQUEsbUI7QUFBQUEsRUFBQUEsbUI7QUFBQUEsRUFBQUEsbUI7R0FBQUEsbUIsbUNBQUFBLG1CIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgR2VvUG9pbnQgfSBmcm9tIFwiLi9HZW9Qb2ludFwiO1xuXG5leHBvcnQgdHlwZSBNYXliZVJlYWRpbmdMb2NhdGlvbiA9IFJlYWRpbmdMb2NhdGlvbiB8IE5vUmVhZGluZ0xvY2F0aW9uO1xuXG5leHBvcnQgZW51bSBSZWFkaW5nTG9jYXRpb25UeXBlIHtcbiAgTk9ORSA9ICdOT05FJyxcbiAgTE9DQVRJT04gPSAnTE9DQVRJT04nLFxufVxuXG5leHBvcnQgdHlwZSBSZWFkaW5nTG9jYXRpb24gPSB7XG4gIHR5cGU6IFJlYWRpbmdMb2NhdGlvblR5cGUuTE9DQVRJT04sXG4gIGxvY2F0aW9uOiBHZW9Qb2ludCxcbn1cblxuZXhwb3J0IHR5cGUgTm9SZWFkaW5nTG9jYXRpb24gPSB7XG4gIHR5cGU6IFJlYWRpbmdMb2NhdGlvblR5cGUuTk9ORSxcbn0iXX0=

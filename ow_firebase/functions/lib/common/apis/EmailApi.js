@@ -9,7 +9,9 @@ const functions = require('firebase-functions');
 const nodemailer = require('nodemailer');
 //TODO: configure a zoho address for ourwater@vessels.tech here: https://stackoverflow.com/questions/45772221/nodemailer-with-zoho-mail
 const mailTransport = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.zoho.eu',
+    port: 465,
+    secure: true,
     auth: {
         user: env_1.outboundEmailAddress,
         pass: env_1.outboundEmailPassword,
@@ -20,7 +22,7 @@ class EmailApi {
     static sendResourceEmail(email, message, attachments) {
         //TODO: add attachments in the form of a zip file.
         const mailOptions = {
-            from: `${APP_NAME} <noreply@firebase.com>`,
+            from: `${APP_NAME} <noreply@vessels.tech>`,
             to: email,
             attachments,
         };

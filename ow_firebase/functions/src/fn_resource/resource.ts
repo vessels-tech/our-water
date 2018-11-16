@@ -21,7 +21,7 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../common/apis/EmailApi';
-import { PendingResource } from 'ow_types/PendingResource';
+import { PendingResource } from 'ow_types/src/PendingResource';
 import GGMNApi from '../common/apis/GGMNApi';
 
 const bodyParser = require('body-parser');
