@@ -1060,8 +1060,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   /**
    * Send Resource Email
    */
-  sendResourceEmail(email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
-    return FirebaseApi.sendResourceEmail(this.orgId, email, pendingResources);
+  sendResourceEmail(token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
+    return FirebaseApi.sendResourceEmail(this.orgId, token, email, pendingResources);
   }
 
   /**

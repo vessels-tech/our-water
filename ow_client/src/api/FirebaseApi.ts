@@ -895,7 +895,7 @@ class FirebaseApi {
    * 
    * //TODO: update to use firebase client library instead
    */
-  static async sendResourceEmail(orgId: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
+  static async sendResourceEmail(orgId: string, token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
 
     const options = {
@@ -903,6 +903,7 @@ class FirebaseApi {
       method: 'POST',
       headers: {
         Accept: 'application/json',
+        
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, pendingResources }),

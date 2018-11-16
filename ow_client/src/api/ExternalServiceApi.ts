@@ -71,7 +71,7 @@ export default interface ExternalServiceApi {
    * Send Resource Email
    * GGMN only
    */
-  sendResourceEmail(email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>>;
+  sendResourceEmail(token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>>;
 
 
   /**

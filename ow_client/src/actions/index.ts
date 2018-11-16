@@ -21,6 +21,8 @@ import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
+import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { MaybeUser, UserType } from "../typings/UserTypes";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -684,10 +686,15 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
  * 
  * //TODO: should we pass in pending resources?
  */
-export function sendResourceEmail(api: MaybeExternalServiceApi, username: string, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
+export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser, username: string, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
   return async function(dispatch: any) {
     if (api.externalServiceApiType === ExternalServiceApiType.None) {
       maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      return makeSuccess<void>(undefined);
+    }
+
+    if (user.type !== UserType.USER) {
+      maybeLog("Tried to send resource email, but no user found.");
       return makeSuccess<void>(undefined);
     }
 
@@ -698,7 +705,7 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, username: string
     }
 
     const email = emailResult.result;
-    const sendEmailResult = await api.sendResourceEmail(email, pendingResources);
+    const sendEmailResult = await api.sendResourceEmail(user.token, email, pendingResources);
 
     dispatch(sendResourceEmailResponse(sendEmailResult));
 
@@ -738,7 +745,7 @@ function silentLoginRequest(): SilentLoginActionRequest {
   }
 }
 
-function silentLoginResponse(userIdResult: SomeResult<string>): SilentLoginActionResponse {
+function silentLoginResponse(userIdResult: SomeResult<AnonymousUser>): SilentLoginActionResponse {
   return {
     type: ActionType.SILENT_LOGIN_RESPONSE,
     userIdResult,

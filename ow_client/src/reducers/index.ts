@@ -13,7 +13,6 @@ import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile } from "ow_translations/Types";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
-import { string } from "react-native-joi";
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
@@ -430,11 +429,10 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       return Object.assign({}, state, {
-        user: {type: UserType.USER, userId: result.result},
+        user: {type: UserType.USER, userId: result.result.userId, token: result.result.token},
         userIdMeta,
       });
     }
-
 
     case ActionType.ADD_RECENT_REQUEST: {
       //Set the recent resource meta to loading: true

@@ -12,6 +12,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyResource } from "../typings/models/Resource";
 import { AnyReading } from "../typings/models/Reading";
+import { AnonymousUser } from "../typings/api/FirebaseApi";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -113,7 +114,7 @@ export type SaveReadingActionResponse = { type: ActionType.SAVE_READING_RESPONSE
 export type SaveResourceActionRequest = { type: ActionType.SAVE_RESOURCE_REQUEST };
 export type SaveResourceActionResponse = { type: ActionType.SAVE_RESOURCE_RESPONSE, result: SomeResult<SaveResourceResult> };
 export type SilentLoginActionRequest = { type: ActionType.SILENT_LOGIN_REQUEST };
-export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE, userIdResult: SomeResult<string> };
+export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE, userIdResult: SomeResult<AnonymousUser> };
 export type SetExternalOrganisation = { type: ActionType.SET_EXTERNAL_ORGANISATION, organisation: GGMNOrganisation};
 export type SendResourceEmailActionRequest = {type: ActionType.SEND_RESOURCE_EMAIL_REQUEST};
 export type SendResourceEmailActionResponse = {type: ActionType.SEND_RESOURCE_EMAIL_RESPONSE, result: SomeResult<void>};

@@ -10,7 +10,7 @@ import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { TranslationFile } from 'ow_translations/Types';
 import { AppState } from '../reducers';
-import { UserType } from '../typings/UserTypes';
+import { UserType, MaybeUser } from '../typings/UserTypes';
 import { LocationType, Location } from '../typings/Location';
 import { connect } from 'react-redux'
 import Loading from '../components/common/Loading';
@@ -27,7 +27,6 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 
 
-
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -38,12 +37,12 @@ export interface StateProps {
   pendingResources: PendingResource[],
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
+  user: MaybeUser,
 }
 
 export interface ActionProps {
   sendResourceEmail: (api: MaybeExternalServiceApi, username: string, pendingResources: PendingResource[]) => any,
 }
-
 
 export interface State {
   isEmailLoading: boolean,
@@ -167,6 +166,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     pendingResources: state.pendingSavedResources,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    user: state.user,
   }
 }
 
