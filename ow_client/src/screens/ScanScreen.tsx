@@ -118,6 +118,9 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
+    //TODO: translate
+    const scan_hint = 'Scan for a Location using a QR code';
+
     return (
       <View style={{
         width: '100%',
@@ -132,7 +135,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
           reactivateTimeout={1000 * 10}
           onRead={(result: any) => this.onScan(result)}
           topContent={
-            <Text style={{ fontWeight: '800', fontSize: 20 }}>Scan for a Location using a QR code.</Text>
+            <Text style={{ fontWeight: '800', fontSize: 20 }}>{scan_hint}</Text>
           }
           bottomContent={
             null

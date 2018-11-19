@@ -1,5 +1,7 @@
 
 import * as assert from 'assert';
+import * as mocha from 'mocha';
+
 import * as crypto from 'crypto';
 
 import fs from './apis/Firestore';
