@@ -304,9 +304,11 @@ class FirebaseApi {
     console.log(`max: ${maxLat}, ${maxLng}`);
 
     console.log("orgId", orgId);
-    return fs.collection('org').doc(orgId).collection('resource').get()
-      // .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng)).get()
-      // .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+    return fs.collection('org').doc(orgId).collection('resource')
+      .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
+      .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng))
+      .limit(100)
+    .get()
     .then(snapshot => {
       console.log("got snapshot", snapshot);
       const resources: AnyResource[] = []

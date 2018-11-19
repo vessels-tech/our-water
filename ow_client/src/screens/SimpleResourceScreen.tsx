@@ -18,7 +18,6 @@ import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
-import { Resource } from '../typings/models/OurWater';
 import { AnyResource } from '../typings/models/Resource';
 
 
@@ -50,7 +49,7 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
     this.selectResource = this.selectResource.bind(this);
   }
 
-  selectResource(resource: Resource) {
+  selectResource(resource: AnyResource) {
     const title = getShortIdOrFallback(resource.id, this.props.shortIdCache);
     //Navigate to a standalone resource view
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', title, {

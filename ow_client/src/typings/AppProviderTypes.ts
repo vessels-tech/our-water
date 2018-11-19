@@ -31,3 +31,16 @@ export function makeError<T>(message: string): SomeResult<T> {
     message,
   };
 }
+
+  
+/**
+ * Reduces a list of SomeResults and returns if any of them contain an error
+ */
+export function resultsHasError(results: Array<SomeResult<any>>): boolean {
+  return results.reduce((acc, curr) => {
+    if (curr.type === ResultType.ERROR) {
+      return true;
+    }
+    return acc;
+  }, false);
+}

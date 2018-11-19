@@ -4,7 +4,7 @@ import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
 import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
 import UserApi from './UserApi';
-import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
 import { RNFirebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
@@ -132,7 +132,6 @@ export default class MyWellApi implements BaseApi, UserApi {
     return FirebaseApi.getResourceForId(this.orgId, id);
   }
 
-
   /**
    * saveResource
    */
@@ -183,6 +182,31 @@ export default class MyWellApi implements BaseApi, UserApi {
     }
 
     return getShortIdResult;
+  }
+
+  /**
+  * PreloadShortIds
+  * 
+  * Given an array of long ids, optimistically load short ids. If there are new ids, they
+  * will be created
+  * 
+  */
+  async preloadShortIds(ids: string[]): Promise<SomeResult<string[]>> {
+    const MAX_SHORT_IDS = 25;
+    if (ids.length > MAX_SHORT_IDS) {
+      ids.length = MAX_SHORT_IDS;
+    }
+    //TD tech debt - find a better way to create things in arrays
+    const getShortIdResults = await Promise.all(ids.map(id => this.getShortId(id)));
+    console.log("preload shortids:", getShortIdResults);
+    const hasError = resultsHasError(getShortIdResults);
+    if (hasError) {
+      return makeError('Error loading shortIds');
+    }
+
+    //@ts-ignore - we already checked for failure cases above
+    const shortIds: string[] = getShortIdResults.map(r => r.type === ResultType.SUCCESS && r.result);
+    return makeSuccess(shortIds);
   }
 
   //

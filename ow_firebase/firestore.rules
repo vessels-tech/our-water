@@ -6,6 +6,11 @@ service cloud.firestore {
       allow read: if request.auth.uid != null;
     }
 
+    match /org/{orgId}/shortId/{document=**} {
+      allow read, update, delete: if request.auth.uid != null;
+      allow create: if request.auth.uid != null;
+    }
+
     //Only allow user to manipulate their own data
     match /org/{orgId}/user/{userId} {
       allow read, update, delete: if request.auth.uid == userId;

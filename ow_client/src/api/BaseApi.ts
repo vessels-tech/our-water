@@ -152,6 +152,16 @@ export default interface BaseApi {
    */
   getShortId(resourceId: string): Promise<SomeResult<string>>;
 
+  /**
+   * PreloadShortIds
+   * 
+   * Given an array of long ids, optimistically load short ids. If there are new ids, they
+   * will be created
+   * 
+   * @returns string[]: a list of the shortIds
+   */
+  preloadShortIds(ids: string[]): Promise<SomeResult<string[]>>;
+
 
   //
   // Search API

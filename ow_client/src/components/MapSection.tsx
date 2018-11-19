@@ -5,7 +5,7 @@ import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -14,6 +14,8 @@ import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingResource } from '../typings/models/PendingResource';
 import { Text } from 'react-native-elements';
+import { AppState } from '../reducers';
+import { connect } from 'react-redux';
 
 export type MapRegion = {
   latitude: number,
@@ -22,13 +24,23 @@ export type MapRegion = {
   longitudeDelta: number,
 }
 
+
+export interface StateProps {
+  shortIdCache: Map<string, string>, //resourceId => shortId
+}
+
+export interface ActionProps {
+
+}
+
+
 export interface State {
   hasSelectedResource: boolean,
   mapHeight: MapHeightOption
   mapState: MapStateOption,
 }
 
-export interface Props {
+export interface OwnProps {
   // mapHeight: MapHeightOption,
   // mapState: MapStateOption,
   onGetUserLocation: any,
@@ -47,11 +59,11 @@ export interface Props {
   onCalloutPressed?: (r: AnyResource) => void,
 }
 
-export default class MapSection extends Component<Props> {
+class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   mapRef?: any;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     this.state = {
@@ -61,7 +73,7 @@ export default class MapSection extends Component<Props> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     if (nextProps.hasSelectedResource !== this.state.hasSelectedResource) {
       let mapHeight = MapHeightOption.default
       let mapState = MapStateOption.default;
@@ -87,7 +99,7 @@ export default class MapSection extends Component<Props> {
   //   });
   // }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+  shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
 
     return true;
   }
@@ -260,6 +272,8 @@ export default class MapSection extends Component<Props> {
       throw new Error("no onCalloutPressed, but shouldShowCallout is true");
     }
 
+    const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache, ' . . . ');
+
     return (
       <Callout 
         onPress={() => this.props.onCalloutPressed && this.props.onCalloutPressed(resource)}
@@ -271,7 +285,7 @@ export default class MapSection extends Component<Props> {
           margin: 10,
           backgroundColor: randomPrettyColorForId(resource.id),
         }}>
-          <Text style={{ fontWeight: '800', fontSize: 20 }}>{`${resource.resourceType}: ${resource.id}`}></Text>
+          <Text style={{ fontWeight: '800', fontSize: 20 }}>{`${resource.resourceType}: ${shortId}`}></Text>
         </View>
       </Callout>
     )
@@ -311,8 +325,8 @@ export default class MapSection extends Component<Props> {
           {/* TODO: Hide and show different groups at different levels */}
           {/* Pincode */}
           {/* Villages */}
-          {resources.map(resource => {
-            const shortId = getShortId(resource.id);
+          {resources.map((resource: AnyResource) => {
+            const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
             return <Marker
               //@ts-ignore
               collapsable={true}
@@ -363,5 +377,27 @@ export default class MapSection extends Component<Props> {
       </View>    
     )
   }
-
 }
+
+//If we don't have a user id, we should load a different app I think.
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  return {
+    shortIdCache: state.shortIdCache,
+  };
+}
+
+const mapDispatchToProps = (dispatch: any): ActionProps => {
+  return {
+    // addRecent: (api: BaseApi, userId: string, resource: Resource) => {
+    //   dispatch(appActions.addRecent(api, userId, resource))
+    // },
+    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
+    //   dispatch(appActions.getResources(api, userId, region)),
+    // startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
+    //   dispatch(appActions.startExternalSync(api, userId)),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MapSection);
+
+

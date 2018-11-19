@@ -4,7 +4,7 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
-import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
+import { randomPrettyColorForId, maybeLog, navigateTo, getShortIdOrFallback } from '../utils';
 import { bgLight } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
@@ -43,7 +43,8 @@ export interface StateProps {
   resources: AnyResource[],
   resourcesMeta: SyncMeta,
   translation: TranslationFile,
-  pendingResources: PendingResource[]
+  pendingResources: PendingResource[],
+  shortIdCache: Map<string, string>
 
 }
 
@@ -137,7 +138,8 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onCalloutPressed(resource: AnyResource) {
-    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
+    const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
+    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
       config: this.props.config,
       userId: this.props.userId
@@ -219,6 +221,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resourcesMeta: state.resourcesMeta,
     translation: state.translation,
     pendingResources: state.pendingSavedResources,
+    shortIdCache: state.shortIdCache,
   }
 }
 

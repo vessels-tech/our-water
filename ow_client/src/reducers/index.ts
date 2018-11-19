@@ -384,6 +384,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         translation,
       });
     }
+    case ActionType.GOT_SHORT_IDS: {
+      const shortIdCache = state.shortIdCache;
+
+      action.shortIds.forEach((shortId, idx) => {
+        const longId = action.longIds[idx];
+        shortIdCache.set(longId, shortId);
+      })
+
+      return Object.assign({}, state, { shortIdCache });
+    }
     case ActionType.PERFORM_SEARCH_REQUEST: {
       const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
       let searchResults = state.searchResults;

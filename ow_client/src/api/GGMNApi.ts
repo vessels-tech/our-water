@@ -527,6 +527,18 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return Promise.resolve(result);
   }
 
+  /**
+   * PreloadShortIds
+   * 
+   * Given an array of long ids, optimistically load short ids. If there are new ids, they
+   * will be created
+   * 
+   * GGMN doesn't use shortened ids.
+   */
+  preloadShortIds(ids: string[]): Promise<SomeResult<Array<string>>> {
+    return Promise.resolve(makeSuccess([]));
+  }
+
 
   //
   // Reading API
