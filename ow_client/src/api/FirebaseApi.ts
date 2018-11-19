@@ -79,11 +79,11 @@ class FirebaseApi {
     return auth.signInAnonymouslyAndRetrieveData()
     .then(userCredential => {
       userId = userCredential.user.uid;
-      return auth.getIdToken()
+      console.log("auth is", auth);
+      return userCredential.user.getIdToken();
     })
-    .catch(err => makeError<AnonymousUser>('Error logging in' + err.message))
     .then(token => makeSuccess<AnonymousUser>({userId, token}))
-    .catch(err => makeError<AnonymousUser>('Logged in successfully, but could not get token'));
+    .catch(err => makeError<AnonymousUser>('Error logging in: ' + err.message))
   }
 
   /**
@@ -909,7 +909,7 @@ class FirebaseApi {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        
+        authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, pendingResources }),
