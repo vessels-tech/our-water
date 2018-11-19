@@ -270,7 +270,7 @@ export default class MapSection extends Component<Props> {
           margin: 10,
           backgroundColor: randomPrettyColorForId(resource.id),
         }}>
-          <Text style={{ fontWeight: '800', fontSize: 20 }}>{resource.resourceType}: {resource.id} ></Text>
+          <Text style={{ fontWeight: '800', fontSize: 20 }}>{`${resource.resourceType}: ${resource.id}`}></Text>
         </View>
       </Callout>
     )
@@ -280,6 +280,8 @@ export default class MapSection extends Component<Props> {
   render() {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
+    console.log("resources", resources);
+    console.log("pendingResources", pendingResources);
 
     return (
       <View style={{

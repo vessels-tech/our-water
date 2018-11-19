@@ -151,9 +151,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   getLanguageButton() {
+    const { settings_language } = this.props.translation.templates;
     return (
       <ListItem
-        title="Language"
+        title={settings_language}
         onPress={() => showLighbox(
           this.props,
           'modal.SelectLanguageModal',

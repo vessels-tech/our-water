@@ -40,8 +40,6 @@ import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { ActionMeta, SyncMeta } from '../typings/Reducer';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
-import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
-import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations';
 import { SearchButtonPressedEvent } from '../utils/Events';
 //@ts-ignore
@@ -51,7 +49,6 @@ import { AnyResource } from '../typings/models/Resource';
 import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
-
 
 export interface OwnProps {
   navigator: any;

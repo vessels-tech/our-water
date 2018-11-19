@@ -24,6 +24,7 @@ import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 
@@ -40,7 +41,8 @@ export interface StateProps {
   locationMeta: SyncMeta,
   resources: Resource[],
   resourcesMeta: SyncMeta,
-  translation: TranslationFile
+  translation: TranslationFile,
+  pendingResources: PendingResource[]
 
 }
 
@@ -175,6 +177,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             mapRef={(ref: any) => { this.mapRef = ref }}
             initialRegion={initialRegion}
             resources={this.props.resources}
+            pendingResources={this.props.pendingResources}
             onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
             onResourceSelected={(r: Resource) => this.selectResource(r)}
             onResourceDeselected={() => this.clearSelectedResource()}
@@ -214,6 +217,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resources: state.resources,
     resourcesMeta: state.resourcesMeta,
     translation: state.translation,
+    pendingResources: state.pendingSavedResources,
   }
 }
 

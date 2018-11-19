@@ -17,7 +17,7 @@
     "fast-deep-equal": "^2.0.1",
     "fetch-cookie": "^0.7.2",
     "moment": "^2.22.1",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#00359055761854468844e77a1283f58a643f1891",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#db0584d852a005f2b65bf692849b668ea793ccd3",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
     "react": "16.3.1",
