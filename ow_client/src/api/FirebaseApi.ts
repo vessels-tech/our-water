@@ -121,7 +121,10 @@ class FirebaseApi {
   }
 
   static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true});
+    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true})
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   static getFavouriteResources(orgId: string, userId: string) {
@@ -158,7 +161,8 @@ class FirebaseApi {
         //@ts-ignore
         response.result = sn.data().recentResources;
         return response;
-      });
+      })
+      .catch((err: Error) => makeError<AnyResource[]>(err.message))
   }
 
   static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<AnyResource[]>> {

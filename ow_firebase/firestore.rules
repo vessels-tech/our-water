@@ -1,14 +1,25 @@
 // Allow read/write access on all documents to any user signed in to the application
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth.uid != null;
+   
+    match /org/{orgId}/resource {
+      allow read: if request.auth.uid != null;
     }
 
     //Only allow user to manipulate their own data
     match /org/{orgId}/user/{userId} {
-      allow read, update, delete: if true == false;// if request.auth.uid == userId;
-      allow create: if true == false; //if request.auth.uid != null;
+      allow read, update, delete: if request.auth.uid == userId;
+      allow create: if request.auth.uid != null;
+
+      match /pendingResources/{id} {
+        allow read, update, delete: if request.auth.uid == userId;
+        allow create: if request.auth.uid != null;
+      }
+
+      match /pendingReadings/{id} {
+        allow read, update, delete: if request.auth.uid == userId;
+        allow create: if request.auth.uid != null;
+      }
     }
   }
 }
