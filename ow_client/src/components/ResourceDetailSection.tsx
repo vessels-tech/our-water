@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName, mergePendingAndSavedReadingsAndSort,
+  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -98,10 +98,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getHeadingBar() {
     const { resource, translation: { templates: { }} } = this.props;
+    const { resource_detail_name_label, resource_detail_heading_label } = this.props.translation.templates;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
-    /* TODO: input translation: resource_detail_name_label */
-    const resource_detail_name_label = 'Title';
     let title;
     if (resource.type === OrgType.GGMN) {
       title = resource.title;
@@ -129,7 +128,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '800' }}>{`Id: ${getShortId(resource.id)}`}</Text>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '800' }}>{`${resource_detail_heading_label} ${getShortId(resource.id)}`}</Text>
           { showSubtitle ? 
             <View style={{
               flexDirection: 'row',
@@ -164,6 +163,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getLatestReadingsForTimeseries() {
     const { tsReadings, resource } = this.props;
+    const { timeseries_name_title, timeseries_date_format } = this.props.translation.templates;
 
     let loading = false;
     const readingsMap = new Map<string, AnyReading[]>();
@@ -202,7 +202,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
         const latestReading = allReadings[allReadings.length - 1];
         if (latestReading) {
-          content = `${latestReading.value}`;
+          content = `${latestReading.value.toFixed(2)}`;
           // TODO: translate
           contentSubtitle = moment(latestReading.dateString).format();
         }
@@ -214,13 +214,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         };
 
         if (timeseries.type === OrgType.GGMN) {
-          timeStart = moment(timeseries.firstReadingDateString).format();
+          timeStart = moment(timeseries.firstReadingDateString).format(timeseries_date_format);
         }
         return (
           <TimeseriesSummaryText 
             key={key} 
             heading={timeseries.name} 
-            subtitle={temporarySubtitleForTimeseriesName(timeseries.name)}
+            subtitle={timeseries_name_title(timeseries.name)}
             content={content}
             content_subtitle={contentSubtitle}
             // Removing these for now, it't too hard to get the start date

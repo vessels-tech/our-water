@@ -1,0 +1,3 @@
+[submodule "ow_translations"]
+	path = ow_translations
+	url = git@github.com:vessels-tech/ow_translations.git

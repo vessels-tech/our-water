@@ -530,17 +530,6 @@ export function maybeLog(message: any, object?: any) {
   }
 }
 
-export function temporarySubtitleForTimeseriesName(name: string): string {
-  if (name.toLowerCase() === 'gwmbgs') {
-    return 'Groundwater level below ground surface'
-  }
-
-  if (name.toLowerCase() === 'gwmmsl') {
-    return  'Groundwater level above mean sea level';
-  }
-
-  return '';
-}
 
 
 export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingReading[], readings: AnyReading[]): { dateString: string, value: number }[] {

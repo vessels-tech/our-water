@@ -6,7 +6,7 @@ import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'r
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus } from '../../typings/api/ExternalServiceApi';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
@@ -39,6 +39,22 @@ export interface ActionProps {
 
 export interface State {
 
+}
+
+const getErrorMessageForSyncError = (syncError: string, translation: TranslationFile): string => {
+  switch(syncError) {
+    case SyncError.StationNotCreated: return translation.templates.sync_error_station_not_created;
+    case SyncError.GetTimeseriesIdTransport: return translation.templates.sync_error_get_timeseries_id_transport;
+    case SyncError.GetTimeseriesIdNone: return translation.templates.sync_error_get_timeseries_id_none;
+    case SyncError.GetTimeseriesIdTooMany: return translation.templates.sync_error_get_timeseries_id_too_many;
+    case SyncError.GetTimeseriesIdNoTimeseries: return translation.templates.sync_error_get_timeseries_id_no_timeseries;
+    case SyncError.SaveReadingNotLoggedIn: return translation.templates.sync_error_save_reading_not_logged_in;
+    case SyncError.GenericTransport: return translation.templates.sync_error_generic_transport;
+    case SyncError.SaveReadingUnknown: return translation.templates.sync_error_save_reading_unknown;
+    case SyncError.DeletePendingReading: return translation.templates.sync_error_delete_pending_reading;
+    default:
+      return translation.templates.sync_error_unknown;
+  }
 }
 
 class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -155,6 +171,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   resourceListItem(r: PendingResource, i: number, message?: string) {
+    const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
+
     return (
       <ListItem
         containerStyle={{
@@ -176,7 +194,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.id}
         avatar={getGroundwaterAvatar()}
-        subtitle={message || `${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}
+        subtitle={errorMessage || `${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}
         subtitleStyle={{ color: message ? error1 : primaryDark }}
       />
     );
@@ -184,6 +202,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   readingListItem(r: PendingReading, i: number, message?: string) {
     const { deletePendingReading, userId } = this.props;
+    const { sync_date_format } = this.props.translation.templates;
+    const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
 
     return (
       <ListItem
@@ -204,7 +224,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.id}
         avatar={getReadingAvatar()}
-        subtitle={message || `${moment(r.date).format('DD/MM/YY @ HH:mm a')}`} 
+        subtitle={errorMessage || `${moment(r.date).format(sync_date_format)}`} 
         subtitleStyle={{ color: message ? error1 : primaryDark }}
       />
     );
@@ -220,9 +240,10 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         } 
       }
     } = this.props;
-
-    const sync_manual_text = 'Groundwater Stations need to be synced manually.';
-    const sync_manual_show_me_how = 'Show Me How';
+    const {
+      sync_manual_text,
+      sync_manual_show_me_how,
+    } = this.props.translation.templates;
 
     if (pendingSavedResources.length === 0) {
       return null;

@@ -63,3 +63,15 @@ export type ExternalSyncStatusComplete = {
 export type ExternalSyncStatusRunning = { 
   status: ExternalSyncStatusType.RUNNING,
 }
+
+export enum SyncError {
+  StationNotCreated = 'StationNotCreated',
+  GetTimeseriesIdTransport = 'GetTimeseriesIdTransport',
+  GetTimeseriesIdNone = 'GetTimeseriesIdNone',
+  GetTimeseriesIdTooMany = 'GetTimeseriesIdTooMany',
+  GetTimeseriesIdNoTimeseries = 'GetTimeseriesIdNoTimeseries',
+  SaveReadingNotLoggedIn = 'SaveReadingNotLoggedIn',
+  GenericTransport = 'GenericTransport',
+  SaveReadingUnknown = 'SaveReadingUnknown',
+  DeletePendingReading = 'DeletePendingReading',
+}

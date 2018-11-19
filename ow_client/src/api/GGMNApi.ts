@@ -12,7 +12,7 @@ import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRang
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries, GGMNUsersResponse } from "../typings/models/GGMN";
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
-import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
+import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete, SyncError } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
 import { isNullOrUndefined, isNull } from "util";
 import * as moment from 'moment';
@@ -1100,7 +1100,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
 
         if (result.result === true) {
-          return makeError<void>('Station hasn\'t been saved yet');
+          return makeError<void>(SyncError.StationNotCreated);
         }
 
         const id = pendingResources[idx].id;
@@ -1291,7 +1291,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       response = await ftch(url, options);
     } catch (err) {
       maybeLog("error: " + err);
-      return makeError('Error requesting timeseriesId: ' + err.message);
+      return makeError(SyncError.GetTimeseriesIdTransport);
     }
 
     const searchResponse = await naiveParseFetchResponse<GGMNTimeseriesResponse>(response);
@@ -1300,11 +1300,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
 
     if (searchResponse.result.results.length > 2) {
-      return makeError(`Found too many timeseries for location name: ${locationName}`);
+      maybeLog(`Found too many timeseries for location name: ${locationName}`)
+      return makeError(SyncError.GetTimeseriesIdTooMany)
     } 
 
     if (searchResponse.result.results.length < 1) {
-      return makeError(`Could not find any timeseries for location name: ${locationName}`);
+      maybeLog(`Could not find any timeseries for location name: ${locationName}`);
+      return makeError(SyncError.GetTimeseriesIdNone);
     }
 
     let timeseriesId = null;
@@ -1315,7 +1317,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     });
 
     if (!timeseriesId) {
-      return makeError(`Couldn't find timeseries for location name: ${locationName} and code: ${code}`);
+      maybeLog(`Couldn't find timeseries for location name: ${locationName} and code: ${code}`);
+      return makeError(SyncError.GetTimeseriesIdNoTimeseries);
     }
 
     return makeSuccess(timeseriesId);
@@ -1336,7 +1339,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     const authHeadersResult = await this.getOptionalAuthHeaders();
     if (authHeadersResult.type === ResultType.ERROR) {
-      return makeError("User must be logged in to saveReadings To GGMN");
+      maybeLog("User must be logged in to saveReadings To GGMN");
+      return makeError(SyncError.SaveReadingNotLoggedIn);
     }
     const authHeaders = authHeadersResult.result;
 
@@ -1360,14 +1364,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     })
     .then((res: SomeResult<GGMNSaveReadingResponse>) => {
       if (res.type === ResultType.ERROR) {
-        return res;
+        return makeError(SyncError.GenericTransport);
       }
       console.log('saveReadingToGGMN response:', res);
       return makeSuccess(undefined);
     })
     .catch((err: Error) => {
       maybeLog(err);
-      return makeError(err.message);
+      return makeError(SyncError.SaveReadingUnknown);
     });
   }
 

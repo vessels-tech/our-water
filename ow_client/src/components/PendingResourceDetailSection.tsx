@@ -13,7 +13,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, temporarySubtitleForTimeseriesName,
+  getShortId, isFavourite, getTimeseriesReadingKey,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
@@ -78,6 +78,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
   getHeadingBar() {
     const { pendingResource: { id, owner: {name} } } = this.props;
+    const { resource_detail_name_label, resource_detail_heading_label } = this.props.translation.templates;
     const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
 
     return (
@@ -93,6 +94,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             alignSelf: 'center',
           }}
           rounded
+          //TODO: dynamically load avatar
           title="GW"
           activeOpacity={0.7}
         />
@@ -100,14 +102,14 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`Id: ${id}`}</Text>
+          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '500' }}>{`${resource_detail_heading_label} ${id}`}</Text>
           {showSubtitle ?
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
               {/* TODO: input translation: resource_detail_name_label */}
-              <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>Name: {name}</Text>
+              <Text style={{ color: primaryText, fontSize: 17, fontWeight: '100' }}>{`${resource_detail_name_label} ${name}`}</Text>
               {/* TODO: enable code? Most of the time it's the same as Name. */}
               {/* <Text style={{ color: textLight, fontSize: 17, fontWeight: '100', paddingLeft: 20 }}>Code: {name}</Text> */}
             </View>
@@ -138,7 +140,8 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
   getLatestReadingsForTimeseries() {
     const { pendingResource, pendingReadings } = this.props;
-
+    const { timeseries_name_title, timeseries_date_format } = this.props.translation.templates;
+    
     let loading = false;
     const readingsMap = new Map<string, PendingReading[]>();
 
@@ -159,16 +162,16 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
         const latestReading = readings[readings.length - 1];
         if (latestReading) {
-          content = `${latestReading.value}`;
+          content = `${latestReading.value.toFixed(2)}`;
           // TODO: translate
-          content_subtitle = moment(latestReading.date).fromNow();
+          content_subtitle = moment(latestReading.date).format(timeseries_date_format);
         }
 
         return (
           <HeadingSubtitleText
             key={key}
             heading={key}
-            subtitle={temporarySubtitleForTimeseriesName(key)}
+            subtitle={timeseries_name_title(key)}
             content={content}
             content_subtitle={content_subtitle}
           />
@@ -299,6 +302,8 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
   }
 
   getReadingButton() {
+    const { resource_detail_new_reading_button } = this.props.translation.templates;
+
     return (
       <Button
         color={secondary}
@@ -308,7 +313,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
           flex: 1,
           marginTop: 6,
         }}
-        title='NEW READING'
+        title={resource_detail_new_reading_button}
         onPress={() => this.props.onAddReadingPressed(this.props.pendingResource)}
       />
     );

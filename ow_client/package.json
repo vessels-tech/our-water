@@ -17,7 +17,7 @@
     "fast-deep-equal": "^2.0.1",
     "fetch-cookie": "^0.7.2",
     "moment": "^2.22.1",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#3dc0b13b46aae9d6389f1098c4fa2742254a8fe3",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#00359055761854468844e77a1283f58a643f1891",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
     "react": "16.3.1",
@@ -66,7 +66,8 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "tslint-react-recommended": "^1.0.15",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.1",
+    "@babel/plugin-proposal-class-properties": "^7.0.0"
   },
   "jest": {
     "preset": "react-native"

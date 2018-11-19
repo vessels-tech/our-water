@@ -24,6 +24,7 @@ import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
+import { TranslationFile } from 'ow_translations';
 
 
 export interface OwnProps {
@@ -37,6 +38,7 @@ export interface StateProps {
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   user: MaybeUser,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -67,13 +69,14 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
 
   sendEmailPressed() {
     const { externalLoginDetails } = this.props;
+    const {
+      sync_email_error,
+      sync_email_success,
+    } = this.props.translation.templates;
 
     if (externalLoginDetails.type !== LoginDetailsType.FULL) {
       return;
     }
-    //TODO: translate
-    const sync_email_error = 'There was a problem sending the email. Please try again.';
-    const sync_email_success = 'Email Sent!';
 
     this.setState({isEmailLoading: true}, async () => {
       const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, this.props.user, externalLoginDetails.username, this.props.pendingResources);
@@ -91,6 +94,20 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
   render() {
     const { externalLoginDetails } = this.props;
     const { isEmailLoading } = this.state;
+    const { 
+      sync_screen_heading,
+      sync_screen_step_1_heading,
+      sync_screen_step_1_body,
+      sync_screen_step_2_heading,
+      sync_screen_step_2_body,
+      sync_screen_step_3_heading,
+      sync_screen_step_3_body,
+      sync_screen_step_4_heading,
+      sync_screen_step_4_body,
+      sync_screen_help_heading,
+      sync_screen_help_body,
+      sync_screen_send_email_button,
+    } = this.props.translation.templates;
 
     const headingStyle: TextStyle = {
       paddingTop: 20,
@@ -100,7 +117,6 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
 
     const sectionStyle = {
       paddingTop: 10,
-
     }
 
     return (
@@ -118,10 +134,10 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
             paddingTop: 20,
             fontWeight: '600',
           }}
-        >In order to finish saving your groundwater stations to GGMN, you need to manually register them on the GGMN site.</Text>
+        >{sync_screen_heading}</Text>
 
-        <Text style={headingStyle}>Step 1.</Text>
-        <Text style={sectionStyle}>Click the "Send Email" button below to send an email to your GGMN account. This email will contain the shapefiles needed to register the groundwater stations</Text>
+        <Text style={headingStyle}>{sync_screen_step_1_heading}</Text>
+        <Text style={sectionStyle}>{sync_screen_step_1_body}</Text>
         {externalLoginDetails.type === LoginDetailsType.FULL ?
           <Button
             containerViewStyle={{
@@ -135,21 +151,17 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
             backgroundColor={secondaryLight}
             borderRadius={15}
             onPress={this.sendEmailPressed}
-            title={'Send Email'}
+            title={sync_screen_send_email_button}
           />
         : null }
-
-        <Text style={headingStyle}>Step 2.</Text>
-        <Text style={sectionStyle}>Once you have recieved the email, log into GGMN at https://ggmn.un-igrac.org/ and select "Upload" in the top right corner.</Text>
-
-        <Text style={headingStyle}>Step 3.</Text>
-        <Text style={sectionStyle}>Scroll down to 'Import a SufHyd or shape File' select the organisation your account is associated with, and the file from the email.</Text>
-        
-        <Text style={headingStyle}>Step 4.</Text>
-        <Text style={sectionStyle}>Once this is done, log back into GGMN on your device, and you will see that resources have changed color, and and pending reaadings will start to save.</Text>
-
-        <Text style={headingStyle}>Need some help?</Text>
-        <Text style={{ paddingBottom: 20, ...sectionStyle }}>Just reach out to ____ at ____. We'd be glad to assist you.</Text>
+        <Text style={headingStyle}>{sync_screen_step_2_heading}</Text>
+        <Text style={sectionStyle}>{sync_screen_step_2_body}</Text>
+        <Text style={headingStyle}>{sync_screen_step_3_heading}</Text>
+        <Text style={sectionStyle}>{sync_screen_step_3_body}</Text>
+        <Text style={headingStyle}>{sync_screen_step_4_heading}</Text>
+        <Text style={sectionStyle}>{sync_screen_step_4_body}</Text>
+        <Text style={headingStyle}>{sync_screen_help_heading}</Text>
+        <Text style={{ paddingBottom: 20, ...sectionStyle }}>{sync_screen_help_body}</Text>
       </ScrollView>
     );
   }
@@ -160,16 +172,14 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let userId = ''; //I don't know if this fixes the problem...
 
-
   return {
     pendingResources: state.pendingSavedResources,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     user: state.user,
+    translation: state.translation,
   }
 }
-
-
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {

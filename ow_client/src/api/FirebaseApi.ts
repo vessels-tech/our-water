@@ -24,6 +24,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
+import { SyncError } from '../typings/api/ExternalServiceApi';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -566,7 +567,10 @@ class FirebaseApi {
   static async deletePendingReadingFromUser(orgId: string, userId: string, id: string): Promise<SomeResult<void>> {
     return await this.userDoc(orgId, userId).collection('pendingReadings').doc(id).delete()
       .then(() => makeSuccess(undefined))
-      .catch((err: Error) => makeError(err.message));
+      .catch((err: Error) => {
+        maybeLog(`deletePendingReadingFromUser error: ${err}`);
+        return makeError(SyncError.DeletePendingReading);
+      });
   }
 
   static pendingReadingsListener(orgId: string) {
