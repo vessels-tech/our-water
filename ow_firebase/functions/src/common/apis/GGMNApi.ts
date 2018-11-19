@@ -57,8 +57,8 @@ export default class GGMNApi {
       "geometry": {
         "type": "Point",
         "coordinates": [
-          pendingResource.coords.longitude,
           pendingResource.coords.latitude,
+          pendingResource.coords.longitude,
         ]
       }
     }

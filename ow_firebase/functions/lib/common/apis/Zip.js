@@ -6,6 +6,7 @@ const write = require('shp-write/src/write');
 const JSZip = require('jszip');
 function zipGeoJson(geoJson, options) {
     var zip = new JSZip();
+    const filename = 'points';
     [geojson.point(geoJson), geojson.line(geoJson), geojson.polygon(geoJson)]
         .forEach(function (l) {
         if (l.geometries.length && l.geometries[0].length) {
@@ -16,11 +17,11 @@ function zipGeoJson(geoJson, options) {
             l.type, 
             // geometries
             l.geometries, function (err, files) {
-                var fileName = options && options.types[l.type.toLowerCase()] ? options.types[l.type.toLowerCase()] : l.type;
-                zip.file(fileName + '.shp', files.shp.buffer, { binary: true });
-                zip.file(fileName + '.shx', files.shx.buffer, { binary: true });
-                zip.file(fileName + '.dbf', files.dbf.buffer, { binary: true });
-                zip.file(fileName + '.prj', prj);
+                // var fileName = options && options.types[l.type.toLowerCase()] ? options.types[l.type.toLowerCase()] : l.type;
+                zip.file(filename + '.shp', files.shp.buffer, { binary: true });
+                zip.file(filename + '.shx', files.shx.buffer, { binary: true });
+                zip.file(filename + '.dbf', files.dbf.buffer, { binary: true });
+                zip.file(filename + '.prj', prj);
             });
         }
     });
@@ -40,7 +41,7 @@ scale = 1
 [nested]
 first = 2_code
 fields = [code]`;
-    zip.file("myshapes.ini", iniContents);
+    zip.file(`${filename}.ini`, iniContents);
     var generateOptions = {
         compression: 'STORE',
         type: 'nodebuffer',
