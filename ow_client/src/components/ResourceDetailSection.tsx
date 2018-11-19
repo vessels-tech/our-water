@@ -31,7 +31,7 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';

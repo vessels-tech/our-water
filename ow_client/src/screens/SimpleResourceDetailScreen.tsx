@@ -20,7 +20,7 @@ import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
 import { Resource } from '../typings/models/OurWater';
 import ResourceDetailSection from '../components/ResourceDetailSection';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import Loading from '../components/common/Loading';
 import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';

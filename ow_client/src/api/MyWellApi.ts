@@ -5,7 +5,7 @@ import FirebaseApi from './FirebaseApi';
 import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
-import { TranslationEnum } from 'ow_translations/Types';
+import { TranslationEnum } from 'ow_translations';
 import { RNFirebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
 import { AnyResource } from '../typings/models/Resource';

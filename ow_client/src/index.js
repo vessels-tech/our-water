@@ -9,7 +9,7 @@ import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
-import { TranslationFile, TranslationEnum } from 'ow_translations/Types';
+import { TranslationFile, TranslationEnum } from 'ow_translations';
 import * as EnvironmentConfig from './utils/EnvConfig';
 import SearchButton from './components/common/SearchButton';
 import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';

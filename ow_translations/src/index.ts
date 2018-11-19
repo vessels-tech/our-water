@@ -119,3 +119,11 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
     }
   }
 }
+
+export {
+  TranslationOrg,
+  TranslationFiles,
+  TranslationEnum,
+  TranslationFile,
+  TranslationOverrideFile,
+};

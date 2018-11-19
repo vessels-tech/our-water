@@ -5,7 +5,7 @@ import { Text, Icon } from 'react-native-elements';
 import { error1, primaryText } from '../../utils/Colors';
 import { AppState } from '../../reducers';
 import { ConfigFactory } from '../../config/ConfigFactory';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { connect } from 'react-redux'
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";

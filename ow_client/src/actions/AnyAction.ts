@@ -6,7 +6,7 @@ import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
 import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum } from "ow_translations/Types";
+import { TranslationEnum } from "ow_translations";
 import { ShortId } from "../typings/models/ShortId";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";

@@ -9,7 +9,7 @@ import { bgLight } from '../utils/Colors';
 import { Resource } from '../typings/models/OurWater';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { LocationType, Location } from '../typings/Location';

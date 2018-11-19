@@ -1,6 +1,6 @@
 import { ResourceType } from "../../enums";
 import { Location } from "../Location";
-import { TranslationEnum } from "ow_translations/Types";
+import { TranslationEnum } from "ow_translations";
 import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";

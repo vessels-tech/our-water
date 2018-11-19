@@ -4655,9 +4655,9 @@ osenv@^0.1.4:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations#8bd0666070eb0ad487a6b99420a09d7deaf6356c":
+"ow_translations@git://github.com/vessels-tech/ow_translations#c169238fd8551c85222614f7f58d2526c72a4b7f":
   version "0.7.0"
-  resolved "git://github.com/vessels-tech/ow_translations#8bd0666070eb0ad487a6b99420a09d7deaf6356c"
+  resolved "git://github.com/vessels-tech/ow_translations#c169238fd8551c85222614f7f58d2526c72a4b7f"
   dependencies:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"

@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { ActionMeta, SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 

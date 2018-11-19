@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { SearchButtonPressedEvent } from '../utils/Events';

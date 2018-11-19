@@ -5,7 +5,7 @@ import NetworkApi from "../api/NetworkApi";
 import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
-import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations/Types'
+import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations'
 import { maybeLog } from "../utils";
 import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";

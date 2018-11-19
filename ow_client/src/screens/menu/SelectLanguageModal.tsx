@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux'
 import { AppState } from '../../reducers';
 import * as appActions from '../../actions/index';
-import { TranslationEnum, TranslationFile, TranslationFiles, TranslationOrg } from 'ow_translations/Types';
+import { TranslationEnum, TranslationFile, TranslationFiles, TranslationOrg } from 'ow_translations';
 import * as EnvConfig from '../../utils/EnvConfig';
 import { possibleTranslationsForOrg, translationsForTranslationOrg } from 'ow_translations';
 import UserApi from '../../api/UserApi';

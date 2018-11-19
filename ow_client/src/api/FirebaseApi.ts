@@ -15,7 +15,7 @@ import {
 import NetworkApi from './NetworkApi';
 import { DeprecatedResource, SearchResult, Reading, OWUser} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
-import { TranslationEnum } from 'ow_translations/Types';
+import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';

@@ -19,7 +19,7 @@ import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
-import { TranslationEnum } from "ow_translations/Types";
+import { TranslationEnum } from "ow_translations";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResourceApi";

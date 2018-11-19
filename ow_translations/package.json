@@ -1,6 +1,8 @@
 {
   "name": "babel-typescript-sample",
   "version": "0.7.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "scripts": {
     "type-check": "tsc --noEmit",

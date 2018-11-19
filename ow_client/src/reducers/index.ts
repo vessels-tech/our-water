@@ -10,7 +10,7 @@ import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum, TranslationFile } from "ow_translations/Types";
+import { TranslationEnum, TranslationFile } from "ow_translations";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
 import { AnyResource } from "../typings/models/Resource";

@@ -12,7 +12,7 @@ import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { ResultType } from '../../typings/AppProviderTypes';

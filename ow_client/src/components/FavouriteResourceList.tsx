@@ -20,7 +20,7 @@ import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import { ResourceType, ScrollDirection } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import ResourceCell from './common/ResourceCell';
 
 

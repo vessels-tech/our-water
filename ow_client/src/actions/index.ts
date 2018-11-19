@@ -15,7 +15,7 @@ import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum } from "ow_translations/Types";
+import { TranslationEnum } from "ow_translations";
 import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";

@@ -1,6 +1,6 @@
 import { SomeResult } from "../typings/AppProviderTypes";
 import { OWUser } from "../typings/models/OurWater";
-import { TranslationEnum } from "ow_translations/Types";
+import { TranslationEnum } from "ow_translations";
 
 export default interface UserApi {
 

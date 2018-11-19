@@ -26,7 +26,7 @@ import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 import IconButton from '../components/common/IconButton';

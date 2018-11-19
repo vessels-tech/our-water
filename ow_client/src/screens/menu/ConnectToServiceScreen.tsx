@@ -21,7 +21,7 @@ import { SyncMeta } from '../../typings/Reducer';
 import { TextInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import Loading from '../../components/common/Loading';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import Logo from '../../components/common/Logo';
 
 

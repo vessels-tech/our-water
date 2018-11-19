@@ -19,7 +19,7 @@ import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
 import { UserType } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
-import { TranslationFile } from 'ow_translations/Types';
+import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
 
 export interface OwnProps {
