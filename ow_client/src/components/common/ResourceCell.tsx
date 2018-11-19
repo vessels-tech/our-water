@@ -1,5 +1,5 @@
 import * as React from 'react'; import { Component } from 'react';
-import { randomPrettyColorForId } from '../../utils';
+import { randomPrettyColorForId, formatShortId, getShortIdOrFallback } from '../../utils';
 import { DeprecatedResource } from '../../typings/models/OurWater';
 import { View, Dimensions } from 'react-native';
 import { Button } from 'react-native-elements';
@@ -10,14 +10,16 @@ import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import BaseApi from '../../api/BaseApi';
 import { ConfigFactory } from '../../config/ConfigFactory';
+import { ResultType } from '../../typings/AppProviderTypes';
+import { AnyResource } from '../../typings/models/Resource';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export interface OwnProps {
   config: ConfigFactory,
-  resource: DeprecatedResource,
-  onResourceCellPressed: (resource: DeprecatedResource) => void,
+  resource: AnyResource,
+  onResourceCellPressed: (resource: AnyResource) => void,
   style: any,
 
 }
@@ -41,12 +43,12 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     this.props.getShortId(this.props.config.appApi, this.props.resource.id);
 
     //Binds
-    this.onResourceCellPressed = this.onResourceCellPressed.bind(this);
+    // this.onResourceCellPressed = this.onResourceCellPressed.bind(this);
   }
 
-  onResourceCellPressed() {
-    this.props.onResourceCellPressed(this.props.resource);
-  }
+  // onResourceCellPressed() {
+  //   // this.props.onResourceCellPressed(this.props.resource);
+  // }
 
 
   render() {
@@ -54,12 +56,16 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 
     const backgroundColor = randomPrettyColorForId(resource.id);
 
-    //If we don't have a shortId, display a blurred short version of the existing Id.
     let title;
     if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
-      title = 'loading'
+      title = ' . . . '
     } else {
-      title = shortId;
+      const titleResult = formatShortId(shortId);
+      if (titleResult.type === ResultType.ERROR) {
+        title = ' . . . '
+      } else {
+        title = titleResult.result;
+      }
     }
 
     return (
@@ -85,7 +91,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
           //   fontWeight: 'bold', 
           //   fontSize: 23,
           // }}
-          onPress={this.onResourceCellPressed}
+          onPress={() => this.props.onResourceCellPressed(this.props.resource)}
           underlayColor="transparent"
         />
       </View>

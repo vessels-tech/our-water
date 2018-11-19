@@ -23,9 +23,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations';
 import ResourceCell from './common/ResourceCell';
 
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const orgId = Config.REACT_APP_ORG_ID;
 
 
 export interface Props {
@@ -62,6 +60,9 @@ class FavouriteResourceList extends Component<Props> {
       // favourites: {},
       recents: []
     }
+
+    /* binds */
+    // this.props.onResourceCellPressed = this.props.onResourceCellPressed.bind(this)
   }
 
   getFilteredResource(resources: DeprecatedResource[], filterResourceType: ResourceType): DeprecatedResource[] {
@@ -74,43 +75,6 @@ class FavouriteResourceList extends Component<Props> {
     })
   }
 
-  
-  getResourceCell(resource: DeprecatedResource) {
-    //Ideally, we would display the resource image + 
-    //if we don't have the image, pick a random color from a nice set maybe?
-    const backgroundColor = randomPrettyColorForId(resource.id);
-
-    //If we don't have a shortId, display a blurred short version of the existing Id.
-
-    return (
-      <View style={{
-          margin: 0,
-          marginBottom: 15,
-          width: SCREEN_WIDTH / 2,
-        }}
-        key={resource.id}
-      >
-        <Button
-          raised
-          key={resource.id}
-          title={`${getShortId(resource.id)}`}
-          color={secondaryText}
-          buttonStyle={{
-            backgroundColor, 
-            // borderRadius: 5,
-          }}
-          // titleStyle={{
-          //   fontWeight: 'bold', 
-          //   fontSize: 23,
-          // }}
-          onPress={() => this.props.onResourceCellPressed(resource)}
-          underlayColor="transparent"
-        />
-      </View>
-    );
-  }
-
-  
   getFavouritesSection() {
     const { 
       favouriteResourcesMeta, 
@@ -155,15 +119,15 @@ class FavouriteResourceList extends Component<Props> {
           flexDirection: 'row',
         }}
         >
-          {firstFiveFavourites.map(r => (
+          {firstFiveFavourites.map((r) => {(
             <ResourceCell 
               style={{marginBottom: 15}}
               key={r.id}
               config={this.props.config} 
               resource={r} 
-              onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+              onResourceCellPressed={this.props.onResourceCellPressed}
             />
-          ))
+          )})
           }
         </View>
       );
@@ -175,15 +139,15 @@ class FavouriteResourceList extends Component<Props> {
         horizontal={true}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        {firstFiveFavourites.map(r => (
+        {firstFiveFavourites.map((r)  => {(
           <ResourceCell
             style={{}}
             key={r.id}
             config={this.props.config}
             resource={r}
-            onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
+            onResourceCellPressed={this.props.onResourceCellPressed}
           />
-        ))
+        )})
         }
       </ScrollView>
     );
@@ -221,15 +185,16 @@ class FavouriteResourceList extends Component<Props> {
           flexDirection: 'row',
         }}
         > 
-          {recentResources.map(r => (
-            <ResourceCell
-              style={{ marginBottom: 15 }}
-              key={r.id}
-              config={this.props.config}
-              resource={r}
-              onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
-            />
-          ))
+          {recentResources.map((r) => { 
+            return (
+              <ResourceCell
+                style={{ marginBottom: 15 }}
+                key={r.id}
+                config={this.props.config}
+                resource={r}
+                onResourceCellPressed={this.props.onResourceCellPressed}
+              />
+          )})
           }
         </View>
       );
@@ -240,15 +205,16 @@ class FavouriteResourceList extends Component<Props> {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
-        {recentResources.map(r => (
-          <ResourceCell
-            style={{}}
-            key={r.id}
-            config={this.props.config}
-            resource={r}
-            onResourceCellPressed={(resource) => this.props.onResourceCellPressed(resource)}
-          />
-        ))
+        {recentResources.map((r) => {
+          return (
+            <ResourceCell
+              style={{}}
+              key={r.id}
+              config={this.props.config}
+              resource={r}
+              onResourceCellPressed={this.props.onResourceCellPressed}
+            />
+          )})
         }
       </ScrollView>
     );

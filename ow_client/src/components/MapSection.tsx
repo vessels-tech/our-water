@@ -13,6 +13,7 @@ import { Location } from '../typings/Location';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingResource } from '../typings/models/PendingResource';
+import { Text } from 'react-native-elements';
 
 export type MapRegion = {
   latitude: number,

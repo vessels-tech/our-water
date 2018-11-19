@@ -8,7 +8,7 @@ import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReading
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
-import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { EnableLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
@@ -550,4 +550,44 @@ export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingRead
   });
 
   return allReadings;
+}
+
+/**
+ * Format a 9 digit shortId to a 9 or dix digit version with dashes
+ */
+export function formatShortId(shortId: string): SomeResult<string> {
+  if (shortId.length !== 9) {
+    return makeError('ShortId must be 9 digits long.');
+  }
+
+  const parts = shortId.match(/.{1,3}/g);
+  if (!parts || parts.length !== 3) {
+    return makeError("String had wrong format");
+  }
+
+  if (parts[0] === '000') {
+    return makeSuccess(`${parts[1]}-${parts[2]}`);
+  }
+
+  return makeSuccess(`${parts[0]}-${parts[1]}-${parts[2]}`);
+}
+
+
+export function getShortIdOrFallback(id: string, cache: Map<string, string>, fallback?: string): string {
+  let title = fallback || id;
+  if (cache.has(id)) {
+    const maybeShortId = cache.get(id);
+    if (!maybeShortId) {
+      return title;
+    }
+
+    const titleResult = formatShortId(maybeShortId);
+    if (titleResult.type === ResultType.ERROR) {
+      return title;
+    }
+
+    title = titleResult.result;
+  }
+
+  return title;
 }

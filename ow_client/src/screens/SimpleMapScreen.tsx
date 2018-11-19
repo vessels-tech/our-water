@@ -6,7 +6,6 @@ import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
 import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
 import { bgLight } from '../utils/Colors';
-import { Resource } from '../typings/models/OurWater';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { TranslationFile } from 'ow_translations';
@@ -25,6 +24,8 @@ import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
+import { AnyReading } from '../typings/models/Reading';
+import { AnyResource } from '../typings/models/Resource';
 
 
 
@@ -39,7 +40,7 @@ export interface StateProps {
   userIdMeta: ActionMeta,
   location: Location,
   locationMeta: SyncMeta,
-  resources: Resource[],
+  resources: AnyResource[],
   resourcesMeta: SyncMeta,
   translation: TranslationFile,
   pendingResources: PendingResource[]
@@ -56,7 +57,7 @@ export interface State {
   initialRegion?: MapRegion,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
-  selectedResource?: Resource,
+  selectedResource?: AnyResource,
 }
 
 
@@ -107,7 +108,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
   }
 
-  selectResource(resource: Resource) {
+  selectResource(resource: AnyResource | PendingResource ) {
     this.setState({
       hasSelectedResource: true,
       selectedResource: resource,
@@ -135,7 +136,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
-  onCalloutPressed(resource: Resource) {
+  onCalloutPressed(resource: AnyResource) {
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
       resourceId: resource.id,
       config: this.props.config,
@@ -179,7 +180,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             resources={this.props.resources}
             pendingResources={this.props.pendingResources}
             onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
-            onResourceSelected={(r: Resource) => this.selectResource(r)}
+            onResourceSelected={(r: AnyResource | PendingResource) => this.selectResource(r)}
             onResourceDeselected={() => this.clearSelectedResource()}
             onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
             onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
@@ -187,7 +188,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             hasSelectedResource={false}
             shouldShrinkForSelectedResource={false}
             shouldShowCallout={true}
-            onCalloutPressed={(r: Resource) => this.onCalloutPressed(r)}
+            onCalloutPressed={(r: AnyResource) => this.onCalloutPressed(r)}
           />}
       </View>
     )
@@ -223,7 +224,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    addRecent: (api: BaseApi, userId: string, resource: Resource) => {
+    addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>

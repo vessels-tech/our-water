@@ -12,13 +12,14 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId, navigateTo } from '../utils';
+import { randomPrettyColorForId, navigateTo, getShortIdOrFallback } from '../utils';
 import { ResourceType } from '../enums';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
 import { Resource } from '../typings/models/OurWater';
+import { AnyResource } from '../typings/models/Resource';
 
 
 
@@ -31,7 +32,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-
+  shortIdCache: Map<string, string>, //resourceId => shortId
 }
 
 export interface ActionProps {
@@ -42,10 +43,17 @@ export interface ActionProps {
 
 class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps> {
 
-  selectResource(resource: Resource) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
+    super(props);
 
+    /* binds */
+    this.selectResource = this.selectResource.bind(this);
+  }
+
+  selectResource(resource: Resource) {
+    const title = getShortIdOrFallback(resource.id, this.props.shortIdCache);
     //Navigate to a standalone resource view
-    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resource.id, {
+    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', title, {
       resourceId: resource.id,
       config: this.props.config,
       userId: this.props.userId
@@ -67,7 +75,7 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
           config={this.props.config}
           userId={this.props.userId}
           filterResourceType={this.props.resourceType}
-          onResourceCellPressed={(r: Resource) => this.selectResource(r)}
+          onResourceCellPressed={this.selectResource}
         />
       </View>
     )
@@ -77,7 +85,9 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  return {};
+  return {
+    shortIdCache: state.shortIdCache,
+  };
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {

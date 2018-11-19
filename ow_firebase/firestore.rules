@@ -2,7 +2,7 @@
 service cloud.firestore {
   match /databases/{database}/documents {
    
-    match /org/{orgId}/resource {
+    match /org/{orgId}/resource/{document=**} {
       allow read: if request.auth.uid != null;
     }
 

@@ -18,13 +18,13 @@ import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
-import { Resource } from '../typings/models/OurWater';
 import ResourceDetailSection from '../components/ResourceDetailSection';
 import { TranslationFile } from 'ow_translations';
 import Loading from '../components/common/Loading';
 import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
+import { AnyResource } from '../typings/models/Resource';
 
 
 
@@ -38,12 +38,12 @@ export interface OwnProps {
 
 export interface StateProps {
   translation: TranslationFile,
-  resource: Resource | null,
+  resource: AnyResource | null,
   meta: ActionMeta,
 }
 
 export interface ActionProps {
-  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<Resource>>
+  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<AnyResource>>
 }
 
 export interface State {
@@ -89,7 +89,7 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
         config={this.props.config}
         userId={userId}
         resource={resource}
-        onAddReadingPressed={(resource: Resource) => {
+        onAddReadingPressed={(resource: AnyResource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resource,
             config: this.props.config,
