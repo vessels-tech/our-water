@@ -15,8 +15,8 @@ export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | '
 
 
 export type TranslationMetadata = {
-  language: Language
-  region: Region
+  language: string,
+  region: string,
   //TODO: add more
 }
 
@@ -161,5 +161,13 @@ export type TranslationFile = {
     new_resource_asset_type_label: string,
     new_resource_owner_name_label: string,
     new_resource_submit_button: string,
+    resource_detail_name_label: string,
+    new_resource_id: string,
+    new_resource_id_check_error: string,
+    new_resource_id_check_taken: string,
+    qr_code_not_found: string,
+    calendar_input_confirm: string,
+    calendar_input_cancel: string,
+
   }
 }

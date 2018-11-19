@@ -8,7 +8,6 @@ import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
 import { bgLight, primaryDark, primaryText, secondaryLight, secondaryText } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
-import { TranslationFile } from 'ow_translations/Types';
 import { AppState } from '../reducers';
 import { UserType, MaybeUser } from '../typings/UserTypes';
 import { LocationType, Location } from '../typings/Location';
@@ -41,7 +40,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  sendResourceEmail: (api: MaybeExternalServiceApi, username: string, pendingResources: PendingResource[]) => any,
+  sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[]) => any,
 }
 
 export interface State {
@@ -77,7 +76,7 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
     const sync_email_success = 'Email Sent!';
 
     this.setState({isEmailLoading: true}, async () => {
-      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, externalLoginDetails.username, this.props.pendingResources);
+      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, this.props.user, externalLoginDetails.username, this.props.pendingResources);
       if (result.type === ResultType.ERROR) {
         //TODO: translate the error message
         ToastAndroid.show(result.message, ToastAndroid.SHORT);
@@ -174,8 +173,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    sendResourceEmail: (api: MaybeExternalServiceApi, email: string, pendingResources: PendingResource[]) => 
-      dispatch(appActions.sendResourceEmail(api, email, pendingResources))
+    sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[]) => 
+      dispatch(appActions.sendResourceEmail(api, user, externalUsername, pendingResources))
   };
 }
 

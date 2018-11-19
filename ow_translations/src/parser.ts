@@ -154,16 +154,19 @@ function run() {
     const fr_FR_file = fileForTranslations(TranslationEnum.fr_FR, fr_FR);
     const es_ES_file = fileForTranslations(TranslationEnum.es_ES, es_ES);
 
+
+
     return Promise.all([
       writeFile('./src/common/en_AU.ts', en_AU_file),
       writeFile('./src/common/en_US.ts', en_US_file),
       writeFile('./src/common/guj_IN.ts', uj_IN_file),
       writeFile('./src/common/hi_IN.ts', hi_IN_file),
       writeFile('./src/common/test_UPPER.ts', test_UPPER_file),
-      writeFile('./src/common/test_UPPER.ts', fr_FR_file),
-      writeFile('./src/common/test_UPPER.ts', es_ES_file),
-    ])
-  });
+      writeFile('./src/common/fr_FR.ts', fr_FR_file),
+      writeFile('./src/common/es_ES.ts', es_ES_file),
+    ]).catch(err => console.error(err))
+  })
+  .catch((err: any) => console.error(err));
 }
 
 run();

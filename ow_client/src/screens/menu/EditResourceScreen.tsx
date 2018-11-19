@@ -24,10 +24,11 @@ import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
 import { secondary, secondaryText } from '../../utils/Colors';
-import { TranslationFile } from 'ow_translations/Types';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { OrgType } from '../../typings/models/OrgType';
 import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/ExtendedResourceApi';
+import { TranslationFile } from 'ow_translations/src/Types';
+import { AnyResource } from '../../typings/models/Resource';
 
 export interface Props { 
   resourceId: string,
@@ -38,7 +39,7 @@ export interface Props {
 
   //Injected by Consumer
   pendingSavedResourcesMeta: SyncMeta, 
-  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: DeprecatedResource | PendingResource) => any,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
@@ -97,11 +98,10 @@ class EditResourceScreen extends Component<Props> {
   }
 
   async asyncIdValidator(control: AbstractControl) {
-    //TODO: load translations
-    const new_resource_id_check_error = 'Error checking the Id. Please try again.';
+    const { new_resource_id_check_error } = this.props.translation.templates;
 
-    //TODO: make sure the id is longer than 4 digits or something
     if (control.value.length < 4) {
+      //ew: don't like throwing as flow control
       throw { invalidId: true };
     }
 
@@ -113,14 +113,12 @@ class EditResourceScreen extends Component<Props> {
     const result = await this.extendedResourceApi.checkNewId(control.value);
 
     if (result.type === ResultType.ERROR) {
-      //TODO: translations
       ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
 
       throw { invalidId: true };
     }
 
     if (result.result === false) {
-      // ToastAndroid.show(new_resource_id_check_taken, ToastAndroid.SHORT);
       throw { invalidId: true };
     }
 
@@ -196,12 +194,18 @@ class EditResourceScreen extends Component<Props> {
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
-      translation: { templates: { resource_name, new_resource_lat, new_resource_lng, new_resource_owner_name_label, new_resource_submit_button, new_resource_asset_type_label}}
     } = this.props;
 
-    //TODO: translation
-    const new_resource_id = 'ID';
-    const new_resource_id_check_taken = 'Id is not valid or already taken.';
+    const { 
+      new_resource_id,
+      new_resource_id_check_taken,
+      resource_name,
+      new_resource_lat, 
+      new_resource_lng, 
+      new_resource_owner_name_label, 
+      new_resource_submit_button, 
+      new_resource_asset_type_label,
+    } = this.props.translation.templates;
 
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
@@ -319,7 +323,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: DeprecatedResource | PendingResource) =>
+    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) =>
      { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
   }
 }

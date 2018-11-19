@@ -5,8 +5,13 @@ import {en_US} from './common/en_US';
 import {guj_IN} from './common/guj_IN';
 import {hi_IN} from './common/hi_IN';
 import {test_UPPER} from './common/test_UPPER';
+import {fr_FR} from './common/fr_FR';
+import {es_ES} from './common/es_ES';
+
 
 import { ggmn_en_AU } from './ggmn/en_AU';
+import { ggmn_fr_FR } from './ggmn/fr_FR';
+import { ggmn_es_ES } from './ggmn/es_ES';
 
 
 /**
@@ -104,8 +109,9 @@ export function getTranslationForLanguage(files: TranslationFiles, language: Tra
     case (TranslationOrg.ggmn): {
       switch (language) {
         case 'en_AU': return files.en_AU;
-        case 'nl_NL': return files.nl_NL;
         case 'test_UPPER': return files.test_UPPER;
+        case 'fr_FR': return files.fr_FR;
+        case 'es_ES': return files.es_ES;
         default: {
           throw new Error(`Error with translations. Could not find translation: ${language} for Org: ${files.type}`);
         }

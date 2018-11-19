@@ -18,6 +18,7 @@ import * as EnvironmentConfig from '../utils/EnvConfig';
 import { parse } from 'url';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
+import { TranslationFile } from 'ow_translations/src/Types';
 
 const orgId = EnvironmentConfig.OrgId;
 
@@ -30,6 +31,7 @@ export interface OwnProps {
 
 export interface StateProps {
   userId: string,
+  translation: TranslationFile,
 
 }
 
@@ -72,8 +74,9 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   handleScanError() {
+    const { qr_code_not_found } = this.props.translation.templates;
     //TODO: translate
-    ToastAndroid.show('Could not find a location from the QR Code. Please try scanning again.', ToastAndroid.LONG);
+    ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
     //TODO: reset scanner
     return;
   }
@@ -153,6 +156,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     userId,
+    translation: state.translation,
   }
 }
 

@@ -14,7 +14,10 @@ import DatePicker from 'react-native-datepicker';
 import {
   getMinAndMaxReadingDates,
 } from '../../utils'
-import { textDark } from '../../utils/Colors';
+import { AppState } from '../../reducers';
+import { TranslationFile } from 'ow_translations/src/Types';
+import { connect } from 'react-redux';
+import { primaryText } from '../../utils/Colors';
 
 // const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -26,7 +29,7 @@ export enum InputType {
 
 const dateFormat = 'MMMM Do YYYY, h: mm: ss a'
 
-export interface Props {
+export interface OwnProps {
   errorMessage: string | null,
   value: any,
   iconName: string,
@@ -38,7 +41,17 @@ export interface Props {
   fieldType: InputType,
 }
 
-class IconFormInput extends Component<Props> {
+export interface StateProps {
+  translation: TranslationFile,
+
+}
+
+export interface ActionProps {
+
+}
+
+
+class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
   
   shouldDisplayErrorMessage() {
     const { errorMessage } = this.props;
@@ -96,6 +109,10 @@ class IconFormInput extends Component<Props> {
   
   getFormInputCalendar() {
     const { minDate, maxDate } = getMinAndMaxReadingDates(dateFormat);
+    const {
+      calendar_input_confirm,
+      calendar_input_cancel,
+    } = this.props.translation.templates;
 
     return (
       <DatePicker
@@ -178,13 +195,12 @@ class IconFormInput extends Component<Props> {
     } = this.props;
 
     return (
-      <View style={{
-        // backgroundColor: 'pink',
-      }}>
+      <View 
+        style={{}}
+      >
         <View style={{
-          // backgroundColor: 'red',
           flexDirection: 'row',
-          borderBottomColor: textDark,
+          borderBottomColor: primaryText,
           borderBottomWidth: 1,
           marginTop: 15,
         }}>
@@ -214,5 +230,15 @@ class IconFormInput extends Component<Props> {
   }
 }
 
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  return {
+    translation: state.translation,
+  }
+}
 
-export default IconFormInput;
+const mapDispatchToProps = (dispatch: any): ActionProps => {
+  return {};
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(IconFormInput);
