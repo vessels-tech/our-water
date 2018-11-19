@@ -1,3 +1,6 @@
 [submodule "ow_translations"]
 	path = ow_translations
 	url = git@github.com:vessels-tech/ow_translations.git
+[submodule "ow_types"]
+	path = ow_types
+	url = git@github.com:vessels-tech/ow_types.git

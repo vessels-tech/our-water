@@ -1,7 +1,7 @@
-import { PendingResource } from 'ow_types/lib/PendingResource'
 import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
 import { writeFileAsync } from '../utils';
 import { zipGeoJson } from './Zip';
+import { PendingResource } from 'ow_types';
 
 export default class GGMNApi {
 

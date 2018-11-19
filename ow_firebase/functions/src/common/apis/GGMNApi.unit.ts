@@ -1,10 +1,12 @@
 import 'mocha'
 import GGMNApi from './GGMNApi';
 import * as assert from 'assert';
-import { PendingResource } from 'ow_types/src/PendingResource';
-import { ResultType } from '../types/AppProviderTypes';
-import { OrgType } from 'ow_types/src/OrgType';
-import { ResourceType } from 'ow_types/src/Enums';
+import { 
+  PendingResource,
+  ResultType,
+  OrgType,
+  ResourceType,
+ } from 'ow_types';
 
 describe('GGMNApi', function () {
   describe('pendingResourceToZip', function() {
