@@ -50,7 +50,13 @@ export type SheetsRow = {
   },
   gsx$testupper: {
     $t: string,
-  }
+  },
+  gsx$frfr: {
+    $t: string,
+  },
+  gsx$eses: {
+    $t: string,
+  },
 }
 
 export enum TranslationRowType {
@@ -66,6 +72,8 @@ export type TranslationRow = {
   guj_IN: string,
   hi_IN: string,
   test_UPPER: string,
+  fr_FR: string,
+  es_ES: string,
 }
 
 export type TranslationColumn = {
@@ -115,6 +123,9 @@ function run() {
         guj_IN: r.gsx$gujin.$t,
         hi_IN: r.gsx$hiin.$t,
         test_UPPER: r.gsx$testupper.$t,
+        fr_FR: r.gsx$frfr.$t,
+        es_ES: r.gsx$eses.$t,
+
       };
       perRowTranslations.push(row);
     });
@@ -124,11 +135,15 @@ function run() {
     const en_US: TranslationColumn = {};
     const guj_IN: TranslationColumn = {};
     const hi_IN: TranslationColumn = {};
+    const fr_FR: TranslationColumn = {};
+    const es_ES: TranslationColumn = {};
     const test_UPPER: TranslationColumn = {};
     perRowTranslations.forEach(row => en_AU[row.id] = [row.en_AU, row.type])
     perRowTranslations.forEach(row => en_US[row.id] = [row.en_US, row.type])
     perRowTranslations.forEach(row => guj_IN[row.id] = [row.guj_IN, row.type])
     perRowTranslations.forEach(row => hi_IN[row.id] = [row.hi_IN, row.type])
+    perRowTranslations.forEach(row => fr_FR[row.id] = [row.fr_FR, row.type])
+    perRowTranslations.forEach(row => es_ES[row.id] = [row.es_ES, row.type])
     perRowTranslations.forEach(row => test_UPPER[row.id] = [row.test_UPPER, row.type])
 
     const en_AU_file = fileForTranslations(TranslationEnum.en_AU, en_AU);
@@ -136,6 +151,8 @@ function run() {
     const uj_IN_file = fileForTranslations(TranslationEnum.guj_IN, guj_IN);
     const hi_IN_file = fileForTranslations(TranslationEnum.hi_IN, hi_IN);
     const test_UPPER_file = fileForTranslations(TranslationEnum.test_UPPER, test_UPPER);
+    const fr_FR_file = fileForTranslations(TranslationEnum.fr_FR, fr_FR);
+    const es_ES_file = fileForTranslations(TranslationEnum.es_ES, es_ES);
 
     return Promise.all([
       writeFile('./src/common/en_AU.ts', en_AU_file),
@@ -143,6 +160,8 @@ function run() {
       writeFile('./src/common/guj_IN.ts', uj_IN_file),
       writeFile('./src/common/hi_IN.ts', hi_IN_file),
       writeFile('./src/common/test_UPPER.ts', test_UPPER_file),
+      writeFile('./src/common/test_UPPER.ts', fr_FR_file),
+      writeFile('./src/common/test_UPPER.ts', es_ES_file),
     ])
   });
 }

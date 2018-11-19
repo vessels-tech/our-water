@@ -5,13 +5,14 @@ export enum TranslationEnum {
   hi_IN = 'hi_IN',
   nl_NL = 'nl_NL',
   test_UPPER = 'test_UPPER',
+  fr_FR = 'fr_FR',
+  es_ES = 'es_ES',
 }
 
 
 export type Language = 'dutch' | 'english' | 'hindi' | 'gujarati' | 'test' | 'spanish' | 'french';
 export type Region = 'australia' | 'india' | 'netherlands' | 'united states' | 'uppercase' | 'france' | 'spain';
 
-//TODO: add fr_FR and es-ES
 
 export type TranslationMetadata = {
   language: Language
@@ -39,8 +40,9 @@ export type MyWellTranslationFiles = {
 export type GGMNTranslationFiles = {
   type: TranslationOrg.ggmn,
   'en_AU': TranslationFile,
-  'nl_NL': TranslationFile,
   'test_UPPER': TranslationFile,
+  'fr_FR': TranslationFile,
+  'es_ES': TranslationFile,
 }
 
 export type TranslationOverrideFile = GGMNTranslationOverrideFile | MyWellTranslationOverrideFile;

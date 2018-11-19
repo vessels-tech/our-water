@@ -892,8 +892,6 @@ class FirebaseApi {
    * http://localhost:5000/our-water/us-central1/resource/ggmn/ggmnResourceEmail
    * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
-   * 
-   * //TODO: update to use firebase client library instead
    */
   static async sendResourceEmail(orgId: string, token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});

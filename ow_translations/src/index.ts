@@ -20,14 +20,16 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
         TranslationEnum.en_US,
         TranslationEnum.guj_IN,
         TranslationEnum.hi_IN,
-        TranslationEnum.test_UPPER,
+        //TODO: how to keep only in dev, but not production?
+        // TranslationEnum.test_UPPER,
       ]
     }
     case TranslationOrg.ggmn: {
       return [
         TranslationEnum.en_AU,
-        TranslationEnum.nl_NL,  
-        TranslationEnum.test_UPPER,
+        // TranslationEnum.test_UPPER,
+        TranslationEnum.fr_FR,
+        TranslationEnum.es_ES,
       ]
     }
   }
@@ -43,9 +45,6 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
  * values for the given orgId if they exist.
  */
  export function translationsForTranslationOrg(orgId: TranslationOrg): TranslationFiles {
-  //TODO: Implement override for a given organisation.
-  //This isn't too urgent right now.
-
   switch (orgId) {
     case TranslationOrg.mywell: {
       return {
@@ -62,8 +61,9 @@ export function possibleTranslationsForOrg(orgId: TranslationOrg): TranslationEn
       return {
         type: TranslationOrg.ggmn,
         en_AU: mergeFiles(en_AU, ggmn_en_AU),
-        nl_NL: en_AU,
-        test_UPPER
+        fr_FR: mergeFiles(fr_FR, ggmn_fr_FR),
+        es_ES: mergeFiles(es_ES, ggmn_es_ES),
+        test_UPPER,
       }
     }
   }
