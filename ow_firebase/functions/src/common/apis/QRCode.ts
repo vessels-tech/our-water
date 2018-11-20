@@ -14,7 +14,7 @@ export function generateQRCode(orgId: string, id: string): Promise<SomeResult<st
     assetType: 'resource',
   };
 
-  return QRCode.toDataURL('I am a pony!')
+  return QRCode.toDataURL(JSON.stringify(data))
   .then(url => {
     return makeSuccess(url);
   })

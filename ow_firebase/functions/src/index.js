@@ -16,28 +16,33 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
 }
 
 //Group Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
-  exports.org = require('./handlers/fn_group/group')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
+  exports.group = require('./handlers/fn_group/group')(functions);
 }
 
 //Resource Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
-  exports.org = require('./handlers/fn_resource/resource')(functions);
+  exports.resource = require('./handlers/fn_resource/resource')(functions);
 }
 
 //Reading Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
-  exports.org = require('./handlers/fn_reading/reading')(functions);
+  exports.reading = require('./handlers/fn_reading/reading')(functions);
 }
 
 //Sync Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
-  exports.org = require('./handlers/fn_sync/sync')(functions);
+  exports.sync = require('./handlers/fn_sync/sync')(functions);
 }
 
 //ShortId Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
-  exports.org = require('./handlers/fn_shortId/shortId')(functions);
+  exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
+}
+
+//Admin Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
+  exports.admin = require('./handlers/fn_admin/admin')(functions);
 }
 
 //Cron Api

@@ -11,6 +11,7 @@ import * as morganBody from 'morgan-body';
 import { validateFirebaseIdToken } from '../../middleware';
 import { generateQRCode } from '../../common/apis/QRCode';
 import { ResultType } from '../../common/types/AppProviderTypes';
+import { writeFileAsync } from '../../common/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -30,7 +31,8 @@ module.exports = (functions) => {
   }
 
   //TODO: figure out how to implement basic ACLS
-  app.use(validateFirebaseIdToken);
+  //we don't want to validate these endpoints for now.
+  // app.use(validateFirebaseIdToken);
 
 
   /**
@@ -49,7 +51,7 @@ module.exports = (functions) => {
     }
   }
 
-  app.get('/:orgId/qrCode', validate(), async (req, res, next) => {
+  app.get('/:orgId/qrCode', validate(generateQRCodeValidation), async (req, res) => {
     const { id } = req.query;
     const { orgId } = req.params;
 
@@ -62,8 +64,21 @@ module.exports = (functions) => {
   });
 
   
+  app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), async (req, res) => {
+    const { id } = req.query;
+    const { orgId } = req.params;
 
+    const qrResult = await generateQRCode(orgId, id);
+    if (qrResult.type === ResultType.ERROR) {
+      throw new Error(qrResult.message);
+    }
 
+    const base64Data = qrResult.result.replace(/^data:image\/png;base64,/, "");
+    const file = `/tmp/qr_${id}.png`;
+    await writeFileAsync(file, base64Data, 'base64');
+
+    res.download(file);
+  });
 
 
   /* CORS Configuration */

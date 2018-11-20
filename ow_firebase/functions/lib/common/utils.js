@@ -294,9 +294,9 @@ function asList(value) {
     return value.split(',');
 }
 exports.asList = asList;
-function writeFileAsync(filename, content) {
+function writeFileAsync(filename, content, encoding) {
     return new Promise((resolve, reject) => {
-        filesystem.writeFile(filename, content, (err) => {
+        filesystem.writeFile(filename, content, encoding, (err) => {
             if (err) {
                 reject(err);
                 return;

@@ -26,7 +26,7 @@ class GGMNApi {
         const zipped = Zip_1.zipGeoJson(json, options);
         const filename = `/tmp/${pendingResources[0].id}.zip`;
         /*Save to disk */
-        return utils_1.writeFileAsync(filename, zipped)
+        return utils_1.writeFileAsync(filename, zipped, 'utf8')
             .then(() => AppProviderTypes_1.makeSuccess(filename))
             .catch(err => AppProviderTypes_1.makeError(err.message));
     }

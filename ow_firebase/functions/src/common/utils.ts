@@ -359,9 +359,9 @@ export function asList(value: string): string[] {
 }
 
 
-export function writeFileAsync(filename: string, content: any) {
+export function writeFileAsync(filename: string, content: any, encoding: string) {
   return new Promise((resolve, reject) => {
-    filesystem.writeFile(filename, content, (err) => {
+    filesystem.writeFile(filename, content, encoding, (err) => {
       if (err) {
         reject(err);
         return;

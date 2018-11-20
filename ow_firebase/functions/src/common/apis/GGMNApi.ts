@@ -30,7 +30,7 @@ export default class GGMNApi {
     const filename = `/tmp/${pendingResources[0].id}.zip`;
 
     /*Save to disk */
-    return writeFileAsync(filename, zipped)
+    return writeFileAsync(filename, zipped, 'utf8')
     .then(() => makeSuccess(filename))
     .catch(err => makeError<string>(err.message));
   }

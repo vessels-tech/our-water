@@ -13,7 +13,7 @@ function generateQRCode(orgId, id) {
         id,
         assetType: 'resource',
     };
-    return QRCode.toDataURL('I am a pony!')
+    return QRCode.toDataURL(JSON.stringify(data))
         .then(url => {
         return AppProviderTypes_1.makeSuccess(url);
     })

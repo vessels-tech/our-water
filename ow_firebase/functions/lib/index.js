@@ -3,23 +3,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 admin.initializeApp();
-// /*
-// const firestore = new Firestore();
-// const settings = {/* your settings... */ timestampsInSnapshots: true };
-// firestore.settings(settings)
-// */
+/**
+ * This file works better in JS,
+ * When it is in TS, it gets compiled to JS and this breaks
+ * the imports for firebase functions
+ */
+const functionName = process.env.FUNCTION_NAME;
+console.log("init for function", functionName);
 //Org Api
-exports.org = require('./fn_org/org')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
+    exports.org = require('./handlers/fn_org/org')(functions);
+}
 //Group Api
-exports.group = require('./fn_group/group')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
+    exports.group = require('./handlers/fn_group/group')(functions);
+}
 //Resource Api
-exports.resource = require('./fn_resource/resource')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
+    exports.resource = require('./handlers/fn_resource/resource')(functions);
+}
 //Reading Api
-exports.reading = require('./fn_reading/reading')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
+    exports.reading = require('./handlers/fn_reading/reading')(functions);
+}
 //Sync Api
-exports.sync = require('./fn_sync/sync')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
+    exports.sync = require('./handlers/fn_sync/sync')(functions);
+}
 //ShortId Api
-exports.shortId = require('./fn_shortId/shortId')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
+    exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
+}
+//Admin Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
+    exports.admin = require('./handlers/fn_admin/admin')(functions);
+}
 //Cron Api
 _a = require('./fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
 var _a;
