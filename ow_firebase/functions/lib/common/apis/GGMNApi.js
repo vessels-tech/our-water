@@ -51,8 +51,8 @@ class GGMNApi {
             "geometry": {
                 "type": "Point",
                 "coordinates": [
-                    pendingResource.coords.latitude,
                     pendingResource.coords.longitude,
+                    pendingResource.coords.latitude,
                 ]
             }
         };

@@ -10,5 +10,7 @@
 const admin = require('firebase-admin');
 // import {admin} from 'firebase-admin'; //not working
 
-module.exports = admin.firestore.GeoPoint;
+// module.exports = admin.firestore.GeoPoint;
+const OWGeoPoint = admin.firestore.GeoPoint;
+export default OWGeoPoint;
 
