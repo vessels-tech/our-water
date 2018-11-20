@@ -1,10 +1,10 @@
 
 import * as functions from 'firebase-functions';
 
-import fs from '../common/apis/Firestore';
-import { Sync } from '../common/models/Sync';
+import fs from '../../common/apis/Firestore';
+import { Sync } from '../../common/models/Sync';
 import CronUtils from './CronUtils';
-import { SyncFrequency } from '../common/enums/SyncFrequency';
+import { SyncFrequency } from '../../common/enums/SyncFrequency';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");

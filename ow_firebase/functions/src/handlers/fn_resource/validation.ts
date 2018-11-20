@@ -1,4 +1,4 @@
-import { ResourceType } from "../common/enums/ResourceType";
+import { ResourceType } from "../../common/enums/ResourceType";
 
 const Joi = require('joi');
 

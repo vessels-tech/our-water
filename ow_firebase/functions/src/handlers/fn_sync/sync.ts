@@ -14,17 +14,17 @@ const bucket = gcs.bucket(bucketName);
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 
-import { SyncMethodValidation, SyncMethod } from '../common/enums/SyncMethod';
-import { Sync } from '../common/models/Sync';
-import { SyncRun } from '../common/models/SyncRun';
-import LegacyMyWellDatasource from '../common/models/Datasources/LegacyMyWellDatasource';
-import Datasource from '../common/models/Datasources/Datasource';
-import { DatasourceType } from '../common/enums/DatasourceType';
-import { FileDatasource } from '../common/models/Datasources/FileDatasource';
-import FileDatasourceOptions from '../common/models/FileDatasourceOptions';
+import { SyncMethodValidation, SyncMethod } from '../../common/enums/SyncMethod';
+import { Sync } from '../../common/models/Sync';
+import { SyncRun } from '../../common/models/SyncRun';
+import LegacyMyWellDatasource from '../../common/models/Datasources/LegacyMyWellDatasource';
+import Datasource from '../../common/models/Datasources/Datasource';
+import { DatasourceType } from '../../common/enums/DatasourceType';
+import { FileDatasource } from '../../common/models/Datasources/FileDatasource';
+import FileDatasourceOptions from '../../common/models/FileDatasourceOptions';
 import { createSyncValidation } from './validate';
 
-import firestore from '../common/apis/Firestore';
+import firestore from '../../common/apis/Firestore';
 
 module.exports = (functions) => {
   const app = express();

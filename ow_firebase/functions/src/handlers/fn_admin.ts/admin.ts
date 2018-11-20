@@ -1,25 +1,25 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
-import * as moment from 'moment';
+import ErrorHandler from '../../common/ErrorHandler';
+
+
 //@ts-ignore
 import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
-import ErrorHandler from '../../common/ErrorHandler';
-import FirebaseApi from '../../common/apis/FirebaseApi';
+import { validateFirebaseIdToken } from '../../middleware';
+import { generateQRCode } from '../../common/apis/QRCode';
 import { ResultType } from '../../common/types/AppProviderTypes';
-// import FirebaseApi from '../common/apis/FirebaseApi';
-
-require('express-async-errors');
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
+const fb = require('firebase-admin')
+require('express-async-errors');
 
-module.exports = (functions: any) => {
+module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-
 
   if (process.env.VERBOSE_LOG === 'false') {
     console.log('Using simple log');
@@ -28,45 +28,50 @@ module.exports = (functions: any) => {
     console.log('Using verbose log');
     morganBody(app);
   }
-  /**
- * createShortId
- * 
- * @description 
- * Creates a shortId for a resource. If the shortId already exists,
- * it returns the existing one.
- * 
- * 
- * POST /:orgId/
- * body: { resourceId: string }
- */
 
-  const createShortIdValidation = {
-    body: {
-      resourceId: Joi.string().required()
+  //TODO: figure out how to implement basic ACLS
+  app.use(validateFirebaseIdToken);
+
+
+  /**
+   * GenerateQRCode
+   * 
+   * Generate a QR code for a given id.
+   * 
+   */
+
+  const generateQRCodeValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    query: {
+      id: Joi.string().required(),
     }
   }
 
-  //TODO: Secure this endpoint
-  app.post('/:orgId', validate(createShortIdValidation), async (req, res) => {
+  app.get('/:orgId/qrCode', validate(), async (req, res, next) => {
+    const { id } = req.query;
     const { orgId } = req.params;
-    const { resourceId } = req.body;
 
-    const result = await FirebaseApi.createShortId(orgId, resourceId);
+    const result = await generateQRCode(orgId, id);
     if (result.type === ResultType.ERROR) {
       throw new Error(result.message);
     }
 
-    res.json(result.result.serialize());
+    res.json(result.result);
   });
+
+  
+
+
 
 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);
 
-
   /*Error Handling - must be at bottom!*/
   app.use(ErrorHandler);
 
   return functions.https.onRequest(app);
-}
+};

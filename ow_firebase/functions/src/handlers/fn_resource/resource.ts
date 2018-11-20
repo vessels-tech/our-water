@@ -2,17 +2,17 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
 import * as moment from 'moment';
-import { Group } from '../common/models/Group';
-import { GroupType } from '../common/enums/GroupType';
-import OWGeoPoint from '../common/models/OWGeoPoint';
-import { Resource } from '../common/models/Resource';
+import { Group } from '../../common/models/Group';
+import { GroupType } from '../../common/enums/GroupType';
+import OWGeoPoint from '../../common/models/OWGeoPoint';
+import { Resource } from '../../common/models/Resource';
 import { isNullOrUndefined } from 'util';
-import ResourceIdType from '../common/types/ResourceIdType';
-import { resourceTypeFromString } from '../common/enums/ResourceType';
-import FirebaseApi from '../common/apis/FirebaseApi';
-import { ResultType } from '../common/types/AppProviderTypes';
-import firestore from '../common/apis/Firestore';
-import ErrorHandler from '../common/ErrorHandler';
+import ResourceIdType from '../../common/types/ResourceIdType';
+import { resourceTypeFromString } from '../../common/enums/ResourceType';
+import FirebaseApi from '../../common/apis/FirebaseApi';
+import { ResultType } from '../../common/types/AppProviderTypes';
+import firestore from '../../common/apis/Firestore';
+import ErrorHandler from '../../common/ErrorHandler';
 
 
 //@ts-ignore
@@ -20,10 +20,10 @@ import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
-import EmailApi from '../common/apis/EmailApi';
+import EmailApi from '../../common/apis/EmailApi';
 import { PendingResource } from 'ow_types';
-import GGMNApi from '../common/apis/GGMNApi';
-import { validateFirebaseIdToken } from '../middleware';
+import GGMNApi from '../../common/apis/GGMNApi';
+import { validateFirebaseIdToken } from '../../middleware';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');

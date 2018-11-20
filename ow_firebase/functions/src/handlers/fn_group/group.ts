@@ -1,7 +1,7 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
-import OWGeoPoint from '../common/models/OWGeoPoint';
-import firestore from '../common/apis/Firestore';
+import OWGeoPoint from '../../common/models/OWGeoPoint';
+import firestore from '../../common/apis/Firestore';
 
 
 const bodyParser = require('body-parser');

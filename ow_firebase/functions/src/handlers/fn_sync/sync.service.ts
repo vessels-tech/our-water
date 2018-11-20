@@ -3,8 +3,8 @@ import * as sleep from 'thread-sleep';
 import * as assert from 'assert';
 import * as request from 'request-promise';
 
-import { getSyncRun, createNewSync } from '../common/test/TestUtils';
-import fs from '../common/apis/Firestore';
+import { getSyncRun, createNewSync } from '../../common/test/TestUtils';
+import fs from '../../common/apis/Firestore';
 
 const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;

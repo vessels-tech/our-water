@@ -1,5 +1,5 @@
-import { SyncDatatypeList } from "../common/types/SyncDatatypes";
-import { SyncFrequencyList } from "../common/enums/SyncFrequency";
+import { SyncDatatypeList } from "../../common/types/SyncDatatypes";
+import { SyncFrequencyList } from "../../common/enums/SyncFrequency";
 
 const Joi = require('joi');
 

@@ -1,7 +1,7 @@
 
-import { SyncFrequency } from '../common/enums/SyncFrequency';
-import { Sync } from '../common/models/Sync';
-import { snapshotToSyncList } from '../common/utils';
+import { SyncFrequency } from '../../common/enums/SyncFrequency';
+import { Sync } from '../../common/models/Sync';
+import { snapshotToSyncList } from '../../common/utils';
 
 export default class CronUtils {
 
