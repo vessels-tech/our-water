@@ -1,10 +1,23 @@
 
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
-import ResourceIdType from "../types/ResourceIdType";
-import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
-import { OWGeoPoint } from "ow_types";
+import { OWGeoPoint } from "../typings/models/OurWater";
+
+//TODO: move these elsewhere
+export enum ResourceType {
+  Well = 'well',
+  Raingauge = 'raingauge',
+  Checkdam = 'checkdam',
+  // TODO: remove this! HAck for the front end to work
+  well = 'well',
+  raingauge = 'raingauge',
+  checkdam = 'checkdam',
+}
+
+export interface ResourceOwnerType {
+  name: string
+  createdByUserId: string
+}
 
 
 /*a time series in the Firebase Domain */
@@ -19,7 +32,7 @@ export type FBTimeseries = {
 
 export type ResourceBuilder = {
   orgId: string,
-  externalIds: ResourceIdType
+  externalIds: any,
   coords: OWGeoPoint
   resourceType: ResourceType
   owner: ResourceOwnerType
@@ -27,11 +40,13 @@ export type ResourceBuilder = {
   timeseries: FBTimeseriesMap
 }
 
+
+
 export class Resource extends FirestoreDoc {
   docName = 'resource';
 
   id: string
-  externalIds: ResourceIdType
+  externalIds: any
   coords: OWGeoPoint
   resourceType: ResourceType
   owner: ResourceOwnerType
@@ -41,7 +56,7 @@ export class Resource extends FirestoreDoc {
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
 
-  constructor(orgId: string, externalIds: ResourceIdType, coords: OWGeoPoint,
+  constructor(orgId: string, externalIds: any, coords: OWGeoPoint,
     resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>,
     timeseries: FBTimeseriesMap) {
     super();
@@ -87,7 +102,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a json object
    */
-  public static deserialize(data): Resource {
+  public static deserialize(data: any): Resource {
     const {
       id,
       orgId,
@@ -104,9 +119,9 @@ export class Resource extends FirestoreDoc {
     } = data;
 
     //Deserialize objects
-    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
-    const externalIdsObj = ResourceIdType.deserialize(externalIds);
-    const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
+    // const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    // const externalIdsObj = ResourceIdType.deserialize(externalIds);
+    const des: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
 
     //private vars
     des.id = id;
@@ -121,7 +136,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a Firestore Document
    */
-  public static fromDoc(doc): Resource {
+  public static fromDoc(doc: any): Resource {
     return this.deserialize(doc.data());
   }
 
@@ -130,11 +145,11 @@ export class Resource extends FirestoreDoc {
    * 
    * Get the resource from an orgId and resourceId
    */
-  static getResource({ orgId, id, firestore}): Promise<Resource> {
+  static getResource(orgId: string, id: string, firestore: any): Promise<Resource> {
     //TODO: make sure orgId is valid first
     return firestore.collection('org').doc(orgId).collection('resource').doc(id)
       .get()
-      .then(doc => Resource.fromDoc(doc));
+      .then((doc: any) => Resource.fromDoc(doc));
   }
 
 }

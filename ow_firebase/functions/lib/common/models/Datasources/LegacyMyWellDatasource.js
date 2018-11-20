@@ -156,7 +156,9 @@ class LegacyMyWellDatasource {
                 const resourceType = ResourceType_1.resourceTypeFromString(r.type);
                 const owner = { name: r.owner, createdByUserId: 'default' };
                 const groups = utils_1.findGroupMembershipsForResource(r, legacyGroups);
-                const newResource = new Resource_1.Resource(orgId, externalIds, coords, resourceType, owner, groups);
+                //A basic timeseries map
+                const timeseries = { default: { id: 'default' } };
+                const newResource = new Resource_1.Resource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
                 newResource.lastReadingDatetime = moment(r.last_date).toDate();
                 newResource.lastValue = r.last_value;
                 resources.push(newResource);

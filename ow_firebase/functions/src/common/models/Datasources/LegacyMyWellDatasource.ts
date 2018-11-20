@@ -8,7 +8,7 @@ import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWe
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
-import { Resource } from '../Resource';
+import { Resource, FBTimeseriesMap } from '../Resource';
 import ResourceIdType from '../../types/ResourceIdType';
 import { ResourceType, resourceTypeFromString } from '../../enums/ResourceType';
 import ResourceOwnerType from '../../types/ResourceOwnerType';
@@ -187,8 +187,10 @@ export default class LegacyMyWellDatasource implements Datasource {
         const resourceType = resourceTypeFromString(r.type);
         const owner: ResourceOwnerType = {name: r.owner, createdByUserId: 'default'};
         const groups: Map<string, boolean> = findGroupMembershipsForResource(r, legacyGroups);
+        //A basic timeseries map
+        const timeseries: FBTimeseriesMap = {default: {id: 'default'}};
 
-        const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups);
+        const newResource: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
         newResource.lastReadingDatetime = moment(r.last_date).toDate();
         newResource.lastValue = r.last_value;
         resources.push(newResource);

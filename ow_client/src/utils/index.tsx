@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { stringify } from 'query-string';
 import { bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
 import { Location, LocationType } from '../typings/Location';
-import { Resource, BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings, PendingResource } from '../typings/models/OurWater';
+import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
@@ -13,6 +13,7 @@ import { EnableLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 /**
@@ -142,7 +143,7 @@ export const pinColorForResourceType = (resourceType: any) => {
   }
 }
 
-export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: BasicCoords): Resource | null => {
+export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: BasicCoords): AnyResource | null => {
   const filtered = resources.filter((res: any) => {
     return coords.latitude === res.coords._latitude && 
       coords.longitude === res.coords._longitude;
@@ -160,7 +161,7 @@ export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: 
   return filtered[0];
 }
 
-export const getSelectedPendingResourceFromCoords = (resources: PendingResource[], coords: BasicCoords): Resource | null => {
+export const getSelectedPendingResourceFromCoords = (resources: PendingResource[], coords: BasicCoords): PendingResource | null => {
   const filtered = resources.filter((res: PendingResource) => {
     return coords.latitude === res.coords.latitude && 
       coords.longitude === res.coords.longitude;
@@ -315,32 +316,6 @@ export const defaultNavigatorStyle = {
   drawUnderStatusBar: false,
 }
 
-export function getDemoResources(count: number): Resource[] {
-  const resources: Resource[] = [];
-
-  for (let i = 0; i <= count; i++) {
-    const id = 1 + i;
-    resources.push({
-      id: `${id}`,
-      legacyId: `${id}`,
-      coords: {
-        _latitude: -20.401,
-        _longitude: 32.3373
-      },
-      resourceType: ResourceType.well,
-      owner: {
-        name: 'Lewis Ji',
-      },
-      groups: null,
-      lastValue: 12.34,
-      lastReadingDatetime: new Date(),
-      timeseries: [],
-    })
-  }
-
-  return resources;
-}
-
 export function getGroundwaterAvatar() {
   return (
     <Avatar
@@ -375,9 +350,7 @@ export function getReadingAvatar() {
    * Iterate through favourite resources, and find out
    * if this is in the list
    */
-export function isFavourite(favouriteResources: Resource[], resourceId: string) {
-  // const { favouriteResources, resource: { id } } = this.props;
-
+export function isFavourite(favouriteResources: AnyResource[], resourceId: string) {
   const ids = favouriteResources.map(r => r.id);
   if (ids.indexOf(resourceId) > -1) {
     return true;
@@ -590,4 +563,13 @@ export function getShortIdOrFallback(id: string, cache: Map<string, string>, fal
   }
 
   return title;
+}
+
+
+export const serializeMap = (input: Map<any, any>): any => {
+  if (!input) {
+    return {};
+  }
+
+  return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});
 }

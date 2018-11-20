@@ -5,7 +5,7 @@ const ResourceIdType_1 = require("../types/ResourceIdType");
 const FirestoreDoc_1 = require("./FirestoreDoc");
 const utils_1 = require("../utils");
 class Resource extends FirestoreDoc_1.default {
-    constructor(orgId, externalIds, coords, resourceType, owner, groups) {
+    constructor(orgId, externalIds, coords, resourceType, owner, groups, timeseries) {
         super();
         this.docName = 'resource';
         this.lastValue = 0;
@@ -16,6 +16,10 @@ class Resource extends FirestoreDoc_1.default {
         this.resourceType = resourceType;
         this.owner = owner;
         this.groups = groups;
+        this.timeseries = timeseries;
+    }
+    static build(builder) {
+        return new Resource(builder.orgId, builder.externalIds, builder.coords, builder.resourceType, builder.owner, builder.groups, builder.timeseries);
     }
     serialize() {
         return {
@@ -30,17 +34,18 @@ class Resource extends FirestoreDoc_1.default {
             lastReadingDatetime: this.lastReadingDatetime,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
+            timeseries: this.timeseries,
         };
     }
     /**
      * Deserialize from a json object
      */
     static deserialize(data) {
-        const { id, orgId, externalIds, coords, resourceType, owner, groups, lastValue, lastReadingDatetime, createdAt, updatedAt, } = data;
+        const { id, orgId, externalIds, coords, resourceType, owner, groups, lastValue, lastReadingDatetime, createdAt, updatedAt, timeseries, } = data;
         //Deserialize objects
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
-        const des = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups);
+        const des = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
         //private vars
         des.id = id;
         des.lastValue = lastValue;

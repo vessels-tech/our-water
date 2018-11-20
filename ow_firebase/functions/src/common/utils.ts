@@ -3,7 +3,6 @@ import LegacyVillage from "./types/LegacyVillage";
 import { Group } from "./models/Group";
 import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
-import { resource } from "..";
 import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
 import { ResourceType } from "./enums/ResourceType";
