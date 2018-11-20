@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const DatasourceType_1 = require("../../enums/DatasourceType");
 const request = require("request-promise-native");
 const Group_1 = require("../Group");
-const OWGeoPoint_1 = require("../../models/OWGeoPoint");
 const moment = require("moment");
 const utils_1 = require("../../utils");
 const GroupType_1 = require("../../enums/GroupType");
@@ -22,6 +21,7 @@ const Reading_1 = require("../Reading");
 const env_1 = require("../../env");
 const FileDatasourceTypes_1 = require("../../enums/FileDatasourceTypes");
 const DefaultSyncRunResult_1 = require("../DefaultSyncRunResult");
+const ow_types_1 = require("ow_types");
 class LegacyMyWellDatasource {
     constructor(baseUrl, selectedDatatypes) {
         this.baseUrl = baseUrl;
@@ -107,7 +107,7 @@ class LegacyMyWellDatasource {
             pincodeGroups = Object.keys(pincodeIds).map(pincode => {
                 const legacyVillages = pincodeIds[pincode];
                 //TODO: the only issue with this approach is that the coordinates aren't in order.
-                const coords = legacyVillages.map(v => new OWGeoPoint_1.default(v.coordinates.lat, v.coordinates.lng));
+                const coords = legacyVillages.map(v => new ow_types_1.OWGeoPoint(v.coordinates.lat, v.coordinates.lng));
                 const externalIds = ResourceIdType_1.default.fromLegacyPincode(pincode);
                 return new Group_1.Group(pincode, orgId, GroupType_1.GroupType.Pincode, coords, externalIds);
             });
@@ -152,7 +152,7 @@ class LegacyMyWellDatasource {
             .then((legacyRes) => {
             legacyRes.forEach(r => {
                 const externalIds = ResourceIdType_1.default.fromLegacyMyWellId(r.postcode, r.id);
-                const coords = new OWGeoPoint_1.default(r.geo.lat, r.geo.lng);
+                const coords = new ow_types_1.OWGeoPoint(r.geo.lat, r.geo.lng);
                 const resourceType = ResourceType_1.resourceTypeFromString(r.type);
                 const owner = { name: r.owner, createdByUserId: 'default' };
                 const groups = utils_1.findGroupMembershipsForResource(r, legacyGroups);
@@ -358,8 +358,8 @@ class LegacyMyWellDatasource {
             return {
                 postcode: resource.externalIds.getPostcode(),
                 geo: {
-                    lat: resource.coords._latitude,
-                    lng: resource.coords._longitude,
+                    lat: resource.coords.latitude,
+                    lng: resource.coords.longitude,
                 },
                 last_value: resource.lastValue,
                 //TODO: this may cause problems...

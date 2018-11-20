@@ -4,7 +4,6 @@ import * as cors from 'cors';
 import * as moment from 'moment';
 import { Group } from '../../common/models/Group';
 import { GroupType } from '../../common/enums/GroupType';
-import OWGeoPoint from '../../common/models/OWGeoPoint';
 import { Resource } from '../../common/models/Resource';
 import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../../common/types/ResourceIdType';
@@ -14,14 +13,13 @@ import { ResultType } from '../../common/types/AppProviderTypes';
 import firestore from '../../common/apis/Firestore';
 import ErrorHandler from '../../common/ErrorHandler';
 
-
 //@ts-ignore
 import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../../common/apis/EmailApi';
-import { PendingResource } from 'ow_types';
+import { PendingResource, OWGeoPoint } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
 

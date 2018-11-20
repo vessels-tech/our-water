@@ -2,12 +2,12 @@ import { SomeResult, ResultType } from "../types/AppProviderTypes";
 
 import firestore from './Firestore';
 import { Resource } from "../models/Resource";
-import * as OWGeoPoint from '../models/OWGeoPoint';
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
 import { BasicAuthSecurity } from "soap";
 import { pad } from "../utils";
 import { isNullOrUndefined } from "util";
+import { OWGeoPoint } from "ow_types";
 
 
 

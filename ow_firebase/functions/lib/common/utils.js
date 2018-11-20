@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const OWGeoPoint_1 = require("../common/models/OWGeoPoint");
 const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
 const ResourceType_1 = require("./enums/ResourceType");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
+const ow_types_1 = require("ow_types");
 var filesystem = require("fs");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
@@ -54,10 +54,10 @@ exports.concatSaveResults = (resultList) => {
  */
 exports.createDiamondFromLatLng = (lat, lng, delta) => {
     let minLat, maxLng, maxLat, minLng = null;
-    minLat = new OWGeoPoint_1.default(lat - delta, lng);
-    maxLng = new OWGeoPoint_1.default(lat, lng + delta);
-    maxLat = new OWGeoPoint_1.default(lat + delta, lng);
-    minLng = new OWGeoPoint_1.default(lat, lng - delta);
+    minLat = new ow_types_1.OWGeoPoint(lat - delta, lng);
+    maxLng = new ow_types_1.OWGeoPoint(lat, lng + delta);
+    maxLat = new ow_types_1.OWGeoPoint(lat + delta, lng);
+    minLng = new ow_types_1.OWGeoPoint(lat, lng - delta);
     //I suppose we should assume indexes 0 and -1 line up
     return [minLat, maxLng, maxLat, minLng];
 };

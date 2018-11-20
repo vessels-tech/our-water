@@ -3468,9 +3468,9 @@ output-file-sync@^2.0.0:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"
 
-"ow_types@https://github.com/vessels-tech/ow_types#d214c48233898ba003b76d5fc6f8f7ebcfa292f7":
+"ow_types@https://github.com/vessels-tech/ow_types#b9d8f3962815b4850317f3f9423a78ce8bb7a483":
   version "1.0.1"
-  resolved "https://github.com/vessels-tech/ow_types#d214c48233898ba003b76d5fc6f8f7ebcfa292f7"
+  resolved "https://github.com/vessels-tech/ow_types#b9d8f3962815b4850317f3f9423a78ce8bb7a483"
 
 p-finally@^1.0.0:
   version "1.0.0"

@@ -14,7 +14,6 @@ const cors = require("cors");
 const moment = require("moment");
 const Group_1 = require("../../common/models/Group");
 const GroupType_1 = require("../../common/enums/GroupType");
-const OWGeoPoint_1 = require("../../common/models/OWGeoPoint");
 const Resource_1 = require("../../common/models/Resource");
 const util_1 = require("util");
 const ResourceIdType_1 = require("../../common/types/ResourceIdType");
@@ -29,6 +28,7 @@ const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
 const EmailApi_1 = require("../../common/apis/EmailApi");
+const ow_types_1 = require("ow_types");
 const GGMNApi_1 = require("../../common/apis/GGMNApi");
 const middleware_1 = require("../../middleware");
 const bodyParser = require('body-parser');
@@ -80,7 +80,7 @@ module.exports = (functions) => {
         const orgId = req.params.orgId;
         // Try saving a new group
         const coords = [
-            new OWGeoPoint_1.default(34.34, -115.67),
+            new ow_types_1.OWGeoPoint(34.34, -115.67),
         ];
         const group = new Group_1.Group('5000', orgId, GroupType_1.GroupType.Pincode, coords, null);
         return group.create({ firestore: Firestore_1.default })

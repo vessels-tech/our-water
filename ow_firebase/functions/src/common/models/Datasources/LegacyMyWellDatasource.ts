@@ -2,7 +2,6 @@ import Datasource from './Datasource';
 import { DatasourceType } from '../../enums/DatasourceType';
 import * as request from 'request-promise-native';
 import { Group } from '../Group';
-import OWGeoPoint from '../../models/OWGeoPoint';
 import * as moment from 'moment';
 
 import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString, snapshotToResourceList } from '../../utils';
@@ -25,6 +24,7 @@ import SyncDataSourceOptions from '../../types/SyncDataSourceOptions';
 import { LegacyMyWellReading } from '../LegacyMyWellReading';
 import { DataType } from '../../enums/FileDatasourceTypes';
 import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
+import { GeoPoint, OWGeoPoint } from 'ow_types';
 
 
 export default class LegacyMyWellDatasource implements Datasource {
@@ -413,8 +413,8 @@ export default class LegacyMyWellDatasource implements Datasource {
       return {
         postcode: resource.externalIds.getPostcode(),
         geo: {
-          lat: resource.coords._latitude,
-          lng: resource.coords._longitude,
+          lat: resource.coords.latitude,
+          lng: resource.coords.longitude,
         },
         last_value: resource.lastValue,
         //TODO: this may cause problems...

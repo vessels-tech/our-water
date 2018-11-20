@@ -175,7 +175,7 @@ results:
 }
 ```
 
-We can then use this entityId, and loop up the associated groundwaterstation:
+We can then use this entityId, and look up the associated groundwaterstation:
 
 >https://ggmn.lizard.net/api/v3/groundwaterstations/60061/
 ```json
@@ -311,7 +311,7 @@ __We also need to be logged in to the same user that uploaded the files!__
 ```
 
 So this confirms that it exists, but we need to be able to find it based on the id of the feature in the shapefile: (eg. 1696)
-For some reason, the timeseries location contains `1969` as code as well as name.
+For some reason, the timeseries location contains `1696` as code as well as name.
 
 Let's try and find the timeseries based on the location__name:
 

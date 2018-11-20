@@ -1,8 +1,7 @@
 import { GroupType } from "../enums/GroupType";
 import ResourceIdType from "../types/ResourceIdType";
 import { isNullOrUndefined } from "util";
-import OWGeoPoint from '../models/OWGeoPoint';
-
+import { OWGeoPoint } from "ow_types";
 
 export class Group {
   id: string

@@ -457,7 +457,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
-      .then((response: GGMNGroundwaterStationResponse) => response.results.map(from => GGMNApi.ggmnStationToResource(from)))
+      .then((response: GGMNGroundwaterStationResponse) => {
+        console.log("GGMNGroundwaterStationResponse", response);
+        
+        return response.results.map(from => GGMNApi.ggmnStationToResource(from))
+      })
       .then((resources: AnyResource[]) => ({type: ResultType.SUCCESS, result: resources}))
       .catch((err: Error) => {
         maybeLog("Error loading resources:", err);

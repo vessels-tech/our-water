@@ -2,7 +2,7 @@ import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
-import OWGeoPoint from '../models/OWGeoPoint';
+import { OWGeoPoint } from "ow_types";
 
 
 export class Reading extends FirestoreDoc {

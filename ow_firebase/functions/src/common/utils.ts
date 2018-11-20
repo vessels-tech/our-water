@@ -1,4 +1,3 @@
-import OWGeoPoint from '../common/models/OWGeoPoint';
 import LegacyResource from "./types/LegacyResource";
 import LegacyVillage from "./types/LegacyVillage";
 import { Group } from "./models/Group";
@@ -12,6 +11,7 @@ import SyncRunResult from "./types/SyncRunResult";
 import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
+import { OWGeoPoint } from 'ow_types';
 var filesystem = require("fs");
 
 

@@ -3,8 +3,8 @@ import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
-import OWGeoPoint from '../models/OWGeoPoint';
 import { serializeMap } from "../utils";
+import { OWGeoPoint } from "ow_types";
 
 export class Resource extends FirestoreDoc {
   docName = 'resource';
