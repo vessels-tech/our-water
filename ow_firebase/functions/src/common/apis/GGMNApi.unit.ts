@@ -3,10 +3,10 @@ import GGMNApi from './GGMNApi';
 import * as assert from 'assert';
 import { 
   PendingResource,
-  ResultType,
   OrgType,
   ResourceType,
  } from 'ow_types';
+import { ResultType } from '../types/AppProviderTypes';
 
 describe('GGMNApi', function () {
   describe('pendingResourceToZip', function() {

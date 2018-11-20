@@ -2,30 +2,43 @@ import * as functions from 'firebase-functions';
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-// /*
-// const firestore = new Firestore();
-// const settings = {/* your settings... */ timestampsInSnapshots: true };
-// firestore.settings(settings)
-// */
+/**
+ * This file works better in JS, 
+ * When it is in TS, it gets compiled to JS and this breaks
+ * the imports for firebase functions
+ */
+const functionName = process.env.FUNCTION_NAME;
+console.log("init for function", functionName);
 
 //Org Api
-export const org = require('./fn_org/org')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
+  exports.org = require('./handlers/fn_org/org')(functions);
+}
 
 //Group Api
-export const group = require('./fn_group/group')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
+  exports.org = require('./handlers/fn_group/group')(functions);
+}
 
 //Resource Api
-export const resource = require('./fn_resource/resource')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
+  exports.org = require('./handlers/fn_resource/resource')(functions);
+}
 
 //Reading Api
-export const reading = require('./fn_reading/reading')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
+  exports.org = require('./handlers/fn_reading/reading')(functions);
+}
 
 //Sync Api
-export const sync = require('./fn_sync/sync')(functions);
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
+  exports.org = require('./handlers/fn_sync/sync')(functions);
+}
 
 //ShortId Api
-export const shortId = require('./fn_shortId/shortId')(functions);
-
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
+  exports.org = require('./handlers/fn_shortId/shortId')(functions);
+}
 
 //Cron Api
 export const { hourly_job, daily_job, weekly_job} = require('./fn_cron/cron');
