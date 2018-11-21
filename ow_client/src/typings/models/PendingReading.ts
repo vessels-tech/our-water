@@ -14,7 +14,7 @@ export type PendingReading = {
   id: string, //Injected by Firebase Api
   pending: true,
   resourceId: string,
-  timeseriesName: string, //eg. gwwmsl or gwmbgs. We can look up the actual timeseries Id later on
+  timeseriesId: string, //eg. gwwmsl or gwmbgs. We can look up the actual timeseries Id later on
 
   value: number
   date: string, //ISO formatted

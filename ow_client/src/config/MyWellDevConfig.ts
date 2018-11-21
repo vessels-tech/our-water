@@ -22,6 +22,12 @@ const MyWellDevConfig: RemoteConfig = {
     ResourceType.quality,
     ResourceType.checkdam,
   ],
+  editResource_defaultTypes: {
+    well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+    raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+    quality: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+    checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+  }, 
   editResource_allowCustomId: false,
   favouriteResource_scrollDirection: ScrollDirection.Vertical,
 }

@@ -49,8 +49,8 @@ export default class MyWellApi implements BaseApi, UserApi {
   // Reading API
   // 
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
-    
-    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
+    reading.type = OrgType.MYWELL;
+    const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       return saveResult;
     }
@@ -138,7 +138,6 @@ export default class MyWellApi implements BaseApi, UserApi {
    * saveResource
    */
   async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
-    console.log("saving resource", this.orgId);
     resource.type = OrgType.MYWELL;
     const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {

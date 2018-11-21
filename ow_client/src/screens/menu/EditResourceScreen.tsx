@@ -29,6 +29,7 @@ import { OrgType } from '../../typings/models/OrgType';
 import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/ExtendedResourceApi';
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
+import Config from 'react-native-config';
 
 export interface Props { 
   resourceId: string,
@@ -158,10 +159,7 @@ class EditResourceScreen extends Component<Props> {
       },
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
-      timeseries: [
-        { name: 'GWmMSL', parameter: 'gwmmsl', readings: []},
-        { name: 'GWmBGS', parameter: 'gwmbgs', readings: []},
-      ]
+      timeseries: this.props.config.getDefaultTimeseries(this.editResourceForm.value.asset),
     };
 
     console.log("unvalidated resource", unvalidatedResource);

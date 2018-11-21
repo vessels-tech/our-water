@@ -4,7 +4,7 @@ import { MaybeReadingImage } from "../typings/models/ReadingImage";
 import { MaybeReadingLocation } from "../typings/models/ReadingLocation";
 import { AnyReading, GGMNReading, MyWellReading } from "../typings/models/Reading";
 
-export type FBReadingBuilder = {
+export type CommonReadingBuilder = {
   orgId: string,
   type: OrgType,
   pending: boolean,
@@ -13,10 +13,16 @@ export type FBReadingBuilder = {
   timeseriesId: string,
   date: string,
   value: number,
+}
 
-  userId: string,
-  image: MaybeReadingImage,
-  location: MaybeReadingLocation,
+export type MyWellReadingBuilder = {
+  userId?: string,
+  image?: MaybeReadingImage,
+  location?: MaybeReadingLocation,
+}
+
+export type GGMNReadingBuilder = {
+
 }
 
 export default class FBReading extends FirestoreDoc {
@@ -35,11 +41,11 @@ export default class FBReading extends FirestoreDoc {
   value: number
 
   /* MyWell Specific */
-  userId: string
-  image: MaybeReadingImage
-  location: MaybeReadingLocation
+  userId?: string
+  image?: MaybeReadingImage
+  location?: MaybeReadingLocation
 
-  constructor(builder: FBReadingBuilder) {
+  constructor(builder: CommonReadingBuilder & MyWellReadingBuilder & GGMNReadingBuilder) {
     super();
 
     this.orgId = builder.orgId;
@@ -72,7 +78,7 @@ export default class FBReading extends FirestoreDoc {
   }
 
   public static deserialize(data: any): FBReading {
-    const builder: FBReadingBuilder = { ...data };
+    const builder: CommonReadingBuilder & MyWellReadingBuilder & GGMNReadingBuilder = { ...data };
     const des: FBReading = new FBReading(builder);
 
     //private fields

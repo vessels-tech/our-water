@@ -34,6 +34,7 @@ export type RemoteConfig = {
   //define what resources shold look like
   editResource_showOwerName: boolean,
   editResource_availableTypes: ResourceType[],
+  editResource_defaultTypes: any,
   editResource_allowCustomId: boolean,
   favouriteResource_scrollDirection: ScrollDirection,
 
@@ -189,5 +190,15 @@ export class ConfigFactory {
 
   getFavouriteResourceScrollDirection(): ScrollDirection {
     return this.remoteConfig.favouriteResource_scrollDirection;
+  }
+
+
+  /**
+   * getDefaultTimeseries
+   * 
+   * This determines the default timeseries for the environment
+   */
+  getDefaultTimeseries(resourceTypeString: string) {
+    return this.remoteConfig.editResource_defaultTypes[resourceTypeString];
   }
 }

@@ -6,6 +6,11 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { OWGeoPoint, BasicCoords, toBasicCoords } from "../typings/models/OurWater";
 import { ResourceType } from "../enums";
 import { OrgType } from "../typings/models/OrgType";
+import { AnyReading } from "../typings/models/Reading";
+import { PendingReading } from "../typings/models/PendingReading";
+import FBReading, { CommonReadingBuilder, MyWellReadingBuilder, GGMNReadingBuilder } from "../model/FBReading";
+import { FBTimeseries, FBTimeseriesMap } from "../model/FBTimeseries";
+import { AnyTimeseries } from "../typings/models/Timeseries";
 
 // export function mapper<T,J>(from: T): J {
 
@@ -52,15 +57,13 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
     }
   }
 
-  console.log("mapper options are:", options);
-
   return {
     orgId,
     type: resource.type,
     pending: false, 
     deleted: false, //TODO: change?
     coords,
-    timeseries: {}, //TODO: figure out
+    timeseries: fromCommonTimeseriesToFBTimeseries(resource.timeseries),
     ...options
   };
 }
@@ -75,4 +78,42 @@ export function fromCommonResourceTypeToFBResourceType(from: ResourceType): FBRe
     default:
       throw new Error('Unknown resource type: ' + from);
   }
+}
+
+export function fromCommonTimeseriesToFBTimeseries(from: Array<AnyTimeseries | PendingTimeseries>): FBTimeseriesMap {
+  let map: FBTimeseriesMap = {};
+
+  //TODO: handle pending timeseries better than this
+  from.forEach(t => map[t.name] = { type: t.type, id: t.name});
+  return map;
+}
+
+export function fromCommonReadingToFBReadingBuilder(orgId: string, userId: string, reading: AnyReading | PendingReading): CommonReadingBuilder & MyWellReadingBuilder & GGMNReadingBuilder {
+
+  const common: CommonReadingBuilder = {
+    orgId,
+    type: reading.type,
+    pending: false,
+    deleted: false,
+    resourceId: reading.resourceId,
+    timeseriesId: reading.timeseriesId,
+    date: reading.date,
+    value: reading.value,
+  }
+
+  let options: MyWellReadingBuilder | GGMNReadingBuilder;
+  if (reading.type === OrgType.MYWELL) {
+    options = {
+      userId,
+      image: reading.image,
+      location: reading.location,
+    }
+  } else {
+    options = {};
+  }
+
+  return {
+    ...common,
+    ...options,
+  };
 }

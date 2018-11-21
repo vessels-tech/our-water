@@ -7,6 +7,11 @@ service cloud.firestore {
       allow create: if request.auth.uid != null;
     }
 
+    match /org/{orgId}/reading/{document=**} {
+      allow read, update, delete: if request.auth.uid != null;
+      allow create: if request.auth.uid != null;
+    }
+
     match /org/{orgId}/shortId/{document=**} {
       allow read, update, delete: if request.auth.uid != null;
       allow create: if request.auth.uid != null;

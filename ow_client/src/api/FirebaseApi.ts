@@ -25,8 +25,9 @@ import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
 import { SyncError } from '../typings/api/ExternalServiceApi';
-import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
+import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuilder } from '../utils/Mapper';
 import FBResource from '../model/FBResource';
+import FBReading from '../model/FBReading';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -284,13 +285,6 @@ class FirebaseApi {
    * getResourcesWithinRegion
    */
   static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<AnyResource[]>>{
-    // //TODO: validate assumption that lat and lng start in top left corner
-    // console.log("Region is:", region);
-    // const minLat = region.latitude;
-    // const minLng = region.longitude;
-    // const maxLat = minLat + region.latitudeDelta;
-    // const maxLng = minLng + region.longitudeDelta;
-
     //from region, lat and lng are in centre, delta is the full width (I think)
     console.log("Region is:", region);
     const halfLatDelta = region.latitudeDelta / 2;
@@ -398,33 +392,6 @@ class FirebaseApi {
     //   })
   };
 
-
-  /**
-   * saveReadingPossiblyOffline
-   * 
-   * Deprecated. Use SaveReadingPossiblyOfflineToUser instead
-   * 
-   * saves a reading, Promise resolves when the reading appears in local cache, 
-   * and not actually commited to the server
-   */
-  static saveReadingPossiblyOffline(orgId: string, reading: any) {
-    return new Promise((resolve, reject) => {
-
-      this.pendingReadingsListener(orgId)
-      .then(snapshot => {
-
-        //Resolve once the pending reading is saved
-        resolve(true);
-      });
-
-      this.saveReading(orgId, reading)
-      //Don't resolve this - as if we are offline, it will take a long time
-      .catch((err: Error) => {
-        maybeLog('saveReading Err: ' +  err);
-        reject(err);
-      });
-    });
-  }
 
   /**
    * saveReadingPossiblyOffineToUser
@@ -540,22 +507,12 @@ class FirebaseApi {
    * saveReading
    * submits a new reading for a given resource
    * 
-   * We use the Cloudstore Api instead of doing a POST for two reasons:
-   * (1) we want to benefit fro Firebase's offline features, and
-   * (2) it will likely be easier to implement security on this later on
-   * 
-   * format:
-   * reading: {
-   *  resourceId: string    
-   *  datetime:   string    #must be iso date format
-   *  value:      float     
-   *  isLegacy:   boolean   #set to true to stop the resource's lastValue from being updated
-   *  userId:     string    #id of the user creating the reading. In the future, this will be inferred from the session
-   * }
-   * 
    */
-  static saveReading(orgId: string, reading: Reading) {
-    return this.readingCol(orgId).add(reading);
+  static saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<any>> {
+    const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
+    const fbReading = new FBReading(builder);
+
+    return fbReading.save(fs);
   }
 
   static saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading) {
