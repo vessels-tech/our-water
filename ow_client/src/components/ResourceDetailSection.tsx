@@ -163,7 +163,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getLatestReadingsForTimeseries() {
     const { tsReadings, resource } = this.props;
-    const { timeseries_name_title, timeseries_date_format } = this.props.translation.templates;
+    const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
 
     let loading = false;
     const readingsMap = new Map<string, AnyReading[]>();
@@ -189,10 +189,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     const keys = [...readingsMap.keys()];
+    
+    if (keys.length === 0) {
+      return (
+        <Text style={{textAlign: 'center'}}>{timeseries_none}</Text>
+      );
+    }
+    
     return (
       keys.map((key) => {
         const readings = readingsMap.get(key) || [];
-        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesName === key);
+        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId === key);
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
 
         let content = 'N/A';
@@ -328,7 +335,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                       config={this.props.config}
                       resourceId={this.props.resource.id}
                       timeseries={ts}
-                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesName === ts.name)}
+                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
                     />
                   </View>
                 );

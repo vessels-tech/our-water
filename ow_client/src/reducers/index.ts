@@ -245,7 +245,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //TD this could be done more efficently than looking through an array each time -
       //eg. building an index based on the resourceId and timeseriesName
       const pendingReadings: PendingReading[] = state.pendingSavedReadings
-        .filter(r => r.resourceId === action.resourceId && r.timeseriesName === action.timeseriesName);
+        .filter(r => r.resourceId === action.resourceId && r.timeseriesId === action.timeseriesName);
       
       if (action.result.type === ResultType.SUCCESS) {
         tsReading.readings = action.result.result;
