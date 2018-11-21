@@ -2,7 +2,7 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
@@ -13,7 +13,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
-import { maybeLog } from '../utils';
+import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 
 
@@ -210,6 +210,23 @@ export default class MyWellApi implements BaseApi, UserApi {
     return makeSuccess(shortIds);
   }
 
+  //
+  // Reading API
+  //----------------------------------------------------------------
+
+  /**
+   * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN,
+   * and a unique for a series of readings
+   */
+  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
+    const result = await FirebaseApi.getReadings(this.orgId, resourceId, timeseriesId, range);
+    if (result.type === ResultType.ERROR) {
+      return Promise.reject(new Error(result.message));
+    }
+
+    return result.result;
+  }
+  
   //
   // Subscriptions
   //----------------------------------------------------------------

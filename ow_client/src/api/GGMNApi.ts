@@ -1133,7 +1133,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       find the timeseriesId associated with the reading, and save it using the GGMN api.
     */
     const timeseriesIdResults: Array<SomeResult<string>> = await Promise.all(
-      pendingReadings.map(p => this.getTimeseriesId(p.resourceId, p.timeseriesName))
+      pendingReadings.map(p => this.getTimeseriesId(p.resourceId, p.timeseriesId))
     );
 
     const saveReadingResults: Array<SomeResult<any>> = await Promise.all(

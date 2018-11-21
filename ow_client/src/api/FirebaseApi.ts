@@ -13,7 +13,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { DeprecatedResource, SearchResult, Reading, OWUser} from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
@@ -423,6 +423,21 @@ class FirebaseApi {
     .catch((err: Error) => makeError(err.message));
   }
 
+  /**
+   * getReadings
+   * 
+   * Get readings from the readings collection
+   */
+  static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
+    return this.readingCol(orgId)
+      .where('resourceId', '==', resourceId)
+      .where('timeseriesId', '==', timeseriesId)
+      .limit(300)
+      .get()
+    .then((sn: any) => this.snapshotToReadings(sn))
+    .then((readings: AnyReading[]) => makeSuccess(readings))
+    .catch((err: Error) => makeError<AnyReading[]>(err.message))
+  }
 
   /**
    * Get the pending readings saved to the user's `pendingReadings` collection
@@ -927,14 +942,11 @@ class FirebaseApi {
   /**
    * Map a snapshot from pendingReadings to a readings array
    */
-  static snapshotToReadings(sn: any): Reading[] {
-    const readings: Reading[] = [];
+  static snapshotToReadings(sn: any): AnyReading[] {
+    const readings: AnyReading[] = [];
     sn.forEach((doc: any) => {
-      //Get each document, put in the id
-      const data = doc.data();
-      //@ts-ignore
-      data.id = doc.id;
-      readings.push(data);
+      const fbReading = FBReading.fromDoc(doc);
+      readings.push(fbReading.toAnyReading());
     });
 
     return readings;
@@ -993,6 +1005,7 @@ class FirebaseApi {
 
     return shortIds;
   }
+
 
 }
 
