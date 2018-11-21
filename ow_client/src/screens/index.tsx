@@ -31,6 +31,7 @@ import TakePictureScreen from './TakePictureScreen';
 import GroundwaterSyncScreen from './GroundwaterSyncScreen';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
+import SignInScreen from './menu/SignInScreen';
 
 
 let loggerMiddleware: any = null;
@@ -80,9 +81,12 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
+
   Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
+  Navigation.registerComponent('screen.menu.SignInScreen', () => SignInScreen, store, Provider);
+
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
   Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
 

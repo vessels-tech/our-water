@@ -31,6 +31,13 @@ service cloud.firestore {
         allow read, update, delete: if request.auth.uid == userId;
         allow create: if request.auth.uid != null;
       }
+
+      //Don't allow user to edit their pending resources - since these are a copy
+      //TODO: allow an admin user to do this though.
+      match /pendingResourcesV1_1/{id} {
+        allow get, list: if request.auth.uid == userId;
+        allow update, delete, create: if false;
+      }
     }
   }
 }

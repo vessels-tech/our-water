@@ -27,6 +27,7 @@ const GGMNDevConfig: RemoteConfig = {
   editResource_allowCustomId: true,
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
   usesShortId: false,
+  allowsUserRegistration: false,
 }
 
 export default GGMNDevConfig;

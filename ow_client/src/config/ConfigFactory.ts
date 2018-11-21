@@ -39,6 +39,7 @@ export type RemoteConfig = {
   favouriteResource_scrollDirection: ScrollDirection,
   usesShortId: boolean,
 
+  allowsUserRegistration: boolean,
 }
 
 /**
@@ -206,5 +207,15 @@ export class ConfigFactory {
 
   getUsesShortId() {
     return this.remoteConfig.usesShortId;
+  }
+
+  /**
+   * allowsUserRegistration
+   * 
+   * This determines whether or not OW points to an external user account provider (set to false), 
+   * or registers users using the internal system.
+   */
+  allowsUserRegistration() {
+    return this.remoteConfig.allowsUserRegistration;
   }
 }

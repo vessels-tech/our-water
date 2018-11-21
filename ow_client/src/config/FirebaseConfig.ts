@@ -36,6 +36,7 @@ export class FirebaseConfig {
           editResource_defaultTypes: obj.editResource_defaultTypes.val(),
           favouriteResource_scrollDirection: obj.favouriteResource_scrollDirection.val(), 
           usesShortId: obj.usesShortId.val(),
+          allowsUserRegistration: obj.allowsUserRegistration.val(),
         }
         return remoteConfig;
       });

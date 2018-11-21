@@ -35,6 +35,7 @@ const MyWellDevConfig: RemoteConfig = {
   editResource_allowCustomId: false,
   favouriteResource_scrollDirection: ScrollDirection.Vertical,
   usesShortId: true,
+  allowsUserRegistration: true,
 }
 
 export default MyWellDevConfig;

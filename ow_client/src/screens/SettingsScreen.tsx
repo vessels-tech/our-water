@@ -118,6 +118,67 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     );
   }
 
+  getSignInButton() {
+    if (!this.props.config.allowsUserRegistration()) {
+      return false;
+    }
+
+    const {
+      externalLoginDetails,
+      externalLoginDetailsMeta: { loading },
+      translation: {
+        templates: {
+          settings_connect_to_pending_title,
+          settings_connect_to_connected_title,
+          settings_connect_to_subtitle_error,
+        }
+      }
+    } = this.props;
+
+    let title = settings_connect_to_pending_title;
+    let subtitle;
+    if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
+      title = settings_connect_to_connected_title;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
+      subtitle = settings_connect_to_subtitle_error;
+    }
+
+    //TODO: add the user status here
+    let leftIcon: any = {
+      name: 'account-circle',
+      color: secondaryText,
+    };
+    if (loading) {
+      leftIcon = <Loading style={{ paddingRight: 10 }} size={'small'} />
+    }
+
+    return (
+      <ListItem
+        title={title}
+        onPress={() => showModal(
+          this.props,
+          'screen.menu.SignInScreen',
+          settings_connect_to_pending_title,
+          {
+            config: this.props.config,
+            userId: this.props.userId,
+            isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
+          }
+        )}
+        disabled={loading}
+        leftIcon={leftIcon}
+        hideChevron
+        subtitle={subtitle}
+        subtitleStyle={{
+          color: error1,
+        }}
+      />
+    );
+
+  }
+
   getSyncButton() {
     const { translation: { templates: { settings_sync_heading}}} = this.props;
 
@@ -184,7 +245,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         width: '100%'
       }}>
         {Logo(this.props.config.getApplicationName())}
-        {this.getConnectToButton()}
+        {/* For connecting to external service */}
+        {this.getConnectToButton()} 
+        {/* For connecting to default service */}
+        {this.getSignInButton()}
         {this.getSyncButton()}
         <ListItem
           title={settings_new_resource}
