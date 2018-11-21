@@ -257,9 +257,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
-  getCalloutForResource(resource: AnyResource) {
-    console.log("getCalloutForResource", resource);
-    
+  getCalloutForResource(resource: AnyResource) {    
     if (!this.props.shouldShowCallout) {
       return null;
     }
@@ -390,13 +388,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    // addRecent: (api: BaseApi, userId: string, resource: Resource) => {
-    //   dispatch(appActions.addRecent(api, userId, resource))
-    // },
-    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-    //   dispatch(appActions.getResources(api, userId, region)),
-    // startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
-    //   dispatch(appActions.startExternalSync(api, userId)),
+
   }
 }
 

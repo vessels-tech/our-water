@@ -1095,30 +1095,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     const savedResourceIds: string[] = [];
     
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
-    const checkResourcesResults: Array<SomeResult<boolean>> = await Promise.all(pendingResources.map(res => this.checkNewId(res.id)))
-      .then((results: Array<SomeResult<boolean>>) => results);
+    const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(pendingResources.map(res => this.getResourceFromPendingId(res.id)))
+      .then((results: Array<SomeResult<AnyResource>>) => results);
     console.log('checkResourcesResults', checkResourcesResults);
 
-    // checkResourcesResults.forEach((r, idx) => {
-    //   if (r.type === ResultType.ERROR) {
-    //     return r;
-    //   }
-
-    //   if (r.result === false) {
-    //     /*Id exists in GGMN */
-    //     savedResourceIds.push(pendingResources[idx].id);
-    //   }
-    // });
 
     maybeLog("Saved resources: ", savedResourceIds);
 
     const removePendingResults: Array<SomeResult<any>> = await Promise.all(  
       checkResourcesResults.map(async (result, idx) => {
         if (result.type === ResultType.ERROR) {
-          return result;
-        }
-
-        if (result.result === true) {
           return makeError<void>(SyncError.StationNotCreated);
         }
 
@@ -1158,14 +1144,18 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
         const reading = pendingReadings[idx];
 
-        return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
+        // return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
+        //TODO: just for testing purposes
+        return Promise.resolve(makeSuccess<void>(undefined));
       })
     );
       
     maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
 
     //TODO: line up the results with ids
-    const pendingResourcesResults = new Map<string, SomeResult<any>>();
+    // const pendingResourcesResults = new Map<string, SomeResult<any>>();
+
+    const pendingResourcesResults = new Map<string, SomeResult<AnyResource>>();
     const pendingReadingsResults = new Map<string, SomeResult<any>>();
     
     removePendingResults.forEach((result, idx) => {
@@ -1341,6 +1331,62 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
 
     return makeSuccess(timeseriesId);
+  }
+
+
+  /**
+   * resourceFromPendingId
+   * 
+   * Get Resource from pendingId, by performing a search and using the entity_id
+   */
+  private async getResourceFromPendingId(id: string): Promise<SomeResult<AnyResource>> {
+    /* perform a generic search */
+    //https://ggmn.lizard.net/api/v3/search/?q=123&page_size=25
+    const searchUrl = `${this.baseUrl}/api/v3/search/`;
+    const url = appendUrlParameters(searchUrl, {
+      q: id,
+      page_size: 5,
+      page: 1,
+    });
+
+    const options = {
+      timeout,
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+      },
+    };
+
+    maybeLog("checkNewId search url:", url);
+    let response: any;
+    try {
+      response = await ftch(url, options);
+    } catch (err) {
+      maybeLog("error: " + err);
+      return {
+        type: ResultType.ERROR,
+        message: "Error loading search from GGMN.",
+      }
+    }
+
+    const searchResponse = await naiveParseFetchResponse<GGMNSearchResponse>(response);
+    if (searchResponse.type === ResultType.ERROR) {
+      return searchResponse;
+    }
+
+    //if the results count is too high, id isn't specific enough.
+    if (searchResponse.result.count > 1) {
+      return makeError<AnyResource>('Found more than 1 resource');
+    }
+
+    if (searchResponse.result.count < 1) {
+      return makeError<AnyResource>(`Couldn't find resource for id: ${id}`);
+    }
+
+    const searchEntities = searchResponse.result.results;
+    let exists = true;
+    const entityId = searchEntities[0].entity_id;
+    return this.getResource(entityId);
   }
 
 

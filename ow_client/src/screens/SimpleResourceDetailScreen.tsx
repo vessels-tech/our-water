@@ -144,14 +144,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     getResource: (api: BaseApi, resourceId: string, userId: string) => {
       return dispatch(appActions.getResource(api, resourceId, userId));
     }
-
-    // addRecent: (api: BaseApi, userId: string, resource: Resource) => {
-    //   dispatch(appActions.addRecent(api, userId, resource))
-    // },
-    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-    //   dispatch(appActions.getResources(api, userId, region)),
-    // startExternalSync: (api: MaybeExternalServiceApi, userId: string) =>
-    //   dispatch(appActions.startExternalSync(api, userId)),
   }
 }
 
