@@ -1,5 +1,5 @@
 import { AnyResource } from "../typings/models/Resource";
-import { FBResourceBuilder, ResourceType } from "../model/FBResource";
+import FBResource, { FBResourceBuilder, ResourceType } from "../model/FBResource";
 import { string } from "react-native-joi";
 import { PendingTimeseries } from "../typings/models/PendingTimeseries";
 import { PendingResource } from "../typings/models/PendingResource";
@@ -14,9 +14,11 @@ import { OWGeoPoint, BasicCoords } from "../typings/models/OurWater";
 
 /**
  * Map from the common resource object into one ready to be saved in firebase
+ * 
+ * //TODO: figure out how google did this nicely here:
+ * https://github.com/firebase/firebase-js-sdk/blob/master/packages/firestore/src/remote/serializer.ts#L397
  */
 export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: AnyResource | PendingResource): FBResourceBuilder {
-
   let coords: BasicCoords;
   if (resource.pending) {
     coords = {
@@ -42,5 +44,11 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
     groups: new Map<string, boolean>(),
     timeseries: {},
   };
+}
+
+export function fromFBResourceToCommonResource(fbResource: FBResource): AnyResource {
+  //TODO: figure out how to make sure we map to a GGMN Resource or MyWell Resource based on the FBResource
+
+  
 }
 

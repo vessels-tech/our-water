@@ -3,10 +3,15 @@ import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import { OWGeoPoint, BasicCoords } from "../typings/models/OurWater";
 import firebase from "react-native-firebase";
+import { description } from "react-native-joi";
+import { AnyResource, MyWellResource, GGMNResource } from "../typings/models/Resource";
+import { AnyTimeseries } from "../typings/models/Timeseries";
+import { OrgType } from "../typings/models/OrgType";
+import { MyWellReading } from "../typings/models/Reading";
 
 
 //TODO: move these elsewhere
-export enum ResourceType {
+export enum FBResourceType {
   Well = 'well',
   Raingauge = 'raingauge',
   Checkdam = 'checkdam',
@@ -16,7 +21,7 @@ export enum ResourceType {
   checkdam = 'checkdam',
 }
 
-export interface ResourceOwnerType {
+export interface FBResourceOwnerType {
   name: string
   createdByUserId: string
 }
@@ -32,14 +37,32 @@ export type FBTimeseries = {
   /*TODO: add other fields here */
 }
 
+/**
+ * Map from a FBTimeseries to AnyTimeseries
+ */
+export function toAnyTimeseriesList(fbTimeseriesMap: FBTimeseriesMap): AnyTimeseries[] {
+  //TODO: implement
+  return [];
+}
+
 export type FBResourceBuilder = {
-  orgId: string,
-  externalIds: any,
+  type: OrgType,
+  pending: boolean,
+  deleted: boolean,
   coords: BasicCoords,
-  resourceType: ResourceType
-  owner: ResourceOwnerType
-  groups: Map<string, boolean> //simple dict with key of GroupId, value of true
-  timeseries: FBTimeseriesMap
+  timeseries: FBTimeseriesMap,
+
+  /* MyWell Optionals */
+  legacyId?: string, //TODO: change to exernal ids
+  // TODO: add groups?
+  owner?: FBResourceOwnerType,
+  resourceType?: FBResourceType, 
+  lastValue?: number,
+  lastReadingDatetime?: Date,
+
+  /* GGMN Optionals */
+  description?: string,
+  title?: string,
 }
 
 export default class FBResource extends FirestoreDoc {
@@ -47,60 +70,56 @@ export default class FBResource extends FirestoreDoc {
   
   //@ts-ignore
   id: string
-  externalIds: any
+  type: OrgType
+  pending: boolean
+  deleted: boolean
   coords: BasicCoords
-  resourceType: ResourceType
-  owner: ResourceOwnerType
-  groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
 
-  lastValue: number = 0
-  lastReadingDatetime: Date = new Date(0);
+  /* MyWell Optionals */
+  legacyId?: string
+  owner?: FBResourceOwnerType
+  resourceType?: FBResourceType
+  lastValue?: number
+  lastReadingDatetime?: Date
 
-  constructor(orgId: string, externalIds: any, coords: BasicCoords,
-    resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>,
-    timeseries: FBTimeseriesMap) {
+  /* GGMN Optionals */
+  description?: string
+  title?: string
+
+  constructor(builder: FBResourceBuilder) {
     super();
     
-    this.orgId = orgId;
-    this.externalIds = externalIds;
-    this.coords = coords;
-    this.resourceType = resourceType;
-    this.owner = owner;
-    this.groups = groups;
-    this.timeseries = timeseries;
-  }
-
-  static build(builder: FBResourceBuilder): FBResource {
-    return new FBResource(
-      builder.orgId,
-      builder.externalIds,
-      builder.coords,
-      builder.resourceType,
-      builder.owner, 
-      builder.groups,
-      builder.timeseries,
-    );
+    this.type = builder.type;
+    this.pending = builder.pending;
+    this.deleted = builder.deleted;
+    this.coords = builder.coords;
+    this.timeseries = builder.timeseries;
+    this.legacyId = builder.legacyId;
+    this.owner = builder.owner;
+    this.resourceType = builder.resourceType;
+    this.lastValue = builder.lastValue;
+    this.lastReadingDatetime = builder.lastReadingDatetime;
+    this.description = builder.description;
+    this.title = builder.title;
   }
 
   public serialize(): any {
     return {
       id: this.id,
       orgId: this.orgId,
-      externalIds: this.externalIds,
-      // externalIds: this.externalIds.serialize(),
-      // coords: this.coords,
-
-      // TODO: this will be tricky to manage and share for backend + front end
+      type: this.type,
+      pending: this.pending,
+      deleted: this.deleted,
       coords: new firebase.firestore.GeoPoint(this.coords.latitude, this.coords.longitude),
-      resourceType: this.resourceType,
+      timeseries: this.timeseries,
+      legacyId: this.legacyId,
       owner: this.owner,
-      groups: serializeMap(this.groups),
+      resourceType: this.resourceType,
       lastValue: this.lastValue,
       lastReadingDatetime: this.lastReadingDatetime,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      timeseries: this.timeseries,
+      description: this.description,
+      title: this.title,
     };
   }
 
@@ -111,27 +130,47 @@ export default class FBResource extends FirestoreDoc {
     const {
       id,
       orgId,
-      externalIds,
+      type,
+      pending,
+      deleted,
       coords,
-      resourceType,
+      timeseries,
+      legacyId,
       owner,
-      groups,
+      resourceType,
       lastValue,
       lastReadingDatetime,
-      createdAt, 
+      description,
+      title,
+      
+      // extra fields
+      createdAt,
       updatedAt,
-      timeseries,
     } = data;
 
     //Deserialize objects
     // const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
     // const externalIdsObj = ResourceIdType.deserialize(externalIds);
-    const des: FBResource = new FBResource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
+    // const des: FBResource = new FBResource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
+
+    const builder: FBResourceBuilder = {
+      type,
+      pending,
+      deleted,
+      coords,
+      timeseries,
+      legacyId,
+      owner,
+      resourceType,
+      lastValue,
+      lastReadingDatetime,
+      description,
+      title,
+    };
+    const des: FBResource = new FBResource(builder);
 
     //private vars
     des.id = id;
-    des.lastValue = lastValue;
-    des.lastReadingDatetime = lastReadingDatetime;
     des.createdAt = createdAt;
     des.updatedAt = updatedAt;
 
@@ -155,5 +194,50 @@ export default class FBResource extends FirestoreDoc {
     return firestore.collection('org').doc(orgId).collection('resource').doc(id)
       .get()
       .then((doc: any) => FBResource.fromDoc(doc));
+  }
+
+  /**
+   * toAnyResource
+   */
+  public toAnyResource(): AnyResource {
+    switch (this.type) {
+      case OrgType.GGMN: {
+        const resource: GGMNResource = {
+          id: this.id,
+          type: this.type,
+          pending: false,
+          coords: { _latitude: this.coords.latitude, _longitude: this.coords.longitude },
+          timeseries: toAnyTimeseriesList(this.timeseries),
+
+          /* Platform Specific */
+          description: this.description,
+          title: this.title,
+        }
+        return resource;
+      }
+      case OrgType.MYWELL: {
+        const resource: MyWellResource = {
+          id: this.id,
+          type: this.type,
+          pending: false,
+          coords: { _latitude: this.coords.latitude, _longitude: this.coords.longitude },
+          timeseries: toAnyTimeseriesList(this.timeseries),
+
+          /* Platform Specific */
+          legacyId: this.legacyId,
+          owner: this.owner,
+          resourceType: this.resourceType,
+          lastValue: this.lastValue,
+          lastReadingDatetime: this.lastReadingDatetime,
+        };
+
+        return resource;
+      }
+      default: {
+        throw new Error("toAnyResource() tried to convert from FBResource but this.type is unknown");
+      }
+    }
+
+
   }
 }

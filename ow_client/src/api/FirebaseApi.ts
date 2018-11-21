@@ -262,24 +262,22 @@ class FirebaseApi {
         .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
     })
     .then(snapshot => {
-      const resources: DeprecatedResource[] = []
+      const fbResources: FBResource[] = []
       snapshot.forEach(doc => {
-        //TODO: map to an actual Resource
-        const data: any = doc.data();
-        //@ts-ignore
-        data.id = doc.id;
+        const fbResource: FBResource = FBResource.deserialize(doc.data());
 
         // Filter based on longitude. TODO: remove this once google fixes the above query
         //@ts-ignore
-        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+        if (fbResource.coords.latitude < minLng || fbResource.coords.longitude > maxLng) {
           return;
         }
 
-        resources.push(data);
+        fbResources.push(fbResource);
       });
 
-      return resources;
-    });
+      return fbResources;
+    })
+    .then((fbResources: FBResource[]) => fbResources.map(r => r.toAnyResource()));
   }
 
   /**

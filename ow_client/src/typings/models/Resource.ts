@@ -15,7 +15,6 @@ export type MyWellResource = {
   timeseries: AnyTimeseries[],
 
   /* Platform Specific */
-  shortId: string,
   legacyId: string,
   owner: ResourceOwnerType
   resourceType: ResourceType,
