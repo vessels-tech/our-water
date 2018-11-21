@@ -112,6 +112,7 @@ class EditResourceScreen extends Component<Props> {
     }
 
     const result = await this.extendedResourceApi.checkNewId(control.value);
+    //TODO: fix this, as checkNewId now returns AnyResource or is an error
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);

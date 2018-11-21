@@ -1100,7 +1100,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     console.log('checkResourcesResults', checkResourcesResults);
 
 
-    maybeLog("Saved resources: ", savedResourceIds);
+    maybeLog("Check saved resource results: ", checkResourcesResults);
 
     const removePendingResults: Array<SomeResult<any>> = await Promise.all(  
       checkResourcesResults.map(async (result, idx) => {
@@ -1144,23 +1144,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
         const reading = pendingReadings[idx];
 
-        // return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
-        //TODO: just for testing purposes
-        return Promise.resolve(makeSuccess<void>(undefined));
+        return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
       })
     );
       
     maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
-
-    //TODO: line up the results with ids
-    // const pendingResourcesResults = new Map<string, SomeResult<any>>();
 
     const pendingResourcesResults = new Map<string, SomeResult<AnyResource>>();
     const pendingReadingsResults = new Map<string, SomeResult<any>>();
     
     removePendingResults.forEach((result, idx) => {
       const id = pendingResources[idx].id;
-      pendingResourcesResults.set(id, result);
+      const resourceResult = checkResourcesResults[idx];
+      //This is a hack - we ignore the removePendingReadingResults in favour of the actual saved resource
+      pendingResourcesResults.set(id, resourceResult);
     });
 
     //TODO: copy for PendingResourcesResults
