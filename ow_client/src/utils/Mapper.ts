@@ -63,7 +63,7 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
     pending: false, 
     deleted: false, //TODO: change?
     coords,
-    timeseries: fromCommonTimeseriesToFBTimeseries(resource.timeseries),
+    timeseries: fromCommonTimeseriesToFBTimeseries(resource.type, resource.timeseries),
     ...options
   };
 }
@@ -80,11 +80,11 @@ export function fromCommonResourceTypeToFBResourceType(from: ResourceType): FBRe
   }
 }
 
-export function fromCommonTimeseriesToFBTimeseries(from: Array<AnyTimeseries | PendingTimeseries>): FBTimeseriesMap {
+export function fromCommonTimeseriesToFBTimeseries(type: OrgType, from: Array<AnyTimeseries | PendingTimeseries>): FBTimeseriesMap {
   let map: FBTimeseriesMap = {};
 
   //TODO: handle pending timeseries better than this
-  from.forEach(t => map[t.name] = { type: t.type, id: t.name});
+  from.forEach(t => map[t.name] = { type, id: t.name});
   return map;
 }
 

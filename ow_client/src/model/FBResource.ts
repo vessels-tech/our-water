@@ -130,12 +130,14 @@ export default class FBResource extends FirestoreDoc {
       updatedAt,
     } = data;
 
+    console.log("coords._latitude is", coords.latitude);
+
     const builder: FBResourceBuilder = {
       orgId,
       type,
       pending,
       deleted,
-      coords,
+      coords: {latitude: coords._latitude, longitude: coords._longitude},
       timeseries,
       legacyId,
       owner,
@@ -178,6 +180,7 @@ export default class FBResource extends FirestoreDoc {
    * toAnyResource
    */
   public toAnyResource(): AnyResource {
+    console.log("toAnyResource", this);
     switch (this.type) {
       case OrgType.GGMN: {
         const resource: GGMNResource = {

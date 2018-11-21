@@ -245,41 +245,41 @@ class FirebaseApi {
       .catch((err: Error) => maybeLog(err));
   }
 
-  /**
-   * Local implementation of getResourceNearLocation
-   * 
-   * 
-   * deprecated. Use getResourcesWithinRegion instead
-   * We use this instead of the get request, as it will default to the cache if we're offline
-   * @param {*} param0 
-   */
-  static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number): Promise<Array<any>> {
-    const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(latitude, longitude, distance);
+  // /**
+  //  * Local implementation of getResourceNearLocation
+  //  * 
+  //  * 
+  //  * deprecated. Use getResourcesWithinRegion instead
+  //  * We use this instead of the get request, as it will default to the cache if we're offline
+  //  * @param {*} param0 
+  //  */
+  // static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number): Promise<Array<any>> {
+  //   const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(latitude, longitude, distance);
 
-    return this.checkNetworkAndToggleFirestore()
-    .then(() => {
-      return fs.collection('org').doc(orgId).collection('resource')
-        .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
-        .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
-    })
-    .then(snapshot => {
-      const fbResources: FBResource[] = []
-      snapshot.forEach(doc => {
-        const fbResource: FBResource = FBResource.deserialize(doc.data());
+  //   return this.checkNetworkAndToggleFirestore()
+  //   .then(() => {
+  //     return fs.collection('org').doc(orgId).collection('resource')
+  //       .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
+  //       .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng)).get()
+  //   })
+  //   .then(snapshot => {
+  //     const fbResources: FBResource[] = []
+  //     snapshot.forEach(doc => {
+  //       const fbResource: FBResource = FBResource.deserialize(doc.data());
 
-        // Filter based on longitude. TODO: remove this once google fixes the above query
-        //@ts-ignore
-        if (fbResource.coords.latitude < minLng || fbResource.coords.longitude > maxLng) {
-          return;
-        }
+  //       // Filter based on longitude. TODO: remove this once google fixes the above query
+  //       //@ts-ignore
+  //       if (fbResource.coords.latitude < minLng || fbResource.coords.longitude > maxLng) {
+  //         return;
+  //       }
 
-        fbResources.push(fbResource);
-      });
+  //       fbResources.push(fbResource);
+  //     });
 
-      return fbResources;
-    })
-    .then((fbResources: FBResource[]) => fbResources.map(r => r.toAnyResource()));
-  }
+  //     return fbResources;
+  //   })
+  //   .then((fbResources: FBResource[]) => fbResources.map(r => r.toAnyResource()));
+  // }
 
   /**
    * getResourcesWithinRegion
@@ -304,44 +304,26 @@ class FirebaseApi {
       .limit(100)
     .get()
     .then(snapshot => {
-      console.log("got snapshot", snapshot);
-      const resources: AnyResource[] = []
+      const fbResources: FBResource[] = []
       snapshot.forEach(doc => {
-        //TODO: map to an actual Resource
-        const data: any = doc.data();
-        //@ts-ignore
-        data.id = doc.id;
+        const fbResource: FBResource = FBResource.deserialize(doc.data());
 
         // Filter based on longitude. TODO: remove this once google fixes the above query
         //@ts-ignore
-        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+        if (fbResource.coords.longitude < minLng || fbResource.coords.longitude > maxLng) {
           return;
         }
 
-        //TODO: fix this hack
-        data.timeseries = [];
-
-        resources.push(data);
+        fbResources.push(fbResource);
       });
 
-      return resources;
+      return fbResources;
     })
-    .then(result => {
-      const response: SomeResult<AnyResource[]> = {
-        type: ResultType.SUCCESS,
-        result,
-      };
-
-      return response;
-    })
+    .then((fbResources: FBResource[]) => fbResources.map(r => r.toAnyResource()))
+    .then(result => makeSuccess<AnyResource[]>(result))
     .catch(err => {
       maybeLog("error", err);
-      const response: SomeResult<AnyResource[]> = {
-        type: ResultType.ERROR,
-        message: err.message,
-      }; 
-
-      return response;
+      return makeError<AnyResource[]>(err.message);
     });
   }
 

@@ -25,7 +25,11 @@ const MyWellDevConfig: RemoteConfig = {
   editResource_defaultTypes: {
     well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
     raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-    quality: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+    quality: [
+      { name: 'salinity', parameter: 'salinity', readings: [] },
+      { name: 'ph', parameter: 'ph', readings: [] },
+      { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
+    ],
     checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
   }, 
   editResource_allowCustomId: false,

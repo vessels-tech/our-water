@@ -101,16 +101,16 @@ export default class MyWellApi implements BaseApi, UserApi {
     return FirebaseApi.getResourcesForOrg(this.orgId);
   }
 
-  //TODO: make this look for the config!
-  getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
-    return FirebaseApi.getResourceNearLocation(
-      this.networkApi,
-      this.orgId,
-      latitude,
-      longitude,
-      distance,
-    );
-  }
+  // //TODO: make this look for the config!
+  // getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
+  //   return FirebaseApi.getResourceNearLocation(
+  //     this.networkApi,
+  //     this.orgId,
+  //     latitude,
+  //     longitude,
+  //     distance,
+  //   );
+  // }
 
   async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
     //TODO: for all of the resources, also get the short Id before returning  
