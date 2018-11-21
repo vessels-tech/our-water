@@ -41,15 +41,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 
     //if we have no shortId, ask for it
     this.props.getShortId(this.props.config.appApi, this.props.resource.id);
-
-    //Binds
-    // this.onResourceCellPressed = this.onResourceCellPressed.bind(this);
   }
-
-  // onResourceCellPressed() {
-  //   // this.props.onResourceCellPressed(this.props.resource);
-  // }
-
 
   render() {
     const { resource, shortId, shortIdMeta } = this.props;

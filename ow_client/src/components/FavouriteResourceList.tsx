@@ -22,6 +22,8 @@ import { ResourceType, ScrollDirection } from '../enums';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations';
 import ResourceCell from './common/ResourceCell';
+import { AnyResource } from '../typings/models/Resource';
+import { OrgType } from '../typings/models/OrgType';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -34,9 +36,9 @@ export interface Props {
   filterResourceType?: ResourceType,
 
   favouriteResourcesMeta: SyncMeta,
-  favouriteResources: DeprecatedResource[],
+  favouriteResources: AnyResource[],
   recentResourcesMeta: SyncMeta,
-  recentResources: DeprecatedResource[],
+  recentResources: AnyResource[],
   translation: TranslationFile,
 }
 
@@ -65,9 +67,9 @@ class FavouriteResourceList extends Component<Props> {
     // this.props.onResourceCellPressed = this.props.onResourceCellPressed.bind(this)
   }
 
-  getFilteredResource(resources: DeprecatedResource[], filterResourceType: ResourceType): DeprecatedResource[] {
+  getFilteredResource(resources: AnyResource[], filterResourceType: ResourceType): AnyResource[] {
     return resources.filter(r => {
-      if (!this.props.filterResourceType) {
+      if (!this.props.filterResourceType || r.type !== OrgType.MYWELL) {
         return r;
       }
 
@@ -119,7 +121,7 @@ class FavouriteResourceList extends Component<Props> {
           flexDirection: 'row',
         }}
         >
-          {firstFiveFavourites.map((r) => {(
+          {firstFiveFavourites.map((r) => (
             <ResourceCell 
               style={{marginBottom: 15}}
               key={r.id}
@@ -127,7 +129,7 @@ class FavouriteResourceList extends Component<Props> {
               resource={r} 
               onResourceCellPressed={this.props.onResourceCellPressed}
             />
-          )})
+          ))
           }
         </View>
       );
@@ -139,7 +141,7 @@ class FavouriteResourceList extends Component<Props> {
         horizontal={true}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        {firstFiveFavourites.map((r)  => {(
+        {firstFiveFavourites.map((r) => (
           <ResourceCell
             style={{}}
             key={r.id}
@@ -147,7 +149,7 @@ class FavouriteResourceList extends Component<Props> {
             resource={r}
             onResourceCellPressed={this.props.onResourceCellPressed}
           />
-        )})
+        ))
         }
       </ScrollView>
     );
