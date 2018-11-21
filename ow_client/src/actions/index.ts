@@ -652,6 +652,8 @@ export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi,
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
 
+    console.log("saving resource", resource);
+
     const result = await api.saveResource(userId, resource);
 
     dispatch(saveResourceResponse(result));    

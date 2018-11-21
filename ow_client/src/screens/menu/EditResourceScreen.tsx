@@ -145,14 +145,14 @@ class EditResourceScreen extends Component<Props> {
 
     //TODO: make more type safe
     const unvalidatedResource: any = {
+
       //TODO: load the id?
       pending: true,
       coords: {
         latitude: this.editResourceForm.value.lat,
         longitude: this.editResourceForm.value.lng,
       },
-      //TODO: make this dynamic
-      resourceType: 'well',
+      resourceType: this.editResourceForm.value.asset,
       owner: {
         name,
       },
@@ -163,6 +163,8 @@ class EditResourceScreen extends Component<Props> {
         { name: 'GWmBGS', parameter: 'gwmbgs', readings: []},
       ]
     };
+
+    console.log("unvalidated resource", unvalidatedResource);
 
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;

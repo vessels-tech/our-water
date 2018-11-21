@@ -43,13 +43,23 @@ export default abstract class FirestoreDoc {
       return this.create(firestore);
     }
     
+    console.log(`saving model: org/${this.orgId}/${this.docName}/${this.id}\n${JSON.stringify(this.serialize(), null, 2)}`)
+    
     return firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
       .set(this.serialize())
       .then(() => makeSuccess(this))
       .catch((err: Error) => makeError(err.message))
   }
 
-  public abstract serialize(): any;
+  public serialize(): any {
+    return {
+      docName: this.docName,
+      orgId: this.orgId,
+      id: this.id,
+      createdAt:this.createdAt,
+      updatedAt:this.updatedAt,
+    }
+  }
 
 
 

@@ -1,9 +1,11 @@
 import { AnyResource } from "../typings/models/Resource";
-import FBResource, { FBResourceBuilder, ResourceType } from "../model/FBResource";
+import FBResource, { FBResourceBuilder, FBResourceType } from "../model/FBResource";
 import { string } from "react-native-joi";
 import { PendingTimeseries } from "../typings/models/PendingTimeseries";
 import { PendingResource } from "../typings/models/PendingResource";
-import { OWGeoPoint, BasicCoords } from "../typings/models/OurWater";
+import { OWGeoPoint, BasicCoords, toBasicCoords } from "../typings/models/OurWater";
+import { ResourceType } from "../enums";
+import { OrgType } from "../typings/models/OrgType";
 
 // export function mapper<T,J>(from: T): J {
 
@@ -32,23 +34,45 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
     }
   }
 
+  let options = {};
+  if (resource.type === OrgType.MYWELL) {
+    options = {
+      legacyId: '',
+      owner: {name: resource.owner.name, createdByUserId: 'test1'},
+      resourceType: fromCommonResourceTypeToFBResourceType(resource.resourceType),
+      lastValue: resource.lastValue,
+      lastReadingDatetime: resource.lastReadingDatetime,
+    }
+  }
+
+  if (resource.type === OrgType.GGMN) {
+    options = {
+      description: resource.description,
+      title: resource.title
+    }
+  }
+
+  console.log("mapper options are:", options);
+
   return {
     orgId,
-    //TODO: figure this out
-    externalIds: {},
+    type: resource.type,
+    pending: false, 
+    deleted: false, //TODO: change?
     coords,
-
-    //TODO: fix these fields
-    resourceType: ResourceType.Well,
-    owner: { name: 'test', createdByUserId: 'test user id'},
-    groups: new Map<string, boolean>(),
-    timeseries: {},
+    timeseries: {}, //TODO: figure out
+    ...options
   };
 }
 
-export function fromFBResourceToCommonResource(fbResource: FBResource): AnyResource {
-  //TODO: figure out how to make sure we map to a GGMN Resource or MyWell Resource based on the FBResource
-
-  
+export function fromCommonResourceTypeToFBResourceType(from: ResourceType): FBResourceType {
+  switch(from) {
+    case ResourceType.checkdam: return FBResourceType.Checkdam;
+    case ResourceType.raingauge: return FBResourceType.Raingauge;
+    case ResourceType.well: return FBResourceType.Well;
+    case ResourceType.quality: return FBResourceType.Quality;
+    case ResourceType.custom: return FBResourceType.Custom;
+    default:
+      throw new Error('Unknown resource type: ' + from);
+  }
 }
-

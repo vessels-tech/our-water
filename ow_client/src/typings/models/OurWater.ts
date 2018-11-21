@@ -36,6 +36,13 @@ export type BasicCoords = {
   longitude: number,
 }
 
+export function toBasicCoords(from: OWGeoPoint): BasicCoords {
+  return {
+    latitude: from._latitude,
+    longitude: from._longitude
+  }
+}
+
 export type ResourceOwnerType = {
   name: string,
 }

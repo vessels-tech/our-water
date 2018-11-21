@@ -167,7 +167,7 @@ class FirebaseApi {
       .catch((err: Error) => makeError<AnyResource[]>(err.message))
   }
 
-  static async addRecentResource(orgId: string, resource: any, userId: string): Promise<SomeResult<AnyResource[]>> {
+  static async addRecentResource(orgId: string, resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
 
@@ -461,9 +461,9 @@ class FirebaseApi {
    */
   static async saveResource(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<any>> {
     const builder = fromCommonResourceToFBResoureBuilder(orgId, resource);
-    const fbResource = FBResource.build(builder);
+    const fbResource = new FBResource(builder);
     
-    return fbResource.create(fs);
+    return fbResource.save(fs);
   }
 
   static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {

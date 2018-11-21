@@ -14,6 +14,7 @@ import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
 import { maybeLog } from '../utils';
+import { OrgType } from '../typings/models/OrgType';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -137,6 +138,8 @@ export default class MyWellApi implements BaseApi, UserApi {
    * saveResource
    */
   async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
+    console.log("saving resource", this.orgId);
+    resource.type = OrgType.MYWELL;
     const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);

@@ -1,24 +1,25 @@
 
 import FirestoreDoc from "./FirestoreDoc";
-import { serializeMap } from "../utils";
-import { OWGeoPoint, BasicCoords } from "../typings/models/OurWater";
+import { BasicCoords } from "../typings/models/OurWater";
 import firebase from "react-native-firebase";
-import { description } from "react-native-joi";
 import { AnyResource, MyWellResource, GGMNResource } from "../typings/models/Resource";
 import { AnyTimeseries } from "../typings/models/Timeseries";
 import { OrgType } from "../typings/models/OrgType";
-import { MyWellReading } from "../typings/models/Reading";
-
+import { FBTimeseriesMap, toAnyTimeseriesList } from "./FBTimeseries";
 
 //TODO: move these elsewhere
 export enum FBResourceType {
   Well = 'well',
   Raingauge = 'raingauge',
   Checkdam = 'checkdam',
+  Quality = 'quality',
+  Custom = 'custom',
   // TODO: remove this! HAck for the front end to work
   well = 'well',
   raingauge = 'raingauge',
   checkdam = 'checkdam',
+  quality = 'quality',
+  custom = 'custom',
 }
 
 export interface FBResourceOwnerType {
@@ -26,26 +27,8 @@ export interface FBResourceOwnerType {
   createdByUserId: string
 }
 
-
-/*a time series in the Firebase Domain */
-export type FBTimeseriesMap = {
-  [index: string]: FBTimeseries,
-}
-
-export type FBTimeseries = {
-  id: string, //Id must be unique for a resource
-  /*TODO: add other fields here */
-}
-
-/**
- * Map from a FBTimeseries to AnyTimeseries
- */
-export function toAnyTimeseriesList(fbTimeseriesMap: FBTimeseriesMap): AnyTimeseries[] {
-  //TODO: implement
-  return [];
-}
-
 export type FBResourceBuilder = {
+  orgId: string,
   type: OrgType,
   pending: boolean,
   deleted: boolean,
@@ -53,8 +36,7 @@ export type FBResourceBuilder = {
   timeseries: FBTimeseriesMap,
 
   /* MyWell Optionals */
-  legacyId?: string, //TODO: change to exernal ids
-  // TODO: add groups?
+  legacyId?: string, //TODO: change to exernal ids // TODO: add groups?
   owner?: FBResourceOwnerType,
   resourceType?: FBResourceType, 
   lastValue?: number,
@@ -90,6 +72,7 @@ export default class FBResource extends FirestoreDoc {
   constructor(builder: FBResourceBuilder) {
     super();
     
+    this.orgId = builder.orgId;
     this.type = builder.type;
     this.pending = builder.pending;
     this.deleted = builder.deleted;
@@ -106,8 +89,6 @@ export default class FBResource extends FirestoreDoc {
 
   public serialize(): any {
     return {
-      id: this.id,
-      orgId: this.orgId,
       type: this.type,
       pending: this.pending,
       deleted: this.deleted,
@@ -120,6 +101,7 @@ export default class FBResource extends FirestoreDoc {
       lastReadingDatetime: this.lastReadingDatetime,
       description: this.description,
       title: this.title,
+      ...super.serialize(),
     };
   }
 
@@ -148,12 +130,8 @@ export default class FBResource extends FirestoreDoc {
       updatedAt,
     } = data;
 
-    //Deserialize objects
-    // const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
-    // const externalIdsObj = ResourceIdType.deserialize(externalIds);
-    // const des: FBResource = new FBResource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
-
     const builder: FBResourceBuilder = {
+      orgId,
       type,
       pending,
       deleted,

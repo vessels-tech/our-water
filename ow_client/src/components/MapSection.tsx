@@ -258,6 +258,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getCalloutForResource(resource: AnyResource) {
+    console.log("getCalloutForResource", resource);
+    
     if (!this.props.shouldShowCallout) {
       return null;
     }
