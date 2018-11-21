@@ -13,8 +13,6 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -39,26 +37,36 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
-    //if we have no shortId, ask for it
-    this.props.getShortId(this.props.config.appApi, this.props.resource.id);
+    if (this.props.config.getUsesShortId()) {
+      //if we have no shortId, ask for it
+      this.props.getShortId(this.props.config.appApi, this.props.resource.id); 
+    }
+  }
+
+  getTitle() {
+    const { resource, shortId, shortIdMeta } = this.props;
+
+    if (!this.props.config.getUsesShortId()) {
+      return resource.id;
+    }
+
+    let title;
+    if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
+      return ' . . . ';
+    } 
+    
+    const titleResult = formatShortId(shortId);
+    if (titleResult.type === ResultType.ERROR) {
+      return ' . . . '
+    }
+
+    return titleResult.result;
   }
 
   render() {
     const { resource, shortId, shortIdMeta } = this.props;
 
     const backgroundColor = randomPrettyColorForId(resource.id);
-
-    let title;
-    if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
-      title = ' . . . '
-    } else {
-      const titleResult = formatShortId(shortId);
-      if (titleResult.type === ResultType.ERROR) {
-        title = ' . . . '
-      } else {
-        title = titleResult.result;
-      }
-    }
 
     return (
       <View style={{
@@ -72,7 +80,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
         <Button
           raised={true}
           key={resource.id}
-          title={title}
+          title={this.getTitle()}
           // title={`${getShortId(resource.id)}`}
           color={secondaryText}
           buttonStyle={{

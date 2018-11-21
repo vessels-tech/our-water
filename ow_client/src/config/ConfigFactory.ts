@@ -37,6 +37,7 @@ export type RemoteConfig = {
   editResource_defaultTypes: any,
   editResource_allowCustomId: boolean,
   favouriteResource_scrollDirection: ScrollDirection,
+  usesShortId: boolean,
 
 }
 
@@ -200,5 +201,10 @@ export class ConfigFactory {
    */
   getDefaultTimeseries(resourceTypeString: string) {
     return this.remoteConfig.editResource_defaultTypes[resourceTypeString];
+  }
+
+
+  getUsesShortId() {
+    return this.remoteConfig.usesShortId;
   }
 }

@@ -204,7 +204,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         if (latestReading) {
           content = `${latestReading.value.toFixed(2)}`;
           // TODO: translate
-          contentSubtitle = moment(latestReading.dateString).format();
+          contentSubtitle = moment(latestReading.dateString).format(timeseries_date_format);
         }
 
         //This may fail...
@@ -242,20 +242,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           padding: 20,
           flex: 1,
         }}>
-          {/* <View style={{
-            flexDirection: 'column',
-            flex: 2,
-          }}>
-            <Text style={{
-              paddingVertical: 10,
-              fontSize: 15,
-              fontWeight: '600',
-              alignSelf: 'center',
-            }}>
-              {resource_detail_latest}
-            </Text>
-          </View> */}
-
           <View style={{
             flexDirection: 'column',
             flex: 5,
