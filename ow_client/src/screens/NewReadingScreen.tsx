@@ -178,7 +178,7 @@ class NewReadingScreen extends Component<Props> {
       type: this.props.config.orgType,
       pending: true,
       resourceId: id,
-      timeseriesName: timeseriesString, //TODO actually get a timeseries ID somehow
+      timeseriesId: timeseriesString, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,
@@ -198,6 +198,8 @@ class NewReadingScreen extends Component<Props> {
 
       return;
     }
+
+    console.log("validatedReading:", validateResult.result);
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
 
@@ -328,6 +330,7 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getForm() {
+    
     //TODO: get units from reading.metadata
     const units = 'metres';
     const { date, measurementString  } = this.state;

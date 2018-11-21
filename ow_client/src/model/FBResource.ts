@@ -180,7 +180,6 @@ export default class FBResource extends FirestoreDoc {
    * toAnyResource
    */
   public toAnyResource(): AnyResource {
-    console.log("toAnyResource", this);
     switch (this.type) {
       case OrgType.GGMN: {
         const resource: GGMNResource = {

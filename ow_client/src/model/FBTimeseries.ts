@@ -33,7 +33,7 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
 
         /* Common values*/
         id: fbTimeseries.id,
-        name: 'name',
+        name: fbTimeseries.id,
         readings: [],
         parameter: 'parameter',
         /* Platform Specific */
@@ -47,7 +47,7 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
 
         /* Common values*/
         id: fbTimeseries.id,
-        name: 'name',
+        name: fbTimeseries.id,
         readings: [],
         parameter: 'parameter',
       }

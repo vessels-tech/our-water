@@ -335,31 +335,16 @@ class FirebaseApi {
     .then(sn => {
       //@ts-ignore
       if (!sn || !sn.data()) {
-        const response: SomeResult<AnyResource> = {
-          type: ResultType.ERROR,
-          message: `Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`
-        };
-        return response;
+        return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
       }
 
-      //@ts-ignore
-      const result: AnyResource = sn.data();
-      result.timeseries = []; //TODO: figure out how to fix this!
-      const response: SomeResult<AnyResource> = {
-        type: ResultType.SUCCESS,
-        result,
-      };
-
-      return response;
+      const fbResource: FBResource = FBResource.deserialize(sn.data());
+      const anyResource: AnyResource = fbResource.toAnyResource();
+      return makeSuccess(anyResource);
     })
     .catch(err => {
       maybeLog("getResourceForId error:", err);
-      const response: SomeResult<AnyResource> = {
-        type: ResultType.ERROR,
-        message: err.message,
-      };
-
-      return response;
+      return makeError<AnyResource>(err.message);
     });
   }
 
