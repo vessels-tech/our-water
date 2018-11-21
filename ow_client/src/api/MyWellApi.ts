@@ -13,6 +13,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
+import { maybeLog } from '../utils';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -136,12 +137,10 @@ export default class MyWellApi implements BaseApi, UserApi {
    * saveResource
    */
   async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
-    const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+    const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
-      return {
-        type: ResultType.ERROR,
-        message: 'Could not save reading',
-      };
+      maybeLog(saveResult.message);
+      return makeError('Could not save resource');
     }
 
     // const credentials = await this.getExternalServiceLoginDetails();

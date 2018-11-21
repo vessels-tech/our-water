@@ -76,6 +76,9 @@ export class ConfigFactory {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
       }
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
+
+
+      
       //@ts-ignore
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;

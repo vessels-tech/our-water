@@ -1,7 +1,9 @@
 
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
-import { OWGeoPoint } from "../typings/models/OurWater";
+import { OWGeoPoint, BasicCoords } from "../typings/models/OurWater";
+import firebase from "react-native-firebase";
+
 
 //TODO: move these elsewhere
 export enum ResourceType {
@@ -30,24 +32,23 @@ export type FBTimeseries = {
   /*TODO: add other fields here */
 }
 
-export type ResourceBuilder = {
+export type FBResourceBuilder = {
   orgId: string,
   externalIds: any,
-  coords: OWGeoPoint
+  coords: BasicCoords,
   resourceType: ResourceType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
 }
 
-
-
-export class Resource extends FirestoreDoc {
+export default class FBResource extends FirestoreDoc {
   docName = 'resource';
-
+  
+  //@ts-ignore
   id: string
   externalIds: any
-  coords: OWGeoPoint
+  coords: BasicCoords
   resourceType: ResourceType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
@@ -56,7 +57,7 @@ export class Resource extends FirestoreDoc {
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
 
-  constructor(orgId: string, externalIds: any, coords: OWGeoPoint,
+  constructor(orgId: string, externalIds: any, coords: BasicCoords,
     resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>,
     timeseries: FBTimeseriesMap) {
     super();
@@ -70,8 +71,8 @@ export class Resource extends FirestoreDoc {
     this.timeseries = timeseries;
   }
 
-  static build(builder: ResourceBuilder): Resource {
-    return new Resource(
+  static build(builder: FBResourceBuilder): FBResource {
+    return new FBResource(
       builder.orgId,
       builder.externalIds,
       builder.coords,
@@ -86,8 +87,12 @@ export class Resource extends FirestoreDoc {
     return {
       id: this.id,
       orgId: this.orgId,
-      externalIds: this.externalIds.serialize(),
-      coords: this.coords,
+      externalIds: this.externalIds,
+      // externalIds: this.externalIds.serialize(),
+      // coords: this.coords,
+
+      // TODO: this will be tricky to manage and share for backend + front end
+      coords: new firebase.firestore.GeoPoint(this.coords.latitude, this.coords.longitude),
       resourceType: this.resourceType,
       owner: this.owner,
       groups: serializeMap(this.groups),
@@ -102,7 +107,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a json object
    */
-  public static deserialize(data: any): Resource {
+  public static deserialize(data: any): FBResource {
     const {
       id,
       orgId,
@@ -121,7 +126,7 @@ export class Resource extends FirestoreDoc {
     //Deserialize objects
     // const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
     // const externalIdsObj = ResourceIdType.deserialize(externalIds);
-    const des: Resource = new Resource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
+    const des: FBResource = new FBResource(orgId, externalIds, coords, resourceType, owner, groups, timeseries);
 
     //private vars
     des.id = id;
@@ -136,7 +141,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a Firestore Document
    */
-  public static fromDoc(doc: any): Resource {
+  public static fromDoc(doc: any): FBResource {
     return this.deserialize(doc.data());
   }
 
@@ -145,11 +150,10 @@ export class Resource extends FirestoreDoc {
    * 
    * Get the resource from an orgId and resourceId
    */
-  static getResource(orgId: string, id: string, firestore: any): Promise<Resource> {
+  static getResource(orgId: string, id: string, firestore: any): Promise<FBResource> {
     //TODO: make sure orgId is valid first
     return firestore.collection('org').doc(orgId).collection('resource').doc(id)
       .get()
-      .then((doc: any) => Resource.fromDoc(doc));
+      .then((doc: any) => FBResource.fromDoc(doc));
   }
-
 }

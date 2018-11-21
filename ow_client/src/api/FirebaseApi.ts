@@ -25,6 +25,8 @@ import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
 import { SyncError } from '../typings/api/ExternalServiceApi';
+import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
+import FBResource from '../model/FBResource';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -446,6 +448,24 @@ class FirebaseApi {
       type: ResultType.SUCCESS,
       result: undefined
     };
+  }
+
+  /**
+   * SaveResource
+   * 
+   * Save the resource publicly  
+   * 
+   * //TODO: check login status and stuff, maybe we can do that on the backend
+   * //TODO: flags: deleted, pending etc
+   * @param orgId 
+   * @param userId 
+   * @param resource 
+   */
+  static async saveResource(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<any>> {
+    const builder = fromCommonResourceToFBResoureBuilder(orgId, resource);
+    const fbResource = FBResource.build(builder);
+    
+    return fbResource.create(fs);
   }
 
   static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {

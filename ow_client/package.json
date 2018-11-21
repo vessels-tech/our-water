@@ -16,6 +16,8 @@
     "@types/redux-logger": "^3.0.6",
     "fast-deep-equal": "^2.0.1",
     "fetch-cookie": "^0.7.2",
+    "firebase": "^5.5.9",
+    "firebase-admin": "^6.2.0",
     "moment": "^2.22.1",
     "ow_translations": "git://github.com/vessels-tech/ow_translations#db0584d852a005f2b65bf692849b668ea793ccd3",
     "prop-types": "^15.6.0",
@@ -50,6 +52,7 @@
     "supercluster": "^4.1.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@types/query-string": "^6.1.0",
     "@types/react": "^16.4.11",
     "@types/react-native": "^0.56.10",
@@ -66,8 +69,7 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "tslint-react-recommended": "^1.0.15",
-    "typescript": "^3.0.1",
-    "@babel/plugin-proposal-class-properties": "^7.0.0"
+    "typescript": "^3.0.1"
   },
   "jest": {
     "preset": "react-native"
