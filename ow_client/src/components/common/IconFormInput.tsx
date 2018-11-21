@@ -15,9 +15,9 @@ import {
   getMinAndMaxReadingDates,
 } from '../../utils'
 import { AppState } from '../../reducers';
-import { TranslationFile } from 'ow_translations/src/Types';
 import { connect } from 'react-redux';
 import { primaryText } from '../../utils/Colors';
+import { TranslationFile } from 'ow_translations';
 
 // const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -42,7 +42,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-  translation: TranslationFile,
+  translation: TranslationFile
 
 }
 

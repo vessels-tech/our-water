@@ -73,7 +73,7 @@ bundle:
 	source /tmp/ow_env &&  ENVFILE=/tmp/ow_env react-native bundle \
 		--platform android \
 		--dev false \
-		--minify true \
+		--minify false \
 		--entry-file ./src/index.js \
 		--bundle-output android/app/src/main/assets/index.android.bundle \
 		--reset-cache \
