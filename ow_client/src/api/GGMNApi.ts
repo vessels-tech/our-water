@@ -53,7 +53,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   baseUrl: string;
   networkApi: NetworkApi;
   orgId: string;
-  unsubscribeUser: any;
   pendingReadingsSubscription: any;
   externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
   extendedResourceApiType: ExtendedResourceApiType.Has = ExtendedResourceApiType.Has;
@@ -789,19 +788,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * but this is an assumption which holds only for GGMN. We will need to
    * fix this later on.
    */
-  subscribeToUser(userId: string, callback: any): string {
-    return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
-  }
-
-  unsubscribeFromUser(subscriptionId: string): void {
-    if (this.pendingReadingsSubscriptions.has(subscriptionId)) {
-      this.pendingReadingsSubscriptions.delete(subscriptionId);
-    }
-
-    if (this.pendingReadingsSubscriptions.size === 0) {
-      //TODO: unsubscripe from firebase updates
-      this.unsubscribeUser();
-    }
+  subscribeToUser(userId: string, callback: any): () => void {
+    return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));  
   }
 
   subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
@@ -1183,6 +1171,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
     return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
+  }
+
+  onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
+    return FirebaseApi.onAuthStateChanged(listener);
   }
 
 

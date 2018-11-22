@@ -1,6 +1,6 @@
 
 
-export type MaybeUser = User | NoUser;
+export type MaybeUser = User | NoUser | MobileUser;
 
 export type User = {
   type: UserType.USER,
@@ -8,12 +8,20 @@ export type User = {
   token: string,
 }
 
+/* A user who has signed in with their phone number */
+export type MobileUser = {
+  type: UserType.MOBILE_USER,
+  userId: string,
+  token: string,
+  mobile: string,
+}
+
 export type NoUser = {
   type: UserType.NO_USER,
 }
 
-
 export enum UserType {
   NO_USER = 'NO_USER',
-  USER = 'USER'
+  USER = 'USER',
+  MOBILE_USER = 'MOBILE_USER',
 }

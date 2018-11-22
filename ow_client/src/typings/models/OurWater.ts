@@ -5,6 +5,7 @@ import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
+import { string } from "react-native-joi";
 
 export type DeprecatedResource = {
   id: string,
@@ -118,6 +119,10 @@ export type OWUser = {
   pendingSavedResources: PendingResource[],
   recentSearches: string[],
   translation: TranslationEnum,
+  mobile: string | null,
+  email: string | null,
+  name: string | null,
+  nickname: string | null,
 }
 
 export type TimeSeriesReading = {

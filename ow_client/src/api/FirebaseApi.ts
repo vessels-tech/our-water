@@ -85,10 +85,11 @@ class FirebaseApi {
   static async signIn(): Promise<SomeResult<AnonymousUser>> {
     let userId: string;
 
+    console.log('current user is', auth.currentUser);
+
     return auth.signInAnonymouslyAndRetrieveData()
     .then(userCredential => {
       userId = userCredential.user.uid;
-      console.log("auth is", auth);
       return userCredential.user.getIdToken();
     })
     .then(token => makeSuccess<AnonymousUser>({userId, token}))
@@ -116,10 +117,42 @@ class FirebaseApi {
 
   /**
    * Verify the code and get the access token.
+   * 
+   * TODO: handle merging user identities
    */
-  static async verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
+  static async verifyCodeAndLogin(orgId: string, confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
+    let anonymousCredential: RNFirebase.UserCredential;
     let user: RNFirebase.User;
     let mobile: string;
+
+    // if (!confirmResult.verificationId) {
+    //   return Promise.resolve(makeError<FullUser>('Could not find verification id'));
+    // }
+
+    //TODO: instead of linking accounts, just update the userId and merge in the existing data
+    // const phoneCredential = firebase.auth.PhoneAuthProvider.credential(confirmResult.verificationId, code);
+
+    //First get the anonymous login to link
+    // return auth.currentUser.linkWithCredential(phoneCredential)
+    // .then((userCredential: RNFirebase.UserCredential) => {
+    // })
+
+    // return auth.signInAnonymouslyAndRetrieveData()
+    // .then(_anonymousCredential => anonymousCredential = _anonymousCredential)
+    // .then(() => anonymousCredential.user.linkAndRetrieveDataWithCredential(phoneCredential))
+    // .then((userCredential: RNFirebase.UserCredential) => {
+    //   user = userCredential.user;
+      
+    //   if (!user.phoneNumber) {
+    //     return makeError<FullUser>('User logged in, but no phone number found');
+    //   }
+    //   mobile = user.phoneNumber;
+
+    //   return user.getIdToken();
+    // })
+    // .then((token: string) => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
+
+  
     return confirmResult.confirm(code)
     .then(_user => {
       if (!_user) {
@@ -129,9 +162,13 @@ class FirebaseApi {
       if (!user.phoneNumber) {
         return Promise.reject(new Error('User logged in, but no phone number found'));
       }
+
+      //Save the user's phone number!
       mobile = user.phoneNumber;
-      return user.getIdToken();
+      return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
     })
+    .then(() => user.getIdToken())
+    //TODO: merge together the anonymous user's data with the data from the logged in user
     .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
     .catch((err: Error) => {
       console.log("ERROR", err);
@@ -139,6 +176,10 @@ class FirebaseApi {
     });
   }
 
+  static onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
+    return auth.onAuthStateChanged(listener);
+  }
+  
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
     return this.getFavouriteResources(orgId, userId)
@@ -653,7 +694,10 @@ class FirebaseApi {
     );
   }
 
-  static listenForUpdatedUser(orgId: string, userId: string, cb: any) {
+  /**
+   * @returns unsubscribe function
+   */
+  static listenForUpdatedUser(orgId: string, userId: string, cb: any): () => void {
     const options = {
       includeMetadataChanges: true
     };

@@ -14,6 +14,7 @@ import { AnyResource } from "../typings/models/Resource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { RNFirebase } from "react-native-firebase";
+import { MobileUser } from "../typings/UserTypes";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -52,6 +53,8 @@ export type AnyAction =
   GetUserActionRequest |
   GetUserActionResponse |
   GotShortIdsAction |
+  LoginCallbackResponse |
+  PassOnUserSubscriptionAction |
   PerformSearchActionRequest |
   PerformSearchActionResponse |
   RemoveFavouriteActionRequest |
@@ -68,7 +71,9 @@ export type AnyAction =
   SilentLoginActionRequest |
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
-  StartExternalSyncActionResponse 
+  StartExternalSyncActionResponse |
+  VerifyCodeAndLoginActionRequest |
+  VerifyCodeAndLoginActionResponse
 ;
 
 
@@ -109,6 +114,8 @@ export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE,
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };
 export type GetUserActionResponse = { type: ActionType.GET_USER_RESPONSE, result: SomeResult<OWUser> };
 export type GotShortIdsAction = { type: ActionType.GOT_SHORT_IDS , shortIds: string[], longIds: string[]};
+export type LoginCallbackResponse = { type: ActionType.LOGIN_CALLBACK, user: SomeResult<AnonymousUser | MobileUser>}
+export type PassOnUserSubscriptionAction = { type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe: () => any};
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
 export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResult>}
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};

@@ -3,7 +3,7 @@ import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { ResultType, SomeResult } from "../typings/AppProviderTypes";
-import { MaybeUser, UserType } from "../typings/UserTypes";
+import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
@@ -37,6 +37,10 @@ export type AppState = {
   //TODO: cache this locally as well as on firebase
   language: TranslationEnum,
   translation: TranslationFile,
+  mobile: string | null,
+  email: string | null,
+  name: string | null,
+  nickname: string | null,
 
   //Api
   resources: AnyResource[],
@@ -50,6 +54,7 @@ export type AppState = {
   tsReadings: TimeseriesReadings, //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
   shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
   shortIdCache: Map<string, string>, //resourceId => shortId
+  unsubscribeFromUser: () => void,
   
   //Firebase
   favouriteResources: AnyResource[],
@@ -82,6 +87,10 @@ const initialState: AppState = {
   locationMeta: { loading: false },
   language: defaultLanguage, //default to australian english, we should probably change this.
   translation: defaultTranslation,
+  mobile: null,
+  email: null,
+  name: null,
+  nickname: null,
 
   //Api
   resources: [],
@@ -99,6 +108,7 @@ const initialState: AppState = {
   tsReadings: {},
   shortIdMeta: new Map<string, ActionMeta>(),
   shortIdCache: new Map<string, string>(),
+  unsubscribeFromUser: () => console.log("no user to unsubscribe from"),
 
   //Firebase
   user: {type: UserType.NO_USER}, 
@@ -363,6 +373,10 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let recentSearches = state.recentSearches;
       let language = state.language;
       let translation = state.translation;
+      let mobile = state.mobile;
+      let email = state.email;
+      let name = state.name;
+      let nickname = state.nickname;
 
       
       if (action.result.type !== ResultType.ERROR) {
@@ -371,6 +385,11 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         recentSearches = action.result.result.recentSearches;
         language = action.result.result.translation;
         translation = getTranslationForLanguage(translations, language);
+        //TODO: replace with a MaybeType
+        mobile = action.result.result.mobile && action.result.result.mobile;
+        email = action.result.result.email && action.result.result.email;
+        name = action.result.result.name && action.result.result.name;
+        nickname = action.result.result.nickname && action.result.result.nickname;
       }
       
       //TODO: error handling?
@@ -382,6 +401,10 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         recentSearches,
         language,
         translation,
+        mobile,
+        email,
+        name,
+        nickname,
       });
     }
     case ActionType.GOT_SHORT_IDS: {
@@ -394,6 +417,28 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       return Object.assign({}, state, { shortIdCache });
     }
+    case ActionType.LOGIN_CALLBACK: {
+      const userIdMeta = { loading: false, error: false, errorMessage: '' };
+
+      const result = action.user;
+      if (result.type === ResultType.ERROR) {
+        userIdMeta.error = true;
+        userIdMeta.errorMessage = result.message;
+
+        return Object.assign({}, state, { userIdMeta });
+      }
+
+      return Object.assign({}, state, {
+        user: result.result,
+        userIdMeta,
+      });
+
+
+    }
+    case ActionType.PASS_ON_USER_SUBSCRIPTION: {
+      return Object.assign({}, state, { unsubscribeFromUser: action.unsubscribe});
+    }
+
     case ActionType.PERFORM_SEARCH_REQUEST: {
       const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
       let searchResults = state.searchResults;
@@ -527,6 +572,39 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       console.log("Current external login details no good fool.");
       return state;
+    }
+
+    case ActionType.VERIFY_CODE_AND_LOGIN_REQUEST: {
+      const userIdMeta = { loading: true, error: false, errorMessage: '' };
+
+      return Object.assign({}, state, { userIdMeta });
+    }
+    case ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE: {
+      const userIdMeta = { loading: false, error: false, errorMessage: '' };
+      const oldUser = state.user;
+      const result = action.result;
+      if (result.type === ResultType.ERROR) {
+        userIdMeta.error = true;
+        userIdMeta.errorMessage = result.message;
+
+        return Object.assign({}, state, { userIdMeta });
+      }
+      
+      //Unsubscrbe, to old user. Actions handle the new subscription
+      state.unsubscribeFromUser();
+
+
+      //Update the user and token
+      const user: MobileUser = {
+        type: UserType.MOBILE_USER, 
+        userId: result.result.userId, 
+        token: result.result.token, 
+        mobile: result.result.mobile,
+      };
+      return Object.assign({}, state, {
+        user,
+        userIdMeta,
+      });
     }
 
     default: 

@@ -6,7 +6,7 @@ import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, S
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
-import { RNFirebase } from "react-native-firebase";
+import { RNFirebase, Firebase } from "react-native-firebase";
 import { Region } from "react-native-maps";
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
@@ -290,12 +290,14 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
  * A listener function which combines callback events from the FirebaseApi and 
  * GGMN api to inform the PendingChangesBanner of any updates it needs to make
  * 
- * We are using this subscription to also subscribe to pending readings
- * but this is an assumption which holds only for GGMN. We will need to
- * fix this later on.
+ * @returns unsubscribe function
  */
-  subscribeToUser(userId: string, callback: any): string {
+  subscribeToUser(userId: string, callback: any): () => void {
     return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
+  }
+
+  onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
+    return FirebaseApi.onAuthStateChanged(listener);
   }
 
   //
@@ -307,6 +309,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   }
 
   verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
-    return FirebaseApi.verifyCodeAndLogin(confirmResult, code);
+    return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code);
   }
 }

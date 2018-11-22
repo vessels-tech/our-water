@@ -22,7 +22,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
-import { MaybeUser, UserType } from "../typings/UserTypes";
+import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import InternalAccountApi, { InternalAccountApiType, MaybeInternalAccountApi } from "../api/InternalAccountApi";
 
 
@@ -549,6 +549,23 @@ export function getUserResponse(result: SomeResult<OWUser> ): GetUserActionRespo
   }
 }
 
+export function loginCallback(user: SomeResult<AnonymousUser | MobileUser>): any {
+  return function (dispatch: any) {
+    dispatch({
+      type: ActionType.LOGIN_CALLBACK,
+      user,
+    });
+  }
+}
+
+/**
+ * Pass on the user subscription function to the reducer
+ */
+export function passOnUserSubscription(unsubscribe: () => void): any {
+  return async function (dispatch: any) {
+    dispatch({ type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe })
+  }
+}
 
 /**
  * Async search for resources
@@ -835,7 +852,7 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
 }
 
 
-export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string): asyncDispatchResult<any> {
+export function verifyCodeAndLogin(api:MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string): asyncDispatchResult<any> {
   return async function(dispatch: any) {
     dispatch(verifyCodeAndLoginRequest());
     if (api.internalAccountApiType === InternalAccountApiType.None) {
@@ -844,8 +861,14 @@ export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: R
     }
 
     const result = await api.verifyCodeAndLogin(confirmResult, code);
+
+    //Subscribe to the new user id
+    if(result.type === ResultType.SUCCESS) {
+      const unsubscribe = userApi.subscribeToUser(result.result.userId, (user) => dispatch(getUserResponse({ type: ResultType.SUCCESS, result: user })))
+      dispatch(passOnUserSubscription(unsubscribe));
+    }
+
     dispatch(verifyCodeAndLoginResponse(result));
-    
     return result;
   }
 }

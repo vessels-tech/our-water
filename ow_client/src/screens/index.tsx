@@ -17,9 +17,9 @@ import * as appActions from '../actions/index';
 import thunkMiddleware from 'redux-thunk';
 //@ts-ignore
 import { createLogger } from 'redux-logger';
-import { UserType } from '../typings/UserTypes';
+import { UserType, MobileUser } from '../typings/UserTypes';
 import { OWUser } from '../typings/models/OurWater';
-import { ResultType } from '../typings/AppProviderTypes';
+import { ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
 import { EnableLogging } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
@@ -32,6 +32,8 @@ import GroundwaterSyncScreen from './GroundwaterSyncScreen';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import SignInScreen from './menu/SignInScreen';
+import { RNFirebase } from 'react-native-firebase';
+import { AnonymousUser } from '../typings/api/FirebaseApi';
 
 
 let loggerMiddleware: any = null;
@@ -48,22 +50,60 @@ export async function registerScreens(config: ConfigFactory) {
    : applyMiddleware(thunkMiddleware);
   const store = createStore(OWApp, middleware);
 
-  /* Initial actions
-    TODO: move these to after the initial App load?
-  */
-  await store.dispatch(appActions.silentLogin(config.appApi));
+
+  //Listen for a user
+  const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
+    if (!rnFirebaseUser) {
+      await store.dispatch(appActions.silentLogin(config.appApi));
+      return;
+    }
+    
+    //Get the token
+    let token;
+    try {
+      token = await rnFirebaseUser.getIdToken();
+    } catch (err) {
+      store.dispatch(appActions.loginCallback(makeError<MobileUser | AnonymousUser>('Could not get token for user')))
+      return;
+    }
+
+    //Build the user
+    let user: AnonymousUser | MobileUser;
+    if (rnFirebaseUser.isAnonymous) {
+      user = {
+        type: UserType.USER,
+        userId: rnFirebaseUser.uid,
+        token,
+      }
+    } else {
+      user = {
+        type: UserType.MOBILE_USER,
+        userId: rnFirebaseUser.uid,
+        token,
+        mobile: rnFirebaseUser.phoneNumber,
+      }
+    }
+
+    store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
+  });
+
+  // await store.dispatch(appActions.silentLogin(config.appApi));
+
+
   //TODO: I don't know how to fix this.
   //@ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
   const user = store.getState().user;
-  console.log("got user?", user);
+  // TODO: this will introduce a race condition now.
   if (user.type === UserType.USER) {
     await store.dispatch(appActions.getUser(config.userApi, user.userId));
     
     /* Subscribe to firebase updates */
-    config.userApi.subscribeToUser(user.userId, (user: OWUser) => {
+    const unsubscribe = config.userApi.subscribeToUser(user.userId, (user: OWUser) => {
       store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
     });
+    store.dispatch(appActions.passOnUserSubscription(unsubscribe));
+
 
     config.appApi.subscribeToPendingReadings(user.userId, (readings: PendingReading[]) => {
       store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
