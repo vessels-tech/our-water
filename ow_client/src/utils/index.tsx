@@ -14,6 +14,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
+import { AbstractControl } from 'react-reactive-form';
 
 
 /**
@@ -572,4 +573,14 @@ export const serializeMap = (input: Map<any, any>): any => {
   }
 
   return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});
+}
+
+
+export async function phoneNumberValidator(control: AbstractControl) {
+
+  //TODO: perform a phone number validation
+  throw { invalidPhoneNumber: true };
+
+  //Return null when all good
+  //return null;
 }

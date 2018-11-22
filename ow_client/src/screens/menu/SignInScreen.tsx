@@ -18,10 +18,11 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { SyncMeta } from '../../typings/Reducer';
-import { TextInput } from '../../components/common/FormComponents';
+import { TextInput, MobileInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import Loading from '../../components/common/Loading';
 import { TranslationFile } from 'ow_translations';
+import { phoneNumberValidator } from '../../utils';
 
 
 export interface OwnProps {
@@ -44,10 +45,18 @@ export interface ActionProps {
   setExternalOrganisation: any,
 }
 
+export enum SignInStatus {
+  WaitingForMobile = 'WaitingForMobile',
+  WaitingForPin = 'WaitingForPin',
+  SignedInIncomplete = 'SignedInIncomplete',
+  SignedInComplete = 'SignedInComplete',
+}
+
 
 export interface State {
   mobile: string,
   password: string,
+  status: SignInStatus,
 }
 
 /**
@@ -67,6 +76,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
 
+    //TODO: figure out if we are already signed in, and if we are check to see if the profile is complete or not.
+
     let mobile = '';
     if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
       mobile = this.props.externalLoginDetails.username;
@@ -74,10 +85,11 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.state = {
       mobile,
       password: '',
+      status: SignInStatus.WaitingForMobile,
     };
 
     this.loginForm = FormBuilder.group({
-      mobile: [mobile, Validators.required],
+      mobile: [mobile, Validators.required, phoneNumberValidator],
       password: ["", Validators.required],
     });
   }
@@ -135,16 +147,31 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
+    //TODO: Translate
     return (
       <Text style={{
         color: error1,
         paddingHorizontal: 20,
         paddingTop: 10,
       }}>
-        here
         Error signing in. Please try again.
       </Text>
     );
+  }
+
+  getContent() {
+    switch (this.state.status) {
+      case SignInStatus.WaitingForMobile: {
+        return this.getForm();
+      }
+      case SignInStatus.WaitingForPin: {
+        return this.getVerifySection();
+      }
+      case SignInStatus.SignedInIncomplete:
+      case SignInStatus.SignedInComplete: {
+        return this.getProfile();
+      }
+    }
   }
 
 
@@ -223,11 +250,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
           <View>
             <FieldControl
               name="mobile"
-              render={TextInput}
+              render={MobileInput}
               meta={{
+                //TODO: translate
+                asyncErrorMessage: 'Phone number is invalid',
                 label: connect_to_service_username_field,
                 secureTextEntry: false,
-                errorMessage: connect_to_service_username_invalid
+                errorMessage: connect_to_service_username_invalid,
+                keyboardType: 'phone-pad',
               }}
             />
             <Button
@@ -245,7 +275,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
               loading={loading}
               disabled={invalid}
               title={loading ? '' : connect_to_service_submit_button}
-              onPress={() => this.handleSubmit()}
+              // TODO: change back
+              // onPress={() => this.handleSubmit()}
+              onPress={() => this.setState({status: SignInStatus.WaitingForPin})}
             />
           </View>
         )}
@@ -253,8 +285,26 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     )
   }
 
-  // TODO: when to display this?
-  // ToastAndroid.show(`Sorry, could not log you in. ${err.message}`, ToastAndroid.SHORT);
+  getVerifySection() {
+    return (
+      <View>
+        <Text>We send a text. What's the number?</Text>
+        {/* TODO: do this implicitly */}
+        <Button onPress={() => this.setState({status: SignInStatus.SignedInIncomplete})} title="Next"/>
+        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })}  title="Didn't get the text?"/>
+      </View>
+    )
+  }
+
+  getProfile() {
+    return (
+      <View>
+        <Text>You are signed in.</Text>
+        {/* TODO: do this implicitly */}
+        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Logout" />
+      </View>
+    );
+  }
 
   render() {
     const { externalLoginDetails, translation: {
@@ -268,14 +318,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       <ScrollView
         style={{
           flexDirection: 'column',
-          // height: '100%',
         }}
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps={'always'}
       >
-        {/* I don't like the logo here anymore */}
-        {/* {Logo(this.props.config.getApplicationName())} */}
-        {/* Text */}
         <View style={{
           flex: 2
         }}>
@@ -284,12 +330,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
             paddingTop: 30,
           }}>{connect_to_service_description}</Text>
           {this.getErrorMessage()}
-          {this.getConnectedSection()}
-        </View>
-
-        {/* Form  */}
-        <View style={{ flex: 5 }}>
-          {isConnected ? null : this.getForm()}
+          {this.getContent()}
         </View>
       </ScrollView>
     );
