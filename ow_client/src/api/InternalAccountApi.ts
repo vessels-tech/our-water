@@ -2,6 +2,11 @@ import { SomeResult } from "../typings/AppProviderTypes";
 import { RNFirebase } from 'react-native-firebase';
 import { FullUser } from "../typings/api/FirebaseApi";
 
+export type SaveUserDetailsType = {
+  name: string | null,
+  nickname: string | null,
+  email: string | null,
+}
 
 export enum InternalAccountApiType {
   None = 'None',
@@ -20,6 +25,13 @@ export default interface InternalAccountApi {
 
   sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>>
   verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>>
+
+  /**
+   * SaveUserDetails
+   * 
+   * Add some extra user details
+   */
+  saveUserDetails(userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>>;
 
 
 }

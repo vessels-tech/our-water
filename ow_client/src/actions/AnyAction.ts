@@ -63,6 +63,7 @@ export type AnyAction =
   SaveReadingActionResponse |
   SaveResourceActionRequest |
   SaveResourceActionResponse |
+  SaveUserDetailsActionRequest |
   SetExternalOrganisation |
   SendResourceEmailActionRequest |
   SendResourceEmailActionResponse |
@@ -124,6 +125,7 @@ export type SaveReadingActionRequest = { type: ActionType.SAVE_READING_REQUEST }
 export type SaveReadingActionResponse = { type: ActionType.SAVE_READING_RESPONSE, result: SomeResult<SaveReadingResult> };
 export type SaveResourceActionRequest = { type: ActionType.SAVE_RESOURCE_REQUEST };
 export type SaveResourceActionResponse = { type: ActionType.SAVE_RESOURCE_RESPONSE, result: SomeResult<SaveResourceResult> };
+export type SaveUserDetailsActionRequest = { type: ActionType.SAVE_USER_DETAILS_REQUEST};
 export type SilentLoginActionRequest = { type: ActionType.SILENT_LOGIN_REQUEST };
 export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE, userIdResult: SomeResult<AnonymousUser> };
 export type SetExternalOrganisation = { type: ActionType.SET_EXTERNAL_ORGANISATION, organisation: GGMNOrganisation};

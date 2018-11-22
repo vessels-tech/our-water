@@ -28,6 +28,7 @@ import { SyncError } from '../typings/api/ExternalServiceApi';
 import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuilder } from '../utils/Mapper';
 import FBResource from '../model/FBResource';
 import FBReading from '../model/FBReading';
+import { SaveUserDetailsType } from './internalAccountApi';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -179,7 +180,12 @@ class FirebaseApi {
   static onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
     return auth.onAuthStateChanged(listener);
   }
-  
+
+  static saveUserDetails(orgId: string, userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId).set({...userDetails}, {merge: true})
+    .then(() => makeSuccess<void>(undefined))
+    .catch((err: Error) => makeError<void>(err.message));
+  }
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
     return this.getFavouriteResources(orgId, userId)

@@ -15,7 +15,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
-import InternalAccountApi, { InternalAccountApiType } from './InternalAccountApi';
+import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -298,6 +298,10 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
   onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
     return FirebaseApi.onAuthStateChanged(listener);
+  }
+
+  saveUserDetails(userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
+    return FirebaseApi.saveUserDetails(this.orgId, userId, userDetails);
   }
 
   //

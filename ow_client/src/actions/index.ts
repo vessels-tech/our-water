@@ -23,7 +23,7 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
-import InternalAccountApi, { InternalAccountApiType, MaybeInternalAccountApi } from "../api/InternalAccountApi";
+import InternalAccountApi, { InternalAccountApiType, MaybeInternalAccountApi, saveUserDetailsType, SaveUserDetailsType } from "../api/InternalAccountApi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -695,6 +695,22 @@ function saveResourceResponse(result: SomeResult<SaveResourceResult>): SaveResou
   return {
     type: ActionType.SAVE_RESOURCE_RESPONSE,
     result
+  }
+}
+
+export function saveUserDetails(api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType): any {
+  return async function(dispatch: any) {
+
+    if (api.internalAccountApiType === InternalAccountApiType.None) {
+      maybeLog("Tried to connect to InternalAccountApi, but no InternalAccountApi was found");
+      return makeSuccess<void>(undefined);
+    }
+
+    await api.saveUserDetails(userId, userDetails);
+
+    dispatch({
+      type: ActionType.SAVE_USER_DETAILS_REQUEST,
+    });
   }
 }
 

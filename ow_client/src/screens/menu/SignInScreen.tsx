@@ -30,7 +30,7 @@ import { phoneNumberValidator } from '../../utils';
 import Loading from '../../components/common/Loading';
 import CodeInput from 'react-native-confirmation-code-input';
 import { invalid } from 'moment';
-import { MaybeInternalAccountApi } from '../../api/internalAccountApi';
+import { MaybeInternalAccountApi, SaveUserDetailsType } from '../../api/internalAccountApi';
 import { RNFirebase } from 'react-native-firebase';
 import Config from 'react-native-config';
 import UserApi from '../../api/UserApi';
@@ -39,7 +39,6 @@ import { MaybeUser, UserType } from '../../typings/UserTypes';
 export interface OwnProps {
   navigator: any,
   config: ConfigFactory,
-  userId: string,
 }
 
 export interface StateProps {
@@ -62,6 +61,7 @@ export interface ActionProps {
   setExternalOrganisation: any,
   sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => SomeResult<any>,
   verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => SomeResult<any>,
+  saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => any,
 }
 
 export enum SignInStatus {
@@ -106,6 +106,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     /* binds */
     this.sendVerifyCode = this.sendVerifyCode.bind(this);
     this.verifyCode = this.verifyCode.bind(this);
+    this.saveProfileForm = this.saveProfileForm.bind(this);
 
     //TODO: figure out if we are already signed in, and if we are check to see if the profile is complete or not.
     let mobile = '';
@@ -137,9 +138,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
 
     this.profileForm = FormBuilder.group({
-      name: [props.name, Validators.required],
-      nickname: [props.nickname],
-      email: [props.email, Validators.email]
+      name: [props.name || '', Validators.required],
+      nickname: [props.nickname || ''],
+      email: [props.email || '', Validators.email]
     });
   }
 
@@ -197,6 +198,23 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     this.setState({ status: SignInStatus.SignedIn })
+  }
+
+  async saveProfileForm() {
+    if (this.props.user.type === UserType.NO_USER) {
+      return;
+    }
+
+    this.setState({ status: SignInStatus.SignedIn, profileStatus: ProfileStatus.Complete });
+
+    const userDetails: SaveUserDetailsType = {
+      name: this.profileForm.value.name,
+      nickname: this.profileForm.value.nickname,
+      email: this.profileForm.value.email,
+    };
+
+    console.log("saving user details", userDetails);
+    this.props.saveUserDetails(this.internalAccountApi, this.props.user.userId, userDetails);
   }
 
   getLogo() {
@@ -345,27 +363,27 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         <Text>Tell Us More About Yourself</Text>
         <FieldGroup
-          control={this.loginForm}
+          control={this.profileForm}
           render={(control) => {
             return (
               <View>
                 <FieldControl
                   name="name"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Full Name', secureTextEntry: false, keyboardType: 'numeric' }}
+                  meta={{ editable: true, label: 'Full Name', secureTextEntry: false, keyboardType: 'default' }}
                 />
                 <FieldControl
                   name="nickname"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Short Name', secureTextEntry: false, keyboardType: 'numeric' }}
+                  meta={{ editable: true, label: 'Short Name', secureTextEntry: false, keyboardType: 'default' }}
                 />
                 <FieldControl
                   name="email"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Email', secureTextEntry: false, keyboardType: 'numeric' }}
+                  meta={{ editable: true, label: 'Email', secureTextEntry: false, keyboardType: 'email-address'}}
                 />
                 <Button 
-                  onPress={() => this.setState({ status: SignInStatus.SignedIn, profileStatus: ProfileStatus.Complete })} 
+                  onPress={this.saveProfileForm} 
                   title="Save" 
                   // disabled={control.pristine || control.invalid}
                 />
@@ -442,6 +460,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => { dispatch(appActions.setExternalOrganisation(api, organisation)) },
     sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => {return dispatch(appActions.sendVerifyCode(api, mobile))},
     verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => {return dispatch(appActions.verifyCodeAndLogin(api, userApi, confirmResult, code))},
+    saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => dispatch(appActions.saveUserDetails(api, userId, userDetails)),
   }
 }
 

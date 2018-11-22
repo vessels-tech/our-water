@@ -520,6 +520,10 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       return Object.assign({}, state, { pendingSavedResourcesMeta });
     }
+    case ActionType.SAVE_USER_DETAILS_REQUEST: {
+      const userIdMeta = { loading: true, error: false, errorMessage: '' };
+      return Object.assign({}, state, userIdMeta);
+    }
     case ActionType.START_EXTERNAL_SYNC_REQUEST: {
       const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
 
