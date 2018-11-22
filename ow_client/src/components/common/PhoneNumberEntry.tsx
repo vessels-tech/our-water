@@ -23,7 +23,21 @@ export type CallingCountry = {
   name: string,
 }
 
+function arraymove(arr: any[], fromIndex: number, toIndex: number) {
+  var element = arr[fromIndex];
+  arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, element);
+}
+
+//Make india first
 const countries: CallingCountry[] = callingCountries.all.map((c: any) => ({ emoji: c.emoji, name: c.name, countryCode: c.countryCallingCodes[0]}));
+let indiaIdx = 0;
+countries.forEach((country, idx) => {
+  if (country.name === "India") {
+    indiaIdx = idx;
+  }
+});
+arraymove(countries, indiaIdx, 0);
 
 class PhoneNumberEntry extends PureComponent<Props> {
   state: State;
@@ -34,8 +48,7 @@ class PhoneNumberEntry extends PureComponent<Props> {
     super(props);
 
     this.state = {
-      //TODO: load proper codes
-      country: {emoji: '🇦🇩', countryCode: '+91', name: "India"},
+      country: { emoji: '🇮🇳', countryCode: '+91', name: "India"},
       countryCodeText: '+91',
       mobileText: '',
     };
@@ -44,6 +57,8 @@ class PhoneNumberEntry extends PureComponent<Props> {
     this.updatePickerValue = this.updatePickerValue.bind(this);
     this.updateCountryFromCode = this.updateCountryFromCode.bind(this);
     this.updateMobile = this.updateMobile.bind(this);
+
+    console.log('countries is', countries);
   }
 
   componentDidMount() {
@@ -55,14 +70,13 @@ class PhoneNumberEntry extends PureComponent<Props> {
   }
 
   updatePickerValue(itemValue: CallingCountry, itemIndex: number) {
-    this.setState({ country: itemValue, countryCodeText: itemValue.countryCode });
-
-    this.props.onValueChange(this.getMobileText());
+    this.setState({ country: itemValue, countryCodeText: itemValue.countryCode }, 
+      () => this.props.onValueChange(this.getMobileText())
+    );
   }
 
   updateCountryFromCode(code: string) {
     this.setState({countryCodeText: code});
-
     //TODO: Add a + in front
     const country = countries.filter(c => c.countryCode === code);
 
@@ -71,16 +85,15 @@ class PhoneNumberEntry extends PureComponent<Props> {
       return;
     }
 
-    this.setState({country: country[0]});
-
-
-    this.props.onValueChange(this.getMobileText());
+    this.setState({country: country[0]}, 
+      () => this.props.onValueChange(this.getMobileText())
+    );
   }
 
   updateMobile(mobile: string) {
-    this.setState({mobileText: mobile});
-
-    this.props.onValueChange(this.getMobileText());
+    this.setState({mobileText: mobile}, 
+      () => this.props.onValueChange(this.getMobileText())
+    );
   }
 
   render() {
@@ -95,7 +108,7 @@ class PhoneNumberEntry extends PureComponent<Props> {
           style={{ height: 50, flex: 1}}
           onValueChange={this.updatePickerValue}>
           {countries.map(c => (
-            <Picker.Item key={c.name} label={`${c.emoji}   ${c.name}`} value={c} />
+            <Picker.Item key={c.name} label={`${c.emoji}   ${c.name}`} value={c}/>
           ))}
         </Picker>
 

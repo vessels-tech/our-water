@@ -51,6 +51,7 @@ export type DropdownInputParams = {
 export type MobileInputParams = {
   type: InputParams.Mobile,
   handler: any,
+  touched: boolean,
   meta: {
     label: string,
     asyncErrorMessage: string,
@@ -149,9 +150,7 @@ export const DropdownInput = (params: DropdownInputParams) => {
 
 
 export const MobileInput = (params: MobileInputParams) => {
-  const { type, handler, meta: { asyncErrorMessage, label, options }, errorMessage, hasError } = params;
-
-  console.log("handler() is:", handler());
+  const { touched, type, handler, meta: { asyncErrorMessage, label, options }, errorMessage, hasError } = params;
 
   return (
     <View>
@@ -163,7 +162,8 @@ export const MobileInput = (params: MobileInputParams) => {
         }}
       />
       <FormValidationMessage>
-        {hasError('invalidPhoneNumber') && asyncErrorMessage}
+        {touched && hasError("required") && `${label} ${errorMessage}`}
+        {touched && hasError('invalidPhoneNumber') && asyncErrorMessage}
       </FormValidationMessage>
     </View>
   );

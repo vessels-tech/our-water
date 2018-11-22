@@ -1631,6 +1631,10 @@ atob@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.1.tgz#ae2d5a729477f289d60dd7f96a6314a22dd6c22a"
 
+awesome-phonenumber@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.2.6.tgz#843d2b8d27727f50822e893cd40ee54341e3feb2"
+
 aws-sign2@~0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
@@ -6559,6 +6563,13 @@ react-native-config@^0.11.5:
   version "0.11.5"
   resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-0.11.5.tgz#516cb7b6ec437c7739236ca075971db3aabdcb95"
 
+react-native-confirmation-code-input@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-confirmation-code-input/-/react-native-confirmation-code-input-1.0.4.tgz#f5c2cced66f26b61050fea8bfd17473af1ad5ff9"
+  dependencies:
+    lodash "^4.17.4"
+    prop-types "^15.5.10"
+
 react-native-country-picker-modal@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/react-native-country-picker-modal/-/react-native-country-picker-modal-0.6.2.tgz#ba97118be4373be0c11cd51e445e6bd448e2f1ca"
@@ -6788,9 +6799,9 @@ react-proxy@^1.1.7:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-"react-reactive-form@git://github.com/vessels-tech/react-reactive-form-patched#f43f8785a84876e9bfeffe4e64cbdc51200f5f51":
+react-reactive-form@^1.0.28:
   version "1.0.28"
-  resolved "git://github.com/vessels-tech/react-reactive-form-patched#f43f8785a84876e9bfeffe4e64cbdc51200f5f51"
+  resolved "https://registry.yarnpkg.com/react-reactive-form/-/react-reactive-form-1.0.28.tgz#bdf0a2257528d1a918d68586ae7e67d21f28aa8d"
 
 react-redux@^5.0.7:
   version "5.0.7"

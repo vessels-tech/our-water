@@ -2,14 +2,19 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
-import { primaryDark, primary, error1, secondaryText, secondary } from '../../utils/Colors';
+import { primaryDark, primary, error1, secondaryText, secondary, primaryLight, primaryText } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
   FormBuilder,
   FieldGroup,
   FieldControl,
   Validators,
+  AbstractControl,
 } from "react-reactive-form";
+/* required for reactive-form */
+import "core-js/es6/symbol";
+import "core-js/fn/symbol/iterator";
+
 import BaseApi from '../../api/BaseApi';
 import ExternalServiceApi, { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, LoginDetailsType, AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
@@ -20,10 +25,11 @@ import { AppState } from '../../reducers';
 import { SyncMeta } from '../../typings/Reducer';
 import { TextInput, MobileInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
-import Loading from '../../components/common/Loading';
 import { TranslationFile } from 'ow_translations';
 import { phoneNumberValidator } from '../../utils';
-
+import Loading from '../../components/common/Loading';
+import CodeInput from 'react-native-confirmation-code-input';
+import { invalid } from 'moment';
 
 export interface OwnProps {
   navigator: any,
@@ -64,9 +70,11 @@ export interface State {
  */
 class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
-  loginForm: any;
   appApi: BaseApi;
+  loginForm: any;
   externalApi: MaybeExternalServiceApi;
+  profileForm: any;
+  
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -76,21 +84,37 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
 
+    /* binds */
+    this.sendVerifyCode = this.sendVerifyCode.bind(this);
+    this.verifyCode = this.verifyCode.bind(this);
+
     //TODO: figure out if we are already signed in, and if we are check to see if the profile is complete or not.
 
     let mobile = '';
     if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
       mobile = this.props.externalLoginDetails.username;
     }
+    // this.state = {
+    //   mobile,
+    //   password: '',
+    //   status: SignInStatus.WaitingForMobile,
+    // };
+
+    //TODO: remove
     this.state = {
-      mobile,
+      mobile: '+61410237238',
       password: '',
-      status: SignInStatus.WaitingForMobile,
+      status: SignInStatus.WaitingForPin,
     };
 
     this.loginForm = FormBuilder.group({
-      mobile: [mobile, Validators.required, phoneNumberValidator],
-      password: ["", Validators.required],
+      mobile: ['', Validators.required, phoneNumberValidator],
+    });
+
+    this.profileForm = FormBuilder.group({
+      name: ['', Validators.required],
+      nickname: [''],
+      email: ['', Validators.email]
     });
   }
 
@@ -120,6 +144,23 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   handleLogout = () => {
     // this.props.disconnectFromExternalService(this.externalApi);
+  }
+
+  sendVerifyCode() {
+    const mobile = this.loginForm.value.mobile
+    //TODO: send the verify code
+
+    this.setState({ status: SignInStatus.WaitingForPin, mobile });
+  }
+
+  verifyCode(isValid: boolean) {
+    console.log('isValid:', isValid);
+    if (!isValid) {
+      ToastAndroid.show('Wrong code', ToastAndroid.SHORT);
+      return;
+    }
+
+    this.setState({ status: SignInStatus.SignedInIncomplete })
   }
 
   getLogo() {
@@ -167,67 +208,13 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       case SignInStatus.WaitingForPin: {
         return this.getVerifySection();
       }
-      case SignInStatus.SignedInIncomplete:
+      case SignInStatus.SignedInIncomplete: {
+        return this.getProfileForm();
+      }
       case SignInStatus.SignedInComplete: {
         return this.getProfile();
       }
     }
-  }
-
-
-  getConnectedSection() {
-    //TODO: depending on the login state, display the incomplete form, or the user's details
-
-
-    return null;
-
-    let { username } = this.state;
-    const { externalLoginDetails, translation: { templates: {
-      connect_to_service_connected_test,
-      connect_to_service_logout_button
-    } } } = this.props;
-
-    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
-      return null;
-    }
-
-    if (username.length === 0) {
-      username = externalLoginDetails.username;
-    }
-
-    const text = connect_to_service_connected_test('username', username);
-    return (
-      <View
-        style={{
-          flex: 5,
-        }}
-      >
-        <Text
-          style={{
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-          }}
-        >
-          {text}
-        </Text>
-        {this.getExternalOrgSelector()}
-        <Button
-          style={{
-            paddingBottom: 20,
-            minHeight: 50,
-          }}
-          buttonStyle={{
-            backgroundColor: secondary,
-          }}
-          textStyle={{
-            color: secondaryText,
-            fontWeight: '700',
-          }}
-          title={connect_to_service_logout_button}
-          onPress={() => this.handleLogout()}
-        />
-      </View>
-    );
   }
 
   getForm() {
@@ -244,9 +231,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <FieldGroup
-        strict={false}
         control={this.loginForm}
-        render={({ get, invalid }) => (
+        render={(control) => {
+          return(
           <View>
             <FieldControl
               name="mobile"
@@ -273,14 +260,13 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                 fontWeight: '700',
               }}
               loading={loading}
-              disabled={invalid}
+              disabled={control.pristine || control.invalid}
               title={loading ? '' : connect_to_service_submit_button}
-              // TODO: change back
-              // onPress={() => this.handleSubmit()}
-              onPress={() => this.setState({status: SignInStatus.WaitingForPin})}
+              //TODO: Send verify message
+              onPress={this.sendVerifyCode}
             />
           </View>
-        )}
+        )}}
       />
     )
   }
@@ -288,12 +274,67 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   getVerifySection() {
     return (
       <View>
-        <Text>We send a text. What's the number?</Text>
+        <Text>Enter the login code we sent to {this.state.mobile}.</Text>
         {/* TODO: do this implicitly */}
-        <Button onPress={() => this.setState({status: SignInStatus.SignedInIncomplete})} title="Next"/>
+        <CodeInput
+          ref="codeInputRef2"
+          secureTextEntry
+          compareWithCode='123456'
+          codeLength={6}
+          activeColor={primaryLight}
+          inactiveColor={primaryText}
+          autoFocus={true}
+          ignoreCase={true}
+          inputPosition='center'
+          size={50}
+          onFulfill={this.verifyCode}
+          containerStyle={{ marginVertical: 30 }}
+          codeInputStyle={{ borderWidth: 1.5 }}
+        />
         <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })}  title="Didn't get the text?"/>
       </View>
     )
+  }
+
+  getProfileForm() {
+    return (
+      <View>
+        <Text>Tell Us More About Yourself</Text>
+        <FieldGroup
+          control={this.loginForm}
+          render={(control) => {
+            return (
+              <View>
+                <FieldControl
+                  name="name"
+                  render={TextInput}
+                  meta={{ editable: true, label: 'Full Name', secureTextEntry: false, keyboardType: 'numeric' }}
+                />
+                <FieldControl
+                  name="nickname"
+                  render={TextInput}
+                  meta={{ editable: true, label: 'Short Name', secureTextEntry: false, keyboardType: 'numeric' }}
+                />
+                <FieldControl
+                  name="email"
+                  render={TextInput}
+                  meta={{ editable: true, label: 'Email', secureTextEntry: false, keyboardType: 'numeric' }}
+                />
+                <Button 
+                  onPress={() => this.setState({ status: SignInStatus.SignedInComplete })} 
+                  title="Save" 
+                  // disabled={control.pristine || control.invalid}
+                />
+              </View>
+            )
+          }}
+        />
+
+        
+        {/* TODO: do this implicitly */}
+        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Sign Out" />
+      </View>
+    );
   }
 
   getProfile() {
@@ -301,6 +342,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         <Text>You are signed in.</Text>
         {/* TODO: do this implicitly */}
+        <Button onPress={() => this.setState({ status: SignInStatus.SignedInIncomplete })} title="Edit" />
         <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Logout" />
       </View>
     );

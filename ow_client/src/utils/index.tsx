@@ -15,6 +15,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AbstractControl } from 'react-reactive-form';
+import * as PhoneNumber from 'awesome-phonenumber';
 
 
 /**
@@ -576,11 +577,12 @@ export const serializeMap = (input: Map<any, any>): any => {
 }
 
 
-export async function phoneNumberValidator(control: AbstractControl) {
+export function phoneNumberValidator(control: AbstractControl) {
+  //@ts-ignore
+  const pn = new PhoneNumber(control.value);
+  if (pn.isValid()){
+    return Promise.resolve(null);
+  }
 
-  //TODO: perform a phone number validation
-  throw { invalidPhoneNumber: true };
-
-  //Return null when all good
-  //return null;
+  return Promise.resolve({ invalidPhoneNumber: true });
 }
