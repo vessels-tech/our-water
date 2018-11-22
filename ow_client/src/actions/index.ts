@@ -2,12 +2,12 @@ import { Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
 import { getLocation, maybeLog } from "../utils";
-import { Firebase } from "react-native-firebase";
+import { Firebase, RNFirebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
 import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
@@ -21,8 +21,9 @@ import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
-import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { MaybeUser, UserType } from "../typings/UserTypes";
+import InternalAccountApi, { InternalAccountApiType, MaybeInternalAccountApi } from "../api/InternalAccountApi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -745,6 +746,35 @@ function sendResourceEmailResponse(result: SomeResult<void>): SendResourceEmailA
   }
 }
 
+
+/**
+ * Send the verify code to the user
+ */
+export function sendVerifyCode(api: MaybeInternalAccountApi, mobile: string): any {
+  return async function(dispatch: any) {
+    if (api.internalAccountApiType === InternalAccountApiType.None) {
+      maybeLog("Tried to send verify code, but internal account api was none");
+      return makeSuccess<void>(undefined);
+    }
+    dispatch(sendVerifyCodeRequest());
+    const result = await api.sendVerifyCode(mobile);
+    dispatch(sendVerifyCodeResponse(result));
+  }
+}
+
+function sendVerifyCodeRequest(): SendVerifyCodeActionRequest {
+  return {
+    type: ActionType.SEND_VERIFY_CODE_REQUEST,
+  }
+}
+
+function sendVerifyCodeResponse(result: SomeResult<RNFirebase.ConfirmationResult>): SendVerifyCodeActionResponse {
+  return {
+    type: ActionType.SEND_VERIFY_CODE_RESPONSE,
+    result,
+  }
+}
+
 /**
  * Async log in silently
  */
@@ -798,6 +828,33 @@ function externalSyncRequest(): StartExternalSyncActionRequest {
 function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): StartExternalSyncActionResponse {
   return {
     type: ActionType.START_EXTERNAL_SYNC_RESPONSE,
+    result,
+  }
+}
+
+
+export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string): any {
+  return async function(dispatch: any) {
+    dispatch(verifyCodeAndLoginRequest());
+    if (api.internalAccountApiType === InternalAccountApiType.None) {
+      maybeLog("Tried to send verify code, but internal account api was none");
+      return makeSuccess<void>(undefined);
+    }
+
+    const result = await api.verifyCodeAndLogin(confirmResult, code);
+    dispatch(verifyCodeAndLoginResponse(result));
+  }
+}
+
+function verifyCodeAndLoginRequest(): VerifyCodeAndLoginActionRequest {
+  return {
+    type: ActionType.VERIFY_CODE_AND_LOGIN_REQUEST
+  }
+}
+
+function verifyCodeAndLoginResponse(result: SomeResult<FullUser>): VerifyCodeAndLoginActionResponse {
+  return {
+    type: ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE,
     result,
   }
 }

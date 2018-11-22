@@ -1,5 +1,5 @@
 import { NetInfo } from 'react-native';
-import firebase, { Firebase } from 'react-native-firebase';
+import firebase, { Firebase, RNFirebase } from 'react-native-firebase';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 import Config from 'react-native-config';
@@ -23,7 +23,7 @@ import { isNullOrUndefined } from 'util';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
-import { AnonymousUser } from '../typings/api/FirebaseApi';
+import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { SyncError } from '../typings/api/ExternalServiceApi';
 import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuilder } from '../utils/Mapper';
 import FBResource from '../model/FBResource';
@@ -56,7 +56,13 @@ class FirebaseApi {
     });
   }
 
-  
+  //
+  // Authentication
+  // ------------------------------------
+
+  /**
+   * User signIn() instead
+   */
   static async deprecated_signIn(): Promise<SomeResult<string>> {
     try {
       const userCredential = await auth.signInAnonymouslyAndRetrieveData();
@@ -97,6 +103,39 @@ class FirebaseApi {
     .then((token: string) => makeSuccess(token))
     .catch((err: Error) => makeError(err.message))
   }
+
+
+  /**
+   *  Send the code to the given user.
+   */
+  static async sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
+    return auth.signInWithPhoneNumber(mobile)
+      .then(confirmResult => makeSuccess(confirmResult))
+      .catch(err => makeError<RNFirebase.ConfirmationResult>(err.message));
+  }
+
+  /**
+   * Verify the code and get the access token.
+   */
+  static async verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
+    let user: RNFirebase.User;
+    let mobile: string;
+    return confirmResult.confirm(code)
+    .then(_user => {
+      if (!_user) {
+        return Promise.reject(new Error('No user found'));
+      }
+      user = _user;
+      if (!user.phoneNumber) {
+        return Promise.reject(new Error('User logged in, but no phone number found'));
+      }
+      mobile = user.phoneNumber;
+      return user.getIdToken();
+    })
+    .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
+    .catch((err: Error) => makeError<FullUser>(err.message));
+  }
+
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
     return this.getFavouriteResources(orgId, userId)

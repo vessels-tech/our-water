@@ -12,9 +12,10 @@ import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
-import { AnonymousUser } from '../typings/api/FirebaseApi';
+import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
+import InternalAccountApi, { InternalAccountApiType } from './InternalAccountApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -26,11 +27,11 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
  * 
  */
 //@ts-ignore
-export default class MyWellApi implements BaseApi, UserApi {
+export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   orgId: string
   networkApi: NetworkApi;
   pendingReadingsSubscription: any;
-
+  internalAccountApiType: InternalAccountApiType.Has = InternalAccountApiType.Has;
 
   constructor(networkApi: NetworkApi, orgId: string) {
     this.networkApi = networkApi;
@@ -297,4 +298,15 @@ export default class MyWellApi implements BaseApi, UserApi {
     return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
   }
 
+  //
+  // InternalAccountApi
+  //----------------------------------------------------------------------
+
+  sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
+    return FirebaseApi.sendVerifyCode(mobile);
+  }
+
+  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
+    return FirebaseApi.verifyCodeAndLogin(confirmResult, code);
+  }
 }

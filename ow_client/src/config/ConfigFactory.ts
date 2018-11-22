@@ -11,6 +11,7 @@ import { SomeResult, ResultType } from "../typings/AppProviderTypes";
 import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
+import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 
 
 
@@ -62,7 +63,8 @@ export class ConfigFactory {
   networkApi: NetworkApi;
 
   appApi: BaseApi; //TODO: change to appApi
-  externalServiceApi: MaybeExternalServiceApi;
+  externalServiceApi: MaybeExternalServiceApi; //Api for connecting to external services
+  internalAccountApi: MaybeInternalAccountApi; //Api for using extended user features with normal backend
   userApi: UserApi; 
   extendedResourceApi: MaybeExtendedResourceApi;
   public orgType: OrgType;
@@ -79,14 +81,14 @@ export class ConfigFactory {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
       }
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
-
-
       
       //@ts-ignore
       this.appApi = ggmnApi
       this.externalServiceApi = ggmnApi;
       this.userApi = ggmnApi;
       this.extendedResourceApi = ggmnApi;
+      this.internalAccountApi = { internalAccountApiType: InternalAccountApiType.None};
+
       this.orgType = OrgType.GGMN
 
     } else {
@@ -98,6 +100,7 @@ export class ConfigFactory {
       this.userApi = mywellApi;
       this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
       this.extendedResourceApi = {externalServiceApiType: ExtendedResourceApiType.None};
+      this.internalAccountApi = mywellApi;
       this.orgType = OrgType.MYWELL
     }
   }

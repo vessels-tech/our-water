@@ -12,7 +12,8 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyResource } from "../typings/models/Resource";
 import { AnyReading } from "../typings/models/Reading";
-import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
+import { RNFirebase } from "react-native-firebase";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -62,6 +63,8 @@ export type AnyAction =
   SetExternalOrganisation |
   SendResourceEmailActionRequest |
   SendResourceEmailActionResponse |
+  SendVerifyCodeActionRequest |
+  SendVerifyCodeActionResponse |
   SilentLoginActionRequest |
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
@@ -97,7 +100,6 @@ export type GetPendingResourcesResponse = { type: ActionType.GET_PENDING_RESOURC
 //We only need timeseries id here to lookup in GGMN. Ideally we could use resourceId + timeseriesName instead
 export type GetReadingsActionRequest = { type: ActionType.GET_READINGS_REQUEST, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange };
 export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE, result: SomeResult<AnyReading[]>, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange };
-
 export type GetResourceActionRequest = { type: ActionType.GET_RESOURCE_REQUEST, resourceId: string };
 export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<AnyResource>}
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
@@ -120,5 +122,9 @@ export type SilentLoginActionResponse = { type: ActionType.SILENT_LOGIN_RESPONSE
 export type SetExternalOrganisation = { type: ActionType.SET_EXTERNAL_ORGANISATION, organisation: GGMNOrganisation};
 export type SendResourceEmailActionRequest = {type: ActionType.SEND_RESOURCE_EMAIL_REQUEST};
 export type SendResourceEmailActionResponse = {type: ActionType.SEND_RESOURCE_EMAIL_RESPONSE, result: SomeResult<void>};
-export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST}
-export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>}
+export type SendVerifyCodeActionRequest = {type: ActionType.SEND_VERIFY_CODE_REQUEST};
+export type SendVerifyCodeActionResponse = { type: ActionType.SEND_VERIFY_CODE_RESPONSE, result: SomeResult<RNFirebase.ConfirmationResult>};
+export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST};
+export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+export type VerifyCodeAndLoginActionRequest = {type: ActionType.VERIFY_CODE_AND_LOGIN_REQUEST }
+export type VerifyCodeAndLoginActionResponse = {type: ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE, result: SomeResult<FullUser>};
