@@ -30,6 +30,9 @@ import { phoneNumberValidator } from '../../utils';
 import Loading from '../../components/common/Loading';
 import CodeInput from 'react-native-confirmation-code-input';
 import { invalid } from 'moment';
+import { MaybeInternalAccountApi } from '../../api/internalAccountApi';
+import { RNFirebase } from 'react-native-firebase';
+import Config from 'react-native-config';
 
 export interface OwnProps {
   navigator: any,
@@ -49,13 +52,14 @@ export interface ActionProps {
   connectToExternalService: any,
   disconnectFromExternalService: any,
   setExternalOrganisation: any,
+  sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => SomeResult<any>,
+  verifyCodeAndLogin: (api: MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => SomeResult<any>,
 }
 
 export enum SignInStatus {
   WaitingForMobile = 'WaitingForMobile',
   WaitingForPin = 'WaitingForPin',
-  SignedInIncomplete = 'SignedInIncomplete',
-  SignedInComplete = 'SignedInComplete',
+  SignedIn = 'SignedIn',
 }
 
 
@@ -72,17 +76,17 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   appApi: BaseApi;
   loginForm: any;
-  externalApi: MaybeExternalServiceApi;
+  internalAccountApi: MaybeInternalAccountApi;
   profileForm: any;
+  confirmResult: RNFirebase.ConfirmationResult | null = null;
   
-
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
 
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
-    this.externalApi = this.props.config.getExternalServiceApi();
+    this.internalAccountApi = this.props.config.getInternalAccountApi();
 
     /* binds */
     this.sendVerifyCode = this.sendVerifyCode.bind(this);
@@ -90,10 +94,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: figure out if we are already signed in, and if we are check to see if the profile is complete or not.
 
-    let mobile = '';
-    if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
-      mobile = this.props.externalLoginDetails.username;
-    }
+    // let mobile = '';
+    let mobile = '+61410237238';
+   
     // this.state = {
     //   mobile,
     //   password: '',
@@ -104,11 +107,11 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.state = {
       mobile: '+61410237238',
       password: '',
-      status: SignInStatus.WaitingForPin,
+      status: SignInStatus.WaitingForMobile,
     };
 
     this.loginForm = FormBuilder.group({
-      mobile: ['', Validators.required, phoneNumberValidator],
+      mobile: [mobile, Validators.required, phoneNumberValidator],
     });
 
     this.profileForm = FormBuilder.group({
@@ -146,21 +149,32 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     // this.props.disconnectFromExternalService(this.externalApi);
   }
 
-  sendVerifyCode() {
-    const mobile = this.loginForm.value.mobile
-    //TODO: send the verify code
+  async sendVerifyCode() {
+    const mobile = this.loginForm.value.mobile;
+    const result = await this.props.sendVerifyCode(this.internalAccountApi, mobile);
+    console.log("result is", result);
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show(result.message, ToastAndroid.SHORT);
+      return;
+    }
+
+    this.confirmResult = result.result;
 
     this.setState({ status: SignInStatus.WaitingForPin, mobile });
   }
 
-  verifyCode(isValid: boolean) {
-    console.log('isValid:', isValid);
-    if (!isValid) {
-      ToastAndroid.show('Wrong code', ToastAndroid.SHORT);
+  async verifyCode(code: string) {
+    if (!this.confirmResult) {
+      return
+    }
+
+    const result = await this.props.verifyCodeAndLogin(this.internalAccountApi, this.confirmResult, code);
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show(result.message, ToastAndroid.SHORT);
       return;
     }
 
-    this.setState({ status: SignInStatus.SignedInIncomplete })
+    this.setState({ status: SignInStatus.SignedIn })
   }
 
   getLogo() {
@@ -208,11 +222,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       case SignInStatus.WaitingForPin: {
         return this.getVerifySection();
       }
-      case SignInStatus.SignedInIncomplete: {
+      case SignInStatus.SignedIn: {
         return this.getProfileForm();
-      }
-      case SignInStatus.SignedInComplete: {
-        return this.getProfile();
       }
     }
   }
@@ -284,7 +295,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <CodeInput
           ref="codeInputRef2"
           secureTextEntry
-          compareWithCode='123456'
           codeLength={6}
           activeColor={primaryLight}
           inactiveColor={primaryText}
@@ -326,7 +336,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                   meta={{ editable: true, label: 'Email', secureTextEntry: false, keyboardType: 'numeric' }}
                 />
                 <Button 
-                  onPress={() => this.setState({ status: SignInStatus.SignedInComplete })} 
+                  onPress={() => this.setState({ status: SignInStatus.SignedIn })} 
                   title="Save" 
                   // disabled={control.pristine || control.invalid}
                 />
@@ -347,7 +357,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         <Text>You are signed in.</Text>
         {/* TODO: do this implicitly */}
-        <Button onPress={() => this.setState({ status: SignInStatus.SignedInIncomplete })} title="Edit" />
+        <Button onPress={() => this.setState({ status: SignInStatus.SignedIn })} title="Edit" />
         <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Logout" />
       </View>
     );
@@ -394,10 +404,10 @@ const mapStateToProps = (state: AppState): StateProps => {
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string) => { dispatch(appActions.connectToExternalService(api, username, password)) },
-
     disconnectFromExternalService: (api: MaybeExternalServiceApi) => { dispatch(appActions.disconnectFromExternalService(api)) },
-
-    setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => { dispatch(appActions.setExternalOrganisation(api, organisation)) }
+    setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => { dispatch(appActions.setExternalOrganisation(api, organisation)) },
+    sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => {return dispatch(appActions.sendVerifyCode(api, mobile))},
+    verifyCodeAndLogin: (api: MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => {return dispatch(appActions.verifyCodeAndLogin(api, confirmResult, code))},
   }
 }
 

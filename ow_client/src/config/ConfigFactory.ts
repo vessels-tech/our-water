@@ -136,6 +136,10 @@ export class ConfigFactory {
     return this.extendedResourceApi;
   }
 
+  getInternalAccountApi(): MaybeInternalAccountApi {
+    return this.internalAccountApi;
+  }
+
   getShowConnectToButton() {
     if (this.remoteConfig.showConnectToButton) {
       return true;

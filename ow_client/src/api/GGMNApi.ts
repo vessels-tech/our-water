@@ -651,7 +651,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     })
     .catch((err: Error) => {
       //TODO: handle this error?
-      maybeLog(err);
+      maybeLog('getReadingsForTimeseries' + err);
     });
 
   }
@@ -1432,7 +1432,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return makeSuccess(undefined);
     })
     .catch((err: Error) => {
-      maybeLog(err);
+      maybeLog('saveReadingToGGMN', err);
       return makeError(SyncError.SaveReadingUnknown);
     });
   }

@@ -750,7 +750,7 @@ function sendResourceEmailResponse(result: SomeResult<void>): SendResourceEmailA
 /**
  * Send the verify code to the user
  */
-export function sendVerifyCode(api: MaybeInternalAccountApi, mobile: string): any {
+export function sendVerifyCode(api: MaybeInternalAccountApi, mobile: string): (dispatch: any) => Promise<SomeResult<any>> {
   return async function(dispatch: any) {
     if (api.internalAccountApiType === InternalAccountApiType.None) {
       maybeLog("Tried to send verify code, but internal account api was none");
@@ -759,6 +759,8 @@ export function sendVerifyCode(api: MaybeInternalAccountApi, mobile: string): an
     dispatch(sendVerifyCodeRequest());
     const result = await api.sendVerifyCode(mobile);
     dispatch(sendVerifyCodeResponse(result));
+
+    return result;
   }
 }
 
@@ -833,7 +835,7 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
 }
 
 
-export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string): any {
+export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: RNFirebase.ConfirmationResult, code: string): asyncDispatchResult<any> {
   return async function(dispatch: any) {
     dispatch(verifyCodeAndLoginRequest());
     if (api.internalAccountApiType === InternalAccountApiType.None) {
@@ -843,6 +845,8 @@ export function verifyCodeAndLogin(api:MaybeInternalAccountApi, confirmResult: R
 
     const result = await api.verifyCodeAndLogin(confirmResult, code);
     dispatch(verifyCodeAndLoginResponse(result));
+    
+    return result;
   }
 }
 

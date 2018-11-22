@@ -133,7 +133,10 @@ class FirebaseApi {
       return user.getIdToken();
     })
     .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
-    .catch((err: Error) => makeError<FullUser>(err.message));
+    .catch((err: Error) => {
+      console.log("ERROR", err);
+      return makeError<FullUser>(err.message)
+    });
   }
 
 
@@ -247,7 +250,7 @@ class FirebaseApi {
       return resources;
     })
     .catch(err => {
-      maybeLog(err);
+      maybeLog('getResourcesForOrg', err);
       return Promise.reject(err);
     });
   }
@@ -281,7 +284,7 @@ class FirebaseApi {
 
         return response.json();
       })
-      .catch((err: Error) => maybeLog(err));
+      .catch((err: Error) => maybeLog('dep_getResourceNearLocation error' + err));
   }
 
   // /**

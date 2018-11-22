@@ -3,6 +3,17 @@
 The react native app for OurWater
 
 
+## Getting SHA-1 Fingerprint:
+
+See: https://developers.google.com/android/guides/client-auth
+
+```bash
+keytool -exportcert -list -v \
+-alias androiddebugkey -keystore ~/.android/debug.keystore
+```
+
+
+
 
 ## Component Template:
 
@@ -63,3 +74,5 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClassName);
 ```
+
+
