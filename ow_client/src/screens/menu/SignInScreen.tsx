@@ -223,51 +223,56 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       translation: { templates: {
         connect_to_service_username_field,
         connect_to_service_username_invalid,
-        connect_to_service_password_field,
-        connect_to_service_password_invalid,
-        connect_to_service_submit_button
+        connect_to_service_submit_button,
+        connect_to_service_description
       } },
     } = this.props;
 
     return (
-      <FieldGroup
-        control={this.loginForm}
-        render={(control) => {
-          return(
-          <View>
-            <FieldControl
-              name="mobile"
-              render={MobileInput}
-              meta={{
-                //TODO: translate
-                asyncErrorMessage: 'Phone number is invalid',
-                label: connect_to_service_username_field,
-                secureTextEntry: false,
-                errorMessage: connect_to_service_username_invalid,
-                keyboardType: 'phone-pad',
-              }}
-            />
-            <Button
-              style={{
-                paddingBottom: 20,
-                minHeight: 50,
-              }}
-              buttonStyle={{
-                backgroundColor: secondary,
-              }}
-              textStyle={{
-                color: secondaryText,
-                fontWeight: '700',
-              }}
-              loading={loading}
-              disabled={control.pristine || control.invalid}
-              title={loading ? '' : connect_to_service_submit_button}
-              //TODO: Send verify message
-              onPress={this.sendVerifyCode}
-            />
-          </View>
-        )}}
-      />
+      <View>
+        <Text style={{
+          paddingHorizontal: 20,
+          paddingTop: 30,
+        }}>{connect_to_service_description}</Text>
+        <FieldGroup
+          control={this.loginForm}
+          render={(control) => {
+            return(
+            <View>
+              <FieldControl
+                name="mobile"
+                render={MobileInput}
+                meta={{
+                  //TODO: translate
+                  asyncErrorMessage: 'Phone number is invalid',
+                  label: connect_to_service_username_field,
+                  secureTextEntry: false,
+                  errorMessage: connect_to_service_username_invalid,
+                  keyboardType: 'phone-pad',
+                }}
+              />
+              <Button
+                style={{
+                  paddingBottom: 20,
+                  minHeight: 50,
+                }}
+                buttonStyle={{
+                  backgroundColor: secondary,
+                }}
+                textStyle={{
+                  color: secondaryText,
+                  fontWeight: '700',
+                }}
+                loading={loading}
+                disabled={control.pristine || control.invalid}
+                title={loading ? '' : connect_to_service_submit_button}
+                //TODO: Send verify message
+                onPress={this.sendVerifyCode}
+              />
+            </View>
+          )}}
+        />
+      </View>
     )
   }
 
@@ -367,10 +372,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <View style={{
           flex: 2
         }}>
-          <Text style={{
-            paddingHorizontal: 20,
-            paddingTop: 30,
-          }}>{connect_to_service_description}</Text>
           {this.getErrorMessage()}
           {this.getContent()}
         </View>
