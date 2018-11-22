@@ -26,7 +26,7 @@ import { SyncMeta, ActionMeta } from '../../typings/Reducer';
 import { TextInput, MobileInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations';
-import { phoneNumberValidator } from '../../utils';
+import { phoneNumberValidator, unwrapUserId } from '../../utils';
 import Loading from '../../components/common/Loading';
 import CodeInput from 'react-native-confirmation-code-input';
 import { invalid } from 'moment';
@@ -43,6 +43,7 @@ export interface OwnProps {
 
 export interface StateProps {
   user: MaybeUser,
+  userId: string,
   userIdMeta: ActionMeta,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
@@ -60,7 +61,7 @@ export interface ActionProps {
   disconnectFromExternalService: any,
   setExternalOrganisation: any,
   sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => SomeResult<any>,
-  verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => SomeResult<any>,
+  verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string) => SomeResult<any>,
   saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => any,
 }
 
@@ -191,7 +192,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       return
     }
 
-    const result = await this.props.verifyCodeAndLogin(this.internalAccountApi, this.userApi, this.confirmResult, code);
+    const result = await this.props.verifyCodeAndLogin(this.internalAccountApi, this.userApi, this.confirmResult, code, this.props.userId);
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(result.message, ToastAndroid.SHORT);
       return;
@@ -440,6 +441,7 @@ const mapStateToProps = (state: AppState): StateProps => {
 
   return {
     user: state.user,
+    userId: unwrapUserId(state.user),
     userIdMeta: state.userIdMeta,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
@@ -459,7 +461,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     disconnectFromExternalService: (api: MaybeExternalServiceApi) => { dispatch(appActions.disconnectFromExternalService(api)) },
     setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => { dispatch(appActions.setExternalOrganisation(api, organisation)) },
     sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => {return dispatch(appActions.sendVerifyCode(api, mobile))},
-    verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string) => {return dispatch(appActions.verifyCodeAndLogin(api, userApi, confirmResult, code))},
+    verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string) => {return dispatch(appActions.verifyCodeAndLogin(api, userApi, confirmResult, code, oldUserId))},
     saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => dispatch(appActions.saveUserDetails(api, userId, userDetails)),
   }
 }

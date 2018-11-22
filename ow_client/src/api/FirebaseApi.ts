@@ -19,7 +19,7 @@ import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';
-import { isNullOrUndefined } from 'util';
+import { isNullOrUndefined, isError } from 'util';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
@@ -121,38 +121,10 @@ class FirebaseApi {
    * 
    * TODO: handle merging user identities
    */
-  static async verifyCodeAndLogin(orgId: string, confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
+  static async verifyCodeAndLogin(orgId: string, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
     let anonymousCredential: RNFirebase.UserCredential;
     let user: RNFirebase.User;
     let mobile: string;
-
-    // if (!confirmResult.verificationId) {
-    //   return Promise.resolve(makeError<FullUser>('Could not find verification id'));
-    // }
-
-    //TODO: instead of linking accounts, just update the userId and merge in the existing data
-    // const phoneCredential = firebase.auth.PhoneAuthProvider.credential(confirmResult.verificationId, code);
-
-    //First get the anonymous login to link
-    // return auth.currentUser.linkWithCredential(phoneCredential)
-    // .then((userCredential: RNFirebase.UserCredential) => {
-    // })
-
-    // return auth.signInAnonymouslyAndRetrieveData()
-    // .then(_anonymousCredential => anonymousCredential = _anonymousCredential)
-    // .then(() => anonymousCredential.user.linkAndRetrieveDataWithCredential(phoneCredential))
-    // .then((userCredential: RNFirebase.UserCredential) => {
-    //   user = userCredential.user;
-      
-    //   if (!user.phoneNumber) {
-    //     return makeError<FullUser>('User logged in, but no phone number found');
-    //   }
-    //   mobile = user.phoneNumber;
-
-    //   return user.getIdToken();
-    // })
-    // .then((token: string) => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
-
   
     return confirmResult.confirm(code)
     .then(_user => {
@@ -168,8 +140,8 @@ class FirebaseApi {
       mobile = user.phoneNumber;
       return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
     })
+    .then(() => this.mergeUsers(orgId, oldUserId, user.uid))
     .then(() => user.getIdToken())
-    //TODO: merge together the anonymous user's data with the data from the logged in user
     .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
     .catch((err: Error) => {
       console.log("ERROR", err);
@@ -177,12 +149,34 @@ class FirebaseApi {
     });
   }
 
+  /**
+   * Authenticaion Callback
+   */
   static onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
     return auth.onAuthStateChanged(listener);
   }
 
   static saveUserDetails(orgId: string, userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
     return this.userDoc(orgId, userId).set({...userDetails}, {merge: true})
+    .then(() => makeSuccess<void>(undefined))
+    .catch((err: Error) => makeError<void>(err.message));
+  }
+
+
+  /**
+   * When a user changes, merge the old user's data into the new one
+   * 
+   * This doesn't handle subcollections
+   */
+  static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
+    const oldUserResult = await this.getUser(orgId, oldUserId);
+    if (oldUserResult.type === ResultType.ERROR) {
+      return oldUserResult;
+    }
+    const oldUser = oldUserResult.result;
+    delete oldUser.userId;
+    
+    return this.userDoc(orgId, userId).set({...oldUser}, {merge: true})
     .then(() => makeSuccess<void>(undefined))
     .catch((err: Error) => makeError<void>(err.message));
   }
@@ -662,7 +656,7 @@ class FirebaseApi {
       );
   }
 
-  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: (readings: PendingReading[]) => void): string {
+  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: (readings: PendingReading[]) => void): () => void {
     return this.userDoc(orgId, userId).collection('pendingReadings')
     .onSnapshot(
       {
@@ -681,7 +675,7 @@ class FirebaseApi {
       );
   }
 
-  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: (readings: PendingResource[]) => void): string {
+  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: (readings: PendingResource[]) => void): () => void {
     return this.userDoc(orgId, userId).collection('pendingResources')
     .onSnapshot(
       {
@@ -793,18 +787,10 @@ class FirebaseApi {
   static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
     return this.userDoc(orgId, userId).get()
     .then((sn: any) => this.snapshotToUser(sn))
-    .then((user: OWUser) => {
-      return {
-        type: ResultType.SUCCESS,
-        result: user,
-      }
-    })
+    .then((user: OWUser) => makeSuccess<OWUser>(user))
     .catch((err: any) => {
       maybeLog("error getting user: " + err);
-      return {
-        type: ResultType.ERROR,
-        message: `Could not get user for orgId: ${orgId}, userId: ${userId}`
-      }
+      makeError<OWUser>(`Could not get user for orgId: ${orgId}, userId: ${userId}`);
     });
   }
 
@@ -1028,6 +1014,10 @@ class FirebaseApi {
       recentSearches: data.recentSearches || [],
       //TODO: default translation can be overriden here
       translation: data.translation || 'en_AU', 
+      mobile: data.mobile || null,
+      email: data.email || null,
+      name: data.name || null,
+      nickname: data.nickname || null,
     }
   }
 

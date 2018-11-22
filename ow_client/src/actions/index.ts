@@ -39,6 +39,7 @@ export function addFavourite(api: BaseApi, userId: string, resource: AnyResource
   return async (dispatch: any ) => {
     dispatch(addFavouriteRequest(resource));
 
+    console.log("addFavourite, userid:", userId);
     const result = await api.addFavouriteResource(resource, userId);
 
     dispatch(addFavouriteResponse(result));
@@ -868,7 +869,7 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
 }
 
 
-export function verifyCodeAndLogin(api:MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string): asyncDispatchResult<any> {
+export function verifyCodeAndLogin(api:MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): asyncDispatchResult<any> {
   return async function(dispatch: any) {
     dispatch(verifyCodeAndLoginRequest());
     if (api.internalAccountApiType === InternalAccountApiType.None) {
@@ -876,7 +877,7 @@ export function verifyCodeAndLogin(api:MaybeInternalAccountApi, userApi: UserApi
       return makeSuccess<void>(undefined);
     }
 
-    const result = await api.verifyCodeAndLogin(confirmResult, code);
+    const result = await api.verifyCodeAndLogin(confirmResult, code, oldUserId);
 
     //Subscribe to the new user id
     if(result.type === ResultType.SUCCESS) {

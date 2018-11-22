@@ -32,6 +32,14 @@ export function makeError<T>(message: string): SomeResult<T> {
   };
 }
 
+export function isError(result: SomeResult<any>) {
+  if (result.type === ResultType.ERROR) {
+    return true;
+  }
+
+  return false;
+}
+
   
 /**
  * Reduces a list of SomeResults and returns if any of them contain an error

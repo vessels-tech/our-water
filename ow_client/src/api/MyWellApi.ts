@@ -232,18 +232,12 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   // Subscriptions
   //----------------------------------------------------------------
 
-  subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
-    this.pendingReadingsSubscription = FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+  subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): () => void {
+    return FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
   }
 
-  unsubscribeFromPendingReadings() {
-    if (this.pendingReadingsSubscription) {
-      this.pendingReadingsSubscription.unsubscribe();
-    }
-  }
-
-  subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void {
-    FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
+  subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): () => void {
+    return FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
   }
 
   //
@@ -312,7 +306,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     return FirebaseApi.sendVerifyCode(mobile);
   }
 
-  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>> {
-    return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code);
+  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
+    return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
   }
 }

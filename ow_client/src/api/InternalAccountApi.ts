@@ -24,7 +24,7 @@ export default interface InternalAccountApi {
 
 
   sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>>
-  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string): Promise<SomeResult<FullUser>>
+  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string, oldUserId: string): Promise<SomeResult<FullUser>>
 
   /**
    * SaveUserDetails

@@ -16,6 +16,7 @@ import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
+import { MaybeUser, UserType } from '../typings/UserTypes';
 
 
 /**
@@ -585,4 +586,12 @@ export function phoneNumberValidator(control: AbstractControl) {
   }
 
   return Promise.resolve({ invalidPhoneNumber: true });
+}
+
+export function unwrapUserId(user: MaybeUser) {
+  if (user.type === UserType.NO_USER) {
+    return '';
+  }
+
+  return user.userId;
 }

@@ -44,6 +44,25 @@ if (EnableLogging) {
   console.log("LOGGING DISABLED");
 }
 
+
+//TODO: figure out if user has changed and remove old subscriptions
+const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: string) => {
+  /* Subscribe to firebase updates */
+  console.log("subscribing to user", userId);
+  const unsubscribe = config.userApi.subscribeToUser(userId, (user: OWUser) => {
+    store.dispatch(appActions.getUserResponse({ type: ResultType.SUCCESS, result: user }))
+  });
+  store.dispatch(appActions.passOnUserSubscription(unsubscribe));
+
+  config.appApi.subscribeToPendingReadings(userId, (readings: PendingReading[]) => {
+    store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
+  });
+
+  config.appApi.subscribeToPendingResources(userId, (resources: PendingResource[]) => {
+    store.dispatch(appActions.getPendingResourcesResponse({ type: ResultType.SUCCESS, result: resources }))
+  });
+}
+
 export async function registerScreens(config: ConfigFactory) {
 
   const middleware = loggerMiddleware ? applyMiddleware(thunkMiddleware,loggerMiddleware)
@@ -67,6 +86,7 @@ export async function registerScreens(config: ConfigFactory) {
       return;
     }
 
+
     //Build the user
     let user: AnonymousUser | MobileUser;
     if (rnFirebaseUser.isAnonymous) {
@@ -84,6 +104,7 @@ export async function registerScreens(config: ConfigFactory) {
       }
     }
 
+    setUpUserSubscriptions(store, config, user.userId);
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
   });
 
@@ -93,26 +114,6 @@ export async function registerScreens(config: ConfigFactory) {
   //TODO: I don't know how to fix this.
   //@ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
-  const user = store.getState().user;
-  // TODO: this will introduce a race condition now.
-  if (user.type === UserType.USER) {
-    await store.dispatch(appActions.getUser(config.userApi, user.userId));
-    
-    /* Subscribe to firebase updates */
-    const unsubscribe = config.userApi.subscribeToUser(user.userId, (user: OWUser) => {
-      store.dispatch(appActions.getUserResponse({type: ResultType.SUCCESS, result: user}))
-    });
-    store.dispatch(appActions.passOnUserSubscription(unsubscribe));
-
-
-    config.appApi.subscribeToPendingReadings(user.userId, (readings: PendingReading[]) => {
-      store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
-    });
-
-    config.appApi.subscribeToPendingResources(user.userId, (resources: PendingResource[]) => {
-      store.dispatch(appActions.getPendingResourcesResponse({ type: ResultType.SUCCESS, result: resources }))
-    });
-  }
 
   if (config.externalServiceApi) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));

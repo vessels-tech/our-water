@@ -38,6 +38,7 @@ import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingReading } from '../typings/models/PendingReading';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
+import { UserType } from '../typings/UserTypes';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -46,7 +47,6 @@ import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 export interface OwnProps {
   config: ConfigFactory,
   resource: AnyResource,
-  userId: string,
   onAddReadingPressed: any,
   hideTopBar: boolean,
 }
@@ -58,6 +58,7 @@ export interface StateProps {
   favourite: boolean,
   translation: TranslationFile,
   pendingReadings: PendingReading[],
+  userId: string,
 }
 
 export interface ActionProps {
@@ -420,6 +421,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     tsReadings: state.tsReadings,
     translation: state.translation,
     pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resource.id),
+    userId: state.user.type === UserType.NO_USER ? '' : state.user.userId,
   }
 }
 
