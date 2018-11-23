@@ -24,7 +24,7 @@ export default interface InternalAccountApi {
 
 
   sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>>
-  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string, oldUserId: string): Promise<SomeResult<FullUser>>
+  verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>>
 
   /**
    * SaveUserDetails
@@ -32,6 +32,12 @@ export default interface InternalAccountApi {
    * Add some extra user details
    */
   saveUserDetails(userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>>;
+
+  /**
+   * Log the user out
+   * Will then perform a login to the anonymous account
+   */
+  logout(): Promise<SomeResult<any>>;
 
 
 }

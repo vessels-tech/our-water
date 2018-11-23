@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { PureComponent } from "react";
 
+//@ts-ignore
 import { callingCountries } from 'country-data';
 import { View, TextInput, Picker } from 'react-native';
-import { Button, Text } from 'react-native-elements';
-import { DropdownInput } from './FormComponents';
-
 
 export interface Props { 
   onValueChange: (mobileText: string) => void;
@@ -57,13 +55,8 @@ class PhoneNumberEntry extends PureComponent<Props> {
     this.updatePickerValue = this.updatePickerValue.bind(this);
     this.updateCountryFromCode = this.updateCountryFromCode.bind(this);
     this.updateMobile = this.updateMobile.bind(this);
-
-    console.log('countries is', countries);
   }
 
-  componentDidMount() {
-    
-  }
 
   getMobileText() {
     return `${this.state.country.countryCode}${this.state.mobileText}`

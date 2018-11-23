@@ -309,4 +309,8 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
     return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
   }
+
+  logout(): Promise<SomeResult<any>> {
+    return FirebaseApi.logout(this.orgId);
+  }
 }

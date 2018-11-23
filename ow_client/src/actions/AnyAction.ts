@@ -54,6 +54,8 @@ export type AnyAction =
   GetUserActionResponse |
   GotShortIdsAction |
   LoginCallbackResponse |
+  LogoutActionRequest |
+  LogoutActionResponse |
   PassOnUserSubscriptionAction |
   PerformSearchActionRequest |
   PerformSearchActionResponse |
@@ -115,7 +117,9 @@ export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE,
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };
 export type GetUserActionResponse = { type: ActionType.GET_USER_RESPONSE, result: SomeResult<OWUser> };
 export type GotShortIdsAction = { type: ActionType.GOT_SHORT_IDS , shortIds: string[], longIds: string[]};
-export type LoginCallbackResponse = { type: ActionType.LOGIN_CALLBACK, user: SomeResult<AnonymousUser | MobileUser>}
+export type LoginCallbackResponse = { type: ActionType.LOGIN_CALLBACK, user: SomeResult<AnonymousUser | MobileUser>};
+export type LogoutActionRequest = { type: ActionType.LOGOUT_REQUEST };
+export type LogoutActionResponse = { type: ActionType.LOGOUT_RESPONSE };
 export type PassOnUserSubscriptionAction = { type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe: () => any};
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
 export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResult>}

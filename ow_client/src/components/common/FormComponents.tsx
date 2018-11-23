@@ -6,6 +6,7 @@ import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
 import PhoneNumberEntry, { CallingCountry } from './PhoneNumberEntry';
+import { FormGroup, FormControl } from 'react-reactive-form';
 
 export enum InputParams {
   Text = 'Text',
@@ -157,7 +158,6 @@ export const MobileInput = (params: MobileInputParams) => {
       <FormLabel>{label}</FormLabel>
       <PhoneNumberEntry 
         onValueChange={(mobileText: string) => {
-          console.log("Phone number changed", mobileText)
           return handler().onChange(mobileText);
         }}
       />

@@ -141,12 +141,24 @@ class FirebaseApi {
       return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
     })
     .then(() => this.mergeUsers(orgId, oldUserId, user.uid))
-    .then(() => user.getIdToken())
+    .then(mergeResult => {
+      if (mergeResult.type === ResultType.ERROR) {
+        maybeLog("Non fatal error merging users:", mergeResult.message)
+      } 
+
+      return user.getIdToken();
+    })
     .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
     .catch((err: Error) => {
       console.log("ERROR", err);
       return makeError<FullUser>(err.message)
     });
+  }
+
+  static async logout(orgId: string): Promise<SomeResult<any>> {
+    return auth.signOut()
+    .then(() => this.signIn())
+    .catch((err: Error) => makeError<void>(err.message));
   }
 
   /**
@@ -169,6 +181,7 @@ class FirebaseApi {
    * This doesn't handle subcollections
    */
   static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
+    console.log(`Merging old user: ${oldUserId} to new user: ${userId}`);
     const oldUserResult = await this.getUser(orgId, oldUserId);
     if (oldUserResult.type === ResultType.ERROR) {
       return oldUserResult;
@@ -703,7 +716,7 @@ class FirebaseApi {
     };
     return this.userDoc(orgId, userId).onSnapshot(options, (sn: any) => {
       try {
-        const user: OWUser = this.snapshotToUser(sn);
+        const user: OWUser = this.snapshotToUser(userId, sn);
         return cb(user);
       } catch (err) {
         maybeLog("error: " + err);
@@ -786,11 +799,11 @@ class FirebaseApi {
    */
   static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
     return this.userDoc(orgId, userId).get()
-    .then((sn: any) => this.snapshotToUser(sn))
+    .then((sn: any) => this.snapshotToUser(userId, sn))
     .then((user: OWUser) => makeSuccess<OWUser>(user))
     .catch((err: any) => {
       maybeLog("error getting user: " + err);
-      makeError<OWUser>(`Could not get user for orgId: ${orgId}, userId: ${userId}`);
+      return makeError<OWUser>(`Could not get user for orgId: ${orgId}, userId: ${userId}`);
     });
   }
 
@@ -985,15 +998,46 @@ class FirebaseApi {
   //Utils
   //------------------------------------------------------------------------------
 
+
+  /**
+   * Map a fb snapshot to a proper OWUser object
+   * If the snapshot is null, returns an empty user object
+   */
+  static snapshotToUser(userId: string, sn: any): OWUser {
+    const data = sn.data();
+
+    if (!data) {
+      return {
+        userId,
+        recentResources: [],
+        favouriteResources: [],
+        pendingSavedReadings:  [],
+        pendingSavedResources:[],
+        recentSearches: [],
+        //TODO: default translation can be overriden here
+        translation: TranslationEnum.en_AU,
+        mobile: null,
+        email: null,
+        name: null,
+        nickname: null,
+      }
+    }
+
+    return this.oldSnapshotToUser(sn);
+  }
+
+
   /**
    * Map a fb snapshot to a proper OWUser object
    */
-  static snapshotToUser(sn: any): OWUser {
+  static oldSnapshotToUser(sn: any): OWUser {
     const data = sn.data();
 
     if (!data) {
       throw new Error("Data from snapshot was undefined or null");
     }
+
+  
 
     let favouriteResources: AnyResource[] = [];
     const favouriteResourcesDict = data.favouriteResources;

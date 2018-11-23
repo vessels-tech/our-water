@@ -432,8 +432,15 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         user: result.result,
         userIdMeta,
       });
-
-
+    }
+    case ActionType.LOGOUT_REQUEST: {
+      const userIdMeta = { loading: true, error: false, errorMessage: '' };
+      return Object.assign({}, state, { userIdMeta });
+    }
+    case ActionType.LOGOUT_RESPONSE: {
+      //TODO: we're not handling an error here.
+      const userIdMeta = { loading: false, error: false, errorMessage: '' };
+      return Object.assign({}, state, { userIdMeta });
     }
     case ActionType.PASS_ON_USER_SUBSCRIPTION: {
       return Object.assign({}, state, { unsubscribeFromUser: action.unsubscribe});

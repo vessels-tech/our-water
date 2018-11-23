@@ -57,12 +57,10 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  connectToExternalService: any,
-  disconnectFromExternalService: any,
-  setExternalOrganisation: any,
+  logout: (api: MaybeInternalAccountApi) => Promise<SomeResult<any>>,
+  saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => any,
   sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => SomeResult<any>,
   verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string) => SomeResult<any>,
-  saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => any,
 }
 
 export enum SignInStatus {
@@ -98,7 +96,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
-
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
     this.userApi = this.props.config.userApi;
@@ -106,6 +103,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     /* binds */
     this.sendVerifyCode = this.sendVerifyCode.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
     this.verifyCode = this.verifyCode.bind(this);
     this.saveProfileForm = this.saveProfileForm.bind(this);
 
@@ -146,17 +144,24 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillReceiveProps(newProps: OwnProps & StateProps & ActionProps) {
-    const { mobile } = this.state;
-    const { externalLoginDetails } = newProps;
+    const oldUserType = this.props.user.type;
+    const newUserType = newProps.user.type;
 
-    // if (externalLoginDetails.type === LoginDetailsType.FULL) {
+    if (oldUserType === newUserType) {
+      return;
+    }
 
-    //   //Update the username if we found a saved one.
-    //   if (mobile !== externalLoginDetails.username) {
-    //     this.setState({ username: externalLoginDetails.username });
-    //     // this.loginForm.get('username').setValue(externalLoginDetails.username);
-    //   }
-    // }
+    //If the user type has changed to UserType.MOBILE, then we can update the status
+    if (newUserType === UserType.MOBILE_USER) {
+      this.setState({ status: SignInStatus.SignedIn });
+    }
+
+    if (newUserType === UserType.USER || newUserType === UserType.NO_USER) {
+      this.setState({ status: SignInStatus.WaitingForMobile });
+    }
+
+    //TODO: set the profile status based on the profile
+    //TODO: set up the form fields
   }
 
   handleSubmit = async () => {
@@ -169,8 +174,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
-  handleLogout = () => {
-    // this.props.disconnectFromExternalService(this.externalApi);
+  async handleLogout() {
+    await this.props.logout(this.internalAccountApi);
+
+    // this.setState({ status: SignInStatus.WaitingForMobile })
   }
 
   async sendVerifyCode() {
@@ -194,11 +201,11 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     const result = await this.props.verifyCodeAndLogin(this.internalAccountApi, this.userApi, this.confirmResult, code, this.props.userId);
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(result.message, ToastAndroid.SHORT);
+      ToastAndroid.show(result.message, ToastAndroid.LONG);
       return;
     }
 
-    this.setState({ status: SignInStatus.SignedIn })
+    // this.setState({ status: SignInStatus.SignedIn })
   }
 
   async saveProfileForm() {
@@ -256,14 +263,20 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getContent() {
+    console.log("getContent status: ", this.state.status);
+    console.log("getContent profileStatus: ", this.state.profileStatus);
+
     switch (this.state.status) {
       case SignInStatus.WaitingForMobile: {
+        console.log("waiting for mobile");
         return this.getForm();
       }
       case SignInStatus.WaitingForPin: {
+        console.log("waiting for pin");
         return this.getVerifySection();
       }
       case SignInStatus.SignedIn: {
+        console.log("signed in");
         switch(this.state.profileStatus) {
           case ProfileStatus.Incomplete: {
             return this.getProfileForm();
@@ -277,6 +290,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getForm() {
+    console.log("rendering getForm");
     const {
       externalLoginDetailsMeta: { loading },
       translation: { templates: {
@@ -288,7 +302,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props;
 
     return (
-      <View>
+      <View key="loginForm">
         <Text style={{
           paddingHorizontal: 20,
           paddingTop: 30,
@@ -338,7 +352,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   getVerifySection() {
     return (
       <View>
-        <Text>Enter the login code we sent to {this.state.mobile}.</Text>
+        <Text>Enter the login code we sent to {this.state.mobile}. Or wait as we verify you automatically</Text>
+
         {/* TODO: do this implicitly */}
         <CodeInput
           ref="codeInputRef2"
@@ -361,7 +376,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getProfileForm() {
     return (
-      <View>
+      <View key="profileForm">
         <Text>Tell Us More About Yourself</Text>
         <FieldGroup
           control={this.profileForm}
@@ -392,10 +407,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
             )
           }}
         />
-
-        
-        {/* TODO: do this implicitly */}
-        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Sign Out" />
+        <Button onPress={this.handleLogout} loading={this.props.userIdMeta.loading} title="Sign Out" />
       </View>
     );
   }
@@ -404,8 +416,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View>
         <Text>You are signed in.</Text>
+        {/* TODO: Add user profile info */}
         <Button onPress={() => this.setState({ status: SignInStatus.SignedIn, profileStatus: ProfileStatus.Incomplete })} title="Edit" />
-        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} title="Logout" />
+        <Button onPress={this.handleLogout} loading={this.props.userIdMeta.loading} title="Sign Out" />
       </View>
     );
   }
@@ -457,12 +470,10 @@ const mapStateToProps = (state: AppState): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string) => { dispatch(appActions.connectToExternalService(api, username, password)) },
-    disconnectFromExternalService: (api: MaybeExternalServiceApi) => { dispatch(appActions.disconnectFromExternalService(api)) },
-    setExternalOrganisation: (api: MaybeExternalServiceApi, organisation: GGMNOrganisation) => { dispatch(appActions.setExternalOrganisation(api, organisation)) },
+    logout: (api: MaybeInternalAccountApi) => dispatch(appActions.logout(api)),
+    saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => dispatch(appActions.saveUserDetails(api, userId, userDetails)),
     sendVerifyCode: (api: MaybeInternalAccountApi, mobile: string) => {return dispatch(appActions.sendVerifyCode(api, mobile))},
     verifyCodeAndLogin: (api: MaybeInternalAccountApi, userApi: UserApi, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string) => {return dispatch(appActions.verifyCodeAndLogin(api, userApi, confirmResult, code, oldUserId))},
-    saveUserDetails: (api: MaybeInternalAccountApi, userId: string, userDetails: SaveUserDetailsType) => dispatch(appActions.saveUserDetails(api, userId, userDetails)),
   }
 }
 
