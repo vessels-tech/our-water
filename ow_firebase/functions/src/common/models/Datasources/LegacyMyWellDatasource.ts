@@ -27,6 +27,11 @@ import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
 import { GeoPoint, OWGeoPoint } from 'ow_types';
 
 
+export type WarningType = {
+  type: 'MalformedDate' | 'NoResourceMembership',
+  message: string,
+}
+
 export default class LegacyMyWellDatasource implements Datasource {
   baseUrl: string
   type: DatasourceType
@@ -230,12 +235,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     };
 
     let readings: Array<Reading> = [];
-    let legacyResources = null;
-    let legacyGroups = null;
-
-    //TODO: load a map of all saved resources, where key is the legacyId (pincode.resourceId)
-    //This will enable us to easily map
-    //We also need to have the groups first
+    let legacyResources: Map<string, Resource> = null;
+    let legacyGroups: Map<string, Group> = null;
 
     return Promise.all([
       getLegacyMyWellResources(orgId, firestore),
@@ -247,8 +248,8 @@ export default class LegacyMyWellDatasource implements Datasource {
     })
     .then(() => request(options))
     .then((legacyReadings: Array<LegacyReading>) => {
-      let errors = [];
-      let warnings = [];
+      const errors = [];
+      const warnings: WarningType[] = [];
       legacyReadings.forEach(r => {
         if (typeof r.value === undefined) {
           console.log("warning: found reading with no value", r);
@@ -260,21 +261,28 @@ export default class LegacyMyWellDatasource implements Datasource {
         try {
           resource = findResourceMembershipsForResource(r, legacyResources);
         } catch (err) {
-          warnings.push(err.message);
+          warnings.push({ type: 'NoResourceMembership', message: err.message});
           return;
         }
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
         const groups: Map<string, boolean> = findGroupMembershipsForReading(r, legacyGroups);
 
+        const createdAtMoment = moment(r.createdAt);
+        if (!createdAtMoment.isValid()) {
+          // console.log(`WARNING: Invalid date for created at: ${r.createdAt}`);
+          warnings.push({ type:'MalformedDate', message: `Invalid date for created at: ${r.createdAt}`});
+          return;
+        }
+
         const newReading: Reading = new Reading(orgId, resource.id, resource.coords, 
-          resource.resourceType, groups, moment(r.createdAt).toDate(), r.value, externalIds);
+          resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);
         newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
         readings.push(newReading);
       });
 
-      let savedReadings: Array<Reading> = [];
-      readings.forEach(res => {
-        return res.create({ firestore })
+      const savedReadings: Array<Reading> = [];
+      readings.forEach(r => {
+        return r.create({ firestore })
           .then((savedRes: Reading) => savedReadings.push(savedRes))
           .catch(err => errors.push(err));
       });

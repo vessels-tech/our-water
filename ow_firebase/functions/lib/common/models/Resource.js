@@ -24,7 +24,6 @@ class Resource extends FirestoreDoc_1.default {
         return new Resource(builder.orgId, builder.externalIds, builder.coords, builder.resourceType, builder.owner, builder.groups, builder.timeseries);
     }
     serialize() {
-        console.log('serializing stuff');
         return {
             id: this.id,
             orgId: this.orgId,

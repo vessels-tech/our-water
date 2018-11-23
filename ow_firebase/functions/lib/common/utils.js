@@ -75,7 +75,6 @@ exports.getLegacyMyWellGroups = (orgId, fs) => {
         console.log(`Found: ${groups.length} groups.`);
         //TODO: this will die, we need to deserialize properly
         groups.forEach((group) => {
-            console.log("Group is", group);
             if (!group.externalIds) {
                 console.log("group is missing externalIds", group);
                 return;
@@ -100,7 +99,7 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
-        console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
+        console.log(`getLegacyMyWellResources Found: ${resources.length} resources`);
         //TODO: deserialize properly
         resources.forEach((res) => {
             if (!res.externalIds) {
@@ -112,9 +111,12 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
                 console.log("resource is missing legacyMyWellId", res.id);
                 return;
             }
-            mappedResources[res.externalIds.legacyMyWellId] = res;
+            const resourceObj = Resource_1.Resource.deserialize(res);
+            // mappedResources[res.externalIds.legacyMyWellId] = res;
+            const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
+            mappedResources.set(key, resourceObj);
         });
-        console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);
+        console.log(`found ${mappedResources.size} getLegacyMyWellResources:`);
         return mappedResources;
     });
 };
@@ -150,9 +152,9 @@ exports.findGroupMembershipsForResource = (legacyResource, groups) => {
  * @returns a single Resource
  */
 exports.findResourceMembershipsForResource = (legacyReading, resources) => {
-    const res = resources[`${legacyReading.postcode}.${legacyReading.resourceId}`];
+    const res = resources.get(`${legacyReading.postcode}.${legacyReading.resourceId}`);
     if (!res) {
-        console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
+        // console.log(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId}`);
         throw new Error(`no resource found for ids: ${legacyReading.postcode}.${legacyReading.resourceId} this shouldn't happen`);
     }
     return res;

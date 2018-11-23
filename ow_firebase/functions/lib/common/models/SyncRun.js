@@ -80,7 +80,27 @@ class SyncRun {
                     console.log("SyncRun.run running pullFrom sync");
                     const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
                     this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
-                    this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings`];
+                    pullFromResult.warnings.sort((a, b) => {
+                        if (a.type > b.type) {
+                            return 1;
+                        }
+                        ;
+                        if (b.type > a.type) {
+                            return -1;
+                        }
+                        ;
+                        return 0;
+                    });
+                    const warningCounter = {
+                        MalformedDate: 0,
+                        NoResourceMembership: 0,
+                    };
+                    const warningsByType = pullFromResult.warnings.reduce((acc, curr) => {
+                        const currentCount = acc[curr.type] + 1;
+                        acc[curr.type] = currentCount;
+                        return acc;
+                    }, warningCounter);
+                    this.warnings = [`Pull resulted in ${pullFromResult.warnings.length} warnings. Types: ${JSON.stringify(warningsByType, null, 2)}`];
                     this.errors = pullFromResult.errors;
                     break;
                 //Get data from somewhere, and push to external datasource

@@ -70,8 +70,6 @@ export class Resource extends FirestoreDoc {
   }
 
   public serialize(): any {
-    console.log('serializing stuff');
-
     return {
       id: this.id,
       orgId: this.orgId,
