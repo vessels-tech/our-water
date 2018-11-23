@@ -158,10 +158,10 @@ return createSync()
   console.log("hopefully finished running sync with id:", syncRunId);
   return getSyncRun(syncRunId)
 })
-.then(syncRun => console.log(syncRun));
+.then(syncRun => console.log(syncRun))
 // .then(() => cleanup())
-// .catch((err) => {
-//   console.log("Error with Test:", err);
-//   return cleanup()
-//   .then(() => {throw err});
-// });
+.catch((err) => {
+  console.log("Error with Test:", err);
+  return cleanup()
+  .then(() => {throw err});
+});

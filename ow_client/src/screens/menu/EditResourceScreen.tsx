@@ -45,6 +45,7 @@ export interface Props {
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   translation: TranslationFile,
+  name: string | null,
 }
 
 export interface State {
@@ -88,8 +89,12 @@ class EditResourceScreen extends Component<Props> {
       asset: [defaultResourceType, Validators.required],
     };
     
+    let ownerName = '';
+    if (this.props.name) {
+      ownerName = this.props.name;
+    }
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
-      formBuilderGroup['ownerName'] = ['', Validators.required];
+      formBuilderGroup['ownerName'] = [ownerName, Validators.required];
     }
 
     if (this.props.config.getEditResourceAllowCustomId()) {
@@ -319,6 +324,7 @@ const mapStateToProps = (state: AppState) => {
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     location:state.location,
     translation: state.translation,
+    name: state.name,
   }
 }
 

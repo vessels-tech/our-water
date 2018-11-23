@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const util_1 = require("util");
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 class Group {
     constructor(name, orgId, type, coords, externalIds) {
         this.name = name;
@@ -34,7 +36,7 @@ class Group {
             id: this.id,
             name: this.name,
             type: this.type,
-            coords: this.coords,
+            coords: this.coords.map(point => new GeoPoint(point.latitude, point.longitude)),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };

@@ -5,6 +5,8 @@ import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import { OWGeoPoint } from "ow_types";
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 
 
 /*a time series in the Firebase Domain */
@@ -68,11 +70,13 @@ export class Resource extends FirestoreDoc {
   }
 
   public serialize(): any {
+    console.log('serializing stuff');
+
     return {
       id: this.id,
       orgId: this.orgId,
       externalIds: this.externalIds.serialize(),
-      coords: this.coords,
+      coords: new GeoPoint(this.coords.latitude, this.coords.longitude),
       resourceType: this.resourceType,
       owner: this.owner,
       groups: serializeMap(this.groups),

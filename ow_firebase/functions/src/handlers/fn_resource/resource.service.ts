@@ -9,7 +9,7 @@ describe('fn_resource', function () {
   const baseUrl = process.env.BASE_URL;
 
 
-  describe.only('ggmnResourceEmail', function () {
+  describe('ggmnResourceEmail', function () {
     this.timeout(5000);
     
     it('sends the resource email', async () => {

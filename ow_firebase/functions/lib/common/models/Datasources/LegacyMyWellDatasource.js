@@ -138,7 +138,7 @@ class LegacyMyWellDatasource {
     getResourcesData(orgId, firestore) {
         // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
         const uriResources = `${this.baseUrl}/api/resources`;
-        console.log("Getting resources data");
+        console.log("Getting resources data url", uriResources);
         const options = {
             method: 'GET',
             uri: uriResources,
@@ -163,8 +163,8 @@ class LegacyMyWellDatasource {
                 newResource.lastValue = r.last_value;
                 resources.push(newResource);
             });
-            let errors = [];
-            let savedResources = [];
+            const errors = [];
+            const savedResources = [];
             resources.forEach(res => {
                 return res.create({ firestore })
                     .then((savedRes) => savedResources.push(savedRes))
@@ -260,27 +260,23 @@ class LegacyMyWellDatasource {
     }
     pullDataFromDataSource(orgId, firestore, options) {
         return __awaiter(this, void 0, void 0, function* () {
+            //TODO: fix this to only pull specified data
             console.log("pull from data source", this.selectedDatatypes);
             let villageGroupResult = new DefaultSyncRunResult_1.DefaultSyncRunResult();
             let pincodeGroups = new DefaultSyncRunResult_1.DefaultSyncRunResult();
             let resources = new DefaultSyncRunResult_1.DefaultSyncRunResult();
             let readings = new DefaultSyncRunResult_1.DefaultSyncRunResult();
-            this.selectedDatatypes.forEach((datatypeStr) => __awaiter(this, void 0, void 0, function* () {
-                switch (datatypeStr) {
-                    case FileDatasourceTypes_1.DataType.Resource:
-                        resources = yield this.getResourcesData(orgId, firestore);
-                        break;
-                    case FileDatasourceTypes_1.DataType.Reading:
-                        readings = yield this.getReadingsData(orgId, firestore);
-                        break;
-                    case FileDatasourceTypes_1.DataType.Group:
-                        villageGroupResult = yield this.getGroupAndSave(orgId, firestore);
-                        pincodeGroups = yield this.getPincodeData(orgId, firestore);
-                        break;
-                    default:
-                        throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
-                }
-            }));
+            if (this.selectedDatatypes.indexOf(FileDatasourceTypes_1.DataType.Resource) > -1) {
+                resources = yield this.getResourcesData(orgId, firestore);
+            }
+            if (this.selectedDatatypes.indexOf(FileDatasourceTypes_1.DataType.Reading) > -1) {
+                readings = yield this.getReadingsData(orgId, firestore);
+            }
+            if (this.selectedDatatypes.indexOf(FileDatasourceTypes_1.DataType.Group) > -1) {
+                villageGroupResult = yield this.getGroupAndSave(orgId, firestore);
+                pincodeGroups = yield this.getPincodeData(orgId, firestore);
+            }
+            console.log("saving results");
             return utils_1.concatSaveResults([
                 villageGroupResult,
                 pincodeGroups,

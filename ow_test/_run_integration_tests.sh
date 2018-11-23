@@ -11,12 +11,14 @@ else
   echo 'running integration tests against dev environment'
   # Settings for running against local MyWell, public OW
   export BASE_URL="https://us-central1-our-water.cloudfunctions.net"
-  export MYWELL_LEGACY_BASE_URL="https://legacymywell.localtunnel.me"
+  # export MYWELL_LEGACY_BASE_URL="https://legacymywell.localtunnel.me"
+  export MYWELL_LEGACY_BASE_URL="https://mywell.vessels.tech"
 fi
 
 DATE=`date '+%Y%m%dT%H%M%S'`
 # export ORG_ID="test_$DATE"
-export ORG_ID="test_12345"
+# export ORG_ID="test_12345"
+export ORG_ID="mywell"
 
 #TODO: change to a test project
 export GOOGLE_CLOUD_PROJECT='our-water'

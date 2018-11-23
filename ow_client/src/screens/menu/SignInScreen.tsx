@@ -144,12 +144,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillReceiveProps(newProps: OwnProps & StateProps & ActionProps) {
+    console.log('componentWillReceiveProps', newProps);
+
     const oldUserType = this.props.user.type;
     const newUserType = newProps.user.type;
-
-    if (oldUserType === newUserType) {
-      return;
-    }
 
     //If the user type has changed to UserType.MOBILE, then we can update the status
     if (newUserType === UserType.MOBILE_USER) {
@@ -167,6 +165,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     if (newProps.email) {
       this.profileForm.get('email').setValue(newProps.email);
+    }
+
+    if (newProps.nickname) {
+      this.profileForm.get('nickname').setValue(newProps.nickname);
     }
 
     if (newProps.name) {

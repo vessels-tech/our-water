@@ -81,7 +81,7 @@ describe('SyncAPI', function() {
 
 
   describe('MyWell Pull', () => {
-    it('creates a new legacy sync, and pulls the data correctly', () => {
+    it.only('creates a new legacy sync, and pulls the data correctly', () => {
 
       let syncId = null;
       let syncRunId = null;
@@ -110,7 +110,7 @@ describe('SyncAPI', function() {
         }
       };
 
-      console.log("createSyncOptions", createSyncOptions);
+      console.log("createSyncOptions", JSON.stringify(createSyncOptions, null, 2));
 
       return request(createSyncOptions)
         .then(response => {

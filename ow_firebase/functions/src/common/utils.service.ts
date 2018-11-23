@@ -4,7 +4,6 @@ import * as assert from 'assert';
 import firestore from './apis/Firestore';
 import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from './utils';
 import ResourceIdType from './types/ResourceIdType';
-import OWGeoPoint from '../common/models/OWGeoPoint';
 import { Group } from './models/Group';
 import { GroupType } from './enums/GroupType';
 
@@ -60,7 +59,7 @@ describe('Misc Tests', function() {
       this.timeout(10000);
 
       //Create 3 groups, 2 of which are legacy
-      const coords: OWGeoPoint = new OWGeoPoint(0, 0);
+      const coords: FirebaseFirestore.GeoPoint = new FirebaseFirestore.GeoPoint(0, 0);
       // const group1 = new Group("group1", orgId, "village", coords, utils.anyToMap({ 'mywell.12345.1':true }));
       const group1 = new Group("group1", orgId, GroupType.Village, [coords], ResourceIdType.fromLegacyVillageId(12345, 1));
       const group2 = new Group("group2", orgId, GroupType.Pincode, [coords], ResourceIdType.fromLegacyPincode(12345));

@@ -3,6 +3,8 @@ import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
 import { OWGeoPoint } from "ow_types";
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 
 
 export class Reading extends FirestoreDoc {
@@ -70,7 +72,7 @@ export class Reading extends FirestoreDoc {
     }
 
     if (this.coords) {
-      serialized['coords'] = this.coords;
+      serialized['coords'] = new GeoPoint(this.coords.latitude, this.coords.longitude);
     }
 
     if (this.groups) {

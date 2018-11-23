@@ -167,7 +167,7 @@ export default class LegacyMyWellDatasource implements Datasource {
   public getResourcesData(orgId: string, firestore): Promise<ResourceSaveResult> {
     // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     const uriResources = `${this.baseUrl}/api/resources`;
-    console.log("Getting resources data");
+    console.log("Getting resources data url", uriResources);
 
     const options = {
       method: 'GET',
@@ -196,8 +196,8 @@ export default class LegacyMyWellDatasource implements Datasource {
         resources.push(newResource);
       });
 
-      let errors = [];
-      let savedResources: Array<Resource> = [];
+      const errors = [];
+      const savedResources: Array<Resource> = [];
       resources.forEach(res => {
         return res.create({ firestore })
           .then((savedRes: Resource) => savedResources.push(savedRes))
@@ -303,29 +303,27 @@ export default class LegacyMyWellDatasource implements Datasource {
     throw new Error("validate not implemented for this data source");
   }
 
-  public async pullDataFromDataSource(orgId: string, firestore, options: SyncDataSourceOptions): Promise<SyncRunResult> {
+
+  public async pullDataFromDataSource(orgId: string, firestore, options: SyncDataSourceOptions) {
+    //TODO: fix this to only pull specified data
     console.log("pull from data source", this.selectedDatatypes);
     let villageGroupResult = new DefaultSyncRunResult();
     let pincodeGroups = new DefaultSyncRunResult();
     let resources = new DefaultSyncRunResult();
     let readings = new DefaultSyncRunResult();
 
-    this.selectedDatatypes.forEach(async datatypeStr => {
-      switch(datatypeStr) {
-        case DataType.Resource: 
-          resources = await this.getResourcesData(orgId, firestore);
-        break;
-        case DataType.Reading:
-          readings = await this.getReadingsData(orgId, firestore);
-        break;
-        case DataType.Group: 
-          villageGroupResult = await this.getGroupAndSave(orgId, firestore);
-          pincodeGroups = await this.getPincodeData(orgId, firestore)
-        break;
-        default:
-          throw new Error(`pullDataFromDataSource not implemented for DataType: ${datatypeStr}`);
-      }
-    });
+    if (this.selectedDatatypes.indexOf(DataType.Resource) > -1) {
+      resources = await this.getResourcesData(orgId, firestore);
+    }
+    if (this.selectedDatatypes.indexOf(DataType.Reading) > -1) {
+      readings = await this.getReadingsData(orgId, firestore);
+    }
+    if (this.selectedDatatypes.indexOf(DataType.Group) > -1) {
+      villageGroupResult = await this.getGroupAndSave(orgId, firestore);
+      pincodeGroups = await this.getPincodeData(orgId, firestore);
+    }
+   
+    console.log("saving results");
 
     return concatSaveResults([
       villageGroupResult,

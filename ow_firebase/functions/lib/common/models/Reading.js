@@ -4,6 +4,8 @@ const ResourceType_1 = require("../enums/ResourceType");
 const FirestoreDoc_1 = require("./FirestoreDoc");
 const utils_1 = require("../utils");
 const ResourceIdType_1 = require("../types/ResourceIdType");
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 class Reading extends FirestoreDoc_1.default {
     constructor(orgId, resourceId, coords, resourceType, groups, datetime, value, externalIds) {
         super();
@@ -48,7 +50,7 @@ class Reading extends FirestoreDoc_1.default {
             serialized['externalIds'] = this.externalIds.serialize();
         }
         if (this.coords) {
-            serialized['coords'] = this.coords;
+            serialized['coords'] = new GeoPoint(this.coords.latitude, this.coords.longitude);
         }
         if (this.groups) {
             serialized['groups'] = utils_1.serializeMap(this.groups);

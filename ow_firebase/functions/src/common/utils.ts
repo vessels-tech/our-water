@@ -96,13 +96,19 @@ export const getLegacyMyWellGroups = (orgId: string, fs): Promise<Map<string, Gr
     console.log(`Found: ${groups.length} groups.`);
 
     //TODO: this will die, we need to deserialize properly
-    groups.forEach((group: Group) => {
+    groups.forEach((group: any) => {
+      console.log("Group is", group);
       if (!group.externalIds) {
         console.log("group is missing externalIds", group);
         return;
       }
-      
-      mappedGroups.set(group.externalIds.getMyWellId(), group);
+
+      if (!group.externalIds.legacyMyWellId) {
+        console.log("group is missing legacyMyWellId", group);
+        return;
+      }
+
+      mappedGroups.set(group.externalIds.legacyMyWellId, group);
     });
 
     return mappedGroups;
@@ -123,15 +129,20 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
     sn.forEach(result => resources.push(result.data()));
     console.log(`getLegacyMyWellResources Found: ${resources.length} resources.`);
 
-    //TODO: this will die, we need to deserialize properly
-    resources.forEach((res: Resource) => {
+    //TODO: deserialize properly
+    resources.forEach((res: any) => {
       if (!res.externalIds) {
         //TODO: not sure what to do here. This should probably be a warning
         console.log("resource is missing externalIds", res.id);
         return;
       }
 
-      mappedResources[res.externalIds.getMyWellId()] = res;
+      if (!res.externalIds.legacyMyWellId) {
+        console.log("resource is missing legacyMyWellId", res.id);
+        return;
+      }
+
+      mappedResources[res.externalIds.legacyMyWellId] = res;
     });
 
     console.log(`found ${Object.keys(mappedResources).length} getLegacyMyWellResources:`);

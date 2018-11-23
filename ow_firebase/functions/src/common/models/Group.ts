@@ -2,6 +2,8 @@ import { GroupType } from "../enums/GroupType";
 import ResourceIdType from "../types/ResourceIdType";
 import { isNullOrUndefined } from "util";
 import { OWGeoPoint } from "ow_types";
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 
 export class Group {
   id: string
@@ -54,7 +56,7 @@ export class Group {
       id: this.id, 
       name: this.name,
       type: this.type,
-      coords: this.coords,
+      coords: this.coords.map(point => new GeoPoint(point.latitude, point.longitude)),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

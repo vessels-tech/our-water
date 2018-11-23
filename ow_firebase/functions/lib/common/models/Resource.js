@@ -4,6 +4,8 @@ const ResourceType_1 = require("../enums/ResourceType");
 const ResourceIdType_1 = require("../types/ResourceIdType");
 const FirestoreDoc_1 = require("./FirestoreDoc");
 const utils_1 = require("../utils");
+const admin = require('firebase-admin');
+const GeoPoint = admin.firestore.GeoPoint;
 class Resource extends FirestoreDoc_1.default {
     constructor(orgId, externalIds, coords, resourceType, owner, groups, timeseries) {
         super();
@@ -22,11 +24,12 @@ class Resource extends FirestoreDoc_1.default {
         return new Resource(builder.orgId, builder.externalIds, builder.coords, builder.resourceType, builder.owner, builder.groups, builder.timeseries);
     }
     serialize() {
+        console.log('serializing stuff');
         return {
             id: this.id,
             orgId: this.orgId,
             externalIds: this.externalIds.serialize(),
-            coords: this.coords,
+            coords: new GeoPoint(this.coords.latitude, this.coords.longitude),
             resourceType: this.resourceType,
             owner: this.owner,
             groups: utils_1.serializeMap(this.groups),
