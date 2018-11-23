@@ -86,8 +86,6 @@ class FirebaseApi {
   static async signIn(): Promise<SomeResult<AnonymousUser>> {
     let userId: string;
 
-    console.log('current user is', auth.currentUser);
-
     return auth.signInAnonymouslyAndRetrieveData()
     .then(userCredential => {
       userId = userCredential.user.uid;
@@ -188,6 +186,19 @@ class FirebaseApi {
     }
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
+    delete oldUser.email;
+    delete oldUser.name;
+    delete oldUser.nickname;
+    delete oldUser.mobile;
+    if (oldUser.favouriteResources.length === 0 ) {
+      delete oldUser.favouriteResources;
+    }
+    if (oldUser.recentResources.length === 0 ) {
+      delete oldUser.recentResources;
+    }
+    if (oldUser.recentSearches.length === 0 ) {
+      delete oldUser.recentSearches;
+    }
     
     return this.userDoc(orgId, userId).set({...oldUser}, {merge: true})
     .then(() => makeSuccess<void>(undefined))

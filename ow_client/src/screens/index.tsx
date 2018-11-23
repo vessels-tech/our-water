@@ -73,6 +73,7 @@ export async function registerScreens(config: ConfigFactory) {
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
     if (!rnFirebaseUser) {
+      console.log("no rnFirebaseUser!");
       await store.dispatch(appActions.silentLogin(config.appApi));
       return;
     }

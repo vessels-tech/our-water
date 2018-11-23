@@ -844,9 +844,7 @@ function sendVerifyCodeResponse(result: SomeResult<RNFirebase.ConfirmationResult
 export function silentLogin(api: BaseApi): any {
   return async function(dispatch: any) {
     dispatch(silentLoginRequest());
-
     const userIdResult = await api.silentSignin();
-
     dispatch(silentLoginResponse(userIdResult));
   }
 }

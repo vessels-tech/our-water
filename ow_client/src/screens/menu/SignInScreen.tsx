@@ -160,8 +160,18 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       this.setState({ status: SignInStatus.WaitingForMobile });
     }
 
-    //TODO: set the profile status based on the profile
-    //TODO: set up the form fields
+    /* Recover the state of the profile form */
+    if (newProps.email && newProps.name) {
+      this.setState({profileStatus: ProfileStatus.Complete});
+    }
+
+    if (newProps.email) {
+      this.profileForm.get('email').setValue(newProps.email);
+    }
+
+    if (newProps.name) {
+      this.profileForm.get('name').setValue(newProps.name);
+    }
   }
 
   handleSubmit = async () => {
