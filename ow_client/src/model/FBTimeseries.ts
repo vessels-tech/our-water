@@ -41,7 +41,8 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
       }
       return ts;
     }
-    case OrgType.MYWELL: {
+    case OrgType.MYWELL: 
+    default: {
       const ts: MyWellTimeseries = {
         type: OrgType.MYWELL,
 
@@ -53,7 +54,7 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
       }
       return ts;
     }
-    default:
-      throw new Error(`Couldn't map timeseries for orgType: ${fbTimeseries.type}`);
+    // default:
+    //   throw new Error(`Couldn't map timeseries for orgType: ${fbTimeseries.type}`);
   }
 }

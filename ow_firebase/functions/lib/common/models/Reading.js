@@ -18,6 +18,8 @@ class Reading extends FirestoreDoc_1.default {
         this.datetime = datetime;
         this.value = value;
         this.externalIds = externalIds;
+        //TODO: FIX THIS - 
+        this.timeseriesId = 'default';
     }
     /**
      * Create a reading from legacy data
@@ -41,6 +43,7 @@ class Reading extends FirestoreDoc_1.default {
             resourceType: this.resourceType,
             datetime: this.datetime,
             value: this.value,
+            timeseriesId: this.timeseriesId,
         };
         //optional params
         if (this.resourceId) {
@@ -65,7 +68,7 @@ class Reading extends FirestoreDoc_1.default {
       * @param sn
       */
     static deserialize(doc) {
-        const { docName, orgId, createdAt, updatedAt, datetime, value, resourceId, groups, isLegacy, resourceType, externalIds, coords, } = doc.data();
+        const { docName, orgId, createdAt, updatedAt, datetime, value, resourceId, groups, isLegacy, resourceType, externalIds, coords, timeseriesId, } = doc.data();
         //nested variables
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
@@ -76,6 +79,7 @@ class Reading extends FirestoreDoc_1.default {
         des.createdAt = createdAt;
         des.updatedAt = updatedAt;
         des.isLegacy = isLegacy;
+        des.timeseriesId = timeseriesId;
         return des;
     }
 }

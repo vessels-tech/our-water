@@ -19,6 +19,7 @@ export class Reading extends FirestoreDoc {
   datetime: Date
   value: number
   isLegacy: boolean
+  timeseriesId: string
 
   constructor(orgId: string, resourceId: string, coords: OWGeoPoint,
     resourceType: ResourceType, groups, datetime: Date, value: number,
@@ -34,6 +35,8 @@ export class Reading extends FirestoreDoc {
     this.datetime = datetime;
     this.value = value;
     this.externalIds = externalIds;
+    //TODO: FIX THIS - 
+    this.timeseriesId = 'default';
   }
   
   /**
@@ -60,6 +63,7 @@ export class Reading extends FirestoreDoc {
       resourceType: this.resourceType,
       datetime: this.datetime,
       value: this.value,
+      timeseriesId: this.timeseriesId,
     }
 
     //optional params
@@ -104,6 +108,7 @@ export class Reading extends FirestoreDoc {
       resourceType,
       externalIds,
       coords,
+      timeseriesId,
     } = doc.data();
 
     //nested variables
@@ -118,6 +123,7 @@ export class Reading extends FirestoreDoc {
     des.createdAt = createdAt;
     des.updatedAt = updatedAt;
     des.isLegacy = isLegacy;
+    des.timeseriesId = timeseriesId;
 
     return des;
   }

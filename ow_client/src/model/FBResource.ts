@@ -195,12 +195,15 @@ export default class FBResource extends FirestoreDoc {
         }
         return resource;
       }
-      case OrgType.MYWELL: {
+      case OrgType.MYWELL: 
+      //TODO: make more explicit - be less lazy and fix the type on the server side
+      default: {
         const resource: MyWellResource = {
           id: this.id,
-          type: this.type,
+          type: OrgType.MYWELL,
           pending: false,
           coords: { _latitude: this.coords.latitude, _longitude: this.coords.longitude },
+
           timeseries: toAnyTimeseriesList(this.timeseries),
 
           /* Platform Specific */
@@ -213,9 +216,9 @@ export default class FBResource extends FirestoreDoc {
 
         return resource;
       }
-      default: {
-        throw new Error("toAnyResource() tried to convert from FBResource but this.type is unknown");
-      }
+      // default: {
+      //   throw new Error("toAnyResource() tried to convert from FBResource but this.type is unknown");
+      // }
     }
 
 

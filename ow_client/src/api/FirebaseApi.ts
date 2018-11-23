@@ -929,9 +929,6 @@ class FirebaseApi {
       body: JSON.stringify({resourceId: longId})
     };
 
-    maybeLog("CreateShortId url: ", url);
-    maybeLog("CreateShortId options: ", options);
-
     return ftch(url, options)
     .then((response: any) => {
       if (!response.ok) {
