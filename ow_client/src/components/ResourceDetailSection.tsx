@@ -259,13 +259,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
           {/* Bottom Buttons */}
           <View style={{
+            // backgroundColor: 'blue',
             flex: 0.5,
             borderColor: bgLightHighlight,
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
-            paddingBottom: 20,
             alignContent: 'center',
-            // maxHeight: 50,
+            // maxHeight: 40,
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
@@ -347,18 +347,29 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getReadingButton() {
+    //TODO: translate
+    const resource_detail_new_reading = 'NEW READING';
     return (
-      <Button
-        color={secondary}
-        buttonStyle={{
-          backgroundColor: bgLight,
-          borderRadius: 5,
-          flex: 1,
-          marginTop: 6,
+      <View
+        style={{
+          marginTop: 7,
         }}
-        title='NEW READING'
-        onPress={() => this.props.onAddReadingPressed(this.props.resource)}
-      />
+      >
+        <Button
+          color={secondary}
+          buttonStyle={{
+            backgroundColor: bgLight,
+            borderRadius: 5,
+            height: '100%',
+          }}
+          containerViewStyle={{
+            alignSelf: 'center',
+            justifyContent: 'center',
+          }}
+          title={resource_detail_new_reading}
+          onPress={() => this.props.onAddReadingPressed(this.props.resource)}
+        />
+      </View>
     );
   }
 
@@ -374,10 +385,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return (
       <FlatIconButton
         style={{
-          marginTop: 9,
+          marginTop: 2,
           height: '100%',
         }}
-        // use star-outlined when not a fav
         name={iconName}
         onPress={() => this.toggleFavourites()}
         color={secondary}
