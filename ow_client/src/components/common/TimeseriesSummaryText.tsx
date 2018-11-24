@@ -28,6 +28,7 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 5,
+            maxHeight: 50,
           }}
         >
           <View

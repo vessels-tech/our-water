@@ -72,7 +72,9 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
     const { meta, userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
 
     if (meta.loading) {
-      return <Loading/>
+      return (
+        <Loading/>
+      )
     }
 
     if (meta.error || !resource) {
@@ -106,6 +108,7 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
         width: '100%',
         height: '100%',
         alignContent: 'center',
+        justifyContent: 'center',
         flexDirection: 'column',
         flex: 1,
       }}>

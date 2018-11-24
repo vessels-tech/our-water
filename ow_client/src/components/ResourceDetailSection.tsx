@@ -181,7 +181,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         loading = true;
       }
 
-      //TODO: add pending readings?
       readingsMap.set(ts.name, tsReading.readings);
     });
 
