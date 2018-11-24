@@ -126,7 +126,6 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
   .then(sn => {
     const resources = [];
     sn.forEach(result => resources.push(result.data()));
-    console.log(`getLegacyMyWellResources Found: ${resources.length} resources`);
 
     //TODO: deserialize properly
     resources.forEach((res: any) => {
@@ -145,6 +144,7 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
       
       // mappedResources[res.externalIds.legacyMyWellId] = res;
       const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
+      // console.log('Key is', key);
       mappedResources.set(key, resourceObj);
     });
 

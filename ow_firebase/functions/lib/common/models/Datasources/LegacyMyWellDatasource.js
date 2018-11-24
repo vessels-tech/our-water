@@ -205,8 +205,10 @@ class LegacyMyWellDatasource {
         })
             .then(() => request(options))
             .then((legacyReadings) => {
+            console.log(`found ${legacyReadings.length} legacyReadings`);
             const errors = [];
             const warnings = [];
+            console.log("example reading is", legacyReadings[0]);
             legacyReadings.forEach(r => {
                 if (typeof r.value === undefined) {
                     console.log("warning: found reading with no value", r);
@@ -223,10 +225,10 @@ class LegacyMyWellDatasource {
                 }
                 const externalIds = ResourceIdType_1.default.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
                 const groups = utils_1.findGroupMembershipsForReading(r, legacyGroups);
-                const createdAtMoment = moment(r.createdAt);
+                const createdAtMoment = moment(r.date);
                 if (!createdAtMoment.isValid()) {
-                    // console.log(`WARNING: Invalid date for created at: ${r.createdAt}`);
-                    warnings.push({ type: 'MalformedDate', message: `Invalid date for created at: ${r.createdAt}` });
+                    // console.log(`WARNING: Invalid date for created at: ${r.date}`);
+                    warnings.push({ type: 'MalformedDate', message: `Invalid date for created at: ${r.date}` });
                     return;
                 }
                 const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);

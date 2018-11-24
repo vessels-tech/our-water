@@ -248,8 +248,10 @@ export default class LegacyMyWellDatasource implements Datasource {
     })
     .then(() => request(options))
     .then((legacyReadings: Array<LegacyReading>) => {
+      console.log(`found ${legacyReadings.length} legacyReadings`);
       const errors = [];
       const warnings: WarningType[] = [];
+      console.log("example reading is", legacyReadings[0]);
       legacyReadings.forEach(r => {
         if (typeof r.value === undefined) {
           console.log("warning: found reading with no value", r);
@@ -267,10 +269,10 @@ export default class LegacyMyWellDatasource implements Datasource {
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyReadingId(r.id, r.postcode, r.resourceId);
         const groups: Map<string, boolean> = findGroupMembershipsForReading(r, legacyGroups);
 
-        const createdAtMoment = moment(r.createdAt);
+        const createdAtMoment = moment(r.date);
         if (!createdAtMoment.isValid()) {
-          // console.log(`WARNING: Invalid date for created at: ${r.createdAt}`);
-          warnings.push({ type:'MalformedDate', message: `Invalid date for created at: ${r.createdAt}`});
+          // console.log(`WARNING: Invalid date for created at: ${r.date}`);
+          warnings.push({ type:'MalformedDate', message: `Invalid date for created at: ${r.date}`});
           return;
         }
 

@@ -99,7 +99,6 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
         .then(sn => {
         const resources = [];
         sn.forEach(result => resources.push(result.data()));
-        console.log(`getLegacyMyWellResources Found: ${resources.length} resources`);
         //TODO: deserialize properly
         resources.forEach((res) => {
             if (!res.externalIds) {
@@ -114,6 +113,7 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
             const resourceObj = Resource_1.Resource.deserialize(res);
             // mappedResources[res.externalIds.legacyMyWellId] = res;
             const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
+            // console.log('Key is', key);
             mappedResources.set(key, resourceObj);
         });
         console.log(`found ${mappedResources.size} getLegacyMyWellResources:`);

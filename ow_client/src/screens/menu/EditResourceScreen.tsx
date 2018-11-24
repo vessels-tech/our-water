@@ -283,6 +283,7 @@ class EditResourceScreen extends Component<Props> {
               }}
               buttonStyle={{
                 backgroundColor: secondary,
+                minHeight: 50,
               }}
               containerViewStyle={{
                 marginVertical: 20,
