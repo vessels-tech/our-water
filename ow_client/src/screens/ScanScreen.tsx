@@ -117,8 +117,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
-    //TODO: translate
-    const scan_hint = 'Scan for a Location using a QR code';
+    const { scan_hint } = this.props.translation.templates;
 
     return (
       <View style={{
