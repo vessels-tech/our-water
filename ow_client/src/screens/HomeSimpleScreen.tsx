@@ -15,6 +15,7 @@ import EventEmitter from "react-native-eventemitter";
 import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
+import { TranslationFile } from 'ow_translations';
 
 
 export interface OwnProps {
@@ -25,6 +26,7 @@ export interface OwnProps {
 
 export interface StateProps {
   userId: string,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -49,28 +51,11 @@ const MenuButton = (name: string, onPress: () => void,) => {
   )
 }
 
-
-
 class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
-    // EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
-
-
-  // onNavigatorEvent(event: any) {
-  //   // const { translation: { templates: { search_heading } } } = this.props;
-  //   if (event === SearchEventValue.SimpleHome) {
-  //     navigateTo(this.props, 'screen.SearchScreen', 'SEARCH', {
-  //       config: this.props.config,
-  //       // onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
-  //       onSearchResultPressed: (result: GGMNSearchEntity) => console.log('search pressed'),
-  //     });
-  //   }
-  // }
-
 
   /**
    * A list of the reading options: Groundwater, Rainfall, Checkdam and Water Quality
@@ -78,6 +63,8 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * //TODO: Load only the icons based on user's settings 
    */
   getMenuButtons() {
+
+    const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props.translation.templates;
 
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
@@ -99,15 +86,15 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
         }}>
           {/* TODO: translations */}
-          {MenuButton('GROUNDWATER', () => presentResourceScreen('Wells', ResourceType.well))}
-          {MenuButton('RAINFALL', () => presentResourceScreen('Raingauges', ResourceType.raingauge))}
+          {MenuButton(menu_well, () => presentResourceScreen('Wells', ResourceType.well))}
+          {MenuButton(menu_rainfall, () => presentResourceScreen('Raingauges', ResourceType.raingauge))}
         </View>
         <View style={{
           flexDirection: 'row',
           flex: 1,
         }}>
-          {MenuButton('WATER QUALITY', () => presentResourceScreen('Water Quality', ResourceType.quality))}
-          {MenuButton('CHECKDAM', () => presentResourceScreen('Checkdams', ResourceType.checkdam))}
+          {MenuButton(menu_water_quality, () => presentResourceScreen('Water Quality', ResourceType.quality))}
+          {MenuButton(menu_checkdam, () => presentResourceScreen('Checkdams', ResourceType.checkdam))}
         </View>
       </View>
     );
@@ -141,6 +128,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     userId,
+    translation: state.translation,
   }
 }
 
