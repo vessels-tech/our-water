@@ -25,7 +25,7 @@ import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
@@ -171,7 +171,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
 
     let loading = false;
-    const readingsMap = new Map<string, AnyReading[]>();
+    // const readingsMap = new Map<string, AnyReading[]>();
+    const readingsMap: CacheType<AnyReading[]> = {};
 
     resource.timeseries.forEach(ts => {
       const key = getTimeseriesReadingKey(resource.id, ts.name, TimeseriesRange.EXTENT);
@@ -185,14 +186,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         loading = true;
       }
 
-      readingsMap.set(ts.name, tsReading.readings);
+      readingsMap[ts.name] = tsReading.readings;
     });
 
     if (loading) {
       return <Loading/>
     }
 
-    const keys = [...readingsMap.keys()];
+    const keys = Object.keys(readingsMap);
     
     if (keys.length === 0) {
       return (
@@ -202,7 +203,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     
     return (
       keys.map((key) => {
-        const readings = readingsMap.get(key) || [];
+        const readings = readingsMap[key] || [];
         const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId === key);
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
 

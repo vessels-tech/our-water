@@ -149,7 +149,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     const { initialRegion } = this.state;
     const { userIdMeta: { loading } } = this.props;
-
+    
     if (loading) {
       return (
         <View style={{

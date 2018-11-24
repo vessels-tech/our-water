@@ -25,6 +25,10 @@ const defaultLanguage = TranslationEnum.en_AU;
 const translations = translationsForTranslationOrg(orgId);
 const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
 
+export type CacheType<T> = {
+  [index: string]: T
+}
+
 export type AppState = {
   //Session based
   isConnected: boolean,
@@ -47,7 +51,8 @@ export type AppState = {
   myResources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  resourcesCache: Map<string, AnyResource>, //A super simple cache implementation
+  resourcesCache: CacheType<AnyResource>,
+  // resourcesCache: Map<string, AnyResource>, //A super simple cache implementation
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
@@ -97,7 +102,7 @@ const initialState: AppState = {
   myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourceMeta: new Map<string, ActionMeta>(),
-  resourcesCache: new Map<string, AnyResource>(), 
+  resourcesCache: {}, 
   externalSyncStatus: { 
     status: ExternalSyncStatusType.COMPLETE,
     pendingResourcesResults: new Map<string, SomeResult<any>>(),
@@ -315,29 +320,32 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       /*Remove things from the cache - this targets items with low ids...*/
       //TODO: ideally expire them properly, but this will work for now.
-      const over = resourcesCache.size - RESOURCE_CACHE_MAX_SIZE;
+      const over = Object.keys(resourcesCache).length - RESOURCE_CACHE_MAX_SIZE;
       if (over > 0) {
         const range = Array(over).fill(1).map((x, y) => x + y);
-        const keys = [...resourcesCache.keys()];
+        const keys = Object.keys(resourcesCache);
         range.forEach(idx => {
           const key = keys[idx];
-          if (resourcesCache.has(key)) {
-            resourcesCache.delete(key);
-          }
+          delete resourcesCache[key];
         });
       }
 
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
-      newResources.forEach(r => resourcesCache.set(r.id, r));
+      newResources.forEach(r => resourcesCache[r.id] = r);
       /* Transform cache to list of resources*/
-      [...resourcesCache.keys()].forEach(k => {
-        const value = resourcesCache.get(k);
+      Object.keys(resourcesCache).forEach(k => {
+        const value = resourcesCache[k];
         if (value) {
           resources.push(value)
         }
       });
+
+
+      console.log("GET_RESOURCES_RESPONSE, resources.length: ", resources.length);
+      console.log("GET_RESOURCES_RESPONSE, newResources.length: ", newResources.length);
+      console.log("GET_RESOURCES_RESPONSE, resourcesCache.length: ", Object.keys(resourcesCache).length);
 
       return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
     }

@@ -121,7 +121,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     }
 
     return getResourcesResult;
-
     //TODO: "warm up" the shortId cache
   }
 

@@ -294,8 +294,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
 
-    console.log("MapSection render() resources:", resources);
-
     return (
       <View style={{
         backgroundColor: bgMed,
