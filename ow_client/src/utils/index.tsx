@@ -319,7 +319,7 @@ export const defaultNavigatorStyle = {
   drawUnderStatusBar: false,
 }
 
-export function getGroundwaterAvatar() {
+export function getGroundwaterAvatar(title?: string) {
   return (
     <Avatar
       containerStyle={{
@@ -328,7 +328,7 @@ export function getGroundwaterAvatar() {
       }}
       rounded
       // size="large"
-      title = "GW"
+      title = {title || "GW"}
       activeOpacity = { 0.7}
     />
   );

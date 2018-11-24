@@ -394,6 +394,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             selectedResource={this.state.selectedResource}
             hasSelectedResource={this.state.hasSelectedResource}
             shouldShrinkForSelectedResource={true}
+            shouldDisplayFullSceenButton={true}
             shouldShowCallout={false}
           />}
         {mapState === MapStateOption.fullscreen ? null :

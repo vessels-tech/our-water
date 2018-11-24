@@ -16,6 +16,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { Text } from 'react-native-elements';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
+import MapCallout from './common/MapCallout';
 
 export type MapRegion = {
   latitude: number,
@@ -54,9 +55,10 @@ export interface OwnProps {
   selectedResource?: AnyResource | PendingResource,
   hasSelectedResource: boolean,
   mapRef: any,
+  shouldDisplayFullSceenButton: boolean,
   shouldShrinkForSelectedResource: boolean,
   shouldShowCallout: boolean,
-  onCalloutPressed?: (r: AnyResource) => void,
+  onCalloutPressed: (r: AnyResource | PendingResource) => void,
 }
 
 class MapSection extends Component<OwnProps & StateProps & ActionProps> {
@@ -226,10 +228,12 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
         <LoadLocationButton
           onComplete={(l: Location) => this.props.onGetUserLocation(l)}
         />
-        <IconButton
-          name={fullscreenIcon}
-          onPress={() => this.toggleFullscreenMap()}
-        />
+        {this.props.shouldDisplayFullSceenButton ? 
+          <IconButton
+            name={fullscreenIcon}
+            onPress={() => this.toggleFullscreenMap()}
+          />
+        : null }
       </View>
     );
   }
@@ -237,6 +241,10 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   //A button for the user to deselect a resource, and exit out
   //of small map mode
   getUpButton() {
+    if (!this.props.shouldShrinkForSelectedResource) {
+      return null;
+    }
+
     const { hasSelectedResource } = this.state;
 
     if (!hasSelectedResource) {
@@ -272,31 +280,19 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
       throw new Error("no onCalloutPressed, but shouldShowCallout is true");
     }
 
-    const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache, ' . . . ');
-
     return (
-      <Callout 
-        onPress={() => this.props.onCalloutPressed && this.props.onCalloutPressed(resource)}
-        tooltip
-      >
-        <View style={{
-          flex: 1,
-          padding: 10,
-          margin: 10,
-          backgroundColor: randomPrettyColorForId(resource.id),
-        }}>
-          <Text style={{ fontWeight: '800', fontSize: 20 }}>{`${resource.resourceType}: ${shortId}`}></Text>
-        </View>
-      </Callout>
-    )
+      <MapCallout
+        resource={resource}
+        //TODO: this will fail for GGMN I think
+        onCalloutPressed={(resource) => this.props.onCalloutPressed(resource)}
+        shortIdCache={this.props.shortIdCache}
+      />
+    );
   }
-
 
   render() {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
-    console.log("resources", resources);
-    console.log("pendingResources", pendingResources);
 
     return (
       <View style={{
@@ -372,7 +368,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
         }}>
           {this.getMapButtons()}
           {this.getUpButton()}
-          
         </View>
       </View>    
     )

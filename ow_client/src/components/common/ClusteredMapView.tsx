@@ -221,7 +221,7 @@ class ClusteredMapView extends Component<Props> {
       <MapView
         {...this.removeChildrenFromProps(this.props)}
         ref={(ref) => { this.props.mapRef(ref)}}
-        showsMyLocationButton
+        showsMyLocationButton={false}
         showsPointsOfInterest={false}
         showsUserLocation
         initialRegion={this.state.currentRegion}

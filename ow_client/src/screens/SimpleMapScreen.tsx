@@ -137,7 +137,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
-  onCalloutPressed(resource: AnyResource) {
+  onCalloutPressed(resource: AnyResource | PendingResource) {
     const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
@@ -190,7 +190,8 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             hasSelectedResource={false}
             shouldShrinkForSelectedResource={false}
             shouldShowCallout={true}
-            onCalloutPressed={(r: AnyResource) => this.onCalloutPressed(r)}
+            shouldDisplayFullSceenButton={false}
+            onCalloutPressed={(r: AnyResource | PendingResource) => this.onCalloutPressed(r)}
           />}
       </View>
     )
