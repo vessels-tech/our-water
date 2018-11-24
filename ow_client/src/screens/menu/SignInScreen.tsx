@@ -153,7 +153,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (newUserType === UserType.USER || newUserType === UserType.NO_USER) {
-      if (!newProps.userIdMeta.loading) {
+      if (!newProps.userIdMeta.loading && !newProps.userIdMeta.error) {
         this.setState({ status: SignInStatus.WaitingForMobile });
       }
     }
@@ -237,7 +237,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
    * If the user was previously logged in but something went wrong, display an error message
    */
   getErrorMessage() {
-    const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
+    const { externalLoginDetails, userIdMeta: { loading, errorMessage, error } } = this.props;
     //TODO: translate
     const connect_to_error_message = 'Error signing in. Please try again.';
 
@@ -245,11 +245,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_ERROR) {
+    if (!error) {
       return null;
     }
 
-    //TODO: Translate
     return (
       <Text style={{
         color: error1,
@@ -369,6 +368,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
           inactiveColor={primaryText}
           autoFocus={true}
           ignoreCase={true}
+          keyboardType="numeric"
           inputPosition='center'
           size={50}
           onFulfill={this.verifyCode}

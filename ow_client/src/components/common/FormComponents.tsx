@@ -67,7 +67,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
   
   return (
     <View style={{
-      // flex: 1,
+      flex: 1,
     }}>
       <FormLabel>{meta.label}</FormLabel>
       <FormInput
