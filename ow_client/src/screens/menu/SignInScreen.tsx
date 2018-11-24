@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
-import { primaryDark, primary, error1, secondaryText, secondary, primaryLight, primaryText } from '../../utils/Colors';
+import { primaryDark, primary, error1, secondaryText, secondary, primaryLight, primaryText, bgLight, warning1 } from '../../utils/Colors';
 import { Text, FormInput, Button } from 'react-native-elements';
 import {
   FormBuilder,
@@ -35,6 +35,7 @@ import { RNFirebase } from 'react-native-firebase';
 import Config from 'react-native-config';
 import UserApi from '../../api/UserApi';
 import { MaybeUser, UserType } from '../../typings/UserTypes';
+import HeadingText from '../../components/common/HeadingText';
 
 export interface OwnProps {
   navigator: any,
@@ -119,7 +120,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     let profileStatus = ProfileStatus.Incomplete;
-    if (props.email && props.name) {
+    if (props.name) {
       profileStatus = ProfileStatus.Complete;
     }
 
@@ -144,9 +145,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillReceiveProps(newProps: OwnProps & StateProps & ActionProps) {
-    console.log('componentWillReceiveProps', newProps);
-
-    const oldUserType = this.props.user.type;
     const newUserType = newProps.user.type;
 
     //If the user type has changed to UserType.MOBILE, then we can update the status
@@ -155,11 +153,13 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (newUserType === UserType.USER || newUserType === UserType.NO_USER) {
-      this.setState({ status: SignInStatus.WaitingForMobile });
+      if (!newProps.userIdMeta.loading) {
+        this.setState({ status: SignInStatus.WaitingForMobile });
+      }
     }
 
     /* Recover the state of the profile form */
-    if (newProps.email && newProps.name) {
+    if (newProps.name) {
       this.setState({profileStatus: ProfileStatus.Complete});
     }
 
@@ -176,26 +176,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
   }
 
-  handleSubmit = async () => {
-    Keyboard.dismiss();
-
-    // const result: SomeResult<null> = await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password);
-
-    this.setState({
-      mobile: this.loginForm.value.mobile,
-    });
-  }
 
   async handleLogout() {
     await this.props.logout(this.internalAccountApi);
-
-    // this.setState({ status: SignInStatus.WaitingForMobile })
   }
 
   async sendVerifyCode() {
     const mobile = this.loginForm.value.mobile;
     const result = await this.props.sendVerifyCode(this.internalAccountApi, mobile);
-    console.log("result is", result);
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(result.message, ToastAndroid.SHORT);
       return;
@@ -216,8 +204,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       ToastAndroid.show(result.message, ToastAndroid.LONG);
       return;
     }
-
-    // this.setState({ status: SignInStatus.SignedIn })
   }
 
   async saveProfileForm() {
@@ -233,7 +219,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       email: this.profileForm.value.email,
     };
 
-    console.log("saving user details", userDetails);
     this.props.saveUserDetails(this.internalAccountApi, this.props.user.userId, userDetails);
   }
 
@@ -253,6 +238,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getErrorMessage() {
     const { externalLoginDetails, externalLoginDetailsMeta: { loading } } = this.props;
+    //TODO: translate
+    const connect_to_error_message = 'Error signing in. Please try again.';
 
     if (loading) {
       return null;
@@ -269,26 +256,16 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         paddingHorizontal: 20,
         paddingTop: 10,
       }}>
-        Error signing in. Please try again.
+        {connect_to_error_message}
       </Text>
     );
   }
 
   getContent() {
-    console.log("getContent status: ", this.state.status);
-    console.log("getContent profileStatus: ", this.state.profileStatus);
-
     switch (this.state.status) {
-      case SignInStatus.WaitingForMobile: {
-        console.log("waiting for mobile");
-        return this.getForm();
-      }
-      case SignInStatus.WaitingForPin: {
-        console.log("waiting for pin");
-        return this.getVerifySection();
-      }
+      case SignInStatus.WaitingForMobile: return this.getForm();
+      case SignInStatus.WaitingForPin: return this.getVerifySection();
       case SignInStatus.SignedIn: {
-        console.log("signed in");
         switch(this.state.profileStatus) {
           case ProfileStatus.Incomplete: {
             return this.getProfileForm();
@@ -302,9 +279,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getForm() {
-    console.log("rendering getForm");
     const {
-      externalLoginDetailsMeta: { loading },
+      userIdMeta: { loading },
       translation: { templates: {
         connect_to_service_username_field,
         connect_to_service_username_invalid,
@@ -313,23 +289,30 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       } },
     } = this.props;
 
+    //TODO: translate
+    const connect_to_invalid_phone_number = 'Phone number is invalid'
+
     return (
-      <View key="loginForm">
+      <View 
+        key="loginForm"
+      >
         <Text style={{
           paddingHorizontal: 20,
           paddingTop: 30,
         }}>{connect_to_service_description}</Text>
         <FieldGroup
+          strict={false}
           control={this.loginForm}
           render={(control) => {
             return(
-            <View>
+              <View style={{
+                paddingHorizontal: 20,
+              }}>
               <FieldControl
                 name="mobile"
                 render={MobileInput}
                 meta={{
-                  //TODO: translate
-                  asyncErrorMessage: 'Phone number is invalid',
+                  asyncErrorMessage: connect_to_invalid_phone_number,
                   label: connect_to_service_username_field,
                   secureTextEntry: false,
                   errorMessage: connect_to_service_username_invalid,
@@ -337,12 +320,15 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
               />
               <Button
-                style={{
-                  paddingBottom: 20,
-                  minHeight: 50,
-                }}
+                style={{}}
                 buttonStyle={{
                   backgroundColor: secondary,
+                  minHeight: 50,
+                }}
+                containerViewStyle={{
+                  flex: 1,
+                  marginLeft: 0,
+                  marginRight: 0,
                 }}
                 textStyle={{
                   color: secondaryText,
@@ -351,7 +337,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                 loading={loading}
                 disabled={control.pristine || control.invalid}
                 title={loading ? '' : connect_to_service_submit_button}
-                //TODO: Send verify message
                 onPress={this.sendVerifyCode}
               />
             </View>
@@ -362,11 +347,20 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getVerifySection() {
-    return (
-      <View>
-        <Text>Enter the login code we sent to {this.state.mobile}. Or wait as we verify you automatically</Text>
+    const { userIdMeta: { loading } } = this.props;
 
-        {/* TODO: do this implicitly */}
+    //TODO: translate
+    const connect_to_login_code = (mobile: string) => `Enter the login code we sent to ${mobile}. Or wait as we verify you automatically`;
+    const connect_to_resend = `Didn't get the text?`;
+
+    return (
+      <View 
+        style={{
+          marginVertical: 20,
+          marginHorizontal: 20,
+        }}
+      >
+        <Text>{connect_to_login_code(this.state.mobile)}</Text>
         <CodeInput
           ref="codeInputRef2"
           secureTextEntry
@@ -379,70 +373,180 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
           size={50}
           onFulfill={this.verifyCode}
           containerStyle={{ marginVertical: 30 }}
-          codeInputStyle={{ borderWidth: 1.5 }}
+          codeInputStyle={{ borderWidth: 2 }}
         />
-        <Button onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })}  title="Didn't get the text?"/>
+        <Button 
+          buttonStyle={{
+            backgroundColor: bgLight,
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            flex: 1,
+            marginLeft: 0,
+            marginRight: 0,
+          }}
+          textStyle={{
+            color: secondary,
+            fontWeight: '700',
+          }}
+          onPress={() => this.setState({ status: SignInStatus.WaitingForMobile })} 
+          title={loading ? '' : connect_to_resend}
+          loading={loading}
+        />
       </View>
     )
   }
 
   getProfileForm() {
+    const { connect_to_service_submit_button } = this.props.translation.templates;
+
+    //TODO: transalte
+    const connect_to_edit_heading = 'Tell Us More About Yourself';
+    const connect_to_name_label = 'Full Name';
+    const connect_to_nickname_label = 'Short Name';
+    const connect_to_email_label = 'Email';
+    const connect_to_invalid_message = 'is not valid.';
+
     return (
-      <View key="profileForm">
-        <Text>Tell Us More About Yourself</Text>
+      <View 
+        key="profileForm"
+        style={{
+          marginVertical: 20,
+          marginHorizontal: 20,
+        }}
+      >
+        <Text>{connect_to_edit_heading}</Text>
         <FieldGroup
           control={this.profileForm}
           render={(control) => {
+            console.log("Control is", control);
             return (
-              <View>
+              <View 
+                style={{
+                  marginLeft: -15,
+                }}
+              >
                 <FieldControl
                   name="name"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Full Name', secureTextEntry: false, keyboardType: 'default' }}
+                  meta={{ editable: true, label: connect_to_name_label, secureTextEntry: false, keyboardType: 'default' }}
                 />
                 <FieldControl
                   name="nickname"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Short Name', secureTextEntry: false, keyboardType: 'default' }}
+                  meta={{ editable: true, label: connect_to_nickname_label, secureTextEntry: false, keyboardType: 'default' }}
                 />
                 <FieldControl
                   name="email"
                   render={TextInput}
-                  meta={{ editable: true, label: 'Email', secureTextEntry: false, keyboardType: 'email-address'}}
+                  meta={{ editable: true, label: connect_to_email_label, secureTextEntry: false, keyboardType: 'email-address', errorMessage: connect_to_invalid_message}}
                 />
-                <Button 
+                <Button
+                  style={{}}
+                  buttonStyle={{
+                    backgroundColor: secondary,
+                    minHeight: 50,
+                  }}
+                  containerViewStyle={{
+                    flex: 1,
+                    marginLeft: 15,
+                    marginRight: 0,
+                  }}
+                  textStyle={{
+                    color: secondaryText,
+                    fontWeight: '700',
+                  }}
+                  disabled={control.invalid}
+                  title={connect_to_service_submit_button}
                   onPress={this.saveProfileForm} 
-                  title="Save" 
-                  // disabled={control.pristine || control.invalid}
                 />
               </View>
             )
           }}
         />
-        <Button onPress={this.handleLogout} loading={this.props.userIdMeta.loading} title="Sign Out" />
+        {this.getSignOutButton()}
       </View>
     );
   }
 
   getProfile() {
+    const { mobile, email, name, nickname } = this.props;
+
+    //TODO: translate
+    const connect_to_signed_in_heading = "You are signed in.";
+    const connect_to_edit = "EDIT";
+    const connect_to_name_label = 'Full Name';
+    const connect_to_nickname_label = 'Short Name';
+    const connect_to_email_label = 'Email';
+    const connect_to_profile_mobile= 'Mobile';
+
     return (
-      <View>
-        <Text>You are signed in.</Text>
-        {/* TODO: Add user profile info */}
-        <Button onPress={() => this.setState({ status: SignInStatus.SignedIn, profileStatus: ProfileStatus.Incomplete })} title="Edit" />
-        <Button onPress={this.handleLogout} loading={this.props.userIdMeta.loading} title="Sign Out" />
+      <View
+        style={{
+          marginVertical: 20,
+          marginHorizontal: 20,
+        }}
+      >
+        <Text 
+          style={{marginBottom: 20}}
+        >{connect_to_signed_in_heading}</Text>
+        <HeadingText heading={connect_to_name_label} content={name || ''}/>
+        <HeadingText heading={connect_to_nickname_label} content={nickname || ''}/>
+        <HeadingText heading={connect_to_profile_mobile} content={mobile || ''}/>
+        <HeadingText heading={connect_to_email_label} content={email || ''}/>
+        <Button 
+          style={{}}
+          buttonStyle={{
+            backgroundColor: primary,
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            flex: 1,
+            marginLeft: 0,
+            marginRight: 0,
+            paddingTop: 20,
+          }}
+          textStyle={{
+            color: secondaryText,
+            fontWeight: '700',
+          }}
+          onPress={() => this.setState({ status: SignInStatus.SignedIn, profileStatus: ProfileStatus.Incomplete })} 
+          title={connect_to_edit} 
+        />
+        {this.getSignOutButton()}
       </View>
     );
   }
 
-  render() {
-    const { externalLoginDetails, translation: {
-      templates: {
-        connect_to_service_description
-      } }
-    } = this.props;
+  getSignOutButton() {
+    //TODO: translate
+    const connect_to_sign_out = "SIGN OUT";
+  
+    return (
+      <Button 
+        style={{}}
+        buttonStyle={{
+          backgroundColor: error1,
+          minHeight: 50,
+        }}
+        containerViewStyle={{
+          flex: 1,
+          marginLeft: 0,
+          marginRight: 0,
+          paddingTop: 20,
+        }}
+        textStyle={{
+          color: secondaryText,
+          fontWeight: '700',
+        }}
+        onPress={this.handleLogout} 
+        loading={this.props.userIdMeta.loading} 
+        title={connect_to_sign_out} 
+      />
+    );
+  }
 
-    const isConnected = externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS;
+  render() {
     return (
       <ScrollView
         style={{

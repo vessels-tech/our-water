@@ -67,7 +67,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
   
   return (
     <View style={{
-      flex: 1,
+      // flex: 1,
     }}>
       <FormLabel>{meta.label}</FormLabel>
       <FormInput
@@ -86,6 +86,9 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
       <FormValidationMessage>
         {touched
           && hasError("required")
+          && `${meta.label} ${meta.errorMessage}`}
+        {touched
+          && hasError("email")
           && `${meta.label} ${meta.errorMessage}`}
       </FormValidationMessage>
     </View>
@@ -155,7 +158,6 @@ export const MobileInput = (params: MobileInputParams) => {
 
   return (
     <View>
-      <FormLabel>{label}</FormLabel>
       <PhoneNumberEntry 
         onValueChange={(mobileText: string) => {
           return handler().onChange(mobileText);

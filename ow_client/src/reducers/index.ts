@@ -531,6 +531,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const userIdMeta = { loading: true, error: false, errorMessage: '' };
       return Object.assign({}, state, userIdMeta);
     }
+    case ActionType.SEND_VERIFY_CODE_REQUEST: {
+      console.log("ActionType.SEND_VERIFY_CODE_REQUEST");
+      const userIdMeta = { loading: true, error: false, errorMessage: '' };
+      return Object.assign({}, state, userIdMeta);
+    }
+    case ActionType.SEND_VERIFY_CODE_RESPONSE: {
+      const userIdMeta = { loading: false, error: false, errorMessage: '' };
+      //TODO: not checking error
+      return Object.assign({}, state, userIdMeta);
+    }
     case ActionType.START_EXTERNAL_SYNC_REQUEST: {
       const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
 
