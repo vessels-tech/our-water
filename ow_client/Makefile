@@ -13,6 +13,7 @@ all: env server
 install:
 	yarn
 
+
 #
 # join together env files to set up the ENVFILE
 # that react-native-env likes
@@ -105,7 +106,7 @@ install-android-production:
 	cd ${dir}/android/app/build/outputs/apk/release/ && adb install app-release-unsigned.apk
 
 build-and-install:
-	@make build install-android
+	@make bundle build install-android
 
 hockey:
 	source ../env/.env.deployment.sh && \
