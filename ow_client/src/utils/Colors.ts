@@ -6,7 +6,6 @@ export const error1 = "#E2A69A"
 export const warning1 = "#F2E764"
 
 
-
 export const primary = "#005198"
 export const primaryLight = "#4e7dc9"
 export const primaryDark = "#002a69"

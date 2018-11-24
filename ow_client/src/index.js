@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { primaryText } from './utils/Colors';
+import { primaryText, primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -104,38 +104,43 @@ Promise.resolve(true)
       Navigation.startTabBasedApp({
         tabs: [
           {
-            label: 'Home', 
+            // label: 'Home', 
             screen: 'screen.App',
-            icon: require('./assets/other_pin.png'),
+            icon: require('./assets/home.png'),
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
           {
-            label: 'Scan',
+            // label: 'Scan',
             screen: 'screen.ScanScreen',
-            icon: require('./assets/other_pin.png'),
+            icon: require('./assets/scan.png'),
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
           {
-            label: 'Map',
+            // label: 'Map',
             screen: 'screen.SimpleMapScreen',
-            icon: require('./assets/other_pin.png'),
+            icon: require('./assets/map.png'),
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           }
         ],
-        tabsStyle: { // optional, add this if you want to style the tab bar beyond the defaults
-          tabBarButtonColor: '#ffff00', // optional, change the color of the tab icons and text (also unselected). On Android, add this to appStyle
-          tabBarSelectedButtonColor: '#ff9900', // optional, change the color of the selected tab icon and text (only selected). On Android, add this to appStyle
+        tabsStyle: { 
+          tabBarButtonColor: primaryText,
+          tabBarSelectedButtonColor: primaryDark,
           tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
           initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
         },
         appStyle: {
-          orientation: 'portrait', // Sets a specific orientation to the entire app. Default: 'auto'. Supported values: 'auto', 'landscape', 'portrait'
+          // Here for android
+          tabBarButtonColor: bgMed,
+          tabBarSelectedButtonColor: primaryDark,
+          orientation: 'portrait',
+          bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
+          bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
         },
         drawer,
         passProps: {config},
