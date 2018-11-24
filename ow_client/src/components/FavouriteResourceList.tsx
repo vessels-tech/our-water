@@ -8,6 +8,7 @@ import {
 import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+
 import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId } from '../utils';
 
@@ -24,6 +25,7 @@ import { TranslationFile } from 'ow_translations';
 import ResourceCell from './common/ResourceCell';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
+import DownArrow from './common/DownArrow';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -243,28 +245,23 @@ class FavouriteResourceList extends Component<Props> {
           <Text style={{ fontWeight: '500', fontSize: 18 }}>{resource_detail_empty_heading}</Text>
           <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>{resource_detail_empty_hint}</Text>
         </View>
-        { shouldShowButtons ? 
-        <View style={{
-          flexDirection: 'row',
-          flex: 2,
-          justifyContent: 'space-around',
-        }}>
-        {/* TODO: replace with icons */}
-          <Button 
-            style={{
-              flex: 1
-            }}
-            onPress={() => console.log("on Camera pressed")} 
-            title="SCAN"
-          />
-          <Button 
-            style={{
-              flex: 1
-            }}
-            onPress={() => console.log("on search pressed")} 
-            title="SEARCH"
-          />
-        </View>
+        {shouldShowButtons ?
+          <View style={{
+            flex: 90,
+            alignItems: 'flex-end',
+            flexDirection: 'column-reverse',
+          }}>
+            <View style={{
+              flexDirection: 'row-reverse',
+              justifyContent: 'space-around',
+              width: '100%',
+            }}>
+              {/* Arrow icons pointing to menu buttons */}
+              <DownArrow />
+              <DownArrow />
+              <View style={{width: 40}}/>
+            </View>
+          </View>
         : null }
       </View>
     );
