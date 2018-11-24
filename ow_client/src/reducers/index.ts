@@ -283,7 +283,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       let resources: AnyResource[] = state.resources;
-      resources.push(action.result.result);
+      //Don't add the resource if it has already been loaded
+      const alreadyHasResource = resources.reduce((acc: boolean, curr: AnyResource) => {
+        if (acc) {
+          return acc;
+        }
+        return curr.id === action.resourceId;
+      }, false);
+      if (!alreadyHasResource) {
+        resources.push(action.result.result);
+      }
       resourceMeta.set(action.resourceId, meta);
       //I think this was missing resources
       return Object.assign({}, state, { resourceMeta, resources });

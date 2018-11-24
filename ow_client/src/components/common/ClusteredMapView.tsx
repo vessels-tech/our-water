@@ -217,9 +217,12 @@ class ClusteredMapView extends Component<Props> {
   };
 
   render() {
+    console.log("props.children are", this.props.children);
+
     return (
       <MapView
-        {...this.removeChildrenFromProps(this.props)}
+        style={this.props.style}
+        // {...this.removeChildrenFromProps(this.props)}
         ref={(ref) => { this.props.mapRef(ref)}}
         showsMyLocationButton={false}
         showsPointsOfInterest={false}
@@ -231,6 +234,7 @@ class ClusteredMapView extends Component<Props> {
         {/* {this.state.otherChildren} */}
 
         {/* TODO: this just renders the children straight away, without clustering. Eventually change back to clustering*/}
+
         {this.props.children}
       </MapView>
     );

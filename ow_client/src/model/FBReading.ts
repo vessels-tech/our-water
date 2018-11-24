@@ -122,9 +122,4 @@ export default class FBReading extends FirestoreDoc {
         throw new Error(`Tried to convert FBReading to AnyReading for type: ${this.type}`);
     }
   }
-
-
-  
-
-
 }

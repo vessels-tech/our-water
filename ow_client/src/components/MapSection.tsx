@@ -326,7 +326,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
             return <Marker
               //@ts-ignore
               collapsable={true}
-              key={shortId}
+              key={`any_${resource.id}`}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
               pinColor={secondary}
@@ -345,7 +345,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
             return <Marker
               //@ts-ignore
               collapsable={true}
-              key={p.id}
+              key={`pending_${p.id}`}
               coordinate={p.coords}
               title={`${p.id}`}
               // description={resource.resourceType}
