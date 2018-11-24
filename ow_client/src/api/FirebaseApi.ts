@@ -597,11 +597,17 @@ class FirebaseApi {
    * submits a new reading for a given resource
    * 
    */
-  static saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<any>> {
+  static async saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
     const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
     const fbReading = new FBReading(builder);
 
-    return fbReading.save(fs);
+    const saveResult = await fbReading.save(fs);
+    if (saveResult.type === ResultType.ERROR) {
+      return makeError<AnyReading>(saveResult.message);
+    }
+
+    const savedFBReading = FBReading.deserialize(saveResult.result);
+    return makeSuccess(savedFBReading.toAnyReading());
   }
 
   static saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading) {

@@ -6,6 +6,7 @@ import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
 import { string } from "react-native-joi";
+import { AnyARecord } from "dns";
 
 export type DeprecatedResource = {
   id: string,
@@ -70,6 +71,7 @@ export type Reading = {
 
 export type SaveReadingResult = {
   requiresLogin: boolean,
+  reading?: AnyReading,
 }
 
 export type SaveResourceResult = {

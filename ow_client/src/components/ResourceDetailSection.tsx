@@ -90,6 +90,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
   }
 
+  onUpdateTimeseries() {
+    this.loadTimeseries();
+  }
+
   loadTimeseries() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;

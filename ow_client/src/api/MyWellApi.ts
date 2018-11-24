@@ -60,7 +60,8 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     const result: SomeResult<SaveReadingResult> = {
       type: ResultType.SUCCESS,
       result: {
-        requiresLogin: false
+        requiresLogin: false,
+        reading: saveResult.result,
       }
     };
 
@@ -264,8 +265,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * TODO: implement a better search api - will require an endpoint methinks
    */
   async performSearch(searchQuery: string): Promise<SomeResult<SearchResult>> {
-    //TODO: also implement search for short id
-    throw new Error("Not implemented");
+    return makeError<SearchResult>("Search hasn't been implement yet.");
   }
 
   //

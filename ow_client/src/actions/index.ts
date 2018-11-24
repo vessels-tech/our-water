@@ -665,7 +665,8 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
 
     const result = await api.saveReading(resourceId, userId, reading);
 
-    dispatch(saveReadingResponse(result));
+    //TODO: do proper check to see if we are using pendingReadings or not
+    dispatch(saveReadingResponse(result, reading));
 
     //Attempt to do a sync, just this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
@@ -682,10 +683,11 @@ function saveReadingRequest(): SaveReadingActionRequest {
   }
 }
 
-function saveReadingResponse(result: SomeResult<SaveReadingResult>): SaveReadingActionResponse {
+function saveReadingResponse(result: SomeResult<SaveReadingResult>, pendingReading: PendingReading): SaveReadingActionResponse {
   return {
     type: ActionType.SAVE_READING_RESPONSE,
-    result
+    result,
+    pendingReading,
   }
 }
 

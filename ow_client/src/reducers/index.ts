@@ -2,7 +2,7 @@
 import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
-import { ResultType, SomeResult } from "../typings/AppProviderTypes";
+import { ResultType, SomeResult, resultsHasError } from "../typings/AppProviderTypes";
 import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
@@ -514,8 +514,17 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.SAVE_READING_RESPONSE: {
       const pendingSavedReadingsMeta = { loading: false };
+      const pendingSavedReadings = state.pendingSavedReadings;
 
-      return Object.assign({}, state, { pendingSavedReadingsMeta });
+      //Save to pending readings just locally
+      if (action.result.type === ResultType.ERROR) {
+        return Object.assign({}, state, { pendingSavedReadingsMeta });
+      }
+
+      //TD: we shouldn't need to do this - subscribe to the resource instead.
+      pendingSavedReadings.push(action.pendingReading);
+
+      return Object.assign({}, state, { pendingSavedReadings, pendingSavedReadingsMeta });
     }
     case ActionType.SAVE_RESOURCE_REQUEST: {
       const pendingSavedResourcesMeta =  { loading: true };

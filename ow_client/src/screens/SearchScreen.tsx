@@ -99,7 +99,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page);
        
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      // ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      ToastAndroid.showWithGravity(result.message, ToastAndroid.SHORT, ToastAndroid.CENTER);
     }
   }
 
