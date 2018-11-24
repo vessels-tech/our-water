@@ -238,8 +238,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getErrorMessage() {
     const { externalLoginDetails, userIdMeta: { loading, errorMessage, error } } = this.props;
-    //TODO: translate
-    const connect_to_error_message = 'Error signing in. Please try again.';
+    const { connect_to_error_message } = this.props.translation.templates;
 
     if (loading) {
       return null;
@@ -284,12 +283,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         connect_to_service_username_field,
         connect_to_service_username_invalid,
         connect_to_service_submit_button,
-        connect_to_service_description
+        connect_to_service_description,
+        connect_to_invalid_phone_number,
       } },
     } = this.props;
-
-    //TODO: translate
-    const connect_to_invalid_phone_number = 'Phone number is invalid'
 
     return (
       <View 
@@ -347,10 +344,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getVerifySection() {
     const { userIdMeta: { loading } } = this.props;
-
-    //TODO: translate
-    const connect_to_login_code = (mobile: string) => `Enter the login code we sent to ${mobile}. Or wait as we verify you automatically`;
-    const connect_to_resend = `Didn't get the text?`;
+    const {
+      connect_to_login_code,
+      connect_to_resend,
+    } = this.props.translation.templates;
 
     return (
       <View 
@@ -471,14 +468,15 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getProfile() {
     const { mobile, email, name, nickname } = this.props;
+    const { 
+      connect_to_signed_in_heading,
+      connect_to_edit,
+      connect_to_name_label,
+      connect_to_nickname_label,
+      connect_to_email_label,
+      connect_to_profile_mobile,
+    } = this.props.translation.templates;
 
-    //TODO: translate
-    const connect_to_signed_in_heading = "You are signed in.";
-    const connect_to_edit = "EDIT";
-    const connect_to_name_label = 'Full Name';
-    const connect_to_nickname_label = 'Short Name';
-    const connect_to_email_label = 'Email';
-    const connect_to_profile_mobile= 'Mobile';
 
     return (
       <View
@@ -519,8 +517,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getSignOutButton() {
-    //TODO: translate
-    const connect_to_sign_out = "SIGN OUT";
+    const { connect_to_sign_out } = this.props.translation.templates;
   
     return (
       <Button 

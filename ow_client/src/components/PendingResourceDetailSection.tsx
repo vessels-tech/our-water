@@ -163,7 +163,6 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
         const latestReading = readings[readings.length - 1];
         if (latestReading) {
           content = `${latestReading.value.toFixed(2)}`;
-          // TODO: translate
           content_subtitle = moment(latestReading.date).format(timeseries_date_format);
         }
 

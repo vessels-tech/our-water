@@ -210,7 +210,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         const latestReading = allReadings[allReadings.length - 1];
         if (latestReading) {
           content = `${latestReading.value.toFixed(2)}`;
-          // TODO: translate
           contentSubtitle = moment(latestReading.dateString).format(timeseries_date_format);
         }
 
@@ -347,8 +346,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getReadingButton() {
-    //TODO: translate
-    const resource_detail_new_reading = 'NEW READING';
+    const { resource_detail_new_reading } = this.props.translation.templates;
     return (
       <View
         style={{

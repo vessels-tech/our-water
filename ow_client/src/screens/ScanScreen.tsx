@@ -75,7 +75,6 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   handleScanError() {
     const { qr_code_not_found } = this.props.translation.templates;
-    //TODO: translate
     ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
     //TODO: reset scanner
     return;
