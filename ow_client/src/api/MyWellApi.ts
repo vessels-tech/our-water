@@ -42,7 +42,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<SomeResult<AnonymousUser>> {
-    console.log("signing in silently?");
     return FirebaseApi.signIn();
   }
 
@@ -201,7 +200,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     }
     //TD tech debt - find a better way to create things in arrays
     const getShortIdResults = await Promise.all(ids.map(id => this.getShortId(id)));
-    console.log("preload shortids:", getShortIdResults);
     const hasError = resultsHasError(getShortIdResults);
     if (hasError) {
       return makeError('Error loading shortIds');

@@ -130,8 +130,6 @@ export default class FBResource extends FirestoreDoc {
       updatedAt,
     } = data;
 
-    console.log("coords._latitude is", coords.latitude);
-
     const builder: FBResourceBuilder = {
       orgId,
       type,

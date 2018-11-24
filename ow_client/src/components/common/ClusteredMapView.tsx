@@ -217,12 +217,10 @@ class ClusteredMapView extends Component<Props> {
   };
 
   render() {
-    console.log("props.children are", this.props.children);
 
     return (
       <MapView
-        style={this.props.style}
-        // {...this.removeChildrenFromProps(this.props)}
+        {...this.removeChildrenFromProps(this.props)}
         ref={(ref) => { this.props.mapRef(ref)}}
         showsMyLocationButton={false}
         showsPointsOfInterest={false}

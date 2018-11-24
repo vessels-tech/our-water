@@ -50,7 +50,6 @@ export default class NetworkApi {
   updateConnectionStatus() {
     return NetInfo.isConnected.fetch()
       .then(isConnected => {
-        console.log('isConnected', isConnected);
         this.onConnectionChange(isConnected);
       });
   }

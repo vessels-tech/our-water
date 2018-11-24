@@ -38,10 +38,7 @@ type asyncDispatchResult<T> = (dispatch: any) => Promise<SomeResult<T>>
 export function addFavourite(api: BaseApi, userId: string, resource: AnyResource): any {
   return async (dispatch: any ) => {
     dispatch(addFavouriteRequest(resource));
-
-    console.log("addFavourite, userid:", userId);
     const result = await api.addFavouriteResource(resource, userId);
-
     dispatch(addFavouriteResponse(result));
   }
 }
@@ -420,7 +417,6 @@ export function getResource(api: BaseApi, resourceId: string, userId: string): (
 
     //TODO: we should only do this if we don't already have the resource...
     const result = await api.getResource(resourceId);
-    console.log("getResource result: ", result);
     dispatch(getResourceResponse(resourceId, result));
     return result;
   }
@@ -699,9 +695,6 @@ export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi,
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
-
-    console.log("saving resource", resource);
-
     const result = await api.saveResource(userId, resource);
 
     dispatch(saveResourceResponse(result));    

@@ -148,7 +148,7 @@ class FirebaseApi {
     })
     .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
     .catch((err: Error) => {
-      console.log("ERROR", err);
+      maybeLog("ERROR", err);
       return makeError<FullUser>(err.message)
     });
   }
@@ -179,7 +179,6 @@ class FirebaseApi {
    * This doesn't handle subcollections
    */
   static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
-    console.log(`Merging old user: ${oldUserId} to new user: ${userId}`);
     const oldUserResult = await this.getUser(orgId, oldUserId);
     if (oldUserResult.type === ResultType.ERROR) {
       return oldUserResult;
@@ -233,7 +232,7 @@ class FirebaseApi {
   static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true})
     .catch(err => {
-      console.log(err);
+      maybeLog(err.message);
     })
   }
 
@@ -393,7 +392,6 @@ class FirebaseApi {
    */
   static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<AnyResource[]>>{
     //from region, lat and lng are in centre, delta is the full width (I think)
-    console.log("Region is:", region);
     const halfLatDelta = region.latitudeDelta / 2;
     const halfLngDelta = region.longitudeDelta / 2;
     const minLat = region.latitude - halfLatDelta;
@@ -401,10 +399,6 @@ class FirebaseApi {
     const maxLat = region.latitude + halfLatDelta;
     const maxLng = region.longitude +  halfLngDelta;
 
-    console.log(`mins: ${minLat}, ${minLng}`);
-    console.log(`max: ${maxLat}, ${maxLng}`);
-
-    console.log("orgId", orgId);
     return fs.collection('org').doc(orgId).collection('resource')
       .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
       .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng))

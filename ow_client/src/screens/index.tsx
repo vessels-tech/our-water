@@ -48,7 +48,6 @@ if (EnableLogging) {
 //TODO: figure out if user has changed and remove old subscriptions
 const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: string) => {
   /* Subscribe to firebase updates */
-  console.log("subscribing to user", userId);
   const unsubscribe = config.userApi.subscribeToUser(userId, (user: OWUser) => {
     store.dispatch(appActions.getUserResponse({ type: ResultType.SUCCESS, result: user }))
   });
@@ -73,7 +72,6 @@ export async function registerScreens(config: ConfigFactory) {
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
     if (!rnFirebaseUser) {
-      console.log("no rnFirebaseUser!");
       await store.dispatch(appActions.silentLogin(config.appApi));
       return;
     }

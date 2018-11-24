@@ -40,7 +40,6 @@ export function withTabWrapper(WrappedComponent: any) {
       
       //TODO: push only when this screen is visible
       const isVisible = await this.props.navigator.screenIsCurrentlyVisible();
-      console.log("tabwrapper navigator event. Is Visible:", isVisible);
       if (!isVisible) {
         return;
       }

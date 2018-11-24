@@ -312,8 +312,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       externalSyncStatus,
     } = this.props;
 
-    console.log('getReadingsSection', pendingSavedReadings);
-
     if (pendingSavedReadings.length === 0) {
       return null;
     }

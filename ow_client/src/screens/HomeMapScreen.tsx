@@ -114,17 +114,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillMount() {
-    console.log("App componentWillMount");
 
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
   }
 
   componentDidMount() {
-    console.log("App componentDidMount");
   }
 
   componentWillReceiveProps() {
-    console.log("App componentWillReceiveProps");
   }
 
   componentWillUnmount() {
@@ -216,7 +213,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     //Load the resource for the search entity?
 
     //TODO: get the description
-    console.log("onSearchResultPressed", r);
     // const description = 
 
     //We can move the user there on the map before the resource has loaded...

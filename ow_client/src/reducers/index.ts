@@ -550,7 +550,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, userIdMeta);
     }
     case ActionType.SEND_VERIFY_CODE_REQUEST: {
-      console.log("ActionType.SEND_VERIFY_CODE_REQUEST");
       const userIdMeta = { loading: true, error: false, errorMessage: '' };
       return Object.assign({}, state, userIdMeta);
     }
@@ -608,8 +607,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
           return Object.assign({}, state, { externalLoginDetails: newExternalLoginDetails });
       }
-
-      console.log("Current external login details no good fool.");
+      
       return state;
     }
 

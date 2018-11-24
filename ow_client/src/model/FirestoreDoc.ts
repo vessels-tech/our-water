@@ -1,4 +1,5 @@
 import { SomeResult, makeSuccess, makeError } from "../typings/AppProviderTypes";
+import { maybeLog } from "../utils";
 
 export type FirestoreDocTypes = {
   docName: string,
@@ -43,7 +44,7 @@ export default abstract class FirestoreDoc {
       return this.create(firestore);
     }
     
-    console.log(`saving model: org/${this.orgId}/${this.docName}/${this.id}\n${JSON.stringify(this.serialize(), null, 2)}`)
+    maybeLog(`saving model: org/${this.orgId}/${this.docName}/${this.id}\n${JSON.stringify(this.serialize(), null, 2)}`);
     
     return firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id)
       .set(this.serialize())

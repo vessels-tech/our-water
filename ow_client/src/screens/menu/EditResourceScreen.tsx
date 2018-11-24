@@ -168,8 +168,6 @@ class EditResourceScreen extends Component<Props> {
       timeseries: this.props.config.getDefaultTimeseries(this.editResourceForm.value.asset),
     };
 
-    console.log("unvalidated resource", unvalidatedResource);
-
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;
     }
