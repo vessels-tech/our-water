@@ -342,11 +342,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         }
       });
 
-
-      console.log("GET_RESOURCES_RESPONSE, resources.length: ", resources.length);
-      console.log("GET_RESOURCES_RESPONSE, newResources.length: ", newResources.length);
-      console.log("GET_RESOURCES_RESPONSE, resourcesCache.length: ", Object.keys(resourcesCache).length);
-
       return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
     }
     case ActionType.GET_SHORT_ID_REQUEST: {

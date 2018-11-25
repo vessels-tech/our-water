@@ -74,7 +74,7 @@ bundle:
 	source /tmp/ow_env &&  ENVFILE=/tmp/ow_env react-native bundle \
 		--platform android \
 		--dev false \
-		--minify false \
+		--minify true \
 		--entry-file ./src/index.js \
 		--bundle-output android/app/src/main/assets/index.android.bundle \
 		--reset-cache \
@@ -107,6 +107,9 @@ install-android-production:
 
 build-and-install:
 	@make bundle build install-android
+
+build-and-install-production:
+	@make bundle build-production install-android-production
 
 hockey:
 	source ../env/.env.deployment.sh && \
