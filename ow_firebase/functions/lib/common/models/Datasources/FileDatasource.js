@@ -14,6 +14,7 @@ const utils_1 = require("../../utils");
 const Reading_1 = require("../Reading");
 const moment = require("moment");
 const ResourceIdType_1 = require("../../types/ResourceIdType");
+const FirebaseApi_1 = require("../../apis/FirebaseApi");
 const parseDateForgivingly = (dateStr) => {
     let date;
     date = moment(dateStr, ['YYYY/MM/DD', 'DD/MM/YYYY']);
@@ -115,14 +116,6 @@ class FileDatasource {
             };
         });
     }
-    batchSave(fs, docs) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const batch = fs.batch();
-            //Readings are unique by their timestamp + resourceId.
-            docs.forEach(doc => doc.batchCreate(batch, fs, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
-            return batch.commit();
-        });
-    }
     /**
      *
      * download the file to local
@@ -149,12 +142,12 @@ class FileDatasource {
             result.results = [`Validated ${models.length} readings.`];
             result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
             //batch save.
-            const BATCH_SIZE = 15;
+            const BATCH_SIZE = 250;
             const batches = utils_1.chunkArray(models, BATCH_SIZE);
             //Save one batch at a time
             return batches.reduce((arr, curr) => __awaiter(this, void 0, void 0, function* () {
                 yield arr;
-                return this.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
+                return FirebaseApi_1.default.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
             }), Promise.resolve(true));
         })
             .then(() => {

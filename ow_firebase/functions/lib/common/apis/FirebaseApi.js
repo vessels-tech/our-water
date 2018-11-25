@@ -16,6 +16,14 @@ const utils_1 = require("../utils");
 const util_1 = require("util");
 const ow_types_1 = require("ow_types");
 class FirebaseApi {
+    static batchSave(fs, docs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const batch = fs.batch();
+            //Readings are unique by their timestamp + resourceId.
+            docs.forEach(doc => doc.batchCreate(batch, fs, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+            return batch.commit();
+        });
+    }
     /**
      * ResourcesNearLocation
      *

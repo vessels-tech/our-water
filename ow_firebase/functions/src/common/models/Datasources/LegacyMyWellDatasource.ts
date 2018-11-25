@@ -4,7 +4,7 @@ import * as request from 'request-promise-native';
 import { Group } from '../Group';
 import * as moment from 'moment';
 
-import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString, snapshotToResourceList } from '../../utils';
+import { createDiamondFromLatLng, findGroupMembershipsForResource, getLegacyMyWellGroups, getLegacyMyWellResources, findResourceMembershipsForResource, findGroupMembershipsForReading, concatSaveResults, resultWithError, resourceIdForResourceType, hashIdToIntegerString, snapshotToResourceList, chunkArray } from '../../utils';
 import LegacyVillage from '../../types/LegacyVillage';
 import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
@@ -25,6 +25,7 @@ import { LegacyMyWellReading } from '../LegacyMyWellReading';
 import { DataType } from '../../enums/FileDatasourceTypes';
 import { DefaultSyncRunResult } from '../DefaultSyncRunResult';
 import { GeoPoint, OWGeoPoint } from 'ow_types';
+import FirebaseApi from '../../apis/FirebaseApi';
 
 
 export type WarningType = {
@@ -226,7 +227,6 @@ export default class LegacyMyWellDatasource implements Datasource {
    */
   public getReadingsData(orgId: string, firestore): Promise<ReadingSaveResult>  {
     const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
-    // const uriReadings = `${this.baseUrl}/api/resources`;
 
     const options = {
       method: 'GET',
@@ -237,6 +237,10 @@ export default class LegacyMyWellDatasource implements Datasource {
     let readings: Array<Reading> = [];
     let legacyResources: Map<string, Resource> = null;
     let legacyGroups: Map<string, Group> = null;
+
+    let batchSaveResults = [];
+    const errors = [];
+    const warnings: WarningType[] = [];
 
     return Promise.all([
       getLegacyMyWellResources(orgId, firestore),
@@ -249,8 +253,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     .then(() => request(options))
     .then((legacyReadings: Array<LegacyReading>) => {
       console.log(`found ${legacyReadings.length} legacyReadings`);
-      const errors = [];
-      const warnings: WarningType[] = [];
+      
       console.log("example reading is", legacyReadings[0]);
       legacyReadings.forEach(r => {
         if (typeof r.value === undefined) {
@@ -282,15 +285,29 @@ export default class LegacyMyWellDatasource implements Datasource {
         readings.push(newReading);
       });
 
+      //temp set length for testing
+      readings.length = 15
+      
       const savedReadings: Array<Reading> = [];
-      readings.forEach(r => {
-        return r.create({ firestore })
-          .then((savedRes: Reading) => savedReadings.push(savedRes))
-          .catch(err => errors.push(err));
-      });
+      // readings.forEach(r => {
+      //   return r.create({ firestore })
+      //     .then((savedRes: Reading) => savedReadings.push(savedRes))
+      //     .catch(err => errors.push(err));
+      // });
 
+      //batch save.
+      const BATCH_SIZE = 250;
+      const batches = chunkArray(readings, BATCH_SIZE);
+
+      //Save one batch at a time
+      return batches.reduce(async (arr: Promise<any>, curr: Reading[]) => {
+        await arr;
+        return FirebaseApi.batchSave(firestore, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
+      }, Promise.resolve(true))
+    })
+    .then(() => {
       return {
-        results: savedReadings,
+        results: batchSaveResults,
         warnings,
         errors,
       };

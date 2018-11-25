@@ -6,6 +6,7 @@
 
 import * as assert from 'assert';
 import * as moment from 'moment';
+import 'mocha';
 import * as chai from 'chai';
 
 import fs from '../../apis/Firestore';

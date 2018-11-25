@@ -533,7 +533,6 @@ class FirebaseApi {
    * Get readings from the readings collection
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
-    console.log("gettingReadings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)

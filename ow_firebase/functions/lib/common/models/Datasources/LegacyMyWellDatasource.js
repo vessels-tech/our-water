@@ -22,6 +22,7 @@ const env_1 = require("../../env");
 const FileDatasourceTypes_1 = require("../../enums/FileDatasourceTypes");
 const DefaultSyncRunResult_1 = require("../DefaultSyncRunResult");
 const ow_types_1 = require("ow_types");
+const FirebaseApi_1 = require("../../apis/FirebaseApi");
 class LegacyMyWellDatasource {
     constructor(baseUrl, selectedDatatypes) {
         this.baseUrl = baseUrl;
@@ -186,7 +187,6 @@ class LegacyMyWellDatasource {
      */
     getReadingsData(orgId, firestore) {
         const uriReadings = `${this.baseUrl}/api/readings?access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
-        // const uriReadings = `${this.baseUrl}/api/resources`;
         const options = {
             method: 'GET',
             uri: uriReadings,
@@ -195,6 +195,9 @@ class LegacyMyWellDatasource {
         let readings = [];
         let legacyResources = null;
         let legacyGroups = null;
+        let batchSaveResults = [];
+        const errors = [];
+        const warnings = [];
         return Promise.all([
             utils_1.getLegacyMyWellResources(orgId, firestore),
             utils_1.getLegacyMyWellGroups(orgId, firestore)
@@ -206,8 +209,6 @@ class LegacyMyWellDatasource {
             .then(() => request(options))
             .then((legacyReadings) => {
             console.log(`found ${legacyReadings.length} legacyReadings`);
-            const errors = [];
-            const warnings = [];
             console.log("example reading is", legacyReadings[0]);
             legacyReadings.forEach(r => {
                 if (typeof r.value === undefined) {
@@ -235,14 +236,26 @@ class LegacyMyWellDatasource {
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });
+            //temp set length for testing
+            readings.length = 15;
             const savedReadings = [];
-            readings.forEach(r => {
-                return r.create({ firestore })
-                    .then((savedRes) => savedReadings.push(savedRes))
-                    .catch(err => errors.push(err));
-            });
+            // readings.forEach(r => {
+            //   return r.create({ firestore })
+            //     .then((savedRes: Reading) => savedReadings.push(savedRes))
+            //     .catch(err => errors.push(err));
+            // });
+            //batch save.
+            const BATCH_SIZE = 250;
+            const batches = utils_1.chunkArray(readings, BATCH_SIZE);
+            //Save one batch at a time
+            return batches.reduce((arr, curr) => __awaiter(this, void 0, void 0, function* () {
+                yield arr;
+                return FirebaseApi_1.default.batchSave(firestore, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
+            }), Promise.resolve(true));
+        })
+            .then(() => {
             return {
-                results: savedReadings,
+                results: batchSaveResults,
                 warnings,
                 errors,
             };

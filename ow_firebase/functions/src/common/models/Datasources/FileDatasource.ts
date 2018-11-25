@@ -13,6 +13,7 @@ import { Resource } from "../Resource";
 import { firestore } from "firebase-functions";
 import { Firestore } from "@google-cloud/firestore";
 import { OWGeoPoint } from "ow_types";
+import FirebaseApi from "../../apis/FirebaseApi";
 
 const parseDateForgivingly = (dateStr): moment.Moment => {
   let date: moment.Moment;
@@ -149,12 +150,6 @@ export class FileDatasource implements Datasource {
     });
   }
 
-  async batchSave(fs: Firestore, docs: Reading[]): Promise<any> {
-    const batch = fs.batch();
-    //Readings are unique by their timestamp + resourceId.
-    docs.forEach(doc => doc.batchCreate(batch, fs, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
-    return batch.commit();
-  }
 
   /**
    * 
@@ -185,13 +180,13 @@ export class FileDatasource implements Datasource {
       result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
 
       //batch save.
-      const BATCH_SIZE = 15;
+      const BATCH_SIZE = 250;
       const batches = chunkArray(models, BATCH_SIZE);
 
       //Save one batch at a time
       return batches.reduce(async (arr: Promise<any>, curr: Reading[]) => {
         await arr;
-        return this.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
+        return FirebaseApi.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
       }, Promise.resolve(true));
     })
     .then(() => {
