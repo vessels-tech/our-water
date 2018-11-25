@@ -364,7 +364,7 @@ export function getPendingResourcesResponse(result: SomeResult<PendingResource[]
  * async get the readings for a resource
  * //TD - remove the need for timeseriesId
  */
-export function getReadings(api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string,range: TimeseriesRange): any {
+export function getReadings(api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string,range: TimeseriesRange): asyncDispatchResult<ResultType<AnyReading[]>> {
   return async (dispatch: any) => {
     dispatch(getReadingsRequest(resourceId, timeseriesName, timeseriesId, range));
 
@@ -383,6 +383,7 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesName: st
     }
 
     dispatch(getReadingsResponse(timeseriesId, resourceId, timeseriesName, range, result));
+    return result;
   }
 }
 

@@ -2,6 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import {
   View,
   ViewPagerAndroid,
+  ToastAndroid,
 } from 'react-native';
 import { 
   Avatar,
@@ -39,6 +40,7 @@ import { OrgType } from '../typings/models/OrgType';
 import { PendingReading } from '../typings/models/PendingReading';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -64,7 +66,7 @@ export interface StateProps {
 export interface ActionProps {
   action_addFavourite: any,
   action_removeFavourite: any,
-  getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => any,
+  getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => Promise<SomeResult<AnyReading[]>>,
 }
 
 export interface State {
@@ -97,7 +99,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   loadTimeseries() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
-    timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE));
+    timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
+      .then(result => {
+        if (result.type === ResultType.ERROR) {
+          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+        }
+      }));
   }
 
 

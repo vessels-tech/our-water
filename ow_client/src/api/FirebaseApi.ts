@@ -20,7 +20,7 @@ import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';
 import { isNullOrUndefined, isError } from 'util';
-import { AnyReading } from '../typings/models/Reading';
+import { AnyReading, MyWellReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
@@ -29,6 +29,9 @@ import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuild
 import FBResource from '../model/FBResource';
 import FBReading from '../model/FBReading';
 import { SaveUserDetailsType } from './internalAccountApi';
+import { OrgType } from '../typings/models/OrgType';
+import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
+import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -530,6 +533,7 @@ class FirebaseApi {
    * Get readings from the readings collection
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
+    console.log("gettingReadings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
@@ -537,7 +541,10 @@ class FirebaseApi {
       .get()
     .then((sn: any) => this.snapshotToReadings(sn))
     .then((readings: AnyReading[]) => makeSuccess(readings))
-    .catch((err: Error) => makeError<AnyReading[]>(err.message))
+    .catch((err: Error) => {
+      maybeLog("error: ", err.message);
+      makeError<AnyReading[]>(err.message)
+    })
   }
 
   /**
@@ -1079,8 +1086,33 @@ class FirebaseApi {
   static snapshotToReadings(sn: any): AnyReading[] {
     const readings: AnyReading[] = [];
     sn.forEach((doc: any) => {
-      const fbReading = FBReading.fromDoc(doc);
-      readings.push(fbReading.toAnyReading());
+      const data = doc.data();
+      //TD this is a temporary measure as we wait to fix up the backend models
+      let image: NoReadingImage = { type: ReadingImageType.NONE };
+      if (data.image) {
+        image = data.image;
+      }
+
+      let location: NoReadingLocation = { type: ReadingLocationType.NONE };
+      if (data.location) {
+        location = data.location;
+      }
+
+      const reading: MyWellReading = {
+        type: OrgType.MYWELL,
+        resourceId: data.resourceId,
+        timeseriesId: data.timeseriesId,
+        date: data.datetime,
+        value: data.value,
+        userId: 'unknown',
+        image,
+        location,
+      };
+
+      readings.push(reading);
+      //TODO: use this proper method instead
+      // const fbReading = FBReading.fromDoc(doc);
+      // readings.push(fbReading.toAnyReading());
     });
 
     return readings;
