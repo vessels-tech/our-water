@@ -7,6 +7,7 @@ const ResourceType_1 = require("./enums/ResourceType");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
 const ow_types_1 = require("ow_types");
+const btoa = require("btoa");
 var filesystem = require("fs");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
@@ -260,6 +261,16 @@ exports.hashIdToIntegerString = (id, length) => {
     const fullHash = `${exports.hashCode(id)}`;
     return fullHash.substring(0, length);
 };
+/**
+ * The Id for a reading is generated as a hash of the
+ * reading's dateTime + ResourceId + timeseriesId.
+ *
+ * For now, we can just encode it as a base64 string
+ */
+exports.hashReadingId = (resourceId, timeseriesId, dateTime) => {
+    const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
+    return btoa(input);
+};
 exports.isNullOrEmpty = (stringOrNull) => {
     if (!stringOrNull) {
         return true;
@@ -318,4 +329,17 @@ function writeFileAsync(filename, content, encoding) {
     });
 }
 exports.writeFileAsync = writeFileAsync;
+/**
+ * Split an array up into an array of chuncks
+ */
+function chunkArray(array, size) {
+    const chunks = [];
+    let i = 0;
+    let n = array.length;
+    while (i < n) {
+        chunks.push(array.slice(i, i += size));
+    }
+    return chunks;
+}
+exports.chunkArray = chunkArray;
 //# sourceMappingURL=utils.js.map

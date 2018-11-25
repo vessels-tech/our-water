@@ -13,6 +13,24 @@ class FirestoreDoc {
             .set(this.serialize())
             .then(ref => { return this; });
     }
+    /**
+     * Create docs as part of a Batch
+     * Put in an id, or allow firebase to create one for you.
+     */
+    batchCreate(batch, firestore, id) {
+        let ref;
+        if (!id) {
+            ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc();
+            this.id = ref.id;
+        }
+        else {
+            ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(id);
+            this.id = id;
+        }
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
+        batch.set(ref, this.serialize());
+    }
 }
 exports.default = FirestoreDoc;
 //# sourceMappingURL=FirestoreDoc.js.map

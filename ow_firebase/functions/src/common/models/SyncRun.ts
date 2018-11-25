@@ -90,8 +90,10 @@ export class SyncRun {
       case SyncMethod.pullFrom:
         console.log("SyncRun.run running pullFrom sync");
 
+        //TODO: Overhaul the whole way we report results
         const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, firestore, {filterAfterDate: sync.lastSyncDate});
-        this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
+        this.results = pullFromResult.results;
+        // this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
         pullFromResult.warnings.sort((a: WarningType, b: WarningType) => {
           if(a.type > b.type) { return 1 };
           if(b.type > a.type) { return -1};

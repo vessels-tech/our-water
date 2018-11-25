@@ -5,7 +5,7 @@ import * as mocha from 'mocha';
 import * as crypto from 'crypto';
 
 import fs from './apis/Firestore';
-import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty } from './utils';
+import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty, hashReadingId } from './utils';
 import ResourceIdType from './types/ResourceIdType';
 import OWGeoPoint from '../common/models/OWGeoPoint';
 
@@ -14,6 +14,17 @@ const orgId = process.env.ORG_ID;
 describe('Utils Tests', () => {
 
   describe('hash tests', () => {
+
+    it.only('hashes the reading correctly', () => {
+      //Arrange
+      //Act
+      const hashed = hashReadingId('00dWeFA9bCIM9QiUVhvV', 'default', new Date());
+      console.log(hashed);
+      
+      //Assert
+      assert.notEqual(hashed.length, 0);
+    });
+
     it('hashes an id to an integer string of given length', () => {
       //Arrange
       const input = '00znWgaT83RoYXYXxmvk';

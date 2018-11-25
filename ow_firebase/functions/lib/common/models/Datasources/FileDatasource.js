@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const DatasourceType_1 = require("../../enums/DatasourceType");
 const FileDatasourceTypes_1 = require("../../enums/FileDatasourceTypes");
@@ -6,6 +14,17 @@ const utils_1 = require("../../utils");
 const Reading_1 = require("../Reading");
 const moment = require("moment");
 const ResourceIdType_1 = require("../../types/ResourceIdType");
+const parseDateForgivingly = (dateStr) => {
+    let date;
+    date = moment(dateStr, ['YYYY/MM/DD', 'DD/MM/YYYY']);
+    if (!date.isValid()) {
+        // if (!format) {
+        //   return parseDateForgivingly(dateStr, 'DD/MM/YYYY');
+        // }
+        return null;
+    }
+    return date;
+};
 /**
  * Defines a datasource which parses information from a file
  * for now, we will implement readings only, but eventually
@@ -27,8 +46,7 @@ class FileDatasource {
         this.fileFormat = fileFormat;
         this.options = options;
     }
-    //TODO: move elsewhere
-    convertRowsToModels(orgId, rows, dataType, options) {
+    convertReadingsAndMap(orgId, rows, dataType, resources, options) {
         switch (dataType) {
             case FileDatasourceTypes_1.DataType.Reading:
                 if (!options.usesLegacyMyWellIds) {
@@ -44,16 +62,24 @@ class FileDatasource {
                         utils_1.isNullOrEmpty(pincode) ||
                         utils_1.isNullOrEmpty(legacyResourceId) ||
                         utils_1.isNullOrEmpty(valueStr)) {
-                        console.log("Found row with missing data:", row);
+                        // console.log("Found row with missing data:", row);
                         return null;
                     }
-                    const date = moment(dateStr);
-                    if (!date.isValid()) {
+                    const date = parseDateForgivingly(dateStr);
+                    if (!date) {
                         console.log("Row has invalid date:", row, dateStr);
                         return null;
                     }
+                    const legacyId = `${pincode}.${legacyResourceId}`;
+                    const resource = resources.get(legacyId);
+                    if (!resource) {
+                        console.log("No resource found for legacyId:", legacyId);
+                        return null;
+                    }
+                    // let resourceId: string;
+                    // let coords: OWGeoPoint;
                     const resourceType = utils_1.resourceTypeForLegacyResourceId(legacyResourceId);
-                    const newReading = Reading_1.Reading.legacyReading(orgId, resourceType, date.toDate(), Number(valueStr), ResourceIdType_1.default.fromLegacyReadingId(null, pincode, legacyResourceId));
+                    const newReading = Reading_1.Reading.legacyReading(orgId, resource.id, resource.coords, resourceType, date.toDate(), Number(valueStr), ResourceIdType_1.default.fromLegacyReadingId(null, pincode, legacyResourceId));
                     return newReading;
                 });
             case FileDatasourceTypes_1.DataType.Group:
@@ -65,9 +91,12 @@ class FileDatasource {
     validate(orgId, fs) {
         //Download the file to local
         //parse and don't save
+        let legacyResources;
         //TODO: return this
-        return utils_1.downloadAndParseCSV(this.fileUrl)
-            .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+        return utils_1.getLegacyMyWellResources(orgId, fs)
+            .then(_legacyResources => legacyResources = _legacyResources)
+            .then(() => utils_1.downloadAndParseCSV(this.fileUrl))
+            .then(rows => this.convertReadingsAndMap(orgId, rows, this.dataType, legacyResources, this.options))
             .then(modelsAndNulls => {
             const models = modelsAndNulls.filter(model => model !== null);
             const nulls = modelsAndNulls.filter(model => model === null);
@@ -86,28 +115,57 @@ class FileDatasource {
             };
         });
     }
+    batchSave(fs, docs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const batch = fs.batch();
+            //Readings are unique by their timestamp + resourceId.
+            docs.forEach(doc => doc.batchCreate(batch, fs, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+            return batch.commit();
+        });
+    }
+    /**
+     *
+     * download the file to local
+     * deserialize based on some settings
+     * if no errors,
+     *   Save the rows in a batch job
+     *   run a batch job which adds group and resource metadata to readings
+     */
     pullDataFromDataSource(orgId, fs) {
-        //download the file to local
-        //deserialize based on some settings
-        //if no errors, 
-        //  Save the rows in a batch job
-        //  run a batch job which adds group and resource metadata to readings
         let result = {
             results: [],
             warnings: [],
             errors: []
         };
-        //TODO: return this
-        utils_1.downloadAndParseCSV(this.fileUrl)
-            .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+        let legacyResources;
+        let batchSaveResults = [];
+        return utils_1.getLegacyMyWellResources(orgId, fs)
+            .then(_legacyResources => legacyResources = _legacyResources)
+            .then(() => utils_1.downloadAndParseCSV(this.fileUrl))
+            .then(rows => this.convertReadingsAndMap(orgId, rows, this.dataType, legacyResources, this.options))
             .then(modelsAndNulls => {
             const models = modelsAndNulls.filter(model => model !== null);
             const nulls = modelsAndNulls.filter(model => model === null);
             result.results = [`Validated ${models.length} readings.`];
             result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
-            //TODO: batch save
+            //batch save.
+            const BATCH_SIZE = 15;
+            const batches = utils_1.chunkArray(models, BATCH_SIZE);
+            //Save one batch at a time
+            return batches.reduce((arr, curr) => __awaiter(this, void 0, void 0, function* () {
+                yield arr;
+                return this.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
+            }), Promise.resolve(true));
+        })
+            .then(() => {
+            const totalSaved = batchSaveResults.length;
+            result.results.push(`Batch saved a total of of ${totalSaved} readings.`);
+            return result;
+        })
+            .catch((err) => {
+            console.log('pullDataFromDataSource error: ', err.message);
+            return Promise.reject(err);
         });
-        return Promise.resolve(result);
     }
     pushDataToDataSource() {
         throw new Error("not implemented for this datasource");

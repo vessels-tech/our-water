@@ -4,12 +4,30 @@ import SyncRunResult from "../../types/SyncRunResult";
 import { DataType, FileFormat } from "../../enums/FileDatasourceTypes";
 import FileDatasourceOptions from "../FileDatasourceOptions";
 import * as Papa from 'papaparse';
-import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId, isNullOrEmpty } from "../../utils";
+import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId, isNullOrEmpty, chunkArray, hashReadingId, getLegacyMyWellResources } from "../../utils";
 import FirestoreDoc from "../FirestoreDoc";
 import { Reading } from "../Reading";
 import * as moment from 'moment';
 import ResourceIdType from "../../types/ResourceIdType";
 import { Resource } from "../Resource";
+import { firestore } from "firebase-functions";
+import { Firestore } from "@google-cloud/firestore";
+import { OWGeoPoint } from "ow_types";
+
+const parseDateForgivingly = (dateStr): moment.Moment => {
+  let date: moment.Moment;
+
+  date = moment(dateStr, ['YYYY/MM/DD', 'DD/MM/YYYY']);
+  if (!date.isValid()) {
+    // if (!format) {
+    //   return parseDateForgivingly(dateStr, 'DD/MM/YYYY');
+    // }
+    return null;
+  }
+
+
+  return date;
+}
 
 /**
  * Defines a datasource which parses information from a file
@@ -40,9 +58,8 @@ export class FileDatasource implements Datasource {
     this.options = options;
   }
 
-  //TODO: move elsewhere
-  convertRowsToModels(orgId: string, rows: any, dataType: DataType, options: FileDatasourceOptions): Array<FirestoreDoc>{
 
+  convertReadingsAndMap(orgId: string, rows: any, dataType: DataType, resources: Map<string, Resource>, options: FileDatasourceOptions): Array<Reading>{
     switch(dataType) {
       case DataType.Reading:
         if (!options.usesLegacyMyWellIds) {
@@ -61,19 +78,31 @@ export class FileDatasource implements Datasource {
               isNullOrEmpty(legacyResourceId) ||
               isNullOrEmpty(valueStr)
           ) {
-            console.log("Found row with missing data:", row);
+            // console.log("Found row with missing data:", row);
             return null;
           }
 
-          const date = moment(dateStr);
-          if (!date.isValid()) {
+          const date = parseDateForgivingly(dateStr);
+          if (!date) {
             console.log("Row has invalid date:", row, dateStr);
             return null;
           }
 
+          const legacyId = `${pincode}.${legacyResourceId}`;
+          const resource = resources.get(legacyId);
+          if (!resource) {
+            console.log("No resource found for legacyId:", legacyId);
+            return null;
+          }
+
+          // let resourceId: string;
+          // let coords: OWGeoPoint;
+
           const resourceType = resourceTypeForLegacyResourceId(legacyResourceId);
           const newReading: Reading = Reading.legacyReading(
             orgId, 
+            resource.id,
+            resource.coords,
             resourceType,
             date.toDate(),
             Number(valueStr), 
@@ -93,10 +122,13 @@ export class FileDatasource implements Datasource {
   validate(orgId: string, fs): Promise<SyncRunResult> {
     //Download the file to local
     //parse and don't save
+    let legacyResources;
 
     //TODO: return this
-    return downloadAndParseCSV(this.fileUrl)
-    .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+    return getLegacyMyWellResources(orgId, fs)
+    .then(_legacyResources => legacyResources = _legacyResources)
+    .then(() => downloadAndParseCSV(this.fileUrl))
+    .then(rows => this.convertReadingsAndMap(orgId, rows, this.dataType, legacyResources, this.options))
     .then(modelsAndNulls => {
       const models = modelsAndNulls.filter(model => model !== null);
       const nulls = modelsAndNulls.filter(model => model === null);
@@ -117,35 +149,60 @@ export class FileDatasource implements Datasource {
     });
   }
 
-  pullDataFromDataSource(orgId: string, fs): Promise<SyncRunResult> {
-    //download the file to local
-    //deserialize based on some settings
-    //if no errors, 
-    //  Save the rows in a batch job
-    //  run a batch job which adds group and resource metadata to readings
+  async batchSave(fs: Firestore, docs: Reading[]): Promise<any> {
+    const batch = fs.batch();
+    //Readings are unique by their timestamp + resourceId.
+    docs.forEach(doc => doc.batchCreate(batch, fs, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+    return batch.commit();
+  }
 
+  /**
+   * 
+   * download the file to local
+   * deserialize based on some settings
+   * if no errors,
+   *   Save the rows in a batch job
+   *   run a batch job which adds group and resource metadata to readings
+   */
+  pullDataFromDataSource(orgId: string, fs: Firestore): Promise<SyncRunResult> {
     let result = {
       results: [],
       warnings: [],
       errors: []
     };
+
+    let legacyResources;
+    let batchSaveResults = [];
     
-    //TODO: return this
-    downloadAndParseCSV(this.fileUrl)
-    .then(rows => this.convertRowsToModels(orgId, rows, this.dataType, this.options))
+    return getLegacyMyWellResources(orgId, fs)
+    .then(_legacyResources => legacyResources = _legacyResources)
+    .then(() => downloadAndParseCSV(this.fileUrl))
+    .then(rows => this.convertReadingsAndMap(orgId, rows, this.dataType, legacyResources, this.options))
     .then(modelsAndNulls => {
       const models = modelsAndNulls.filter(model => model !== null);
       const nulls = modelsAndNulls.filter(model => model === null);
-      
       result.results = [`Validated ${models.length} readings.`];
       result.warnings = [`A total of ${nulls.length} readings were invalid or missing data, and filtered out.`];
 
-      //TODO: batch save
+      //batch save.
+      const BATCH_SIZE = 15;
+      const batches = chunkArray(models, BATCH_SIZE);
 
+      //Save one batch at a time
+      return batches.reduce(async (arr: Promise<any>, curr: Reading[]) => {
+        await arr;
+        return this.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
+      }, Promise.resolve(true));
+    })
+    .then(() => {
+      const totalSaved = batchSaveResults.length;
+      result.results.push(`Batch saved a total of of ${totalSaved} readings.`);
+      return result;
+    })
+    .catch((err: Error) => {
+      console.log('pullDataFromDataSource error: ', err.message);
+      return Promise.reject(err);
     });
-
-    
-    return Promise.resolve(result);  
   }
 
   pushDataToDataSource(): Promise<SyncRunResult> {

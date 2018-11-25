@@ -25,17 +25,14 @@ class Reading extends FirestoreDoc_1.default {
      * Create a reading from legacy data
      * we put in empty fields, as they will be filled in later by a batch job
      */
-    static legacyReading(orgId, resourceType, datetime, value, externalIds) {
-        const resourceId = '-1';
-        const coords = null;
-        const reading = new Reading(orgId, null, null, resourceType, null, datetime, value, externalIds);
+    static legacyReading(orgId, resourceId, coords, resourceType, datetime, value, externalIds) {
+        const reading = new Reading(orgId, resourceId, coords, resourceType, null, datetime, value, externalIds);
         reading.isLegacy = true;
         return reading;
     }
     serialize() {
         //Required fields:
         const serialized = {
-            id: this.id,
             docName: this.docName,
             orgId: this.orgId,
             createdAt: this.createdAt,
@@ -46,6 +43,9 @@ class Reading extends FirestoreDoc_1.default {
             timeseriesId: this.timeseriesId,
         };
         //optional params
+        if (this.id) {
+            serialized['id'] = this.id;
+        }
         if (this.resourceId) {
             serialized['resourceId'] = this.resourceId;
         }

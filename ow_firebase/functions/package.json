@@ -23,6 +23,7 @@
     "@types/request-promise-native": "^1.0.14",
     "@types/xmlbuilder": "^0.0.34",
     "body-parser": "^1.18.2",
+    "btoa": "^1.2.1",
     "cors": "^2.8.4",
     "dbf": "0.1.4",
     "express": "^4.16.3",

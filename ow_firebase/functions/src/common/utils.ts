@@ -11,6 +11,7 @@ import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
+import * as btoa from 'btoa';
 var filesystem = require("fs");
 
 
@@ -319,6 +320,17 @@ export const hashIdToIntegerString = (id: string, length: number): string => {
   return fullHash.substring(0, length);
 }
 
+/**
+ * The Id for a reading is generated as a hash of the
+ * reading's dateTime + ResourceId + timeseriesId.
+ * 
+ * For now, we can just encode it as a base64 string
+ */
+export const hashReadingId = (resourceId: string, timeseriesId: string, dateTime: Date): string => {
+  const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
+  return btoa(input);
+}
+
 
 export const isNullOrEmpty = (stringOrNull: string): boolean => {
   if (!stringOrNull) {
@@ -384,4 +396,20 @@ export function writeFileAsync(filename: string, content: any, encoding: string)
       return;
     });
   });
+}
+
+
+/**
+ * Split an array up into an array of chuncks
+ */
+export function chunkArray(array: any[], size: number): any[][] {
+  const chunks = [];
+  let i = 0;
+  let n = array.length;
+
+  while (i < n) {
+    chunks.push(array.slice(i, i += size));
+  }
+
+  return chunks;
 }

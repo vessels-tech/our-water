@@ -10,7 +10,7 @@ import { ResultType } from '../types/AppProviderTypes';
 
 describe('GGMNApi', function () {
   describe('pendingResourceToZip', function() {
-    it.only('saves a pending resource to .zip shapefile', async () => {
+    it('saves a pending resource to .zip shapefile', async () => {
       //Arrange
       const pendingResources: PendingResource[] = [
         {
