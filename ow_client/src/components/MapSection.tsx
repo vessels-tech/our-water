@@ -111,6 +111,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
       return true;
     }
 
+    // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
     //If the props diff is only functions, then we shouldn't update!
     const propsDiff: any = diff(this.props, nextProps);
     const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
@@ -124,13 +125,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
     if (functionsOnly) {
       return !functionsOnly;
     }
-
-
-
-    // console.log('current state', JSON.stringify(this.state, null, 2));
-    // console.log('next state', JSON.stringify(nextState, null, 2));
-    // console.log('current props', JSON.stringify(nextProps, null, 2));
-    // console.log('next props', JSON.stringify(nextProps, null, 2));
 
     return true;
   }
