@@ -30,15 +30,16 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/Ext
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
+import { unwrapUserId } from '../../utils';
 
 export interface Props { 
   resourceId: string,
   navigator: any,
   config: ConfigFactory,
-  userId: string,
   appApi: BaseApi,
-
+  
   //Injected by Consumer
+  userId: string,
   pendingSavedResourcesMeta: SyncMeta, 
   saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
@@ -324,6 +325,7 @@ const mapStateToProps = (state: AppState) => {
     location:state.location,
     translation: state.translation,
     name: state.name,
+    userId: unwrapUserId(state.user),
   }
 }
 

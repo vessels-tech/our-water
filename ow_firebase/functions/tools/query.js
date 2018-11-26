@@ -22,9 +22,13 @@ const auth = admin.auth();
 
 
 firestore.collection('org').doc('mywell').collection('reading')
-  .where('resourceId', '==', 'wNsDkCkwvfgyiPk5Zu5Q')
-  .where('timeseriesId', '==', 'default')
+  // .where('resourceId', '==', 'wNsDkCkwvfgyiPk5Zu5Q')
+  // .where('timeseriesId', '==', 'default')
+  .where('resourceType', '==', 'checkdam')
+  .limit(10)
   .get()
 .then(sn => {
   console.log(sn.docs.map(doc => doc.data()));
 })
+
+// firestore.collection('org').doc('mywell').collection('reading').get(sn => console.log(sn.size));

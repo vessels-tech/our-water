@@ -51,7 +51,6 @@ export default abstract class FirestoreDoc {
 
     this.createdAt = new Date();
     this.updatedAt = new Date();
-
     batch.set(ref, this.serialize());
   }
 

@@ -135,7 +135,8 @@ class SyncRun {
     }
     finishSync({ firestore }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("finished sync with results:", this.results);
+            console.log("finished sync");
+            // console.log("finished sync with results:", this.results);
             console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
             this.finishedAt = moment().valueOf();

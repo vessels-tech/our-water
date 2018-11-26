@@ -285,29 +285,23 @@ export default class LegacyMyWellDatasource implements Datasource {
         readings.push(newReading);
       });
 
-      //temp set length for testing
-      readings.length = 15
-      
-      const savedReadings: Array<Reading> = [];
-      // readings.forEach(r => {
-      //   return r.create({ firestore })
-      //     .then((savedRes: Reading) => savedReadings.push(savedRes))
-      //     .catch(err => errors.push(err));
-      // });
-
       //batch save.
-      const BATCH_SIZE = 250;
+      const BATCH_SIZE = 500;
       const batches = chunkArray(readings, BATCH_SIZE);
 
       //Save one batch at a time
-      return batches.reduce(async (arr: Promise<any>, curr: Reading[]) => {
+      return batches.reduce(async (arr: Promise<any>, curr: Reading[], idx) => {
         await arr;
-        return FirebaseApi.batchSave(firestore, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
+        return FirebaseApi.batchSave(firestore, curr)
+          .then(results => {
+            console.log(`SAVED BATCH ${idx} of ${batches.length}`);
+            batchSaveResults = batchSaveResults.concat(results);
+          })
       }, Promise.resolve(true))
     })
     .then(() => {
       return {
-        results: batchSaveResults,
+        results: readings,
         warnings,
         errors,
       };

@@ -236,26 +236,22 @@ class LegacyMyWellDatasource {
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
             });
-            //temp set length for testing
-            readings.length = 15;
-            const savedReadings = [];
-            // readings.forEach(r => {
-            //   return r.create({ firestore })
-            //     .then((savedRes: Reading) => savedReadings.push(savedRes))
-            //     .catch(err => errors.push(err));
-            // });
             //batch save.
-            const BATCH_SIZE = 250;
+            const BATCH_SIZE = 500;
             const batches = utils_1.chunkArray(readings, BATCH_SIZE);
             //Save one batch at a time
-            return batches.reduce((arr, curr) => __awaiter(this, void 0, void 0, function* () {
+            return batches.reduce((arr, curr, idx) => __awaiter(this, void 0, void 0, function* () {
                 yield arr;
-                return FirebaseApi_1.default.batchSave(firestore, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
+                return FirebaseApi_1.default.batchSave(firestore, curr)
+                    .then(results => {
+                    console.log(`SAVED BATCH ${idx} of ${batches.length}`);
+                    batchSaveResults = batchSaveResults.concat(results);
+                });
             }), Promise.resolve(true));
         })
             .then(() => {
             return {
-                results: batchSaveResults,
+                results: readings,
                 warnings,
                 errors,
             };

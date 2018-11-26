@@ -146,7 +146,8 @@ export class SyncRun {
   }
 
   private async finishSync({ firestore }): Promise<SyncRun> {
-    console.log("finished sync with results:", this.results);
+    console.log("finished sync");
+    // console.log("finished sync with results:", this.results);
     console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
     this.finishedAt = moment().valueOf();
