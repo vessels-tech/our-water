@@ -15,50 +15,60 @@ export interface Props {
   shortIdCache: Map<string, string>, //resourceId => shortId
 }
 
-export default function MapCallout(props: Props) {
-  const { onCalloutPressed, resource } = props;
-  const shortId = getShortIdOrFallback(resource.id, props.shortIdCache, ' . . . ');
+export interface State {
 
-  let avatarText = "";
-  if (resource.pending || resource.type === OrgType.MYWELL) {
-    avatarText = resource.resourceType.charAt(0);
+}
+
+export default class MapCallout extends React.PureComponent<Props, State> {
+ 
+  render() {
+    const { onCalloutPressed, resource } = this.props;
+    const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache, ' . . . ');
+
+    let avatarText = "";
+    if (resource.pending || resource.type === OrgType.MYWELL) {
+      avatarText = resource.resourceType.charAt(0);
+    }
+
+    return (
+      <Callout
+        onPress={() => {
+          console.log("onCalloutPressed");
+          onCalloutPressed(resource);
+        }}
+        tooltip
+      >
+        <View style={{
+          flex: 1,
+          padding: 10,
+          margin: 10,
+          backgroundColor: randomPrettyColorForId(resource.id),
+          flexDirection:'row',
+          shadowOffset: { width: 10, height: 10, },
+          shadowColor: 'black',
+          shadowOpacity: 1.0,
+        }}>
+          <Avatar
+            containerStyle={{
+              alignSelf: 'center',
+              marginRight: 10,
+            }}
+            rounded
+            small
+            title={avatarText}
+            activeOpacity={0.7}
+          />
+          <Text style={{ fontWeight: '800', fontSize: 20, alignSelf: 'center',  }}>{`${shortId}`}</Text>
+          <Icon
+            size={20}
+            name={'chevron-right'}
+            // color={secondaryText}
+            // iconStyle={{
+              // color: secondaryText,
+            // }}
+          />
+        </View>
+      </Callout>
+    )
   }
-
-  return (
-    <Callout
-      onPress={() => onCalloutPressed && onCalloutPressed(resource)}
-      tooltip
-    >
-      <View style={{
-        flex: 1,
-        padding: 10,
-        margin: 10,
-        backgroundColor: randomPrettyColorForId(resource.id),
-        flexDirection:'row',
-        shadowOffset: { width: 10, height: 10, },
-        shadowColor: 'black',
-        shadowOpacity: 1.0,
-      }}>
-        <Avatar
-          containerStyle={{
-            alignSelf: 'center',
-            marginRight: 10,
-          }}
-          rounded
-          small
-          title={avatarText}
-          activeOpacity={0.7}
-        />
-        <Text style={{ fontWeight: '800', fontSize: 20, alignSelf: 'center',  }}>{`${shortId}`}</Text>
-        <Icon
-          size={20}
-          name={'chevron-right'}
-          // color={secondaryText}
-          // iconStyle={{
-            // color: secondaryText,
-          // }}
-        />
-      </View>
-    </Callout>
-  )
 }

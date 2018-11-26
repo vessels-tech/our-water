@@ -232,6 +232,10 @@ class LegacyMyWellDatasource {
                     warnings.push({ type: 'MalformedDate', message: `Invalid date for created at: ${r.date}` });
                     return;
                 }
+                //Only add readings from 2016 onwards
+                if (createdAtMoment.isBefore(moment("2017-01-01"))) {
+                    return null;
+                }
                 const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);

@@ -10,13 +10,15 @@ import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
-import { AnyResource } from '../typings/models/Resource';
+import { AnyResource, MyWellResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingResource } from '../typings/models/PendingResource';
 import { Text } from 'react-native-elements';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import MapCallout from './common/MapCallout';
+import MapMarker from './common/MapMarker';
+import { diff } from "deep-object-diff";
 
 export type MapRegion = {
   latitude: number,
@@ -102,6 +104,33 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   // }
 
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
+    console.log("state diff", diff(this.state, nextState))
+    console.log("props diff", diff(this.props, nextProps));
+
+    if (Object.keys(diff(this.state, nextState)).length > 0) {
+      return true;
+    }
+
+    //If the props diff is only functions, then we shouldn't update!
+    const propsDiff: any = diff(this.props, nextProps);
+    const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
+      if (acc === false) {
+        return acc;
+      }
+      return typeof propsDiff[curr] === 'function';
+    }, true);
+
+    console.log("functionsOnly:", functionsOnly);
+    if (functionsOnly) {
+      return !functionsOnly;
+    }
+
+
+
+    // console.log('current state', JSON.stringify(this.state, null, 2));
+    // console.log('next state', JSON.stringify(nextState, null, 2));
+    // console.log('current props', JSON.stringify(nextProps, null, 2));
+    // console.log('next props', JSON.stringify(nextProps, null, 2));
 
     return true;
   }
@@ -266,10 +295,13 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getCalloutForResource(resource: AnyResource) {    
+    // console.log('getCalloutForResource')
     if (!this.props.shouldShowCallout) {
       return null;
     }
 
+
+    //TD: code smell
     if (resource.type === OrgType.GGMN) {
       //GGMN Resources don't have callouts
       return;
@@ -282,6 +314,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <MapCallout
+        key={resource.id}
         resource={resource}
         //TODO: this will fail for GGMN I think
         onCalloutPressed={(resource) => this.props.onCalloutPressed(resource)}
@@ -322,6 +355,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           {/* Pincode */}
           {/* Villages */}
           {resources.map((resource: AnyResource) => {
+            console.log("rendering marker");
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
             return <Marker
               //@ts-ignore
@@ -336,13 +370,19 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
               //This is making massive images on some devices
               // image={imageForResourceType(resource.resourceType)}
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
+              //Temporary
+              // onCalloutPress={() => {
+              //   console.log("MapMarker onCalloutPressed");
+              //   this.props.onCalloutPressed(resource)}
+              // }
             >
               {this.getCalloutForResource(resource)}
             </Marker>
           }
           )}
           {pendingResources.map((p: PendingResource) => {
-            return <Marker
+            console.log("rendering marker");
+            return <MapMarker
               //@ts-ignore
               collapsable={true}
               key={`pending_${p.id}`}
@@ -356,7 +396,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
               onPress={(e: any) => this.focusPendingResource(e.nativeEvent.coordinate)}
             >
               {/* {this.getCalloutForResource(resource)} */}
-            </Marker>
+            </MapMarker>
           })}
         </ClusteredMapView>
         <View style={{

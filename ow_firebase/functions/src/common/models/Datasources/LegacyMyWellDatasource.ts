@@ -279,6 +279,11 @@ export default class LegacyMyWellDatasource implements Datasource {
           return;
         }
 
+        //Only add readings from 2016 onwards
+        if (createdAtMoment.isBefore(moment("2017-01-01"))) {
+          return null;
+        } 
+
         const newReading: Reading = new Reading(orgId, resource.id, resource.coords, 
           resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);
         newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time

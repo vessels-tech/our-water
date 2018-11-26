@@ -50,7 +50,7 @@ export interface State {
  * Map view with clustering.
  * Originally from https://github.com/venits/react-native-map-clustering/blob/master/MapView/MapWithClustering.js
  */
-class ClusteredMapView extends Component<Props> {
+class ClusteredMapView extends React.PureComponent<Props> {
   superCluster: any;
   root: any;
   state: State;

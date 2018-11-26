@@ -44,8 +44,7 @@ export interface StateProps {
   resourcesMeta: SyncMeta,
   translation: TranslationFile,
   pendingResources: PendingResource[],
-  shortIdCache: Map<string, string>
-
+  shortIdCache: Map<string, string>,
 }
 
 export interface ActionProps {
@@ -138,7 +137,9 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onCalloutPressed(resource: AnyResource | PendingResource) {
+    console.log('SimpleMapScreen: onCalloutPressed()', resource);
     const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
+    console.log("navigating to screen.SimpleResourceDetailScreen");
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
       config: this.props.config,
@@ -190,6 +191,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             hasSelectedResource={false}
             shouldShrinkForSelectedResource={false}
             shouldShowCallout={true}
+            // shouldShowCallout={false}
             shouldDisplayFullSceenButton={false}
             onCalloutPressed={(r: AnyResource | PendingResource) => this.onCalloutPressed(r)}
           />}
