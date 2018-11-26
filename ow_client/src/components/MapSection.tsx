@@ -4,7 +4,7 @@ import { View } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
-import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary } from '../utils/Colors';
+import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
@@ -375,13 +375,13 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           }
           )}
           {pendingResources.map((p: PendingResource) => {
-            console.log("rendering marker");
-            return <MapMarker
+            return <Marker
               //@ts-ignore
               collapsable={true}
               key={`pending_${p.id}`}
               coordinate={p.coords}
               title={`${p.id}`}
+              pinColor={'navy'}
               // description={resource.resourceType}
 
               //This is making massive images on some devices
@@ -390,7 +390,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
               onPress={(e: any) => this.focusPendingResource(e.nativeEvent.coordinate)}
             >
               {/* {this.getCalloutForResource(resource)} */}
-            </MapMarker>
+            </Marker>
           })}
         </ClusteredMapView>
         <View style={{

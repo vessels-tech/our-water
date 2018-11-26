@@ -222,9 +222,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.id}
+        title={`${moment(r.date).format(sync_date_format)}: ${r.value}`}
         avatar={getReadingAvatar()}
-        subtitle={errorMessage || `${moment(r.date).format(sync_date_format)}`} 
+        subtitle={errorMessage || `${r.resourceId}, ${r.timeseriesId}`} 
         subtitleStyle={{ color: message ? error1 : primaryDark }}
       />
     );
