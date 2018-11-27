@@ -13,13 +13,15 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
+import { AnyResource } from '../typings/models/Resource';
+import { PendingResource } from '../typings/models/PendingResource';
+import { navigateTo } from '../utils';
 
 
 export interface OwnProps {
   navigator: any,
   config: ConfigFactory,
-  resourceId: string,
-  onAddReadingPressed: () => any,
+  resource: AnyResource | PendingResource,
 }
 
 export interface StateProps {
@@ -55,7 +57,15 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   }
 
   onAddReadingPressed() {
-    this.props.onAddReadingPressed();
+    const { resource_detail_new } = this.props.translation.templates;
+
+    // this.props.navigator.pop();
+    // this.props.onAddReadingPressed();
+    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+      resource: this.props.resource,
+      config: this.props.config,
+      userId: this.props.userId
+    });
   }
   
   getReadingsSection() {
@@ -141,7 +151,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     userId = state.user.userId;
   }
 
-  const pendingReadings: PendingReading[] = state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resourceId);
+  const pendingReadings: PendingReading[] = state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resource.id);
 
   return {
     userId,
