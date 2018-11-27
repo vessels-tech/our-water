@@ -23,7 +23,7 @@ import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalSer
 import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
-import { secondary, secondaryText } from '../../utils/Colors';
+import { secondary, secondaryText, error1 } from '../../utils/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { OrgType } from '../../typings/models/OrgType';
 import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/ExtendedResourceApi';
@@ -42,12 +42,13 @@ export interface Props {
   //Injected by Consumer
   userId: string,
   pendingSavedResourcesMeta: SyncMeta, 
-  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) => any,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   translation: TranslationFile,
   name: string | null,
+  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) => any,
+  deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
 
 export interface State {
@@ -84,6 +85,7 @@ class EditResourceScreen extends Component<Props> {
 
     /* Binds */
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
 
     this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
   }
@@ -274,6 +276,13 @@ class EditResourceScreen extends Component<Props> {
     this.props.navigator.dismissModal();
   }
 
+  handleDelete() {
+    if (this.props.resource) {
+      this.props.deletePendingResource(this.appApi, this.props.userId, this.props.resource.id);
+    }
+    this.props.navigator.dismissModal();
+  }
+
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
@@ -380,6 +389,37 @@ class EditResourceScreen extends Component<Props> {
     );
   }
 
+  getDeleteButton() {
+    // const {
+    //   edit_resource_delete_button
+    // } = this.props.translation.templates;
+
+    //TODO: translate
+    const edit_resource_delete_button = 'DELETE';
+
+    return (
+      <Button
+        style={{
+          paddingBottom: 20,
+          minHeight: 50,
+        }}
+        buttonStyle={{
+          backgroundColor: error1,
+          minHeight: 50,
+        }}
+        containerViewStyle={{
+          // marginVertical: 20,
+        }}
+        textStyle={{
+          color: secondaryText,
+          fontWeight: '700',
+        }}
+        title={edit_resource_delete_button}
+        onPress={this.handleDelete}
+      />
+    )
+  }
+
   render() {
     return (
       <ScrollView
@@ -390,6 +430,7 @@ class EditResourceScreen extends Component<Props> {
         keyboardShouldPersistTaps={'always'}
       >
         {this.getForm()}
+        {this.props.resource && this.getDeleteButton()}
       </ScrollView>
     );
   }
@@ -410,7 +451,10 @@ const mapStateToProps = (state: AppState) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) =>
-     { return dispatch(appActions.saveResource(api, externalApi, userId, resource)) }
+      dispatch(appActions.saveResource(api, externalApi, userId, resource)),
+    deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) =>
+      dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
+
   }
 }
 
