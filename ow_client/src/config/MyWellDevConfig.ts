@@ -18,6 +18,7 @@ const MyWellDevConfig: RemoteConfig = {
   resourceDetail_allowDelete: false,
   resourceDetail_editReadings: false,
   favouriteResourceList_showGetStartedButtons: true,
+  editResource_hasResourceName: false,
   editResource_showOwerName: true,
   editResource_availableTypes: [
     ResourceType.well,

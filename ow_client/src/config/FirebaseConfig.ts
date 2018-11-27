@@ -33,6 +33,7 @@ export class FirebaseConfig {
           resourceDetail_allowDelete: obj.resourceDetail_allowDelete.val(),
           resourceDetail_editReadings: obj.resourceDetail_editReadings.val(),
           favouriteResourceList_showGetStartedButtons: obj.favouriteResourceList_showGetStartedButtons.val(),
+          editResource_hasResourceName: obj.editResource_hasResourceName.val(),
           editResource_showOwerName: obj.editResource_showOwerName.val(),
           editResource_availableTypes: obj.editResource_availableTypes.val(),
           editResource_allowCustomId: obj.editResource_allowCustomId.val(),

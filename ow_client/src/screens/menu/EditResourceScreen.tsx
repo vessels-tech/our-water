@@ -57,12 +57,12 @@ export interface State {
 
 export type EditResourceFormBuilder = {
   id: any,
+  name: any,
   lat: any,
   lng: any,
   asset: any,
   ownerName?: any,
 }
-
 
 class EditResourceScreen extends Component<Props> {
   state: State;
@@ -94,31 +94,35 @@ class EditResourceScreen extends Component<Props> {
   getFormBuilder(props: Props): EditResourceFormBuilder {
 
     if (props.resource) {
-      const builder = this.getEditFormBuilder(props, props.resource);
+      const builder = this.getEditFormBuilder(props.resource);
       return builder
     }
 
     return this.getNewFormBuilder(props);
   }
 
-  getEditFormBuilder(props: Props, resource: AnyResource | PendingResource): EditResourceFormBuilder {
+  getEditFormBuilder(resource: AnyResource | PendingResource): EditResourceFormBuilder {
     let id;
     let lat;
     let lng;
     let asset;
+    let name;
     let ownerName;
 
     id = [ resource.id, Validators.required];
+
+    console.log("getEditFormBuilder", resource);
 
     if (resource.pending) {
       lat = [`${resource.coords.latitude}`, Validators.required];
       lng = [`${resource.coords.longitude}`, Validators.required];
       asset = [resource.resourceType, Validators.required];
       ownerName = resource.owner && [resource.owner, Validators.required];
-
+      name = resource.name && [resource.name, Validators.required];
 
       return {
         id,
+        name,
         lat,
         lng,
         asset,
@@ -130,6 +134,7 @@ class EditResourceScreen extends Component<Props> {
       lat = [`${resource.coords._latitude}`, Validators.required];
       lng = [`${resource.coords._longitude}`, Validators.required];
       asset = [resource.type, Validators.required];
+      name = [resource.name];
     }
 
     if (resource.type === OrgType.MYWELL) {
@@ -141,6 +146,7 @@ class EditResourceScreen extends Component<Props> {
 
     return {
       id,
+      name,
       lat,
       lng,
       asset,
@@ -169,6 +175,15 @@ class EditResourceScreen extends Component<Props> {
     if (this.props.name) {
       ownerName = this.props.name;
     }
+
+    if (this.props.config.getEditResourceHasResourceName()) {
+      formBuilderGroup['name'] = [''];
+    }
+
+    if (this.props.config.getEditResourceShouldShowOwnerName()) {
+      formBuilderGroup['ownerName'] = [ownerName, Validators.required];
+    }
+
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
       formBuilderGroup['ownerName'] = [ownerName, Validators.required];
     }
@@ -226,7 +241,7 @@ class EditResourceScreen extends Component<Props> {
 
     Keyboard.dismiss();
 
-    const name = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
+    const ownerName = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
 
     //TODO: make more type safe
     const unvalidatedResource: any = {
@@ -239,7 +254,7 @@ class EditResourceScreen extends Component<Props> {
       },
       resourceType: this.editResourceForm.value.asset,
       owner: {
-        name,
+        name: ownerName
       },
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
@@ -249,6 +264,13 @@ class EditResourceScreen extends Component<Props> {
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;
     }
+
+    if (!this.editResourceForm.value.name) {
+      unvalidatedResource.name = unvalidatedResource.id;
+    } else {
+      unvalidatedResource.name = this.editResourceForm.value.name;
+    }
+
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
@@ -296,6 +318,9 @@ class EditResourceScreen extends Component<Props> {
       new_resource_asset_type_label,
     } = this.props.translation.templates;
 
+    //TODO: translate
+    const new_resource_name = 'Name';
+
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
         key: t,
@@ -320,6 +345,17 @@ class EditResourceScreen extends Component<Props> {
                   secureTextEntry: false, 
                   keyboardType: 'default',
                   asyncErrorMessage: new_resource_id_check_taken,
+                }}
+              /> : null}
+            {this.props.config.getEditResourceHasResourceName() ?
+              <FieldControl
+                name="name"
+                render={TextInput}
+                meta={{ 
+                  editable: true, 
+                  label: new_resource_name, 
+                  secureTextEntry: false, 
+                  keyboardType: 'default',
                 }}
               /> : null}
             <View style={{

@@ -34,4 +34,5 @@ export type GGMNResource = {
   /* Platform Specific */
   description: string,
   title: string, //What the resource is referred to publicly 
+  name: string,
 }

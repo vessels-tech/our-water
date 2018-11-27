@@ -697,9 +697,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
-    //Make sure we have set the correct type
-    resource.type = OrgType.MYWELL;
-    
+    resource.type = OrgType.GGMN;    
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {

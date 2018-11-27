@@ -17,6 +17,7 @@ const GGMNDevConfig: RemoteConfig = {
   resourceDetail_allowDelete: true,
   resourceDetail_editReadings: true,
   favouriteResourceList_showGetStartedButtons: false,
+  editResource_hasResourceName: true,
   editResource_showOwerName: false,
   editResource_availableTypes: [
     ResourceType.well, 

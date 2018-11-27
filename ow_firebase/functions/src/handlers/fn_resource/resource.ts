@@ -192,10 +192,6 @@ module.exports = (functions) => {
   app.put('/:orgId/:resourceId', validate(updateResourceValidation), async (req, res, next) => {
     const { orgId, resourceId } = req.params;
     const newData = req.body.data;
-    console.log("orgId", orgId);
-    console.log("resourceId", resourceId);
-
-    console.log("newData", JSON.stringify(newData, null, 2));
 
     try {
       //get the resource
@@ -237,7 +233,6 @@ module.exports = (functions) => {
 
     const attachments = [{
       filename: 'id.zip',
-      //TODO: insert path
       path: generateZipResult.result,
     }];
     const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', attachments);

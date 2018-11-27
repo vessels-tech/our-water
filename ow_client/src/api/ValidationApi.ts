@@ -66,6 +66,7 @@ export function validateReading(orgType: OrgType, reading: any): SomeResult<Pend
 export function validateResource(resource: any): SomeResult<PendingResource> {
   const schema: Joi.SchemaLike = Joi.object().keys({
     id: Joi.string(),
+    name: Joi.string(),
     pending: Joi.boolean().allow(true).required(),
     coords: Joi.object().keys({
       latitude: Joi.number(),

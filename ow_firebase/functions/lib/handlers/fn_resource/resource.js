@@ -178,9 +178,6 @@ module.exports = (functions) => {
     app.put('/:orgId/:resourceId', validate(updateResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         const { orgId, resourceId } = req.params;
         const newData = req.body.data;
-        console.log("orgId", orgId);
-        console.log("resourceId", resourceId);
-        console.log("newData", JSON.stringify(newData, null, 2));
         try {
             //get the resource
             const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: Firestore_1.default });
@@ -215,7 +212,6 @@ module.exports = (functions) => {
         }
         const attachments = [{
                 filename: 'id.zip',
-                //TODO: insert path
                 path: generateZipResult.result,
             }];
         const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, 'HELLO', attachments);

@@ -7,7 +7,6 @@ const JSZip = require('jszip');
 export function zipGeoJson(geoJson: any, options: any) {
   var zip = new JSZip();
   const filename = 'points';
-  
 
   [geojson.point(geoJson), geojson.line(geoJson), geojson.polygon(geoJson)]
     .forEach(function (l) {

@@ -14,7 +14,6 @@ import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType 
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 
 
-
 /**
  * Things that are configureable remotely
  */
@@ -36,6 +35,7 @@ export type RemoteConfig = {
 
   //These should eventually be moved to their own config section where we can dynamically
   //define what resources shold look like
+  editResource_hasResourceName: boolean,
   editResource_showOwerName: boolean,
   editResource_availableTypes: ResourceType[],
   editResource_defaultTypes: any,
@@ -198,6 +198,10 @@ export class ConfigFactory {
 
   getFavouriteResourceShouldShowGetStartedButtons() {
     return this.remoteConfig.favouriteResourceList_showGetStartedButtons;
+  }
+
+  getEditResourceHasResourceName() {
+    return this.remoteConfig.editResource_hasResourceName;
   }
 
   getEditResourceShouldShowOwnerName() {

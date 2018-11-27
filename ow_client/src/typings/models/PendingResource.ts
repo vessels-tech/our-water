@@ -11,6 +11,7 @@ import { OrgType } from "./OrgType";
 export type PendingResource = {
   type: OrgType.NONE,
   id: string,
+  name: string,
   pending: true,
   coords: {
     latitude: number,

@@ -43,12 +43,17 @@ export default class GGMNApi {
   }
 
   public static _pendingResourceToFeature(pendingResource: PendingResource): any {
+    let name = pendingResource.id;
+    //TD: this is a hack, we should specify a proper name
+    if (pendingResource.owner.name) {
+      name = pendingResource.owner.name;
+    }
     return {
       "type": "Feature",
       "properties": {
         "ID_1": `${pendingResource.id}`,
         //TODO: should we enable users to add their own names?
-        "NAME": `${pendingResource.id}`,
+        "NAME": `${name}`,
         "HEIGHT": 0,
         "LAT": pendingResource.coords.latitude,
         "LON": pendingResource.coords.longitude,
