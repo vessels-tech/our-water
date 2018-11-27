@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, ScrollView, Image,
+  View, KeyboardAvoidingView, ScrollView, Image, Button,
 } from 'react-native';
 import {
   ListItem, Badge, Text,
@@ -10,9 +10,9 @@ import {
 } from '../utils';
 import { primary, primaryDark, error1, secondaryDark, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
-import ExternalServiceApi from '../api/ExternalServiceApi';
+import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import BaseApi from '../api/BaseApi';
-import { EmptyLoginDetails, LoginDetails, ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
+import { EmptyLoginDetails, LoginDetails, ConnectionStatus, AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
@@ -35,7 +35,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-
+  disconnectFromExternalService: (api: MaybeExternalServiceApi) => any,
 }
 
 
@@ -45,13 +45,24 @@ export interface State {
 }
 
 class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps> {
+  externalApi: MaybeExternalServiceApi;
   state: State = {
 
   }
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    this.externalApi = this.props.config.getExternalServiceApi();
+
+    /* binds */
+    this.logoutPressed = this.logoutPressed.bind(this);
   }
+
+  logoutPressed() {
+    this.props.disconnectFromExternalService(this.externalApi);
+  }
+
 
   /**
    * Connect to button is only available for variants which connect to external services
@@ -67,6 +78,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           settings_connect_to_pending_title,
           settings_connect_to_connected_title,
           settings_connect_to_subtitle_error,
+          connect_to_service_logout_button,
         } 
       }
     } = this.props;
@@ -83,6 +95,21 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
 
     if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
       subtitle = settings_connect_to_subtitle_error;
+    }
+
+    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS) {
+      subtitle = (
+        <View style={{
+          flexDirection: 'row',
+          paddingTop: 5
+        }}>
+        <Button
+          color={secondary}
+          title={connect_to_service_logout_button}
+          onPress={this.logoutPressed}
+        />
+        </View>
+      );
     }
 
     let leftIcon: any = {
@@ -114,7 +141,8 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         subtitleStyle={{
           color: error1,
         }}
-      />
+      >
+      </ListItem>
     );
   }
 
@@ -289,7 +317,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    
+    disconnectFromExternalService: (api: MaybeExternalServiceApi) => dispatch(appActions.disconnectFromExternalService(api)),
   }
 }
 
