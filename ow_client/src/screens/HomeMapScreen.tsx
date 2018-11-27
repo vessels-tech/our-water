@@ -308,7 +308,10 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getResourceView() {
     const { hasSelectedResource, selectedResource } = this.state;
-    const { userId, translation: { templates: { resource_detail_new } } } = this.props;
+    const { userId, translation: { templates: { resource_detail_new, } } } = this.props;
+
+    //TODO: translate
+    const settings_edit_resource = 'Edit Station';
 
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
@@ -326,6 +329,17 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             config: this.props.config,
             userId: this.props.userId
           });
+        }}
+        onEditResourcePressed={(resource: AnyResource | PendingResource) => {
+          //TODO: pass in the resource to be edited.
+          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
+            resource: resource,
+            config: this.props.config,
+            userId: this.props.userId,
+          })
+        }}
+        onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
+          console.log("TODO: Edit readings");
         }}
       />
     }

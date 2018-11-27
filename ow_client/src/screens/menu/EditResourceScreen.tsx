@@ -37,6 +37,7 @@ export interface Props {
   navigator: any,
   config: ConfigFactory,
   appApi: BaseApi,
+  resource?: AnyResource | PendingResource,
   
   //Injected by Consumer
   userId: string,
@@ -51,6 +52,16 @@ export interface Props {
 
 export interface State {
 
+}
+
+export type EditResourceFormBuilder = {
+  id: any,
+  lat: any,
+  lng: any,
+  asset: any,
+
+
+  ownerName?: any,
 }
 
 
@@ -74,6 +85,71 @@ class EditResourceScreen extends Component<Props> {
     /* Binds */
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
 
+    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
+  }
+
+  /**
+   * Set up the forms
+   */
+  getFormBuilder(props: Props): EditResourceFormBuilder {
+
+    if (props.resource) {
+      const builder = this.getEditFormBuilder(props, props.resource);
+      console.log("builder is", builder);
+      return builder
+    }
+
+    return this.getNewFormBuilder(props);
+  }
+
+  getEditFormBuilder(props: Props, resource: AnyResource | PendingResource): EditResourceFormBuilder {
+    let id;
+    let lat;
+    let lng;
+    let asset;
+    let ownerName;
+
+    id = [ resource.id, Validators.required];
+
+    if (resource.pending) {
+      lat = [`${resource.coords.latitude}`, Validators.required];
+      lng = [`${resource.coords.longitude}`, Validators.required];
+      asset = [resource.resourceType, Validators.required];
+      ownerName = resource.owner && [resource.owner, Validators.required];
+
+
+      return {
+        id,
+        lat,
+        lng,
+        asset,
+        ownerName,
+      }
+    } 
+
+    if (resource.type === OrgType.GGMN) {
+      lat = [`${resource.coords._latitude}`, Validators.required];
+      lng = [`${resource.coords._longitude}`, Validators.required];
+      asset = [resource.type, Validators.required];
+    }
+
+    if (resource.type === OrgType.MYWELL) {
+      lat = [`${resource.coords._latitude}`, Validators.required];
+      lng = [`${resource.coords._longitude}`, Validators.required];
+      asset = [resource.type, Validators.required];
+      ownerName = [resource.owner.name, Validators.required];
+    }
+
+    return {
+      id,
+      lat,
+      lng,
+      asset,
+      ownerName,
+    }
+  }
+
+  getNewFormBuilder(props: Props): EditResourceFormBuilder {
     /* Set up the form */
     let lat = '';
     let lng = '';
@@ -81,7 +157,7 @@ class EditResourceScreen extends Component<Props> {
       lat = `${props.location.coords.latitude.toFixed(4)}`;
       lng = `${props.location.coords.longitude.toFixed(4)}`;
     }
-    
+
     const defaultResourceType = props.config.getAvailableResourceTypes()[0];
 
     const formBuilderGroup: any = {
@@ -89,7 +165,7 @@ class EditResourceScreen extends Component<Props> {
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
     };
-    
+
     let ownerName = '';
     if (this.props.name) {
       ownerName = this.props.name;
@@ -101,8 +177,10 @@ class EditResourceScreen extends Component<Props> {
     if (this.props.config.getEditResourceAllowCustomId()) {
       formBuilderGroup['id'] = ['', Validators.required, this.asyncIdValidator];
     }
-    this.editResourceForm = FormBuilder.group(formBuilderGroup);
+
+    return formBuilderGroup;
   }
+
 
   async asyncIdValidator(control: AbstractControl) {
     const { new_resource_id_check_error } = this.props.translation.templates;

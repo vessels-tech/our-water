@@ -41,6 +41,7 @@ import { PendingReading } from '../typings/models/PendingReading';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -251,7 +252,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getSummaryCard() {
-    const { translation: { templates: { resource_detail_latest }}} = this.props;
+    const { translation: { templates: { resource_detail_latest, resource_detail_new_reading_button }}} = this.props;
 
     return (
         <View style={{
@@ -294,7 +295,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {this.getFavouriteButton()}
-            {this.getReadingButton()}
+            {/* TODO: remove */}
+            {/* {this.getReadingButton()} */}
+            <ResourceDetailBottomButton
+              title={resource_detail_new_reading_button}
+              onPress={() => this.props.onAddReadingPressed(this.props.resource)}
+            />
           </View>
         </View>
     );
