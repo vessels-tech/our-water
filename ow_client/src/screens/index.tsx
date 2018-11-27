@@ -34,6 +34,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import SignInScreen from './menu/SignInScreen';
 import { RNFirebase } from 'react-native-firebase';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
+import EditReadingsScreen from './EditReadingsScreen';
 
 
 let loggerMiddleware: any = null;
@@ -136,6 +137,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.SimpleResourceDetailScreen', () => SimpleResourceDetailScreen, store, Provider);
   Navigation.registerComponent('modal.TakePictureScreen', () => TakePictureScreen, store, Provider);
   Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
+  Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
 
   return store;
 }

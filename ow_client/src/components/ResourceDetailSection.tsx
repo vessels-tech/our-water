@@ -53,7 +53,7 @@ export interface OwnProps {
   resource: AnyResource,
   onAddReadingPressed: any,
   hideTopBar: boolean,
-  onEditResourcePressed: (r: AnyResource | PendingResource) => any,
+  onEditReadingsPressed: (r: AnyResource | PendingResource) => any,
 
 }
 

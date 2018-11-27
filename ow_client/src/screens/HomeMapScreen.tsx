@@ -339,7 +339,18 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
           })
         }}
         onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
-          console.log("TODO: Edit readings");
+          showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
+            resourceId: resource.id,
+            config: this.props.config,
+            onAddReadingPressed: () => {
+              // this.props.navigator.diss
+              navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+                resource,
+                config: this.props.config,
+                userId: this.props.userId
+              });
+            }
+          })
         }}
       />
     }
@@ -356,13 +367,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             userId: this.props.userId
           });
         }}
-        onEditResourcePressed={(resource: AnyResource | PendingResource) => {
-          //TODO: pass in the resource to be edited.
-          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
-            resource: resource,
-            config: this.props.config,
-            userId: this.props.userId,
-          })
+        onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
+          console.log("TODO: Edit readings");
         }}
       />
     );
