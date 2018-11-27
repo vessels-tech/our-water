@@ -42,6 +42,7 @@ import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
+import { PendingResource } from '../typings/models/PendingResource';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -52,6 +53,8 @@ export interface OwnProps {
   resource: AnyResource,
   onAddReadingPressed: any,
   hideTopBar: boolean,
+  onEditResourcePressed: (r: AnyResource | PendingResource) => any,
+
 }
 
 export interface StateProps {
@@ -253,6 +256,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getSummaryCard() {
     const { translation: { templates: { resource_detail_latest, resource_detail_new_reading_button }}} = this.props;
+    //TODO: translate
+    const resource_detail_edit_readings = 'EDIT READINGS';
+
+    const allowEditReadings = this.props.config.getResourceDetailEditReadings();
 
     return (
         <View style={{
@@ -295,12 +302,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {this.getFavouriteButton()}
+
             {/* TODO: remove */}
             {/* {this.getReadingButton()} */}
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(this.props.resource)}
             />
+          {allowEditReadings && <ResourceDetailBottomButton
+            title={resource_detail_edit_readings}
+            onPress={() => this.props.onEditReadingsPressed(this.props.resource)}
+          />}
           </View>
         </View>
     );

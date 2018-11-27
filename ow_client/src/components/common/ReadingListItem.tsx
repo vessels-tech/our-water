@@ -34,7 +34,7 @@ export default function ReadingListItem(props: Props) {
       roundAvatar
       rightIcon={
         <TouchableNativeFeedback
-          onPress={() => this.props.deletePendingReading(this.props.pendingReading.id)}
+          onPress={() => props.deletePendingReading(props.pendingReading.id)}
         >
           <Icon
             name='close'

@@ -348,7 +348,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       <ResourceDetailSection
         hideTopBar={false}
         config={this.props.config}
-        userId={userId}
         resource={selectedResource}
         onAddReadingPressed={(resource: AnyResource | PendingResource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
@@ -356,6 +355,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             config: this.props.config,
             userId: this.props.userId
           });
+        }}
+        onEditResourcePressed={(resource: AnyResource | PendingResource) => {
+          //TODO: pass in the resource to be edited.
+          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
+            resource: resource,
+            config: this.props.config,
+            userId: this.props.userId,
+          })
         }}
       />
     );

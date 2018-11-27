@@ -192,7 +192,8 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     const resource_detail_edit_resource = 'EDIT STATION';
     const resource_detail_edit_readings = 'EDIT READINGS';
 
-    //TODO: Add a message about this being a pending resource, with pending readings
+    const allowEdit = this.props.config.getResourceDetailAllowEditing();
+    const allowEditReadings = this.props.config.getResourceDetailEditReadings();
 
     return (
       <View style={{
@@ -239,14 +240,14 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             title={resource_detail_new_reading_button}
             onPress={() => this.props.onAddReadingPressed(this.props.pendingResource)}
           />
-          <ResourceDetailBottomButton 
+          {allowEdit && <ResourceDetailBottomButton 
             title={resource_detail_edit_resource}
             onPress={() => this.props.onEditResourcePressed(this.props.pendingResource)}
-          />
-          <ResourceDetailBottomButton 
+          />}
+          {allowEditReadings && <ResourceDetailBottomButton 
             title={resource_detail_edit_readings}
             onPress={() => this.props.onEditReadingsPressed(this.props.pendingResource)}
-          />
+          />}
         </View>
       </View>
     );
