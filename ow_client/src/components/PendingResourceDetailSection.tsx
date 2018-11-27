@@ -80,9 +80,12 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
 
   getHeadingBar() {
-    const { pendingResource: { id, owner: {name} } } = this.props;
+    const { pendingResource: { id, name } } = this.props;
     const { resource_detail_name_label, resource_detail_heading_label } = this.props.translation.templates;
-    const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
+    let showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
+    if (!name || name === id) {
+      showSubtitle = false;
+    }
 
     return (
       <View style={{
@@ -97,7 +100,6 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             alignSelf: 'center',
           }}
           rounded
-          //TODO: dynamically load avatar
           title="GW"
           activeOpacity={0.7}
         />
