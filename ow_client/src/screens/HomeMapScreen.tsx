@@ -413,6 +413,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             shouldShrinkForSelectedResource={true}
             shouldDisplayFullSceenButton={true}
             shouldShowCallout={false}
+            onCalloutPressed={() => console.log("nothing")}
           />}
         {mapState === MapStateOption.fullscreen ? null :
           <ScrollView

@@ -9,7 +9,7 @@ import {
 import { ResourceType } from '../../enums';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { DeprecatedResource, SaveResourceResult } from '../../typings/models/OurWater';
+import { SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
 import { AppState } from '../../reducers';
 import { connect } from 'react-redux'
@@ -60,8 +60,6 @@ export type EditResourceFormBuilder = {
   lat: any,
   lng: any,
   asset: any,
-
-
   ownerName?: any,
 }
 
@@ -97,7 +95,6 @@ class EditResourceScreen extends Component<Props> {
 
     if (props.resource) {
       const builder = this.getEditFormBuilder(props, props.resource);
-      console.log("builder is", builder);
       return builder
     }
 
@@ -313,7 +310,6 @@ class EditResourceScreen extends Component<Props> {
         control={this.editResourceForm}
         render={({get, invalid}) => (
           <View>
-            {/* TODO: loading indicator, check for validity */}
             {this.props.config.getEditResourceAllowCustomId() ?
               <FieldControl
                 name="id"
@@ -322,7 +318,7 @@ class EditResourceScreen extends Component<Props> {
                   editable: true, 
                   label: new_resource_id, 
                   secureTextEntry: false, 
-                  keyboardType: 'numeric' ,
+                  keyboardType: 'default',
                   asyncErrorMessage: new_resource_id_check_taken,
                 }}
               /> : null}

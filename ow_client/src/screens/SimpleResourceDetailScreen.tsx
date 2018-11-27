@@ -11,12 +11,9 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId, navigateTo } from '../utils';
-import { ResourceType } from '../enums';
-import FavouriteResourceList from '../components/FavouriteResourceList';
+import { View } from 'react-native';
+import {navigateTo } from '../utils';
 import { AppState } from '../reducers';
-import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
 import { TranslationFile } from 'ow_translations';
@@ -25,8 +22,6 @@ import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
-
-
 
 
 export interface OwnProps {
@@ -49,7 +44,6 @@ export interface ActionProps {
 export interface State {
 
 }
-
 
 
 class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & ActionProps> {

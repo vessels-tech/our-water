@@ -306,6 +306,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
               }}>
               <FieldControl
                 name="mobile"
+                //@ts-ignore
                 render={MobileInput}
                 meta={{
                   asyncErrorMessage: connect_to_invalid_phone_number,

@@ -102,7 +102,7 @@ export class ConfigFactory {
       //@ts-ignore
       this.userApi = mywellApi;
       this.externalServiceApi = {externalServiceApiType: ExternalServiceApiType.None};
-      this.extendedResourceApi = {externalServiceApiType: ExtendedResourceApiType.None};
+      this.extendedResourceApi = {extendedResourceApiType: ExtendedResourceApiType.None};
       this.internalAccountApi = mywellApi;
       this.orgType = OrgType.MYWELL
     }
