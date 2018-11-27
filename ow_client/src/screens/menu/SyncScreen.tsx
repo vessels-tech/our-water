@@ -16,6 +16,7 @@ import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { ResultType } from '../../typings/AppProviderTypes';
+import ReadingListItem from '../../components/common/ReadingListItem';
 
 export interface OwnProps {
   navigator: any,
@@ -201,33 +202,45 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   readingListItem(r: PendingReading, i: number, message?: string) {
-    const { deletePendingReading, userId } = this.props;
+    const { deletePendingReading } = this.props;
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
 
+
     return (
-      <ListItem
-        containerStyle={{
-          paddingLeft: 6,
-        }}
+      <ReadingListItem
         key={i}
-        roundAvatar
-        rightIcon={ 
-          <TouchableNativeFeedback
-            onPress={() => {deletePendingReading(this.appApi, userId, r.id)}}
-          >
-            <Icon
-              name='close'
-              color={error1}
-            />
-          </TouchableNativeFeedback>
-        }
-        title={`${moment(r.date).format(sync_date_format)}: ${r.value}`}
-        avatar={getReadingAvatar()}
-        subtitle={errorMessage || `${r.resourceId}, ${r.timeseriesId}`} 
-        subtitleStyle={{ color: message ? error1 : primaryDark }}
+        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id)}
+        pendingReading={r}
+        sync_date_format={sync_date_format}
+        message={message}
+        errorMessage={errorMessage}
       />
-    );
+    )
+
+    // return (
+    //   <ListItem
+    //     containerStyle={{
+    //       paddingLeft: 6,
+    //     }}
+    //     key={i}
+    //     roundAvatar
+    //     rightIcon={ 
+    //       <TouchableNativeFeedback
+    //         onPress={() => {deletePendingReading(this.appApi, userId, r.id)}}
+    //       >
+    //         <Icon
+    //           name='close'
+    //           color={error1}
+    //         />
+    //       </TouchableNativeFeedback>
+    //     }
+    //     title={`${moment(r.date).format(sync_date_format)}: ${r.value}`}
+    //     avatar={getReadingAvatar()}
+    //     subtitle={errorMessage || `${r.resourceId}, ${r.timeseriesId}`} 
+    //     subtitleStyle={{ color: message ? error1 : primaryDark }}
+    //   />
+    // );
   }
 
   getResourcesSection() {
@@ -345,9 +358,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getPendingItems() {
     return (
-      <ScrollView
-        style={{backgroundColor: bgLight}}
-      >
+      <ScrollView style={{backgroundColor: bgLight}}>
         {this.getResourcesSection()}
         {this.getReadingsSection()}
       </ScrollView>
