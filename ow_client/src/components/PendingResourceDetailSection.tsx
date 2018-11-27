@@ -37,6 +37,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
 import PendingTimeseriesCard from './common/PendingTimeseriesCard';
 import { PendingTimeseries } from '../typings/models/PendingTimeseries';
+import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -46,7 +47,9 @@ export interface OwnProps {
   config: ConfigFactory,
   pendingResource: PendingResource,
   userId: string,
-  onAddReadingPressed: any,
+  onAddReadingPressed: (r: AnyResource | PendingResource) => any,
+  onEditResourcePressed: (r: AnyResource | PendingResource) => any,
+  onEditReadingsPressed: (r: AnyResource | PendingResource) => any,
   hideTopBar: boolean,
 }
 
@@ -146,7 +149,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     const readingsMap = new Map<string, PendingReading[]>();
 
     pendingResource.timeseries.forEach(ts => {
-      readingsMap.set(ts.name, pendingReadings.filter(r => r.timeseriesName === ts.name));
+      readingsMap.set(ts.name, pendingReadings.filter(r => r.timeseriesId === ts.name));
     });
 
     if (loading) {
@@ -180,7 +183,14 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
   }
 
   getSummaryCard() {
-    const { translation: { templates: { resource_detail_latest } } } = this.props;
+
+    const {
+      resource_detail_latest,
+      resource_detail_new_reading_button,
+    } = this.props.translation.templates;
+    //TODO: translate
+    const resource_detail_edit_resource = 'EDIT STATION';
+    const resource_detail_edit_readings = 'EDIT READINGS';
 
     //TODO: Add a message about this being a pending resource, with pending readings
 
@@ -215,14 +225,28 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
 
         {/* Bottom Buttons */}
         <View style={{
-          flex: 1,
+          // backgroundColor: 'tomato',
+          flex: 0.5,
           borderColor: bgLightHighlight,
           borderTopWidth: 1,
           flexDirection: 'row-reverse',
-          paddingBottom: 20,
+          // paddingBottom: 20,
+          minHeight: 30,
+          maxHeight: 40,
           alignContent: 'center',
         }}>
-          {this.getReadingButton()}
+          <ResourceDetailBottomButton 
+            title={resource_detail_new_reading_button}
+            onPress={() => this.props.onAddReadingPressed(this.props.pendingResource)}
+          />
+          <ResourceDetailBottomButton 
+            title={resource_detail_edit_resource}
+            onPress={() => this.props.onEditResourcePressed(this.props.pendingResource)}
+          />
+          <ResourceDetailBottomButton 
+            title={resource_detail_edit_readings}
+            onPress={() => this.props.onEditReadingsPressed(this.props.pendingResource)}
+          />
         </View>
       </View>
     );
@@ -254,7 +278,9 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             paddingTop: 0,
             flex: 1 
           }}
-          containerStyle={{}}
+          containerStyle={{
+            marginBottom: 20,
+          }}
           tabStyle={{
             height: 20,
           }}
@@ -287,7 +313,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
                 <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
                   <PendingTimeseriesCard
                     config={this.props.config}
-                    pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesName === ts.name)}
+                    pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
                     resourceId={this.props.pendingResource.id}
                     timeseries={ts}
                   />

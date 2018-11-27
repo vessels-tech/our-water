@@ -29,6 +29,9 @@ export type RemoteConfig = {
   newReading_enableImageUpload: boolean,
   homeScreen: HomeScreenType,
   resourceDetail_showSubtitle: boolean,
+  resourceDetail_allowEditing: boolean,
+  resourceDetail_allowDelete: boolean,
+  resourceDetail_editReadings: boolean,
   favouriteResourceList_showGetStartedButtons: boolean,
 
   //These should eventually be moved to their own config section where we can dynamically
@@ -179,6 +182,18 @@ export class ConfigFactory {
 
   getResourceDetailShouldShowSubtitle() {
     return this.remoteConfig.resourceDetail_showSubtitle;
+  }
+
+  getResourceDetailAllowEditing(): boolean {
+    return this.remoteConfig.resourceDetail_allowEditing;
+  }
+
+  getResourceDetailAllowDelete(): boolean {
+    return this.remoteConfig.resourceDetail_allowDelete;
+  }
+
+  getResourceDetailEditReadings(): boolean {
+    return this.remoteConfig.resourceDetail_editReadings;
   }
 
   getFavouriteResourceShouldShowGetStartedButtons() {

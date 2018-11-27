@@ -262,6 +262,20 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}>
           <View style={{
             flexDirection: 'column',
+            flex: 2,
+          }}>
+            <Text style={{
+              paddingVertical: 10,
+              fontSize: 15,
+              fontWeight: '600',
+              alignSelf: 'center',
+            }}>
+              {resource_detail_latest}
+            </Text>
+          </View>
+
+          <View style={{
+            flexDirection: 'column',
             flex: 5,
             justifyContent: 'center',
           }}>
@@ -276,7 +290,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
             alignContent: 'center',
-            // maxHeight: 40,
+            minHeight: 30,
+            maxHeight: 40,
           }}>
             {this.getFavouriteButton()}
             {this.getReadingButton()}
