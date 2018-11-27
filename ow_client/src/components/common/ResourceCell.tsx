@@ -12,6 +12,7 @@ import BaseApi from '../../api/BaseApi';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
+import { OrgType } from '../../typings/models/OrgType';
 
 
 export interface OwnProps {
@@ -29,7 +30,6 @@ export interface StateProps {
 
 export interface ActionProps {
   getShortId: (api: BaseApi, resourceId: string) => void,
-
 }
 
 
@@ -46,11 +46,15 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
   getTitle() {
     const { resource, shortId, shortIdMeta } = this.props;
 
+    if (resource.type === OrgType.GGMN) {
+      //GGMN uses the name field
+      return resource.name;
+    }
+
     if (!this.props.config.getUsesShortId()) {
       return resource.id;
     }
 
-    let title;
     if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
       return ' . . . ';
     } 

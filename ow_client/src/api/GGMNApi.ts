@@ -1434,10 +1434,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
+    console.log("from resource", JSON.stringify(from, null, 2));
 
     const to: GGMNResource = {
-      // id: `${from.id}`,
-      id: `${from.name}`,
+      //Code is the code we gave when creating it, Id is some random id.
+      // id: `${from.code}`, // Not sure if we should use code or name
+      id: `${from.id}`, // Not sure if we should use code or name
+      // id: `${from.name}`,
+      name: `${from.name}`,
 
       //TODO: not sure about this!
       title: `${from.name}`,

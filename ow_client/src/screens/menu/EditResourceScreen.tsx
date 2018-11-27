@@ -318,7 +318,9 @@ class EditResourceScreen extends Component<Props> {
       new_resource_asset_type_label,
     } = this.props.translation.templates;
 
+    
     //TODO: translate
+    const general_is_required_error = 'is required.';
     const new_resource_name = 'Name';
 
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
@@ -344,6 +346,7 @@ class EditResourceScreen extends Component<Props> {
                   label: new_resource_id, 
                   secureTextEntry: false, 
                   keyboardType: 'default',
+                  errorMessage: general_is_required_error,
                   asyncErrorMessage: new_resource_id_check_taken,
                 }}
               /> : null}
@@ -368,13 +371,13 @@ class EditResourceScreen extends Component<Props> {
               <FieldControl
                 name="lat"
                 render={TextInput}
-                meta={{ editable: true, label: new_resource_lat, secureTextEntry: false, keyboardType: 'numeric' }}
-                />
+                meta={{ editable: true, errorMessage: general_is_required_error, label: new_resource_lat, secureTextEntry: false, keyboardType: 'numeric' }}
+              />
               <FieldControl
                 name="lng"
                 render={TextInput}
-                meta={{ editable: true, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
-                />
+                meta={{ editable: true, errorMessage: general_is_required_error, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
+              />
             </View>
             <FieldControl
               name="asset"
