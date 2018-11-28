@@ -22,10 +22,12 @@ import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
 import { PendingReading } from '../../typings/models/PendingReading';
+import { ConfigTimeseries } from '../ResourceDetailSection';
+import { OrgType } from '../../typings/models/OrgType';
 
 export interface OwnProps {
   config: ConfigFactory,
-  timeseries: AnyTimeseries,
+  timeseries: AnyTimeseries | ConfigTimeseries,
   resourceId: string,
   pendingReadings: PendingReading[],
 }
@@ -73,9 +75,10 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
   getGraphView() {
     const { currentRange } = this.state;
-    const { tsReadings, timeseries: {name}, resourceId } = this.props;
-
+    const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
+
+    console.log("readings are", readings);
 
     if (!readings) {
       return this.getNotEnoughReadingsDialog();
@@ -91,6 +94,8 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
         </View>
       );
     }
+
+    console.log('pending readings: ', this.props.pendingReadings.length);
 
     if (readings.readings.length === 0 && this.props.pendingReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
@@ -117,6 +122,11 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
       { text: '2W', value: TimeseriesRange.TWO_WEEKS},
       { text: 'EXTENT', value: TimeseriesRange.EXTENT},
     ];
+
+    let timeseriesId = this.props.timeseries.parameter;
+    if (this.props.timeseries.type !== OrgType.NONE) {
+      timeseriesId = this.props.timeseries.id;
+    }
 
     return (
       <View style={{
@@ -145,7 +155,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
                 }
 
                 this.setState({ currentRange: b.value });
-                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.name, this.props.timeseries.id, b.value);
+                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.name, timeseriesId, b.value);
               }}
             />
           ))}

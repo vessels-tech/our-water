@@ -371,6 +371,9 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesName: st
     let result: SomeResult<AnyReading[]>;
     try {
       const readings = await api.getReadingsForTimeseries(resourceId, timeseriesId, range);
+      if (!readings) {
+        throw new Error("No readings found!");
+      }
       result = {
         type: ResultType.SUCCESS,
         result: readings,

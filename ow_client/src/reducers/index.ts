@@ -257,6 +257,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
       const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
       let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
+      
       //TD this could be done more efficently than looking through an array each time -
       //eg. building an index based on the resourceId and timeseriesName
       const pendingReadings: PendingReading[] = state.pendingSavedReadings

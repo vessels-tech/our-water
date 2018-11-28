@@ -10,7 +10,7 @@ export REACT_APP_BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 
 #config timeout is in seconds
 export REACT_APP_REMOTE_CONFIG_TIMEOUT=600
-export ENABLE_LOGGING='false'
+export ENABLE_LOGGING='true'
 
 export SHOULD_USE_LOCAL_CONFIG='true'
 export CONFIG_TYPE='GGMNDevConfig'

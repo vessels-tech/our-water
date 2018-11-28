@@ -133,12 +133,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource } = this.props;
     const timeseries = this.getDefaultTimeseries();
-    timeseries.forEach(ts => this.props.getReadings(this.appApi, resource.id, ts.name, ts.parameter, DEFAULT_RANGE)
-      .then(result => {
-        if (result.type === ResultType.ERROR) {
-          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
-        }
-      }));
+    timeseries.forEach(ts => this.props.getReadings(this.appApi, resource.id, ts.name, ts.parameter, DEFAULT_RANGE));
+    // TD: renenable. not having timeseries is a non fatal error
+      // .then(result => {
+        // if (result.type === ResultType.ERROR) {
+        //   ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+        // }
+      // }));
   }
 
   getHeadingBar() {
@@ -250,7 +251,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return (
       keys.map((key) => {
         const readings = readingsMap[key] || [];
-        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId === key);
+        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === key.toLowerCase());
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
 
         let content = 'N/A';
@@ -370,6 +371,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getReadingsView() {
     const { resource, translation: { templates: { resource_detail_summary_tab }} } = this.props;
 
+    /* use default timeseries if we have none */
+    let timeseries: Array<AnyTimeseries | ConfigTimeseries> = this.getDefaultTimeseries();
+    if (resource.timeseries.length > 0) {
+      timeseries = resource.timeseries;
+    }
+
     return (
       <View style={{
         flex: 20,
@@ -407,7 +414,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             {this.getSummaryCard()}
           </View>
             {
-              resource.timeseries.map((ts: AnyTimeseries, idx: number) => {
+              timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
                 return (
                   // @ts-ignore
                   <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
@@ -415,7 +422,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                       config={this.props.config}
                       resourceId={this.props.resource.id}
                       timeseries={ts}
-                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
+                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === ts.name.toLowerCase())}
                     />
                   </View>
                 );
@@ -487,8 +494,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   render() {   
-    console.log("pendingReadings is", this.props.pendingReadings);
-
     return (
       <View style={{
         flexDirection: 'column',

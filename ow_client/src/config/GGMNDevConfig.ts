@@ -24,8 +24,8 @@ const GGMNDevConfig: RemoteConfig = {
   ],
   editResource_defaultTypes: {
     well: [
-      { name: 'GWmMSL', parameter: 'gwmmsl', readings: [] },
-      { name: 'GWmBGS', parameter: 'gwmbgs', readings: [] },
+      { name: 'GWmMSL', parameter: 'GWmMSL', readings: [] },
+      { name: 'GWmBGS', parameter: 'GWmBGS', readings: [] },
     ]
   },
   editResource_allowCustomId: true,
