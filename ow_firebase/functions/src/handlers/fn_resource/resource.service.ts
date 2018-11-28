@@ -45,6 +45,7 @@ describe('fn_resource', function () {
       const body = {
         "email": "lewisdaly@me.com",
         pendingResources,
+        pendingReadings: [],
         subject: 'This is the email subject',
         message: 'This is the email message',
       };

@@ -238,11 +238,11 @@ module.exports = (functions) => {
       throw new Error(generateCSVResult.message);
     }
 
-
     const attachments = [
       { filename: 'id.zip', path: generateZipResult.result},
       { filename: 'id.csv', path: generateCSVResult.result},
     ];
+    console.log("message is", message);
     const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, subject, message, attachments);
     if (sendEmailResult.type === ResultType.ERROR) {
       console.log("Error sending emails:", sendEmailResult.message);
