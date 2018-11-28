@@ -47,6 +47,12 @@ import { PendingResource } from '../typings/models/PendingResource';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 
+//TODO: move
+export type ConfigTimeseries = {
+  name: string, 
+  parameter: string,
+  type: OrgType.NONE,
+}
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -103,6 +109,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   loadTimeseries() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
+    if (timeseries.length === 0) {
+      return this.loadDefaultTimeseries();
+    }
     timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
       .then(result => {
         if (result.type === ResultType.ERROR) {
@@ -111,6 +120,26 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       }));
   }
 
+  getDefaultTimeseries(): Array<ConfigTimeseries> {
+    const { resource } = this.props;
+    let resourceType = 'well';
+    if (resource.type === OrgType.MYWELL) {
+      resourceType = resource.resourceType;
+    }
+    return this.props.config.getDefaultTimeseries(resourceType);
+  }
+
+  loadDefaultTimeseries() {
+    const DEFAULT_RANGE = TimeseriesRange.EXTENT;
+    const { resource } = this.props;
+    const timeseries = this.getDefaultTimeseries();
+    timeseries.forEach(ts => this.props.getReadings(this.appApi, resource.id, ts.name, ts.parameter, DEFAULT_RANGE)
+      .then(result => {
+        if (result.type === ResultType.ERROR) {
+          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+        }
+      }));
+  }
 
   getHeadingBar() {
     const { resource } = this.props;
@@ -182,10 +211,16 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
 
     let loading = false;
-    // const readingsMap = new Map<string, AnyReading[]>();
     const readingsMap: CacheType<AnyReading[]> = {};
 
-    resource.timeseries.forEach(ts => {
+    /* use default timeseries if we have none */
+    let timeseries: Array<AnyTimeseries | ConfigTimeseries> = this.getDefaultTimeseries();
+    if (resource.timeseries.length > 0) {
+      timeseries = resource.timeseries;
+    }
+
+    /* figure out if we are loading */
+    timeseries.forEach((ts: AnyTimeseries | ConfigTimeseries) => {
       const key = getTimeseriesReadingKey(resource.id, ts.name, TimeseriesRange.EXTENT);
       const tsReading: TimeSeriesReading | undefined = tsReadings[key]
       if (!tsReading) {
@@ -230,19 +265,20 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }
 
         //This may fail...
-        const timeseries = resource.timeseries.filter(t => t.name === key)[0];
-        if (!timeseries) { 
+        // const timeseries = resource.timeseries.filter(t => t.name === key)[0];
+        const ts = timeseries.filter(t => t.name === key)[0];
+        if (!ts) { 
           return null
         };
 
-        if (timeseries.type === OrgType.GGMN) {
-          timeStart = moment(timeseries.firstReadingDateString).format(timeseries_date_format);
+        if (ts.type === OrgType.GGMN) {
+          timeStart = moment(ts.firstReadingDateString).format(timeseries_date_format);
         }
         return (
           <TimeseriesSummaryText 
             key={key} 
-            heading={timeseries.name} 
-            subtitle={timeseries_name_title(timeseries.name)}
+            heading={ts.name} 
+            subtitle={timeseries_name_title(ts.name)}
             content={content}
             content_subtitle={contentSubtitle}
             // Removing these for now, it't too hard to get the start date
@@ -450,7 +486,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return await this.props.action_removeFavourite(this.appApi, this.props.userId, this.props.resource.id);
   }
 
-  render() {        
+  render() {   
+    console.log("pendingReadings is", this.props.pendingReadings);
+
     return (
       <View style={{
         flexDirection: 'column',

@@ -33,10 +33,7 @@ import IconButton from '../components/common/IconButton';
 import { MaybeReadingLocation, ReadingLocationType, ReadingLocation } from '../typings/models/ReadingLocation';
 import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingResource } from '../typings/models/PendingResource';
-import { PendingTimeseries } from '../typings/models/PendingTimeseries';
-import { AnyTimeseries } from '../typings/models/Timeseries';
 import { PendingReading } from '../typings/models/PendingReading';
-import { valid } from 'react-native-joi';
 import { OrgType } from '../typings/models/OrgType';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -330,7 +327,6 @@ class NewReadingScreen extends Component<Props> {
   }
 
   getForm() {
-    
     //TODO: get units from reading.metadata
     const units = 'metres';
     const { date, measurementString  } = this.state;

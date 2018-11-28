@@ -534,7 +534,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       //TD: we shouldn't need to do this - subscribe to the resource instead.
-      pendingSavedReadings.push(action.pendingReading);
+      //We don't need to do this, subscription already works
+      // pendingSavedReadings.push(action.pendingReading);
 
       return Object.assign({}, state, { pendingSavedReadings, pendingSavedReadingsMeta });
     }

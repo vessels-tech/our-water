@@ -5,7 +5,7 @@ import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -95,18 +95,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
     }
   }
 
-  // componentDidUpdate() {
-  //   //TODO: handle case where user selects the resource from another screen
-  //   if (this.props.hasSelectedResource !== this.state)
-  //   this.setState({
-  //     hasSelectedResource: this.props.hasSelectedResource
-  //   });
-  // }
-
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
-    console.log("state diff", diff(this.state, nextState))
-    console.log("props diff", diff(this.props, nextProps));
-
     if (Object.keys(diff(this.state, nextState)).length > 0) {
       return true;
     }
@@ -121,8 +110,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
       return typeof propsDiff[curr] === 'function';
     }, true);
 
-    console.log("functionsOnly:", functionsOnly);
     if (functionsOnly) {
+      maybeLog('MapSection shouldComponentUpdate skipping render');
       return !functionsOnly;
     }
 

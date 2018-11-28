@@ -457,7 +457,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
-        console.log("GGMNGroundwaterStationResponse", response);
         
         return response.results.map(from => GGMNApi.ggmnStationToResource(from))
       })
@@ -599,8 +598,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return response.json();
     })
     .then((parsed: GGMNTimeseriesResponse) => {
-      console.log('parsed', parsed);
-
       return {
         count: parsed.count,
         next: parsed.next,
@@ -904,8 +901,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return searchResponse;
     }
 
-    console.log("performed search: ", searchResponse.result);
-
     const result: SearchResult = {
       resources: searchResponse.result.results.map(e => GGMNApi.ggmnSearchEntityToResource(e)),
       hasNextPage: searchResponse.result.count > searchPageSize,
@@ -1091,8 +1086,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
     const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(pendingResources.map(res => this.getResourceFromPendingId(res.id)))
       .then((results: Array<SomeResult<AnyResource>>) => results);
-    console.log('checkResourcesResults', checkResourcesResults);
-
 
     maybeLog("Check saved resource results: ", checkResourcesResults);
 
@@ -1241,9 +1234,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     const searchEntities = searchResponse.result.results;
     let exists = true;
     searchEntities.forEach(s => {
-      console.log("search entity", s.description);
-      console.log("id is", id);
-
       if (s.description === `${id}`) {
         exists = false;
       }
@@ -1420,14 +1410,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     return ftch(url, options)
     .then((response: any) => {
-      console.log("raw response", response);
       return naiveParseFetchResponse<GGMNSaveReadingResponse>(response);
     })
     .then((res: SomeResult<GGMNSaveReadingResponse>) => {
       if (res.type === ResultType.ERROR) {
         return makeError(SyncError.GenericTransport);
       }
-      console.log('saveReadingToGGMN response:', res);
       return makeSuccess(undefined);
     })
     .catch((err: Error) => {
@@ -1467,7 +1455,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[], title?: string): GGMNResource {
-    console.log('ggmnTimeseriesToResource', from);
     const location = from[0].location;
     const geometry = from[0].location.geometry;
 
