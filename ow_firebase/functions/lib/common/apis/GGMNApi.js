@@ -35,8 +35,8 @@ class GGMNApi {
      *
      * Converts pending readings into a csv format for creating timeseries in GGMN.
      */
-    static pendingResourceToCSV(pendingResources, timeseriesNames) {
-        const contents = GGMNApi._generateCSV(pendingResources, timeseriesNames);
+    static pendingResourceToCSV(pendingResources, pendingReadings, timeseriesNames) {
+        const contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
         const filename = `/tmp/${pendingResources[0].id}.csv`;
         return utils_1.writeFileAsync(filename, contents, 'utf8')
             .then(() => AppProviderTypes_1.makeSuccess(filename))
@@ -48,9 +48,13 @@ class GGMNApi {
             "features": pendingResources.map(pr => GGMNApi._pendingResourceToFeature(pr))
         };
     }
-    static _generateCSV(pendingResources, timeseriesNames) {
+    static _generateCSV(pendingResources, pendingReadings, timeseriesNames) {
+        //Make a set containing the resource ids, and remove duplicated
+        const idSet = {}; // resourceId -> true
+        pendingResources.forEach(r => idSet[r.id] = true);
+        pendingReadings.forEach(r => idSet[r.resourceId] = true);
         let builder = '';
-        pendingResources.forEach(r => timeseriesNames.forEach(timeseriesName => builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${r.id}\n`));
+        Object.keys(idSet).forEach(k => timeseriesNames.forEach(timeseriesName => builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${k}\n`));
         return builder;
     }
     static _pendingResourceToFeature(pendingResource) {

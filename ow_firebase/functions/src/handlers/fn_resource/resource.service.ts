@@ -43,8 +43,10 @@ describe('fn_resource', function () {
         },
       ];
       const body = {
-        "email": "lewisdsdasdaly@me.com",
+        "email": "lewisdaly@me.com",
         pendingResources,
+        subject: 'This is the email subject',
+        message: 'This is the email message',
       };
 
       const options = {
@@ -52,7 +54,9 @@ describe('fn_resource', function () {
         uri: `${baseUrl}/resource/${orgId}/ggmnResourceEmail`,
         json: true,
         body,
-        ...authHeader,
+        headers: {
+          ...authHeader,
+        }
       }
 
       //Act

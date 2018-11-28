@@ -207,11 +207,12 @@ module.exports = (functions) => {
         //TODO: build an email and send it.
         const { subject, message } = req.body;
         const pendingResources = req.body.pendingResources;
+        const pendingReadings = req.body.pendingReadings;
         const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
         if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(generateZipResult.message);
         }
-        const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, ['GWmMSL', 'GWmBGS']);
+        const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
         if (generateCSVResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(generateCSVResult.message);
         }

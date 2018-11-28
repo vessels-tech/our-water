@@ -6,6 +6,8 @@ import {
   OrgType,
   ResourceType,
   PendingReading,
+  ReadingImageType,
+  ReadingLocationType,
  } from 'ow_types';
 import { ResultType } from '../types/AppProviderTypes';
 
@@ -33,6 +35,35 @@ describe('GGMNApi', function () {
       timeseries: [],
     },
   ];
+  
+  const pendingReadings: PendingReading[] = [
+    //This one will be ignored
+    {
+      type: OrgType.NONE,
+      id: '12345',
+      pending: true,
+      resourceId: '12345',
+      timeseriesName: 'ggggg',
+      value: 12,
+      date: '1970-01-01T00:00:00Z',
+      userId: 'userId12345',
+      image: { type: ReadingImageType.NONE },
+      location: { type: ReadingLocationType.NONE },
+    },
+    //This one will be created
+    {
+      type: OrgType.NONE,
+      id: '12345',
+      pending: true,
+      resourceId: '12347',
+      timeseriesName: 'ggggg',
+      value: 12,
+      date: '1970-01-01T00:00:00Z',
+      userId: 'userId12345',
+      image: { type: ReadingImageType.NONE },
+      location: { type: ReadingLocationType.NONE },
+    },
+  ]
 
   describe('pendingReadingToCSV', function() {
     it('converts a pending reading list to a csv file', async () => {
@@ -40,7 +71,7 @@ describe('GGMNApi', function () {
       const timeseriesNames = ['GWmMSL', 'GWmBGS'];
 
       //Act
-      const result = GGMNApi._generateCSV(pendingResources, timeseriesNames);
+      const result = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
 
       //Assert
       const expected = 
@@ -48,6 +79,8 @@ describe('GGMNApi', function () {
 1970-01-01T00:00:00Z,GWmBGS,00.00,12345
 1970-01-01T00:00:00Z,GWmMSL,00.00,12346
 1970-01-01T00:00:00Z,GWmBGS,00.00,12346
+1970-01-01T00:00:00Z,GWmMSL,00.00,12347
+1970-01-01T00:00:00Z,GWmBGS,00.00,12347
 `;
       assert.equal(result, expected);
     });

@@ -3,7 +3,8 @@ import * as assert from 'assert';
 
 import FirebaseApi from './FirebaseApi';
 import { ResultType, SomeResult } from '../types/AppProviderTypes';
-import firestore from './Firestore';
+import { firestore } from '../../test/TestFirebase';
+
 import ShortId from '../models/ShortId';
 import { pad } from '../utils';
 

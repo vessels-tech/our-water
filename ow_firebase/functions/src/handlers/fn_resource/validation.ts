@@ -23,15 +23,15 @@ const pendingResourceValidation = Joi.object().keys({
   })).required(),
 });
 
-// const pendingReadingValidation = Joi.object().keys({
-//   type: Joi.string().required(),
-//   id: Joi.string().required(),
-//   pending: Joi.boolean().allow(true).required(),
-//   resourceId: Joi.string().required(),
-//   timeseriesName: Joi.string().required(),
-//   value: Joi.number().required(),
-//   date: Joi.string().isoDate(),
-// });
+const pendingReadingValidation = Joi.object().keys({
+  type: Joi.string().required(),
+  id: Joi.string().required(),
+  pending: Joi.boolean().allow(true).required(),
+  resourceId: Joi.string().required(),
+  timeseriesName: Joi.string().required(),
+  value: Joi.number().required(),
+  date: Joi.string().isoDate(),
+});
 
 export const ggmnResourceEmailValidation = {
   options: {
@@ -42,6 +42,7 @@ export const ggmnResourceEmailValidation = {
     subject: Joi.string().required(),
     message: Joi.string().required(),
     pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
+    pendingReadings: Joi.array().min(0).items(pendingReadingValidation).required(),
   } 
 }
 

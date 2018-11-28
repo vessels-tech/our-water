@@ -19,7 +19,7 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../../common/apis/EmailApi';
-import { PendingResource, OWGeoPoint } from 'ow_types';
+import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
 
@@ -226,13 +226,14 @@ module.exports = (functions) => {
     //TODO: build an email and send it.
     const { subject, message } = req.body;
     const pendingResources: PendingResource[] = req.body.pendingResources;
+    const pendingReadings: PendingReading[] = req.body.pendingReadings;
     const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
     
     if (generateZipResult.type === ResultType.ERROR) {
       throw new Error(generateZipResult.message);
     }
 
-    const generateCSVResult = await GGMNApi.pendingResourceToCSV(pendingResources, ['GWmMSL', 'GWmBGS']);
+    const generateCSVResult = await GGMNApi.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
     if (generateCSVResult.type === ResultType.ERROR) {
       throw new Error(generateCSVResult.message);
     }
