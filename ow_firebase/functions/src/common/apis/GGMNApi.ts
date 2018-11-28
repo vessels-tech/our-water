@@ -1,7 +1,7 @@
 import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
 import { writeFileAsync } from '../utils';
 import { zipGeoJson } from './Zip';
-import { PendingResource } from 'ow_types';
+import { PendingResource, PendingReading } from 'ow_types';
 
 export default class GGMNApi {
 
@@ -35,11 +35,37 @@ export default class GGMNApi {
     .catch(err => makeError<string>(err.message));
   }
 
+
+  /**
+   * pendingReadingstoCSV
+   * 
+   * Converts pending readings into a csv format for creating timeseries in GGMN.
+   */
+  public static pendingResourceToCSV(pendingResources: PendingResource[], timeseriesNames: string[]): Promise<SomeResult<string>> {
+    const contents = GGMNApi._generateCSV(pendingResources, timeseriesNames);
+    const filename = `/tmp/${pendingResources[0].id}.csv`;
+
+    return writeFileAsync(filename, contents, 'utf8')
+      .then(() => makeSuccess(filename))
+      .catch(err => makeError<string>(err.message));
+  }
+
   public static _generateGeoJSON(pendingResources: PendingResource[]): any {
     return {
       "type": "FeatureCollection",
       "features": pendingResources.map(pr => GGMNApi._pendingResourceToFeature(pr))
     }
+  }
+
+  public static _generateCSV(pendingResources: PendingResource[], timeseriesNames: string[]): any {
+    let builder = '';
+    pendingResources.forEach(r => 
+      timeseriesNames.forEach(timeseriesName => 
+        builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${r.id}\n`
+      )
+    );
+
+    return builder;
   }
 
   public static _pendingResourceToFeature(pendingResource: PendingResource): any {

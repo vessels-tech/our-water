@@ -224,18 +224,25 @@ module.exports = (functions) => {
 
   app.post('/:orgId/ggmnResourceEmail', validate(ggmnResourceEmailValidation), async(req, res) => {
     //TODO: build an email and send it.
+    const { subject, message } = req.body;
     const pendingResources: PendingResource[] = req.body.pendingResources;
     const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
-
+    
     if (generateZipResult.type === ResultType.ERROR) {
       throw new Error(generateZipResult.message);
     }
 
-    const attachments = [{
-      filename: 'id.zip',
-      path: generateZipResult.result,
-    }];
-    const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, 'HELLO', attachments);
+    const generateCSVResult = await GGMNApi.pendingResourceToCSV(pendingResources, ['GWmMSL', 'GWmBGS']);
+    if (generateCSVResult.type === ResultType.ERROR) {
+      throw new Error(generateCSVResult.message);
+    }
+
+
+    const attachments = [
+      { filename: 'id.zip', path: generateZipResult.result},
+      { filename: 'id.csv', path: generateCSVResult.result},
+    ];
+    const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, subject, message, attachments);
     if (sendEmailResult.type === ResultType.ERROR) {
       console.log("Error sending emails:", sendEmailResult.message);
       throw new Error(sendEmailResult.message);

@@ -1,6 +1,6 @@
 import { SomeResult, ResultType } from "../types/AppProviderTypes";
 
-import firestore from './Firestore';
+import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';

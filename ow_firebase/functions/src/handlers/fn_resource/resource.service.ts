@@ -2,17 +2,23 @@ import 'mocha'
 
 import * as request from 'request-promise-native';
 import { OrgType, PendingResource, ResourceType } from 'ow_types';
-
+import { getAuthHeader } from '../../../tools';
+import { admin } from '../../test/TestFirebase';
 
 describe('fn_resource', function () {
   const orgId = process.env.ORG_ID;
   const baseUrl = process.env.BASE_URL;
+  let authHeader;
 
 
   describe('ggmnResourceEmail', function () {
     this.timeout(5000);
+
+    before(async function() {
+      authHeader = await getAuthHeader(admin);
+    });
     
-    it('sends the resource email', async () => {
+    it.only('sends the resource email', async () => {
       //Arrange
       const pendingResources: PendingResource[] = [
         {
@@ -37,7 +43,7 @@ describe('fn_resource', function () {
         },
       ];
       const body = {
-        "email": "lewisdaly@me.com",
+        "email": "lewisdsdasdaly@me.com",
         pendingResources,
       };
 
@@ -46,6 +52,7 @@ describe('fn_resource', function () {
         uri: `${baseUrl}/resource/${orgId}/ggmnResourceEmail`,
         json: true,
         body,
+        ...authHeader,
       }
 
       //Act

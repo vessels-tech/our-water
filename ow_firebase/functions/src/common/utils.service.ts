@@ -1,7 +1,7 @@
 import * as mocha from 'mocha';
 import * as assert from 'assert';
 
-import firestore from './apis/Firestore';
+import { firestore } from '../test/TestFirebase';
 import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from './utils';
 import ResourceIdType from './types/ResourceIdType';
 import { Group } from './models/Group';

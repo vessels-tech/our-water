@@ -26,18 +26,20 @@ const mailTransport = nodemailer.createTransport({
 const APP_NAME = 'GGMN';
 
 export default class EmailApi {
-  public static sendResourceEmail(email, message, attachments): Promise<SomeResult<void>> {
+  public static sendResourceEmail(email, subject, message, attachments): Promise<SomeResult<void>> {
     //TODO: add attachments in the form of a zip file.
 
     const mailOptions: any = {
       from: `${APP_NAME} <admin@vessels.tech>`,
       to: email,
+      subject,
+      message,
       attachments,
     };
 
     // The user subscribed to the newsletter.
-    mailOptions.subject = `Welcome to ${APP_NAME}!`;
-    mailOptions.text = `Welcome to ${APP_NAME}. I hope you will enjoy our service.`;
+    // mailOptions.subject = `Welcome to ${APP_NAME}!`;
+    // mailOptions.text = `Welcome to ${APP_NAME}. I hope you will enjoy our service.`;
 
     if (!shouldSendEmails && testEmailWhitelist.indexOf(email) === -1) {
       console.log(`Not sending emails as shouldSendEmails is false, and ${email} is not in the whitelist.`);

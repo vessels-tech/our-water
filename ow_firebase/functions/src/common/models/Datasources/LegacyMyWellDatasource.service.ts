@@ -9,7 +9,8 @@ import * as moment from 'moment';
 import 'mocha';
 import * as chai from 'chai';
 
-import fs from '../../apis/Firestore';
+// import fs from '../../apis/Firestore';
+import { firestore } from '../../../test/TestFirebase';
 import LegacyMyWellDatasource from './LegacyMyWellDatasource';
 import LegacyVillage from '../../types/LegacyVillage';
 import SyncRunResult from '../../types/SyncRunResult';
@@ -42,7 +43,7 @@ describe('pullFromDataSource', function () {
 
       //Act
       const datasource = new LegacyMyWellDatasource(myWellLegacyBaseUrl, []);
-      const result = await datasource.saveGroups(orgId, fs, groups);
+      const result = await datasource.saveGroups(orgId, firestore, groups);
 
       //Assert
       assert.equal(1, result.results.length);
@@ -67,7 +68,7 @@ describe('pushDataToDataSource', function () {
       const externalIdsA = ResourceIdType.newOWResource(223456789).serialize();
       const externalIdsB = ResourceIdType.newOWResource(223456789).serialize();
 
-      const resourcesRef = fs.collection('org').doc(orgId).collection('resource');
+      const resourcesRef = firestore.collection('org').doc(orgId).collection('resource');
       const resourceAJson = { "resourceType": "well", "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(), "id": "00znWgaT83RoYXYXxmvk", "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "coords": { "_latitude": 23.9172222222222, "_longitude": 73.8244444444444 }, "lastValue": 22.6, "groups": { "rhBCmtN16cABh6xSPijR": true, "jpKBA75GiZAzpA0gkBi8": true }, "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "owner": { "name": "Khokhariya Ramabhai Sojabhai", "createdByUserId": "default" }, "orgId": "test_12345", "externalIds": externalIdsA, };
       const resourceBJson = { "resourceType": "well", "lastReadingDatetime": moment("1970-01-01T00:00:00.000Z").valueOf(), "id": "00znWgaT83RoYXYXxmvk", "createdAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "coords": { "_latitude": 23.9172222222222, "_longitude": 73.8244444444444 }, "lastValue": 22.6, "groups": { "rhBCmtN16cABh6xSPijR": true, "jpKBA75GiZAzpA0gkBi8": true }, "updatedAt": moment("2018-08-07T01:58:10.031Z").valueOf(), "owner": { "name": "Khokhariya Ramabhai Sojabhai", "createdByUserId": "default" }, "orgId": "test_12345", "externalIds": externalIdsB };
       const resourceA = Resource.deserialize(resourceAJson);
@@ -78,7 +79,7 @@ describe('pushDataToDataSource', function () {
         resourcesRef.add(resourceB.serialize()),
       ]).then(() => {
         const oneYearAgo = moment().subtract(1, 'year').valueOf();
-        return datasource.getNewResources(orgId, fs, oneYearAgo);
+        return datasource.getNewResources(orgId, firestore, oneYearAgo);
       }).then(_newResources => {
         newResources = _newResources;
         legacyResources = LegacyMyWellDatasource.transformResourcesToLegacyMyWell(newResources);

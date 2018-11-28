@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 const request = require('request-promise-native');
 
 /* Not in git. Download from FB console*/
-const serviceAccount = require('../../.serviceAccountKey.json');
+const serviceAccount = require('../src/.serviceAccountKey.json');
 
 if (admin.apps.length === 0) {
   admin.initializeApp({

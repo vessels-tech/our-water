@@ -15,7 +15,7 @@ describe('Utils Tests', () => {
 
   describe('hash tests', () => {
 
-    it.only('hashes the reading correctly', () => {
+    it('hashes the reading correctly', () => {
       //Arrange
       //Act
       const hashed = hashReadingId('00dWeFA9bCIM9QiUVhvV', 'default', new Date());

@@ -2,8 +2,6 @@ import { ResourceType } from "../../common/enums/ResourceType";
 
 const Joi = require('joi');
 
-
-
 const pendingResourceValidation = Joi.object().keys({
   id: Joi.string(),
   pending: Joi.boolean().allow(true).required(),
@@ -25,13 +23,25 @@ const pendingResourceValidation = Joi.object().keys({
   })).required(),
 });
 
+// const pendingReadingValidation = Joi.object().keys({
+//   type: Joi.string().required(),
+//   id: Joi.string().required(),
+//   pending: Joi.boolean().allow(true).required(),
+//   resourceId: Joi.string().required(),
+//   timeseriesName: Joi.string().required(),
+//   value: Joi.number().required(),
+//   date: Joi.string().isoDate(),
+// });
+
 export const ggmnResourceEmailValidation = {
   options: {
     allowUnknownBody: true,
   },
   body: {
-      email: Joi.string().email().required(),
-      pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
+    email: Joi.string().email().required(),
+    subject: Joi.string().required(),
+    message: Joi.string().required(),
+    pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
   } 
 }
 
