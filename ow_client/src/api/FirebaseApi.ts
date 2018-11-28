@@ -39,6 +39,12 @@ const auth = firebase.auth();
 const baseUrl = Config.REACT_APP_BASE_URL;
 const timeout = 1000 * 10;
 
+export type SendResourceEmailOptions = {
+  email: string,
+  subject: string,
+  message: string,
+}
+
 
 class FirebaseApi {
 
@@ -965,7 +971,7 @@ class FirebaseApi {
    * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
    */
-  static async sendResourceEmail(orgId: string, token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
+  static async sendResourceEmail(orgId: string, token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
 
     const options = {
@@ -976,7 +982,14 @@ class FirebaseApi {
         authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, pendingResources }),
+      body: JSON.stringify({  
+        pendingResources,
+        pendingReadings,
+        ...sendOptions,
+        // email,
+        // subject,
+        // message,
+      }),
     };
 
     maybeLog("SendResourceEmail url: ", url);

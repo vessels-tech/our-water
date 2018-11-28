@@ -15,7 +15,7 @@ import { ToastAndroid } from "react-native";
 import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum } from "ow_translations";
+import { TranslationEnum, TranslationFile } from "ow_translations";
 import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
@@ -763,7 +763,7 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
  * 
  * //TODO: should we pass in pending resources?
  */
-export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser, username: string, pendingResources: PendingResource[]): (dispatch: any) => Promise<SomeResult<void>> {
+export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser, username: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], translation: TranslationFile): (dispatch: any) => Promise<SomeResult<void>> {
   return async function(dispatch: any) {
     if (api.externalServiceApiType === ExternalServiceApiType.None) {
       maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
@@ -782,7 +782,14 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser,
     }
 
     const email = emailResult.result;
-    const sendEmailResult = await api.sendResourceEmail(user.token, email, pendingResources);
+    //TODO: translate
+    const subject = 'Here are your resources'; //translation.templates.resource_email_subject
+    const message = 'This is the message';  //translation.templates.resource_email_message
+    const sendEmailResult = await api.sendResourceEmail(user.token, pendingResources, pendingReadings, {
+      email,
+      subject,
+      message,
+    });
 
     dispatch(sendResourceEmailResponse(sendEmailResult));
 

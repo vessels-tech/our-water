@@ -3,6 +3,7 @@ import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { PendingResource } from "../typings/models/PendingResource";
 import { PendingReading } from "../typings/models/PendingReading";
+import { SendResourceEmailOptions } from "./FirebaseApi";
 
 export enum ExternalServiceApiType {
   None='None',
@@ -71,9 +72,7 @@ export default interface ExternalServiceApi {
    * Send Resource Email
    * GGMN only
    */
-  sendResourceEmail(token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>>;
-
-
+  sendResourceEmail(token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>>;
   /**
    * StartExternalSync
    * 

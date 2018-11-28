@@ -1,7 +1,7 @@
 import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
 import { RNFirebase, Firebase } from "react-native-firebase";
-import FirebaseApi from "./FirebaseApi";
+import FirebaseApi, { SendResourceEmailOptions } from "./FirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from '../utils/Fetch';
@@ -1065,8 +1065,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   /**
    * Send Resource Email
    */
-  sendResourceEmail(token: string, email: string, pendingResources: PendingResource[]): Promise<SomeResult<void>> {
-    return FirebaseApi.sendResourceEmail(this.orgId, token, email, pendingResources);
+  sendResourceEmail(token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
+    return FirebaseApi.sendResourceEmail(this.orgId, token, pendingResources, pendingReadings, sendOptions);
   }
 
   /**

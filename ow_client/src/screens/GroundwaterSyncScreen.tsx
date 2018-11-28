@@ -25,6 +25,7 @@ import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations';
+import { PendingReading } from '../typings/models/PendingReading';
 
 
 export interface OwnProps {
@@ -35,6 +36,7 @@ export interface OwnProps {
 
 export interface StateProps {
   pendingResources: PendingResource[],
+  pendingReadings: PendingReading[],
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   user: MaybeUser,
@@ -42,7 +44,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[]) => any,
+  sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], translation: TranslationFile) => any,
 }
 
 export interface State {
@@ -79,7 +81,14 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
     }
 
     this.setState({isEmailLoading: true}, async () => {
-      const result: SomeResult<void> = await this.props.sendResourceEmail(this.externalApi, this.props.user, externalLoginDetails.username, this.props.pendingResources);
+      const result: SomeResult<void> = await this.props.sendResourceEmail(
+        this.externalApi, 
+        this.props.user, 
+        externalLoginDetails.username, 
+        this.props.pendingResources, 
+        this.props.pendingReadings, 
+        this.props.translation
+      );
       if (result.type === ResultType.ERROR) {
         //TODO: translate the error message
         ToastAndroid.show(result.message, ToastAndroid.SHORT);
@@ -174,6 +183,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     pendingResources: state.pendingSavedResources,
+    pendingReadings: state.pendingSavedReadings,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     user: state.user,
@@ -183,8 +193,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[]) => 
-      dispatch(appActions.sendResourceEmail(api, user, externalUsername, pendingResources))
+    sendResourceEmail: (api: MaybeExternalServiceApi, user: MaybeUser, externalUsername: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], translation: TranslationFile) => 
+      dispatch(appActions.sendResourceEmail(api, user, externalUsername, pendingResources, pendingReadings, translation))
   };
 }
 
