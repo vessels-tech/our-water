@@ -113,6 +113,8 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
       sync_screen_step_3_body,
       sync_screen_step_4_heading,
       sync_screen_step_4_body,
+      sync_screen_step_5_heading,
+      sync_screen_step_5_body,
       sync_screen_help_heading,
       sync_screen_help_body,
       sync_screen_send_email_button,
@@ -169,6 +171,8 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
         <Text style={sectionStyle}>{sync_screen_step_3_body}</Text>
         <Text style={headingStyle}>{sync_screen_step_4_heading}</Text>
         <Text style={sectionStyle}>{sync_screen_step_4_body}</Text>
+        <Text style={headingStyle}>{sync_screen_step_5_heading}</Text>
+        <Text style={sectionStyle}>{sync_screen_step_5_body}</Text>
         <Text style={headingStyle}>{sync_screen_help_heading}</Text>
         <Text style={{ paddingBottom: 20, ...sectionStyle }}>{sync_screen_help_body}</Text>
       </ScrollView>

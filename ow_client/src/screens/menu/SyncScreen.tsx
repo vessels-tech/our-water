@@ -114,6 +114,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         sync_login_message,
         sync_start_sync_button,
         sync_start_sync_button_loading,
+        sync_manual_text,
+        sync_manual_show_me_how,
       }}
     } = this.props;
 
@@ -152,23 +154,49 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
 
     return (
-      <Button
-        style={{
-          paddingBottom: 20,
-          minHeight: 50,
-        }}
-        containerViewStyle={{
-          borderRadius: 15,
-          position: 'relative',
-        }}
-        color={primaryText}
-        backgroundColor={primary}
-        borderRadius={15}
-        loading={syncing}
-        icon={syncing ? undefined : { name: 'cached', color: primaryText }}
-        title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-        onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
-      />
+      <View>
+        <Button
+          containerViewStyle={{
+            paddingTop: 20,
+          }}
+          style={{
+            minHeight: 50,
+          }}
+          color={primaryText}
+          backgroundColor={primary}
+          borderRadius={15}
+          loading={syncing}
+          icon={syncing ? undefined : { name: 'cached', color: primaryText }}
+          title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+          onPress={() => this.props.startExternalSync(this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
+        />
+        <Text
+          style={{
+            paddingLeft: 16,
+            paddingTop: 7,
+            paddingBottom: 3,
+            fontStyle: 'italic',
+            fontWeight: "400",
+          }}>
+          {sync_manual_text}
+        </Text>
+        <Button
+          // buttonStyle={{
+          //   height: 30,
+          // }}
+          style={{
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            paddingBottom: 20,
+          }}
+          color={primaryText}
+          backgroundColor={primary}
+          borderRadius={15}
+          onPress={this.groundwaterSyncPressed}
+          title={sync_manual_show_me_how}
+        />
+      </View>
     )
   }
 
@@ -218,30 +246,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         errorMessage={errorMessage}
       />
     )
-
-    // return (
-    //   <ListItem
-    //     containerStyle={{
-    //       paddingLeft: 6,
-    //     }}
-    //     key={i}
-    //     roundAvatar
-    //     rightIcon={ 
-    //       <TouchableNativeFeedback
-    //         onPress={() => {deletePendingReading(this.appApi, userId, r.id)}}
-    //       >
-    //         <Icon
-    //           name='close'
-    //           color={error1}
-    //         />
-    //       </TouchableNativeFeedback>
-    //     }
-    //     title={`${moment(r.date).format(sync_date_format)}: ${r.value}`}
-    //     avatar={getReadingAvatar()}
-    //     subtitle={errorMessage || `${r.resourceId}, ${r.timeseriesId}`} 
-    //     subtitleStyle={{ color: message ? error1 : primaryDark }}
-    //   />
-    // );
   }
 
   getResourcesSection() {
@@ -287,29 +291,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             }
             return this.resourceListItem(resource, idx, message);
           }) }
-          <Text 
-            style={{
-              paddingLeft: 16,
-              paddingTop: 7,
-              paddingBottom: 3,
-              fontStyle: 'italic',
-              fontWeight: "400",
-            }}>
-            {sync_manual_text}
-          </Text>
-          <Button
-            containerViewStyle={{
-              marginBottom: 40,
-            }}
-            buttonStyle={{
-              height: 30,
-            }}
-            color={primaryText}
-            backgroundColor={primaryDark}
-            borderRadius={15}
-            onPress={this.groundwaterSyncPressed}
-            title={sync_manual_show_me_how}
-          />
+         
       </View>
     )
   }
@@ -392,19 +374,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View style={{
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: 'red',
       }}>
-        <View style={{
-          flex: 1,
-          position: "absolute",
-          bottom: 15,
-          // top: 0,
-          right: 0,
-          zIndex: 100,
-        }}>
-          {this.getSyncSection()}
-        </View>
         {this.getPendingItems()}
+        {this.getSyncSection()}
       </View>
     );
   }
