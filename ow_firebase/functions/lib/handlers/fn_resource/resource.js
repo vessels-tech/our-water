@@ -20,7 +20,7 @@ const ResourceIdType_1 = require("../../common/types/ResourceIdType");
 const ResourceType_1 = require("../../common/enums/ResourceType");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
-const Firestore_1 = require("../../common/apis/Firestore");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
 //@ts-ignore
 const morgan = require("morgan");
@@ -48,7 +48,7 @@ module.exports = (functions) => {
     }
     app.use(middleware_1.validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
-        return Firestore_1.default.collection('org').doc(orgId)
+        return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
             .collection('resource')
             .orderBy('createdAt')
             .startAfter(last_createdAt)
@@ -83,7 +83,7 @@ module.exports = (functions) => {
             new ow_types_1.OWGeoPoint(34.34, -115.67),
         ];
         const group = new Group_1.Group('5000', orgId, GroupType_1.GroupType.Pincode, coords, null);
-        return group.create({ firestore: Firestore_1.default })
+        return group.create({ firestore: FirebaseAdmin_1.firestore })
             .then((saved) => res.json(saved));
     });
     /**
@@ -136,14 +136,14 @@ module.exports = (functions) => {
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
         //Ensure the orgId exists
-        const orgRef = Firestore_1.default.collection('org').doc(orgId);
+        const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            .then(() => Firestore_1.default.collection(`/org/${orgId}/resource`).add(req.body.data))
+            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
             .then(result => {
             console.log(JSON.stringify({ resourceId: result.id }));
             return res.json({ resource: result.id });
@@ -180,7 +180,7 @@ module.exports = (functions) => {
         const newData = req.body.data;
         try {
             //get the resource
-            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: Firestore_1.default });
+            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: FirebaseAdmin_1.firestore });
             const modifiableKeys = ['owner', 'externalIds', 'resourceType', 'coords'];
             modifiableKeys.forEach(key => {
                 let newValue = newData[key];
@@ -195,7 +195,7 @@ module.exports = (functions) => {
                 }
                 resource[key] = newValue;
             });
-            yield resource.save({ firestore: Firestore_1.default });
+            yield resource.save({ firestore: FirebaseAdmin_1.firestore });
             return res.json(resource);
         }
         catch (err) {
@@ -248,7 +248,7 @@ module.exports = (functions) => {
         // // Create a query against the collection
         // var queryRef = citiesRef.where('state', '==', 'CA');
         //TODO: implement optional type filter
-        const readingsRef = Firestore_1.default.collection(`/org/${orgId}/reading`)
+        const readingsRef = FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
             .where(`resourceId`, '==', resourceId).get()
             .then(snapshot => {
             const resources = [];

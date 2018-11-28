@@ -1,7 +1,7 @@
 
 import * as functions from 'firebase-functions';
 
-import fs from '../../common/apis/Firestore';
+import { firestore } from '../../common/apis/FirebaseAdmin';
 import { Sync } from '../../common/models/Sync';
 import CronUtils from './CronUtils';
 import { SyncFrequency } from '../../common/enums/SyncFrequency';

@@ -3,7 +3,7 @@
  * 
  * taken from: https://github.com/firebase/functions-samples/blob/master/authorized-https-endpoint/functions/index.js
  */
-import admin from './common/apis/FirebaseAdmin';
+import { admin } from './common/apis/FirebaseAdmin';
 
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
-const Firestore_1 = require("../../common/apis/Firestore");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
@@ -22,7 +22,7 @@ module.exports = (functions) => {
         }
     };
     app.post('/', validate(createOrgValidation), (req, res) => {
-        return Firestore_1.default.collection('org').add(req.body)
+        return FirebaseAdmin_1.firestore.collection('org').add(req.body)
             .then(result => {
             return res.json({ orgId: result.id });
         });

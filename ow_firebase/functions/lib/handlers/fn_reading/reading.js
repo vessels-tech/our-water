@@ -4,7 +4,7 @@ const validate = require("express-validation");
 const express = require("express");
 const moment = require("moment");
 const utils_1 = require("../../common/utils");
-const Firestore_1 = require("../../common/apis/Firestore");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
@@ -24,7 +24,7 @@ module.exports = (functions) => {
      * Get all the readings for an orgId + resourceId
      */
     const getReading = (orgId, resourceId, last_createdAt = moment().valueOf(), limit = 25) => {
-        return Firestore_1.default.collection('org').doc(orgId)
+        return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
             .collection('reading')
             .where('resourceId', '==', resourceId)
             .orderBy('createdAt')
@@ -71,14 +71,14 @@ module.exports = (functions) => {
         //TODO: custom validate depending on resource type
         //e.g. Date can't be in the future
         //Ensure the orgId + resource exists
-        const resourceRef = Firestore_1.default.collection('org').doc(orgId).collection('resource').doc(resourceId);
+        const resourceRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection('resource').doc(resourceId);
         return resourceRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Resource with with orgId: ${orgId}, resourceId: ${resourceId} not found`);
             }
         })
-            .then(() => Firestore_1.default.collection(`/org/${orgId}/reading/`).add(data))
+            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading/`).add(data))
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));
     });
@@ -92,7 +92,7 @@ module.exports = (functions) => {
     app.post('/legacy_save/:orgId/:legacyResourceId', validate(createReadingValidation), (req, res, next) => {
         const { orgId, legacyResourceId } = req.params;
         //First, look up the resource based on the legacy id
-        return Firestore_1.default.collection('org').doc(orgId).collection('resource')
+        return FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection('resource')
             .where('legacyResourceId', '==', legacyResourceId).get()
             .then(snapshot => {
             const resources = [];
@@ -110,7 +110,7 @@ module.exports = (functions) => {
             .then(newResource => {
             const data = formatNewReading(req.body.data, newResource.id);
             console.log("data is:", data);
-            return Firestore_1.default.collection(`/org/${orgId}/reading/`).add(data);
+            return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading/`).add(data);
         })
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));

@@ -24,7 +24,7 @@ import { FileDatasource } from '../../common/models/Datasources/FileDatasource';
 import FileDatasourceOptions from '../../common/models/FileDatasourceOptions';
 import { createSyncValidation } from './validate';
 
-import firestore from '../../common/apis/Firestore';
+import { firestore } from '../../common/apis/FirebaseAdmin';
 
 module.exports = (functions) => {
   const app = express();

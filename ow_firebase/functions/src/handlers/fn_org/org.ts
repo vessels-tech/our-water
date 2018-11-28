@@ -1,6 +1,6 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
-import firestore from '../../common/apis/Firestore';
+import { firestore } from '../../common/apis/FirebaseAdmin';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
