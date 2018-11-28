@@ -963,11 +963,19 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    */
   public async getResourceFromSearchDescription(userId: string, description: string, title?: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/timeseries/?location__name=${description}`;
+    const authHeadersResult = await this.getOptionalAuthHeaders();
+    let authHeaders = {};
+    //even if login is bad, load the resources
+    if (authHeadersResult.type !== ResultType.ERROR) {
+      authHeaders = authHeadersResult.result;
+    }
+
     const options = {
       timeout,
       method: 'GET',
       headers: {
         ...defaultHeaders,
+        ...authHeaders,
       },
     };
 
@@ -1307,7 +1315,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     let timeseriesId = null;
     searchResponse.result.results.forEach(ts => {
-      if (ts.code === code) {
+      if (ts.code.toLowerCase() === code.toLowerCase()) {
         timeseriesId = ts.uuid;
       }
     });
@@ -1363,15 +1371,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     //if the results count is too high, id isn't specific enough.
     if (searchResponse.result.count > 1) {
-      return makeError<AnyResource>('Found more than 1 resource');
+      // return makeError<AnyResource>('Found more than 1 resource');
+      return makeError<AnyResource>(SyncError.StationNotCreated);
     }
 
     if (searchResponse.result.count < 1) {
-      return makeError<AnyResource>(`Couldn't find resource for id: ${id}`);
+      // return makeError<AnyResource>(`Couldn't find resource for id: ${id}`);
+      return makeError<AnyResource>(SyncError.StationNotCreated);
     }
 
     const searchEntities = searchResponse.result.results;
-    let exists = true;
     const entityId = searchEntities[0].entity_id;
     return this.getResource(entityId);
   }
@@ -1434,12 +1443,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
-    console.log("from resource", JSON.stringify(from, null, 2));
-
     const to: GGMNResource = {
       //Code is the code we gave when creating it, Id is some random id.
-      // id: `${from.code}`, // Not sure if we should use code or name
-      id: `${from.id}`, // Not sure if we should use code or name
+      id: `${from.code}`, // Not sure if we should use code or name
+      // id: `${from.id}`, // Not sure if we should use code or name
       // id: `${from.name}`,
       name: `${from.name}`,
 

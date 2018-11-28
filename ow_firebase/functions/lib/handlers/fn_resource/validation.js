@@ -22,12 +22,13 @@ const pendingResourceValidation = Joi.object().keys({
         readings: Joi.array().empty().required(),
     })).required(),
 });
+//DON'T USE THIS ELSEWHERE!
 const pendingReadingValidation = Joi.object().keys({
-    type: Joi.string().required(),
-    id: Joi.string().required(),
+    // type: Joi.string().required(),
+    // id: Joi.string().required(),
     pending: Joi.boolean().allow(true).required(),
     resourceId: Joi.string().required(),
-    timeseriesName: Joi.string().required(),
+    timeseriesId: Joi.string().required(),
     value: Joi.number().required(),
     date: Joi.string().isoDate(),
 });

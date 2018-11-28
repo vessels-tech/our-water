@@ -974,6 +974,14 @@ class FirebaseApi {
   static async sendResourceEmail(orgId: string, token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
 
+    const body = {
+      pendingResources,
+      pendingReadings,
+      ...sendOptions,
+    };
+
+    console.log("body is: ", body);
+
     const options = {
       timeout,
       method: 'POST',
@@ -982,14 +990,7 @@ class FirebaseApi {
         authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({  
-        pendingResources,
-        pendingReadings,
-        ...sendOptions,
-        // email,
-        // subject,
-        // message,
-      }),
+      body: JSON.stringify(body),
     };
 
     maybeLog("SendResourceEmail url: ", url);
@@ -997,6 +998,7 @@ class FirebaseApi {
 
     return ftch(url, options)
       .then((response: any) => {
+        console.log("Response is", response);
         if (!response.ok) {
           return rejectRequestWithError(response.status);
         }
@@ -1010,7 +1012,8 @@ class FirebaseApi {
         }
       })
       .catch((err: Error) => {
-        maybeLog(`CreateShortId Error: ${err}`);
+        console.log("error", err);
+        maybeLog(`send resource email Error: ${err}`);
         return {
           type: ResultType.ERROR,
           message: err.message

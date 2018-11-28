@@ -1,7 +1,7 @@
 import 'mocha'
 
 import * as request from 'request-promise-native';
-import { OrgType, PendingResource, ResourceType } from 'ow_types';
+import { OrgType, PendingResource, ResourceType, PendingReading } from 'ow_types';
 import { getAuthHeader } from '../../../tools';
 import { admin } from '../../test/TestFirebase';
 
@@ -42,10 +42,21 @@ describe('fn_resource', function () {
           timeseries: [],
         },
       ];
+
+      const pendingReadings: any[] = [
+        {
+          date: "2018-11-28T02:18:49Z",
+          id: "AMEJ7HjS9A2UcIibZdv2",
+          pending: true,
+          resourceId: "lewus",
+          timeseriesId: "gwmmsl",
+          value: 11,
+        }
+      ];
       const body = {
-        "email": "lewisdaly@me.com",
+        "email": "lewisdaly@mesdsd.com",
         pendingResources,
-        pendingReadings: [],
+        pendingReadings,
         subject: 'This is the email subject',
         message: 'This is the email message',
       };

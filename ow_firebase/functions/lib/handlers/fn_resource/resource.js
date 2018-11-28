@@ -204,7 +204,6 @@ module.exports = (functions) => {
         }
     }));
     app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
-        //TODO: build an email and send it.
         const { subject, message } = req.body;
         const pendingResources = req.body.pendingResources;
         const pendingReadings = req.body.pendingReadings;

@@ -34,8 +34,6 @@ export default class MapMarker extends PureComponent<Props, State> {
     }
   }
   render() {
-    // console.log("rendering marker", this.state.tracksViewChanges);
-
     return (
       <Marker
         tracksViewChanges={this.state.tracksViewChanges}

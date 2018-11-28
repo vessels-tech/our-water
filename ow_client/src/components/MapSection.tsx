@@ -349,7 +349,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           {/* Pincode */}
           {/* Villages */}
           {resources.map((resource: AnyResource) => {
-            console.log("rendering marker");
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
             return <Marker
               //@ts-ignore

@@ -1,0 +1,106 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/ldaly/.nvm/versions/node/v6.11.5/bin/node',
+1 verbose cli   '/Users/ldaly/.nvm/versions/node/v6.11.5/bin/npm',
+1 verbose cli   'i',
+1 verbose cli   '@google-cloud/firestore' ]
+2 info using npm@3.10.10
+3 info using node@v6.11.5
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readLocalPackageData
+7 silly fetchPackageMetaData @google-cloud/firestore@0.19.0
+8 silly fetchNamedPackageData @google-cloud/firestore
+9 silly mapToRegistry name @google-cloud/firestore
+10 silly mapToRegistry scope (from package name) @google-cloud
+11 verbose mapToRegistry no registry URL found in name for scope @google-cloud
+12 silly mapToRegistry using default registry
+13 silly mapToRegistry registry https://registry.npmjs.org/
+14 silly mapToRegistry data Result {
+14 silly mapToRegistry   raw: '@google-cloud/firestore',
+14 silly mapToRegistry   scope: '@google-cloud',
+14 silly mapToRegistry   escapedName: '@google-cloud%2ffirestore',
+14 silly mapToRegistry   name: '@google-cloud/firestore',
+14 silly mapToRegistry   rawSpec: '',
+14 silly mapToRegistry   spec: 'latest',
+14 silly mapToRegistry   type: 'tag' }
+15 silly mapToRegistry uri https://registry.npmjs.org/@google-cloud%2ffirestore
+16 verbose request uri https://registry.npmjs.org/@google-cloud%2ffirestore
+17 verbose request no auth needed
+18 info attempt registry request try #1 at 11:57:44 AM
+19 verbose request using bearer token for auth
+20 verbose request id cd52f8bb0c861d37
+21 http request GET https://registry.npmjs.org/@google-cloud%2ffirestore
+22 http 401 https://registry.npmjs.org/@google-cloud%2ffirestore
+23 verbose headers { date: 'Wed, 28 Nov 2018 02:27:44 GMT',
+23 verbose headers   'content-type': 'text/plain;charset=UTF-8',
+23 verbose headers   'content-length': '26',
+23 verbose headers   connection: 'keep-alive',
+23 verbose headers   'set-cookie': [ '__cfduid=d30d58978dcea5d78d04735b094c2266d1543372064; expires=Thu, 28-Nov-19 02:27:44 GMT; path=/; domain=.registry.npmjs.org; HttpOnly' ],
+23 verbose headers   'www-authenticate': 'Basic, Bearer',
+23 verbose headers   'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+23 verbose headers   vary: 'Accept-Encoding',
+23 verbose headers   server: 'cloudflare',
+23 verbose headers   'cf-ray': '480965ad4f4565bd-SYD' }
+24 silly get cb [ 401,
+24 silly get   { date: 'Wed, 28 Nov 2018 02:27:44 GMT',
+24 silly get     'content-type': 'text/plain;charset=UTF-8',
+24 silly get     'content-length': '26',
+24 silly get     connection: 'keep-alive',
+24 silly get     'set-cookie': [ '__cfduid=d30d58978dcea5d78d04735b094c2266d1543372064; expires=Thu, 28-Nov-19 02:27:44 GMT; path=/; domain=.registry.npmjs.org; HttpOnly' ],
+24 silly get     'www-authenticate': 'Basic, Bearer',
+24 silly get     'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+24 silly get     vary: 'Accept-Encoding',
+24 silly get     server: 'cloudflare',
+24 silly get     'cf-ray': '480965ad4f4565bd-SYD' } ]
+25 silly fetchPackageMetaData Error: Registry returned 401 for GET on https://registry.npmjs.org/@google-cloud%2ffirestore
+25 silly fetchPackageMetaData     at makeError (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+25 silly fetchPackageMetaData     at CachingRegistryClient.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:280:14)
+25 silly fetchPackageMetaData     at Request._callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+25 silly fetchPackageMetaData     at Request.self.callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:187:22)
+25 silly fetchPackageMetaData     at emitTwo (events.js:106:13)
+25 silly fetchPackageMetaData     at Request.emit (events.js:191:7)
+25 silly fetchPackageMetaData     at Request.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+25 silly fetchPackageMetaData     at emitOne (events.js:96:13)
+25 silly fetchPackageMetaData     at Request.emit (events.js:188:7)
+25 silly fetchPackageMetaData     at IncomingMessage.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:969:12)
+25 silly fetchPackageMetaData  error for @google-cloud/firestore@0.19.0 { Error: Registry returned 401 for GET on https://registry.npmjs.org/@google-cloud%2ffirestore
+25 silly fetchPackageMetaData     at makeError (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+25 silly fetchPackageMetaData     at CachingRegistryClient.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:280:14)
+25 silly fetchPackageMetaData     at Request._callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+25 silly fetchPackageMetaData     at Request.self.callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:187:22)
+25 silly fetchPackageMetaData     at emitTwo (events.js:106:13)
+25 silly fetchPackageMetaData     at Request.emit (events.js:191:7)
+25 silly fetchPackageMetaData     at Request.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+25 silly fetchPackageMetaData     at emitOne (events.js:96:13)
+25 silly fetchPackageMetaData     at Request.emit (events.js:188:7)
+25 silly fetchPackageMetaData     at IncomingMessage.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:969:12)
+25 silly fetchPackageMetaData   pkgid: '@google-cloud/firestore',
+25 silly fetchPackageMetaData   statusCode: 401,
+25 silly fetchPackageMetaData   code: 'E401' }
+26 silly rollbackFailedOptional Starting
+27 silly rollbackFailedOptional Finishing
+28 silly runTopLevelLifecycles Finishing
+29 silly install printInstalled
+30 verbose stack Error: Registry returned 401 for GET on https://registry.npmjs.org/@google-cloud%2ffirestore
+30 verbose stack     at makeError (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+30 verbose stack     at CachingRegistryClient.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:280:14)
+30 verbose stack     at Request._callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+30 verbose stack     at Request.self.callback (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:187:22)
+30 verbose stack     at emitTwo (events.js:106:13)
+30 verbose stack     at Request.emit (events.js:191:7)
+30 verbose stack     at Request.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+30 verbose stack     at emitOne (events.js:96:13)
+30 verbose stack     at Request.emit (events.js:188:7)
+30 verbose stack     at IncomingMessage.<anonymous> (/Users/ldaly/.nvm/versions/node/v6.11.5/lib/node_modules/npm/node_modules/request/request.js:969:12)
+31 verbose statusCode 401
+32 verbose pkgid @google-cloud/firestore
+33 verbose cwd /Users/ldaly/developer/vessels/our-water/ow_firebase/functions
+34 error Darwin 17.7.0
+35 error argv "/Users/ldaly/.nvm/versions/node/v6.11.5/bin/node" "/Users/ldaly/.nvm/versions/node/v6.11.5/bin/npm" "i" "@google-cloud/firestore"
+36 error node v6.11.5
+37 error npm  v3.10.10
+38 error code E401
+39 error Registry returned 401 for GET on https://registry.npmjs.org/@google-cloud%2ffirestore
+40 error If you need help, you may report this error at:
+40 error     <https://github.com/npm/npm/issues>
+41 verbose exit [ 1, true ]

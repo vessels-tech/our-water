@@ -37,6 +37,7 @@ import { PendingTimeseries } from '../typings/models/PendingTimeseries';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { PendingReading } from '../typings/models/PendingReading';
 import { valid } from 'react-native-joi';
+import { OrgType } from '../typings/models/OrgType';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -76,11 +77,12 @@ class NewReadingScreen extends Component<Props> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    //TODO: fix this later:
-    let timeseriesString = 'default_1';
-    if (this.props.resource.timeseries[0]) {
-      timeseriesString = this.props.resource.timeseries[0].name
+    let resourceType = 'well';
+    if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
+      resourceType = props.resource.resourceType
     }
+    const timeseries: Array<{ name: string, parameter: string }> = this.props.config.getDefaultTimeseries(resourceType);
+    let timeseriesString = timeseries[0].parameter;
 
     this.state = {
       enableSubmitButton: false,
@@ -198,8 +200,6 @@ class NewReadingScreen extends Component<Props> {
 
       return;
     }
-
-    console.log("validatedReading:", validateResult.result);
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
 
@@ -342,6 +342,12 @@ class NewReadingScreen extends Component<Props> {
       new_reading_timeseries,
     }}} = this.props;
 
+    let resourceType = 'well';
+    if (resource.pending || resource.type === OrgType.MYWELL) {
+      resourceType = resource.resourceType
+    }
+    const timeseries: Array<{ name: string, parameter: string}> = this.props.config.getDefaultTimeseries(resourceType);
+
     return (
       <View style={{
         flex: 1,
@@ -396,12 +402,13 @@ class NewReadingScreen extends Component<Props> {
             mode={'dropdown'}
             onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
           }>
+            {timeseries.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
           {/* TODO: fix for pending reading */}
-            {resource.pending ? 
-              resource.timeseries.map((ts: PendingTimeseries)  => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter}/>) 
+            {/* {resource.pending ? 
+              resource.timeseries.map((ts: PendingTimeseries) => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter}/>) 
               :
               resource.timeseries.map((ts: AnyTimeseries) => <Picker.Item key={ts.id} label={ts.name} value={ts.id} />) 
-            }
+            } */}
           </Picker>
         </View>
         {this.getImageSection()}

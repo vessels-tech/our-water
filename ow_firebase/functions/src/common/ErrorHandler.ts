@@ -1,12 +1,12 @@
 import AppError from "./AppError";
 
 export default function (err, req, res, next) {
-  console.log("Error", err);
+  console.log("Error", JSON.stringify(err, null, 2));
 
   if (typeof err === typeof AppError) {
     const appError: AppError = err;
     return res.status(appError.statusCode)
-      .json({ status: appError.statusCode, message: appError.message });
+      .json({ status: appError.statusCode, message: appError});
   }
 
   if (err.status) {

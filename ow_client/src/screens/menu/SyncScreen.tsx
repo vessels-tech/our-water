@@ -43,6 +43,7 @@ export interface State {
 }
 
 const getErrorMessageForSyncError = (syncError: string, translation: TranslationFile): string => {
+  console.log("getting error message for sync error", syncError);
   switch(syncError) {
     case SyncError.StationNotCreated: return translation.templates.sync_error_station_not_created;
     case SyncError.GetTimeseriesIdTransport: return translation.templates.sync_error_get_timeseries_id_transport;
