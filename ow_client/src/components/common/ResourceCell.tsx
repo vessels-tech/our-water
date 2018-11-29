@@ -105,12 +105,8 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 }
 
 const mapStateToProps = (state: AppState, props: OwnProps) => {
-  const allShortIdsMeta = state.shortIdMeta;
-  // let shortIdMeta: ActionMeta = 
-  let shortIdMeta = state.shortIdMeta.get(props.resource.id);
-  let shortId = state.shortIdCache.get(props.resource.id);
-
-  //TODO: handle case wher
+  let shortIdMeta = state.shortIdMeta[props.resource.id];
+  let shortId = state.shortIdCache[props.resource.id];
 
   return {
     shortIdMeta,

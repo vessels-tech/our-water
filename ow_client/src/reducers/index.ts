@@ -60,8 +60,10 @@ export type AppState = {
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
   tsReadings: TimeseriesReadings, //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
-  shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
-  shortIdCache: Map<string, string>, //resourceId => shortId
+  shortIdMeta: CacheType<ActionMeta>,
+  shortIdCache: CacheType<string>,
+  // shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
+  // shortIdCache: Map<string, string>, //resourceId => shortId
   unsubscribeFromUser: () => void,
   
   //Firebase
@@ -116,8 +118,8 @@ export const initialState: AppState = {
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
   tsReadings: {},
-  shortIdMeta: new Map<string, ActionMeta>(),
-  shortIdCache: new Map<string, string>(),
+  shortIdMeta: {},
+  shortIdCache: {},
   unsubscribeFromUser: () => console.log("no user to unsubscribe from"),
 
   //Firebase
@@ -352,7 +354,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.GET_SHORT_ID_REQUEST: {
       const shortIdMeta = state.shortIdMeta;
-      shortIdMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+      // shortIdMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+      shortIdMeta[action.resourceId] = { loading: true, error: false, errorMessage: '' };
 
       return Object.assign({}, state, { shortIdMeta });
     }
@@ -363,13 +366,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (action.result.type === ResultType.ERROR) {
         meta = { loading: false, error: true, errorMessage: action.result.message };
-        shortIdMeta.set(action.resourceId, meta);
+        // shortIdMeta.set(action.resourceId, meta);
+        shortIdMeta[action.resourceId] = meta;
 
         return Object.assign({}, state, { shortIdMeta });
       }
 
-      shortIdCache.set(action.resourceId, action.result.result);
-      shortIdMeta.set(action.resourceId, meta);
+      shortIdCache[action.resourceId] = action.result.result;
+      shortIdMeta[action.resourceId] = meta;
+      // shortIdCache.set(action.resourceId, action.result.result);
+      // shortIdMeta.set(action.resourceId, meta);
 
       return Object.assign({}, state, { shortIdCache, shortIdMeta });
     }
@@ -429,8 +435,14 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const shortIdCache = state.shortIdCache;
 
       action.shortIds.forEach((shortId, idx) => {
-        const longId = action.longIds[idx];
-        shortIdCache.set(longId, shortId);
+        const longId: string = action.longIds[idx];
+        try {
+          shortIdCache[longId] = shortId;
+        } catch(err) {
+          console.log('error', err);
+        }
+        
+        // shortIdCache.set(longId, shortId);
       })
 
       return Object.assign({}, state, { shortIdCache });

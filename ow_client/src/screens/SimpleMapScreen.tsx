@@ -9,7 +9,7 @@ import { bgLight } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { TranslationFile } from 'ow_translations';
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { LocationType, Location } from '../typings/Location';
 import { connect } from 'react-redux'
@@ -44,7 +44,7 @@ export interface StateProps {
   resourcesMeta: SyncMeta,
   translation: TranslationFile,
   pendingResources: PendingResource[],
-  shortIdCache: Map<string, string>,
+  shortIdCache: CacheType<string>,
 }
 
 export interface ActionProps {

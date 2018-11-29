@@ -8,11 +8,12 @@ import { randomPrettyColorForId, getShortIdOrFallback, getGroundwaterAvatar } fr
 import { Text, Avatar, Icon } from 'react-native-elements';
 import { ResourceType } from '../../enums';
 import { OrgType } from '../../typings/models/OrgType';
+import { CacheType } from '../../reducers';
 
 export interface Props {
   resource: AnyResource | PendingResource, 
   onCalloutPressed: (resource: AnyResource | PendingResource) => any,
-  shortIdCache: Map<string, string>, //resourceId => shortId
+  shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface State {

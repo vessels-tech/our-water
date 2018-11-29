@@ -14,7 +14,7 @@ import { AnyResource, MyWellResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingResource } from '../typings/models/PendingResource';
 import { Text } from 'react-native-elements';
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import MapCallout from './common/MapCallout';
 import MapMarker from './common/MapMarker';
@@ -29,7 +29,7 @@ export type MapRegion = {
 
 
 export interface StateProps {
-  shortIdCache: Map<string, string>, //resourceId => shortId
+  shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface ActionProps {

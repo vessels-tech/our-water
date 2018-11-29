@@ -15,7 +15,7 @@ import { View, TouchableNativeFeedback } from 'react-native';
 import { randomPrettyColorForId, navigateTo, getShortIdOrFallback } from '../utils';
 import { ResourceType } from '../enums';
 import FavouriteResourceList from '../components/FavouriteResourceList';
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
 import { AnyResource } from '../typings/models/Resource';
@@ -31,7 +31,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-  shortIdCache: Map<string, string>, //resourceId => shortId
+  shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface ActionProps {

@@ -17,6 +17,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
+import { CacheType } from '../reducers';
 
 
 /**
@@ -549,10 +550,10 @@ export function formatShortId(shortId: string): SomeResult<string> {
 }
 
 
-export function getShortIdOrFallback(id: string, cache: Map<string, string>, fallback?: string): string {
+export function getShortIdOrFallback(id: string, cache: CacheType<string>, fallback?: string): string {
   let title = fallback || id;
-  if (cache.has(id)) {
-    const maybeShortId = cache.get(id);
+  if (cache[id]) {
+    const maybeShortId = cache[id];
     if (!maybeShortId) {
       return title;
     }
