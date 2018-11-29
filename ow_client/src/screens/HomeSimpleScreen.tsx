@@ -22,7 +22,10 @@ export interface OwnProps {
 
 export interface StateProps {
   userId: string,
-  translation: TranslationFile,
+  menu_well: string,
+  menu_rainfall: string,
+  menu_water_quality: string,
+  menu_checkdam: string,
 }
 
 export interface ActionProps {
@@ -59,9 +62,8 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * //TODO: Load only the icons based on user's settings 
    */
   getMenuButtons() {
-
-    const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props.translation.templates;
-
+    const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props;
+    
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
         config: this.props.config,
@@ -124,7 +126,10 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     userId,
-    translation: state.translation,
+    menu_well: state.translation.templates.menu_well,
+    menu_rainfall: state.translation.templates.menu_rainfall,
+    menu_water_quality: state.translation.templates.menu_water_quality,
+    menu_checkdam: state.translation.templates.menu_checkdam,
   }
 }
 

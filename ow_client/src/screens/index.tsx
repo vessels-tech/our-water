@@ -69,6 +69,7 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 }
 
 export async function getCached(id: string): Promise<any | null> {
+  console.log("getting cached", id);
   try {
     const json = await AsyncStorage.getItem(id);
     if (!json) {
@@ -78,7 +79,8 @@ export async function getCached(id: string): Promise<any | null> {
     const parsed = JSON.parse(json);
     return parsed;
   } catch(err) {
-    maybeLog("getCached, error deserializing json");
+    maybeLog("getCached, " + err.message);
+    console.log("err", err);
     return null;
   }
 }

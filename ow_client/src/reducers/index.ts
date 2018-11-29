@@ -22,9 +22,9 @@ const orgId = EnvConfig.OrgId;
 const RESOURCE_CACHE_MAX_SIZE = 500;
 
 const defaultLanguage = TranslationEnum.en_AU;
-const translations = translationsForTranslationOrg(orgId);
-const translationOptions = possibleTranslationsForOrg(orgId);
-const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
+const defaultTranslations = translationsForTranslationOrg(orgId);
+const defaultTranslationOptions = possibleTranslationsForOrg(orgId);
+const defaultTranslation = getTranslationForLanguage(defaultTranslations, defaultLanguage);
 
 export type CacheType<T> = {
   [index: string]: T
@@ -97,8 +97,8 @@ export const initialState: AppState = {
   locationMeta: { loading: false },
   language: defaultLanguage, //default to australian english, we should probably change this.
   translation: defaultTranslation,
-  translations,
-  translationOptions,
+  translations: defaultTranslations,
+  translationOptions: defaultTranslationOptions,
   mobile: null,
   email: null,
   name: null,
@@ -190,6 +190,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.CHANGE_TRANSLATION_REQUEST: {
+      const translations = state.translations;
       const language = action.language;
       const translation = getTranslationForLanguage(translations, language);
       return Object.assign({}, state, { language, translation } );
@@ -391,6 +392,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_USER_RESPONSE: {
       const favouriteResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       const recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+      const translations = state.translations;
 
       let favouriteResources = state.favouriteResources;
       let recentResources = state.recentResources;

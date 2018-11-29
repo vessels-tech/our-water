@@ -12,8 +12,8 @@ export class FirebaseConfig {
 
   static getAllConfig() {
     console.log("Getting Firebase Config");
-    return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
-    // return config.fetch(10)
+    // return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
+    return config.fetch(10)
       .then(() => config.activateFetched())
       .then(() => config.getKeysByPrefix())
       .then(allKeys => allKeys.map((key: String) => key.toString()))
