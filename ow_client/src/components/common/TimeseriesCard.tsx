@@ -78,8 +78,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
 
-    console.log("readings are", readings);
-
     if (!readings) {
       return this.getNotEnoughReadingsDialog();
     }  
@@ -94,8 +92,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
         </View>
       );
     }
-
-    console.log('pending readings: ', this.props.pendingReadings.length);
 
     if (readings.readings.length === 0 && this.props.pendingReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();

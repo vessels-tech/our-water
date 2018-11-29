@@ -111,8 +111,6 @@ class EditResourceScreen extends Component<Props> {
 
     id = [ resource.id, Validators.required];
 
-    console.log("getEditFormBuilder", resource);
-
     if (resource.pending) {
       lat = [`${resource.coords.latitude}`, Validators.required];
       lng = [`${resource.coords.longitude}`, Validators.required];

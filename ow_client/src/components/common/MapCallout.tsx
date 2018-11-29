@@ -33,10 +33,7 @@ export default class MapCallout extends React.PureComponent<Props, State> {
 
     return (
       <Callout
-        onPress={() => {
-          console.log("onCalloutPressed");
-          onCalloutPressed(resource);
-        }}
+        onPress={() => onCalloutPressed(resource)}
         tooltip
       >
         <View style={{

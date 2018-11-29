@@ -39,6 +39,7 @@ import EditReadingsScreen from './EditReadingsScreen';
 import * as AsyncStorage from 'rn-async-storage';
 import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
+import { maybeLog } from '../utils';
 
 
 let loggerMiddleware: any = null;
@@ -115,7 +116,7 @@ export async function registerScreens(config: ConfigFactory) {
     shortIdCache = JSON.parse(shortIdCacheJson);
     shortIdMeta = JSON.parse(shortIdMetaJson);
   } catch (err) {
-    console.log("error getting cached resources", err);
+    maybeLog("error getting cached resources ", err.message);
   }
 
   let middleware;
@@ -140,9 +141,6 @@ export async function registerScreens(config: ConfigFactory) {
   if (shortIdMeta) {
     initialState.shortIdMeta = shortIdMeta;
   }
-
-  console.log('shortIdCache', shortIdCache);
-  console.log('shortIdMeta', shortIdMeta);
 
   const store = createStore(
     OWApp, 

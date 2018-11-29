@@ -417,7 +417,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <FieldGroup
           control={this.profileForm}
           render={(control) => {
-            console.log("Control is", control);
             return (
               <View 
                 style={{

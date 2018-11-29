@@ -137,9 +137,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onCalloutPressed(resource: AnyResource | PendingResource) {
-    console.log('SimpleMapScreen: onCalloutPressed()', resource);
     const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
-    console.log("navigating to screen.SimpleResourceDetailScreen");
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
       config: this.props.config,
