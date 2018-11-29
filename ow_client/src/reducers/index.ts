@@ -9,7 +9,7 @@ import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
 import { getTimeseriesReadingKey, maybeLog } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
-import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
+import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
@@ -629,16 +629,23 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.UPDATED_TRANSLATION: {
       const language = state.language;
       let newLanguage;
+      let translation = state.translation;
       const translations = action.translationFiles;
       const translationOptions = action.translationOptions;
 
       if (translationOptions.indexOf(language) === -1) {
         newLanguage = translationOptions[0];
         maybeLog(`Removed translation: ${language}. Forcing user to switch to ${newLanguage}`)
-        return Object.assign({}, state, { language: newLanguage, translations, translationOptions });
+        // TD remove
+        //@ts-ignore
+        translation = translations[newLanguage];
+        return Object.assign({}, state, { language: newLanguage, translation,  translations, translationOptions });
       }
 
-      return Object.assign({}, state, { translations, translationOptions });
+       // TD remove
+        //@ts-ignore
+      translation = translations[language];
+      return Object.assign({}, state, { translation, translations, translationOptions });
     }
     case ActionType.VERIFY_CODE_AND_LOGIN_REQUEST: {
       const userIdMeta = { loading: true, error: false, errorMessage: '' };

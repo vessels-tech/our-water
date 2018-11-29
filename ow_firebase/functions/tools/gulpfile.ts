@@ -9,18 +9,16 @@ const PROJECT_ID = 'our-water';
 
 gulp.task('test_translation_parsing', async () => {
 
-  const mywellTranslationOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
-  const mywellTranslations = translationsForTranslationOrg(TranslationOrg.mywell);
-  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.ggmn);
-  const ggmnTranslations = translationsForTranslationOrg(TranslationOrg.ggmn);
-
-  const mywellTranslationOptionsJSON = JSON.stringify(mywellTranslationOptions, null, 2);
-  const mywellTranslationsJSON = JSON.stringify(mywellTranslations, functionReplacer, 2);
-  const ggmnTranslationsOptionsJSON = JSON.stringify(ggmnTranslationsOptions, null, 2);
-  const ggmnTranslationsJSON = JSON.stringify(ggmnTranslations, functionReplacer, 2);
-
+  const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
+  const mywellTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.mywell), functionReplacer, 2);
+  const ggmnTranslationsOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.ggmn), null, 2);
+  const ggmnTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.ggmn), functionReplacer, 2);
+  
   const mywellTranslation = translationFromJSON(mywellTranslationsJSON);
   const ggmnTranslation = translationFromJSON(ggmnTranslationsJSON);
+  
+  console.log(mywellTranslation.en_AU.templates.settings_connect_to_pending_title);
+  console.log(ggmnTranslation.en_AU.templates.settings_connect_to_pending_title);
 });
 
 gulp.task('deploy_remote_config', async () => {

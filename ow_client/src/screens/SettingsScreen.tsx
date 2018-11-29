@@ -63,7 +63,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.props.disconnectFromExternalService(this.externalApi);
   }
 
-
   /**
    * Connect to button is only available for variants which connect to external services
    * 
@@ -204,7 +203,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         }}
       />
     );
-
   }
 
   getSyncButton() {
