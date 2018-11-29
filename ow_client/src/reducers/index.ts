@@ -7,10 +7,10 @@ import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { getTimeseriesReadingKey } from "../utils";
+import { getTimeseriesReadingKey, maybeLog } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum, TranslationFile } from "ow_translations";
+import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
 import { translationsForTranslationOrg, getTranslationForLanguage } from 'ow_translations';
 import * as EnvConfig from '../utils/EnvConfig';
 import { AnyResource } from "../typings/models/Resource";
@@ -23,6 +23,7 @@ const RESOURCE_CACHE_MAX_SIZE = 500;
 
 const defaultLanguage = TranslationEnum.en_AU;
 const translations = translationsForTranslationOrg(orgId);
+const translationOptions = possibleTranslationsForOrg(orgId);
 const defaultTranslation = getTranslationForLanguage(translations, defaultLanguage);
 
 export type CacheType<T> = {
@@ -41,6 +42,8 @@ export type AppState = {
   //TODO: cache this locally as well as on firebase
   language: TranslationEnum,
   translation: TranslationFile,
+  translations: TranslationFiles,
+  translationOptions: TranslationEnum[],
   mobile: string | null,
   email: string | null,
   name: string | null,
@@ -92,6 +95,8 @@ const initialState: AppState = {
   locationMeta: { loading: false },
   language: defaultLanguage, //default to australian english, we should probably change this.
   translation: defaultTranslation,
+  translations,
+  translationOptions,
   mobile: null,
   email: null,
   name: null,
@@ -615,7 +620,20 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       
       return state;
     }
+    case ActionType.UPDATED_TRANSLATION: {
+      const language = state.language;
+      let newLanguage;
+      const translations = action.translationFiles;
+      const translationOptions = action.translationOptions;
 
+      if (translationOptions.indexOf(language) === -1) {
+        newLanguage = translationOptions[0];
+        maybeLog(`Removed translation: ${language}. Forcing user to switch to ${newLanguage}`)
+        return Object.assign({}, state, { language: newLanguage, translations, translationOptions });
+      }
+
+      return Object.assign({}, state, { translations, translationOptions });
+    }
     case ActionType.VERIFY_CODE_AND_LOGIN_REQUEST: {
       const userIdMeta = { loading: true, error: false, errorMessage: '' };
 

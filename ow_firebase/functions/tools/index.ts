@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
 import { BaseApiType, ResourceType } from "ow_types";
-import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles } from 'ow_translations';
+import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
 
 
 export async function getToken(admin: any): Promise<string> {
@@ -182,7 +182,7 @@ export async function getNewConfig(): Promise<any> {
 
   const mywellTranslationOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
   const mywellTranslations = translationsForTranslationOrg(TranslationOrg.mywell);
-  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
+  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.ggmn);
   const ggmnTranslations = translationsForTranslationOrg(TranslationOrg.ggmn);
 
   const mywellTranslationOptionsJSON = JSON.stringify(mywellTranslationOptions, null, 2);

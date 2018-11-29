@@ -69,6 +69,10 @@ export async function registerScreens(config: ConfigFactory) {
    : applyMiddleware(thunkMiddleware);
   const store = createStore(OWApp, middleware);
 
+  //Update the translations to use the remote config
+  store.dispatch(appActions.updatedTranslation(config.getTranslationFiles(), config.getTranslationOptions()));
+  
+
 
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {

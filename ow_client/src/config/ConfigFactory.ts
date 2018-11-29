@@ -45,7 +45,7 @@ export type RemoteConfig = {
 
   allowsUserRegistration: boolean,
   translations: TranslationFiles,
-  translationOptions: string[],
+  translationOptions: TranslationEnum[],
 }
 
 /**
@@ -246,5 +246,14 @@ export class ConfigFactory {
    */
   allowsUserRegistration() {
     return this.remoteConfig.allowsUserRegistration;
+  }
+
+
+  getTranslationFiles(): TranslationFiles {
+    return this.remoteConfig.translations;
+  }
+
+  getTranslationOptions(): TranslationEnum[] {
+    return this.remoteConfig.translationOptions;
   }
 }

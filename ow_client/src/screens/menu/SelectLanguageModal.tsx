@@ -24,6 +24,8 @@ export interface OwnProps {
 export interface StateProps {
   selectedTranslation: TranslationEnum,
   translation: TranslationFile,
+  translations: TranslationFiles,
+  translationOptions: TranslationEnum[],
 }
 
 export interface ActionProps {
@@ -37,8 +39,6 @@ export interface State {
 
 class ClassName extends Component<OwnProps & StateProps & ActionProps> {
   userApi: UserApi;
-  translationEnumList: TranslationEnum[];
-  allTranslations: TranslationFiles;
   state: State = {
 
   };
@@ -47,15 +47,11 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
     super(props);
 
     this.userApi = props.config.userApi;
-    const orgId = EnvConfig.OrgId;
-    this.translationEnumList = possibleTranslationsForOrg(orgId);
-    this.allTranslations = translationsForTranslationOrg(orgId);
   }
 
   getTranslationLabel(tr: TranslationEnum) {
-    //this is not type safe!
     //@ts-ignore
-    const translation: TranslationFile = this.allTranslations[tr];
+    const translation: TranslationFile = this.props.translations[tr];
     if (!translation) {
       return '';
     }
@@ -95,7 +91,7 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
             this.props.navigator.dismissLightBox();
           }}
         >
-          {this.translationEnumList.map(tr => <Picker.Item key={tr} label={this.getTranslationLabel(tr)} value={tr} />)}
+          {this.props.translationOptions.map(tr => <Picker.Item key={tr} label={this.getTranslationLabel(tr)} value={tr} />)}
         </Picker>
       </View>
     )
@@ -107,6 +103,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     selectedTranslation: state.language,
     translation: state.translation,
+    translations: state.translations,
+    translationOptions: state.translationOptions,
   }
 }
 

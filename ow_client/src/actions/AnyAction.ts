@@ -6,7 +6,7 @@ import { Location } from "../typings/Location";
 import { Region } from "react-native-maps";
 import { Action } from "redux";
 import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
-import { TranslationEnum } from "ow_translations";
+import { TranslationEnum, TranslationFiles } from "ow_translations";
 import { ShortId } from "../typings/models/ShortId";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
@@ -75,6 +75,7 @@ export type AnyAction =
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
   StartExternalSyncActionResponse |
+  UpdatedTranslationAction |
   VerifyCodeAndLoginActionRequest |
   VerifyCodeAndLoginActionResponse
 ;
@@ -139,5 +140,6 @@ export type SendVerifyCodeActionRequest = {type: ActionType.SEND_VERIFY_CODE_REQ
 export type SendVerifyCodeActionResponse = { type: ActionType.SEND_VERIFY_CODE_RESPONSE, result: SomeResult<RNFirebase.ConfirmationResult>};
 export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST};
 export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+export type UpdatedTranslationAction = { type: ActionType.UPDATED_TRANSLATION, translationFiles: TranslationFiles, translationOptions: TranslationEnum[]};
 export type VerifyCodeAndLoginActionRequest = {type: ActionType.VERIFY_CODE_AND_LOGIN_REQUEST }
 export type VerifyCodeAndLoginActionResponse = {type: ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE, result: SomeResult<FullUser>};

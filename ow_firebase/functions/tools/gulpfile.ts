@@ -2,7 +2,7 @@ import * as gulp from 'gulp';
 import { getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig } from '.';
 import { admin } from '../src/test/TestFirebase';
 const request = require('request-promise-native');
-import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg } from 'ow_translations';
+import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg, functionReplacer, translationFromJSON} from 'ow_translations';
 
 const PROJECT_ID = 'our-water';
 
@@ -11,7 +11,7 @@ gulp.task('test_translation_parsing', async () => {
 
   const mywellTranslationOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
   const mywellTranslations = translationsForTranslationOrg(TranslationOrg.mywell);
-  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
+  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.ggmn);
   const ggmnTranslations = translationsForTranslationOrg(TranslationOrg.ggmn);
 
   const mywellTranslationOptionsJSON = JSON.stringify(mywellTranslationOptions, null, 2);
