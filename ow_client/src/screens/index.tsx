@@ -40,6 +40,7 @@ import * as AsyncStorage from 'rn-async-storage';
 import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
+import { parse } from 'querystring';
 
 
 let loggerMiddleware: any = null;
@@ -68,6 +69,21 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
   });
 }
 
+export async function getCached(id: string): Promise<any | null> {
+  const json = await AsyncStorage.getItem(id);
+  if (!json) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(json);
+    return parsed;
+  } catch(err) {
+    maybeLog("getCached, error deserializing json");
+    return null;
+  }
+}
+
 export async function registerScreens(config: ConfigFactory) {
 
   const persistMiddleware = () => {
@@ -94,30 +110,10 @@ export async function registerScreens(config: ConfigFactory) {
     }
   }
 
-  let resources;
-  let resourcesCache;
-  let shortIdCache;
-  let shortIdMeta;
-
-  try {
-    const resourcesJson = await AsyncStorage.getItem('ourwater_resources');
-    const resourcesCacheJson = await AsyncStorage.getItem('ourwater_resourcesCache');
-    const shortIdCacheJson = await AsyncStorage.getItem('ourwater_shortIdCache');
-    const shortIdMetaJson = await AsyncStorage.getItem('ourwater_shortIdMeta');
-    if (!resourcesJson ||
-       !resourcesCacheJson || 
-        !shortIdCacheJson || 
-        !shortIdMetaJson
-    ) {
-      throw new Error('could not get cached resources');
-    }
-    resources = JSON.parse(resourcesJson);
-    resourcesCache = JSON.parse(resourcesCacheJson);
-    shortIdCache = JSON.parse(shortIdCacheJson);
-    shortIdMeta = JSON.parse(shortIdMetaJson);
-  } catch (err) {
-    maybeLog("error getting cached resources ", err.message);
-  }
+  let resources = await getCached('ourwater_resources');
+  let resourcesCache = await getCached('ourwater_resourcesCache');
+  let shortIdCache = await getCached('ourwater_shortIdCache');
+  let shortIdMeta = await getCached('ourwater_shortIdMeta');
 
   let middleware;
   if (loggerMiddleware) {

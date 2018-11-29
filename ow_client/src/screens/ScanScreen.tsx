@@ -4,11 +4,11 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
-import { randomPrettyColorForId, navigateTo } from '../utils';
+import { randomPrettyColorForId, navigateTo, getShortIdOrFallback } from '../utils';
 //@ts-ignore
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { bgMed } from '../utils/Colors';
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
@@ -19,6 +19,9 @@ import { parse } from 'url';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { TranslationFile } from 'ow_translations/src/Types';
+import { AnyResource } from '../typings/models/Resource';
+import * as appActions from '../actions/index';
+
 
 const orgId = EnvironmentConfig.OrgId;
 
@@ -26,17 +29,18 @@ const orgId = EnvironmentConfig.OrgId;
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
-  appApi: BaseApi,
 }
 
 export interface StateProps {
   userId: string,
   translation: TranslationFile,
+  shortIdCache: CacheType<string>,
 
 }
 
 export interface ActionProps {
-
+  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<AnyResource>>,
+  addRecent: (api: BaseApi, userId: string, resource: AnyResource) => any,
 }
 
 export interface State { 
@@ -45,6 +49,8 @@ export interface State {
 
 
 class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
+  appApi: BaseApi;
+
   state: State = {
     isScreenFocussed: true,
   };
@@ -53,7 +59,13 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+    //@ts-ignore
+    this.appApi = props.config.getAppApi();
+
     this.navigationListener = this.props.navigator.addOnNavigatorEvent((event: any) => this.onNavigationEvent(event));
+
+    /* binds */
+    this.onScan = this.onScan.bind(this);
   }
 
   componentWillUnmount() {
@@ -80,6 +92,14 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     return;
   }
 
+  handleResourceLookupError() {
+    //TODO: translate a different error message?
+    const { qr_code_not_found } = this.props.translation.templates;
+    ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
+    //TODO: reset scanner
+    return;
+  }
+
   /**
    * The scanner can scan any type of barcode or qr code.
    * we need to verify that it is an OurWater QR code, 
@@ -87,7 +107,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
    * 
    * //TODO: eventally handle this with deep linking. For now, don't worry about it.
    */
-  onScan(result: any) {
+  async onScan(result: any) {
     if (!result || !result.data) {
       return this.handleScanError();
     }
@@ -96,7 +116,6 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     try {
       parsedData = JSON.parse(result.data);
     } catch(err) {
-    
       return this.handleScanError();
     }
 
@@ -105,12 +124,16 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
       return this.handleScanError();
     }
 
-    const scanResult = validationResult.result;
+    const resourceResult = await this.props.getResource(this.appApi, validationResult.result.id, this.props.userId);
+    if (resourceResult.type === ResultType.ERROR) {
+      return this.handleResourceLookupError();
+    }
+    this.props.addRecent(this.appApi, this.props.userId, resourceResult.result);
+    const shortId = getShortIdOrFallback(resourceResult.result.id, this.props.shortIdCache);
 
     //Navigate to a standalone resource view
-    const resourceId = scanResult.id;
-    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', resourceId, {
-      resourceId,
+    navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
+      resourceId: validationResult.result.id,
       config: this.props.config,
       userId: this.props.userId
     });
@@ -131,7 +154,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
           reactivate={true}
           showMarker={true}
           reactivateTimeout={1000 * 10}
-          onRead={(result: any) => this.onScan(result)}
+          onRead={this.onScan}
           topContent={
             <Text style={{ fontWeight: '800', fontSize: 20 }}>{scan_hint}</Text>
           }
@@ -158,11 +181,18 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     userId,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
+    getResource: (api: BaseApi, resourceId: string, userId: string) => {
+      return dispatch(appActions.getResource(api, resourceId, userId))
+    },
+    addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
+      dispatch(appActions.addRecent(api, userId, resource))
+    },
   }
 }
 
