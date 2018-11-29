@@ -308,10 +308,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getResourceView() {
     const { hasSelectedResource, selectedResource } = this.state;
-    const { userId, translation: { templates: { resource_detail_new, } } } = this.props;
-
-    //TODO: translate
-    const settings_edit_resource = 'Edit Station';
+    const { userId, translation: { templates: { resource_detail_new, settings_edit_resource } } } = this.props;
 
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;

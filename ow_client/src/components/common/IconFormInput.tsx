@@ -129,9 +129,8 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
         // format={dateFormat}
         minDate={minDate}
         maxDate={maxDate}
-        //TODO: translate
-        confirmBtnText="Confirm"
-        cancelBtnText="Cancel"
+        confirmBtnText={calendar_input_confirm}
+        cancelBtnText={calendar_input_cancel}
         customStyles={{
           dateInput: {
             // marginLeft: 36

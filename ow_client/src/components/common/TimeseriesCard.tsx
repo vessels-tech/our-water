@@ -34,6 +34,7 @@ export interface OwnProps {
 
 export interface StateProps {
   tsReadings: TimeseriesReadings,
+  timeseries_card_not_enough: string,
 }
 
 export interface ActionProps {
@@ -62,8 +63,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getNotEnoughReadingsDialog() {
-    //TODO: translations
-    const timeseries_card_not_enough = 'Not enough readings for this time range.';
+    const { timeseries_card_not_enough } = this.props;
     return (
       <View style={{
         flex: 10,
@@ -196,6 +196,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     tsReadings: state.tsReadings,
+    timeseries_card_not_enough: state.translation.templates.timeseries_card_not_enough,
   }
 }
 

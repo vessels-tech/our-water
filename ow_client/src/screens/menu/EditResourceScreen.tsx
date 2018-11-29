@@ -314,13 +314,11 @@ class EditResourceScreen extends Component<Props> {
       new_resource_owner_name_label, 
       new_resource_submit_button, 
       new_resource_asset_type_label,
+      general_is_required_error,
+      new_resource_name,
     } = this.props.translation.templates;
 
     
-    //TODO: translate
-    const general_is_required_error = 'is required.';
-    const new_resource_name = 'Name';
-
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
         key: t,
@@ -423,12 +421,9 @@ class EditResourceScreen extends Component<Props> {
   }
 
   getDeleteButton() {
-    // const {
-    //   edit_resource_delete_button
-    // } = this.props.translation.templates;
-
-    //TODO: translate
-    const edit_resource_delete_button = 'DELETE';
+    const {
+      edit_resource_delete_button
+    } = this.props.translation.templates;
 
     return (
       <Button

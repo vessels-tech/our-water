@@ -6174,9 +6174,9 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations#7ee078058f600573b6d11f28878deb2c6af385d4":
+"ow_translations@git://github.com/vessels-tech/ow_translations#5f2c627309513cfcb25c1d94a6168c9631fc3ee9":
   version "0.7.0"
-  resolved "git://github.com/vessels-tech/ow_translations#7ee078058f600573b6d11f28878deb2c6af385d4"
+  resolved "git://github.com/vessels-tech/ow_translations#5f2c627309513cfcb25c1d94a6168c9631fc3ee9"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

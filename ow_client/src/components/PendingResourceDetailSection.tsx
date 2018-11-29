@@ -185,10 +185,9 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     const {
       resource_detail_latest,
       resource_detail_new_reading_button,
+      resource_detail_edit_resource,
+      resource_detail_edit_readings,
     } = this.props.translation.templates;
-    //TODO: translate
-    const resource_detail_edit_resource = 'EDIT STATION';
-    const resource_detail_edit_readings = 'EDIT READINGS';
 
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();

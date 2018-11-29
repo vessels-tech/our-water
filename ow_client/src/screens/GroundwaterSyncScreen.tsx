@@ -90,8 +90,7 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
         this.props.translation
       );
       if (result.type === ResultType.ERROR) {
-        //TODO: translate the error message
-        ToastAndroid.show(result.message, ToastAndroid.SHORT);
+        ToastAndroid.show(sync_email_error, ToastAndroid.SHORT);
       } else {
         ToastAndroid.show(sync_email_success, ToastAndroid.SHORT);
       }

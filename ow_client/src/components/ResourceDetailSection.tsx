@@ -304,10 +304,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getSummaryCard() {
-    const { translation: { templates: { resource_detail_latest, resource_detail_new_reading_button }}} = this.props;
-    //TODO: translate
-    const resource_detail_edit_readings = 'EDIT READINGS';
-
+    const { translation: { templates: { resource_detail_latest, resource_detail_new_reading_button, resource_detail_edit_readings }}} = this.props;
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
 
     return (
