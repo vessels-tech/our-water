@@ -1,5 +1,6 @@
 const request = require('request-promise-native');
 import { BaseApiType, ResourceType } from "ow_types";
+import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg } from 'ow_translations';
 
 
 export async function getToken(admin: any): Promise<string> {
@@ -179,6 +180,16 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
 export async function getNewConfig(): Promise<any> {
   const conditionKeys = ['ggmn_android', 'mywell_android'];
 
+  const mywellTranslationOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
+  const mywellTranslations = translationsForTranslationOrg(TranslationOrg.mywell);
+  const ggmnTranslationsOptions = possibleTranslationsForOrg(TranslationOrg.mywell);
+  const ggmnTranslations = translationsForTranslationOrg(TranslationOrg.ggmn);
+
+  const mywellTranslationOptionsJSON = JSON.stringify(mywellTranslationOptions, null, 2);
+  const mywellTranslationsJSON = JSON.stringify(mywellTranslations, functionReplacer, 2);
+  const ggmnTranslationsOptionsJSON = JSON.stringify(ggmnTranslationsOptions, null, 2);
+  const ggmnTranslationsJSON = JSON.stringify(ggmnTranslations, functionReplacer, 2);
+
   const conditions = [
     {
       "name": "ggmn_android",
@@ -355,12 +366,46 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       [false, true]
     ),
-
-    //TODO: translations and available languages
+    translationOptions: buildParameter(
+      mywellTranslationOptionsJSON,
+      'The translation options',
+      conditionKeys,
+      [
+        ggmnTranslationsOptionsJSON,
+        mywellTranslationOptionsJSON,
+      ]
+    ),
+    translations: buildParameter(
+      mywellTranslationsJSON,
+      'The translations',
+      conditionKeys,
+      [
+        ggmnTranslationsJSON,
+        mywellTranslationsJSON,
+      ]
+    ),
   };
 
   return Promise.resolve({
     conditions,
     parameters,
   });
+}
+
+
+
+export const functionReplacer = (name, val) => {
+  if (typeof val === 'function') {
+    const entire = val.toString();
+    const arg = entire.slice(entire.indexOf("(") + 1, entire.indexOf(")"));
+    const body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+
+    return {
+      type: 'function',
+      arguments: arg,
+      body,
+    };
+  }
+
+  return val;
 }
