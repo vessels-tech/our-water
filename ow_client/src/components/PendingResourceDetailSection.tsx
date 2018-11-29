@@ -38,10 +38,6 @@ import { PendingReading } from '../typings/models/PendingReading';
 import PendingTimeseriesCard from './common/PendingTimeseriesCard';
 import { PendingTimeseries } from '../typings/models/PendingTimeseries';
 import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
-// import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
-
-// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
-
 
 export interface OwnProps {
   config: ConfigFactory,

@@ -145,7 +145,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getHeadingBar() {
     const { resource } = this.props;
     const { resource_detail_name_label, resource_detail_heading_label } = this.props.translation.templates;
-    const showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
+    let showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
+    let name;
+    if (resource.type === OrgType.GGMN) {
+      name = resource.name;
+    }
+    if (!name || name === resource.id) {
+      showSubtitle = false;
+    }
 
     let title;
     if (resource.type === OrgType.GGMN) {
