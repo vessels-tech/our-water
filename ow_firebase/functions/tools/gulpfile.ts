@@ -21,3 +21,12 @@ gulp.task('deploy_remote_config', async() => {
 
 
 });
+
+
+gulp.task('get_remote_config', async() => {
+  const accessToken = await getAdminAccessToken()
+  const [etag, currentConfig] = await getRemoteConfig(PROJECT_ID, accessToken);
+
+  console.log("etag:", etag);
+  console.log("currentConfig:", currentConfig);
+});

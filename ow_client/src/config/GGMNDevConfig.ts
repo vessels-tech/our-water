@@ -19,15 +19,8 @@ const GGMNDevConfig: RemoteConfig = {
   favouriteResourceList_showGetStartedButtons: false,
   editResource_hasResourceName: true,
   editResource_showOwerName: false,
-  editResource_availableTypes: [
-    ResourceType.well, 
-  ],
-  editResource_defaultTypes: {
-    well: [
-      { name: 'GWmMSL', parameter: 'GWmMSL', readings: [] },
-      { name: 'GWmBGS', parameter: 'GWmBGS', readings: [] },
-    ]
-  },
+  editResource_availableTypes: '["well"]',
+  editResource_defaultTypes: '{"well":[{"name":"GWmMSL","parameter":"GWmMSL","readings":[]},{"name":"GWmBGS","parameter":"GWmBGS","readings":[]}]}',
   editResource_allowCustomId: true,
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
   usesShortId: false,

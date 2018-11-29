@@ -182,13 +182,12 @@ export async function getNewConfig(): Promise<any> {
   const conditions = [
     {
       "name": "ggmn_android",
-      // "expression": "app.id == '1:276292750755:android:c256de514e11e6eb' && app.version.contains(['ggmn'])",
-      "expression": "device.os == 'android' && app.version.contains(['ggmn'])",
+      "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
       "tagColor": "BROWN"
     },
     {
       "name": "mywell_android",
-      "expression": "device.os == 'android' && app.version.contains(['mywell'])",
+      "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
       "tagColor": "GREEN"
     }
   ];
@@ -200,10 +199,10 @@ export async function getNewConfig(): Promise<any> {
       ['GGMN', 'MyWell']
     ),
     baseApiType: buildParameter(
-      BaseApiType.MyWellApi, 
+      'MyWellApi', 
       '', 
       conditionKeys, 
-      ['GGMN', BaseApiType.MyWellApi]
+      ['GGMNApi', 'MyWellApi']
     ),
     firebaseBaseUrl: buildParameter(
       'localhost:5000', 
@@ -212,10 +211,10 @@ export async function getNewConfig(): Promise<any> {
       ['GGMN', 'localhost:5000']
     ),
     ggmnBaseUrl: buildParameter(
-      'https://ggmn.lizard.net/api', 
+      'https://ggmn.lizard.net', 
       '', 
       conditionKeys, 
-      ['https://ggmn.lizard.net/api', '']
+      ['https://ggmn.lizard.net', '']
     ),
     showConnectToButton: buildParameter(
       'false', 

@@ -12,7 +12,7 @@ export REACT_APP_BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 export REACT_APP_REMOTE_CONFIG_TIMEOUT=600
 export ENABLE_LOGGING='true'
 
-export SHOULD_USE_LOCAL_CONFIG='true'
+export SHOULD_USE_LOCAL_CONFIG='false'
 export CONFIG_TYPE='GGMNDevConfig'
 
 export APP_NAME="GGMN Dev"

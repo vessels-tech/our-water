@@ -35,6 +35,17 @@ Promise.resolve(true)
   }
   return FirebaseConfig.getAllConfig();
 })
+.catch(err => {
+  console.log("Error getting remote config", err);
+  console.log("Defaulting to local config.");
+  
+  switch (Config.CONFIG_TYPE) {
+    case 'GGMNDevConfig':
+      return GGMNDevConfig;
+    default:
+      return MyWellDevConfig;
+  }
+})
 .then(async (_remoteConfig) => {
   const networkApi = await NetworkApi.createAndInit();
   const envConfig: EnvConfig = {

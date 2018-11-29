@@ -37,8 +37,8 @@ export type RemoteConfig = {
   //define what resources shold look like
   editResource_hasResourceName: boolean,
   editResource_showOwerName: boolean,
-  editResource_availableTypes: ResourceType[],
-  editResource_defaultTypes: any,
+  editResource_availableTypes: string, //ResourceType[],
+  editResource_defaultTypes: string, 
   editResource_allowCustomId: boolean,
   favouriteResource_scrollDirection: ScrollDirection,
   usesShortId: boolean,
@@ -74,7 +74,7 @@ export class ConfigFactory {
 
   constructor(remoteConfig: RemoteConfig, envConfig: EnvConfig, networkApi: NetworkApi) {
     this.remoteConfig = remoteConfig;
-    maybeLog("envConfig " + envConfig);
+    maybeLog("envConfig " + JSON.stringify(envConfig, null, 2));
     this.envConfig = envConfig;
     this.networkApi = networkApi;
 
@@ -209,7 +209,7 @@ export class ConfigFactory {
   }
 
   getAvailableResourceTypes(): ResourceType[]{
-    return this.remoteConfig.editResource_availableTypes;
+    return JSON.parse(this.remoteConfig.editResource_availableTypes);
   }
 
   getEditResourceAllowCustomId(): boolean {
@@ -227,7 +227,8 @@ export class ConfigFactory {
    * This determines the default timeseries for the environment
    */
   getDefaultTimeseries(resourceTypeString: string) {
-    return this.remoteConfig.editResource_defaultTypes[resourceTypeString];
+    const defaultTypes = JSON.parse(this.remoteConfig.editResource_defaultTypes);
+    return defaultTypes[resourceTypeString];
   }
 
 

@@ -10,6 +10,7 @@ const config = firebase.config();
 export class FirebaseConfig {
 
   static getAllConfig() {
+    console.log("Getting fb config");
     return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
     // return config.fetch(10)
       .then(() => config.activateFetched())
@@ -17,6 +18,7 @@ export class FirebaseConfig {
       .then(allKeys => allKeys.map((key: String) => key.toString()))
       .then((allKeys: Array<string>) => config.getValues(allKeys))
       .then((obj: any) => {
+        console.log("loaded remote config", obj.applicationName.val());
 
         const remoteConfig: RemoteConfig = {
           applicationName: obj.applicationName.val(),
