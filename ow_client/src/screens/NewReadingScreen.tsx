@@ -169,9 +169,10 @@ class NewReadingScreen extends Component<Props> {
           _latitude: location.coords.latitude,
           _longitude: location.coords.longitude,
         }
-
       }
     }
+
+    console.log('date is', date);
 
     const readingRaw: any = {
       type: this.props.config.orgType,
@@ -358,7 +359,10 @@ class NewReadingScreen extends Component<Props> {
           iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
-          onChangeText={(date: moment.Moment) => this.setState({date})}
+          onChangeText={(dateStr: Date) => {
+            const date: moment.Moment = moment(dateStr);
+            this.setState({date});
+          }}
           fieldType={InputType.dateTimeInput}
           value={date}
         />

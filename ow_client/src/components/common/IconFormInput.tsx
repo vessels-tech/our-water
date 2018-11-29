@@ -126,7 +126,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
         date={this.props.value}
         mode="datetime"
         placeholder="select date"
-        format={dateFormat}
+        // format={dateFormat}
         minDate={minDate}
         maxDate={maxDate}
         //TODO: translate
@@ -141,7 +141,11 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
         modalOnResponderTerminationRequest={() => {
           return false;
         }}
-        onDateChange={(date) => { this.setState({ date: date }) }}
+        onDateChange={(date) => {
+          console.log("on date change", date);
+          this.props.onChangeText(date);
+          // this.setState({ date: date }) 
+        }}
         onOpenModal={() => {
           return false;
         }}

@@ -268,60 +268,56 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     const { pendingResource, translation: { templates: { resource_detail_summary_tab } } } = this.props;
 
     return (
-      <View style={{
-        flex: 20,
-        backgroundColor: bgMed,
-      }}>
-        <ScrollableTabView
-          style={{ 
-            paddingTop: 0,
-            flex: 1 
-          }}
-          containerStyle={{
-            marginBottom: 20,
-          }}
-          tabStyle={{
-            height: 20,
-          }}
-          renderTabBar={() => (
-            <ScrollableTabView.DefaultTabBar
-              tabStyle={{
-                backgroundColor: primaryLight,
-              }}
-              textStyle={{
-                color: primaryText,
-              }}
-            />
-          )}>
-          <View
-            key="1"
-            style={{
-              backgroundColor: bgLight,
-              flex: 1,
+      // @ts-ignore
+      <ScrollableTabView
+        style={{ 
+          paddingTop: 0,
+          flex: 1 
+        }}
+        containerStyle={{
+          marginBottom: 20,
+        }}
+        tabStyle={{
+          height: 20,
+        }}
+        renderTabBar={() => (
+          <ScrollableTabView.DefaultTabBar
+            tabStyle={{
+              backgroundColor: primaryLight,
             }}
-            // @ts-ignore
-            tabLabel={resource_detail_summary_tab}
-          >
-            {this.getSummaryCard()}
-          </View>
+            textStyle={{
+              color: primaryText,
+            }}
+          />
+        )}>
+        <View
+          key="1"
+          style={{
+            backgroundColor: bgLight,
+            flex: 1,
+          }}
+          // @ts-ignore
+          tabLabel={resource_detail_summary_tab}
+        >
+          {this.getSummaryCard()}
+        </View>
 
-          {
-            pendingResource.timeseries.map((ts: PendingTimeseries, idx: number) => {
-              return (
-                // @ts-ignore
-                <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
-                  <PendingTimeseriesCard
-                    config={this.props.config}
-                    pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
-                    resourceId={this.props.pendingResource.id}
-                    timeseries={ts}
-                  />
-                </View>
-              );
-            })
-          }
-        </ScrollableTabView>
-      </View>
+        {
+          pendingResource.timeseries.map((ts: PendingTimeseries, idx: number) => {
+            return (
+              // @ts-ignore
+              <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
+                <PendingTimeseriesCard
+                  config={this.props.config}
+                  pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
+                  resourceId={this.props.pendingResource.id}
+                  timeseries={ts}
+                />
+              </View>
+            );
+          })
+        }
+      </ScrollableTabView>
     );
   }
 
@@ -351,7 +347,12 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
         flex: 1,
       }}>
         {this.props.hideTopBar ? null : this.getHeadingBar()}
-        {this.getReadingsView()}
+        <View style={{
+          flex: 20,
+          backgroundColor: bgMed,
+        }}>
+          {this.getReadingsView()}
+        </View>
       </View>
     );
   }
