@@ -1,5 +1,5 @@
 import * as gulp from 'gulp';
-import { getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig, functionReplacer } from '.';
+import { getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig } from '.';
 import { admin } from '../src/test/TestFirebase';
 const request = require('request-promise-native');
 import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg } from 'ow_translations';
@@ -18,6 +18,9 @@ gulp.task('test_translation_parsing', async () => {
   const mywellTranslationsJSON = JSON.stringify(mywellTranslations, functionReplacer, 2);
   const ggmnTranslationsOptionsJSON = JSON.stringify(ggmnTranslationsOptions, null, 2);
   const ggmnTranslationsJSON = JSON.stringify(ggmnTranslations, functionReplacer, 2);
+
+  const mywellTranslation = translationFromJSON(mywellTranslationsJSON);
+  const ggmnTranslation = translationFromJSON(ggmnTranslationsJSON);
 });
 
 gulp.task('deploy_remote_config', async () => {

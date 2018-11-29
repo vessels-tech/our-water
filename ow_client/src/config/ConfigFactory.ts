@@ -44,6 +44,8 @@ export type RemoteConfig = {
   usesShortId: boolean,
 
   allowsUserRegistration: boolean,
+  translations: TranslationFiles,
+  translationOptions: string[],
 }
 
 /**

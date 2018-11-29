@@ -1,6 +1,8 @@
 import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
-
+import * as EnvConfig from '../utils/EnvConfig';
+import { translationsForTranslationOrg, possibleTranslationsForOrg } from "ow_translations";
+const orgId = EnvConfig.OrgId;
 
 const MyWellDevConfig: RemoteConfig = {
   applicationName: 'MyWell',
@@ -26,6 +28,8 @@ const MyWellDevConfig: RemoteConfig = {
   favouriteResource_scrollDirection: ScrollDirection.Vertical,
   usesShortId: true,
   allowsUserRegistration: true,
+  translations: translationsForTranslationOrg(orgId),
+  translationOptions: possibleTranslationsForOrg(orgId),
 }
 
 export default MyWellDevConfig;

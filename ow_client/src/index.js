@@ -9,7 +9,6 @@ import Config from 'react-native-config';
 import GGMNDevConfig from './config/GGMNDevConfig';
 import MyWellDevConfig from './config/MyWellDevConfig';
 import NetworkApi from './api/NetworkApi';
-import { TranslationFile, TranslationEnum } from 'ow_translations';
 import * as EnvironmentConfig from './utils/EnvConfig';
 import SearchButton from './components/common/SearchButton';
 import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';
@@ -20,7 +19,6 @@ import TestApp from './TestApp';
 import { HomeScreenType } from './enums';
 
 let config: ConfigFactory;
-let translation: TranslationFile;
 const orgId = EnvironmentConfig.OrgId;
 
 Promise.resolve(true)

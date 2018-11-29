@@ -1,5 +1,9 @@
 import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
+import { translationsForTranslationOrg, possibleTranslationsForOrg } from "ow_translations";
+import * as EnvConfig from '../utils/EnvConfig';
+const orgId = EnvConfig.OrgId;
+
 
 //TODO: make this much more typesafe etc.
 const GGMNDevConfig: RemoteConfig = {
@@ -25,6 +29,8 @@ const GGMNDevConfig: RemoteConfig = {
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
   usesShortId: false,
   allowsUserRegistration: false,
+  translations: translationsForTranslationOrg(orgId),
+  translationOptions: possibleTranslationsForOrg(orgId),
 }
 
 export default GGMNDevConfig;

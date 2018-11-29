@@ -5,6 +5,7 @@
 import firebase from 'react-native-firebase';
 import Config from 'react-native-config';
 import { RemoteConfig } from './ConfigFactory';
+import { translationFromJSON } from 'ow_translations';
 const config = firebase.config();
 
 export class FirebaseConfig {
@@ -43,6 +44,8 @@ export class FirebaseConfig {
           favouriteResource_scrollDirection: obj.favouriteResource_scrollDirection.val(), 
           usesShortId: obj.usesShortId.val(),
           allowsUserRegistration: obj.allowsUserRegistration.val(),
+          translations: translationFromJSON(obj.translations),
+          translationOptions: JSON.parse(obj.translationOptions.val()),
         }
         return remoteConfig;
       });

@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
 import { BaseApiType, ResourceType } from "ow_types";
-import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg } from 'ow_translations';
+import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles } from 'ow_translations';
 
 
 export async function getToken(admin: any): Promise<string> {
@@ -390,22 +390,4 @@ export async function getNewConfig(): Promise<any> {
     conditions,
     parameters,
   });
-}
-
-
-
-export const functionReplacer = (name, val) => {
-  if (typeof val === 'function') {
-    const entire = val.toString();
-    const arg = entire.slice(entire.indexOf("(") + 1, entire.indexOf(")"));
-    const body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
-
-    return {
-      type: 'function',
-      arguments: arg,
-      body,
-    };
-  }
-
-  return val;
 }
