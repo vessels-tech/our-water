@@ -40,7 +40,6 @@ import * as AsyncStorage from 'rn-async-storage';
 import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
-import { parse } from 'querystring';
 
 
 let loggerMiddleware: any = null;
@@ -70,12 +69,12 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 }
 
 export async function getCached(id: string): Promise<any | null> {
-  const json = await AsyncStorage.getItem(id);
-  if (!json) {
-    return null;
-  }
-
   try {
+    const json = await AsyncStorage.getItem(id);
+    if (!json) {
+      return null;
+    }
+
     const parsed = JSON.parse(json);
     return parsed;
   } catch(err) {
