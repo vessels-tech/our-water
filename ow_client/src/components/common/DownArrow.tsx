@@ -6,6 +6,9 @@ import { primary, bgLight, primaryText, secondaryText } from '../../utils/Colors
 
 const DownArrow = () => (
   <Icon
+    containerStyle={{
+      flex: 1, 
+    }}
     size={40}
     name={'arrow-downward'}
     onPress={() => this.props.onPress()}

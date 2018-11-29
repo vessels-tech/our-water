@@ -229,6 +229,8 @@ class FavouriteResourceList extends Component<Props> {
 
     const shouldShowButtons = this.props.config.getFavouriteResourceShouldShowGetStartedButtons();
 
+    const SCREEN_WIDTH = Dimensions.get('window').width;
+
     return (
       <View
         style={{
@@ -254,12 +256,15 @@ class FavouriteResourceList extends Component<Props> {
             <View style={{
               flexDirection: 'row-reverse',
               justifyContent: 'space-around',
-              width: '100%',
+              marginLeft: 25,
+              width: SCREEN_WIDTH - 50
             }}>
               {/* Arrow icons pointing to menu buttons */}
               <DownArrow />
               <DownArrow />
-              <View style={{width: 40}}/>
+              <View style={{ 
+                flex: 1,
+              }}/>
             </View>
           </View>
         : null }
