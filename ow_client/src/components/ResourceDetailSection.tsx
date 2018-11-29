@@ -109,15 +109,20 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   loadTimeseries() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const { resource: { id, timeseries } } = this.props;
-    if (timeseries.length === 0) {
-      return this.loadDefaultTimeseries();
-    }
-    timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
-      .then(result => {
-        if (result.type === ResultType.ERROR) {
-          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
-        }
-      }));
+
+    //Always load the default timeseries - that way we don't miss out on pending readings
+    return this.loadDefaultTimeseries()
+
+    //Not sure if we will want this back
+    // if (timeseries.length === 0) {
+    //   return this.loadDefaultTimeseries();
+    // }
+    // timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
+    //   .then(result => {
+    //     if (result.type === ResultType.ERROR) {
+    //       ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+    //     }
+    //   }));
   }
 
   getDefaultTimeseries(): Array<ConfigTimeseries> {
@@ -380,9 +385,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     /* use default timeseries if we have none */
     let timeseries: Array<AnyTimeseries | ConfigTimeseries> = this.getDefaultTimeseries();
-    if (resource.timeseries.length > 0) {
-      timeseries = resource.timeseries;
-    }
+
+    //Don't ever use the resource's own timeseries - otherwise users can't see pending readings
+    // if (resource.timeseries.length > 0) {
+    //   timeseries = resource.timeseries;
+    // }
 
     return (
       // @ts-ignore
@@ -419,6 +426,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         </View>
           {
             timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
+              const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === ts.name.toLowerCase());
+              console.log('pending readings are', pendingReadings);
               return (
                 // @ts-ignore
                 <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
@@ -465,7 +474,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getFavouriteButton() {
     const { favourite, favouriteResourcesMeta } = this.props;
   
-
     let iconName = 'star-half';
     if (favourite) {
       iconName = 'star';

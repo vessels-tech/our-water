@@ -63,12 +63,13 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
 
   getNotEnoughReadingsDialog() {
     //TODO: translations
+    const timeseries_card_not_enough = 'Not enough readings for this time range.';
     return (
       <View style={{
         flex: 10,
         justifyContent: 'center',
       }}>
-        <Text style={{ textAlign: 'center' }}>Not enough readings for this time range.</Text>
+        <Text style={{ textAlign: 'center' }}>{timeseries_card_not_enough}</Text>
       </View>
     );
   }
@@ -77,6 +78,8 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { currentRange } = this.state;
     const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
+
+    console.log("Readings is", readings);
 
     if (!readings) {
       return this.getNotEnoughReadingsDialog();
