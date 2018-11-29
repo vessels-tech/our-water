@@ -10,8 +10,9 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import App from '../App';
 import TestApp from '../TestApp';
 
-import { createStore, applyMiddleware } from 'redux';
-import OWApp from '../reducers';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { persistStore, autoRehydrate } from 'redux-persist'
+import OWApp, { initialState } from '../reducers';
 import { Provider } from 'react-redux';
 import * as appActions from '../actions/index';
 import thunkMiddleware from 'redux-thunk';
@@ -35,6 +36,9 @@ import SignInScreen from './menu/SignInScreen';
 import { RNFirebase } from 'react-native-firebase';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
 import EditReadingsScreen from './EditReadingsScreen';
+import * as AsyncStorage from 'rn-async-storage';
+import { AnyAction } from '../actions/AnyAction';
+import { ActionType } from '../actions/ActionType';
 
 
 let loggerMiddleware: any = null;
@@ -65,13 +69,88 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 
 export async function registerScreens(config: ConfigFactory) {
 
-  const middleware = loggerMiddleware ? applyMiddleware(thunkMiddleware,loggerMiddleware)
-   : applyMiddleware(thunkMiddleware);
-  const store = createStore(OWApp, middleware);
+  const persistMiddleware = () => {
+    return (next: any) => (action: AnyAction) => {
+      const returnValue = next(action);
+      
+      if (action.type === ActionType.GET_RESOURCES_RESPONSE) {
+        if (action.result.type === ResultType.SUCCESS) {
+          const state = store.getState();
+          AsyncStorage.setItem('ourwater_resources', JSON.stringify(state.resources));
+          AsyncStorage.setItem('ourwater_resourcesCache', JSON.stringify(state.resourcesCache));
+        }
+      }
+
+      if (action.type === ActionType.GET_SHORT_ID_RESPONSE) {
+        if (action.result.type === ResultType.SUCCESS) {
+          const state = store.getState();
+          AsyncStorage.setItem('ourwater_shortIdCache', JSON.stringify(state.shortIdCache))
+          AsyncStorage.setItem('ourwater_shortIdMeta', JSON.stringify(state.shortIdMeta))
+        }
+      }
+
+      return returnValue;
+    }
+  }
+
+  let resources;
+  let resourcesCache;
+  let shortIdCache;
+  let shortIdMeta;
+
+  try {
+    const resourcesJson = await AsyncStorage.getItem('ourwater_resources');
+    const resourcesCacheJson = await AsyncStorage.getItem('ourwater_resourcesCache');
+    const shortIdCacheJson = await AsyncStorage.getItem('ourwater_resourcesCache');
+    const shortIdMetaJson = await AsyncStorage.getItem('ourwater_resourcesCache');
+    if (!resourcesJson ||
+       !resourcesCacheJson || 
+        !shortIdCacheJson || 
+        !shortIdMetaJson
+    ) {
+      throw new Error('could not get cached resources');
+    }
+    resources = JSON.parse(resourcesJson);
+    resourcesCache = JSON.parse(resourcesCacheJson);
+    shortIdCache = JSON.parse(shortIdCacheJson);
+    shortIdMeta = JSON.parse(shortIdMetaJson);
+  } catch (err) {
+    console.log("error getting cached resources", err);
+  }
+
+  let middleware;
+  if (loggerMiddleware) {
+    middleware = applyMiddleware(persistMiddleware, thunkMiddleware, loggerMiddleware);
+  } else {
+    middleware = applyMiddleware(persistMiddleware, thunkMiddleware);
+  }
+
+  if (resources) {
+    initialState.resources = resources;
+  }
+
+  if (resourcesCache) {
+    initialState.resourcesCache = resourcesCache;
+  }
+
+  if (shortIdCache) {
+    initialState.shortIdCache = shortIdCache;
+  }
+
+  if (shortIdMeta) {
+    initialState.shortIdMeta = shortIdMeta;
+  }
+
+  const store = createStore(
+    OWApp, 
+    initialState,
+    compose(
+      middleware,
+    ),
+  );
 
   //Update the translations to use the remote config
   store.dispatch(appActions.updatedTranslation(config.getTranslationFiles(), config.getTranslationOptions()));
-  
 
 
   //Listen for a user
@@ -114,10 +193,7 @@ export async function registerScreens(config: ConfigFactory) {
 
   // await store.dispatch(appActions.silentLogin(config.appApi));
 
-
-  //TODO: I don't know how to fix this.
-  //@ts-ignore
-  const locationResult = await store.dispatch(appActions.getGeolocation());
+  const locationResult = await appActions.getGeolocation();
 
   if (config.externalServiceApi) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
@@ -126,15 +202,12 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
-
   Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
   Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
   Navigation.registerComponent('screen.menu.SignInScreen', () => SignInScreen, store, Provider);
-
   Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
   Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
-
   Navigation.registerComponent('screen.ScanScreen', () => ScanScreen, store, Provider);
   Navigation.registerComponent('screen.SimpleMapScreen', () => SimpleMapScreen, store, Provider);
   Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);

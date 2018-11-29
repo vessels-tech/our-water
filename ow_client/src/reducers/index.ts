@@ -81,7 +81,7 @@ export type AppState = {
   userIdMeta: ActionMeta,
 }
 
-const initialState: AppState = {
+export const initialState: AppState = {
   //Session
   isConnected: true,
   

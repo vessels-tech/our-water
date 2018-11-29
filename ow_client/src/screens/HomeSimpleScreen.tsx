@@ -9,10 +9,6 @@ import { ResourceType } from '../enums';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
-import { SearchButtonPressedEvent } from '../utils/Events';
-//@ts-ignore
-import EventEmitter from "react-native-eventemitter";
-import { GGMNSearchEntity } from '../typings/models/GGMN';
 import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
