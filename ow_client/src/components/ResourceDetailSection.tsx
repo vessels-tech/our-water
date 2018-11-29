@@ -378,58 +378,54 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     return (
-      <View style={{
-        flex: 20,
-        backgroundColor: bgMed,
-      }}>
-        <ScrollableTabView 
-          style={{ 
-            paddingTop: 0,
-          }}
-          containerStyle={{
-            marginBottom: 20,
-          }}
-          tabStyle={{
-            height: 20,
-          }}
-          renderTabBar={() => (
-            <ScrollableTabView.DefaultTabBar
-              tabStyle={{
-                backgroundColor: primaryLight,
-              }}
-              textStyle={{
-                color: primaryText,
-              }}
-            />
-          )}>
-          <View 
-            key="1" 
-            style={{
-              backgroundColor: bgLight,
-              flex: 1,
+      // @ts-ignore
+      <ScrollableTabView 
+        style={{ 
+          paddingTop: 0,
+        }}
+        containerStyle={{
+          marginBottom: 20,
+        }}
+        tabStyle={{
+          height: 20,
+        }}
+        renderTabBar={() => (
+          <ScrollableTabView.DefaultTabBar
+            tabStyle={{
+              backgroundColor: primaryLight,
             }}
-            // @ts-ignore
-            tabLabel={resource_detail_summary_tab}
-            >
-            {this.getSummaryCard()}
-          </View>
-            {
-              timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
-                return (
-                  // @ts-ignore
-                  <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
-                    <TimeseriesCard
-                      config={this.props.config}
-                      resourceId={this.props.resource.id}
-                      timeseries={ts}
-                      pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === ts.name.toLowerCase())}
-                    />
-                  </View>
-                );
-              })
-            }
-        </ScrollableTabView>
-      </View>
+            textStyle={{
+              color: primaryText,
+            }}
+          />
+        )}>
+        <View 
+          key="1" 
+          style={{
+            backgroundColor: bgLight,
+            flex: 1,
+          }}
+          // @ts-ignore
+          tabLabel={resource_detail_summary_tab}
+          >
+          {this.getSummaryCard()}
+        </View>
+          {
+            timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
+              return (
+                // @ts-ignore
+                <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
+                  <TimeseriesCard
+                    config={this.props.config}
+                    resourceId={this.props.resource.id}
+                    timeseries={ts}
+                    pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === ts.name.toLowerCase())}
+                  />
+                </View>
+              );
+            })
+          }
+      </ScrollableTabView>
     );
   }
 
@@ -500,7 +496,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         flex: 1,
       }}>
         {this.props.hideTopBar ? null : this.getHeadingBar()}
-        {this.getReadingsView()}
+        <View style={{
+          flex: 20,
+          backgroundColor: bgMed,
+        }}>
+          {this.getReadingsView()}
+        </View>
       </View>
     );
   }

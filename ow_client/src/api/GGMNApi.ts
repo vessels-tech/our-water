@@ -1457,6 +1457,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[], title?: string): GGMNResource {
     const location = from[0].location;
     const geometry = from[0].location.geometry;
+    const name = from[0].name;
 
     const to: GGMNResource = {
       type: OrgType.GGMN,
@@ -1465,6 +1466,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       id: location.name,
       //TODO: not sure how to get this in.
       title: title || location.name,
+      name,
       description,
       coords: {
         _latitude: geometry.coordinates[1],
@@ -1483,6 +1485,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       pending: false,
       id: `${from.entity_id}`,
       title: `${from.title}`,
+      name: from.title, //not sure if this is right
       // legacyId: `${from.title}`,
       description: from.description,
       // groups: null,

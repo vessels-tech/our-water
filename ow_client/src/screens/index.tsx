@@ -101,8 +101,8 @@ export async function registerScreens(config: ConfigFactory) {
   try {
     const resourcesJson = await AsyncStorage.getItem('ourwater_resources');
     const resourcesCacheJson = await AsyncStorage.getItem('ourwater_resourcesCache');
-    const shortIdCacheJson = await AsyncStorage.getItem('ourwater_resourcesCache');
-    const shortIdMetaJson = await AsyncStorage.getItem('ourwater_resourcesCache');
+    const shortIdCacheJson = await AsyncStorage.getItem('ourwater_shortIdCache');
+    const shortIdMetaJson = await AsyncStorage.getItem('ourwater_shortIdMeta');
     if (!resourcesJson ||
        !resourcesCacheJson || 
         !shortIdCacheJson || 
@@ -140,6 +140,9 @@ export async function registerScreens(config: ConfigFactory) {
   if (shortIdMeta) {
     initialState.shortIdMeta = shortIdMeta;
   }
+
+  console.log('shortIdCache', shortIdCache);
+  console.log('shortIdMeta', shortIdMeta);
 
   const store = createStore(
     OWApp, 
@@ -191,9 +194,8 @@ export async function registerScreens(config: ConfigFactory) {
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
   });
 
-  // await store.dispatch(appActions.silentLogin(config.appApi));
-
-  const locationResult = await appActions.getGeolocation();
+  // @ts-ignore
+  const locationResult = await store.dispatch(appActions.getGeolocation());
 
   if (config.externalServiceApi) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));

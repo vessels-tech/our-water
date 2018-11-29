@@ -193,7 +193,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   * 
   */
   async preloadShortIds(ids: string[]): Promise<SomeResult<string[]>> {
-    const MAX_SHORT_IDS = 25;
+    const MAX_SHORT_IDS = 100;
     if (ids.length > MAX_SHORT_IDS) {
       ids.length = MAX_SHORT_IDS;
     }

@@ -436,13 +436,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       action.shortIds.forEach((shortId, idx) => {
         const longId: string = action.longIds[idx];
-        try {
-          shortIdCache[longId] = shortId;
-        } catch(err) {
-          console.log('error', err);
-        }
-        
-        // shortIdCache.set(longId, shortId);
+        shortIdCache[longId] = shortId;
       })
 
       return Object.assign({}, state, { shortIdCache });
