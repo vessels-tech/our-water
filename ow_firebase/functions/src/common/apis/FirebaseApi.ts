@@ -8,7 +8,7 @@ import { BasicAuthSecurity } from "soap";
 import { pad, hashReadingId } from "../utils";
 import { isNullOrUndefined } from "util";
 import { OWGeoPoint } from "ow_types";
-import { Firestore } from "@google-cloud/firestore";
+import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
 
 
@@ -20,7 +20,7 @@ export type ShortIdLock = {
 
 export default class FirebaseApi {
 
-  public static async batchSave(fs: Firestore, docs: Reading[]): Promise<any> {
+  public static async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
     const batch = fs.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => doc.batchCreate(batch, fs, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));

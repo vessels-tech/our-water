@@ -11,7 +11,7 @@ import * as moment from 'moment';
 import ResourceIdType from "../../types/ResourceIdType";
 import { Resource } from "../Resource";
 import { firestore } from "firebase-functions";
-import { Firestore } from "@google-cloud/firestore";
+import * as admin from "firebase-admin";
 import { OWGeoPoint } from "ow_types";
 import FirebaseApi from "../../apis/FirebaseApi";
 
@@ -159,7 +159,7 @@ export class FileDatasource implements Datasource {
    *   Save the rows in a batch job
    *   run a batch job which adds group and resource metadata to readings
    */
-  pullDataFromDataSource(orgId: string, fs: Firestore): Promise<SyncRunResult> {
+  pullDataFromDataSource(orgId: string, fs: admin.firestore.Firestore): Promise<SyncRunResult> {
     let result = {
       results: [],
       warnings: [],
