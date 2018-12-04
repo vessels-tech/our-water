@@ -269,7 +269,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
         justifyContent: 'space-around',
       }}>
         <IconButton
-          color={secondary}
+          color={primary}
           name="clear"
           onPress={() => this.clearSelectedResource()}
         />
