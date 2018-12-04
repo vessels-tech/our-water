@@ -58,9 +58,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
-
-    // this.props.navigator.pop();
-    // this.props.onAddReadingPressed();
+    
     navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
       resource: this.props.resource,
       config: this.props.config,
@@ -108,8 +106,6 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   }
 
   render() {
-    const { } = this.props.translation.templates;
-
     const { pendingReadings } = this.props;
 
     if (pendingReadings.length === 0) {
@@ -126,7 +122,6 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
         </View>
       );
     }
-
 
     return (
       <View style={{

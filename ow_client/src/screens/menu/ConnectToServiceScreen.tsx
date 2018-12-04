@@ -131,6 +131,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
    */
   getErrorMessage() {
     const { externalLoginDetails, externalLoginDetailsMeta: {loading} } = this.props;
+    const { connect_to_service_error } = this.props.translation.templates; 
     
     if (loading) {
       return null;
@@ -146,8 +147,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
         paddingHorizontal: 20,
         paddingTop: 10,
       }}>
-        here
-        Error signing in. Please try again.
+        {connect_to_service_error}
       </Text>
     );
   }

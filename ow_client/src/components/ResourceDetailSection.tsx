@@ -192,7 +192,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-              <Text style={{ color: primaryText, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label}: ${title}`}</Text>
+              <Text style={{ color: primaryText, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label} ${title}`}</Text>
             </View>
             : null }
         </View>
