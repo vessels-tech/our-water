@@ -4,7 +4,7 @@ import { View } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
-import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark } from '../utils/Colors';
+import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark, primaryLight } from '../utils/Colors';
 import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
@@ -269,7 +269,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
         justifyContent: 'space-around',
       }}>
         <IconButton
-          color={primary}
+          textColor={primaryText}
+          color={primaryLight}
           name="clear"
           onPress={() => this.clearSelectedResource()}
         />

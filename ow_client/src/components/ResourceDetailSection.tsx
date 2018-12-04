@@ -424,7 +424,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           {
             timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
               const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === ts.name.toLowerCase());
-              console.log('pending readings are', pendingReadings);
               return (
                 // @ts-ignore
                 <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>

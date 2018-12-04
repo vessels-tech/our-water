@@ -10,6 +10,7 @@ export interface Props {
   onComplete?: any,
   onPress: any,
   color?: string,
+  textColor?: string,
   name: string,
   style?: any,
 }
@@ -45,7 +46,7 @@ export default class IconButton extends Component<Props> {
           onPress={() => this.props.onPress()}
           color={this.props.color ? this.props.color : secondary}
           iconStyle={{
-            color: secondaryText,
+            color: this.props.textColor || secondaryText,
           }}
       />
       </View>
