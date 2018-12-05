@@ -28,6 +28,7 @@ import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { GGMNTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { SignInStatus } from "../screens/menu/SignInScreen";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -123,14 +124,22 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     };
   
     return ftch(url, options)
-      .then((response: any) => deprecated_naiveParseFetchResponse<GGMNOrganisationResponse>(response))
-      .then((r: GGMNOrganisationResponse): LoginDetails => {
-        if (r.results.length === 0) {
+      .then((response: any) => naiveParseFetchResponse<GGMNOrganisationResponse>(response))
+      .then((r: SomeResult<GGMNOrganisationResponse>) => {
+        if (r.type === ResultType.ERROR) {
+          return {
+            type: LoginDetailsType.FULL,
+            status: ConnectionStatus.SIGN_IN_ERROR,
+            username,
+          }
+        }
+
+        if (r.result.results.length === 0) {
           throw new Error('Logged in user, but no organisations found.');
         }
 
         if (!resolvedExternalOrg) {
-          resolvedExternalOrg = r.results[0];
+          resolvedExternalOrg = r.result.results[0];
         }
 
         return {
@@ -140,15 +149,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
           externalOrg: resolvedExternalOrg,
         };
       })
-      .catch((err: Error) => {
-        //Sign in failed:
-        return {
-          type: LoginDetailsType.FULL,
-          status: ConnectionStatus.SIGN_IN_ERROR,
-          username,
-        };
-      })
-      .then((_signInResponse: LoginDetails | EmptyLoginDetails) => {
+      .then((_signInResponse: AnyLoginDetails) => {
         signInResponse = _signInResponse;
 
         const user: KeychainLoginDetails = {
@@ -156,17 +157,29 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
           externalOrg: resolvedExternalOrg,
         }
 
-        //TODO: fix this, I think it's saving the details even if the 
-        return this.saveExternalServiceLoginDetails(user, password)
-        .catch(err => {
-          //Couldn't save the creds for some reason
-          signInResponse = {
-            type: LoginDetailsType.EMPTY,
-            status: ConnectionStatus.NO_CREDENTIALS,
-          };
-        })
+        if (_signInResponse.type === LoginDetailsType.FULL 
+          && _signInResponse.status === ConnectionStatus.SIGN_IN_SUCCESS
+          ) {
+            return this.saveExternalServiceLoginDetails(user, password)
+            .catch(err => {
+              //Couldn't save the creds for some reason
+              signInResponse = {
+                type: LoginDetailsType.EMPTY,
+                status: ConnectionStatus.NO_CREDENTIALS,
+              };
+            })
+          }
       })
       .then(() => signInResponse)
+      .catch((err: Error) => {
+        maybeLog("connectToService caught error: " + err.message);
+
+        return {
+          type: LoginDetailsType.FULL,
+          status: ConnectionStatus.SIGN_IN_ERROR,
+          username,
+        }
+      });
   }
 
   /**

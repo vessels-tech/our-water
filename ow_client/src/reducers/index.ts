@@ -159,12 +159,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE: {
       const externalLoginDetailsMeta = { loading: false };
 
-      if (action.result.type === ResultType.SUCCESS) {
-        const externalLoginDetails = action.result.result;
-        return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
+      if (action.result.type === ResultType.ERROR) {
+        return Object.assign({}, state, { externalLoginDetailsMeta });
       }
 
-      return state;
+      const externalLoginDetails = action.result.result;
+      return Object.assign({}, state, { externalLoginDetailsMeta, externalLoginDetails });
     }
     case ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_RESPONSE: {
       const externalLoginDetailsMeta = { loading: false };

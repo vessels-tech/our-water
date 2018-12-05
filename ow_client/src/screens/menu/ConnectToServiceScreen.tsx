@@ -40,7 +40,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  connectToExternalService: any,
+  connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string, tempErrorMessage: string) => any,
   disconnectFromExternalService: any,
   setExternalOrganisation: any,
 }
@@ -104,7 +104,10 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   handleSubmit = async () => {
     Keyboard.dismiss();
 
-    const result: SomeResult<null> = await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password);
+    //TODO: translate
+    // const tempErrorMessage = this.props.translation.templates.connect_to_login_error;
+    const tempErrorMessage = "Sorry, could not log you in."
+    await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password, tempErrorMessage);
 
     this.setState({
       username: this.loginForm.value.username,
@@ -362,8 +365,8 @@ const mapStateToProps = (state: AppState): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string) =>
-      { dispatch(appActions.connectToExternalService(api, username, password)) },
+    connectToExternalService: (api: MaybeExternalServiceApi, username: string, password: string, tempErrorMessage: string) =>
+      { dispatch(appActions.connectToExternalService(api, username, password, tempErrorMessage)) },
 
     disconnectFromExternalService: (api: MaybeExternalServiceApi) => 
       { dispatch(appActions.disconnectFromExternalService(api))},

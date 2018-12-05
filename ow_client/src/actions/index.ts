@@ -118,7 +118,7 @@ function changeTranslationResponse(result: SomeResult<void>): ChangeTranslationA
  * Async connect to external service
  */
 
-export function connectToExternalService(api: MaybeExternalServiceApi, username: string, password: string): any {
+export function connectToExternalService(api: MaybeExternalServiceApi, username: string, password: string, tempErrorMessage: string): any {
   return async function (dispatch: any) {
     dispatch(connectToExternalServiceRequest());
 
@@ -130,9 +130,7 @@ export function connectToExternalService(api: MaybeExternalServiceApi, username:
     let result: SomeResult < LoginDetails | EmptyLoginDetails>; 
     const details = await api.connectToService(username, password);
     if (details.status === ConnectionStatus.SIGN_IN_ERROR) {
-      //TODO: should we really have ui elements here?
-      //TODO: get better error messages
-      ToastAndroid.show(`Sorry, could not log you in.`, ToastAndroid.SHORT);
+      ToastAndroid.show(tempErrorMessage, ToastAndroid.SHORT);
       result = {
         type: ResultType.ERROR,
         message: 'Login Error',
