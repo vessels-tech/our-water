@@ -295,6 +295,7 @@ class EditResourceScreen extends Component<Props> {
   }
 
   displayDeleteModal() {
+    //TODO: translate
     const edit_resource_delete_modal_title = "Are You Sure?";
     const edit_resource_delete_modal_text = "Deleting this station will delete any associated readings, and cannot be undone.";
     const edit_resource_delete_modal_ok = "DELETE";

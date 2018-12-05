@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from "../../config/ConfigFactory";
 import ExternalServiceApi, { MaybeExternalServiceApi } from "../../api/ExternalServiceApi";
-import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback } from 'react-native';
+import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback, Alert } from 'react-native';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
@@ -74,6 +74,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.props.deletePendingReading.bind(this);
     this.props.deletePendingResource.bind(this);
     this.groundwaterSyncPressed = this.groundwaterSyncPressed.bind(this);
+    this.handleDeletePendingResource = this.handleDeletePendingResource.bind(this);
+    this.displayDeleteResourceModal = this.displayDeleteResourceModal.bind(this);
 
     this.state = {};
   }
@@ -211,9 +213,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         roundAvatar
         rightIcon={
           <TouchableNativeFeedback
-            onPress={() => {
-              this.props.deletePendingResource(this.appApi, this.props.userId, r.id);
-            }}
+            onPress={() => this.displayDeleteResourceModal(r.id)}
           >
             <Icon
               name='close'
@@ -227,6 +227,28 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         subtitleStyle={{ color: message ? error1 : primaryDark }}
       />
     );
+  }
+
+  displayDeleteResourceModal(resourceId: string): void {
+    //TODO: translate
+    const edit_resource_delete_modal_title = "Are You Sure?";
+    const edit_resource_delete_modal_text = "Deleting this station will delete any associated readings, and cannot be undone.";
+    const edit_resource_delete_modal_ok = "DELETE";
+    const edit_resource_delete_modal_cancel = "CANCEL";
+
+    Alert.alert(
+      edit_resource_delete_modal_title,
+      edit_resource_delete_modal_text,
+      [
+        { text: edit_resource_delete_modal_ok, onPress: () => this.handleDeletePendingResource(resourceId) },
+        { text: edit_resource_delete_modal_cancel, onPress: () => { } }
+      ],
+      { cancelable: true }
+    );
+  }
+
+  handleDeletePendingResource(resourceId: string) {
+    this.props.deletePendingResource(this.appApi, this.props.userId, resourceId);
   }
 
   readingListItem(r: PendingReading, i: number, message?: string) {
