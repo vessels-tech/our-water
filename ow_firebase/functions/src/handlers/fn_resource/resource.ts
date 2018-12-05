@@ -140,7 +140,6 @@ module.exports = (functions) => {
     const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
     req.body.data.coords = newCoords;
 
-    console.log("org id:", orgId);
 
     //Add default lastReading
     req.body.data.lastValue = 0;
@@ -226,10 +225,17 @@ module.exports = (functions) => {
     const { subject, message } = req.body;
     const pendingResources: PendingResource[] = req.body.pendingResources;
     const pendingReadings: PendingReading[] = req.body.pendingReadings;
-    const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
     
-    if (generateZipResult.type === ResultType.ERROR) {
-      throw new Error(generateZipResult.message);
+    const attachments = [];
+
+    /* only add the pending resouces if the user is trying to save new resources */
+    if (pendingResources.length > 0) {
+      const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
+      
+      if (generateZipResult.type === ResultType.ERROR) {
+        throw new Error(generateZipResult.message);
+      }
+      attachments.push({ filename: 'id.zip', path: generateZipResult.result});
     }
 
     const generateCSVResult = await GGMNApi.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
@@ -237,11 +243,7 @@ module.exports = (functions) => {
       throw new Error(generateCSVResult.message);
     }
 
-    const attachments = [
-      { filename: 'id.zip', path: generateZipResult.result},
-      { filename: 'id.csv', path: generateCSVResult.result},
-    ];
-    console.log("message is", message);
+    attachments.push({ filename: 'id.csv', path: generateCSVResult.result});
     const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, subject, message, attachments);
     if (sendEmailResult.type === ResultType.ERROR) {
       console.log("Error sending emails:", sendEmailResult.message);
