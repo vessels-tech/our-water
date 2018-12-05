@@ -180,6 +180,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   async getExternalServiceLoginDetails(): Promise<AnyLoginDetails> {
+    console.log("getExternalServiceLoginDetails");
     //Try performing a login first, just in case
     let credentials;
     try {
@@ -695,14 +696,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.GGMN;    
+    console.log("saveResource");
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
         type: ResultType.ERROR,
-        message: 'Could not save reading',
+        message: 'Could not save resource',
       };
     }
 
+    console.log("saved resource. getting details");
     const credentials = await this.getExternalServiceLoginDetails();
     if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       return {
@@ -1239,10 +1242,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
 
     const searchEntities = searchResponse.result.results;
-    let exists: CheckNewIdResult = CheckNewIdResult.Unavailable;
+    let exists: CheckNewIdResult = CheckNewIdResult.Available;
     searchEntities.forEach(s => {
       if (s.description === `${id}`) {
-        exists = CheckNewIdResult.Available;
+        exists = CheckNewIdResult.Unavailable;
       }
     });
 

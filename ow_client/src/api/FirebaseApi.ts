@@ -513,11 +513,11 @@ class FirebaseApi {
   static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {
     /* we don't want to wait for this to resolve */
     if (resource.id) {
-      await this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
+      this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
       return makeSuccess(null);
     }
 
-    await this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
     return makeSuccess(null);
   }
 

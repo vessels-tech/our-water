@@ -240,7 +240,14 @@ class EditResourceScreen extends Component<Props> {
 
     Keyboard.dismiss();
 
-    const ownerName = this.props.config.getEditResourceShouldShowOwnerName() ? this.editResourceForm.value.ownerName : 'none';
+    let ownerName;
+    if (this.props.config.getEditResourceShouldShowOwnerName()) {
+      if (this.editResourceForm.value.ownerName) {
+        ownerName = this.editResourceForm.value.ownerName;
+      } else {
+        ownerName = this.editResourceForm.value.id;
+      }
+    } 
 
     //TODO: make more type safe
     const unvalidatedResource: any = {

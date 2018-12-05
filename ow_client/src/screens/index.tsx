@@ -22,7 +22,7 @@ import { UserType, MobileUser } from '../typings/UserTypes';
 import { OWUser } from '../typings/models/OurWater';
 import { ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
-import { EnableLogging } from '../utils/EnvConfig';
+import { EnableLogging, EnableReduxLogging } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
 import ScanScreen from './ScanScreen';
 import SimpleMapScreen from './SimpleMapScreen';
@@ -43,11 +43,11 @@ import { maybeLog } from '../utils';
 
 
 let loggerMiddleware: any = null;
-if (EnableLogging) {
-  console.log("LOGGING ENABLED")
+if (EnableReduxLogging) {
+  console.log("REDUX LOGGING ENABLED")
   loggerMiddleware = createLogger();
 } else {
-  console.log("LOGGING DISABLED");
+  console.log("REDUX LOGGING DISABLED");
 }
 
 
