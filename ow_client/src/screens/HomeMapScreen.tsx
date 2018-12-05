@@ -50,6 +50,7 @@ import PendingResourceDetailSection from '../components/PendingResourceDetailSec
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 
+
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -98,7 +99,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     },
   };
 
-  hardwareBackListener: any;
   appApi: BaseApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
@@ -108,25 +108,28 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
 
+    //Binds
+    this.hardwareBackPressed = this.hardwareBackPressed.bind(this);
+
     //Listen to events from the navigator
-    // this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
 
   componentWillMount() {
-    this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
+    console.log("componentWillMount subscribing to back pressed")
+    BackHandler.addEventListener('hardwareBackPress', this.hardwareBackPressed);
   }
 
   componentDidMount() {
+
   }
 
   componentWillReceiveProps() {
   }
 
   componentWillUnmount() {
-    //TODO unsubscribe if possible?
-    // this.hardwareBackListener
     EventEmitter.removeAllListeners(SearchButtonPressedEvent);
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBackPressed);
   }
 
   /*--- externally bound events ---*/
