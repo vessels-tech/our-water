@@ -141,7 +141,6 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
           return false;
         }}
         onDateChange={(date) => {
-          console.log("on date change", date);
           this.props.onChangeText(date);
           // this.setState({ date: date }) 
         }}

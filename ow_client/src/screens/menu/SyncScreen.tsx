@@ -286,8 +286,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    console.log("externalSyncStatus:", externalSyncStatus);
-
     return (
       <View>
         <Text

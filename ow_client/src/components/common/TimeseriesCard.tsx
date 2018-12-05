@@ -79,8 +79,6 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
 
-    console.log("Readings is", readings);
-
     if (!readings) {
       return this.getNotEnoughReadingsDialog();
     }  

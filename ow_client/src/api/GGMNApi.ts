@@ -194,7 +194,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   async getExternalServiceLoginDetails(): Promise<AnyLoginDetails> {
-    console.log("getExternalServiceLoginDetails");
     //Try performing a login first, just in case
     let credentials;
     try {
@@ -567,6 +566,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * 
    * @param resourceId: string -> The id of the resource. Not strictly required for the 
    *    GGMN api, but required to refer to the reading later on.
+   * @param timeseriesName: string -> Name of the timeseries (eg. GWmMSL, not used here)
    * @param timeseriesId: string  -> The id of the timeseries
    * @param range: TimeseriesRange -> the range of the selected query
    * 
@@ -574,7 +574,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * 
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
-  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
+  async getReadingsForTimeseries(resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
     const { startDate, endDate } = convertRangeToDates(range)
 
     const readingUrl = `${this.baseUrl}/api/v3/timeseries/`;
@@ -710,7 +710,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.GGMN;    
-    console.log("saveResource");
     const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
@@ -719,7 +718,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       };
     }
 
-    console.log("saved resource. getting details");
     const credentials = await this.getExternalServiceLoginDetails();
     if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
       return {
@@ -866,7 +864,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * we use the firebase api to save, as this is a user setting
    */
   saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
-    console.log("saving recent search", userId, searchQuery);
     return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
@@ -1183,8 +1180,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       const id = pendingReadings[idx].id;
       pendingReadingsResults[id] = result;
     });
-
-    console.log("almost finished sync");
 
     return Promise.resolve(makeSuccess<ExternalSyncStatusComplete>({
       pendingResourcesResults,

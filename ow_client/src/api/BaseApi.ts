@@ -80,7 +80,7 @@ export default interface BaseApi {
    * 
    * //TODO: refactor for SomeResult
    */
-  getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]>;
+  getReadingsForTimeseries(resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]>;
 
   /**
    * Save a reading

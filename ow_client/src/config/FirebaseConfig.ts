@@ -16,7 +16,6 @@ export class FirebaseConfig {
       config.enableDeveloperMode();
     }
 
-    console.log("Getting Firebase Config");
     return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
     // return config.fetch(10)
       .then(() => config.activateFetched())

@@ -79,7 +79,6 @@ export async function getCached(id: string): Promise<any | null> {
     return parsed;
   } catch(err) {
     maybeLog("getCached, " + err.message);
-    console.log("err", err);
     return null;
   }
 }

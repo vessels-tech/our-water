@@ -111,18 +111,19 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { resource: { id, timeseries } } = this.props;
 
     //Always load the default timeseries - that way we don't miss out on pending readings
-    return this.loadDefaultTimeseries()
+    // return this.loadDefaultTimeseries()
 
     //Not sure if we will want this back
-    // if (timeseries.length === 0) {
-    //   return this.loadDefaultTimeseries();
-    // }
-    // timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
-    //   .then(result => {
-    //     if (result.type === ResultType.ERROR) {
-    //       ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
-    //     }
-    //   }));
+    //TODO: this makes it impossible to create new timeseries here... have to figure this out
+    if (timeseries.length === 0) {
+      return this.loadDefaultTimeseries();
+    }
+    timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, id, ts.name, ts.id, DEFAULT_RANGE)
+      .then(result => {
+        if (result.type === ResultType.ERROR) {
+          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+        }
+      }));
   }
 
   getDefaultTimeseries(): Array<ConfigTimeseries> {

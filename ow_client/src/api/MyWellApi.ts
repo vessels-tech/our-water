@@ -217,8 +217,8 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN,
    * and a unique for a series of readings
    */
-  async getReadingsForTimeseries(resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
-    const result = await FirebaseApi.getReadings(this.orgId, resourceId, timeseriesId, range);
+  async getReadingsForTimeseries(resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
+    const result = await FirebaseApi.getReadings(this.orgId, resourceId, timeseriesName, range);
     if (result.type === ResultType.ERROR) {
       return Promise.reject(new Error(result.message));
     }

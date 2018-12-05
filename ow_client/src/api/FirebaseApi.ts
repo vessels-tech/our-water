@@ -528,7 +528,6 @@ class FirebaseApi {
    * Delete a pending resource from the user's pending resource list
    */
   static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
-    console.log("deletePendingResourceFromUser");
     return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
     .then(() => makeSuccess(undefined))
     .catch((err: Error) => makeError(err.message));
@@ -1008,8 +1007,6 @@ class FirebaseApi {
       ...sendOptions,
     };
 
-    console.log("body is: ", body);
-
     const options = {
       timeout,
       method: 'POST',
@@ -1026,7 +1023,6 @@ class FirebaseApi {
 
     return ftch(url, options)
       .then((response: any) => {
-        console.log("Response is", response);
         if (!response.ok) {
           return rejectRequestWithError(response.status);
         }
@@ -1040,7 +1036,6 @@ class FirebaseApi {
         }
       })
       .catch((err: Error) => {
-        console.log("error", err);
         maybeLog(`send resource email Error: ${err}`);
         return {
           type: ResultType.ERROR,

@@ -94,7 +94,6 @@ export default class FBReading extends FirestoreDoc {
   }
 
   public toAnyReading(): AnyReading {
-    console.log("toAnyReading", this);
 
     switch(this.type) {
       case OrgType.GGMN: {
