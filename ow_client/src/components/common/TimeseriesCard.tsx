@@ -24,6 +24,7 @@ import { AnyTimeseries } from '../../typings/models/Timeseries';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { ConfigTimeseries } from '../ResourceDetailSection';
 import { OrgType } from '../../typings/models/OrgType';
+import { AnyReading } from '../../typings/models/Reading';
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -79,11 +80,17 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
 
-    if (!readings) {
-      return this.getNotEnoughReadingsDialog();
-    }  
+    //This is less than ideal.
+    let readingsLength = 0;
+    if (readings && readings.readings && readings.readings.length) {
+      readingsLength = readings.readings.length;
+    }
 
-    if (readings.meta.loading) {
+    // if (!readings) {
+    //   return this.getNotEnoughReadingsDialog();
+    // }  
+
+    if (readings && readings.meta && readings.meta.loading) {
       return (
         <View style={{
           flex: 5,
@@ -94,8 +101,13 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (readings.readings.length === 0 && this.props.pendingReadings.length === 0) {
+    if (readingsLength === 0 && this.props.pendingReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
+    }
+
+    let chartReadings: AnyReading[] = [];
+    if (readings && readings.readings) {
+      chartReadings = readings.readings;
     }
 
     return (
@@ -105,7 +117,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
       }}>
         <SimpleChart
           pendingReadings={this.props.pendingReadings}
-          readings={readings.readings}
+          readings={chartReadings}
           timeseriesRange={currentRange} 
         />
       </View>
