@@ -882,7 +882,14 @@ export function startExternalSync(api: MaybeExternalServiceApi, userId: string, 
 
     dispatch(externalSyncRequest());
     
-    const result = await api.runExternalSync(userId, pendingResources, pendingReadings);
+    let result;
+    try {
+      result = await api.runExternalSync(userId, pendingResources, pendingReadings)
+    } catch (err) {
+      maybeLog("Sync error", err);
+      result = makeError<ExternalSyncStatusComplete>(err.message);
+    }
+    result = makeError<ExternalSyncStatusComplete>("nothing");
 
     dispatch(externalSyncResponse(result));
   }

@@ -31,6 +31,7 @@ import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
 import { unwrapUserId, displayAlert } from '../../utils';
+import { isNullOrUndefined } from 'util';
 
 export interface Props { 
   resourceId: string,
@@ -208,8 +209,6 @@ class EditResourceScreen extends Component<Props> {
     }
 
     const result = await this.extendedResourceApi.checkNewId(control.value);
-    //TODO: fix this, as checkNewId now returns AnyResource or is an error
-    console.log("check id result is", result);
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
@@ -242,16 +241,17 @@ class EditResourceScreen extends Component<Props> {
 
     let ownerName;
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
-      if (this.editResourceForm.value.ownerName) {
+      if (!isNullOrUndefined(this.editResourceForm.value.ownerName) && this.editResourceForm.value.ownerName !== '') {
         ownerName = this.editResourceForm.value.ownerName;
       } else {
         ownerName = this.editResourceForm.value.id;
       }
-    } 
-
+    } else {
+      ownerName = this.editResourceForm.value.id;
+    }
+    
     //TODO: make more type safe
     const unvalidatedResource: any = {
-
       //TODO: load the id?
       pending: true,
       coords: {

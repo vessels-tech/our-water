@@ -1089,8 +1089,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     const savedResourceIds: string[] = [];
     
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
-    const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(pendingResources.map(res => this.getResourceFromPendingId(res.id)))
-      .then((results: Array<SomeResult<AnyResource>>) => results);
+    const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(
+      pendingResources
+      .map(res => this.getResourceFromPendingId(res.id)))
+      .then((results: Array<SomeResult<AnyResource>>) => results)
+      // .catch(err => {
+      //   maybeLog("checkResourcesResults error: " + err);
+      //   return makeError<AnyResource>(err.message);
+      // });
 
     maybeLog("Check saved resource results: ", checkResourcesResults);
 
@@ -1101,7 +1107,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
 
         const id = pendingResources[idx].id;
-        return await FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id)
+        try {
+          const deleteResult =  await FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id)
+          return deleteResult;
+        } catch (err) {
+          maybeLog("Error with deletePendingResourceFromUser: " + err);
+          return makeError<any>(err.message);
+        }
       })
     );
    
@@ -1157,6 +1169,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       const id = pendingReadings[idx].id;
       pendingReadingsResults.set(id, result);
     });
+
+    console.log("almost finished sync");
 
     return Promise.resolve(makeSuccess<ExternalSyncStatusComplete>({
       pendingResourcesResults,

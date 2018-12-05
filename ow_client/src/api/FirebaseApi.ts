@@ -528,6 +528,7 @@ class FirebaseApi {
    * Delete a pending resource from the user's pending resource list
    */
   static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
+    console.log("deletePendingResourceFromUser");
     return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
     .then(() => makeSuccess(undefined))
     .catch((err: Error) => makeError(err.message));
