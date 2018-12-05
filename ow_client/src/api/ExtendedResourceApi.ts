@@ -5,6 +5,12 @@ export enum ExtendedResourceApiType {
   Has = 'Has',
 }
 
+export enum CheckNewIdResult {
+  Available = 'Available',
+  Unavailable = 'Unavailable',
+  Unknown = 'Unknown', //Use this status if we can't get a result
+}
+
 export type MaybeExtendedResourceApi = NoneExtendedResourceApi | ExtendedResourceApi;
 
 export interface NoneExtendedResourceApi {
@@ -25,6 +31,6 @@ export default interface ExtendedResourceApi {
    *
    * Checks to see if a proposed ResourceId is available
    */
-  checkNewId(id: string): Promise<SomeResult<boolean>>;
+  checkNewId(id: string): Promise<SomeResult<CheckNewIdResult>>;
 
 }

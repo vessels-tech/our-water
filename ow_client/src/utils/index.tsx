@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Fetch } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
@@ -68,6 +68,8 @@ export async function naiveParseFetchResponse<T>(response: any): Promise<SomeRes
     result: parsed,
   };
 }
+
+
 
 /**
  * Get the image based on the resource type

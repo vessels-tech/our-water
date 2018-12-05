@@ -22,7 +22,7 @@ import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
 import { OrgType } from "../typings/models/OrgType";
-import ExtendedResourceApi, { ExtendedResourceApiType } from "./ExtendedResourceApi";
+import ExtendedResourceApi, { ExtendedResourceApiType, CheckNewIdResult } from "./ExtendedResourceApi";
 import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
@@ -1192,7 +1192,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * If someResult.type is error, something went wrong
    * if someResult.result is true, id is valid, otherwise, id is invalid.
    */
-  async checkNewId(id: string): Promise<SomeResult<boolean>> {
+  async checkNewId(id: string): Promise<SomeResult<CheckNewIdResult>> {
     /* perform a generic search */
     //https://ggmn.lizard.net/api/v3/search/?q=123&page_size=25
 
@@ -1216,6 +1216,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     try {
       response = await ftch(url, options);
     } catch (err) {
+      // Return a special status if offline
+      if (err.message === 'Network request failed') {
+        return makeSuccess<CheckNewIdResult>(CheckNewIdResult.Unknown);
+      }
+
       maybeLog("error: " + err);
       return {
         type: ResultType.ERROR,
@@ -1230,19 +1235,19 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     //if the results count is too high, id isn't specific enough.
     if (searchResponse.result.count >= searchPageSize) {
-      return makeSuccess<boolean>(false);
+      return makeSuccess<CheckNewIdResult>(CheckNewIdResult.Unavailable);
     }
 
     const searchEntities = searchResponse.result.results;
-    let exists = true;
+    let exists: CheckNewIdResult = CheckNewIdResult.Unavailable;
     searchEntities.forEach(s => {
       if (s.description === `${id}`) {
-        exists = false;
+        exists = CheckNewIdResult.Available;
       }
     });
 
 
-    return makeSuccess<boolean>(exists);
+    return makeSuccess<CheckNewIdResult>(exists);
   }
 
 

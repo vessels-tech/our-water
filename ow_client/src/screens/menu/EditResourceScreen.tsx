@@ -26,7 +26,7 @@ import * as equal from 'fast-deep-equal';
 import { secondary, secondaryText, error1 } from '../../utils/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { OrgType } from '../../typings/models/OrgType';
-import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/ExtendedResourceApi';
+import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } from '../../api/ExtendedResourceApi';
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
@@ -93,7 +93,6 @@ class EditResourceScreen extends Component<Props> {
    * Set up the forms
    */
   getFormBuilder(props: Props): EditResourceFormBuilder {
-
     if (props.resource) {
       const builder = this.getEditFormBuilder(props.resource);
       return builder
@@ -110,7 +109,7 @@ class EditResourceScreen extends Component<Props> {
     let name;
     let ownerName;
 
-    id = [ resource.id, Validators.required];
+    id = [resource.id, Validators.required, this.asyncIdValidator];
 
     if (resource.pending) {
       lat = [`${resource.coords.latitude}`, Validators.required];
@@ -210,6 +209,7 @@ class EditResourceScreen extends Component<Props> {
 
     const result = await this.extendedResourceApi.checkNewId(control.value);
     //TODO: fix this, as checkNewId now returns AnyResource or is an error
+    console.log("check id result is", result);
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
@@ -217,7 +217,7 @@ class EditResourceScreen extends Component<Props> {
       throw { invalidId: true };
     }
 
-    if (result.result === false) {
+    if (result.result === CheckNewIdResult.Unavailable) {
       throw { invalidId: true };
     }
 
