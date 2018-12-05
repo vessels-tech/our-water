@@ -46,7 +46,7 @@
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",
     "nodemailer": "^4.6.8",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#5f2c627309513cfcb25c1d94a6168c9631fc3ee9",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#6deefaf7c1cf8f31be130bb25c79f0942ac67c18",
     "ow_types": "https://github.com/vessels-tech/ow_types#b9d8f3962815b4850317f3f9423a78ce8bb7a483",
     "papaparse": "^4.4.0",
     "qrcode": "^1.3.2",

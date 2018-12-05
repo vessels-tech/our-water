@@ -39,7 +39,7 @@ export default abstract class FirestoreDoc {
    * Create docs as part of a Batch
    * Put in an id, or allow firebase to create one for you.
    */
-  public batchCreate(batch: FirebaseFirestore.WriteBatch, firestore: admin.firestore.Firestore, id?: string): void {
+  public batchCreate(batch: FirebaseFirestore.WriteBatch, firestore: FirebaseFirestore.Firestore, id?: string): void {
     let ref;
     if (!id) {
       ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc();

@@ -26,6 +26,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations';
 import { PendingReading } from '../typings/models/PendingReading';
+import { Link } from '../components/common/Link';
 
 
 export interface OwnProps {
@@ -119,6 +120,10 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
       sync_screen_send_email_button,
     } = this.props.translation.templates;
 
+    //TODO: translate
+    const sync_screen_help_email = "claudia.ruz-vargas@un-igrac.org";
+    const sync_screen_help_end = ". We'd be glad to assist you.";
+
     const headingStyle: TextStyle = {
       paddingTop: 20,
       fontWeight: "600",
@@ -173,7 +178,19 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
         <Text style={headingStyle}>{sync_screen_step_5_heading}</Text>
         <Text style={sectionStyle}>{sync_screen_step_5_body}</Text>
         <Text style={headingStyle}>{sync_screen_help_heading}</Text>
-        <Text style={{ paddingBottom: 20, ...sectionStyle }}>{sync_screen_help_body}</Text>
+        <Text style={{ paddingBottom: 20, ...sectionStyle }}>
+          {`${sync_screen_help_body}\n`}
+          <Link
+            style={{
+              fontWeight: "600",
+              color: primaryDark,
+              textDecorationLine: 'underline'
+            }}
+            text={sync_screen_help_email}
+            url={`mailto:${sync_screen_help_email}`}
+          />
+          {sync_screen_help_end}
+        </Text>
       </ScrollView>
     );
   }

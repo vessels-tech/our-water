@@ -172,8 +172,6 @@ class NewReadingScreen extends Component<Props> {
       }
     }
 
-    console.log('date is', date);
-
     const readingRaw: any = {
       type: this.props.config.orgType,
       pending: true,

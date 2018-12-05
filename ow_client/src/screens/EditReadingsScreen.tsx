@@ -99,6 +99,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
             deletePendingReading={this.deletePendingReading}
             pendingReading={reading}
             sync_date_format={sync_date_format}
+            unitSuffix=" m"
           />
         )}
       </View>

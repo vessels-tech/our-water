@@ -114,7 +114,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   componentWillMount() {
-
     this.hardwareBackListener = BackHandler.addEventListener('hardwareBackPress', () => this.hardwareBackPressed());
   }
 
@@ -131,8 +130,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   /*--- externally bound events ---*/
-
   hardwareBackPressed() {
+    console.log("back pressed");
     if (this.state.hasSelectedResource) {
       this.clearSelectedResource();
       return true;

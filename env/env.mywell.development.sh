@@ -8,7 +8,8 @@ export REACT_APP_FB_STORAGE_BUCKET="our-water.appspot.com"
 export REACT_APP_BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 
 #config timeout is in seconds
-export REACT_APP_REMOTE_CONFIG_TIMEOUT=600
+export REACT_APP_REMOTE_CONFIG_TIMEOUT=10
+export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='false'
 
 #Remote config setup

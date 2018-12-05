@@ -243,6 +243,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         sync_date_format={sync_date_format}
         message={message}
         errorMessage={errorMessage}
+        unitSuffix=" m"
       />
     )
   }

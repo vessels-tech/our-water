@@ -6,11 +6,16 @@ import firebase from 'react-native-firebase';
 import Config from 'react-native-config';
 import { RemoteConfig } from './ConfigFactory';
 import { translationFromJSON } from 'ow_translations';
+import { RemoteConfigDeveloperMode } from '../utils/EnvConfig';
 const config = firebase.config();
 
 export class FirebaseConfig {
 
   static getAllConfig() {
+    if (RemoteConfigDeveloperMode) {
+      config.enableDeveloperMode();
+    }
+
     console.log("Getting Firebase Config");
     return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
     // return config.fetch(10)
