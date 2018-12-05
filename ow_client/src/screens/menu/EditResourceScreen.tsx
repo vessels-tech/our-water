@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from 'react';
 import {
-  View, Keyboard, ToastAndroid, ScrollView,
+  View, Keyboard, ToastAndroid, ScrollView, Alert,
 } from 'react-native';
 import {
   Button
@@ -30,7 +30,7 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType } from '../../api/Ext
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
-import { unwrapUserId } from '../../utils';
+import { unwrapUserId, displayAlert } from '../../utils';
 
 export interface Props { 
   resourceId: string,
@@ -84,6 +84,7 @@ class EditResourceScreen extends Component<Props> {
     /* Binds */
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.displayDeleteModal = this.displayDeleteModal.bind(this);
 
     this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
   }
@@ -293,6 +294,23 @@ class EditResourceScreen extends Component<Props> {
     this.props.navigator.dismissModal();
   }
 
+  displayDeleteModal() {
+    const edit_resource_delete_modal_title = "Are You Sure?";
+    const edit_resource_delete_modal_text = "Deleting this station will delete any associated readings, and cannot be undone.";
+    const edit_resource_delete_modal_ok = "DELETE";
+    const edit_resource_delete_modal_cancel = "CANCEL";
+
+    Alert.alert(
+      edit_resource_delete_modal_title, 
+      edit_resource_delete_modal_text, 
+      [
+        { text: edit_resource_delete_modal_ok, onPress: this.handleDelete },
+        { text: edit_resource_delete_modal_cancel, onPress: () => {} }
+      ],
+      { cancelable: true }
+    );
+  }
+
   handleDelete() {
     if (this.props.resource) {
       this.props.deletePendingResource(this.appApi, this.props.userId, this.props.resource.id);
@@ -443,7 +461,7 @@ class EditResourceScreen extends Component<Props> {
           fontWeight: '700',
         }}
         title={edit_resource_delete_button}
-        onPress={this.handleDelete}
+        onPress={this.displayDeleteModal}
       />
     )
   }

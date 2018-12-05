@@ -871,6 +871,33 @@ class FirebaseApi {
   }
 
   /**
+   * Delete the pending readings from a pending resource
+   */
+  static async deletePendingReadingsForResource(orgId: string, userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId).collection('pendingReadings').get()
+      .then((sn: any) => {
+        const readings: PendingReading[] = [];
+        sn.forEach((doc: any) => {
+          //Get each document, put in the id
+          const data = doc.data();
+          //@ts-ignore
+          data.id = doc.id;
+          readings.push(data);
+        });
+
+        return readings;
+      })
+      .then((pendingReadings: PendingReading[]) => {
+      return Promise.all(pendingReadings
+        .filter(r => r.resourceId === pendingResourceId)
+        .map(r => this.deletePendingReading(orgId, userId, r.id))
+      )
+    })
+    .then(() => makeSuccess<void>(undefined))
+    .catch((err: Error) => makeError<void>(err.message))
+  }
+
+  /**
    * Delete a pending reading
    */
   static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {

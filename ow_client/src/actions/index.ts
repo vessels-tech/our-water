@@ -220,7 +220,9 @@ function deletePendingReadingResponse(result: SomeResult<void>): DeletePendingRe
 
 
 /**
- * Async delete pending resources
+ * Async delete pending resources. 
+ * 
+ * If there are pending readings associated with the resource, these will be deleted as well.
  */
 export function deletePendingResource(api: BaseApi, userId: string, pendingResourceId: string): any {
   return async function(dispatch: any) {

@@ -764,7 +764,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Delete pending resource
    */
   deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
-    return FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
+    return FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId)
+    .then(() => FirebaseApi.deletePendingReadingsForResource(this.orgId, userId, pendingResourceId))
+
   }
 
   /**
