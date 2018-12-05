@@ -29,6 +29,7 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { GGMNTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
 import { SignInStatus } from "../screens/menu/SignInScreen";
+import { CacheType } from "../reducers";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -1167,20 +1168,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       
     maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
 
-    const pendingResourcesResults = new Map<string, SomeResult<AnyResource>>();
-    const pendingReadingsResults = new Map<string, SomeResult<any>>();
+    const pendingResourcesResults: CacheType<SomeResult<AnyResource>> = {};
+    const pendingReadingsResults: CacheType<SomeResult<any>> = {};
     
     removePendingResults.forEach((result, idx) => {
       const id = pendingResources[idx].id;
       const resourceResult = checkResourcesResults[idx];
       //This is a hack - we ignore the removePendingReadingResults in favour of the actual saved resource
-      pendingResourcesResults.set(id, resourceResult);
+      pendingResourcesResults[id] = resourceResult;
     });
 
     //TODO: copy for PendingResourcesResults
     saveReadingResults.forEach((result, idx) => {
       const id = pendingReadings[idx].id;
-      pendingReadingsResults.set(id, result);
+      pendingReadingsResults[id] = result;
     });
 
     console.log("almost finished sync");

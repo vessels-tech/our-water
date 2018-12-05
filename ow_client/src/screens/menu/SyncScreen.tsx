@@ -182,9 +182,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           {sync_manual_text}
         </Text>
         <Button
-          // buttonStyle={{
-          //   height: 30,
-          // }}
           style={{
             minHeight: 50,
           }}
@@ -289,6 +286,8 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
+    console.log("externalSyncStatus:", externalSyncStatus);
+
     return (
       <View>
         <Text
@@ -304,11 +303,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           {pendingSavedResources.map((resource, idx) => {
             let message: string | undefined;
             if (externalSyncStatus.status === ExternalSyncStatusType.COMPLETE) {
-              if (externalSyncStatus.pendingResourcesResults.has(resource.id)) {
-                const result = externalSyncStatus.pendingResourcesResults.get(resource.id);
-                if (result && result.type === ResultType.ERROR) {
-                  message = result.message;
-                }
+              const result = externalSyncStatus.pendingResourcesResults[resource.id];
+              if (result && result.type === ResultType.ERROR) {
+                message = result.message;
               }
             }
             return this.resourceListItem(resource, idx, message);
@@ -348,11 +345,9 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         {pendingSavedReadings.map((reading, idx) => {
           let message: string | undefined;
           if (externalSyncStatus.status === ExternalSyncStatusType.COMPLETE) {
-            if (externalSyncStatus.pendingReadingsResults.has(reading.id)) {
-              const result = externalSyncStatus.pendingReadingsResults.get(reading.id);
-              if (result && result.type === ResultType.ERROR) {
-                message = result.message;
-              }
+            const result = externalSyncStatus.pendingReadingsResults[reading.id];
+            if (result && result.type === ResultType.ERROR) {
+              message = result.message;
             }
           }
           return this.readingListItem(reading, idx, message);

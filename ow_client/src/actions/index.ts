@@ -887,7 +887,7 @@ export function startExternalSync(api: MaybeExternalServiceApi, userId: string, 
       maybeLog("Sync error", err);
       result = makeError<ExternalSyncStatusComplete>(err.message);
     }
-    result = makeError<ExternalSyncStatusComplete>("nothing");
+    // result = makeError<ExternalSyncStatusComplete>("nothing");
 
     dispatch(externalSyncResponse(result));
   }

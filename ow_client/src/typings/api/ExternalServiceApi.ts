@@ -1,6 +1,7 @@
 import { GGMNOrganisation } from '../models/GGMN'; 
 import { SomeResult } from '../AppProviderTypes';
 import { AnyResource } from '../models/Resource';
+import { CacheType } from '../../reducers';
 
 export enum LoginDetailsType {
   EMPTY = 'EMPTY',
@@ -57,8 +58,8 @@ export type AnyExternalSyncStatus = ExternalSyncStatusComplete | ExternalSyncSta
 
 export type ExternalSyncStatusComplete = {
   status: ExternalSyncStatusType.COMPLETE,
-  pendingResourcesResults: Map<string, SomeResult<AnyResource>>,
-  pendingReadingsResults: Map<string, SomeResult<any>>,
+  pendingResourcesResults: CacheType<SomeResult<AnyResource>>,
+  pendingReadingsResults: CacheType<SomeResult<any>>,
 }
 
 export type ExternalSyncStatusRunning = { 

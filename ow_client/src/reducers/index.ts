@@ -112,8 +112,8 @@ export const initialState: AppState = {
   resourcesCache: {}, 
   externalSyncStatus: { 
     status: ExternalSyncStatusType.COMPLETE,
-    pendingResourcesResults: new Map<string, SomeResult<any>>(),
-    pendingReadingsResults: new Map<string, SomeResult<any>>(),
+    pendingResourcesResults: {},
+    pendingReadingsResults: {},
   },
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
@@ -588,8 +588,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       if (action.result.type === ResultType.ERROR) {
         const externalSyncStatus: ExternalSyncStatusComplete = { 
           status: ExternalSyncStatusType.COMPLETE,  
-          pendingResourcesResults: new Map<string, SomeResult<any>>(),
-          pendingReadingsResults: new Map<string, SomeResult<any>>(),
+          pendingResourcesResults: {},
+          pendingReadingsResults: {},
         };
 
         return Object.assign({}, state, { externalSyncStatus })
@@ -597,15 +597,17 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       let resources: AnyResource[] = state.resources;
       const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
+
+      console.log("START_EXTERNAL_SYNC_RESPONSE, externalSyncStatus", externalSyncStatus);
       
       //add the saved resources to the resource list
-      for (let result of externalSyncStatus.pendingResourcesResults.values()) {
-        if (result.type !== ResultType.SUCCESS) {
-          continue;
-        }
+      // for (let result of externalSyncStatus.pendingResourcesResults.values()) {
+      //   if (result.type !== ResultType.SUCCESS) {
+      //     continue;
+      //   }
 
-        resources.push(result.result);
-      }
+      //   resources.push(result.result);
+      // }
 
       return Object.assign({}, state, { externalSyncStatus, resources })
     }
