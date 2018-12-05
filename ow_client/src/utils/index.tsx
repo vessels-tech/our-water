@@ -413,9 +413,9 @@ export function newTsRangeReadings(): TimeseriesRangeReadings {
  * Helper function to modify deeply nested data inside the metadata for a 
  * timeseries range reading
  */
-export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange, loading: boolean) {
+export function setLoading(timeseriesReadings: CacheType<TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange, loading: boolean) {
   //Set the appropriate meta to loading for the timeseries and timerange
-  let tsRangeReadings = timeseriesReadings.get(timeseriesId);
+  let tsRangeReadings = timeseriesReadings[timeseriesId];
   if (!tsRangeReadings) {
     tsRangeReadings = newTsRangeReadings();
   }
@@ -423,14 +423,14 @@ export function setLoading(timeseriesReadings: Map<string, TimeseriesRangeReadin
   readingsForRange.meta = { loading };
 
   tsRangeReadings[range] = readingsForRange;
-  timeseriesReadings.set(timeseriesId, tsRangeReadings);
+  timeseriesReadings[timeseriesId] = tsRangeReadings;
 
   return timeseriesReadings;
 }
 
-export function addReadingsAndStopLoading(readings: AnyReading[], timeseriesReadings: Map<string, TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange) {
+export function addReadingsAndStopLoading(readings: AnyReading[], timeseriesReadings: CacheType<TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange) {
   //Set the appropriate meta to loading for the timeseries and timerange
-  let tsRangeReadings = timeseriesReadings.get(timeseriesId);
+  let tsRangeReadings = timeseriesReadings[timeseriesId];
   if (!tsRangeReadings) {
     tsRangeReadings = newTsRangeReadings();
   }
@@ -439,7 +439,7 @@ export function addReadingsAndStopLoading(readings: AnyReading[], timeseriesRead
   readingsForRange.readings = readings,
 
   tsRangeReadings[range] = readingsForRange;
-  timeseriesReadings.set(timeseriesId, tsRangeReadings);
+  timeseriesReadings[timeseriesId] = tsRangeReadings;
 
   return timeseriesReadings;
 }
@@ -569,15 +569,6 @@ export function getShortIdOrFallback(id: string, cache: CacheType<string>, fallb
   }
 
   return title;
-}
-
-
-export const serializeMap = (input: Map<any, any>): any => {
-  if (!input) {
-    return {};
-  }
-
-  return Array.from(input).reduce((obj, [key, value]) => (Object.assign(obj, { [key]: value })), {});
 }
 
 

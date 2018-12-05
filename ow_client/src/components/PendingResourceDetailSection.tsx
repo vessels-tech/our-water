@@ -24,7 +24,7 @@ import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
@@ -144,20 +144,20 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     const { timeseries_name_title, timeseries_date_format } = this.props.translation.templates;
     
     let loading = false;
-    const readingsMap = new Map<string, PendingReading[]>();
+    const readingsMap: CacheType<PendingReading[]> = {};
 
     pendingResource.timeseries.forEach(ts => {
-      readingsMap.set(ts.name, pendingReadings.filter(r => r.timeseriesId === ts.name));
+      readingsMap[ts.name] = pendingReadings.filter(r => r.timeseriesId === ts.name);
     });
 
     if (loading) {
       return <Loading />
     }
 
-    const keys = [...readingsMap.keys()];
+    const keys = Object.keys(readingsMap);
     return (
       keys.map((key) => {
-        const readings = readingsMap.get(key) || [];
+        const readings = readingsMap[key] || [];
         let content = 'N/A';
         let content_subtitle;
 

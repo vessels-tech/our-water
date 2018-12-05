@@ -53,7 +53,7 @@ export type AppState = {
   resources: AnyResource[],
   myResources: AnyResource[],
   resourcesMeta: ActionMeta,
-  resourceMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
+  resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
   resourcesCache: CacheType<AnyResource>,
   // resourcesCache: Map<string, AnyResource>, //A super simple cache implementation
   externalSyncStatus: AnyExternalSyncStatus,
@@ -108,7 +108,7 @@ export const initialState: AppState = {
   resources: [],
   myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
-  resourceMeta: new Map<string, ActionMeta>(),
+  resourceMeta: {},
   resourcesCache: {}, 
   externalSyncStatus: { 
     status: ExternalSyncStatusType.COMPLETE,
@@ -281,7 +281,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_RESOURCE_REQUEST: {
       //start loading
       const resourceMeta = state.resourceMeta;
-      resourceMeta.set(action.resourceId, { loading: true, error: false, errorMessage: '' });
+      resourceMeta[action.resourceId] = { loading: true, error: false, errorMessage: '' };
       
       return Object.assign({}, state, { resourceMeta });
     }
@@ -291,7 +291,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       if (action.result.type === ResultType.ERROR) {
         meta = { loading: false, error: true, errorMessage: action.result.message };
-        resourceMeta.set(action.resourceId, meta);
+        resourceMeta[action.resourceId] = meta;
 
         return Object.assign({}, state, { resourceMeta });
       }
@@ -307,7 +307,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       if (!alreadyHasResource) {
         resources.push(action.result.result);
       }
-      resourceMeta.set(action.resourceId, meta);
+      resourceMeta[action.resourceId] = meta;
       //I think this was missing resources
       return Object.assign({}, state, { resourceMeta, resources });
     }
