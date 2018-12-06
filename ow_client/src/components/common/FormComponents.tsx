@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from "react";
 import { View, Picker } from "react-native";
-import { FormInput, FormValidationMessage, FormLabel } from "react-native-elements";
+import { FormValidationMessage, FormLabel, FormInput, Text } from "react-native-elements";
 import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
@@ -95,25 +95,38 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
   );
 }
 export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
-
   return (
     <View style={{
       flex: 1,
     }}>
       <FormLabel>{meta.label}</FormLabel>
-      <FormInput
-        autoCapitalize={'none'} 
-        keyboardType={meta.keyboardType}
-        // placeholder={`${meta.label}`}
-        secureTextEntry={meta.secureTextEntry} 
-        editable={meta.editable}
-        underlineColorAndroid='transparent'
-        containerStyle={{
-          borderBottomColor: bgLightHighlight,
-          borderBottomWidth: 2,
-        }}
-        {...handler()} 
-      />
+      {meta.editable? 
+        <FormInput
+          autoCapitalize={'none'} 
+          keyboardType={meta.keyboardType}
+          // placeholder={`${meta.label}`}
+          secureTextEntry={meta.secureTextEntry}
+          // editable={meta.editable}
+          editable={false}
+          underlineColorAndroid='transparent'
+          containerStyle={{
+            borderBottomColor: bgLightHighlight,
+            borderBottomWidth: 2,
+          }}
+          {...handler()} 
+        /> :
+        <View 
+          style={{
+            borderBottomColor: bgLightHighlight,
+            borderBottomWidth: 2,
+            marginLeft: 20,
+            paddingVertical: 10,
+          }}>
+          <Text>
+            {handler().value}
+          </Text>
+        </View>
+      }
       <FormValidationMessage>
         {touched
           && hasError("required")

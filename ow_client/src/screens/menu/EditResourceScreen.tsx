@@ -364,7 +364,8 @@ class EditResourceScreen extends Component<Props> {
                 name="id"
                 render={TextIdInput}
                 meta={{ 
-                  editable: true, 
+                  //Don't allow user to edit existing resource ids
+                  editable: this.props.resource ? false : true, 
                   label: new_resource_id, 
                   secureTextEntry: false, 
                   keyboardType: 'default',
