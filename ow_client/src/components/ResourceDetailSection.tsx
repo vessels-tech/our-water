@@ -274,14 +274,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     
     return (
       timeseries.map(ts => {
-        const key = ts.name;
+        const key = ts.name.toLowerCase();
         const readings = readingsMap[key] || [];
         const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === key.toLowerCase());
         const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
-
-
+        
         let content = 'N/A';
         let contentSubtitle;
+
 
         const latestReading = allReadings[allReadings.length - 1];
         if (latestReading) {
@@ -291,7 +291,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
         //This may fail...
         // const timeseries = resource.timeseries.filter(t => t.name === key)[0];
-        const filteredTs = timeseries.filter(t => t.name === key)[0];
+        const filteredTs = timeseries.filter(t => t.name.toLowerCase() === key)[0];
         if (!filteredTs) { 
           return null
         };
@@ -388,7 +388,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     /* use default timeseries if we have none */
     let timeseries: Array<AnyTimeseries | ConfigTimeseries> = this.getDefaultTimeseries();
-    console.log("getReadingsView timeseries is:", timeseries);
 
     //Don't ever use the resource's own timeseries - otherwise users can't see pending readings
     // if (resource.timeseries.length > 0) {
