@@ -131,7 +131,6 @@ module.exports = (functions) => {
         const oldCoords = req.body.data.coords;
         const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
         req.body.data.coords = newCoords;
-        console.log("org id:", orgId);
         //Add default lastReading
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
@@ -207,24 +206,31 @@ module.exports = (functions) => {
         const { subject, message } = req.body;
         const pendingResources = req.body.pendingResources;
         const pendingReadings = req.body.pendingReadings;
-        const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
-        if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
-            throw new Error(generateZipResult.message);
+        const attachments = [];
+        console.log("pre resources");
+        /* only add the pending resouces if the user is trying to save new resources */
+        if (pendingResources.length > 0) {
+            const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
+            if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                console.log("ggmnResourceEmail generateZipResult error", generateZipResult.message);
+                throw new Error(generateZipResult.message);
+            }
+            attachments.push({ filename: 'id.zip', path: generateZipResult.result });
         }
+        console.log("generated pending resources. Now generating csv");
         const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
         if (generateCSVResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            console.log("ggmnResourceEmail generateCSVResult error", generateCSVResult.message);
             throw new Error(generateCSVResult.message);
         }
-        const attachments = [
-            { filename: 'id.zip', path: generateZipResult.result },
-            { filename: 'id.csv', path: generateCSVResult.result },
-        ];
-        console.log("message is", message);
+        console.log("generated csv");
+        attachments.push({ filename: 'id.csv', path: generateCSVResult.result });
         const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, subject, message, attachments);
         if (sendEmailResult.type === AppProviderTypes_1.ResultType.ERROR) {
             console.log("Error sending emails:", sendEmailResult.message);
             throw new Error(sendEmailResult.message);
         }
+        console.log("sent email");
         res.json(true);
     }));
     /**

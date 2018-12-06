@@ -1,6 +1,7 @@
 import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
 import { writeFileAsync } from '../utils';
 import { zipGeoJson } from './Zip';
+import * as moment from 'moment'
 import { PendingResource, PendingReading } from 'ow_types';
 
 export default class GGMNApi {
@@ -43,8 +44,13 @@ export default class GGMNApi {
    */
   public static pendingResourceToCSV(pendingResources: PendingResource[], pendingReadings: PendingReading[], timeseriesNames: string[]): 
     Promise<SomeResult<string>> {
-    const contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
-    const filename = `/tmp/${pendingResources[0].id}.csv`;
+    let contents;
+    try {
+      contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
+    } catch (err) {
+      return Promise.resolve(makeError<string>(err));
+    }
+    const filename = `/tmp/${moment().unix()}.csv`;
 
     return writeFileAsync(filename, contents, 'utf8')
       .then(() => makeSuccess(filename))

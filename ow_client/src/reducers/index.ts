@@ -597,17 +597,14 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       let resources: AnyResource[] = state.resources;
       const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
-
-      console.log("START_EXTERNAL_SYNC_RESPONSE, externalSyncStatus", externalSyncStatus);
       
       //add the saved resources to the resource list
-      // for (let result of externalSyncStatus.pendingResourcesResults.values()) {
-      //   if (result.type !== ResultType.SUCCESS) {
-      //     continue;
-      //   }
-
-      //   resources.push(result.result);
-      // }
+      Object.keys(externalSyncStatus.pendingReadingsResults).forEach(key => {
+        const result = externalSyncStatus.pendingReadingsResults[key];
+        if (result.type === ResultType.SUCCESS) {
+          resources.push(result.result);
+        }
+      });
 
       return Object.assign({}, state, { externalSyncStatus, resources })
     }

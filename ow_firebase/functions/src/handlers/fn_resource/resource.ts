@@ -228,20 +228,28 @@ module.exports = (functions) => {
     
     const attachments = [];
 
+    console.log("pre resources");
+
     /* only add the pending resouces if the user is trying to save new resources */
     if (pendingResources.length > 0) {
       const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
       
       if (generateZipResult.type === ResultType.ERROR) {
+        console.log("ggmnResourceEmail generateZipResult error", generateZipResult.message);
         throw new Error(generateZipResult.message);
       }
       attachments.push({ filename: 'id.zip', path: generateZipResult.result});
     }
 
+    console.log("generated pending resources. Now generating csv");
+
     const generateCSVResult = await GGMNApi.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
     if (generateCSVResult.type === ResultType.ERROR) {
+      console.log("ggmnResourceEmail generateCSVResult error", generateCSVResult.message);
       throw new Error(generateCSVResult.message);
     }
+
+    console.log("generated csv");
 
     attachments.push({ filename: 'id.csv', path: generateCSVResult.result});
     const sendEmailResult = await EmailApi.sendResourceEmail(req.body.email, subject, message, attachments);
@@ -249,6 +257,8 @@ module.exports = (functions) => {
       console.log("Error sending emails:", sendEmailResult.message);
       throw new Error(sendEmailResult.message);
     }
+
+    console.log("sent email");
 
     res.json(true);
   });

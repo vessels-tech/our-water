@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const utils_1 = require("../utils");
 const Zip_1 = require("./Zip");
+const moment = require("moment");
 class GGMNApi {
     /**
      * pendingResourceToZip
@@ -36,8 +37,14 @@ class GGMNApi {
      * Converts pending readings into a csv format for creating timeseries in GGMN.
      */
     static pendingResourceToCSV(pendingResources, pendingReadings, timeseriesNames) {
-        const contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
-        const filename = `/tmp/${pendingResources[0].id}.csv`;
+        let contents;
+        try {
+            contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
+        }
+        catch (err) {
+            return Promise.resolve(AppProviderTypes_1.makeError(err));
+        }
+        const filename = `/tmp/${moment().unix()}.csv`;
         return utils_1.writeFileAsync(filename, contents, 'utf8')
             .then(() => AppProviderTypes_1.makeSuccess(filename))
             .catch(err => AppProviderTypes_1.makeError(err.message));

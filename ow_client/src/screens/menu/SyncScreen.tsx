@@ -220,7 +220,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         title={r.id}
         avatar={getGroundwaterAvatar()}
-        subtitle={errorMessage || `${r.coords.latitude.toFixed(3), r.coords.longitude.toFixed(3)} `}
+        subtitle={errorMessage || `${r.coords.latitude.toFixed(3)}, ${r.coords.longitude.toFixed(3)}`}
         subtitleStyle={{ color: message ? error1 : primaryDark }}
       />
     );

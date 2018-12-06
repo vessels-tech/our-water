@@ -80,7 +80,7 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
     const { tsReadings, timeseries: { name }, resourceId } = this.props;
     const readings = tsReadings[getTimeseriesReadingKey(resourceId, name, currentRange)];
 
-    //This is less than ideal.
+    //TD: This is less than ideal.
     let readingsLength = 0;
     if (readings && readings.readings && readings.readings.length) {
       readingsLength = readings.readings.length;

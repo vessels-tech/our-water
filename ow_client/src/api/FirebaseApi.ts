@@ -1029,21 +1029,11 @@ class FirebaseApi {
 
         return response.json();
       })
-      .then((shortId: ShortId) => {
-        return {
-          type: ResultType.SUCCESS,
-          result: shortId.shortId,
-        }
-      })
+      .then((shortId: ShortId) => makeSuccess(shortId.shortId))
       .catch((err: Error) => {
         maybeLog(`send resource email Error: ${err}`);
-        return {
-          type: ResultType.ERROR,
-          message: err.message
-        };
+        return makeError(err.message);
       });
-
-
   }
 
 

@@ -774,7 +774,7 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser,
 
     if (user.type !== UserType.USER) {
       maybeLog("Tried to send resource email, but no user found.");
-      return makeSuccess<void>(undefined);
+      return makeError<void>("Couldn't find user. Try logging in again.");
     }
 
     dispatch(sendResourceEmailRequest());
@@ -784,9 +784,8 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser,
     }
 
     const email = emailResult.result;
-    //TODO: translate
-    const subject = 'Here are your resources'; //translation.templates.resource_email_subject
-    const message = 'This is the message';  //translation.templates.resource_email_message
+    const subject = translation.templates.resource_email_subject;
+    const message = translation.templates.resource_email_message;
     const sendEmailResult = await api.sendResourceEmail(user.token, pendingResources, pendingReadings, {
       email,
       subject,

@@ -40,7 +40,7 @@ exports.ggmnResourceEmailValidation = {
         email: Joi.string().email().required(),
         subject: Joi.string().required(),
         message: Joi.string().required(),
-        pendingResources: Joi.array().min(1).items(pendingResourceValidation).required(),
+        pendingResources: Joi.array().min(0).items(pendingResourceValidation).required(),
         pendingReadings: Joi.array().min(0).items(pendingReadingValidation).required(),
     }
 };

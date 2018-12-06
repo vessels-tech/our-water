@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const AppError_1 = require("./AppError");
 function default_1(err, req, res, next) {
-    console.log("Error", JSON.stringify(err, null, 2));
+    console.log("Error:", err.message);
     if (typeof err === typeof AppError_1.default) {
         const appError = err;
         return res.status(appError.statusCode)

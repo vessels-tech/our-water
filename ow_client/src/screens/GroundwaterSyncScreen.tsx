@@ -3,25 +3,16 @@ import { Component } from 'react';
 import { Button, Text, FormValidationMessage } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback, ToastAndroid, ScrollView, TextStyle } from 'react-native';
-import { randomPrettyColorForId, maybeLog, navigateTo } from '../utils';
+import { ToastAndroid, ScrollView, TextStyle } from 'react-native';
 import { bgLight, primaryDark, primaryText, secondaryLight, secondaryText } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { AppState } from '../reducers';
 import { UserType, MaybeUser } from '../typings/UserTypes';
-import { LocationType, Location } from '../typings/Location';
 import { connect } from 'react-redux'
-import Loading from '../components/common/Loading';
-import { isNullOrUndefined } from 'util';
-import MapSection, { MapRegion } from '../components/MapSection';
-import { MapStateOption } from '../enums';
 import * as appActions from '../actions/index';
-import MapView, { Marker, Region } from 'react-native-maps';
 import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
-import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations';
@@ -118,11 +109,9 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
       sync_screen_help_heading,
       sync_screen_help_body,
       sync_screen_send_email_button,
+      sync_screen_help_email,
+      sync_screen_help_end,
     } = this.props.translation.templates;
-
-    //TODO: translate
-    const sync_screen_help_email = "claudia.ruz-vargas@un-igrac.org";
-    const sync_screen_help_end = ". We'd be glad to assist you.";
 
     const headingStyle: TextStyle = {
       paddingTop: 20,
@@ -139,8 +128,6 @@ class GroundwaterSyncScreen extends Component<OwnProps & StateProps & ActionProp
         style={{
           backgroundColor: bgLight,
           paddingHorizontal: 20,
-          // paddingTop: 10,
-          // paddingBottom: 10,
         }}
         contentContainerStyle={{ flexGrow: 1 }}
       >
@@ -217,8 +204,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
       dispatch(appActions.sendResourceEmail(api, user, externalUsername, pendingResources, pendingReadings, translation))
   };
 }
-
-// export default connect(mapStateToProps, mapDispatchToProps)(SimpleMapScreen);
 
 const enhance = compose(
   connect(mapStateToProps, mapDispatchToProps),

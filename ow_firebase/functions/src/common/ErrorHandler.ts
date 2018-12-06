@@ -1,7 +1,7 @@
 import AppError from "./AppError";
 
 export default function (err, req, res, next) {
-  console.log("Error", JSON.stringify(err, null, 2));
+  console.log("Error:", err.message);
 
   if (typeof err === typeof AppError) {
     const appError: AppError = err;
