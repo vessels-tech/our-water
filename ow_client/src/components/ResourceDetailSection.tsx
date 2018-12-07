@@ -60,7 +60,6 @@ export interface OwnProps {
   onAddReadingPressed: any,
   hideTopBar: boolean,
   onEditReadingsPressed: (r: AnyResource | PendingResource) => any,
-
 }
 
 export interface StateProps {

@@ -606,7 +606,11 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         }
       });
 
-      return Object.assign({}, state, { externalSyncStatus, resources })
+      //TD: we could be much more efficent than this
+      //Invalidate the tsReadings
+      const tsReadings: TimeSeriesReading[] = [];
+
+      return Object.assign({}, state, { externalSyncStatus, resources, tsReadings })
     }
 
     case ActionType.SET_EXTERNAL_ORGANISATION: {

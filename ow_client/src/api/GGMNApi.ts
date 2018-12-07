@@ -1466,12 +1466,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
     //Handle mutiple responses from GGMN Stations
     let timeseries: GGMNTimeseries[] = [];
-    if (from.filters[0].timeseries.length === 0 && from.timeseries.length > 0) {
-      timeseries = from.timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts));
-    } else {
-      //The timeseries is in the filter
-      timeseries = from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts))
-    }
+    from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
+    from.timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
 
     const to: GGMNResource = {
       //Code is the code we gave when creating it, Id is some random id.

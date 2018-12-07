@@ -783,7 +783,9 @@ export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser,
       return emailResult;
     }
 
-    const email = emailResult.result;
+    // const email = emailResult.result;
+    // TODO: change back
+    const email = 'lewis@vesselstech.com';
     const subject = translation.templates.resource_email_subject;
     const message = translation.templates.resource_email_message;
     const sendEmailResult = await api.sendResourceEmail(user.token, pendingResources, pendingReadings, {
