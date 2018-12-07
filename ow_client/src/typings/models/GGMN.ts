@@ -1,4 +1,5 @@
 import { Reading } from "./OurWater";
+import { GGMNTimeseries } from "./Timeseries";
 
 export type GGMNLocationResponse = {
   count: number,
@@ -65,6 +66,22 @@ export type GGMNGroundwaterStation = {
   geometry: GGMNGeometry,
   name: string,
   filters: Array<GGMNFilterResponse>,
+  //This only seems to be filled for some responses
+  //This is technically a different timeseries. eg:
+  /*
+    {
+      "uuid": "e4149718-bbf6-4ed4-b7e0-8a20a95341e9",
+      "name": "GWmMSL",
+      "parameter": "Groundwater MSL",
+      "unit": "m",
+      "reference_frame": "MSL",
+      "compartment": null,
+      "scale": "interval",
+      "value_type": "float",
+      "location": "123458"
+    }
+  */
+  timeseries: Array<GGMNResponseTimeseries>
 }
 
 export type GGMNFilterResponse = {

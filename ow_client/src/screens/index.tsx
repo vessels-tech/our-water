@@ -22,7 +22,7 @@ import { UserType, MobileUser } from '../typings/UserTypes';
 import { OWUser } from '../typings/models/OurWater';
 import { ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import SyncScreen from './menu/SyncScreen';
-import { EnableLogging, EnableReduxLogging } from '../utils/EnvConfig';
+import { EnableLogging, EnableReduxLogging, EnableCaching } from '../utils/EnvConfig';
 import SelectLanguageModal from './menu/SelectLanguageModal';
 import ScanScreen from './ScanScreen';
 import SimpleMapScreen from './SimpleMapScreen';
@@ -69,6 +69,11 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 }
 
 export async function getCached(id: string): Promise<any | null> {
+  if (!EnableCaching) {
+    maybeLog("Tried getCached but EnableCaching is false.");
+    return null;
+  }
+
   try {
     const json = await AsyncStorage.getItem(id);
     if (!json) {

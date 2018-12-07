@@ -26,7 +26,7 @@ import ExtendedResourceApi, { ExtendedResourceApiType, CheckNewIdResult } from "
 import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
-import { GGMNTimeseries } from "../typings/models/Timeseries";
+import { GGMNTimeseries, AnyTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
 import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
@@ -1464,13 +1464,19 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   static ggmnStationToResource(from: GGMNGroundwaterStation): GGMNResource {
+    //Handle mutiple responses from GGMN Stations
+    let timeseries: GGMNTimeseries[] = [];
+    if (from.filters[0].timeseries.length === 0 && from.timeseries.length > 0) {
+      timeseries = from.timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts));
+    } else {
+      //The timeseries is in the filter
+      timeseries = from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts))
+    }
+
     const to: GGMNResource = {
       //Code is the code we gave when creating it, Id is some random id.
       id: `${from.code}`, // Not sure if we should use code or name
-      // id: `${from.id}`, // Not sure if we should use code or name
-      // id: `${from.name}`,
       name: `${from.name}`,
-
       //TODO: not sure about this!
       title: `${from.name}`,
       description: `${from.name}`,
@@ -1480,8 +1486,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         _latitude: from.geometry.coordinates[1],
         _longitude: from.geometry.coordinates[0],
       },
-      // Not sure if from.name is correct... the GGMN api is really inconsistent
-      timeseries: from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts))
+      timeseries,
     };
 
     return to;

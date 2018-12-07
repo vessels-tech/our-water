@@ -998,8 +998,15 @@ class FirebaseApi {
    * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
    */
-  static async sendResourceEmail(orgId: string, token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
+  static async sendResourceEmail(orgId: string, unusedToken: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
+
+    //TD: Need a better way to get the token
+    const userResult = await this.signIn();
+    if (userResult.type === ResultType.ERROR) {
+      return userResult;
+    }
+    const token = userResult.result.token;
 
     const body = {
       pendingResources,
