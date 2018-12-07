@@ -669,7 +669,7 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
 
     //Attempt to do a sync, just this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
-      dispatch(startExternalSync(externalApi, userId, [], [reading]));
+      dispatch(startExternalSync(api, externalApi, userId, [], [reading]));
     }
 
     return result;

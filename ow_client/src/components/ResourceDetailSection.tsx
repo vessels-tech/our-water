@@ -110,7 +110,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { resource: { id, timeseries } } = this.props;
 
     //Always load the default timeseries - that way we don't miss out on pending readings
-    return this.loadDefaultTimeseries()
+    // return this.loadDefaultTimeseries()
 
     //Not sure if we will want this back
     //TODO: this makes it impossible to create new timeseries here... have to figure this out
