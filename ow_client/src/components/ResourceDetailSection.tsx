@@ -139,8 +139,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       const tsNames: CacheType<boolean> = {};
       resource.timeseries.forEach(ts => tsNames[ts.name.toLowerCase()] = true);
       pendingReadings.forEach(r => tsNames[r.timeseriesId.toLowerCase()] = true);
-      
-      // console.log("tsNames are:", tsNames);
+    
       
       const defaultTimeries: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(resourceType);
       //Only load the timeseries which we have the ids of in pending or real readings

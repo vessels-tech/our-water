@@ -124,7 +124,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
 
 
   onClusterPressed(event: any) {
-    // console.log("onClusterPressed", event);
+
   }
 
   /**
@@ -198,7 +198,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onRegionChange(region: any) {
-    // console.log('region changed', region);
+
   }
 
 
@@ -279,7 +279,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getCalloutForResource(resource: AnyResource) {    
-    // console.log('getCalloutForResource')
     if (!this.props.shouldShowCallout) {
       return null;
     }
@@ -308,6 +307,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
+    console.log("MapSection render()");
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
 
@@ -339,7 +339,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           {/* Pincode */}
           {/* Villages */}
           {resources.map((resource: AnyResource) => {
-            console.log("gettingShortId", resource);
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
             return <Marker
               //@ts-ignore
@@ -356,7 +355,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
               onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
               //Temporary
               // onCalloutPress={() => {
-              //   console.log("MapMarker onCalloutPressed");
               //   this.props.onCalloutPressed(resource)}
               // }
             >

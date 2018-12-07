@@ -81,6 +81,7 @@ export interface State {
   selectedResource?: AnyResource | PendingResource,
   isSearching: boolean,
   isAuthenticated: boolean,
+  loadingSearchResult: boolean,
 }
 
 class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -97,6 +98,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       latitudeDelta: 3.0,
       longitudeDelta: 3.0,
     },
+    loadingSearchResult: false,
   };
 
   appApi: BaseApi;
@@ -149,7 +151,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         config: this.props.config,
         userId: this.props.userId,
         // TODO: AnyResource needs to be something else
-        onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressed(result),
+        onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressedWithState(result),
       });
     }
   }
@@ -203,6 +205,16 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
   }
 
+  async onSearchResultPressedWithState(r: AnyResource) {
+
+    this.setState({ loadingSearchResult: true }, async () => {
+      //TD: use a global - we should be loading the resource not from this view
+      await this.onSearchResultPressed(r);
+      this.setState({ loadingSearchResult: false})
+    });
+
+  }
+
   /**
    * Handle when a user clicks a result from the search screen.
    * 
@@ -245,6 +257,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     };
     this.updateGeoLocation(resourceLocation);
     this.selectResource(result.result);
+    // this.setState({ loadingSearchResult: false });
   }
 
   selectResource(resource: AnyResource | PendingResource) {
@@ -281,12 +294,17 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getPassiveLoadingIndicator() {
     const { resourcesMeta: { loading } } = this.props;
+    const { loadingSearchResult } = this.state;
 
-    if (!loading) {
-      return null;
+    if (loading) {
+      return <PassiveLoadingIndicator/>
     }
 
-    return <PassiveLoadingIndicator/>
+    if (loadingSearchResult) {
+      return <PassiveLoadingIndicator />
+    }
+    
+    return null;
   }
 
   getFavouritesList() {

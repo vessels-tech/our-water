@@ -316,6 +316,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
+    console.log("SearchScreen render()");
     /*
       no search + no recent searches         =>  Search Hint
       no search + recent searches            =>  Recent Searches
