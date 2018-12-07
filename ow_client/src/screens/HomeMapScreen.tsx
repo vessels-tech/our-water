@@ -49,6 +49,7 @@ import { AnyResource } from '../typings/models/Resource';
 import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
+import { diff } from 'deep-object-diff';
 
 
 export interface OwnProps {
@@ -121,16 +122,35 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBackPressed);
   }
 
-  componentDidMount() {
-
-  }
-
-  componentWillReceiveProps() {
-  }
-
   componentWillUnmount() {
     EventEmitter.removeAllListeners(SearchButtonPressedEvent);
     BackHandler.removeEventListener('hardwareBackPress', this.hardwareBackPressed);
+  }
+
+  componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
+    //If a resource is selected, and it changes in the props, we need to update it.
+    const resourcesDiff: any = diff(this.props.resources, nextProps.resources);
+    if (Object.keys(resourcesDiff).length > 0) {
+      //Don't worry about updated the selected resource if there is none
+      if (!this.state.hasSelectedResource || !this.state.selectedResource) {
+        return;
+      }
+
+      const selectedResourceId = this.state.selectedResource.id;
+      let updatedSelectedResource: AnyResource | null = null;
+      nextProps.resources.forEach(r => {
+        if (r.id === selectedResourceId) {
+          updatedSelectedResource = r;
+        }
+      });
+
+      if (!updatedSelectedResource) {
+        maybeLog(`Warning: couldn't the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
+        return;
+      }
+
+      this.setState({ seletedResource: updatedSelectedResource});
+    }
   }
 
   /*--- externally bound events ---*/

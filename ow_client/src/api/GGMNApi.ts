@@ -8,7 +8,7 @@ import { default as ftch } from '../utils/Fetch';
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
 
-import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog } from "../utils";
+import { appendUrlParameters, rejectRequestWithError, calculateBBox, convertRangeToDates, deprecated_naiveParseFetchResponse, naiveParseFetchResponse, maybeLog, dedupArray } from "../utils";
 import { GGMNOrganisationResponse, GGMNGroundwaterStationResponse, GGMNGroundwaterStation, GGMNTimeseriesResponse, GGMNTimeseriesEvent, GGMNSaveReadingResponse, GGMNSearchResponse, GGMNSearchEntity, GGMNOrganisation, KeychainLoginDetails, GGMNResponseTimeseries, GGMNUsersResponse } from "../typings/models/GGMN";
 import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeseries, OWTimeseriesResponse, OWTimeseriesEvent, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
@@ -17,7 +17,7 @@ import { Region } from "react-native-maps";
 import { isNullOrUndefined, isNull } from "util";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
-import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError, SuccessResult } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
 import { TranslationEnum } from "ow_translations";
 import { AnyResource, GGMNResource } from "../typings/models/Resource";
@@ -1089,6 +1089,18 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   /**
+   * getNewResourcesForIds
+   * 
+   * Given a list of resourceIds, load a list of resources
+   */
+  async getNewResourcesForIds(ids: string[]): Promise<Array<SomeResult<AnyResource>>> {
+    return Promise.all(ids.map(async (id: string) => {
+      const resourceResult = await this.getResource(id);
+      return resourceResult;
+    }))
+  }
+
+  /**
    * StartExternalSync
    * 
    * Sync the locally saved resources and readings with the external service
@@ -1098,6 +1110,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    */
   async runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatusComplete>> {
     const savedResourceIds: string[] = [];
+    let newResources: AnyResource[] = [];
     
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
     const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(
@@ -1110,6 +1123,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       // });
 
     maybeLog("Check saved resource results: ", checkResourcesResults);
+
+    checkResourcesResults.forEach(r => {
+      if (r.type === ResultType.SUCCESS) {
+        newResources.push(r.result);
+      }
+    });
 
     const removePendingResults: Array<SomeResult<any>> = await Promise.all(  
       checkResourcesResults.map(async (result, idx) => {
@@ -1181,10 +1200,30 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       pendingReadingsResults[id] = result;
     });
 
+    
+    //For each reading we made, reload the resource in case we created a new timeseries
+    const updatedResourceIds = pendingReadings.map(r => r.resourceId);
+    console.log("updatedResourceIds are", updatedResourceIds);
+    const resources = await this.getNewResourcesForIds(updatedResourceIds);
+    resources.forEach(result => {
+      if (result.type === ResultType.SUCCESS) {
+        newResources.push(result.result);
+      }
+    });
+
+    console.log("new resources are", newResources);
+    //deduplicate the newResources array
+    // const dedup: CacheType<AnyResource> = {};
+    // newResources.forEach(r => dedup[r.id] = r);
+    // newResources = Object.keys(dedup).map(k => dedup[k]);
+    newResources = dedupArray(newResources, (r: AnyResource) => r.id);
+    console.log("dedup new resources are", newResources);
+
     return Promise.resolve(makeSuccess<ExternalSyncStatusComplete>({
       pendingResourcesResults,
       pendingReadingsResults,
       status: ExternalSyncStatusType.COMPLETE,
+      newResources,
     }));
   }
 

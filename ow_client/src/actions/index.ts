@@ -871,7 +871,7 @@ function silentLoginResponse(userIdResult: SomeResult<AnonymousUser>): SilentLog
 /**
  * trigger an external sync
  */
-export function startExternalSync(api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): (dispatch: any) => void {
+export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): (dispatch: any) => void {
   return async function(dispatch: any) {
     if (api.externalServiceApiType === ExternalServiceApiType.None) {
       maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
@@ -880,7 +880,7 @@ export function startExternalSync(api: MaybeExternalServiceApi, userId: string, 
 
     dispatch(externalSyncRequest());
     
-    let result;
+    let result: SomeResult<ExternalSyncStatusComplete>;
     try {
       result = await api.runExternalSync(userId, pendingResources, pendingReadings)
     } catch (err) {
@@ -888,6 +888,20 @@ export function startExternalSync(api: MaybeExternalServiceApi, userId: string, 
       result = makeError<ExternalSyncStatusComplete>(err.message);
     }
     // result = makeError<ExternalSyncStatusComplete>("nothing");
+
+    /*
+      TODO: 
+      - update runExternalSync to return an updated resource after the sync
+      - make actions and handlers for an updated resource, which updates the state:
+        resources, resourceCache, favouriteResources, recentResources and readings
+    */
+
+    //TD: this a little hacky, but we assume that the updated resources are in the user's recents
+    if (result.type === ResultType.SUCCESS) {
+      result.result.newResources.forEach(r => dispatch(addRecent(baseApi, userId, r)));
+    }
+
+    //TODO: update the favourites as well.
 
     dispatch(externalSyncResponse(result));
   }

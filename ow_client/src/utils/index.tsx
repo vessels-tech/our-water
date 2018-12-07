@@ -589,3 +589,12 @@ export function unwrapUserId(user: MaybeUser) {
 
   return user.userId;
 }
+
+export function dedupArray<T>(array: Array<T>, accessor: (any: T) => string): Array<T> {
+  const dedup: CacheType<T> = {};
+  array.forEach(r => {
+    const id = accessor(r);
+    dedup[id] = r;
+  });
+  return Object.keys(dedup).map(k => dedup[k]);
+}

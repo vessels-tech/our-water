@@ -60,6 +60,7 @@ export type ExternalSyncStatusComplete = {
   status: ExternalSyncStatusType.COMPLETE,
   pendingResourcesResults: CacheType<SomeResult<AnyResource>>,
   pendingReadingsResults: CacheType<SomeResult<any>>,
+  newResources: AnyResource[],
 }
 
 export type ExternalSyncStatusRunning = { 

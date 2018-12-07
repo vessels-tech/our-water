@@ -114,6 +114,7 @@ export const initialState: AppState = {
     status: ExternalSyncStatusType.COMPLETE,
     pendingResourcesResults: {},
     pendingReadingsResults: {},
+    newResources: [],
   },
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
@@ -590,6 +591,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
           status: ExternalSyncStatusType.COMPLETE,  
           pendingResourcesResults: {},
           pendingReadingsResults: {},
+          newResources: [],
         };
 
         return Object.assign({}, state, { externalSyncStatus })
@@ -599,12 +601,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
       
       //add the saved resources to the resource list
-      Object.keys(externalSyncStatus.pendingResourcesResults).forEach(key => {
-        const result = externalSyncStatus.pendingResourcesResults[key];
-        if (result.type === ResultType.SUCCESS) {
-          resources.push(result.result);
-        }
-      });
+      action.result.result.newResources.forEach(r => resources.push(r));
+      // TODO: update resourceCache?
 
       //TD: we could be much more efficent than this
       //Invalidate the tsReadings
