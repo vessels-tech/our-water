@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
-import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
+// import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
@@ -18,6 +18,7 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType } from '../reducers';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight } from './NewColors';
 
 
 /**
@@ -305,9 +306,9 @@ export const defaultNavigatorStyle = {
   navBarHidden: false,
   navBarTextColor: primaryText, // change the text color of the title (remembered across pushes)
   navBarBackgroundColor: primary,
-  statusBarColor: primaryDark,
-  statusBarTextColorScheme: 'light',
-  screenBackgroundColor: bgLight,
+  statusBarColor: surfaceDark,
+  statusBarTextColorScheme: 'dark',
+  screenBackgroundColor: surface,
   navBarButtonColor: primaryText,
   drawUnderStatusBar: false,
 }
@@ -316,7 +317,7 @@ export function getGroundwaterAvatar(title?: string) {
   return (
     <Avatar
       containerStyle={{
-        backgroundColor: primaryLight,
+        backgroundColor: secondaryLight,
         alignSelf: 'center',
       }}
       rounded

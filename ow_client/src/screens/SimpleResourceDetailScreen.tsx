@@ -118,7 +118,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
   let resource = null;
   let resourceMeta = state.resourceMeta;
-  let meta = resourceMeta.has(ownProps.resourceId) && resourceMeta.get(ownProps.resourceId);
+  let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }

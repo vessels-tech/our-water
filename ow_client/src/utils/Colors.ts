@@ -9,9 +9,9 @@ export const bgMed = "#E1E2E1";
 export const error1 = "#E2A69A"
 export const warning1 = "#F2E764"
 
-export const primary = "#fafafa"
-export const primaryLight = "#ffffff"
-export const primaryDark = "#c6c6c6"
+export const primary = "#82b1ff"
+export const primaryLight = "#b6e3ff"
+export const primaryDark = "#4d82cb"
 export const secondary = "#82b1ff"
 export const secondaryLight = "#b6e3ff"
 export const secondaryDark = "#4d82cb"
