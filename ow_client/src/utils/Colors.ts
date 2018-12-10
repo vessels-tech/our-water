@@ -32,12 +32,13 @@ export const greyDark = "#212121";
 
 //Pretty Colors
 export const prettyColors = [
-  "#b2dfdb",
-  "#b3e5fc",
-  "#bbdefb",
-  "#e1bee7",
-  "#ffcdd2",
-  "#ffccbc",
-  "#ffe0b2",
-  "#f0f4c3",
+  "#BBDEFB",
+  "#C5CAE9",
+  "#C5DCE9",
+  "#9BBFDC",
+  "#C8D0FE",
+  "#FEDDC8",
+  "#D8DC9B",
+  "#FEC9C8",
+  "#E9F2DE",
 ];
