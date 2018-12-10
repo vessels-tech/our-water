@@ -81,6 +81,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
         key={resource.id}
       >
         <Button
+          borderRadius={5}
           raised={true}
           key={resource.id}
           title={this.getTitle()}

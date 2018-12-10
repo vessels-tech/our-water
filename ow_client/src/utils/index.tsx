@@ -18,7 +18,7 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType } from '../reducers';
-import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight } from './NewColors';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight } from './NewColors';
 
 
 /**

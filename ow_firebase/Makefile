@@ -13,6 +13,9 @@ update_translations:
 	@echo 'installing latest packages'
 	cd ${dir}/functions && npm install
 
+	@make update_remote_config
+	
+update_remote_config:
 	@echo 'deploying remote config'
 	cd ${dir}/functions/tools && gulp deploy_remote_config
 	

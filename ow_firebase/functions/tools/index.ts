@@ -321,20 +321,20 @@ export async function getNewConfig(): Promise<any> {
         //GGMN
         {
           well: [
-            { name: 'GWmMSL', parameter: 'GWmMSL', readings: [] },
-            { name: 'GWmBGS', parameter: 'GWmBGS', readings: [] },
+            { name: 'GWmMSL', parameter: 'GWmMSL', readings: [], unitOfMeasure: 'm' },
+            { name: 'GWmBGS', parameter: 'GWmBGS', readings: [], unitOfMeasure: 'm' },
           ]
         }, 
         //MyWell
         {
-          well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-          raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+          well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
+          raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'mm' }],
           quality: [
-            { name: 'salinity', parameter: 'salinity', readings: [] },
-            { name: 'ph', parameter: 'ph', readings: [] },
-            { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
+            { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
+            { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
+            { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
           ],
-          checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+          checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
         }
       ]),
     editResource_allowCustomId: buildParameter(

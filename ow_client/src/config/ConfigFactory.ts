@@ -12,6 +12,7 @@ import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
+import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
 
 
 /**
@@ -228,7 +229,7 @@ export class ConfigFactory {
    * 
    * This determines the default timeseries for the environment
    */
-  getDefaultTimeseries(resourceTypeString: string) {
+  getDefaultTimeseries(resourceTypeString: string): ConfigTimeseries[] {
     const defaultTypes = JSON.parse(this.remoteConfig.editResource_defaultTypes);
     return defaultTypes[resourceTypeString];
   }

@@ -43,16 +43,10 @@ import { UserType } from '../typings/UserTypes';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
 import { PendingResource } from '../typings/models/PendingResource';
+import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 // import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 
 // import * as ScrollableTabView from 'react-native-scrollable-tab-view';
-
-//TODO: move
-export type ConfigTimeseries = {
-  name: string, 
-  parameter: string,
-  type: OrgType.NONE,
-}
 
 export interface OwnProps {
   config: ConfigFactory,
