@@ -13,6 +13,7 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
+import { primaryText } from '../../assets/ggmn/Colors';
 
 
 export interface OwnProps {
@@ -75,8 +76,6 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View style={{
         margin: 0,
-        // marginBottom: 15,
-        // width: 140,
         ...this.props.style,
       }}
         key={resource.id}
@@ -85,16 +84,14 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
           raised={true}
           key={resource.id}
           title={this.getTitle()}
-          // title={`${getShortId(resource.id)}`}
           color={secondaryText}
           buttonStyle={{
             backgroundColor,
-            // borderRadius: 5,
           }}
-          // titleStyle={{
-          //   fontWeight: 'bold', 
-          //   fontSize: 23,
-          // }}
+          textStyle={{
+            color: secondaryText,
+            fontWeight: '600'
+          }}
           onPress={() => this.props.onResourceCellPressed(this.props.resource)}
           underlayColor="transparent"
         />

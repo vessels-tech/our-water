@@ -1,8 +1,8 @@
-import { Alert, Fetch } from 'react-native';
+import { Alert } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
-import { bgLight, primaryLight, primaryText, primaryDark, primary } from './Colors';
+import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
@@ -272,16 +272,6 @@ export const boundingBoxForCoords = (latitude: number, longitude: number , dista
   };
 }
 
-export  const prettyColors = [
-  "#d1c4e9",
-  "#e1bee7",
-  "#c5cae9",
-  "#b2dfdb",
-  "#c8e6c9",
-  "#dcedc8",
-  "#f0f4c3",
-  "#fff9c4",
-];
 
 export const randomPrettyColorForId = (resourceId: string) => {
   const idNumber = Math.abs(hashCode(resourceId))

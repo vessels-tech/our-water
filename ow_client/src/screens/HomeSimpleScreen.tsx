@@ -12,6 +12,7 @@ import { UserType } from '../typings/UserTypes';
 import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
+import MenuButton from '../components/common/MenuButton';
 
 
 export interface OwnProps {
@@ -32,23 +33,6 @@ export interface ActionProps {
 
 }
 
-const MenuButton = (name: string, onPress: () => void,) => {
-  return (
-    <TouchableNativeFeedback
-      style={{flex: 1}}
-      onPress={() => onPress()}
-    >
-      <View style={{
-        flex: 1,
-        padding: 10,
-        margin: 10,
-        backgroundColor: randomPrettyColorForId(name),
-      }}>
-        <Text style={{fontWeight: '800', fontSize:20}}>{name}</Text>
-      </View>
-    </TouchableNativeFeedback>
-  )
-}
 
 class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
@@ -83,16 +67,27 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           flexDirection: 'row',
           flex: 1,
         }}>
-          {/* TODO: translations */}
-          {MenuButton(menu_well, () => presentResourceScreen('Wells', ResourceType.well))}
-          {MenuButton(menu_rainfall, () => presentResourceScreen('Raingauges', ResourceType.raingauge))}
+          <MenuButton 
+            name={menu_well}
+            onPress={() => presentResourceScreen('Wells', ResourceType.well)}
+          />
+          <MenuButton 
+            name={menu_rainfall}
+            onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
+          />
         </View>
         <View style={{
           flexDirection: 'row',
           flex: 1,
         }}>
-          {MenuButton(menu_water_quality, () => presentResourceScreen('Water Quality', ResourceType.quality))}
-          {MenuButton(menu_checkdam, () => presentResourceScreen('Checkdams', ResourceType.checkdam))}
+          <MenuButton
+            name={menu_water_quality}
+            onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
+          />
+          <MenuButton
+            name={menu_checkdam}
+            onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}
+          />
         </View>
       </View>
     );

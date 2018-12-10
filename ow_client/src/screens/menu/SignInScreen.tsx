@@ -36,6 +36,7 @@ import Config from 'react-native-config';
 import UserApi from '../../api/UserApi';
 import { MaybeUser, UserType } from '../../typings/UserTypes';
 import HeadingText from '../../components/common/HeadingText';
+import { greyMed } from '../../assets/ggmn/Colors';
 
 export interface OwnProps {
   navigator: any,
@@ -300,6 +301,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
           strict={false}
           control={this.loginForm}
           render={(control) => {
+            const disabled = control.pristine || control.invalid;
+
             return(
               <View style={{
                 paddingHorizontal: 20,
@@ -317,6 +320,8 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
               />
               <Button
+                raised={!disabled}
+                borderRadius={4}
                 style={{}}
                 buttonStyle={{
                   backgroundColor: secondary,
@@ -328,11 +333,11 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                   marginRight: 0,
                 }}
                 textStyle={{
-                  color: secondaryText,
+                  color: disabled ? greyMed : secondaryText,
                   fontWeight: '700',
                 }}
                 loading={loading}
-                disabled={control.pristine || control.invalid}
+                disabled={disabled}
                 title={loading ? '' : connect_to_service_submit_button}
                 onPress={this.sendVerifyCode}
               />

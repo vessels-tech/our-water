@@ -9,20 +9,35 @@ export const bgMed = "#E1E2E1";
 export const error1 = "#E2A69A"
 export const warning1 = "#F2E764"
 
-export const primary = "#005198"
-export const primaryLight = "#4e7dc9"
-export const primaryDark = "#002a69"
-export const secondary = "#f37121"
-export const secondaryLight = "#ffa251"
-export const secondaryDark = "#b94200"
+export const primary = "#fafafa"
+export const primaryLight = "#ffffff"
+export const primaryDark = "#c6c6c6"
+export const secondary = "#82b1ff"
+export const secondaryLight = "#b6e3ff"
+export const secondaryDark = "#4d82cb"
 
 //Text on P
-export const primaryText = "#F7F7F7"
+export const primaryText = "#424242"
 
 //Text on S
-export const secondaryText = "#212121"
+export const secondaryText = "#424242"
+
+//Text on Background
+export const bgText = "#000000"
 
 //Greys
 export const greyLight = "#e0e0e0";
 export const greyMed = "#9e9e9e";
 export const greyDark = "#212121";
+
+//Pretty Colors
+export const prettyColors = [
+  "#b2dfdb",
+  "#b3e5fc",
+  "#bbdefb",
+  "#e1bee7",
+  "#ffcdd2",
+  "#ffccbc",
+  "#ffe0b2",
+  "#f0f4c3",
+];
