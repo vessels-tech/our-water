@@ -28,6 +28,9 @@ switch:
 	@echo switching to org: ${orgId} for stage: ${stage}
 	@echo 'export orgId=${orgId}\nexport stage=${stage}\n' > .ow_config
 	@make env
+	@echo 'Copying assets across'
+	@cp -R ${dir}/src/assets/${orgId}/* ${dir}/android/app/src/main/res/
+	@cp -R ${dir}/src/assets/${orgId}/Colors.ts ${dir}/src/utils/Colors.ts
 
 
 switch-ggmn-dev:
