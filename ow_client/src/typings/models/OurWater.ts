@@ -110,6 +110,12 @@ export enum TimeseriesRange {
   EXTENT = 'EXTENT',
 }
 
+export enum OWUserStatus {
+  Approved = 'Approved',
+  Unapproved = 'Unapproved',
+  Rejected = 'Rejected',
+}
+
 /**
  * The user saved to firebase
  */
@@ -125,6 +131,7 @@ export type OWUser = {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  status: OWUserStatus,
 }
 
 export type TimeSeriesReading = {

@@ -2,7 +2,7 @@
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './FirebaseApi';
-import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange, OWUserStatus } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
@@ -48,23 +48,45 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   //
   // Reading API
   // 
+
+
+  /**
+   * saveReading
+   * 
+   * @description Save a reading. If the user is not approved 
+   * 
+   * 
+   * @param resourceId 
+   * @param userId 
+   * @param reading 
+   */
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
     reading.type = OrgType.MYWELL;
-    const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
-    if (saveResult.type === ResultType.ERROR) {
-      return saveResult;
+    const userResult = await FirebaseApi.getUser(this.orgId, userId);
+    if (userResult.type === ResultType.ERROR) {
+      maybeLog(userResult.message);
+      return makeError(userResult.message);
     }
 
-    //TODO: actually check login status of user
-    const result: SomeResult<SaveReadingResult> = {
-      type: ResultType.SUCCESS,
-      result: {
-        requiresLogin: false,
-        reading: saveResult.result,
-      }
-    };
+    console.log("userId", userId);
+    console.log("userResult.result", userResult.result);
 
-    return result;
+    if (userResult.result.status !== OWUserStatus.Approved) {
+      const saveResult = await FirebaseApi.saveReadingToUser(this.orgId, userId, reading);
+      if (saveResult.type === ResultType.ERROR) {
+        maybeLog(saveResult.message);
+        return makeError(saveResult.message);
+      }
+      return makeSuccess<SaveReadingResult>({ requiresLogin: true, reading: saveResult.result });
+    }
+
+    const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+    if (saveResult.type === ResultType.ERROR) {
+      maybeLog(saveResult.message);
+      return makeError(saveResult.message);
+    }
+
+    return makeSuccess<SaveReadingResult>({ requiresLogin: false, reading: saveResult.result });
   }
 
   //
@@ -139,30 +161,28 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    */
   async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.MYWELL;
+    const userResult = await FirebaseApi.getUser(this.orgId, userId);
+    if (userResult.type === ResultType.ERROR) {
+      maybeLog(userResult.message);
+      return makeError(userResult.message);
+    }
+
+    if (userResult.result.status !== OWUserStatus.Approved) {
+      const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+      if (saveResult.type === ResultType.ERROR) {
+        maybeLog(saveResult.message);
+        return makeError(saveResult.message);
+      }
+      return makeSuccess({requiresLogin: true});
+    }
+
     const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);
       return makeError('Could not save resource');
     }
 
-    // const credentials = await this.getExternalServiceLoginDetails();
-    // if (credentials.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
-    //   return {
-    //     type: ResultType.SUCCESS,
-    //     result: {
-    //       requiresLogin: true,
-    //     }
-    //   }
-    // }
-
-    //TODO: Implement a simliar login check as with GGMN, but ensure user doesn't have an anonymous login status
-    //and their account isn't restricted.
-    return {
-      type: ResultType.SUCCESS,
-      result: {
-        requiresLogin: false,
-      }
-    }
+    return makeSuccess({requiresLogin: false});
   }
 
   /**

@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, maybeLog, showModal } from '../utils';
+import { displayAlert, maybeLog, showModal, unwrapUserId } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -39,18 +39,23 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export interface Props {
+export interface OwnProps {
   resource: AnyResource | PendingResource,
   navigator: any,
   config: ConfigFactory,
-  userId: string,
-  appApi: BaseApi,
+}
 
-  saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
+export interface StateProps {
+  userId: string,
   pendingSavedReadingsMeta: SyncMeta,
   translation: TranslationFile,
-  getGeolocation: () => void,
   location: MaybeLocation,
+}
+
+export interface ActionProps {
+  saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
+  getGeolocation: () => void,
+
 }
 
 export interface State {
@@ -62,13 +67,13 @@ export interface State {
   readingImage: MaybeReadingImage,
 }
 
-class NewReadingScreen extends Component<Props> {
+class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
   camera: any;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
@@ -477,16 +482,17 @@ class NewReadingScreen extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState): StateProps => {
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
     location: state.location,
+    userId: unwrapUserId(state.user),
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => 
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))},

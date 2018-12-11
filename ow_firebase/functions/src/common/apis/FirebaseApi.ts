@@ -1,4 +1,4 @@
-import { SomeResult, ResultType } from "../types/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError } from "../types/AppProviderTypes";
 
 import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
@@ -295,9 +295,7 @@ export default class FirebaseApi {
         type: ResultType.ERROR,
         message: err.message,
       }
-    }
-
-   
+    } 
 
     // const batch = firestore.batch();
     // batch.update(lockRef, {id: nextId, lock: true });
@@ -321,5 +319,14 @@ export default class FirebaseApi {
     //     message: err.message
     //   }
     // });
+  }
+
+  /**
+   * Change the user's status
+   */
+  public static async changeUserStatus(orgId: string, userId: string, status: 'Approved' | 'Rejected'): Promise<SomeResult<void>> {
+    return firestore.collection('org').doc(orgId).collection('user').doc(userId).set({status}, {merge: true})
+    .then(() => makeSuccess(undefined))
+    .catch(err => makeError(err.message))
   }
 }

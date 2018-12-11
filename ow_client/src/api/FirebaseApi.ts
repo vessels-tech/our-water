@@ -601,7 +601,6 @@ class FirebaseApi {
   /**
    * saveReading
    * submits a new reading for a given resource
-   * 
    */
   static async saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
     const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
@@ -616,10 +615,22 @@ class FirebaseApi {
     return makeSuccess(savedFBReading.toAnyReading());
   }
 
-  static saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading) {
-    return this.userDoc(orgId, userId).collection('pendingReadings').add(reading);
-  }
+  /**
+   * saveReadingToUser
+   * 
+   * Submits a new reading to the user's pendingReadings collection
+   */
+  static async saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
+    const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
+    const fbReading = new FBReading(builder);
 
+    //TODO: should this hash the resourceId + tsId + date to get the unique reading id?
+    return this.userDoc(orgId, userId).collection('pendingReadings').add(fbReading.serialize())
+    .then(() => makeSuccess(fbReading.toAnyReading()))
+    .catch((err: Error) => {
+      return makeError<AnyReading>(err.message);
+    })
+  }
 
   static listenForPendingWrites(collection: any) {
     return new Promise((resolve, reject) => {
