@@ -27,4 +27,7 @@ export type GGMNReading = {
   timeseriesId: string,
   date: string, //ISO Formatted
   value: number,
+
+  /* Platform Specific */
+  groundwaterStationId: string,
 }

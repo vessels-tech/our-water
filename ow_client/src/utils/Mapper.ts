@@ -109,7 +109,9 @@ export function fromCommonReadingToFBReadingBuilder(orgId: string, userId: strin
       location: reading.location,
     }
   } else {
-    options = {};
+    options = {
+      groundwaterStationId: reading.groundwaterStationId,
+    };
   }
 
   return {

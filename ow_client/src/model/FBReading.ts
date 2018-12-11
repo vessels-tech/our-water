@@ -22,7 +22,7 @@ export type MyWellReadingBuilder = {
 }
 
 export type GGMNReadingBuilder = {
-
+  groundwaterStationId?: string,
 }
 
 export default class FBReading extends FirestoreDoc {
@@ -45,6 +45,9 @@ export default class FBReading extends FirestoreDoc {
   image?: MaybeReadingImage
   location?: MaybeReadingLocation
 
+  /* GGMN Specific */
+  groundwaterStationId?: string
+
   constructor(builder: CommonReadingBuilder & MyWellReadingBuilder & GGMNReadingBuilder) {
     super();
 
@@ -59,6 +62,7 @@ export default class FBReading extends FirestoreDoc {
     this.userId = builder.userId;
     this.image = builder.image;
     this.location = builder.location;
+    this.groundwaterStationId = builder.groundwaterStationId;
   }
 
   public serialize(): any {
@@ -103,6 +107,7 @@ export default class FBReading extends FirestoreDoc {
           timeseriesId: this.timeseriesId,
           date: this.date,
           value: this.value,
+          groundwaterStationId: this.groundwaterStationId,
         }
         return reading;
       }

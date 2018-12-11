@@ -22,4 +22,5 @@ export type PendingReading = {
   userId: string,
   image: MaybeReadingImage,
   location: MaybeReadingLocation,
+  groundwaterStationId: string, //GGMN only. TODO: Refactor
 }

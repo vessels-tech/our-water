@@ -55,7 +55,6 @@ export interface StateProps {
 export interface ActionProps {
   saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
   getGeolocation: () => void,
-
 }
 
 export interface State {
@@ -141,22 +140,33 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
       pendingSavedReadingsMeta: {loading},
-      resource: { id },
+      resource,
       location, 
-      translation: { templates: { 
-        new_reading_invalid_error_heading, 
-        new_reading_invalid_error_description,
-        new_reading_invalid_error_ok,
-        new_reading_unknown_error_heading,
-        new_reading_unknown_error_description,
-        new_reading_unknown_error_ok,
-        new_reading_saved_popup_title,
-        new_reading_saved,
-        new_reading_warning_login_required,
-        new_reading_dialog_one_more,
-        new_reading_dialog_done,
-      }}
     } = this.props;
+
+    const {
+      new_reading_invalid_error_heading,
+      new_reading_invalid_error_description,
+      new_reading_invalid_error_ok,
+      new_reading_unknown_error_heading,
+      new_reading_unknown_error_description,
+      new_reading_unknown_error_ok,
+      new_reading_saved_popup_title,
+      new_reading_saved,
+      new_reading_warning_login_required,
+      new_reading_dialog_one_more,
+      new_reading_dialog_done,
+    } = this.props.translation.templates
+
+
+    /*
+      GGMN Requires us to keep track of the groundwaterStationId as well as
+      the resourceId
+    */
+    let groundwaterStationId = '';
+    if (resource.type === OrgType.GGMN) {
+      groundwaterStationId = resource.groundwaterStationId;
+    }
 
     if (loading) {
       //Don't allow a double button press!
@@ -179,13 +189,14 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const readingRaw: any = {
       type: this.props.config.orgType,
       pending: true,
-      resourceId: id,
+      resourceId: resource.id,
       timeseriesId: timeseries.parameter, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,
       image: readingImage,
       location: readingLocation,
+      groundwaterStationId,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -201,7 +212,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       return;
     }
 
-    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, id, validateResult.result);
+    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, resource.id, validateResult.result);
 
     if (saveResult.type === ResultType.ERROR) {
       displayAlert(

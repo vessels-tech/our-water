@@ -40,7 +40,8 @@ const PendingReadingSchema = {
         _longitude: Joi.number().required(),
       })
     })
-  ]).required()
+  ]).required(),
+  groundwaterStationId: Joi.string().required(),
 }
 
 

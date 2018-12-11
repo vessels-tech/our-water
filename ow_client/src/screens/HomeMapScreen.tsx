@@ -265,7 +265,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     };
     this.updateGeoLocation(resourceLocation);
     this.selectResource(result.result);
-    // this.setState({ loadingSearchResult: false });
   }
 
   selectResource(resource: AnyResource | PendingResource) {

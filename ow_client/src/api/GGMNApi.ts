@@ -681,7 +681,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * put it on a timer/user click banner
    */
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
-
+    reading.type = OrgType.GGMN;
     const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       return {
@@ -1548,6 +1548,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       timeseriesId,
       date: moment(event.timestamp).toISOString(),
       value: event.value,
+      //TD Not sure
+      groundwaterStationId: '',
     }
   }
 }

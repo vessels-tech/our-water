@@ -32,6 +32,7 @@ import { SaveUserDetailsType } from './internalAccountApi';
 import { OrgType } from '../typings/models/OrgType';
 import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
 import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
+import { UserStatus } from '../typings/UserTypes';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -1081,7 +1082,7 @@ class FirebaseApi {
         email: null,
         name: null,
         nickname: null,
-        status: OWUserStatus.Unapproved,
+        status: UserStatus.Unapproved,
       }
     }
 
