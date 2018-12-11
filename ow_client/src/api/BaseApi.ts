@@ -194,10 +194,4 @@ export default interface BaseApi {
    */
   deprecated_getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>>;
 
-
-  /**
-   * Once GGMN loads a resource from search, use the description field - which is actually a location name to
-   * get a full resource
-   */
-  getResourceFromSearchDescription(userId: string, description: string, title?: string): Promise<SomeResult<AnyResource>>;
 }

@@ -967,58 +967,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
   }
 
-  /**
-   * 
-   * 
-   * example url:   // https://ggmn.lizard.net/api/v3/timeseries/?location__name=1696
-   */
-  public async getResourceFromSearchDescription(userId: string, description: string, title?: string): Promise<SomeResult<AnyResource>> {
-    const url = `${this.baseUrl}/api/v3/timeseries/?location__name=${description}`;
-    const authHeadersResult = await this.getOptionalAuthHeaders();
-    let authHeaders = {};
-    //even if login is bad, load the resources
-    if (authHeadersResult.type !== ResultType.ERROR) {
-      authHeaders = authHeadersResult.result;
-    }
-
-    const options = {
-      timeout,
-      method: 'GET',
-      headers: {
-        ...defaultHeaders,
-        ...authHeaders,
-      },
-    };
-
-    maybeLog("getResourceFromSearchDescription url:", url);
-
-    let response: any;
-    try {
-      response = await ftch(url, options);
-    } catch (err) {
-      maybeLog("getResourceFromSearchDescription: " + err);
-      return {
-        type: ResultType.ERROR,
-        message: `Error getResourceFromSearchDescription. Url: ${url}`,
-      }
-    }
-
-    const timeseriesResponse = await naiveParseFetchResponse<GGMNTimeseriesResponse>(response);
-    if (timeseriesResponse.type === ResultType.ERROR) {
-      return timeseriesResponse;
-    }
-
-    if (timeseriesResponse.result.results.length === 0) {
-      return makeError(`Couldn't find timeseries for description: ${description}`);
-    }
-    try {
-      const resource: GGMNResource = GGMNApi.ggmnTimeseriesToResource(description, timeseriesResponse.result.results, title);
-      return makeSuccess(resource);
-    } catch (err) {
-      return makeError('Sucessfully loaded timeseries, but response was invalid.');
-    }
-  }
-
 
   //
   // ExternalServiceApi
@@ -1212,10 +1160,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     });
 
     console.log("new resources are", newResources);
-    //deduplicate the newResources array
-    // const dedup: CacheType<AnyResource> = {};
-    // newResources.forEach(r => dedup[r.id] = r);
-    // newResources = Object.keys(dedup).map(k => dedup[k]);
     newResources = dedupArray(newResources, (r: AnyResource) => r.id);
     console.log("dedup new resources are", newResources);
 
@@ -1508,12 +1452,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
     from.timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
 
+    if (from.code === "85570" || from.name === "TEST_CUSTOM_NAME") {
+      console.log("ggmnStationToResource", from);
+    }
+
     const to: GGMNResource = {
       //Code is the code we gave when creating it, Id is some random id.
       id: `${from.code}`, // Not sure if we should use code or name
       name: `${from.name}`,
       //TODO: not sure about this!
       title: `${from.name}`,
+      groundwaterStationId: `${from.id}`,
       description: `${from.name}`,
       pending: false,
       type: OrgType.GGMN,
@@ -1532,11 +1481,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     const geometry = from[0].location.geometry;
     const name = from[0].name;
 
+    console.log("ggmnTimeseriesToResource", from);
+
     const to: GGMNResource = {
       type: OrgType.GGMN,
       pending: false,
       // This may not be correct, but since we can't always get the entity_id or groundwaterstation id, this may have to do
       id: location.name,
+      groundwaterStationId: location.name, //TODO: figure out
       //TODO: not sure how to get this in.
       title: title || location.name,
       name,
@@ -1553,25 +1505,20 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   //TODO: make a partial resource type that doesn't need all these fake fields
   static ggmnSearchEntityToResource(from: GGMNSearchEntity): GGMNResource {
+    console.log('ggmnSearchEntityToResource', from);
+  
     const to: GGMNResource = {
       type: OrgType.GGMN,
       pending: false,
-      id: `${from.entity_id}`,
+      id: `${from.description}`, //In a search, description is the same as a groundwater station's code
       title: `${from.title}`,
-      name: from.title, //not sure if this is right
-      // legacyId: `${from.title}`,
+      name: from.title,
       description: from.description,
-      // groups: null,
-      // lastValue: 0,
-      // resourceType: ResourceType.well,
-      // lastReadingDatetime: new Date(),
+      groundwaterStationId: from.entity_id,
       coords: {
         _latitude: 0,
         _longitude: 0
       },
-      // owner: {
-      //   name: `${from.id}`,
-      // },
       timeseries: [],
     };
 

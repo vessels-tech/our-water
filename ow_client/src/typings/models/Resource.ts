@@ -35,4 +35,5 @@ export type GGMNResource = {
   description: string,
   title: string, //What the resource is referred to publicly 
   name: string,
+  groundwaterStationId: string,
 }

@@ -241,23 +241,11 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   async onSearchResultPressed(r: AnyResource): Promise<void> {
     const { translation: { templates: { app_resource_not_found } } } = this.props;
-    //TODO: reimmplement selectResource for a search entity.
-    //Load the resource for the search entity?
 
-    //TODO: get the description
-    // const description = 
-
-    //We can move the user there on the map before the resource has loaded...
-    //TODO: Refactor, this is getting really messy.
     let result: SomeResult<AnyResource> | null = null;
     if (r.type === OrgType.GGMN) {
       //TODO: This is a hack because the GGMN api is broken - need to fix this properly
-      result = await this.appApi.getResourceFromSearchDescription(this.props.userId, r.description, r.title);
-      if (result.type === ResultType.ERROR) {
-        //Try using old method
-        result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id);
-      }
-
+      result = await this.appApi.getResource(r.groundwaterStationId);
     } else {
       result = await this.appApi.deprecated_getResourceFromSearchEntityId(this.props.userId, r.id)
     }
