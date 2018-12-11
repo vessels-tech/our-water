@@ -62,23 +62,23 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    */
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
     reading.type = OrgType.MYWELL;
-    const userResult = await FirebaseApi.getUser(this.orgId, userId);
-    if (userResult.type === ResultType.ERROR) {
-      maybeLog(userResult.message);
-      return makeError(userResult.message);
-    }
+    // const userResult = await FirebaseApi.getUser(this.orgId, userId);
+    // if (userResult.type === ResultType.ERROR) {
+    //   maybeLog(userResult.message);
+    //   return makeError(userResult.message);
+    // }
 
-    console.log("userId", userId);
-    console.log("userResult.result", userResult.result);
+    // console.log("userId", userId);
+    // console.log("userResult.result", userResult.result);
 
-    if (userResult.result.status !== OWUserStatus.Approved) {
-      const saveResult = await FirebaseApi.saveReadingToUser(this.orgId, userId, reading);
-      if (saveResult.type === ResultType.ERROR) {
-        maybeLog(saveResult.message);
-        return makeError(saveResult.message);
-      }
-      return makeSuccess<SaveReadingResult>({ requiresLogin: true, reading: saveResult.result });
-    }
+    // if (userResult.result.status !== OWUserStatus.Approved) {
+    //   const saveResult = await FirebaseApi.saveReadingToUser(this.orgId, userId, reading);
+    //   if (saveResult.type === ResultType.ERROR) {
+    //     maybeLog(saveResult.message);
+    //     return makeError(saveResult.message);
+    //   }
+    //   return makeSuccess<SaveReadingResult>({ requiresLogin: true, reading: saveResult.result });
+    // }
 
     const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
