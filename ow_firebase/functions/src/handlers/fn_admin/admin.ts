@@ -12,6 +12,7 @@ import { validateFirebaseIdToken } from '../../middleware';
 import { generateQRCode } from '../../common/apis/QRCode';
 import { ResultType } from '../../common/types/AppProviderTypes';
 import { writeFileAsync } from '../../common/utils';
+import FirebaseApi from '../../common/apis/FirebaseApi';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -78,6 +79,41 @@ module.exports = (functions) => {
     await writeFileAsync(file, base64Data, 'base64');
 
     res.download(file);
+  });
+
+  /**
+   * ChangeUserStatus
+   * PATCH /:orgId/:userId/status
+   * 
+   * Change the user's status to either Approved or Rejected.
+   * If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
+   */
+  const changeUserStatusValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    body: {
+      status: Joi.string().valid('Approved', 'Rejected'),
+    },
+  }
+
+  app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), async (req, res) => {
+    const { orgId, userId } = req.params;
+    const { status } = req.body;
+
+    const statusResult = await FirebaseApi.changeUserStatus(orgId, userId, status);
+    if (statusResult.type === ResultType.ERROR) {
+      throw new Error(statusResult.message);
+    }
+
+    if (status === "Approved") {
+      const syncResult = await FirebaseApi.syncPendingForUser(orgId, userId);
+      if (syncResult.type === ResultType.ERROR) {
+        throw new Error(syncResult.message);
+      }
+    }
+
+    res.status(204).send(true);
   });
 
 

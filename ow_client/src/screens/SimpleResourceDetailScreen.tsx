@@ -12,7 +12,7 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo } from '../utils';
+import {navigateTo, unwrapUserId } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
@@ -25,7 +25,6 @@ import { AnyResource } from '../typings/models/Resource';
 
 
 export interface OwnProps {
-  userId: string,
   navigator: any;
   config: ConfigFactory,
   resourceId: string,
@@ -35,6 +34,7 @@ export interface StateProps {
   translation: TranslationFile,
   resource: AnyResource | null,
   meta: ActionMeta,
+  userId: string,
 }
 
 export interface ActionProps {
@@ -44,7 +44,6 @@ export interface ActionProps {
 export interface State {
 
 }
-
 
 class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -118,7 +117,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
   let resource = null;
   let resourceMeta = state.resourceMeta;
-  let meta = resourceMeta.has(ownProps.resourceId) && resourceMeta.get(ownProps.resourceId);
+  let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
@@ -133,6 +132,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     translation: state.translation,
     resource,
     meta,
+    userId: unwrapUserId(state.user),
   };
 }
 

@@ -29,6 +29,8 @@ export class FirebaseConfig {
           firebaseBaseUrl: obj.firebaseBaseUrl.val(),
           ggmnBaseUrl: obj.ggmnBaseUrl.val(),
           showConnectToButton: obj.showConnectToButton.val(),
+          showSyncButton: obj.showSyncButton.val(),
+          showPendingButton: obj.showPendingButton.val(),
           mywellBaseUrl: obj.mywellBaseUrl.val(),
           map_shouldLoadAllResources: obj.map_shouldLoadAllResources.val(),
           newReading_enableImageUpload: obj.newReading_enableImageUpload.val(),

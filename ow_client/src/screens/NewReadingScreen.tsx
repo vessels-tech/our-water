@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, maybeLog, showModal } from '../utils';
+import { displayAlert, maybeLog, showModal, unwrapUserId } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -35,39 +35,45 @@ import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
 import { OrgType } from '../typings/models/OrgType';
+import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export interface Props {
+export interface OwnProps {
   resource: AnyResource | PendingResource,
   navigator: any,
   config: ConfigFactory,
-  userId: string,
-  appApi: BaseApi,
+}
 
-  saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
+export interface StateProps {
+  userId: string,
   pendingSavedReadingsMeta: SyncMeta,
   translation: TranslationFile,
-  getGeolocation: () => void,
   location: MaybeLocation,
+}
+
+export interface ActionProps {
+  saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => any,
+  getGeolocation: () => void,
+
 }
 
 export interface State {
   measurementString: string,
-  timeseriesString: string,
+  timeseries: ConfigTimeseries,
   enableSubmitButton: boolean,
   date: moment.Moment,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
 }
 
-class NewReadingScreen extends Component<Props> {
+class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
   camera: any;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     //@ts-ignore
@@ -78,16 +84,14 @@ class NewReadingScreen extends Component<Props> {
     if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
       resourceType = props.resource.resourceType
     }
-    const timeseries: Array<{ name: string, parameter: string }> = this.props.config.getDefaultTimeseries(resourceType);
-    let timeseriesString = timeseries[0].parameter;
-
+    const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(resourceType);
     this.state = {
       enableSubmitButton: false,
       date: moment(),
       measurementString: '',
-      timeseriesString,
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
+      timeseries: timeseriesList[0],
     };
 
     //Binds
@@ -134,7 +138,7 @@ class NewReadingScreen extends Component<Props> {
 
   async saveReading() {
     Keyboard.dismiss();
-    const { date, measurementString, timeseriesString, readingImage} = this.state;
+    const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
       pendingSavedReadingsMeta: {loading},
       resource: { id },
@@ -176,7 +180,7 @@ class NewReadingScreen extends Component<Props> {
       type: this.props.config.orgType,
       pending: true,
       resourceId: id,
-      timeseriesId: timeseriesString, //TODO actually get a timeseries ID somehow
+      timeseriesId: timeseries.parameter, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
       userId: this.props.userId,
@@ -255,8 +259,8 @@ class NewReadingScreen extends Component<Props> {
   }
 
   isTimeseriesValid() {
-    const { timeseriesString } = this.state;
-    if (!timeseriesString || timeseriesString.length === 0) {
+    const { timeseries } = this.state;
+    if (!timeseries || timeseries.parameter.length === 0) {
       return false;
     }
 
@@ -327,8 +331,8 @@ class NewReadingScreen extends Component<Props> {
 
   getForm() {
     //TODO: get units from reading.metadata
-    const units = 'metres';
-    const { date, measurementString  } = this.state;
+    // const units = 'metres';
+    const { date, measurementString, timeseries  } = this.state;
     const { resource, translation: { templates: {
       new_reading_date_field,
       new_reading_date_field_invalid,
@@ -341,7 +345,7 @@ class NewReadingScreen extends Component<Props> {
     if (resource.pending || resource.type === OrgType.MYWELL) {
       resourceType = resource.resourceType
     }
-    const timeseries: Array<{ name: string, parameter: string}> = this.props.config.getDefaultTimeseries(resourceType);
+    const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
 
     return (
       <View style={{
@@ -367,7 +371,7 @@ class NewReadingScreen extends Component<Props> {
         <IconFormInput
           iconName='pencil'
           iconColor={primaryDark}
-          placeholder={new_reading_value_field(units)}
+          placeholder={new_reading_value_field(timeseries.unitOfMeasure)}
           errorMessage={
             measurementString.length > 0 && !this.isMeasurementValid() ? 
               new_reading_value_field_invalid : null
@@ -393,20 +397,14 @@ class NewReadingScreen extends Component<Props> {
             {`${new_reading_timeseries}:`}
           </Text>
           <Picker
-            selectedValue={this.state.timeseriesString}
+            selectedValue={this.state.timeseries.parameter}
             style={{
               flex: 2
             }}
             mode={'dropdown'}
-            onValueChange={(itemValue) => this.setState({ timeseriesString: itemValue })
+            onValueChange={(itemValue) => this.setState({ timeseries: itemValue })
           }>
-            {timeseries.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
-          {/* TODO: fix for pending reading */}
-            {/* {resource.pending ? 
-              resource.timeseries.map((ts: PendingTimeseries) => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter}/>) 
-              :
-              resource.timeseries.map((ts: AnyTimeseries) => <Picker.Item key={ts.id} label={ts.name} value={ts.id} />) 
-            } */}
+            {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts} />)}
           </Picker>
         </View>
         {this.getImageSection()}
@@ -484,16 +482,17 @@ class NewReadingScreen extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState): StateProps => {
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
     location: state.location,
+    userId: unwrapUserId(state.user),
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => 
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))},

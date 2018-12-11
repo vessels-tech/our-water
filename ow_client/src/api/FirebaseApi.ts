@@ -13,7 +13,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange} from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange, OWUserStatus} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
@@ -601,7 +601,6 @@ class FirebaseApi {
   /**
    * saveReading
    * submits a new reading for a given resource
-   * 
    */
   static async saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
     const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
@@ -616,10 +615,22 @@ class FirebaseApi {
     return makeSuccess(savedFBReading.toAnyReading());
   }
 
-  static saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading) {
-    return this.userDoc(orgId, userId).collection('pendingReadings').add(reading);
-  }
+  /**
+   * saveReadingToUser
+   * 
+   * Submits a new reading to the user's pendingReadings collection
+   */
+  static async saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
+    const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
+    const fbReading = new FBReading(builder);
 
+    //TODO: should this hash the resourceId + tsId + date to get the unique reading id?
+    return this.userDoc(orgId, userId).collection('pendingReadings').add(fbReading.serialize())
+    .then(() => makeSuccess(fbReading.toAnyReading()))
+    .catch((err: Error) => {
+      return makeError<AnyReading>(err.message);
+    })
+  }
 
   static listenForPendingWrites(collection: any) {
     return new Promise((resolve, reject) => {
@@ -1070,6 +1081,7 @@ class FirebaseApi {
         email: null,
         name: null,
         nickname: null,
+        status: OWUserStatus.Unapproved,
       }
     }
 
@@ -1112,6 +1124,7 @@ class FirebaseApi {
       email: data.email || null,
       name: data.name || null,
       nickname: data.nickname || null,
+      status: data.status || OWUserStatus.Unapproved,
     }
   }
 

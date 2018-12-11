@@ -292,6 +292,26 @@ class FirebaseApi {
             // });
         });
     }
+    /**
+     * Change the user's status
+     */
+    static changeUserStatus(orgId, userId, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection('user').doc(userId).set({ status }, { merge: true })
+                .then(() => AppProviderTypes_1.makeSuccess(undefined))
+                .catch(err => AppProviderTypes_1.makeError(err.message));
+        });
+    }
+    /**
+     * syncPendingForUser
+     *
+     * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+     */
+    static syncPendingForUser(orgId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.resolve(AppProviderTypes_1.makeError("method not implemented."));
+        });
+    }
 }
 exports.default = FirebaseApi;
 //# sourceMappingURL=FirebaseApi.js.map

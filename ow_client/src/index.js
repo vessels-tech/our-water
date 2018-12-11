@@ -28,6 +28,7 @@ const orgId = EnvironmentConfig.OrgId;
 Promise.resolve(true)
 .then(() => {
   if (Config.SHOULD_USE_LOCAL_CONFIG === 'true') {
+    console.log("USING LOCAL CONFIG");
     switch (Config.CONFIG_TYPE) {
       case 'GGMNDevConfig':
         return GGMNDevConfig;

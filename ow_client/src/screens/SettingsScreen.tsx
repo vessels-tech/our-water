@@ -206,6 +206,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   getSyncButton() {
+    if (!this.props.config.getShowSyncButton()) {
+      return null;
+    }
+
     const { translation: { templates: { settings_sync_heading}}} = this.props;
 
     let leftIcon: any = {
@@ -222,8 +226,42 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           settings_sync_heading,
           {
             config: this.props.config,
-            //TODO: how to get the userId in here???
             userId: this.props.userId,
+          }
+        )}
+        disabled={false}
+        leftIcon={leftIcon}
+        hideChevron
+        // subtitle={''}
+        subtitleStyle={{
+          color: error1,
+        }}
+      />
+    );
+  }
+
+  getPendingButton() {
+    if (!this.props.config.getShowPendingButton()) {
+      return null;
+    }
+
+    const { translation: { templates: { settings_sync_heading } } } = this.props;
+    //TODO: translate
+    const settings_pending_heading = "Save Pending Resources";
+    let leftIcon: any = {
+      name: 'sync',
+      color: secondaryText,
+    };
+
+    return (
+      <ListItem
+        title={settings_pending_heading}
+        onPress={() => showModal(
+          this.props,
+          'screen.PendingScreen',
+          settings_pending_heading,
+          {
+            config: this.props.config,
           }
         )}
         disabled={false}
@@ -275,7 +313,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         {this.getConnectToButton()} 
         {/* For connecting to default service */}
         {this.getSignInButton()}
+        {/* For syncing to an external service */}
         {this.getSyncButton()}
+        {/* For saving pending readings/resources to default service */}
+        {this.getPendingButton()}
         <ListItem
           title={settings_new_resource}
           onPress={() => {

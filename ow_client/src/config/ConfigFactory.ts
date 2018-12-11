@@ -12,6 +12,7 @@ import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
+import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
 
 
 /**
@@ -24,6 +25,8 @@ export type RemoteConfig = {
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
+  showSyncButton: boolean,
+  showPendingButton: boolean,
   map_shouldLoadAllResources: boolean,
   newReading_enableImageUpload: boolean,
   homeScreen: HomeScreenType,
@@ -145,14 +148,17 @@ export class ConfigFactory {
     return this.internalAccountApi;
   }
 
-  getShowConnectToButton() {
-    if (this.remoteConfig.showConnectToButton) {
-      return true;
-    }
-
-    return false;
+  getShowConnectToButton(): boolean {
+    return this.remoteConfig.showConnectToButton;
   }
 
+  getShowSyncButton(): boolean { 
+    return this.remoteConfig.showSyncButton;
+  }
+
+  getShowPendingButton(): boolean {
+    return this.remoteConfig.showPendingButton;
+  }
 
   private checkConnectToButtonStatus(success: string) {
     if (!this.remoteConfig.showConnectToButton) {
@@ -228,7 +234,7 @@ export class ConfigFactory {
    * 
    * This determines the default timeseries for the environment
    */
-  getDefaultTimeseries(resourceTypeString: string) {
+  getDefaultTimeseries(resourceTypeString: string): ConfigTimeseries[] {
     const defaultTypes = JSON.parse(this.remoteConfig.editResource_defaultTypes);
     return defaultTypes[resourceTypeString];
   }

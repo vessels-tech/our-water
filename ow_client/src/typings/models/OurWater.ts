@@ -7,6 +7,7 @@ import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
 import { string } from "react-native-joi";
 import { AnyARecord } from "dns";
+import { UserStatus } from "../UserTypes";
 
 export type DeprecatedResource = {
   id: string,
@@ -110,6 +111,12 @@ export enum TimeseriesRange {
   EXTENT = 'EXTENT',
 }
 
+export enum OWUserStatus {
+  Approved = 'Approved',
+  Unapproved = 'Unapproved',
+  Rejected = 'Rejected',
+}
+
 /**
  * The user saved to firebase
  */
@@ -125,6 +132,7 @@ export type OWUser = {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  status: UserStatus,
 }
 
 export type TimeSeriesReading = {

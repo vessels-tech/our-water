@@ -10,6 +10,8 @@ const MyWellDevConfig: RemoteConfig = {
   firebaseBaseUrl: 'localhost:5000',
   ggmnBaseUrl: 'https://ggmn.lizard.net/api',
   showConnectToButton: false,
+  showSyncButton: false,
+  showPendingButton: true,
   mywellBaseUrl: 'https://mywell-server.vessels.tech',
   //This should be false, just for fixing map layout problems
   map_shouldLoadAllResources: true,

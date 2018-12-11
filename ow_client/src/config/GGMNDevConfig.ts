@@ -12,6 +12,8 @@ const GGMNDevConfig: RemoteConfig = {
   firebaseBaseUrl: 'localhost:5000',
   ggmnBaseUrl: 'https://ggmn.lizard.net',
   showConnectToButton: true,
+  showSyncButton: true,
+  showPendingButton: false,
   mywellBaseUrl: '',
   map_shouldLoadAllResources: false,
   newReading_enableImageUpload: false,
