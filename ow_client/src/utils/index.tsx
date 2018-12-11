@@ -581,6 +581,10 @@ export function unwrapUserId(user: MaybeUser) {
   return user.userId;
 }
 
+
+/**
+ * Deduplicate an array of items based on an accessor
+ */
 export function dedupArray<T>(array: Array<T>, accessor: (any: T) => string): Array<T> {
   const dedup: CacheType<T> = {};
   array.forEach(r => {
@@ -588,4 +592,27 @@ export function dedupArray<T>(array: Array<T>, accessor: (any: T) => string): Ar
     dedup[id] = r;
   });
   return Object.keys(dedup).map(k => dedup[k]);
+}
+
+
+/**
+ * Split an array of things up based on a given accessor
+ */
+export function splitArray<T>(original: Array<T>, accessor: (item: T) => string): Array<Array<T>> {
+  const keys = dedupArray(original.map(accessor), (k) => k);
+  return keys.map(k => original.filter(item => accessor(item) === k));
+}
+
+/**
+ * Group an array into lists inside a dict.
+ * Similar to splitArray, but returns a dict containing the key instead,
+ */
+export function groupArray<T>(original: Array<T>, accessor: (item: T) => string): CacheType<Array<T>> {
+  const dict: CacheType<Array<T>> = {}
+  const keys = dedupArray(original.map(accessor), (k) => k);
+  keys.forEach(k => {
+    dict[k] = original.filter(item => accessor(item) === k);
+  });
+
+  return dict;
 }

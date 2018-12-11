@@ -15,7 +15,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort,
+  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, divideArray, splitArray, groupArray,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -26,7 +26,7 @@ import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
 import TimeseriesCard from './common/TimeseriesCard';
 
-import { AppState, CacheType } from '../reducers';
+import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
@@ -62,7 +62,7 @@ export interface OwnProps {
 }
 
 export interface StateProps {
-  tsReadings: TimeseriesReadings,
+  // tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
   // favouriteResources: AnyResource[],
   favourite: boolean,
@@ -71,6 +71,8 @@ export interface StateProps {
   userId: string,
   resource: Maybe<AnyResource>, 
   resourceMeta: ActionMeta,
+  newTsReadings: Array<AnyOrPendingReading>,
+  newTsReadingsMeta: ActionMeta,
 }
 
 export interface ActionProps {
@@ -83,6 +85,7 @@ export interface ActionProps {
 export interface State {
 
 }
+
 
 class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -290,15 +293,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     );
   }
 
+  
+
   getLatestReadingsForTimeseries() {
-    const { tsReadings, resourceId, resourceMeta, resource } = this.props;
+    const { newTsReadings, newTsReadingsMeta, resourceId, resourceMeta, resource } = this.props;
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
 
     console.log("resourceMeta", resourceMeta);
     console.log("resource", resource);
-    console.log('tsreadings', tsReadings);
+    console.log('tsreadings', newTsReadings);
 
-    if (resourceMeta.loading || !resource) {
+    if (resourceMeta.loading || !resource || newTsReadingsMeta.loading) {
       return <Loading/>
     }
 
@@ -310,74 +315,110 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       )
     }
 
-    let loading = false;
-    const readingsMap: CacheType<AnyReading[]> = {};
-    //TODO: add timeseries for any pending readings
-    let timeseries = resource.timeseries;
+    if (newTsReadingsMeta.error) {
+      return (
+        <View>
+          <Text style={{ textAlign: 'center' }}>{newTsReadingsMeta.errorMessage}</Text>
+        </View>
+      )
+    }
 
-    /* figure out if we are loading */
-    timeseries.forEach((ts: AnyTimeseries | ConfigTimeseries) => {
-      const key = getTimeseriesReadingKey(resourceId, ts.name, TimeseriesRange.EXTENT);
-      const tsReading: TimeSeriesReading | undefined = tsReadings[key]
-
-      if (!tsReading) {
-        loading = true;
-        return;
-      }
     
-      //Let's say two weeks is the default, and should always be either there or pending
-      if (tsReading.meta.loading) {
-        loading = true;
-        return;
-      }
 
-      readingsMap[ts.name.toLowerCase()] = tsReading.readings;
+    //TODO: split the tsreadings into each type, and get the latest reading for each
+    const timeseriesList: CacheType<Array<AnyOrPendingReading>> = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
+    console.log('split readings', timeseriesList);
+    return Object.keys(timeseriesList).map((key: string) => {
+      const readings: Array<AnyOrPendingReading> = timeseriesList[key];
+
+      let content = 'N/A';
+      let contentSubtitle;
+      
+      //TODO: sort by date here.
+      const latestReading = readings[readings.length - 1];
+      content = `${latestReading.value.toFixed(2)}`;
+      contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
+
+      return (
+        <TimeseriesSummaryText 
+          key={key} 
+          heading={key} 
+          subtitle={timeseries_name_title(key)}
+          content={content}
+          content_subtitle={contentSubtitle}
+        />
+      )
     });
 
-    if (loading) {
-      return <Loading/>
-    }
+
+    // let loading = false;
+    // const readingsMap: CacheType<AnyReading[]> = {};
+    // //TODO: add timeseries for any pending readings
+    // let timeseries = resource.timeseries;
+
+    // /* figure out if we are loading */
+    // timeseries.forEach((ts: AnyTimeseries | ConfigTimeseries) => {
+    //   const key = getTimeseriesReadingKey(resourceId, ts.name, TimeseriesRange.EXTENT);
+    //   const tsReading: TimeSeriesReading | undefined = tsReadings[key]
+
+    //   if (!tsReading) {
+    //     loading = true;
+    //     return;
+    //   }
     
-    if (timeseries.length === 0) {
-      return (
-        <Text style={{textAlign: 'center'}}>{timeseries_none}</Text>
-      );
-    }
+    //   //Let's say two weeks is the default, and should always be either there or pending
+    //   if (tsReading.meta.loading) {
+    //     loading = true;
+    //     return;
+    //   }
+
+    //   readingsMap[ts.name.toLowerCase()] = tsReading.readings;
+    // });
+
+    // if (loading) {
+    //   return <Loading/>
+    // }
     
-    return (
-      timeseries.map(ts => {
-        const key = ts.name.toLowerCase();
-        const readings = readingsMap[key] || [];
-        const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === key.toLowerCase());
-        const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
+    // if (timeseries.length === 0) {
+    //   return (
+    //     <Text style={{textAlign: 'center'}}>{timeseries_none}</Text>
+    //   );
+    // }
+    
+    // return (
+    //   timeseries.map(ts => {
+    //     const key = ts.name.toLowerCase();
+    //     const readings = readingsMap[key] || [];
+    //     const pendingReadings = this.props.pendingReadings.filter(r => r.timeseriesId.toLowerCase() === key.toLowerCase());
+    //     const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
         
-        let content = 'N/A';
-        let contentSubtitle;
+    //     let content = 'N/A';
+    //     let contentSubtitle;
 
-        const latestReading = allReadings[allReadings.length - 1];
-        if (latestReading) {
-          content = `${latestReading.value.toFixed(2)}`;
-          contentSubtitle = moment(latestReading.dateString).format(timeseries_date_format);
-        }
+    //     const latestReading = allReadings[allReadings.length - 1];
+    //     if (latestReading) {
+    //       content = `${latestReading.value.toFixed(2)}`;
+    //       contentSubtitle = moment(latestReading.dateString).format(timeseries_date_format);
+    //     }
 
-        //This may fail...
-        // const timeseries = resource.timeseries.filter(t => t.name === key)[0];
-        const filteredTs = timeseries.filter(t => t.name.toLowerCase() === key)[0];
-        if (!filteredTs) { 
-          return null
-        };
+    //     //This may fail...
+    //     // const timeseries = resource.timeseries.filter(t => t.name === key)[0];
+    //     const filteredTs = timeseries.filter(t => t.name.toLowerCase() === key)[0];
+    //     if (!filteredTs) { 
+    //       return null
+    //     };
 
-        return (
-          <TimeseriesSummaryText 
-            key={key} 
-            heading={filteredTs.name} 
-            subtitle={timeseries_name_title(filteredTs.name)}
-            content={content}
-            content_subtitle={contentSubtitle}
-          />
-        )
-      })
-    );
+    //     return (
+    //       <TimeseriesSummaryText 
+    //         key={key} 
+    //         heading={filteredTs.name} 
+    //         subtitle={timeseries_name_title(filteredTs.name)}
+    //         content={content}
+    //         content_subtitle={contentSubtitle}
+    //       />
+    //     )
+    //   })
+    // );
   }
 
   getSummaryCard() {
@@ -607,16 +648,24 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
 
+  const newTsReadings = state.newTsReadings[ownProps.resourceId];
+  let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
+  if (!newTsReadingsMeta) {
+    newTsReadingsMeta = { loading: true, error: false, errorMessage: '' };
+  }
+
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     // favouriteResources: state.favouriteResources,
     favourite,
-    tsReadings: state.tsReadings,
+    // tsReadings: state.tsReadings,
     translation: state.translation,
     pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resourceId),
     userId: state.user.type === UserType.NO_USER ? '' : state.user.userId,
     resource,
     resourceMeta,
+    newTsReadings,
+    newTsReadingsMeta,
   }
 }
 

@@ -15,13 +15,14 @@ import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
 import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
-import { navigateTo } from '../utils';
+import { navigateTo, unwrapUserId } from '../utils';
 
 
 export interface OwnProps {
   navigator: any,
   config: ConfigFactory,
-  resource: AnyResource | PendingResource,
+  resourceId: string,
+  resourceType: string,
 }
 
 export interface StateProps {
@@ -60,7 +61,8 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
     const { resource_detail_new } = this.props.translation.templates;
     
     navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-      resource: this.props.resource,
+      resourceId: this.props.resourceId,
+      resourceType: this.props.resourceType,
       config: this.props.config,
       userId: this.props.userId
     });
@@ -140,17 +142,10 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  let userId = ''; //I don't know if this fixes the problem...
-
- 
-  if (state.user.type === UserType.USER) {
-    userId = state.user.userId;
-  }
-
-  const pendingReadings: PendingReading[] = state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resource.id);
+  const pendingReadings: PendingReading[] = state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resourceId);
 
   return {
-    userId,
+    userId: unwrapUserId(state.user),
     pendingReadings,
     pendingReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,

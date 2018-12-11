@@ -7,7 +7,7 @@ import { MaybeUser, UserType, MobileUser, UserStatus } from "../typings/UserType
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { getTimeseriesReadingKey, maybeLog } from "../utils";
+import { getTimeseriesReadingKey, maybeLog, dedupArray } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
@@ -16,6 +16,8 @@ import * as EnvConfig from '../utils/EnvConfig';
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
+import { AnyReading } from "../typings/models/Reading";
+import { isNullOrUndefined } from "util";
 
 const orgId = EnvConfig.OrgId;
 
@@ -29,6 +31,8 @@ const defaultTranslation = getTranslationForLanguage(defaultTranslations, defaul
 export type CacheType<T> = {
   [index: string]: T
 }
+
+export type AnyOrPendingReading = AnyReading | PendingReading;
 
 export type AppState = {
   //Session based
@@ -60,6 +64,10 @@ export type AppState = {
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
   tsReadings: TimeseriesReadings, //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
+  //Even simpler version. We just have a list of readings for the associated resourceId.
+  newTsReadings: CacheType<Array<AnyOrPendingReading>>, 
+  newTsReadingsMeta: CacheType<ActionMeta>,
+
   shortIdMeta: CacheType<ActionMeta>,
   shortIdCache: CacheType<string>,
   // shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
@@ -120,6 +128,8 @@ export const initialState: AppState = {
   externalOrgs: [],
   externalOrgsMeta: { loading: false, error: false, errorMessage: '' },
   tsReadings: {},
+  newTsReadings: {},
+  newTsReadingsMeta: {},
   shortIdMeta: {},
   shortIdCache: {},
   unsubscribeFromUser: () => console.log("no user to unsubscribe from"),
@@ -249,37 +259,74 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
     case ActionType.GET_READINGS_REQUEST: {
       //TODO: fix this hack for a deep clone
-      const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[] };
-      let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
-      if (existingReading) {
-        tsReading = {
-          meta: {loading: true},
-          readings: existingReading.readings,
-        }
-      }
+      // const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
+      // const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
+      // let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[] };
+      // let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
+      // if (existingReading) {
+      //   tsReading = {
+      //     meta: {loading: true},
+      //     readings: existingReading.readings,
+      //   }
+      // }
 
-      tsReadings[key] = tsReading;
-      return Object.assign({}, state, {tsReadings});
+      // tsReadings[key] = tsReading;
+      // return Object.assign({}, state, {tsReadings});
+
+      const newTsReadingsMeta = state.newTsReadingsMeta;
+      const meta: ActionMeta = { loading: true, error: false, errorMessage: ''};
+
+      newTsReadingsMeta[action.resourceId] = meta;
+      return Object.assign({}, state, { newTsReadingsMeta });
     }
     case ActionType.GET_READINGS_RESPONSE: {
-      //TD fix this hack for a deep clone
-      const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
+      // //TD fix this hack for a deep clone
+      // const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
+      // const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
+      // let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
       
-      //TD this could be done more efficently than looking through an array each time -
-      //eg. building an index based on the resourceId and timeseriesName
-      const pendingReadings: PendingReading[] = state.pendingSavedReadings
-        .filter(r => r.resourceId === action.resourceId && r.timeseriesId === action.timeseriesName);
+      // //TD this could be done more efficently than looking through an array each time -
+      // //eg. building an index based on the resourceId and timeseriesName
+      // const pendingReadings: PendingReading[] = state.pendingSavedReadings
+      //   .filter(r => r.resourceId === action.resourceId && r.timeseriesId === action.timeseriesName);
       
-      if (action.result.type === ResultType.SUCCESS) {
-        tsReading.readings = action.result.result;
+      // if (action.result.type === ResultType.SUCCESS) {
+      //   tsReading.readings = action.result.result;
+      // }
+
+      // tsReadings[key] = tsReading;
+      // return Object.assign({}, state, { tsReadings });
+      const newTsReadings = state.newTsReadings;
+      const newTsReadingsMeta = state.newTsReadingsMeta;
+      let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+
+      if (action.result.type === ResultType.ERROR) {
+        meta = { loading: false, error: true, errorMessage: action.result.message };
+        newTsReadingsMeta[action.resourceId] = meta;
+        return Object.assign({}, state, { newTsReadingsMeta });
       }
 
-      tsReadings[key] = tsReading;
-      return Object.assign({}, state, { tsReadings });
+      const newReadings: AnyOrPendingReading[] = action.result.result;
+      const currentReadings: AnyOrPendingReading[] = newTsReadings[action.resourceId];
+      const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
+        .filter(r => r.resourceId === action.resourceId);
+
+      //TODO: remove duplicates
+      const duplicateArray = newReadings.concat(currentReadings, pendingReadings).filter(r => !isNullOrUndefined(r));
+      //TODO: date isn't working here!
+      const dedup = dedupArray(duplicateArray, (r) => {
+        if (!r) {
+          console.warn("undefined resource in array!", r);
+          return '1';
+        }
+        return `${r.date}+${r.resourceId}+${r.timeseriesId}`
+      });
+      
+      //Update the values
+      newTsReadings[action.resourceId] = dedup;
+      newTsReadingsMeta[action.resourceId] = meta;
+
+      return Object.assign({}, state, { newTsReadings, newTsReadingsMeta });
     }
     case ActionType.GET_RESOURCE_REQUEST: {
       //start loading

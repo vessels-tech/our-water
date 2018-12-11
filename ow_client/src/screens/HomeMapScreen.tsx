@@ -382,16 +382,19 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         resourceId={selectedResource.id}
         temporaryGroundwaterStationId={groundwaterStationId}
         //TODO: fix this to handle only resourceId
-        onAddReadingPressed={(resource: AnyResource | PendingResource) => {
+        onAddReadingPressed={(resourceId: string) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-            resource,
+            resourceId,
+            //TODO: fix
+            resourceType: 'well',
             config: this.props.config,
             userId: this.props.userId
           });
         }}
-        onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
+        onEditReadingsPressed={(resourceId: string) => {
           showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
-            resource,
+            resourceId,
+            resourceType: 'well',
             config: this.props.config,
           })
         }}

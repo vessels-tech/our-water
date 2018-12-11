@@ -140,6 +140,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   async saveReading() {
+
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
@@ -147,6 +148,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       resource,
       location, 
     } = this.props;
+
+    if (!resource) {
+      return;
+    }
 
     const {
       new_reading_invalid_error_heading,
@@ -347,18 +352,15 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     //TODO: get units from reading.metadata
     // const units = 'metres';
     const { date, measurementString, timeseries  } = this.state;
-    const { resource, translation: { templates: {
+    const { resource, resourceType } = this.props;
+    const {
       new_reading_date_field,
       new_reading_date_field_invalid,
       new_reading_value_field,
       new_reading_value_field_invalid,
       new_reading_timeseries,
-    }}} = this.props;
+    } = this.props.translation.templates;
 
-    let resourceType = 'well';
-    if (resource.pending || resource.type === OrgType.MYWELL) {
-      resourceType = resource.resourceType
-    }
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
 
     return (
