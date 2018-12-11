@@ -5,6 +5,9 @@
  * It is different from the SyncScreen as users are not saving resources to an external
  * service, rather the internal service.
  * 
+ * This is only for when users are Unapproved or Rejected.
+ * If the user is already approved, then their readings will save directly.
+ * 
  */
 import * as React from 'react';
 import { Component } from "react";
@@ -149,28 +152,34 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    //TODO: figure out how to determine if we are syncing
-    const syncing = false;
-
     return (
       <View>
-        <Button
-          containerViewStyle={{
-            paddingTop: 20,
-          }}
-          style={{
-            minHeight: 50,
-          }}
-          color={primaryText}
-          backgroundColor={primary}
-          borderRadius={15}
-          loading={syncing}
-          icon={syncing ? undefined : { name: 'cached', color: primaryText }}
-          title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-          onPress={() => this.props.startExternalSync(this.appApi, this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
-        />
+        <Text>Your account is approved! Your readings and resources will be synced shortly.</Text>
       </View>
-    )
+    );
+
+    // //TODO: figure out how to determine if we are syncing
+    // const syncing = false;
+
+    // return (
+    //   <View>
+    //     <Button
+    //       containerViewStyle={{
+    //         paddingTop: 20,
+    //       }}
+    //       style={{
+    //         minHeight: 50,
+    //       }}
+    //       color={primaryText}
+    //       backgroundColor={primary}
+    //       borderRadius={15}
+    //       loading={syncing}
+    //       icon={syncing ? undefined : { name: 'cached', color: primaryText }}
+    //       title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+    //       onPress={() => this.props.startExternalSync(this.appApi, this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
+    //     />
+    //   </View>
+    // )
   }
 
   resourceListItem(r: PendingResource, i: number, message?: string) {

@@ -302,6 +302,16 @@ class FirebaseApi {
                 .catch(err => AppProviderTypes_1.makeError(err.message));
         });
     }
+    /**
+     * syncPendingForUser
+     *
+     * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+     */
+    static syncPendingForUser(orgId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.resolve(AppProviderTypes_1.makeError("method not implemented."));
+        });
+    }
 }
 exports.default = FirebaseApi;
 //# sourceMappingURL=FirebaseApi.js.map

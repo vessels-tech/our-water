@@ -329,4 +329,14 @@ export default class FirebaseApi {
     .then(() => makeSuccess(undefined))
     .catch(err => makeError(err.message))
   }
+
+
+  /**
+   * syncPendingForUser
+   * 
+   * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+   */
+  public static async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<void>> {
+    return Promise.resolve(makeError<void>("method not implemented."));
+  }
 }

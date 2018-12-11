@@ -73,6 +73,13 @@ module.exports = (functions) => {
         yield utils_1.writeFileAsync(file, base64Data, 'base64');
         res.download(file);
     }));
+    /**
+     * ChangeUserStatus
+     * PATCH /:orgId/:userId/status
+     *
+     * Change the user's status to either Approved or Rejected.
+     * If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
+     */
     const changeUserStatusValidation = {
         options: {
             allowUnknownBody: false,
@@ -87,6 +94,12 @@ module.exports = (functions) => {
         const statusResult = yield FirebaseApi_1.default.changeUserStatus(orgId, userId, status);
         if (statusResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(statusResult.message);
+        }
+        if (status === "Approved") {
+            const syncResult = yield FirebaseApi_1.default.syncPendingForUser(orgId, userId);
+            if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                throw new Error(syncResult.message);
+            }
         }
         res.status(204).send(true);
     }));
