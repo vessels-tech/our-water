@@ -25,6 +25,8 @@ export type RemoteConfig = {
   ggmnBaseUrl: string,
   mywellBaseUrl: string,
   showConnectToButton: boolean,
+  showSyncButton: boolean,
+  showPendingButton: boolean,
   map_shouldLoadAllResources: boolean,
   newReading_enableImageUpload: boolean,
   homeScreen: HomeScreenType,
@@ -146,14 +148,17 @@ export class ConfigFactory {
     return this.internalAccountApi;
   }
 
-  getShowConnectToButton() {
-    if (this.remoteConfig.showConnectToButton) {
-      return true;
-    }
-
-    return false;
+  getShowConnectToButton(): boolean {
+    return this.remoteConfig.showConnectToButton;
   }
 
+  getShowSyncButton(): boolean { 
+    return this.remoteConfig.showSyncButton;
+  }
+
+  getShowPendingButton(): boolean {
+    return this.remoteConfig.showPendingButton;
+  }
 
   private checkConnectToButtonStatus(success: string) {
     if (!this.remoteConfig.showConnectToButton) {

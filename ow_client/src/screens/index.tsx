@@ -40,6 +40,7 @@ import * as AsyncStorage from 'rn-async-storage';
 import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
+import PendingScreen from './menu/PendingScreen';
 
 
 let loggerMiddleware: any = null;
@@ -215,6 +216,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('modal.TakePictureScreen', () => TakePictureScreen, store, Provider);
   Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
   Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
+  Navigation.registerComponent('screen.PendingScreen', () => PendingScreen, store, Provider);
 
   return store;
 }
