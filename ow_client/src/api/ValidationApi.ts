@@ -83,6 +83,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       parameter: Joi.string().required(),
       //This may change in the future if we allow users to create resources with readings already
       readings: Joi.array().empty().required(),
+      
     })).required(),
   });
 
