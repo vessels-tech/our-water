@@ -2,6 +2,12 @@
 
 export type MaybeUser = User | NoUser | MobileUser;
 
+export enum UserStatus {
+  Approved = 'Approved',
+  Unapproved = 'Unapproved',
+  Rejected = 'Rejected',
+}
+
 export type User = {
   type: UserType.USER,
   userId: string,

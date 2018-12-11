@@ -17,7 +17,7 @@ import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
@@ -25,15 +25,17 @@ import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { ResultType } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
+import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
 
 export interface OwnProps {
   navigator: any,
-  userId: string,
   config: ConfigFactory,
 }
 
 export interface StateProps {
-  externalLoginDetails: AnyLoginDetails,
+  userId: string,
+  user: MaybeUser,
+  userStatus: UserStatus,
   externalSyncStatus: AnyExternalSyncStatus,
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
@@ -81,55 +83,26 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     /* Binds */
     this.props.deletePendingReading.bind(this);
     this.props.deletePendingResource.bind(this);
-    this.groundwaterSyncPressed = this.groundwaterSyncPressed.bind(this);
     this.handleDeletePendingResource = this.handleDeletePendingResource.bind(this);
     this.displayDeleteResourceModal = this.displayDeleteResourceModal.bind(this);
 
     this.state = {};
   }
 
-  //Bound functions
-  groundwaterSyncPressed() {
-    const { externalLoginDetails, externalSyncStatus,
-      translation: { templates: {
-        settings_sync_heading,
-        sync_login_message,
-        sync_start_sync_button,
-        sync_start_sync_button_loading,
-      } }
-    } = this.props;
-
-    // screen.GroundwaterSyncScreen
-    navigateTo(
-      this.props,
-      'screen.GroundwaterSyncScreen',
-      settings_sync_heading,
-      {
-        config: this.props.config,
-        userId: this.props.userId,
-      }
-    );
-  }
-
-
   getSyncSection() {
+    const { user, userStatus,  pendingSavedResources, pendingSavedReadings } = this.props;
     const {
-      externalLoginDetails,
-      externalSyncStatus,
-      pendingSavedResources,
-      pendingSavedReadings,
-      translation: { templates: {
-        settings_sync_heading,
-        sync_login_message,
-        sync_start_sync_button,
-        sync_start_sync_button_loading,
-        sync_manual_text,
-        sync_manual_show_me_how,
-      } }
-    } = this.props;
+      settings_sync_heading,
+      sync_login_message,
+      sync_start_sync_button,
+      sync_start_sync_button_loading,
+      sync_manual_text,
+      sync_manual_show_me_how,
+      settings_connect_to_pending_title
+    } = this.props.translation.templates;
 
     //if no login, just display a message saying 'login to sync'
-    if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
+    if (user.type === UserType.NO_USER) {
       return <Button
         style={{
           paddingBottom: 20,
@@ -148,8 +121,8 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           //Redirect user to settings view
           showModal(
             this.props,
-            'screen.menu.ConnectToServiceScreen',
-            settings_sync_heading,
+            'screen.menu.SignInScreen',
+            settings_connect_to_pending_title,
             {
               config: this.props.config,
               userId: this.props.userId,
@@ -160,7 +133,24 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       />
     }
 
-    const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
+    if (userStatus === UserStatus.Rejected) {
+      return (
+        <View>
+          <Text>Your account has been suspended. You won't be able to save anything until an administrator fixes your account.</Text>
+        </View>
+      );
+    }
+
+    if (userStatus === UserStatus.Unapproved) {
+      return (
+        <View>
+          <Text>Your account is still waiting for approval. If it's been too long, reach out to an administrator at ____ to rectify the problem.</Text>
+        </View>
+      );
+    }
+
+    //TODO: figure out how to determine if we are syncing
+    const syncing = false;
 
     return (
       <View>
@@ -178,29 +168,6 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           icon={syncing ? undefined : { name: 'cached', color: primaryText }}
           title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
           onPress={() => this.props.startExternalSync(this.appApi, this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
-        />
-        <Text
-          style={{
-            paddingLeft: 16,
-            paddingTop: 7,
-            paddingBottom: 3,
-            fontStyle: 'italic',
-            fontWeight: "400",
-          }}>
-          {sync_manual_text}
-        </Text>
-        <Button
-          style={{
-            minHeight: 50,
-          }}
-          containerViewStyle={{
-            paddingBottom: 20,
-          }}
-          color={primaryText}
-          backgroundColor={primary}
-          borderRadius={15}
-          onPress={this.groundwaterSyncPressed}
-          title={sync_manual_show_me_how}
         />
       </View>
     )
@@ -407,7 +374,9 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    externalLoginDetails: state.externalLoginDetails,
+    userStatus: state.userStatus,
+    user: state.user,
+    userId: unwrapUserId(state.user),
     pendingSavedReadings: state.pendingSavedReadings,
     pendingSavedResources: state.pendingSavedResources,
     externalSyncStatus: state.externalSyncStatus,

@@ -13,7 +13,7 @@ import {
   boundingBoxForCoords
 } from '../utils';
 import NetworkApi from './NetworkApi';
-import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange} from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange, OWUserStatus} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
@@ -1081,6 +1081,7 @@ class FirebaseApi {
         email: null,
         name: null,
         nickname: null,
+        status: OWUserStatus.Unapproved,
       }
     }
 
@@ -1123,6 +1124,7 @@ class FirebaseApi {
       email: data.email || null,
       name: data.name || null,
       nickname: data.nickname || null,
+      status: data.status || OWUserStatus.Unapproved,
     }
   }
 

@@ -3,7 +3,7 @@ import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { ResultType, SomeResult, resultsHasError } from "../typings/AppProviderTypes";
-import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
+import { MaybeUser, UserType, MobileUser, UserStatus } from "../typings/UserTypes";
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
@@ -81,6 +81,7 @@ export type AppState = {
   searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
+  userStatus: UserStatus,
 }
 
 export const initialState: AppState = {
@@ -126,6 +127,7 @@ export const initialState: AppState = {
   //Firebase
   user: {type: UserType.NO_USER}, 
   userIdMeta: { loading: false, error: false, errorMessage: '' },
+  userStatus: UserStatus.Unapproved,
   syncStatus: SyncStatus.none,
   favouriteResources: [],
   favouriteResourcesMeta: { loading: false, error: false, errorMessage: '' },
@@ -404,7 +406,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let email = state.email;
       let name = state.name;
       let nickname = state.nickname;
-
+      let userStatus = state.userStatus;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -417,6 +419,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         email = action.result.result.email && action.result.result.email;
         name = action.result.result.name && action.result.result.name;
         nickname = action.result.result.nickname && action.result.result.nickname;
+        userStatus = action.result.result.status;
       }
       
       //TODO: error handling?
@@ -432,6 +435,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         email,
         name,
         nickname,
+        userStatus,
       });
     }
     case ActionType.GOT_SHORT_IDS: {
@@ -668,7 +672,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       
       //Unsubscrbe, to old user. Actions handle the new subscription
       state.unsubscribeFromUser();
-
 
       //Update the user and token
       const user: MobileUser = {

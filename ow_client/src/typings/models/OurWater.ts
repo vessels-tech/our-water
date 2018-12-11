@@ -7,6 +7,7 @@ import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
 import { string } from "react-native-joi";
 import { AnyARecord } from "dns";
+import { UserStatus } from "../UserTypes";
 
 export type DeprecatedResource = {
   id: string,
@@ -131,7 +132,7 @@ export type OWUser = {
   email: string | null,
   name: string | null,
   nickname: string | null,
-  status: OWUserStatus,
+  status: UserStatus,
 }
 
 export type TimeSeriesReading = {
