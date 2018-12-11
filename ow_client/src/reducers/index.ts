@@ -289,30 +289,30 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { resourceMeta });
     }
     case ActionType.GET_RESOURCE_RESPONSE: {
-      //stop loading, add to resources list
-      const resourceMeta = state.resourceMeta;
+      //stop loading,
+      //Adding resource to list is handled in GET_RESOURCES_RESPONSE
+      let resourceMeta = state.resourceMeta;
       let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       if (action.result.type === ResultType.ERROR) {
         meta = { loading: false, error: true, errorMessage: action.result.message };
-        resourceMeta[action.resourceId] = meta;
-
-        return Object.assign({}, state, { resourceMeta });
-      }
-
-      let resources: AnyResource[] = state.resources;
-      //Don't add the resource if it has already been loaded
-      const alreadyHasResource = resources.reduce((acc: boolean, curr: AnyResource) => {
-        if (acc) {
-          return acc;
-        }
-        return curr.id === action.resourceId;
-      }, false);
-      if (!alreadyHasResource) {
-        resources.push(action.result.result);
       }
       resourceMeta[action.resourceId] = meta;
-      //I think this was missing resources
-      return Object.assign({}, state, { resourceMeta, resources });
+      return Object.assign({}, state, { resourceMeta });
+
+      // let resources: AnyResource[] = state.resources;
+      // //Don't add the resource if it has already been loaded
+      // const alreadyHasResource = resources.reduce((acc: boolean, curr: AnyResource) => {
+      //   if (acc) {
+      //     return acc;
+      //   }
+      //   return curr.id === action.resourceId;
+      // }, false);
+      // if (!alreadyHasResource) {
+      //   resources.push(action.result.result);
+      // }
+      // resourceMeta[action.resourceId] = meta;
+      // //I think this was missing resources
+      // return Object.assign({}, state, { resourceMeta, resources });
     }
     case ActionType.GET_RESOURCES_REQUEST: {
       const resourcesMeta: ActionMeta = { loading: true, error: false, errorMessage: ''};

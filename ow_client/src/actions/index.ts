@@ -421,6 +421,11 @@ export function getResource(api: BaseApi, resourceId: string, userId: string): (
     //TODO: we should only do this if we don't already have the resource...
     const result = await api.getResource(resourceId);
     dispatch(getResourceResponse(resourceId, result));
+
+    //Adds the single resource to the caches
+    if (result.type === ResultType.SUCCESS) {
+      dispatch(getResourcesResponse(makeSuccess([result.result])))
+    }
     return result;
   }
 }

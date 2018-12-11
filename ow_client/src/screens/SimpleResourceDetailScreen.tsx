@@ -84,9 +84,10 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
         config={this.props.config}
         resource={resource}
         onEditReadingsPressed={() => console.log("TODO: onEditReadingsPressed")}
-        onAddReadingPressed={(resource: AnyResource) => {
+        onAddReadingPressed={(resourceId: string) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-            resource,
+            resourceId,
+            resourceType: 'well',
             config: this.props.config,
             userId: this.props.userId
           });

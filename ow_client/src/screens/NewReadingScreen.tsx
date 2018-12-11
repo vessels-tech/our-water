@@ -24,7 +24,7 @@ import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
-import { SyncMeta } from '../typings/Reducer';
+import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
@@ -36,11 +36,13 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
 import { OrgType } from '../typings/models/OrgType';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
+import { Maybe } from '../typings/MaybeTypes';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface OwnProps {
-  resource: AnyResource | PendingResource,
+  resourceId: string,
+  resourceType: string,
   navigator: any,
   config: ConfigFactory,
 }
@@ -50,6 +52,8 @@ export interface StateProps {
   pendingSavedReadingsMeta: SyncMeta,
   translation: TranslationFile,
   location: MaybeLocation,
+  resource: Maybe<AnyResource>,
+  resourceMeta: ActionMeta
 }
 
 export interface ActionProps {
@@ -79,11 +83,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    let resourceType = 'well';
-    if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
-      resourceType = props.resource.resourceType
-    }
-    const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(resourceType);
+    // let resourceType = 'well';
+    // if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
+    //   resourceType = props.resource.resourceType
+    // }
+    const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(props.resourceType);
     this.state = {
       enableSubmitButton: false,
       date: moment(),
@@ -335,7 +339,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
             /> 
           </View> : null
         }
-        
       </View>
     );
   }
@@ -413,9 +416,12 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
               flex: 2
             }}
             mode={'dropdown'}
-            onValueChange={(itemValue) => this.setState({ timeseries: itemValue })
-          }>
-            {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts} />)}
+            onValueChange={(_, idx) => {
+              const ts = timeseriesList[idx];
+              this.setState({ timeseries: ts });
+            }}
+          >
+            {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
           </Picker>
         </View>
         {this.getImageSection()}
@@ -493,13 +499,23 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 }
 
-const mapStateToProps = (state: AppState): StateProps => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+
+  const resource = state.resourcesCache[ownProps.resourceId];
+  let resourceMeta = state.resourceMeta[ownProps.resourceId];
+  //TODO: clean this up
+  if (!resourceMeta) {
+    resourceMeta = { loading: false, error: false, errorMessage: '' };
+  }
+
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
     location: state.location,
     userId: unwrapUserId(state.user),
+    resource,
+    resourceMeta,
   }
 }
 

@@ -348,6 +348,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         onAddReadingPressed={(resource: AnyResource | PendingResource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resource,
+            resourceType: 'well',
             config: this.props.config,
             userId: this.props.userId
           });
@@ -355,6 +356,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         onEditResourcePressed={(resource: AnyResource | PendingResource) => {
           showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
             resource,
+            resourceType: 'well',
             config: this.props.config,
             userId: this.props.userId,
           })
@@ -368,11 +370,18 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       />
     }
 
+    let groundwaterStationId;
+    if (selectedResource.type === OrgType.GGMN) {
+      groundwaterStationId = selectedResource.groundwaterStationId;
+    }
+
     return (
       <ResourceDetailSection
         hideTopBar={false}
         config={this.props.config}
-        resource={selectedResource}
+        resourceId={selectedResource.id}
+        temporaryGroundwaterStationId={groundwaterStationId}
+        //TODO: fix this to handle only resourceId
         onAddReadingPressed={(resource: AnyResource | PendingResource) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resource,
