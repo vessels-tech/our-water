@@ -582,6 +582,11 @@ export function unwrapUserId(user: MaybeUser) {
 }
 
 
+//
+// Array Utils
+// TODO: make into library
+//------------------------------------------------------------------------------------------
+
 /**
  * Deduplicate an array of items based on an accessor
  */
@@ -615,4 +620,16 @@ export function groupArray<T>(original: Array<T>, accessor: (item: T) => string)
   });
 
   return dict;
+}
+
+/**
+ * Get the highest value from an array
+ */
+export function arrayHighest<T>(array: Array<T>, accessor: (item: T) => string | number): T {
+  return array.reduce((acc, curr) => {
+    if (accessor(curr) >= accessor(acc)) {
+      return curr;
+    }
+    return acc;
+  }, array[0]);
 }

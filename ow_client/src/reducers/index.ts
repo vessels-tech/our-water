@@ -258,21 +258,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { pendingSavedResources });
     }
     case ActionType.GET_READINGS_REQUEST: {
-      //TODO: fix this hack for a deep clone
-      // const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      // const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      // let tsReading: TimeSeriesReading = { meta: { loading: true }, readings:[] };
-      // let existingReading: TimeSeriesReading | undefined  = tsReadings[key];
-      // if (existingReading) {
-      //   tsReading = {
-      //     meta: {loading: true},
-      //     readings: existingReading.readings,
-      //   }
-      // }
-
-      // tsReadings[key] = tsReading;
-      // return Object.assign({}, state, {tsReadings});
-
       const newTsReadingsMeta = state.newTsReadingsMeta;
       const meta: ActionMeta = { loading: true, error: false, errorMessage: ''};
 
@@ -280,22 +265,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { newTsReadingsMeta });
     }
     case ActionType.GET_READINGS_RESPONSE: {
-      // //TD fix this hack for a deep clone
-      // const tsReadings = JSON.parse(JSON.stringify(state.tsReadings));
-      // const key = getTimeseriesReadingKey(action.resourceId, action.timeseriesName, action.range);
-      // let tsReading: TimeSeriesReading = { meta: { loading: false }, readings: [] };
-      
-      // //TD this could be done more efficently than looking through an array each time -
-      // //eg. building an index based on the resourceId and timeseriesName
-      // const pendingReadings: PendingReading[] = state.pendingSavedReadings
-      //   .filter(r => r.resourceId === action.resourceId && r.timeseriesId === action.timeseriesName);
-      
-      // if (action.result.type === ResultType.SUCCESS) {
-      //   tsReading.readings = action.result.result;
-      // }
-
-      // tsReadings[key] = tsReading;
-      // return Object.assign({}, state, { tsReadings });
       const newTsReadings = state.newTsReadings;
       const newTsReadingsMeta = state.newTsReadingsMeta;
       let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
@@ -311,9 +280,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
         .filter(r => r.resourceId === action.resourceId);
 
-      //TODO: remove duplicates
       const duplicateArray = newReadings.concat(currentReadings, pendingReadings).filter(r => !isNullOrUndefined(r));
-      //TODO: date isn't working here!
       const dedup = dedupArray(duplicateArray, (r) => {
         if (!r) {
           console.warn("undefined resource in array!", r);
@@ -551,6 +518,51 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       searchResults = { resources, hasNextPage: result.result.hasNextPage };
       
       return Object.assign({}, state, {searchResults, searchResultsMeta});
+    }
+    case ActionType.REFRESH_READINGS: {
+      const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;
+
+      /* For each resourceId, update the newTsReadings */
+      action.resourceIds.forEach(id => {
+        const currentReadings = newTsReadings[id] || [];
+        const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
+          .filter(r => r.resourceId === id);
+
+        const duplicateArray = currentReadings.concat(pendingReadings).filter(r => !isNullOrUndefined(r));
+        const dedup = dedupArray(duplicateArray, (r) => {
+          if (!r) {
+            console.warn("undefined resource in array!", r);
+            return '1';
+          }
+          return `${r.date}+${r.resourceId}+${r.timeseriesId}`
+        });
+        newTsReadings[id] = dedup;
+      });
+
+
+
+      // const newTsReadings = state.newTsReadings;
+      // const newTsReadingsMeta = state.newTsReadingsMeta;
+      // let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
+
+      // const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
+      //   .filter(r => r.resourceId === action.resourceId);
+
+      // const duplicateArray = currentReadings.concat(pendingReadings).filter(r => !isNullOrUndefined(r));
+      // const dedup = dedupArray(duplicateArray, (r) => {
+      //   if (!r) {
+      //     console.warn("undefined resource in array!", r);
+      //     return '1';
+      //   }
+      //   return `${r.date}+${r.resourceId}+${r.timeseriesId}`
+      // });
+
+      // //Update the values
+      // newTsReadings[action.resourceId] = dedup;
+      // newTsReadingsMeta[action.resourceId] = meta;
+
+      // return Object.assign({}, state, { newTsReadings, newTsReadingsMeta });
+      return Object.assign({}, state, { newTsReadings });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
       const userIdMeta = {loading: true, error: false, errorMessage: ''};

@@ -613,6 +613,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return response.json();
     })
     .then((parsed: GGMNTimeseriesResponse) => {
+      console.log("parsed, ", parsed);
       return {
         count: parsed.count,
         next: parsed.next,
@@ -621,7 +622,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
           {
             id: result.uuid,
             name: result.name,
-            parameter: result.parameter,
+            parameter: result.code,
             unit: result.unit,
             referenceFrame: result.reference_frame,
             scale: result.scale,
@@ -651,12 +652,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
 
       const timeseries: OWTimeseries = response.results[0];
-      return timeseries.events.map((e: OWTimeseriesEvent): Reading => {
+      return timeseries.events.map((e: OWTimeseriesEvent): GGMNReading => {
         return {
+          type: OrgType.GGMN,
           resourceId,
+          timeseriesId: timeseries.parameter,
           date: moment(e.timestamp).toISOString(),
           value: e.value,
-          timeseriesId: timeseries.id,
+          //TODO: this will cause bugs
+          groundwaterStationId: undefined,
+          timeseriesCode: timeseries.id,
         };
       });
     })

@@ -82,7 +82,7 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
       <ResourceDetailSection
         hideTopBar={true}
         config={this.props.config}
-        resource={resource}
+        resourceId={resource.id}
         onEditReadingsPressed={() => console.log("TODO: onEditReadingsPressed")}
         onAddReadingPressed={(resourceId: string) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {

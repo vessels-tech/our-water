@@ -2,11 +2,11 @@ import { Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
 import { AsyncResource } from "async_hooks";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location } from "../typings/Location";
-import { getLocation, maybeLog } from "../utils";
+import { getLocation, maybeLog, dedupArray } from "../utils";
 import { Firebase, RNFirebase } from "react-native-firebase";
 import FirebaseApi from "../api/FirebaseApi";
 import UserApi from "../api/UserApi";
@@ -195,11 +195,12 @@ function disconnectFromExternalServiceResponse(): DisconnectFromExternalServiceA
 /**
  * Async delete pending readings
  */
-export function deletePendingReading(api: BaseApi, userId: string, pendingReadingId: string): any {
+export function deletePendingReading(api: BaseApi, userId: string, pendingReadingId: string, resourceId: string): any {
   return async function(dispatch: any) {
     dispatch(deletePendingReadingRequest());
     const result = await api.deletePendingReading(userId, pendingReadingId);
     dispatch(deletePendingReadingResponse(result));
+    dispatch(refreshReadings(resourceId))
   }
 }
 
@@ -243,6 +244,22 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
   }
 }
 
+/**
+ * Handle many pending readings in bulk
+ */
+ export function getBulkPendingReadings(result: SomeResult<Array<PendingReading>>) {
+   return async function(dispatch: any) {
+    //For each pending reading's resourceId, call update readings  
+    dispatch(getPendingReadingsResponse(result));
+    if (result.type === ResultType.ERROR) {
+      return;
+    }
+
+    const resourceIds = dedupArray(result.result.map(r => r.resourceId), (id) => id);
+    dispatch(refreshReadings(resourceIds));
+
+  }
+ }
 
 /**
  * Async get external login details
@@ -634,6 +651,15 @@ function performSearchResponse(result: SomeResult<SearchResult>): PerformSearchA
   }
 }
 
+/**
+ * Tell the reducer to look for the given resourceIds and refresh the readings
+ */
+function refreshReadings(resourceIds: string[]): RefreshReadings {
+  return {
+    type: ActionType.REFRESH_READINGS,
+    resourceIds,
+  }
+}
 
 /**
  * Async remove the favourite
@@ -662,7 +688,6 @@ function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActio
 /**
  * Async save reading
  */
-
 export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading ): any {
   return async (dispatch: any) => {
     dispatch(saveReadingRequest());
@@ -671,6 +696,10 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
 
     //TODO: do proper check to see if we are using pendingReadings or not
     dispatch(saveReadingResponse(result, reading));
+    //TODO: this is how we tell state to re update the readings. It's a little hacky
+    //TD: tidy this up
+    // dispatch(getReadingsResponse(reading.timeseriesId, resourceId, '', TimeseriesRange.EXTENT, makeSuccess([])))
+    dispatch(refreshReadings(resourceId));
 
     //Attempt to do a sync, just this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {

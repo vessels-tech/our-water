@@ -61,7 +61,7 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
   store.dispatch(appActions.passOnUserSubscription(unsubscribe));
 
   config.appApi.subscribeToPendingReadings(userId, (readings: PendingReading[]) => {
-    store.dispatch(appActions.getPendingReadingsResponse({ type: ResultType.SUCCESS, result: readings }))
+    store.dispatch(appActions.getBulkPendingReadings({ type: ResultType.SUCCESS, result: readings }))
   });
 
   config.appApi.subscribeToPendingResources(userId, (resources: PendingResource[]) => {

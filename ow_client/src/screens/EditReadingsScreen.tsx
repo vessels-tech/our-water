@@ -33,7 +33,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
+  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) => any,
 }
 
 export interface State {
@@ -54,7 +54,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   }
 
   deletePendingReading(id: string) {
-    this.props.deletePendingReading(this.appApi, this.props.userId, id);
+    this.props.deletePendingReading(this.appApi, this.props.userId, id, this.props.resourceId);
   }
 
   onAddReadingPressed() {
@@ -155,8 +155,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
-      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId))
+    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
+      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
 
     // addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
     //   dispatch(appActions.addRecent(api, userId, resource))

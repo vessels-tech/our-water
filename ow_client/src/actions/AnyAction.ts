@@ -59,6 +59,7 @@ export type AnyAction =
   PassOnUserSubscriptionAction |
   PerformSearchActionRequest |
   PerformSearchActionResponse |
+  RefreshReadings |
   RemoveFavouriteActionRequest |
   RemoveFavouriteActionResponse |
   SaveReadingActionRequest |
@@ -124,6 +125,7 @@ export type LogoutActionResponse = { type: ActionType.LOGOUT_RESPONSE };
 export type PassOnUserSubscriptionAction = { type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe: () => any};
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
 export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResult>}
+export type RefreshReadings = { type: ActionType.REFRESH_READINGS, resourceIds: string[] };
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};
 export type RemoveFavouriteActionResponse = { type: ActionType.REMOVE_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type SaveReadingActionRequest = { type: ActionType.SAVE_READING_REQUEST };

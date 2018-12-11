@@ -15,7 +15,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, divideArray, splitArray, groupArray,
+  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -45,9 +45,9 @@ import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom'
 import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
-// import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
+import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
+import { diff } from 'deep-object-diff';
 
-// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 
 export interface OwnProps {
   resourceId: string,
@@ -55,16 +55,12 @@ export interface OwnProps {
   temporaryGroundwaterStationId?: string,
   config: ConfigFactory,
   hideTopBar: boolean,
-  // onAddReadingPressed: (r: AnyResource | PendingResource) => any,
-  // onEditReadingsPressed: (r: AnyResource | PendingResource) => any,
   onAddReadingPressed: (resourceId: string) => any,
   onEditReadingsPressed: (resourceId: string) => any,
 }
 
 export interface StateProps {
-  // tsReadings: TimeseriesReadings,
   favouriteResourcesMeta: SyncMeta,
-  // favouriteResources: AnyResource[],
   favourite: boolean,
   translation: TranslationFile,
   pendingReadings: PendingReading[],
@@ -96,10 +92,15 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     this.appApi = this.props.config.getAppApi();
 
-
     this.reloadResourceAndReadings();
+  }
 
-    // this.loadTimeseries();
+  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
+    if (prevProps.resourceId !== this.props.resourceId) {
+      this.reloadResourceAndReadings();
+    }
+
+    // const propsDiff = diff(originalObj, updatedObj)
   }
 
   async reloadResourceAndReadings() {
@@ -121,60 +122,51 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
   }
 
-  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
-    if (prevProps.resourceId !== this.props.resourceId) {
-      this.reloadResourceAndReadings();
-    }
-  }
 
-  onUpdateTimeseries() {
-    this.loadTimeseries();
-  }
+  // async loadTimeseries() {
+  //   const DEFAULT_RANGE = TimeseriesRange.EXTENT;
+  //   const { resource } = this.props;
 
-  async loadTimeseries() {
-    const DEFAULT_RANGE = TimeseriesRange.EXTENT;
-    const { resource } = this.props;
+  //   if (!resource) {
+  //     return null;
+  //   }
 
-    if (!resource) {
-      return null;
-    }
-
-    //Get the timeseries from the groundwater station
-    if (resource.type === OrgType.GGMN) {
-      const resourceResult = await this.appApi.getResource(resource.groundwaterStationId);
+  //   //Get the timeseries from the groundwater station
+  //   if (resource.type === OrgType.GGMN) {
+  //     const resourceResult = await this.appApi.getResource(resource.groundwaterStationId);
       
-      if (resourceResult.type === ResultType.ERROR) {
-        //TODO: present error dialog
-        // return this.loadDefaultTimeseries();
-        return null;
-      }
+  //     if (resourceResult.type === ResultType.ERROR) {
+  //       //TODO: present error dialog
+  //       // return this.loadDefaultTimeseries();
+  //       return null;
+  //     }
 
 
-      resourceResult.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, resource.id, ts.name, ts.id, DEFAULT_RANGE)
-        .then(result => {
-          if (result.type === ResultType.ERROR) {
-            ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
-          }
-        }));
+  //     resourceResult.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, resource.id, ts.name, ts.id, DEFAULT_RANGE)
+  //       .then(result => {
+  //         if (result.type === ResultType.ERROR) {
+  //           ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+  //         }
+  //       }));
 
-      return;
-    }
+  //     return;
+  //   }
 
-    //Always load the default timeseries - that way we don't miss out on pending readings
-    // return this.loadDefaultTimeseries()
+  //   //Always load the default timeseries - that way we don't miss out on pending readings
+  //   // return this.loadDefaultTimeseries()
 
-    //Not sure if we will want this back
-    //TODO: this makes it impossible to create new timeseries here... have to figure this out
-    // if (resource.timeseries.length === 0) {
-    //   return this.loadDefaultTimeseries();
-    // }
-    resource.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, resource.id, ts.name, ts.id, DEFAULT_RANGE)
-      .then(result => {
-        if (result.type === ResultType.ERROR) {
-          ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
-        }
-      }));
-  }
+  //   //Not sure if we will want this back
+  //   //TODO: this makes it impossible to create new timeseries here... have to figure this out
+  //   // if (resource.timeseries.length === 0) {
+  //   //   return this.loadDefaultTimeseries();
+  //   // }
+  //   resource.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, resource.id, ts.name, ts.id, DEFAULT_RANGE)
+  //     .then(result => {
+  //       if (result.type === ResultType.ERROR) {
+  //         ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+  //       }
+  //     }));
+  // }
 
   // getDefaultTimeseries(): Array<ConfigTimeseries> {
   //   const { resource, pendingReadings, tsReadings } = this.props;
@@ -293,8 +285,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     );
   }
 
-  
-
   getLatestReadingsForTimeseries() {
     const { newTsReadings, newTsReadingsMeta, resourceId, resourceMeta, resource } = this.props;
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
@@ -323,8 +313,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       )
     }
 
-    
-
     //TODO: split the tsreadings into each type, and get the latest reading for each
     const timeseriesList: CacheType<Array<AnyOrPendingReading>> = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
     console.log('split readings', timeseriesList);
@@ -333,9 +321,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
       let content = 'N/A';
       let contentSubtitle;
-      
-      //TODO: sort by date here.
-      const latestReading = readings[readings.length - 1];
+    
+      const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
       content = `${latestReading.value.toFixed(2)}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 

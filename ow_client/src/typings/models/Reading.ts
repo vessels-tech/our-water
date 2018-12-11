@@ -9,7 +9,7 @@ export type MyWellReading = {
 
   /* Common values*/
   resourceId: string,
-  timeseriesId: string,
+  timeseriesId: string, //mywell timeseries code, eg. 'default'
   date: string, //ISO Formatted
   value: number,
 
@@ -24,10 +24,11 @@ export type GGMNReading = {
 
   /* Common values*/
   resourceId: string,
-  timeseriesId: string,
+  timeseriesId: string, //timeseries code, eg. 'gwmmsl'
   date: string, //ISO Formatted
   value: number,
 
   /* Platform Specific */
   groundwaterStationId: string,
+  timeseriesUuid: string; //timeseries id in ggmn
 }
