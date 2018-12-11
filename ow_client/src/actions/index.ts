@@ -704,7 +704,7 @@ export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi,
 
     //Attempt to do a sync, only this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has && resource.pending === true){
-      dispatch(startExternalSync(externalApi, userId, [resource], []));
+      dispatch(startExternalSync(api, externalApi, userId, [resource], []));
     }
 
     return result;
@@ -897,11 +897,14 @@ export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi
     //TD: this a little hacky, but we assume that the updated resources are in the user's recents
     if (result.type === ResultType.SUCCESS) {
       result.result.newResources.forEach(r => dispatch(addRecent(baseApi, userId, r)));
+      //add the updated resources to the list.
+      dispatch(getResourcesResponse(makeSuccess(result.result.newResources)));
     }
 
     //TODO: update the favourites as well.
 
     dispatch(externalSyncResponse(result));
+
   }
 }
 

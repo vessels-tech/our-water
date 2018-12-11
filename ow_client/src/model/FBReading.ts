@@ -77,6 +77,7 @@ export default class FBReading extends FirestoreDoc {
       userId: this.userId,
       image: this.image,
       location: this.location,
+      groundwaterStationId: this.groundwaterStationId,
       ...super.serialize(),
     }
   }
