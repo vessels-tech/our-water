@@ -1,7 +1,7 @@
 /**
  * Email API is a utility for sending emails
  */
-import { SomeResult, ResultType, makeSuccess, makeError } from "../types/AppProviderTypes";
+import { SomeResult, makeSuccess, makeError } from "../types/AppProviderTypes";
 import {
   outboundEmailAddress,
   outboundEmailPassword,
@@ -9,7 +9,6 @@ import {
   testEmailWhitelist,
 } from '../env';
 
-const functions = require('firebase-functions');
 const nodemailer = require('nodemailer');
 
 const mailTransport = nodemailer.createTransport({
@@ -30,7 +29,7 @@ export default class EmailApi {
       from: `${APP_NAME} <admin@vessels.tech>`,
       to: email,
       subject,
-      text: message,
+      html: message,
       attachments,
     };
 

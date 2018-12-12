@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const env_1 = require("../env");
-const functions = require('firebase-functions');
 const nodemailer = require('nodemailer');
 const mailTransport = nodemailer.createTransport({
     host: 'smtp.zoho.com',
@@ -23,7 +22,7 @@ class EmailApi {
             from: `${APP_NAME} <admin@vessels.tech>`,
             to: email,
             subject,
-            text: message,
+            html: message,
             attachments,
         };
         // The user subscribed to the newsletter.

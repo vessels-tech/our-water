@@ -1162,9 +1162,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
     });
 
-    console.log("new resources are", newResources);
     newResources = dedupArray(newResources, (r: AnyResource) => r.id);
-    console.log("dedup new resources are", newResources);
 
     return Promise.resolve(makeSuccess<ExternalSyncStatusComplete>({
       pendingResourcesResults,

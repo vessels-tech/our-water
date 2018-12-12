@@ -54,11 +54,11 @@ describe('fn_resource', function () {
         }
       ];
       const body = {
-        "email": "lewisdaly@mesdsd.com",
+        "email": "lewisdaly@me.com",
         pendingResources,
         pendingReadings,
         subject: 'This is the email subject',
-        message: 'This is the email message',
+        message: 'This is the email message line two<br/>Does html <strong>WORK</strong>?',
       };
 
       const options = {
