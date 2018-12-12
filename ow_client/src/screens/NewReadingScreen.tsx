@@ -41,6 +41,7 @@ import { Maybe } from '../typings/MaybeTypes';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface OwnProps {
+  groundwaterStationId: string | null,
   resourceId: string,
   resourceType: string,
   navigator: any,
@@ -145,13 +146,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
       pendingSavedReadingsMeta: {loading},
-      resource,
+
       location, 
     } = this.props;
-
-    if (!resource) {
-      return;
-    }
 
     const {
       new_reading_invalid_error_heading,
@@ -173,10 +170,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       the resourceId
     */
     let groundwaterStationId = '';
-    if (resource.type === OrgType.GGMN) {
-      groundwaterStationId = resource.groundwaterStationId;
+    if (this.props.groundwaterStationId) {
+      groundwaterStationId = this.props.groundwaterStationId;
     }
-
+    
     if (loading) {
       //Don't allow a double button press!
       return;
@@ -198,7 +195,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const readingRaw: any = {
       type: this.props.config.orgType,
       pending: true,
-      resourceId: resource.id,
+      resourceId: this.props.resourceId,
       timeseriesId: timeseries.parameter, //TODO actually get a timeseries ID somehow
       date: moment(date).utc().format(), //converts to iso string
       value: measurementString, //joi will take care of conversions for us
@@ -221,7 +218,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       return;
     }
 
-    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, resource.id, validateResult.result);
+    const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, this.props.resourceId, validateResult.result);
 
     if (saveResult.type === ResultType.ERROR) {
       displayAlert(

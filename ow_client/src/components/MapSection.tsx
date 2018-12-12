@@ -307,7 +307,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
-    console.log("MapSection render()");
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
 

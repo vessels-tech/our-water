@@ -255,7 +255,6 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
     if (result.type === ResultType.ERROR) {
       return;
     }
-    console.log("getBulkPendingReadings", result.result);
 
     const resourceIds = dedupArray(result.result.map(r => r.resourceId), (id) => id);
     dispatch(refreshReadings(resourceIds, false));

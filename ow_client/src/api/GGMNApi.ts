@@ -613,7 +613,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return response.json();
     })
     .then((parsed: GGMNTimeseriesResponse) => {
-      console.log("parsed, ", parsed);
       return {
         count: parsed.count,
         next: parsed.next,
@@ -1156,7 +1155,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     
     //For each reading we made, reload the resource in case we created a new timeseries
     const updatedResourceIds = dedupArray(pendingReadings.map(r => r.groundwaterStationId), (any: string) => any);
-    console.log("updatedResourceIds are", updatedResourceIds);
     const resources = await this.getNewResourcesForIds(updatedResourceIds);
     resources.forEach(result => {
       if (result.type === ResultType.SUCCESS) {

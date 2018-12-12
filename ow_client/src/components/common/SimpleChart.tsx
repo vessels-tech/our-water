@@ -77,7 +77,6 @@ class SimpleChart extends React.PureComponent<Props> {
     /* merge together readings, sorted by the creation date */
     // const allReadings = mergePendingAndSavedReadingsAndSort(pendingReadings, readings);
     const allReadings = readings;
-    console.log('allreadings', readings);
     const dates = allReadings.map(r => moment(r.date));
     const values = allReadings.map(r => r.value);
 

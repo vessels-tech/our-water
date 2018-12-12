@@ -32,6 +32,7 @@ export interface OwnProps {
   timeseries: ConfigTimeseries,
   resourceId: string,
   timeseriesId: string, 
+  isPending: boolean,
 }
 
 export interface StateProps {
@@ -194,6 +195,10 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   if (!newTsReadingsMeta) {
     newTsReadingsMeta = { loading: true, error: false, errorMessage: '' };
   }
+
+  if (ownProps.isPending && newTsReadingsMeta.loading) {
+    newTsReadingsMeta = { loading: false, error: false, errorMessage: '' };
+  } 
 
   return {
     tsReadings: tsReadings.filter(r => r.timeseriesId === ownProps.timeseriesId),

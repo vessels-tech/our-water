@@ -41,7 +41,7 @@ const PendingReadingSchema = {
       })
     })
   ]).required(),
-  groundwaterStationId: Joi.string().required(),
+  groundwaterStationId: Joi.any(),
 }
 
 

@@ -544,7 +544,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let resourceIds = action.resourceIds;
       if (action.forceRefresh) {
         resourceIds = dedupArray(action.resourceIds.concat(Object.keys(newTsReadings)), (id) => id);
-        console.log("refreshing resourceIds", resourceIds);
       }
 
       /* For each resourceId, update the newTsReadings */

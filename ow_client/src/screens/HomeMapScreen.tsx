@@ -339,44 +339,45 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (selectedResource.pending) {
-      return <PendingResourceDetailSection
-        hideTopBar={false}
-        config={this.props.config}
-        userId={userId}
-        pendingResource={selectedResource}
-        onAddReadingPressed={(resource: AnyResource | PendingResource) => {
-          navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-            resource,
-            resourceType: 'well',
-            config: this.props.config,
-            userId: this.props.userId
-          });
-        }}
-        onEditResourcePressed={(resource: AnyResource | PendingResource) => {
-          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
-            resource,
-            resourceType: 'well',
-            config: this.props.config,
-            userId: this.props.userId,
-          })
-        }}
-        onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
-          showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
-            resource,
-            config: this.props.config,
-          })
-        }}
-      />
-    }
+    // if (selectedResource.pending) {
+    //   return <PendingResourceDetailSection
+    //     hideTopBar={false}
+    //     config={this.props.config}
+    //     userId={userId}
+    //     pendingResource={selectedResource}
+    //     onAddReadingPressed={(resource: AnyResource | PendingResource) => {
+    //       navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    //         resource,
+    //         resourceType: 'well',
+    //         config: this.props.config,
+    //         userId: this.props.userId
+    //       });
+    //     }}
+    //     onEditResourcePressed={(resource: AnyResource | PendingResource) => {
+    //       showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
+    //         resource,
+    //         resourceType: 'well',
+    //         config: this.props.config,
+    //         userId: this.props.userId,
+    //       })
+    //     }}
+    //     onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
+    //       showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
+    //         resource,
+    //         config: this.props.config,
+    //       })
+    //     }}
+    //   />
+    // }
 
-    let groundwaterStationId;
+    let groundwaterStationId: string | null= null;
     if (selectedResource.type === OrgType.GGMN) {
       groundwaterStationId = selectedResource.groundwaterStationId;
     }
 
     return (
       <ResourceDetailSection
+        isPending={selectedResource.pending}
         hideTopBar={false}
         config={this.props.config}
         resourceId={selectedResource.id}
@@ -385,6 +386,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         onAddReadingPressed={(resourceId: string) => {
           navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
             resourceId,
+            groundwaterStationId,
             //TODO: fix
             resourceType: 'well',
             config: this.props.config,
@@ -396,6 +398,15 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
             resourceId,
             resourceType: 'well',
             config: this.props.config,
+          })
+        }}
+        onEditResourcePressed={(pendingResource: PendingResource) => {
+          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
+            resourceId: pendingResource.id,
+            resource: pendingResource,
+            resourceType: 'well',
+            config: this.props.config,
+            userId: this.props.userId,
           })
         }}
       />
