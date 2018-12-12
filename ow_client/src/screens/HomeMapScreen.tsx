@@ -129,6 +129,11 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     //If a resource is selected, and it changes in the props, we need to update it.
+    this.handleUpdatedResource(nextProps);
+    this.handleUpdatedPendingResource(nextProps);
+  }
+
+  handleUpdatedResource(nextProps: OwnProps & StateProps & ActionProps) {
     const resourcesDiff: any = diff(this.props.resources, nextProps.resources);
     if (Object.keys(resourcesDiff).length > 0) {
       //Don't worry about updated the selected resource if there is none
@@ -145,11 +150,39 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       });
 
       if (!updatedSelectedResource) {
-        maybeLog(`Warning: couldn't the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
+        // maybeLog(`Warning: couldn't find the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
+        this.setState({ selectedResource: null, hasSelectedResource: false });
         return;
       }
 
-      this.setState({ seletedResource: updatedSelectedResource});
+      this.setState({ seletedResource: updatedSelectedResource });
+    }
+  }
+
+  handleUpdatedPendingResource(nextProps: OwnProps & StateProps & ActionProps) {
+    const pendingResourcesDiff: any = diff(this.props.pendingResources, nextProps.pendingResources);
+
+    if (Object.keys(pendingResourcesDiff).length > 0) {
+      //Don't worry about updated the selected resource if there is none
+      if (!this.state.hasSelectedResource || !this.state.selectedResource) {
+        return;
+      }
+
+      const selectedResourceId = this.state.selectedResource.id;
+      let updatedSelectedResource: PendingResource | null = null;
+      nextProps.pendingResources.forEach(r => {
+        if (r.id === selectedResourceId) {
+          updatedSelectedResource = r;
+        }
+      });
+
+      if (!updatedSelectedResource) {
+        // maybeLog(`Warning: couldn't find the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
+        this.setState({selectedResource: null, hasSelectedResource: false});
+        return;
+      }
+
+      this.setState({ seletedResource: updatedSelectedResource });
     }
   }
 

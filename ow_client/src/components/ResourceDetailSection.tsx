@@ -532,12 +532,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   } else {
     resourceMeta = state.resourceMeta[ownProps.resourceId];
   }
-
-
-  console.log("resource is", resource);
-  console.log("resourceMeta is", resourceMeta);
-  console.log("pendingResource is", pendingResource);
-  console.log("isPending", ownProps.isPending)
   
   //If we have no resource and no resourceMeta and no pendingResource, then we must be loading
   if (!resource && !resourceMeta && !pendingResource) {
