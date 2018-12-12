@@ -18,7 +18,8 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType, AnyOrPendingReading } from '../reducers';
-import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight } from './NewColors';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor } from './NewColors';
+import { secondaryText } from '../assets/ggmn/Colors';
 
 
 /**
@@ -304,12 +305,12 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: primaryText, // change the text color of the title (remembered across pushes)
+  navBarTextColor: navBarTextColor,
   navBarBackgroundColor: primary,
-  statusBarColor: surfaceDark,
-  statusBarTextColorScheme: 'dark',
+  statusBarColor: statusBarColor,
+  statusBarTextColorScheme: statusBarTextColorScheme,
   screenBackgroundColor: surface,
-  navBarButtonColor: primaryText,
+  navBarButtonColor: navBarTextColor,
   drawUnderStatusBar: false,
 }
 

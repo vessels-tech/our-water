@@ -60,7 +60,6 @@ Promise.resolve(true)
 })
 .then(() => {
   AppRegistry.registerComponent('App', () => TestApp);
-
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
   const navigatorButtons = {
