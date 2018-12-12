@@ -462,10 +462,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
           />}
         {mapState === MapStateOption.fullscreen ? null :
           <ScrollView
-            style={{
-              flex: 1,
-              backgroundColor: 'red',
-            }}
+            style={{ flex: 1 }}
             contentContainerStyle={{ flexGrow: 1 }}
           >
             {this.getResourceView()}

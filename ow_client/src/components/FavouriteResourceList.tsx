@@ -139,13 +139,14 @@ class FavouriteResourceList extends Component<Props> {
 
     return (
       <ScrollView 
-        style={{ paddingBottom: 7 }}
+        style={{ flex: 1 }}
+        showsHorizontalScrollIndicator={false}
         horizontal={true}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         {firstFiveFavourites.map((r) => (
           <ResourceCell
-            style={{}}
+            style={{flex: 1}}
             key={r.id}
             config={this.props.config}
             resource={r}
@@ -282,14 +283,12 @@ class FavouriteResourceList extends Component<Props> {
         }}
       >
         <Text style={{
-          marginVertical: 10,
           marginLeft: 13,
         }}>
           {favourite_resource_heading}:
         </Text>
         {this.getFavouritesSection()}
         <Text style = {{
-          marginVertical: 10,
           marginLeft: 13,
         }}>
           {recent_resource_heading}:
@@ -317,6 +316,7 @@ class FavouriteResourceList extends Component<Props> {
         style={{
           backgroundColor: bgLightHighlight,
           flex: 1,
+          paddingTop: 5,
         }}>
         {favouriteResources.length + recentResources.length === 0 ? this.getStartedSection() : this.getResourcesSection()}
       </View>
