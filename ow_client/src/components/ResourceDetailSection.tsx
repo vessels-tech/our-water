@@ -47,6 +47,8 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
 import { diff } from 'deep-object-diff';
+import { getDefaultSettings } from 'http2';
+import TimeseriesCardSimple from './common/TimeseriesCardSimple';
 
 
 export interface OwnProps {
@@ -69,6 +71,7 @@ export interface StateProps {
   resourceMeta: ActionMeta,
   newTsReadings: Array<AnyOrPendingReading>,
   newTsReadingsMeta: ActionMeta,
+  timeseriesList: CacheType<Array<AnyOrPendingReading>>,
 }
 
 export interface ActionProps {
@@ -168,31 +171,42 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   //     }));
   // }
 
-  // getDefaultTimeseries(): Array<ConfigTimeseries> {
-  //   const { resource, pendingReadings, tsReadings } = this.props;
+  getDefaultTimeseries(): Array<ConfigTimeseries> {
+    const { resource } = this.props;
+
+    let resourceType = 'well';
+    if (resource) {
+      if (resource.type === OrgType.GGMN) {
+        resourceType = 'well';
+      }
+      if (resource.type === OrgType.MYWELL) {
+        resourceType = resource.resourceType;
+      }
+    }
+
+    return this.props.config.getDefaultTimeseries(resourceType);
 
 
-  //   let resourceType = 'well';
-  //   if (resource.type === OrgType.MYWELL) {
-  //     resourceType = resource.resourceType;
-  //   }
+    // if (resource.type === OrgType.MYWELL) {
+    //   resourceType = resource.resourceType;
+    // }
 
-  //   //TODO: ideally we shouldn't do this lookup here
-  //   if (resource.type === OrgType.GGMN) {
-  //     //Get the timeseries only for the pending or real readings
-  //     const tsNames: CacheType<boolean> = {};
-  //     resource.timeseries.forEach(ts => tsNames[ts.name.toLowerCase()] = true);
-  //     pendingReadings.forEach(r => tsNames[r.timeseriesId.toLowerCase()] = true);
+    // //TODO: ideally we shouldn't do this lookup here
+    // if (resource.type === OrgType.GGMN) {
+    //   //Get the timeseries only for the pending or real readings
+    //   const tsNames: CacheType<boolean> = {};
+    //   resource.timeseries.forEach(ts => tsNames[ts.name.toLowerCase()] = true);
+    //   pendingReadings.forEach(r => tsNames[r.timeseriesId.toLowerCase()] = true);
     
       
-  //     const defaultTimeries: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(resourceType);
-  //     //Only load the timeseries which we have the ids of in pending or real readings
+    //   const defaultTimeries: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(resourceType);
+    //   //Only load the timeseries which we have the ids of in pending or real readings
 
-  //     return defaultTimeries.filter(ts => Object.keys(tsNames).indexOf(ts.parameter.toLowerCase()) > -1);
-  //   }
+    //   return defaultTimeries.filter(ts => Object.keys(tsNames).indexOf(ts.parameter.toLowerCase()) > -1);
+    // }
 
-  //   return this.props.config.getDefaultTimeseries(resourceType);
-  // }
+    // return this.props.config.getDefaultTimeseries(resourceType);
+  }
 
   // loadDefaultTimeseries() {
   //   const DEFAULT_RANGE = TimeseriesRange.EXTENT;
@@ -286,12 +300,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getLatestReadingsForTimeseries() {
-    const { newTsReadings, newTsReadingsMeta, resourceId, resourceMeta, resource } = this.props;
+    const { newTsReadings, newTsReadingsMeta, resourceId, resourceMeta, resource, timeseriesList } = this.props;
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
-
-    console.log("resourceMeta", resourceMeta);
-    console.log("resource", resource);
-    console.log('tsreadings', newTsReadings);
 
     if (resourceMeta.loading || !resource || newTsReadingsMeta.loading) {
       return <Loading/>
@@ -313,9 +323,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       )
     }
 
-    //TODO: split the tsreadings into each type, and get the latest reading for each
-    const timeseriesList: CacheType<Array<AnyOrPendingReading>> = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
-    console.log('split readings', timeseriesList);
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
 
@@ -485,11 +492,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getReadingsView() {
-    const { resource, translation: { templates: { resource_detail_summary_tab }} } = this.props;
+    const { resource_detail_summary_tab } = this.props.translation.templates;
+    const { timeseriesList } = this.props;
 
     /* use default timeseries if we have none */
-    // let timeseries: Array<AnyTimeseries | ConfigTimeseries> = this.getDefaultTimeseries();
-    let timeseries: Array<AnyTimeseries | ConfigTimeseries> = [];
+    let defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
+    console.log("defaultTimeseriesLit", defaultTimeseriesList);
+    // let timeseries: Array<AnyTimeseries | ConfigTimeseries> = [];
 
     //Don't ever use the resource's own timeseries - otherwise users can't see pending readings
     // if (resource.timeseries.length > 0) {
@@ -529,6 +538,29 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           >
           {this.getSummaryCard()}
         </View>
+          {
+            Object.keys(timeseriesList).map(key => {
+              const readings = timeseriesList[key];
+              const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
+              if (!timeseries) {
+                console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
+                return;
+              }
+
+              return (
+                // @ts-ignore
+                <View tabLabel={`${timeseries.name}`} key={timeseries.name} style={{ alignItems: 'center' }}>
+                  <TimeseriesCardSimple
+                    config={this.props.config}
+                    timeseries={timeseries}
+                    resourceId={this.props.resourceId}
+                    timeseriesId={key}
+                  />
+                </View>
+              )
+            })
+          }
+
           {/* {
             timeseries.map((ts: AnyTimeseries | ConfigTimeseries, idx: number) => {
               return (
@@ -626,6 +658,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 };
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
+  console.log("mapStateToProps");
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
 
   const resource = state.resourcesCache[ownProps.resourceId];
@@ -635,11 +668,14 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
 
-  const newTsReadings = state.newTsReadings[ownProps.resourceId];
+  const newTsReadings = state.newTsReadings[ownProps.resourceId] || [];
   let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
   if (!newTsReadingsMeta) {
     newTsReadingsMeta = { loading: true, error: false, errorMessage: '' };
   }
+
+  const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
+  console.log("timeseriesList is", timeseriesList);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
@@ -653,6 +689,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     resourceMeta,
     newTsReadings,
     newTsReadingsMeta,
+    timeseriesList,
   }
 }
 
