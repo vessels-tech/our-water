@@ -17,7 +17,7 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey } from '../../utils';
+import { getTimeseriesReadingKey, filterAndSort } from '../../utils';
 import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
@@ -86,15 +86,12 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
       return <Loading/>
     }
 
-    if (tsReadings.length === 0) {
+    //Sort and filter the readings by the current range
+    const filteredReadings = filterAndSort(tsReadings, currentRange);
+    if (filteredReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
     }
-
-    // let chartReadings: AnyReading[] = [];
-    // if (readings && readings.readings) {
-    //   chartReadings = readings.readings;
-    // }
-
+    
     return (
       <View style={{
         flex: 5,
@@ -102,7 +99,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
       }}>
         <SimpleChart
           pendingReadings={[]}
-          readings={tsReadings}
+          readings={filteredReadings}
           timeseriesRange={currentRange} 
         />
       </View>
@@ -110,54 +107,45 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   }
 
   getBottomButtons() {
-    return null;
+    const buttons: { text: string, value: TimeseriesRange }[] = [
+      { text: '1Y', value: TimeseriesRange.ONE_YEAR},
+      { text: '3M', value: TimeseriesRange.THREE_MONTHS},
+      { text: '2W', value: TimeseriesRange.TWO_WEEKS},
+      { text: 'EXTENT', value: TimeseriesRange.EXTENT},
+    ];
 
-    // const buttons: { text: string, value: TimeseriesRange }[] = [
-    //   { text: '1Y', value: TimeseriesRange.ONE_YEAR},
-    //   { text: '3M', value: TimeseriesRange.THREE_MONTHS},
-    //   { text: '2W', value: TimeseriesRange.TWO_WEEKS},
-    //   { text: 'EXTENT', value: TimeseriesRange.EXTENT},
-    // ];
-
-    // let timeseriesId = this.props.timeseries.parameter;
-    // if (this.props.timeseries.type !== OrgType.NONE) {
-    //   timeseriesId = this.props.timeseries.id;
-    // }
-
-    // return (
-    //   <View style={{
-    //       borderColor: bgLightHighlight,
-    //       borderTopWidth: 2,
-    //       paddingTop: 3,
-    //       marginBottom: 5,
-    //       height: 35,
-    //     }}>
-    //     <View style={{
-    //       flexDirection: 'row-reverse',
-    //     }}>
-    //       {buttons.map(b => (
-    //         <Button
-    //           key={b.text}
-    //           color={this.state.currentRange === b.value ? primaryLight : primaryDark}
-    //           buttonStyle={{
-    //             backgroundColor: this.state.currentRange === b.value ? primaryDark : bgLight,
-    //             paddingHorizontal: 5,
-    //             height: 30,
-    //           }}
-    //           title={b.text}
-    //           onPress={() => {
-    //             if (b.value === this.state.currentRange) {
-    //               return;
-    //             }
-
-    //             this.setState({ currentRange: b.value });
-    //             this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.name, timeseriesId, b.value);
-    //           }}
-    //         />
-    //       ))}
-    //     </View>
-    //   </View>
-    // );
+    return (
+      <View style={{
+          borderColor: bgLightHighlight,
+          borderTopWidth: 2,
+          paddingTop: 3,
+          marginBottom: 5,
+          height: 35,
+        }}>
+        <View style={{
+          flexDirection: 'row-reverse',
+        }}>
+          {buttons.map(b => (
+            <Button
+              key={b.text}
+              color={this.state.currentRange === b.value ? primaryLight : primaryDark}
+              buttonStyle={{
+                backgroundColor: this.state.currentRange === b.value ? primaryDark : bgLight,
+                paddingHorizontal: 5,
+                height: 30,
+              }}
+              title={b.text}
+              onPress={() => {
+                if (b.value === this.state.currentRange) {
+                  return;
+                }
+                this.setState({ currentRange: b.value });
+              }}
+            />
+          ))}
+        </View>
+      </View>
+    );
   }
 
   render() {

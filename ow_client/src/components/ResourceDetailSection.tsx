@@ -355,15 +355,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getReadingsView() {
     const { resource_detail_summary_tab } = this.props.translation.templates;
     const { timeseriesList } = this.props;
-
-    /* use default timeseries if we have none */
-    let defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
-    // let timeseries: Array<AnyTimeseries | ConfigTimeseries> = [];
-
-    //Don't ever use the resource's own timeseries - otherwise users can't see pending readings
-    // if (resource.timeseries.length > 0) {
-    //   timeseries = resource.timeseries;
-    // }
+    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
     return (
       // @ts-ignore
@@ -400,7 +392,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         </View>
           {
             Object.keys(timeseriesList).map(key => {
-              const readings = timeseriesList[key];
               const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
               if (!timeseries) {
                 console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);

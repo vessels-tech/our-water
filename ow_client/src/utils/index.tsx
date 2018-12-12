@@ -17,7 +17,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
-import { CacheType } from '../reducers';
+import { CacheType, AnyOrPendingReading } from '../reducers';
 import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight } from './NewColors';
 
 
@@ -579,6 +579,29 @@ export function unwrapUserId(user: MaybeUser) {
   }
 
   return user.userId;
+}
+
+
+/**
+ * filterAndSort
+ * 
+ * Filter the array by the given date range
+ */
+export function filterAndSort(readings: AnyOrPendingReading[], range: TimeseriesRange ): AnyOrPendingReading[] {
+  const { startDate, endDate } = convertRangeToDates(range);
+
+  return readings
+    .filter(r => moment(r.date).isBetween(moment(startDate), moment(endDate)))
+    .sort((a, b) => {
+      if (a.date > b.date) {
+        return 1;
+      }
+      if (a.date < b.date) {
+        return -1;
+      }
+
+      return 0;
+    });
 }
 
 

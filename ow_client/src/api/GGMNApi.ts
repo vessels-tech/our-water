@@ -1455,10 +1455,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     from.filters[0].timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
     from.timeseries.map(ts => this.ggmnTimeseriesToTimeseries(from.name, ts)).forEach(ts => timeseries.push(ts));
 
-    if (from.code === "85570" || from.name === "TEST_CUSTOM_NAME") {
-      console.log("ggmnStationToResource", from);
-    }
-
     const to: GGMNResource = {
       //Code is the code we gave when creating it, Id is some random id.
       id: `${from.code}`, // Not sure if we should use code or name
@@ -1479,36 +1475,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     return to;
   }
 
-  private static ggmnTimeseriesToResource(description: string, from: GGMNResponseTimeseries[], title?: string): GGMNResource {
-    const location = from[0].location;
-    const geometry = from[0].location.geometry;
-    const name = from[0].name;
-
-    console.log("ggmnTimeseriesToResource", from);
-
-    const to: GGMNResource = {
-      type: OrgType.GGMN,
-      pending: false,
-      // This may not be correct, but since we can't always get the entity_id or groundwaterstation id, this may have to do
-      id: location.name,
-      groundwaterStationId: location.name, //TODO: figure out
-      //TODO: not sure how to get this in.
-      title: title || location.name,
-      name,
-      description,
-      coords: {
-        _latitude: geometry.coordinates[1],
-        _longitude: geometry.coordinates[0],
-      }, 
-      timeseries: from.map(ts => this.ggmnTimeseriesToTimeseries(location.name, ts))
-    };
-
-    return to;
-  }
-
   //TODO: make a partial resource type that doesn't need all these fake fields
   static ggmnSearchEntityToResource(from: GGMNSearchEntity): GGMNResource {
-    console.log('ggmnSearchEntityToResource', from);
   
     const to: GGMNResource = {
       type: OrgType.GGMN,

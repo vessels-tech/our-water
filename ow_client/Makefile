@@ -31,6 +31,7 @@ switch:
 	@echo 'Copying assets across'
 	@cp -R ${dir}/src/assets/${orgId}/* ${dir}/android/app/src/main/res/
 	@cp -R ${dir}/src/assets/${orgId}/Colors.ts ${dir}/src/utils/Colors.ts
+	@cp -R ${dir}/src/assets/${orgId}/NewColors.ts ${dir}/src/utils/NewColors.ts
 
 
 switch-ggmn-dev:
