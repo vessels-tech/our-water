@@ -286,6 +286,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
 
       if (action.result.type === ResultType.ERROR) {
+        console.log('GET_READINGS_RESPONSE error:', action.result.message);
         meta = { loading: false, error: true, errorMessage: action.result.message };
         newTsReadingsMeta[action.resourceId] = meta;
         return Object.assign({}, state, { newTsReadingsMeta });
@@ -357,6 +358,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (action.result.type === ResultType.ERROR) {
         resourcesMeta = {loading: false, error: true, errorMessage: action.result.message}
+        console.log("GET_RESOURCES_RESPONSE, error:", action.result.message);
         return Object.assign({}, state, { resourcesMeta, resources});
       }
 
@@ -685,12 +687,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
-
-      //TD: we could be much more efficent than this
-      //Invalidate the tsReadings
-      const tsReadings: TimeSeriesReading[] = [];
-
-      return Object.assign({}, state, { externalSyncStatus, tsReadings })
+      return Object.assign({}, state, { externalSyncStatus })
     }
 
     case ActionType.SET_EXTERNAL_ORGANISATION: {

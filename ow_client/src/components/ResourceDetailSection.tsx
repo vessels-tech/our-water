@@ -120,6 +120,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       resourceId = this.props.temporaryGroundwaterStationId;
     }
 
+    if (this.props.isPending) {
+      //Don't reload the resource if it is pending.
+      return;
+    }
+
     const result = await this.props.getResource(this.appApi, resourceId, this.props.userId);
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(`${resource_loading_error}`, ToastAndroid.LONG);
@@ -129,7 +134,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (result.type === ResultType.SUCCESS) {
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
-          if (result.type === ResultType.ERROR) {            
+          if (result.type === ResultType.ERROR) {      
+            console.log("error", result.message);      
             ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
           }
         }));
@@ -237,6 +243,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       resource_loading_error,
       timeseries_loading_error
     } = this.props.translation.templates;
+
+    console.log("newTsReadingsMeta", newTsReadingsMeta);
 
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>
@@ -518,10 +526,31 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
       pendingResource = filteredPendingResources[0];
     }
   }
-  let resourceMeta = state.resourceMeta[ownProps.resourceId];
+  let resourceMeta;
+  if (ownProps.temporaryGroundwaterStationId) {
+    resourceMeta = state.resourceMeta[ownProps.temporaryGroundwaterStationId];
+  } else {
+    resourceMeta = state.resourceMeta[ownProps.resourceId];
+  }
+
+
+  console.log("resource is", resource);
+  console.log("resourceMeta is", resourceMeta);
+  console.log("pendingResource is", pendingResource);
+  console.log("isPending", ownProps.isPending)
+  
+  //If we have no resource and no resourceMeta and no pendingResource, then we must be loading
+  if (!resource && !resourceMeta && !pendingResource) {
+    resourceMeta = { loading: true, error: false, errorMessage: '' };
+  }
+
   //TODO: clean this up
   if (!resourceMeta) {
-    resourceMeta = { loading: false, error: false, errorMessage: '' };
+    if (!pendingResource) {
+      resourceMeta = { loading: true, error: false, errorMessage: '' };
+    } else {
+      resourceMeta = { loading: false, error: false, errorMessage: '' };
+    }
   }
 
   if (resourceMeta.error && ownProps.isPending) {
