@@ -30,11 +30,9 @@ import { TranslationFile } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { MaybeReadingImage, ReadingImageType } from '../typings/models/ReadingImage';
 import IconButton from '../components/common/IconButton';
-import { MaybeReadingLocation, ReadingLocationType, ReadingLocation } from '../typings/models/ReadingLocation';
+import { MaybeReadingLocation, ReadingLocationType  } from '../typings/models/ReadingLocation';
 import { MaybeLocation, LocationType } from '../typings/Location';
-import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
-import { OrgType } from '../typings/models/OrgType';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 
@@ -464,11 +462,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
-
     return (
-      /*
-      Wrap in a touchable to stop events propagating to the parent screen
-      */
       <TouchableWithoutFeedback 
         style={{
           flex: 1,

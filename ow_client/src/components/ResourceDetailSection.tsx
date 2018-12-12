@@ -88,7 +88,6 @@ export interface State {
 
 }
 
-
 class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {}
@@ -111,6 +110,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
+    //TODO: translate
+    const resource_loading_error = "Error Loading locataion";
+    const timeseries_loading_error = "Error Loading readings";
 
     let resourceId = this.props.resourceId;
     if (this.props.temporaryGroundwaterStationId) {
@@ -118,11 +120,19 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     const result = await this.props.getResource(this.appApi, resourceId, this.props.userId);
+    if (result.type === ResultType.ERROR) {
+      //TODO: translate
+      ToastAndroid.show(`${resource_loading_error}`, ToastAndroid.LONG);
+      return;
+    }
+
     if (result.type === ResultType.SUCCESS) {
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
           if (result.type === ResultType.ERROR) {
-            ToastAndroid.show(`Error loading readings: ${result.message}`, ToastAndroid.LONG);
+            //TODO: Translate
+            
+            ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
           }
         }));
     }
@@ -148,7 +158,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { resourceId, resource, pendingResource } = this.props;
     const { resource_detail_name_label, resource_detail_heading_label } = this.props.translation.templates;
     let showSubtitle = this.props.config.getResourceDetailShouldShowSubtitle();
-    let title;
+    let title = '';
 
     //TD: remove these bad hacks
     if (resource) {
@@ -224,6 +234,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList } = this.props;
     const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
 
+    //TODO: translate
+    const resource_loading_error = "Error Loading locataion";
+    const timeseries_loading_error = "Error Loading readings";
+
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>
     }
@@ -231,7 +245,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (resourceMeta.error) {
       return (
         <View>
-          <Text style={{ textAlign: 'center' }}>{resourceMeta.errorMessage}</Text>
+          <Text style={{ textAlign: 'center' }}>{resource_loading_error}</Text>
         </View>
       )
     }
@@ -239,7 +253,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (newTsReadingsMeta.error) {
       return (
         <View>
-          <Text style={{ textAlign: 'center' }}>{newTsReadingsMeta.errorMessage}</Text>
+          <Text style={{ textAlign: 'center' }}>{timeseries_loading_error}</Text>
         </View>
       )
     }
@@ -517,7 +531,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const newTsReadings = state.newTsReadings[ownProps.resourceId] || [];
   let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
   if (!newTsReadingsMeta && ownProps.isPending === false) {
-    newTsReadingsMeta = { loading: true, error: false, errorMessage: '' };
+    newTsReadingsMeta = { loading: false, error: false, errorMessage: '' };
   }
 
   if (!newTsReadingsMeta) {
