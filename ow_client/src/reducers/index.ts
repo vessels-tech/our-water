@@ -18,6 +18,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
+import { OrgType } from "../typings/models/OrgType";
 
 const orgId = EnvConfig.OrgId;
 
@@ -209,6 +210,21 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { language, translation } );
     }
 
+    case ActionType.DELETE_PENDING_READING_RESPONSE: {
+      //Remove the reading from the newTsReadings
+      const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;
+      let readings = newTsReadings[action.resourceId] || [];
+      //Lookup the pendingReadingId in the readings, and remove
+
+      //TODO: TD types are broken here
+      const index = readings.map((r: any) => r.id).indexOf(action.pendingReadingId);
+      if (index > -1) {
+        readings.splice(index, 1);
+      }
+
+      newTsReadings[action.resourceId] = readings;
+      return Object.assign({}, state, { newTsReadings });
+    }
     case ActionType.GET_EXTERNAL_ORGS_REQUEST: {
       const externalOrgsMeta: ActionMeta = { loading: true, error: false, errorMessage: '' };
 
@@ -522,8 +538,17 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.REFRESH_READINGS: {
       const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;
 
+      /* 
+        If force is true, refresh everything and merge with the action's resourceIds
+      */
+      let resourceIds = action.resourceIds;
+      if (action.forceRefresh) {
+        resourceIds = dedupArray(action.resourceIds.concat(Object.keys(newTsReadings)), (id) => id);
+        console.log("refreshing resourceIds", resourceIds);
+      }
+
       /* For each resourceId, update the newTsReadings */
-      action.resourceIds.forEach(id => {
+      resourceIds.forEach(id => {
         const currentReadings = newTsReadings[id] || [];
         const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
           .filter(r => r.resourceId === id);

@@ -199,8 +199,7 @@ export function deletePendingReading(api: BaseApi, userId: string, pendingReadin
   return async function(dispatch: any) {
     dispatch(deletePendingReadingRequest());
     const result = await api.deletePendingReading(userId, pendingReadingId);
-    dispatch(deletePendingReadingResponse(result));
-    dispatch(refreshReadings(resourceId))
+    dispatch(deletePendingReadingResponse(result, resourceId, pendingReadingId));
   }
 }
 
@@ -210,10 +209,12 @@ function deletePendingReadingRequest(): DeletePendingReadingActionRequest {
   }
 }
 
-function deletePendingReadingResponse(result: SomeResult<void>): DeletePendingReadingActionResponse {
+function deletePendingReadingResponse(result: SomeResult<void>, resourceId: string, pendingReadingId: string): DeletePendingReadingActionResponse {
   return {
     type: ActionType.DELETE_PENDING_READING_RESPONSE,
     result,
+    resourceId,
+    pendingReadingId,
   }
 } 
 
@@ -254,10 +255,10 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
     if (result.type === ResultType.ERROR) {
       return;
     }
+    console.log("getBulkPendingReadings", result.result);
 
     const resourceIds = dedupArray(result.result.map(r => r.resourceId), (id) => id);
-    dispatch(refreshReadings(resourceIds));
-
+    dispatch(refreshReadings(resourceIds, false));
   }
  }
 
@@ -653,11 +654,13 @@ function performSearchResponse(result: SomeResult<SearchResult>): PerformSearchA
 
 /**
  * Tell the reducer to look for the given resourceIds and refresh the readings
+ * If forceRefresh is true, it will also search for deleted.
  */
-function refreshReadings(resourceIds: string[]): RefreshReadings {
+function refreshReadings(resourceIds: string[], forceRefresh: boolean): RefreshReadings {
   return {
     type: ActionType.REFRESH_READINGS,
     resourceIds,
+    forceRefresh,
   }
 }
 
@@ -699,7 +702,7 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
     //TODO: this is how we tell state to re update the readings. It's a little hacky
     //TD: tidy this up
     // dispatch(getReadingsResponse(reading.timeseriesId, resourceId, '', TimeseriesRange.EXTENT, makeSuccess([])))
-    dispatch(refreshReadings(resourceId));
+    dispatch(refreshReadings([resourceId], false));
 
     //Attempt to do a sync, just this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {

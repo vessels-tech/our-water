@@ -94,7 +94,7 @@ export type ConnectToExternalServiceActionResponse = { type: ActionType.CONNECT_
 export type DisconnectFromExternalServiceActionRequest = { type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_REQUEST };
 export type DisconnectFromExternalServiceActionResponse = { type: ActionType.DISCONNECT_FROM_EXTERNAL_SERVICE_RESPONSE };
 export type DeletePendingReadingActionRequest = { type: ActionType.DELETE_PENDING_READING_REQUEST};
-export type DeletePendingReadingActionResponse = { type: ActionType.DELETE_PENDING_READING_RESPONSE, result: SomeResult<void>};
+export type DeletePendingReadingActionResponse = { type: ActionType.DELETE_PENDING_READING_RESPONSE, result: SomeResult<void>, resourceId: string, pendingReadingId: string};
 export type DeletePendingResourceActionRequest = { type: ActionType.DELETE_PENDING_RESOURCE_REQUEST};
 export type DeletePendingResourceActionResponse = { type: ActionType.DELETE_PENDING_RESOURCE_RESPONSE, result: SomeResult<void>};
 export type GetExternalLoginDetailsActionRequest = { type: ActionType.GET_EXTERNAL_LOGIN_DETAILS_REQUEST };
@@ -125,7 +125,7 @@ export type LogoutActionResponse = { type: ActionType.LOGOUT_RESPONSE };
 export type PassOnUserSubscriptionAction = { type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe: () => any};
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
 export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResult>}
-export type RefreshReadings = { type: ActionType.REFRESH_READINGS, resourceIds: string[] };
+export type RefreshReadings = { type: ActionType.REFRESH_READINGS, resourceIds: string[], forceRefresh: boolean };
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};
 export type RemoveFavouriteActionResponse = { type: ActionType.REMOVE_FAVOURITE_RESPONSE, result: SomeResult<void> };
 export type SaveReadingActionRequest = { type: ActionType.SAVE_READING_REQUEST };
