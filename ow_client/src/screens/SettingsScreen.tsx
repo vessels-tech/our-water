@@ -245,9 +245,8 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       return null;
     }
 
-    const { translation: { templates: { settings_sync_heading } } } = this.props;
-    //TODO: translate
-    const settings_pending_heading = "Save Pending Resources";
+    const { settings_pending_heading } = this.props.translation.templates;
+    
     let leftIcon: any = {
       name: 'sync',
       color: secondaryText,

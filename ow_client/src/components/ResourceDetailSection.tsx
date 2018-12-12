@@ -110,9 +110,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
-    //TODO: translate
-    const resource_loading_error = "Error Loading locataion";
-    const timeseries_loading_error = "Error Loading readings";
+    const {
+      resource_loading_error,
+      timeseries_loading_error,
+    } = this.props.translation.templates;
 
     let resourceId = this.props.resourceId;
     if (this.props.temporaryGroundwaterStationId) {
@@ -121,7 +122,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     const result = await this.props.getResource(this.appApi, resourceId, this.props.userId);
     if (result.type === ResultType.ERROR) {
-      //TODO: translate
       ToastAndroid.show(`${resource_loading_error}`, ToastAndroid.LONG);
       return;
     }
@@ -129,9 +129,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (result.type === ResultType.SUCCESS) {
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
-          if (result.type === ResultType.ERROR) {
-            //TODO: Translate
-            
+          if (result.type === ResultType.ERROR) {            
             ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
           }
         }));
@@ -232,11 +230,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getLatestReadingsForTimeseries() {
     const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList } = this.props;
-    const { timeseries_name_title, timeseries_date_format, timeseries_none} = this.props.translation.templates;
-
-    //TODO: translate
-    const resource_loading_error = "Error Loading locataion";
-    const timeseries_loading_error = "Error Loading readings";
+    const { 
+      timeseries_name_title, 
+      timeseries_date_format, 
+      timeseries_none,
+      resource_loading_error,
+      timeseries_loading_error
+    } = this.props.translation.templates;
 
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>

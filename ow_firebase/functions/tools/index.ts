@@ -228,6 +228,18 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       ['true', 'false']
     ),
+    showSyncButton: buildParameter(
+      'false',
+      'should should the sync to button?',
+      conditionKeys,
+      ['true', 'false']
+    ),
+    showPendingButton: buildParameter(
+      'true',
+      'should should the pending button?',
+      conditionKeys,
+      ['false', 'true']
+    ),
     mywellBaseUrl: buildParameter(
       'https://mywell-server.vessels.tech',
       '',

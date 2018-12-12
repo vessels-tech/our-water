@@ -93,7 +93,6 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   handleResourceLookupError() {
-    //TODO: translate a different error message?
     const { qr_code_not_found } = this.props.translation.templates;
     ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
     //TODO: reset scanner

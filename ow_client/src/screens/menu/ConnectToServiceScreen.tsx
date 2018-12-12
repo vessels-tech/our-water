@@ -104,9 +104,7 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
   handleSubmit = async () => {
     Keyboard.dismiss();
 
-    //TODO: translate
-    // const tempErrorMessage = this.props.translation.templates.connect_to_login_error;
-    const tempErrorMessage = "Sorry, could not log you in."
+    const tempErrorMessage = this.props.translation.templates.connect_to_login_error;
     await this.props.connectToExternalService(this.externalApi, this.loginForm.value.username, this.loginForm.value.password, tempErrorMessage);
 
     this.setState({
