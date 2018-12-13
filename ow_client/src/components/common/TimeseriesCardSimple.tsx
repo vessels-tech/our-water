@@ -181,7 +181,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let tsReadings = state.newTsReadings[ownProps.resourceId] || [];
   let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
   if (!newTsReadingsMeta) {
-    newTsReadingsMeta = { loading: true, error: false, errorMessage: '' };
+    //Not sure
+    newTsReadingsMeta = { loading: false, error: false, errorMessage: '' };
   }
 
   if (ownProps.isPending && newTsReadingsMeta.loading) {
