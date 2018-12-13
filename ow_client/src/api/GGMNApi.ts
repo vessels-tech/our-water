@@ -621,7 +621,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
           {
             id: result.uuid,
             name: result.name,
-            parameter: result.code,
+            parameter: result.name,
             unit: result.unit,
             referenceFrame: result.reference_frame,
             scale: result.scale,
@@ -1498,7 +1498,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   static ggmnTimeseriesToTimeseries(resourceId: string, from: GGMNResponseTimeseries): GGMNTimeseries {
     let readings: GGMNReading[] = [];
     if (from.events && from.events.length > 0) {
-      readings = from.events.map(e => this.ggmnEventToReading(resourceId, from.uuid, e))
+      readings = from.events.map(e => this.ggmnEventToReading(resourceId, from.name, from.uuid, e))
     }
     return {
       type: OrgType.GGMN,
@@ -1510,10 +1510,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     };
   }
 
-  static ggmnEventToReading(resourceId: string, timeseriesId: string, event: GGMNTimeseriesEvent): GGMNReading {
+  static ggmnEventToReading(resourceId: string, timeseriesId: string, timeseriesUuid: string, event: GGMNTimeseriesEvent): GGMNReading {
     return {
       type: OrgType.GGMN,
       resourceId,
+      timeseriesUuid,
       timeseriesId,
       date: moment(event.timestamp).toISOString(),
       value: event.value,

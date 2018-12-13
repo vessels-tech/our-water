@@ -150,7 +150,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       });
 
       if (!updatedSelectedResource) {
-        // maybeLog(`Warning: couldn't find the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
         this.setState({ selectedResource: null, hasSelectedResource: false });
         return;
       }
@@ -177,7 +176,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       });
 
       if (!updatedSelectedResource) {
-        // maybeLog(`Warning: couldn't find the current selected resource (id: ${selectedResourceId}) in the new props.resources`);
         this.setState({selectedResource: null, hasSelectedResource: false});
         return;
       }

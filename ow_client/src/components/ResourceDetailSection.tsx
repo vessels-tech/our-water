@@ -135,7 +135,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
           if (result.type === ResultType.ERROR) {      
-            console.log("error", result.message);      
             ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
           }
         }));
@@ -244,7 +243,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       timeseries_loading_error
     } = this.props.translation.templates;
 
-    console.log("newTsReadingsMeta", newTsReadingsMeta);
 
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>
