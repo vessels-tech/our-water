@@ -10,7 +10,7 @@ import * as moment from 'moment'
 import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
 import * as scale from 'd3-scale';
-import { Circle, Line, Rect } from 'react-native-svg'
+import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import { arrayLowest } from '../../utils';
 
 export type Props = {
@@ -54,21 +54,44 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
   const cy = y(minValue.value);
 
   return xAxisData.map((value: Date, index: number) => 
-    <Rect
-      key={`${value}`}
-      x={x(moment(value).toDate())}
-      y={cy}
-      width={1}
-      height={5}
-      fill={primaryDark}
-      strokeWidth={0}
-      stroke="rgb(0,0,0)"
-    />
+      <Rect
+        key={`${value}${index}`}
+        x={x(moment(value).toDate())}
+        y={cy}
+        width={1}
+        height={5}
+        fill={primaryDark}
+        strokeWidth={0}
+        stroke="rgb(0,0,0)"
+      />
+  );
+}
+
+const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
+  const dates = data.map((item) => moment(item.date).toDate());
+  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(5);
+  const minValue = arrayLowest(data, (r) => r.value);
+  
+  const cy = y(minValue.value) + 15
+
+  return xAxisData.map((value: Date, index: number) => {
+    const cx = x(moment(value).toDate());
+    console.log(moment(value).format('DD-MMM-YY'), cx, cy);
+
+    return (
+      <Text
+        key={`${value}${index}`}
+        x={cx}
+        y={cy}
+        textAnchor={'middle'}>
+        {moment(value).format('DD-MMM-YY')}
+      </Text>
+    );
+    }
   );
 }
 
 class SimpleChart extends React.PureComponent<Props> {
-
 
   render() {
     const { readings } = this.props;
@@ -121,24 +144,27 @@ class SimpleChart extends React.PureComponent<Props> {
             <Grid />
             <Decorator />
             <ShortGrid />
+            <ShortGridLabels />
           </LineChart>
         </View>
-        <XAxis
+        {/* <XAxis
           style={{
             height: 10,
+            // flex: 1, 
           }}
           data={xAxisData}
           formatLabel={(idx: number, value: any) => {
             const date = xAxisData[idx];
-            // console.log('format label', idx, value);
             return moment(date).format('DD-MMM-YY')
           }}
-          contentInset={{ left: 30 + yAxisWidth, right: 20 }}
+          // contentInset={{ left: 30 + yAxisWidth, right: 20 }}
           svg={{
-            fontSize: 8,
+            // fontSize: 8,
+            textAnchor: "middle",
+            fill: 'grey',
           }}
           scale={ scale.scaleTime }
-        />
+        /> */}
       </View>
     )
   }
