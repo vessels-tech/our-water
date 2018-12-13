@@ -561,6 +561,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
 
   const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
 
+  console.log(`ResourceDetailSection has ${newTsReadings.length} readings`);
+
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favourite,

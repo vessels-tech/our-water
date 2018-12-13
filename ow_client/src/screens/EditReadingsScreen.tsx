@@ -149,7 +149,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     pendingReadings,
     pendingReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
-
   }
 }
 

@@ -913,6 +913,7 @@ class FirebaseApi {
    * Delete a pending reading
    */
   static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    //This needs to work offline, don't wait for feedback
     return this.userDoc(orgId, userId).collection('pendingReadings').doc(pendingReadingId).delete()
       .then(() => {
         return {
@@ -924,7 +925,7 @@ class FirebaseApi {
           type: ResultType.ERROR,
           message: 'Could not delete pending resource'
         };
-      })
+      });
   }
 
   /**
