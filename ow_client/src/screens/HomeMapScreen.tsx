@@ -364,42 +364,16 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getResourceView() {
     const { hasSelectedResource, selectedResource } = this.state;
-    const { userId, translation: { templates: { resource_detail_new, settings_edit_resource } } } = this.props;
+    const { userId } = this.props;
+    const { 
+      resource_detail_new, 
+      resource_detail_edit_resource,
+      resource_detail_edit_readings, 
+    } = this.props.translation.templates;
 
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
     }
-
-    // if (selectedResource.pending) {
-    //   return <PendingResourceDetailSection
-    //     hideTopBar={false}
-    //     config={this.props.config}
-    //     userId={userId}
-    //     pendingResource={selectedResource}
-    //     onAddReadingPressed={(resource: AnyResource | PendingResource) => {
-    //       navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-    //         resource,
-    //         resourceType: 'well',
-    //         config: this.props.config,
-    //         userId: this.props.userId
-    //       });
-    //     }}
-    //     onEditResourcePressed={(resource: AnyResource | PendingResource) => {
-    //       showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
-    //         resource,
-    //         resourceType: 'well',
-    //         config: this.props.config,
-    //         userId: this.props.userId,
-    //       })
-    //     }}
-    //     onEditReadingsPressed={(resource: AnyResource | PendingResource) => {
-    //       showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
-    //         resource,
-    //         config: this.props.config,
-    //       })
-    //     }}
-    //   />
-    // }
 
     let groundwaterStationId: string | null= null;
     if (selectedResource.type === OrgType.GGMN) {
@@ -425,14 +399,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
           });
         }}
         onEditReadingsPressed={(resourceId: string) => {
-          showModal(this.props, 'screen.EditReadingsScreen', settings_edit_resource, {
+          showModal(this.props, 'screen.EditReadingsScreen', resource_detail_edit_readings, {
             resourceId,
             resourceType: 'well',
             config: this.props.config,
           })
         }}
         onEditResourcePressed={(pendingResource: PendingResource) => {
-          showModal(this.props, 'screen.menu.EditResourceScreen', settings_edit_resource, {
+          showModal(this.props, 'screen.menu.EditResourceScreen', resource_detail_edit_resource, {
             resourceId: pendingResource.id,
             resource: pendingResource,
             resourceType: 'well',
