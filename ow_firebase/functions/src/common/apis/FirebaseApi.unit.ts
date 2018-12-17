@@ -1,19 +1,70 @@
 import 'mocha';
 import * as assert from 'assert';
 
-import FirebaseApi from './FirebaseApi';
+import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
 import { ResultType, SomeResult } from '../types/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
 
 import ShortId from '../models/ShortId';
-import { pad } from '../utils';
-
+import { pad, hashReadingId } from '../utils';
+import { Reading } from '../models/Reading';
+import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import ResourceIdType from '../types/ResourceIdType';
+import { OWGeoPoint } from 'ow_types';
+import FirestoreDoc from '../models/FirestoreDoc';
+import * as moment from 'moment';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
 
 describe('Firebase Api', function() {
   this.timeout(10000);
+
+  describe.only('Readings', function() {
+    let newReadings;
+    const readingIds = [];
+
+    before(async () => {
+      //TODO: create a bunch of readings
+      newReadings = [
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
+        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
+        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
+      ];
+
+      await FirebaseApi.batchSave(firestore, newReadings);
+      newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
+    });
+
+    it('Gets the readings within the bounding box', async () => {
+      //Arrange
+      const bbox: BoundingBox = {
+        minLat: 35.0122,
+        maxLat: 39.2,
+        minLng: 34.0122,
+        maxLng: 40,
+      };
+      const pageParams: PageParams = { limit: 100, page: 0 };
+      
+      //Act
+      const readingsResult = await FirebaseApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      //Assert
+      assert.equal(readingsResult.result.length, 3);
+    });
+
+    after(async () => {
+      //Clean up the readings;
+      FirebaseApi.batchDelete(firestore, newReadings, readingIds);
+    })
+  });
+
 
   describe('ShortIds', function() {
     let shortId1;

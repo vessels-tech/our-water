@@ -54,6 +54,21 @@ export default abstract class FirestoreDoc {
     batch.set(ref, this.serialize());
   }
 
+  /**
+   * Delete docs as a part of a Batch
+   * 
+   * If no ID is provided, will use the id of the FirestoreDoc.
+   */
+  public batchDelete(batch: FirebaseFirestore.WriteBatch, firestore: FirebaseFirestore.Firestore, id?: string): void {
+    let ref;
+    if (!id) {
+      ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id);
+    } else {
+      ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(id);
+    }
+    batch.delete(ref);
+  }
+
   public abstract serialize();
 
 }

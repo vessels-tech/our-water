@@ -18,7 +18,7 @@ export type CommonReadingBuilder = {
 export type MyWellReadingBuilder = {
   userId?: string,
   image?: MaybeReadingImage,
-  location?: MaybeReadingLocation,
+  location?: MaybeReadingLocation, //This is the location that the reading was taken, not the coords of the resource the readings is for
 }
 
 export type GGMNReadingBuilder = {

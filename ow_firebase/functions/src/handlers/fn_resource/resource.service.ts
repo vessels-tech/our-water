@@ -18,7 +18,7 @@ describe('fn_resource', function () {
       authHeader = await getAuthHeader(admin);
     });
     
-    it.only('sends the resource email', async () => {
+    it('sends the resource email', async () => {
       //Arrange
       const pendingResources: PendingResource[] = [
         {

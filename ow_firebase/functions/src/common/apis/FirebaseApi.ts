@@ -18,6 +18,18 @@ export type ShortIdLock = {
   lock: boolean,
 }
 
+export type BoundingBox = {
+  minLat: number, 
+  minLng: number, 
+  maxLat: number, 
+  maxLng: number
+}
+
+export type PageParams = {
+  limit: number,
+  page: number,
+}
+
 export default class FirebaseApi {
 
   public static async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
@@ -27,6 +39,30 @@ export default class FirebaseApi {
     return batch.commit();
   }
 
+  /**
+   * 
+   * @param fs 
+   * @param docs 
+   * @param docIds - optional. If provided, will use these ids instead of the doc's id
+   */
+  public static async batchDelete(fs: admin.firestore.Firestore, docs: Reading[], docIds?: string[]): Promise<any> {
+    const batch = fs.batch();
+
+    if (docIds && docIds.length !== docs.length) {
+      return Promise.reject(new Error("docs.length and docIds.length must match"));
+    }
+
+    if (docIds) {
+      docs.forEach((doc, idx) => {
+        const id = docIds[idx];
+        doc.batchDelete(batch, firestore, id);
+      });
+    } else {
+      docs.forEach(doc => doc.batchDelete(batch, firestore));
+    }
+
+    return batch.commit();
+  }
 
   /**
    * ResourcesNearLocation
@@ -46,8 +82,8 @@ export default class FirebaseApi {
     console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
 
     return firestore.collection(`/org/${orgId}/resource`)
-      .where('coords', '>=', new OWGeoPoint(minLat, minLng))
-      .where('coords', '<=', new OWGeoPoint(maxLat, maxLng)).get()
+      .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+      .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
       .then(snapshot => {
         const resources = []
         snapshot.forEach(doc => {
@@ -76,10 +112,45 @@ export default class FirebaseApi {
   }
 
 
+  /**
+   * Readings In Bounding Box
+   * 
+   * Get the readings taken within a bounding box
+   */
+  public static async readingsWithinBoundingBox(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
+  Promise<SomeResult<Reading[]>> {
+    const { minLat, minLng, maxLat, maxLng } = bbox;
+    console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+
+    return firestore.collection(`/org/${orgId}/reading`)
+    .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+    .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+      //TODO: implement pagination
+      .limit(pageParams.limit)
+      .get()
+      .then(snapshot => {
+        const readings = []
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+
+          // Filter based on longitude. TODO: remove this once google fixes this query
+          if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+            return;
+          }
+
+          readings.push(data);
+        });
+
+        return makeSuccess(readings);
+      })
+      .catch(err => makeError(err.message))
+  }
+
+
   //
   // ShortId
   // ----------------------------------------
-
 
   /**
    * GetLongId

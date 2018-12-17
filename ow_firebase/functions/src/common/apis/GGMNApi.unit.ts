@@ -90,7 +90,7 @@ describe('GGMNApi', function () {
 
 
   describe('pendingResourceToZip', function() {
-    it.only('saves a pending resource to .zip shapefile', async () => {
+    it('saves a pending resource to .zip shapefile', async () => {
       //Arrange
       //Act
       const result = await GGMNApi.pendingResourcesToZip(pendingResources);
