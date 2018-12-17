@@ -33,6 +33,7 @@ describe('GGMNApi', function () {
       owner: { name: 'Lewis' },
       userId: '12346',
       timeseries: [],
+      waterColumnHeight: 123,
     },
   ];
   
@@ -89,7 +90,7 @@ describe('GGMNApi', function () {
 
 
   describe('pendingResourceToZip', function() {
-    it('saves a pending resource to .zip shapefile', async () => {
+    it.only('saves a pending resource to .zip shapefile', async () => {
       //Arrange
       //Act
       const result = await GGMNApi.pendingResourcesToZip(pendingResources);
