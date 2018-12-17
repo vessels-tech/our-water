@@ -45,6 +45,7 @@ export class FirebaseConfig {
           editResource_availableTypes: obj.editResource_availableTypes.val(),
           editResource_allowCustomId: obj.editResource_allowCustomId.val(),
           editResource_defaultTypes: obj.editResource_defaultTypes.val(),
+          editResource_hasWaterColumnHeight: obj.editResource_hasWaterColumnHeight.val(),
           favouriteResource_scrollDirection: obj.favouriteResource_scrollDirection.val(), 
           usesShortId: obj.usesShortId.val(),
           allowsUserRegistration: obj.allowsUserRegistration.val(),

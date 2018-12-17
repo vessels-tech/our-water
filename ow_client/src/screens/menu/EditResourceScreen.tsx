@@ -63,6 +63,7 @@ export type EditResourceFormBuilder = {
   lng: any,
   asset: any,
   ownerName?: any,
+  waterColumnHeight?: any,
 }
 
 class EditResourceScreen extends Component<Props> {
@@ -109,6 +110,7 @@ class EditResourceScreen extends Component<Props> {
     let asset;
     let name;
     let ownerName;
+    let waterColumnHeight;
 
     id = [resource.id, Validators.required, this.asyncIdValidator];
 
@@ -118,6 +120,7 @@ class EditResourceScreen extends Component<Props> {
       asset = [resource.resourceType, Validators.required];
       ownerName = resource.owner && [resource.owner, Validators.required];
       name = resource.name && [resource.name, Validators.required];
+      waterColumnHeight = resource.waterColumnHeight && [resource.waterColumnHeight];
 
       return {
         id,
@@ -126,6 +129,7 @@ class EditResourceScreen extends Component<Props> {
         lng,
         asset,
         ownerName,
+        waterColumnHeight,
       }
     } 
 
@@ -134,6 +138,7 @@ class EditResourceScreen extends Component<Props> {
       lng = [`${resource.coords._longitude}`, Validators.required];
       asset = [resource.type, Validators.required];
       name = [resource.name];
+      waterColumnHeight = [resource.waterColumnHeight];
     }
 
     if (resource.type === OrgType.MYWELL) {
@@ -150,6 +155,7 @@ class EditResourceScreen extends Component<Props> {
       lng,
       asset,
       ownerName,
+      waterColumnHeight
     }
   }
 
@@ -189,6 +195,11 @@ class EditResourceScreen extends Component<Props> {
 
     if (this.props.config.getEditResourceAllowCustomId()) {
       formBuilderGroup['id'] = ['', Validators.required, this.asyncIdValidator];
+    }
+
+    if (this.props.config.getEditResourceHasWaterColumnHeight()) {
+      //TODO: Not sure if this should be a required field
+      formBuilderGroup['waterColumnHeight'] = [''];
     }
 
     return formBuilderGroup;
@@ -271,12 +282,15 @@ class EditResourceScreen extends Component<Props> {
       unvalidatedResource.id = this.editResourceForm.value.id;
     }
 
+    if (this.props.config.getEditResourceHasWaterColumnHeight() && this.editResourceForm.value.waterColumnHeight) {
+      unvalidatedResource.waterColumnHeight = this.editResourceForm.value.waterColumnHeight;
+    }
+
     if (!this.editResourceForm.value.name) {
       unvalidatedResource.name = unvalidatedResource.id;
     } else {
       unvalidatedResource.name = this.editResourceForm.value.name;
     }
-
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
@@ -345,7 +359,9 @@ class EditResourceScreen extends Component<Props> {
       new_resource_name,
     } = this.props.translation.templates;
 
-    
+    //TODO: translate
+    const new_resource_water_column_height = "Water Column Height";
+
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
         key: t,
@@ -415,6 +431,13 @@ class EditResourceScreen extends Component<Props> {
                 keyboardType: 'default' 
               }}
             />
+            { this.props.config.getEditResourceHasWaterColumnHeight() ?
+              <FieldControl
+                name="waterColumnHeight"
+                render={TextInput}
+                meta={{ editable: true, label: new_resource_water_column_height, secureTextEntry: false, keyboardType: 'numeric' }}
+              /> : null}
+
             { this.props.config.getEditResourceShouldShowOwnerName() ?
               <FieldControl
                 name="ownerName"

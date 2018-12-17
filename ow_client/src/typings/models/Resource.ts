@@ -22,7 +22,6 @@ export type MyWellResource = {
   lastReadingDatetime: Date,
 }
 
-
 export type GGMNResource = {
   type: OrgType.GGMN,
   pending: false,
@@ -36,4 +35,5 @@ export type GGMNResource = {
   title: string, //What the resource is referred to publicly 
   name: string,
   groundwaterStationId: string,
+  waterColumnHeight: number,
 }

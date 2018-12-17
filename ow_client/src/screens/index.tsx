@@ -90,7 +90,6 @@ export async function getCached(id: string): Promise<any | null> {
 }
 
 export async function registerScreens(config: ConfigFactory) {
-
   const persistMiddleware = () => {
     return (next: any) => (action: AnyAction) => {
       const returnValue = next(action);

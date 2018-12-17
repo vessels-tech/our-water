@@ -21,4 +21,5 @@ export type PendingResource = {
   owner: ResourceOwnerType,
   userId: string,
   timeseries: PendingTimeseries[],
+  waterColumnHeight: number,
 }

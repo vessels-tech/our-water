@@ -11,6 +11,7 @@ import { string } from 'prop-types';
 import { ReadingLocationType } from '../typings/models/ReadingLocation';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
+import { join } from 'path';
 
 
 const PendingReadingSchema = {
@@ -86,22 +87,17 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       readings: Joi.array().empty().required(),
       unitOfMeasure: Joi.string().allow('m', 'mm', 'ppm'),
     })).required(),
+    waterColumnHeight: Joi.number(),
   });
 
   const result = Joi.validate(resource, schema);
 
   if (result.error !== null) {
     maybeLog("validation error: " + result.error);
-    return {
-      type: ResultType.ERROR,
-      message: result.error.message,
-    };
+    return makeError(result.error.message);
   }
 
-  return {
-    type: ResultType.SUCCESS,
-    result: result.value,
-  }
+  return makeSuccess(result.value);
 }
 
 

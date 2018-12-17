@@ -28,6 +28,7 @@ const GGMNDevConfig: RemoteConfig = {
   editResource_availableTypes: '["well"]',
   editResource_defaultTypes: '{"well":[{"name":"GWmMSL","parameter":"GWmMSL","readings":[]},{"name":"GWmBGS","parameter":"GWmBGS","readings":[]}]}',
   editResource_allowCustomId: true,
+  editResource_hasWaterColumnHeight: true,
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
   usesShortId: false,
   allowsUserRegistration: false,

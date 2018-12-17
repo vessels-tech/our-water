@@ -55,6 +55,9 @@ android:
 	@make env
 	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
+android-log:
+	@react-native log-android
+
 clean:
 	watchman watch-del-all
 	rm -rf /tmp/ow_env

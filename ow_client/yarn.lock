@@ -7258,9 +7258,9 @@ rimraf@~2.2.6:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
 
-rn-async-storage@^1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/rn-async-storage/-/rn-async-storage-1.0.24.tgz#236dc71fc6428a6c60447e59ce64c8672e85a10a"
+"rn-async-storage@git://github.com/jzhw0130/rn-async-storage#436808845aff8c7a424062663830544af25d0d09":
+  version "1.0.22"
+  resolved "git://github.com/jzhw0130/rn-async-storage#436808845aff8c7a424062663830544af25d0d09"
 
 rndm@1.2.0:
   version "1.2.0"

@@ -43,6 +43,7 @@ export type RemoteConfig = {
   editResource_availableTypes: string, //ResourceType[],
   editResource_defaultTypes: string, 
   editResource_allowCustomId: boolean,
+  editResource_hasWaterColumnHeight: boolean,
   favouriteResource_scrollDirection: ScrollDirection,
   usesShortId: boolean,
 
@@ -224,10 +225,13 @@ export class ConfigFactory {
     return this.remoteConfig.editResource_allowCustomId;
   }
 
+  getEditResourceHasWaterColumnHeight(): boolean {
+    return this.remoteConfig.editResource_hasWaterColumnHeight;
+  }
+
   getFavouriteResourceScrollDirection(): ScrollDirection {
     return this.remoteConfig.favouriteResource_scrollDirection;
   }
-
 
   /**
    * getDefaultTimeseries
