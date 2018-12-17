@@ -21,6 +21,7 @@ const pendingResourceValidation = Joi.object().keys({
         //This may change in the future if we allow users to create resources with readings already
         readings: Joi.array().empty().required(),
     })).required(),
+    waterColumnHeight: Joi.number(),
 });
 //DON'T USE THIS ELSEWHERE!
 const pendingReadingValidation = Joi.object().keys({

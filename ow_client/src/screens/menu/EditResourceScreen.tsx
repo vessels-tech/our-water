@@ -357,10 +357,8 @@ class EditResourceScreen extends Component<Props> {
       new_resource_asset_type_label,
       general_is_required_error,
       new_resource_name,
+      new_resource_water_column_height,
     } = this.props.translation.templates;
-
-    //TODO: translate
-    const new_resource_water_column_height = "Water Column Height";
 
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
       return {
