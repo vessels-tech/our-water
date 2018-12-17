@@ -19,6 +19,8 @@ import { SyncMeta } from '../typings/Reducer';
 export interface OwnProps {
   style?: any,
   onComplete?: (thing: any) => void,
+  color?: string,
+  textColor?: string,
 }
 
 export interface StateProps {
@@ -28,9 +30,7 @@ export interface StateProps {
 
 export interface ActionProps {
   getGeoLocation: () => SomeResult<Location>,
-
 }
-
 
 export interface State {
 }
@@ -57,7 +57,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
     const viewStyle = {
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: secondary,
+      backgroundColor: this.props.color ? this.props.color : secondary,
       borderRadius: 50,
       width: 45,
       height: 45,
@@ -75,7 +75,7 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
           <Icon
             containerStyle={{
               borderRadius: 50,
-              backgroundColor: secondary,
+              backgroundColor: this.props.color ? this.props.color : secondary,
               width: 45,
               height: 45,
             }}
@@ -85,11 +85,11 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
             name={"near-me"}
             onPress={() => this.updateGeoLocation()}
             iconStyle={{
-              color: secondaryText,
+              color: this.props.textColor ? this.props.textColor : secondaryText
             }}
-            color={primary}
-          />
-        }
+            color={this.props.color ? this.props.color : secondary}
+      />
+    }
       </View>
     )
 

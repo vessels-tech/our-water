@@ -76,7 +76,6 @@ const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRea
 
   return xAxisData.map((value: Date, index: number) => {
     const cx = x(moment(value).toDate());
-    console.log(moment(value).format('DD-MMM-YY'), cx, cy);
 
     return (
       <Text

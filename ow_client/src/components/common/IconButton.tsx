@@ -25,11 +25,8 @@ export default class IconButton extends Component<Props> {
     super(props);
   }
 
-
   render() {
-
     return (
-
       <View style={{
         ...this.props.style,
         justifyContent: 'center',

@@ -238,10 +238,14 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
         justifyContent: 'space-around',
       }}>
         <LoadLocationButton
+          textColor={primaryText}
+          color={primaryLight}
           onComplete={(l: Location) => this.props.onGetUserLocation(l)}
         />
         {this.props.shouldDisplayFullSceenButton ? 
           <IconButton
+            textColor={primaryText}
+            color={primaryLight}
             name={fullscreenIcon}
             onPress={() => this.toggleFullscreenMap()}
           />
