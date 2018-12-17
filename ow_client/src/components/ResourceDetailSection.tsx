@@ -301,7 +301,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
 
-
     return (
         <View style={{
           flexDirection: 'column',

@@ -20,6 +20,7 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
 
     return (
       <TouchableNativeFeedback
+        disabled={true}
         onPress={() => this.props.onPress ? this.props.onPress() : null}
       >
         <View
