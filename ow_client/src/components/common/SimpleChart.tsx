@@ -34,7 +34,8 @@ const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
 
 const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   const dates = data.map((item) => moment(item.date).toDate());
-  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(3);
+  // const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(3);
+  const xAxisData = [dates[0], dates[dates.length -1]];
   const minValue = arrayLowest(data, (r) => r.value);
   const cy = y(minValue.value);
 
@@ -56,13 +57,22 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
 
 const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   const dates = data.map((item) => moment(item.date).toDate());
-  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(4);
+  // const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(4);
+  const xAxisData = [dates[0], dates[dates.length - 1]];
+
   const minValue = arrayLowest(data, (r) => r.value);
   
   const cy = y(minValue.value) + 15
 
   return xAxisData.map((value: Date, index: number) => {
     const cx = x(moment(value).toDate());
+    let textAnchor: 'middle' | 'start' | 'end' = 'middle';
+    // if (index === 0) {
+    //   textAnchor = 'start';
+    // }
+    // if (index === xAxisData.length - 1) {
+    //   textAnchor = 'end'
+    // }
 
     return (
       <Text
@@ -70,8 +80,8 @@ const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRea
         key={`${value}${index}`}
         x={cx}
         y={cy}
-        textAnchor={'middle'}>
-        {moment(value).format('DD/MM/YY')}
+        textAnchor={textAnchor}>
+        {moment(value).format('DD MMM YY')}
       </Text>
     );
     }
@@ -83,7 +93,7 @@ class SimpleChart extends React.PureComponent<Props> {
   render() {
     const { readings } = this.props;
     
-    const contentInset = { top: 5, bottom: 20, left: 16, right: 5 };
+    const contentInset = { top: 5, bottom: 20, left: 20, right: 20 };
     const yAxisWidth = 40;
     const dates = readings.map((item) => moment(item.date).toDate());
 
