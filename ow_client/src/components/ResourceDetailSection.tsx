@@ -379,6 +379,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return (
       // @ts-ignore
       <ScrollableTabView 
+        prerenderingSiblingsNumber={2}
         style={{ 
           paddingTop: 0,
         }}
@@ -419,7 +420,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
               return (
                 // @ts-ignore
-                <View tabLabel={`${timeseries.name}`} key={timeseries.name} style={{ alignItems: 'center' }}>
+                <View 
+                  tabLabel={`${timeseries.name}`} 
+                  key={timeseries.name} 
+                  style={{ alignItems: 'center' }}
+                >
                   <TimeseriesCardSimple
                     config={this.props.config}
                     timeseries={timeseries}

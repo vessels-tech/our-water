@@ -19,21 +19,6 @@ export type Props = {
   timeseriesRange: TimeseriesRange,
 }
 
-export function xLabelForRange(idx: number, dates: Date[], timeseriesRange: TimeseriesRange) {
-  if (dates.length < 8) {
-    return moment(dates[idx]).format('DD-MMM-YY');
-  }
-
-  //We only have space for about 7-8
-  const operand = Math.floor(dates.length / 5);
-  if (idx % operand !== 0) {
-    return '';
-  }
-
-  //TODO: change the format depending on how much space we have
-  return moment(dates[idx]).format('MMM-YY');
-}
-
 const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   return data.map((value: AnyOrPendingReading, index: number) => 
     <Circle
@@ -49,9 +34,11 @@ const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
 
 const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   const dates = data.map((item) => moment(item.date).toDate());
-  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(5);
+  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(3);
   const minValue = arrayLowest(data, (r) => r.value);
   const cy = y(minValue.value);
+
+  console.log("shortGrid, xAxisData length", xAxisData.length);
 
   return xAxisData.map((value: Date, index: number) => 
       <Rect
@@ -69,7 +56,7 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
 
 const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   const dates = data.map((item) => moment(item.date).toDate());
-  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(5);
+  const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(4);
   const minValue = arrayLowest(data, (r) => r.value);
   
   const cy = y(minValue.value) + 15
@@ -79,11 +66,12 @@ const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRea
 
     return (
       <Text
+        fontSize="8"
         key={`${value}${index}`}
         x={cx}
         y={cy}
         textAnchor={'middle'}>
-        {moment(value).format('DD-MMM-YY')}
+        {moment(value).format('DD/MM/YY')}
       </Text>
     );
     }
@@ -95,10 +83,9 @@ class SimpleChart extends React.PureComponent<Props> {
   render() {
     const { readings } = this.props;
     
-    const contentInset = { top: 5, bottom: 20, left: 10, right: 10 };
+    const contentInset = { top: 5, bottom: 20, left: 16, right: 5 };
     const yAxisWidth = 40;
     const dates = readings.map((item) => moment(item.date).toDate());
-    const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(5);
 
     return (
       <View style={{
@@ -146,24 +133,6 @@ class SimpleChart extends React.PureComponent<Props> {
             <ShortGridLabels />
           </LineChart>
         </View>
-        {/* <XAxis
-          style={{
-            height: 10,
-            // flex: 1, 
-          }}
-          data={xAxisData}
-          formatLabel={(idx: number, value: any) => {
-            const date = xAxisData[idx];
-            return moment(date).format('DD-MMM-YY')
-          }}
-          // contentInset={{ left: 30 + yAxisWidth, right: 20 }}
-          svg={{
-            // fontSize: 8,
-            textAnchor: "middle",
-            fill: 'grey',
-          }}
-          scale={ scale.scaleTime }
-        /> */}
       </View>
     )
   }
