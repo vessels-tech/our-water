@@ -435,7 +435,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               return (
                 // @ts-ignore
                 <View 
-                  tabLabel={`${idx + 1}_${timeseries.name}`} 
+                  tabLabel={`${timeseries.name}`} 
                   key={`${idx + 1}_${timeseries.name}`} 
                   style={{ alignItems: 'center' }}
                 >
