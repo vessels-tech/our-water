@@ -27,7 +27,21 @@ export type BoundingBox = {
 
 export type PageParams = {
   limit: number,
-  page: number,
+  startAfter?: FirebaseFirestore.DocumentSnapshot,
+}
+
+export type PageResult<T> = {
+  result: T,
+  hasNext: boolean,
+  startAfter: FirebaseFirestore.DocumentSnapshot;
+}
+
+export function makePageResult<T>(startAfter: FirebaseFirestore.DocumentSnapshot, hasNext: boolean, result: T): PageResult<T> {
+  return {
+    result,
+    hasNext,
+    startAfter,
+  }
 }
 
 export default class FirebaseApi {
@@ -125,6 +139,8 @@ export default class FirebaseApi {
     return firestore.collection(`/org/${orgId}/reading`)
     .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
     .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+    //We need to order by coords to make sure the pagination works
+    .orderBy('coords')
       //TODO: implement pagination
       .limit(pageParams.limit)
       .get()
@@ -145,6 +161,63 @@ export default class FirebaseApi {
         return makeSuccess(readings);
       })
       .catch(err => makeError(err.message))
+  }
+
+
+  /**
+   * Readings In Bounding Box
+   * 
+   * Get the readings taken within a bounding box
+   */
+  public static async readingsWithinBoundingBoxPaginated(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
+  Promise<SomeResult<PageResult<Reading[]>>> {
+    const { minLat, minLng, maxLat, maxLng } = bbox;
+    // console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+
+    return Promise.resolve()
+    .then(() => {
+      if (pageParams.startAfter) {
+        return firestore.collection(`/org/${orgId}/reading`)
+          .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+          .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+          //We need to order by coords to make sure the pagination works
+          .orderBy('coords')
+          .startAfter(pageParams.startAfter)
+          .limit(pageParams.limit)
+          .get()
+      }
+
+      return firestore.collection(`/org/${orgId}/reading`)
+        .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+        .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+        //We need to order by coords to make sure the pagination works
+        .orderBy('coords')
+        .limit(pageParams.limit)
+        .get()
+    })
+    .then(snapshot => {
+      const readings = []
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        data.id = doc.id;
+
+        // Filter based on longitude. TODO: remove this once google fixes this query
+        if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+          // return;
+        }
+
+        readings.push(data);
+      });
+
+      const startAfter = snapshot.docs[snapshot.docs.length - 1];
+      let hasNext = false;
+      if (snapshot.docs.length === pageParams.limit) {
+        hasNext = true;
+      }
+      const result = makeSuccess(makePageResult(startAfter, hasNext, readings));
+      return result;
+    })
+    .catch(err => makeError<PageResult<Reading[]>>(err.message))
   }
 
 

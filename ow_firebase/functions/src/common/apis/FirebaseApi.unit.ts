@@ -61,7 +61,7 @@ describe('Firebase Api', function() {
 
     after(async () => {
       //Clean up the readings;
-      FirebaseApi.batchDelete(firestore, newReadings, readingIds);
+      // FirebaseApi.batchDelete(firestore, newReadings, readingIds);
     })
   });
 
