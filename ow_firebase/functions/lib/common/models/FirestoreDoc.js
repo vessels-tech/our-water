@@ -31,6 +31,21 @@ class FirestoreDoc {
         this.updatedAt = new Date();
         batch.set(ref, this.serialize());
     }
+    /**
+     * Delete docs as a part of a Batch
+     *
+     * If no ID is provided, will use the id of the FirestoreDoc.
+     */
+    batchDelete(batch, firestore, id) {
+        let ref;
+        if (!id) {
+            ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(this.id);
+        }
+        else {
+            ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(id);
+        }
+        batch.delete(ref);
+    }
 }
 exports.default = FirestoreDoc;
 //# sourceMappingURL=FirestoreDoc.js.map

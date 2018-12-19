@@ -14,13 +14,37 @@ const ShortId_1 = require("../models/ShortId");
 const sleep = require("thread-sleep");
 const utils_1 = require("../utils");
 const util_1 = require("util");
-const ow_types_1 = require("ow_types");
+const admin = require("firebase-admin");
 class FirebaseApi {
     static batchSave(fs, docs) {
         return __awaiter(this, void 0, void 0, function* () {
             const batch = fs.batch();
             //Readings are unique by their timestamp + resourceId.
             docs.forEach(doc => doc.batchCreate(batch, fs, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+            return batch.commit();
+        });
+    }
+    /**
+     *
+     * @param fs
+     * @param docs
+     * @param docIds - optional. If provided, will use these ids instead of the doc's id
+     */
+    static batchDelete(fs, docs, docIds) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const batch = fs.batch();
+            if (docIds && docIds.length !== docs.length) {
+                return Promise.reject(new Error("docs.length and docIds.length must match"));
+            }
+            if (docIds) {
+                docs.forEach((doc, idx) => {
+                    const id = docIds[idx];
+                    doc.batchDelete(batch, FirebaseAdmin_1.firestore, id);
+                });
+            }
+            else {
+                docs.forEach(doc => doc.batchDelete(batch, FirebaseAdmin_1.firestore));
+            }
             return batch.commit();
         });
     }
@@ -38,8 +62,8 @@ class FirebaseApi {
             const maxLng = longitude + distanceMultiplier * distance;
             console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
             return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`)
-                .where('coords', '>=', new ow_types_1.OWGeoPoint(minLat, minLng))
-                .where('coords', '<=', new ow_types_1.OWGeoPoint(maxLat, maxLng)).get()
+                .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
                 .then(snapshot => {
                 const resources = [];
                 snapshot.forEach(doc => {
@@ -62,6 +86,36 @@ class FirebaseApi {
                     message: err.message,
                 };
             });
+        });
+    }
+    /**
+     * Readings In Bounding Box
+     *
+     * Get the readings taken within a bounding box
+     */
+    static readingsWithinBoundingBox(orgId, bbox, pageParams) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { minLat, minLng, maxLat, maxLng } = bbox;
+            console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+            return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                .limit(pageParams.limit)
+                .get()
+                .then(snapshot => {
+                const readings = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    // Filter based on longitude. TODO: remove this once google fixes this query
+                    if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+                        return;
+                    }
+                    readings.push(data);
+                });
+                return AppProviderTypes_1.makeSuccess(readings);
+            })
+                .catch(err => AppProviderTypes_1.makeError(err.message));
         });
     }
     //

@@ -68,8 +68,8 @@ class GGMNApi {
         let name = pendingResource.id;
         let height = 0;
         //TD: this is a hack, we should specify a proper name
-        if (pendingResource.owner.name) {
-            name = pendingResource.owner.name;
+        if (pendingResource.name) {
+            name = pendingResource.name;
         }
         if (pendingResource.waterColumnHeight) {
             height = pendingResource.waterColumnHeight;

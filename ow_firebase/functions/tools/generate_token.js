@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 const request = require('request-promise-native');
 
 /* Not in git. Download from FB console*/
-const serviceAccount = require('../src/.serviceAccountKey.json');
+const serviceAccount = require('../src/test/.serviceAccountKey.json');
 
 if (admin.apps.length === 0) {
   admin.initializeApp({
@@ -43,5 +43,5 @@ auth.createCustomToken('12345')
   console.log(response.idToken);
 })
 .catch(function (error) {
-  console.log("Error creating custom token:", error);
+  console.log("Error creating custom token:", error.message);
 });

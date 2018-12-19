@@ -24,6 +24,13 @@ run_local:
 	cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
+
+run_lt:
+	@lt --subdomain ourwater --port 5000
+
+get_token:
+	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && node generate_token.js
+
 rebuild:
 	@echo 'rebuilding node'
 	cd ${dir} && npm rebuild
