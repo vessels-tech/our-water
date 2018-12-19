@@ -49,6 +49,7 @@ import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
 import { diff } from 'deep-object-diff';
 import { getDefaultSettings } from 'http2';
 import TimeseriesCardSimple from './common/TimeseriesCardSimple';
+import { secondaryText } from '../utils/NewColors';
 
 
 export interface OwnProps {
@@ -396,14 +397,20 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         tabStyle={{
           height: 20,
         }}
+        tabBarTextStyle={{
+          //TD: disable bold as sometimes it is wrong and doesn't get updated
+          fontWeight: '500',
+        }}
+        tabBarActiveTextColor={primaryText}
+        tabBarInactiveTextColor={primaryText}
         renderTabBar={() => (
           <ScrollableTabView.DefaultTabBar
             tabStyle={{
               backgroundColor: primaryLight,
             }}
-            textStyle={{
-              color: primaryText,
-            }}
+            // textStyle={{
+            //   color: primaryText,
+            // }}
           />
         )}>
         <View 
@@ -424,8 +431,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                 console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
                 return;
               }
-
-              console.log(`ResourceDetailSection getting TimeseriesCard: ${idx + 1}_${timeseries.name}`);
 
               return (
                 // @ts-ignore

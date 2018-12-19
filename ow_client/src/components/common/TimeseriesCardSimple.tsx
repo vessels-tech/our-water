@@ -151,8 +151,6 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   render() {
     const { timeseries: { name } } = this.props;
 
-    console.log("TimeseriesCardSimple render", name);
-
     return (
       <View 
         style={{
