@@ -85,12 +85,15 @@ export interface ActionProps {
 }
 
 export interface State {
-
+  //We use this to force the viewpager to do a complete re-render, because of a bug the underlying ViewPagerAndroid
+  hackViewPager: number,
 }
 
 class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
-  state: State = {}
+  state: State = {
+    hackViewPager: 1,
+  }
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -126,6 +129,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     const result = await this.props.getResource(this.appApi, resourceId, this.props.userId);
+    this.setState({hackViewPager: 2})
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(`${resource_loading_error}`, ToastAndroid.LONG);
       return;
@@ -134,6 +138,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (result.type === ResultType.SUCCESS) {
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
+          //This needs to be a different number maybe?
+          this.setState({ hackViewPager: 2 });
           if (result.type === ResultType.ERROR) {      
             ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
           }
@@ -374,12 +380,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getReadingsView() {
     const { resource_detail_summary_tab } = this.props.translation.templates;
     const { timeseriesList } = this.props;
+    const { hackViewPager } = this.state;
     const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
     return (
       // @ts-ignore
       <ScrollableTabView 
-        prerenderingSiblingsNumber={2}
+        id={hackViewPager}
         style={{ 
           paddingTop: 0,
         }}
@@ -400,7 +407,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           />
         )}>
         <View 
-          key="1" 
+          key="0_summary" 
           style={{
             backgroundColor: bgLight,
             flex: 1,
@@ -411,21 +418,24 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           {this.getSummaryCard()}
         </View>
           {
-            Object.keys(timeseriesList).map(key => {
+            Object.keys(timeseriesList).map((key, idx) => {
               const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
               if (!timeseries) {
                 console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
                 return;
               }
 
+              console.log(`ResourceDetailSection getting TimeseriesCard: ${idx + 1}_${timeseries.name}`);
+
               return (
                 // @ts-ignore
                 <View 
-                  tabLabel={`${timeseries.name}`} 
-                  key={timeseries.name} 
+                  tabLabel={`${idx + 1}_${timeseries.name}`} 
+                  key={`${idx + 1}_${timeseries.name}`} 
                   style={{ alignItems: 'center' }}
                 >
                   <TimeseriesCardSimple
+                    key={`${idx + 1}_${timeseries.name}`} 
                     config={this.props.config}
                     timeseries={timeseries}
                     resourceId={this.props.resourceId}

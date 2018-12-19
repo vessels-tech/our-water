@@ -1289,9 +1289,9 @@
     "@types/react-native" "*"
     moment ">=2.14.0"
 
-"@types/react-native-scrollable-tab-view@^0.8.2":
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/@types/react-native-scrollable-tab-view/-/react-native-scrollable-tab-view-0.8.2.tgz#5034f077fafa7eea3e5b8ccbf16556083a050a77"
+"@types/react-native-scrollable-tab-view@^0.8.4":
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/@types/react-native-scrollable-tab-view/-/react-native-scrollable-tab-view-0.8.4.tgz#e513216b699dac5b221f60c3b9289d1b5536c85e"
   dependencies:
     "@types/react" "*"
     "@types/react-native" "*"
@@ -6178,9 +6178,9 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations#5313e36d182f4fa81acf72a185d6172b57375587":
+"ow_translations@git://github.com/vessels-tech/ow_translations#8c7ba6084d071c34439377001bd3ac0b3974bb1c":
   version "0.1.1"
-  resolved "git://github.com/vessels-tech/ow_translations#5313e36d182f4fa81acf72a185d6172b57375587"
+  resolved "git://github.com/vessels-tech/ow_translations#8c7ba6084d071c34439377001bd3ac0b3974bb1c"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -6705,9 +6705,9 @@ react-native-safe-area-view@^0.7.0:
   dependencies:
     hoist-non-react-statics "^2.3.1"
 
-react-native-scrollable-tab-view@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/react-native-scrollable-tab-view/-/react-native-scrollable-tab-view-0.8.0.tgz#5cb1fcfce07bf530a3c81ab51fc5071144edac5c"
+"react-native-scrollable-tab-view@git://github.com/vessels-tech/react-native-scrollable-tab-view#100741b7e26abcc0e9dd1844789148513418c817":
+  version "0.10.0"
+  resolved "git://github.com/vessels-tech/react-native-scrollable-tab-view#100741b7e26abcc0e9dd1844789148513418c817"
   dependencies:
     create-react-class "^15.6.2"
     prop-types "^15.6.0"

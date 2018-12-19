@@ -111,7 +111,6 @@ class EditResourceScreen extends Component<Props> {
     let name;
     let ownerName;
     let waterColumnHeight;
-
     id = [resource.id, Validators.required, this.asyncIdValidator];
 
     if (resource.pending) {
@@ -120,7 +119,7 @@ class EditResourceScreen extends Component<Props> {
       asset = [resource.resourceType, Validators.required];
       ownerName = resource.owner && [resource.owner, Validators.required];
       name = resource.name && [resource.name, Validators.required];
-      waterColumnHeight = resource.waterColumnHeight && [resource.waterColumnHeight];
+      waterColumnHeight = resource.waterColumnHeight && [`${resource.waterColumnHeight}`];
 
       return {
         id,
@@ -138,7 +137,7 @@ class EditResourceScreen extends Component<Props> {
       lng = [`${resource.coords._longitude}`, Validators.required];
       asset = [resource.type, Validators.required];
       name = [resource.name];
-      waterColumnHeight = [resource.waterColumnHeight];
+      waterColumnHeight = [`${resource.waterColumnHeight}`];
     }
 
     if (resource.type === OrgType.MYWELL) {

@@ -11,7 +11,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "@types/react-native-scrollable-tab-view": "^0.8.2",
+    "@types/react-native-scrollable-tab-view": "^0.8.4",
     "@types/react-redux": "^6.0.9",
     "@types/redux-logger": "^3.0.6",
     "add": "^2.0.6",
@@ -26,7 +26,7 @@
     "firebase": "^5.5.9",
     "firebase-admin": "^6.2.0",
     "moment": "^2.22.1",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#5313e36d182f4fa81acf72a185d6172b57375587",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#8c7ba6084d071c34439377001bd3ac0b3974bb1c",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
     "react": "16.3.1",
@@ -49,7 +49,7 @@
     "react-native-navigation": "^1.1.480",
     "react-native-phone-input": "^0.2.1",
     "react-native-qrcode-scanner": "^1.1.0",
-    "react-native-scrollable-tab-view": "^0.8.0",
+    "react-native-scrollable-tab-view": "git://github.com/vessels-tech/react-native-scrollable-tab-view#100741b7e26abcc0e9dd1844789148513418c817",
     "react-native-splash-screen": "3.0.6",
     "react-native-svg": "^6.5.2",
     "react-native-svg-charts": "^5.2.0",

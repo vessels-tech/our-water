@@ -39,8 +39,6 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
   const minValue = arrayLowest(data, (r) => r.value);
   const cy = y(minValue.value);
 
-  console.log("shortGrid, xAxisData length", xAxisData.length);
-
   return xAxisData.map((value: Date, index: number) => 
       <Rect
         key={`${value}${index}`}
