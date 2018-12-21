@@ -170,7 +170,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * convert legacy MyWell resources into OW resources
    * return
    */
-  public getResourcesData(orgId: string, firestore): Promise<ResourceSaveResult> {
+  public getResourcesData(orgId: string, firestore): Promise<DefaultSyncRunResult> {
     // const uriResources = `${this.baseUrl}/api/resources?filter=%7B%22where%22%3A%7B%22resourceId%22%3A1110%7D%7D`;
     const uriResources = `${this.baseUrl}/api/resources`;
     console.log("Getting resources data url", uriResources);
@@ -186,7 +186,7 @@ export default class LegacyMyWellDatasource implements Datasource {
     return getLegacyMyWellGroups(orgId, firestore)
     .then(_legacyGroups => legacyGroups = _legacyGroups)
     .then(() => request(options))
-    .then((legacyRes: Array<LegacyResource>) => {
+    .then(async (legacyRes: Array<LegacyResource>) => {
       legacyRes.forEach(r => {
         const externalIds: ResourceIdType = ResourceIdType.fromLegacyMyWellId(r.postcode, r.id);
         const coords = new OWGeoPoint(r.geo.lat, r.geo.lng);
@@ -204,14 +204,17 @@ export default class LegacyMyWellDatasource implements Datasource {
 
       const errors = [];
       const savedResources: Array<Resource> = [];
-      resources.forEach(res => {
-        return res.create({ firestore })
-          .then((savedRes: Resource) => savedResources.push(savedRes))
-          .catch(err => errors.push(err));
-      });
+      //TODO: do this in a batch
+      await Promise.all(resources.map(res => res.create({ firestore })
+        .then((savedRes: Resource) => savedResources.push(savedRes))
+        .catch(err => {
+          console.log("Error saving resource", res);
+          errors.push(err)
+        })
+      ));
 
       return {
-        results: savedResources,
+        results: [`Saved ${savedResources.length} resources`],
         warnings: [],
         errors,
       };
@@ -224,9 +227,16 @@ export default class LegacyMyWellDatasource implements Datasource {
    * This also doesn't require pagination, but is expensive.
    * Perhaps we should test with just a small number of readings for now
    * 
+   * 
+   * ?filter=%7B%22where%22%3A%7B%22date%22%3A%7B%22gt%22%3A%20%222018-01-01T00%3A00%3A00.000Z%22%7D%7D%7D
    */
-  public getReadingsData(orgId: string, firestore): Promise<ReadingSaveResult>  {
-    const uriReadings = `${this.baseUrl}/api/readings?access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+  public getReadingsData(orgId: string, firestore): Promise<DefaultSyncRunResult>  {
+    const START_DATE = "2000-01-01T00:00:00.000Z";
+    const END_DATE = "2012-01-01T00:00:00.000Z";
+    const filter = { "where": { "and": [{ "date": { "gte": `${START_DATE}` } }, { "date": { "lte": `${END_DATE}` } } ]}};
+    const uriReadings = `${this.baseUrl}/api/readings?filter=${encodeURIComponent(JSON.stringify(filter))}&access_token=${mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+
+    console.log('getReadingsData url:', uriReadings);
 
     const options = {
       method: 'GET',
@@ -280,9 +290,9 @@ export default class LegacyMyWellDatasource implements Datasource {
         }
 
         //Only add readings from 2016 onwards
-        if (createdAtMoment.isBefore(moment("2017-01-01"))) {
-          return null;
-        } 
+        // if (createdAtMoment.isBefore(moment("2017-01-01"))) {
+          // return null;
+        // } 
 
         const newReading: Reading = new Reading(orgId, resource.id, resource.coords, 
           resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);
@@ -302,11 +312,15 @@ export default class LegacyMyWellDatasource implements Datasource {
             console.log(`SAVED BATCH ${idx} of ${batches.length}`);
             batchSaveResults = batchSaveResults.concat(results);
           })
+          .catch(err => {
+            console.log("batch save err:", err);
+            return Promise.reject(err);
+          })
       }, Promise.resolve(true))
     })
     .then(() => {
       return {
-        results: readings,
+        results: [`Saved ${readings.length} readings`],
         warnings,
         errors,
       };

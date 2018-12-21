@@ -79,7 +79,18 @@ class SyncRun {
                 case SyncMethod_1.SyncMethod.pullFrom:
                     console.log("SyncRun.run running pullFrom sync");
                     //TODO: Overhaul the whole way we report results
-                    const pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
+                    let pullFromResult;
+                    try {
+                        pullFromResult = yield sync.datasource.pullDataFromDataSource(this.orgId, firestore, { filterAfterDate: sync.lastSyncDate });
+                    }
+                    catch (err) {
+                        console.log("fatal error in sync", err);
+                        pullFromResult = {
+                            results: [],
+                            warnings: [],
+                            errors: [err],
+                        };
+                    }
                     this.results = pullFromResult.results;
                     // this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
                     pullFromResult.warnings.sort((a, b) => {
@@ -135,8 +146,7 @@ class SyncRun {
     }
     finishSync({ firestore }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("finished sync");
-            // console.log("finished sync with results:", this.results);
+            console.log("finished sync with results:", this.results);
             console.log("finished sync with warnings:", this.warnings);
             this.status = SyncRunStatus_1.SyncRunStatus.finished;
             this.finishedAt = moment().valueOf();
@@ -166,7 +176,7 @@ class SyncRun {
      * Serialize the SyncRun for saving or transmission
      */
     serialize() {
-        return {
+        const serialized = {
             id: this.id,
             orgId: this.orgId,
             syncId: this.syncId,
@@ -179,6 +189,7 @@ class SyncRun {
             warnings: this.warnings,
             errors: this.errors,
         };
+        return serialized;
     }
     /**
      * deserialize from a firestore snapshot

@@ -15,6 +15,14 @@ const sleep = require("thread-sleep");
 const utils_1 = require("../utils");
 const util_1 = require("util");
 const admin = require("firebase-admin");
+function makePageResult(startAfter, hasNext, result) {
+    return {
+        result,
+        hasNext,
+        startAfter,
+    };
+}
+exports.makePageResult = makePageResult;
 class FirebaseApi {
     static batchSave(fs, docs) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -100,6 +108,7 @@ class FirebaseApi {
             return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
                 .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                 .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                .orderBy('coords')
                 .limit(pageParams.limit)
                 .get()
                 .then(snapshot => {
@@ -114,6 +123,55 @@ class FirebaseApi {
                     readings.push(data);
                 });
                 return AppProviderTypes_1.makeSuccess(readings);
+            })
+                .catch(err => AppProviderTypes_1.makeError(err.message));
+        });
+    }
+    /**
+     * Readings In Bounding Box
+     *
+     * Get the readings taken within a bounding box
+     */
+    static readingsWithinBoundingBoxPaginated(orgId, bbox, pageParams) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { minLat, minLng, maxLat, maxLng } = bbox;
+            // console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+            return Promise.resolve()
+                .then(() => {
+                if (pageParams.startAfter) {
+                    return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                        .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                        .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                        .orderBy('coords')
+                        .startAfter(pageParams.startAfter)
+                        .limit(pageParams.limit)
+                        .get();
+                }
+                return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                    .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                    .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                    .orderBy('coords')
+                    .limit(pageParams.limit)
+                    .get();
+            })
+                .then(snapshot => {
+                const readings = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    // Filter based on longitude. TODO: remove this once google fixes this query
+                    if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+                        // return;
+                    }
+                    readings.push(data);
+                });
+                const startAfter = snapshot.docs[snapshot.docs.length - 1];
+                let hasNext = false;
+                if (snapshot.docs.length === pageParams.limit) {
+                    hasNext = true;
+                }
+                const result = AppProviderTypes_1.makeSuccess(makePageResult(startAfter, hasNext, readings));
+                return result;
             })
                 .catch(err => AppProviderTypes_1.makeError(err.message));
         });

@@ -91,7 +91,17 @@ export class SyncRun {
         console.log("SyncRun.run running pullFrom sync");
 
         //TODO: Overhaul the whole way we report results
-        const pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, firestore, {filterAfterDate: sync.lastSyncDate});
+        let pullFromResult;
+        try {
+          pullFromResult = await sync.datasource.pullDataFromDataSource(this.orgId, firestore, {filterAfterDate: sync.lastSyncDate});
+        } catch (err) {
+          console.log("fatal error in sync", err);
+          pullFromResult = {
+            results: [],
+            warnings:[],
+            errors: [err],
+          }
+        }
         this.results = pullFromResult.results;
         // this.results = [`Pulled ${pullFromResult.results.length} items from dataSource`];
         pullFromResult.warnings.sort((a: WarningType, b: WarningType) => {
@@ -146,8 +156,7 @@ export class SyncRun {
   }
 
   private async finishSync({ firestore }): Promise<SyncRun> {
-    console.log("finished sync");
-    // console.log("finished sync with results:", this.results);
+    console.log("finished sync with results:", this.results);
     console.log("finished sync with warnings:", this.warnings);
     this.status = SyncRunStatus.finished;
     this.finishedAt = moment().valueOf();
@@ -181,7 +190,7 @@ export class SyncRun {
    * Serialize the SyncRun for saving or transmission
    */
   public serialize(): any {
-    return {
+    const serialized = {
       id: this.id,
       orgId: this.orgId,
       syncId: this.syncId,
@@ -194,6 +203,8 @@ export class SyncRun {
       warnings: this.warnings,
       errors: this.errors,
     };
+
+    return serialized;
   }
 
   /**

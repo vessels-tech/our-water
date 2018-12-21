@@ -150,7 +150,7 @@ class LegacyMyWellDatasource {
         return utils_1.getLegacyMyWellGroups(orgId, firestore)
             .then(_legacyGroups => legacyGroups = _legacyGroups)
             .then(() => request(options))
-            .then((legacyRes) => {
+            .then((legacyRes) => __awaiter(this, void 0, void 0, function* () {
             legacyRes.forEach(r => {
                 const externalIds = ResourceIdType_1.default.fromLegacyMyWellId(r.postcode, r.id);
                 const coords = new ow_types_1.OWGeoPoint(r.geo.lat, r.geo.lng);
@@ -166,17 +166,19 @@ class LegacyMyWellDatasource {
             });
             const errors = [];
             const savedResources = [];
-            resources.forEach(res => {
-                return res.create({ firestore })
-                    .then((savedRes) => savedResources.push(savedRes))
-                    .catch(err => errors.push(err));
-            });
+            //TODO: do this in a batch
+            yield Promise.all(resources.map(res => res.create({ firestore })
+                .then((savedRes) => savedResources.push(savedRes))
+                .catch(err => {
+                console.log("Error saving resource", res);
+                errors.push(err);
+            })));
             return {
-                results: savedResources,
+                results: [`Saved ${savedResources.length} resources`],
                 warnings: [],
                 errors,
             };
-        });
+        }));
     }
     /**
      * Get all readings from MyWell
@@ -184,9 +186,15 @@ class LegacyMyWellDatasource {
      * This also doesn't require pagination, but is expensive.
      * Perhaps we should test with just a small number of readings for now
      *
+     *
+     * ?filter=%7B%22where%22%3A%7B%22date%22%3A%7B%22gt%22%3A%20%222018-01-01T00%3A00%3A00.000Z%22%7D%7D%7D
      */
     getReadingsData(orgId, firestore) {
-        const uriReadings = `${this.baseUrl}/api/readings?access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+        const START_DATE = "2000-01-01T00:00:00.000Z";
+        const END_DATE = "2012-01-01T00:00:00.000Z";
+        const filter = { "where": { "and": [{ "date": { "gte": `${START_DATE}` } }, { "date": { "lte": `${END_DATE}` } }] } };
+        const uriReadings = `${this.baseUrl}/api/readings?filter=${encodeURIComponent(JSON.stringify(filter))}&access_token=${env_1.mywellLegacyAccessToken}`; //TODO: add filter for testing purposes
+        console.log('getReadingsData url:', uriReadings);
         const options = {
             method: 'GET',
             uri: uriReadings,
@@ -233,9 +241,9 @@ class LegacyMyWellDatasource {
                     return;
                 }
                 //Only add readings from 2016 onwards
-                if (createdAtMoment.isBefore(moment("2017-01-01"))) {
-                    return null;
-                }
+                // if (createdAtMoment.isBefore(moment("2017-01-01"))) {
+                // return null;
+                // } 
                 const newReading = new Reading_1.Reading(orgId, resource.id, resource.coords, resource.resourceType, groups, createdAtMoment.toDate(), r.value, externalIds);
                 newReading.isLegacy = true; //set the isLegacy flag to true to skip updating the resource every time
                 readings.push(newReading);
@@ -250,12 +258,16 @@ class LegacyMyWellDatasource {
                     .then(results => {
                     console.log(`SAVED BATCH ${idx} of ${batches.length}`);
                     batchSaveResults = batchSaveResults.concat(results);
+                })
+                    .catch(err => {
+                    console.log("batch save err:", err);
+                    return Promise.reject(err);
                 });
             }), Promise.resolve(true));
         })
             .then(() => {
             return {
-                results: readings,
+                results: [`Saved ${readings.length} readings`],
                 warnings,
                 errors,
             };

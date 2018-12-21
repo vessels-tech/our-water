@@ -11,7 +11,7 @@ const orgId = process.env.ORG_ID;
 const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
 
 describe('SyncAPI', function() {
-  this.timeout(30000);
+  this.timeout(30000000);
 
   //Objects to clean up later
   let syncIds = [];
@@ -155,8 +155,8 @@ describe('SyncAPI', function() {
           type: "LegacyMyWellDatasource",
           url: mywellLegacyBaseUrl,
           selectedDatatypes: [
-            'Group',
-            'Resource',
+            // 'Group',
+            // 'Resource',
             'Reading',
           ]
         },

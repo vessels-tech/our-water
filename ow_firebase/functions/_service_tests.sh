@@ -11,8 +11,8 @@ export MYWELL_LEGACY_BASE_URL="https://mywell-server.vessels.tech"
 # export BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 DATE=`date '+%Y%m%dT%H%M%S'`
 # export ORG_ID="test_$DATE"
-export ORG_ID="mywell"
-# export ORG_ID="test_12346"
+export ORG_ID="test_12348"
+# export ORG_ID="mywell"
 #TODO: change to a test project
 export GOOGLE_CLOUD_PROJECT='our-water'
 export SKIP_CLEANUP='true'
