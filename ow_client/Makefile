@@ -37,6 +37,9 @@ switch:
 switch-ggmn-dev:
 	make switch orgId="ggmn" stage="development"
 
+switch-ggmn-prod:
+	make switch orgId="ggmn" stage="production"
+
 switch-mywell-dev:
 	make switch orgId="mywell" stage="development"
 
@@ -103,8 +106,8 @@ build-production:
 	@echo 'Building production only'
 	../env/increment_build.sh
 	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
-	@echo 'signing with debug key'
-	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/debug.keystore  app-release-unsigned.apk -storepass android androiddebugkey
+	@echo "signing with key: '${KEYSTORE_PATH}'"
+	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ${KEYSTORE_PATH} app-release-unsigned.apk -storepass ${KEYSTORE_PASSWORD} ${KEYSTORE_ALIAS}
 
 install-android:
 	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk

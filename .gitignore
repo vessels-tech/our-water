@@ -4,3 +4,5 @@ node_modules
 .runtimeconfig.json.*.env
 .service*
 *google-services.json
+*.keystore
+

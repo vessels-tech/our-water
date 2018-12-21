@@ -54,6 +54,18 @@ export const secondaryText = {
   disabled: "#9E9E9E",
 }
 
+
+
+//Others:
+//topBar="F5F5F5"
+// lighterText="#757575
+// highlightedText="1E1E1E"
+// 
+// 
+// background="#FFFFFF"
+// backgroundHighlighted="#EBEBEB"
+
+
 //Pretty Colors
 export const prettyColors = [
   "#d1c4e9",
@@ -65,8 +77,3 @@ export const prettyColors = [
   "#f0f4c3",
   "#fff9c4",
 ];
-
-// export const navBarTextColor = surfaceText;
-export const navBarTextColor = '#FFFFFF';
-export const statusBarColor = primaryDark;
-export const statusBarTextColorScheme = 'light';
