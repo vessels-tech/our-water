@@ -48,7 +48,7 @@ gulp.task('get_remote_config', async () => {
 });
 
 gulp.task('get_readings_csv', async() => {
-  const MAX_PAGES = 10;
+  const MAX_PAGES = 100;
   const PAGE_SIZE = 1000;
 
   //Bottom Left: 24.6605056,74.176801
@@ -81,9 +81,10 @@ gulp.task('get_readings_csv', async() => {
   let hasNext = true;
   let pageCount = 1
   let totalReadingsCount = readingsResult.result.result.length;
+  let startAfter = readingsResult.result.startAfter;
   //Is there a better way than a while loop?
   while (hasNext === true) {
-    pageParams = Object.assign(pageParams, { startAfter: readingsResult.result.startAfter });
+    pageParams = Object.assign(pageParams, { startAfter });
     const next = await FirebaseApi.readingsWithinBoundingBoxPaginated('mywell', bbox, pageParams);
 
     if (next.type === ResultType.ERROR) {
@@ -97,6 +98,7 @@ gulp.task('get_readings_csv', async() => {
 
     console.log(`Page: ${pageCount} all readings now has: ${totalReadingsCount} readings.`);
     hasNext = next.result.hasNext;
+    startAfter = next.result.startAfter;
     pageCount += 1;
 
     //Safety Statement
