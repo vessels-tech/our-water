@@ -146,6 +146,7 @@ export async function saveNewConfig(token: string, etag: string, projectId: stri
   });
 }
 
+//TODO: adapt these to also have 
 function buildParameter(deflt: any, description: string, conditions: string[], values: any[]) {
   const wrapValue = (value: any) => {
     if (typeof value === 'boolean') {
@@ -178,7 +179,7 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
  * Build and return the new remote config
  */
 export async function getNewConfig(): Promise<any> {
-  const conditionKeys = ['ggmn_android', 'mywell_android'];
+  const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
 
   const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
   const mywellTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.mywell), functionReplacer, 2);
@@ -188,6 +189,11 @@ export async function getNewConfig(): Promise<any> {
   const conditions = [
     {
       "name": "ggmn_android",
+      "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "ggmn_dev_android",
       "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
       "tagColor": "BROWN"
     },
@@ -202,115 +208,116 @@ export async function getNewConfig(): Promise<any> {
       'MyWell', 
       'the application name',
       conditionKeys, 
-      ['GGMN', 'MyWell']
+      ['GGMN', 'GGMN DEV', 'MyWell']
     ),
     baseApiType: buildParameter(
       'MyWellApi', 
       '', 
       conditionKeys, 
-      ['GGMNApi', 'MyWellApi']
+      ['GGMNApi', 'GGMNApi', 'MyWellApi']
     ),
     firebaseBaseUrl: buildParameter(
       'localhost:5000', 
       '', 
       conditionKeys, 
-      ['GGMN', 'localhost:5000']
+      ['GGMN', 'GGMN', 'localhost:5000']
     ),
     ggmnBaseUrl: buildParameter(
       'https://ggmn.lizard.net', 
       '', 
       conditionKeys, 
-      ['https://ggmn.lizard.net', '']
+      ['https://ggmn.lizard.net', 'https://ggmn.lizard.net', '']
     ),
     showConnectToButton: buildParameter(
       'false', 
       'should should the connect to button?', 
       conditionKeys, 
-      ['true', 'false']
+      ['true', 'true', 'false']
     ),
     showSyncButton: buildParameter(
       'false',
       'should should the sync to button?',
       conditionKeys,
-      ['true', 'false']
+      ['true', 'true', 'false']
     ),
     showPendingButton: buildParameter(
       'true',
       'should should the pending button?',
       conditionKeys,
-      ['false', 'true']
+      ['false', 'false', 'true']
     ),
     mywellBaseUrl: buildParameter(
       'https://mywell-server.vessels.tech',
       '',
       conditionKeys, 
-      ['', 'https://mywell-server.vessels.tech']
+      ['', '', 'https://mywell-server.vessels.tech']
     ),
     map_shouldLoadAllResources: buildParameter(
       true, 
       '',
       conditionKeys, 
-      [false, true]
+      [false, false, true]
     ),
     newReading_enableImageUpload: buildParameter(
       true, 
       'the application name', 
       conditionKeys, 
-      [false, true]
+      [false, false, true]
     ),
     homeScreen: buildParameter(
       'Simple',
       'the home screen style. Simple or Map', 
       conditionKeys, 
-      ['Map', 'Simple']
+      ['Map', 'Map', 'Simple']
     ),
     resourceDetail_showSubtitle: buildParameter(
       true, 
       'Should the resrouce detail section have a subtitle?', 
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     resourceDetail_allowEditing: buildParameter(
       false, 
       'Are users allowed to edit resources?', 
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     resourceDetail_allowDelete: buildParameter(
       false, 
       'Are users allowed to delete resources?', 
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     resourceDetail_editReadings: buildParameter(
       false, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     favouriteResourceList_showGetStartedButtons: buildParameter(
       true, 
       'Should the favourite resource list have a get started hint if empty?', 
       conditionKeys, 
-      [false, true]
+      [false, false, true]
     ),
     editResource_hasResourceName: buildParameter(
       false,
       'When creating a new resource, can the user edit the name?',
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     editResource_showOwerName: buildParameter(
       true,
       'When creating a new resource, can the user set the owner name?',
       conditionKeys, 
-      [false, true]
+      [false, false, true]
     ),
     editResource_availableTypes: buildParameter(
       [ 'well', 'raingauge', 'quality', 'checkdam'],
       'When creating a new resource, what types of resource can be created?',
       conditionKeys,
       [
+        ['well'],
         ['well'],
         ['well', 'raingauge', 'quality', 'checkdam'],
       ]
@@ -337,6 +344,13 @@ export async function getNewConfig(): Promise<any> {
             { name: 'GWmBGS', parameter: 'GWmBGS', readings: [], unitOfMeasure: 'm' },
           ]
         }, 
+        //GGMN
+        {
+          well: [
+            { name: 'GWmMSL', parameter: 'GWmMSL', readings: [], unitOfMeasure: 'm' },
+            { name: 'GWmBGS', parameter: 'GWmBGS', readings: [], unitOfMeasure: 'm' },
+          ]
+        }, 
         //MyWell
         {
           well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
@@ -353,32 +367,33 @@ export async function getNewConfig(): Promise<any> {
       false, 
       'When creating a resource, is the user allowed to enter a custom id?', 
       conditionKeys, 
-      [true, false]
+      [true, true, false]
     ),
     editResource_hasWaterColumnHeight: buildParameter(false, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, false]),
     favouriteResource_scrollDirection: buildParameter(
       'Vertical', 
       'What direction does the favourite resource section scroll in?', 
       conditionKeys, 
-      ['Horizontal', 'Vertical']
+      ['Horizontal', 'Horizontal', 'Vertical']
     ),
     usesShortId: buildParameter(
       true, 
       'the application name', 
       conditionKeys, 
-      ['GGMN', 'MyWell']
+      ['GGMN', 'GGMN', 'MyWell']
     ),
     allowsUserRegistration: buildParameter(
       true, 
       'Should we allow users to sign up?', 
       conditionKeys, 
-      [false, true]
+      [false, false, true]
     ),
     translationOptions: buildParameter(
       mywellTranslationOptionsJSON,
       'The translation options',
       conditionKeys,
       [
+        ggmnTranslationsOptionsJSON,
         ggmnTranslationsOptionsJSON,
         mywellTranslationOptionsJSON,
       ]
@@ -388,6 +403,7 @@ export async function getNewConfig(): Promise<any> {
       'The translations',
       conditionKeys,
       [
+        ggmnTranslationsJSON,
         ggmnTranslationsJSON,
         mywellTranslationsJSON,
       ]

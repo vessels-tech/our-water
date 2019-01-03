@@ -73,3 +73,8 @@ export const prettyColors = [
   secondaryPallette._100,
   primaryPallette._100,
 ];
+
+// export const navBarTextColor = surfaceText;
+export const navBarTextColor = '#FFFFFF';
+export const statusBarColor = primaryDark;
+export const statusBarTextColorScheme = 'light';
