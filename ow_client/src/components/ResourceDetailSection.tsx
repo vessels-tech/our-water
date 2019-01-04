@@ -62,6 +62,7 @@ export interface OwnProps {
   resourceId: string,
   //This is a hack to fix the issues with ids in GGMN
   temporaryGroundwaterStationId: string | null,
+  renderCounter?: number,
 }
 
 export interface StateProps {
@@ -110,6 +111,12 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     }
   }
 
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    console.log("ResourceDetailSection componentWillUpdate():");
+    console.log("     - ", diff(this.props, nextProps));
+    console.log("     - ", diff(this.state, nextState));
+  }
+
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
     if (Object.keys(diff(this.state, nextState)).length > 0) {
       return true;
@@ -118,6 +125,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
     //If the props diff is only functions, then we shouldn't update!
     const propsDiff: any = diff(this.props, nextProps);
+    delete propsDiff['renderCounter'];
     const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
       if (acc === false) {
         return acc;
@@ -536,6 +544,8 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   render() {   
+    console.log(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
+
     return (
       <View style={{
         flexDirection: 'column',
@@ -629,4 +639,4 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ResourceDetailSection);
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(ResourceDetailSection);

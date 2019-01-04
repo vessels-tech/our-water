@@ -6,6 +6,7 @@ import { width as w, height as h } from 'react-native-dimension';
 import * as supercluster from 'supercluster';
 import CustomMarker from './CustomMarker';
 import { calculateBBox, debounced } from '../../utils';
+import { diff } from "deep-object-diff";
 
 export interface Props {
   clusterBorderColor: string,
@@ -90,6 +91,17 @@ class ClusteredMapView extends React.PureComponent<Props> {
  
   componentDidMount() {
     this.createMarkersOnMap();
+  }
+
+   componentWillUpdate(nextProps: Props, nextState: State, nextContext: any) {
+    console.log("ClusteredMapView componentWillUpdate():");
+    console.log("     - ", diff(this.props, nextProps));
+    console.log("this.state", this.state);
+    // console.log("nextState", nextState);
+
+    //TODO: there is some issue with nextState, which causes the app to hang
+
+    // console.log("     - ", diff(this.state, nextState));
   }
 
   componentWillReceiveProps() {
@@ -217,6 +229,7 @@ class ClusteredMapView extends React.PureComponent<Props> {
   };
 
   render() {
+    console.log(`ClusteredMapView render(). Count: N/A`);
 
     return (
       <MapView

@@ -43,6 +43,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
+import slowlog from 'react-native-slowlog';
 
 
 export interface OwnProps {
@@ -67,6 +68,10 @@ export interface ActionProps {
   loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
 }
 
+export interface DebugProps {
+  renderCounter?: number,
+}
+
 export interface State {
   initialRegion?: MapRegion,
   mapHeight: MapHeightOption,
@@ -78,7 +83,7 @@ export interface State {
   loadingSearchResult: boolean,
 }
 
-class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
+class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   mapRef?: MapView;
   state: State = {
     mapHeight: MapHeightOption.default,
@@ -97,8 +102,10 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   appApi: BaseApi;
 
-  constructor(props: OwnProps & StateProps & ActionProps) {
+  constructor(props: OwnProps & StateProps & ActionProps & DebugProps) {
     super(props);
+    //I don't think we really want this
+    // slowlog(this, /.*/);
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
@@ -109,6 +116,12 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
+  
+  // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
+  //   console.log("HomeMapScreen componentWillUpdate():");
+  //   console.log("     - ", diff(this.props, nextProps));
+  //   console.log("     - ", diff(this.state, nextState));
+  // }
 
   componentWillMount() {
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBackPressed);
@@ -356,7 +369,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getResourceView() {
     const { hasSelectedResource, selectedResource } = this.state;
-    const { userId } = this.props;
     const { 
       resource_detail_new, 
       resource_detail_edit_resource,
@@ -413,6 +425,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     const { initialRegion, mapState } = this.state;
     const { userIdMeta: { loading } } = this.props;
+    console.log(`HomeMapScreen render(). Count: ${this.props.renderCounter}`);
 
     if (loading) {
       return (
@@ -509,4 +522,4 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeMapScreen);
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(HomeMapScreen);

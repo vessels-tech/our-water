@@ -42,6 +42,7 @@ export interface Props {
   recentResourcesMeta: SyncMeta,
   recentResources: AnyResource[],
   translation: TranslationFile,
+  renderCounter?: number,
 }
 
 export interface State {
@@ -303,6 +304,8 @@ class FavouriteResourceList extends Component<Props> {
     let favouriteResources = this.props.favouriteResources;
     const { filterResourceType } = this.props;
 
+    console.log(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
+
     if (filterResourceType) {
       favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
     }
@@ -341,4 +344,4 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FavouriteResourceList);
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(FavouriteResourceList);

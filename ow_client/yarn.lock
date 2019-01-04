@@ -6713,6 +6713,10 @@ react-native-safe-area-view@^0.7.0:
     prop-types "^15.6.0"
     react-timer-mixin "^0.13.3"
 
+react-native-slowlog@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-slowlog/-/react-native-slowlog-1.0.2.tgz#5520979e3ef9d5273495d431ff3be34f02e35c89"
+
 react-native-splash-screen@3.0.6:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/react-native-splash-screen/-/react-native-splash-screen-3.0.6.tgz#c0bbf2c8ae40a313c4c7044f55e569414ff68332"

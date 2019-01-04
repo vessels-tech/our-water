@@ -36,6 +36,9 @@ export interface ActionProps {
 
 }
 
+export interface DebugProps {
+  renderCounter?: number,
+}
 
 export interface State {
   hasSelectedResource: boolean,
@@ -63,11 +66,11 @@ export interface OwnProps {
   onCalloutPressed: (r: AnyResource | PendingResource) => void,
 }
 
-class MapSection extends Component<OwnProps & StateProps & ActionProps> {
+class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   state: State;
   mapRef?: any;
 
-  constructor(props: OwnProps & StateProps & ActionProps) {
+  constructor(props: OwnProps & StateProps & ActionProps & DebugProps) {
     super(props);
 
     this.state = {
@@ -76,6 +79,12 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
       mapState: MapStateOption.default,
     }
   }
+
+  // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
+  //   console.log("MapSection componentWillUpdate():");
+  //   console.log("     - ", diff(this.props, nextProps));
+  //   console.log("     - ", diff(this.state, nextState));
+  // }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     if (nextProps.hasSelectedResource !== this.state.hasSelectedResource) {
@@ -96,6 +105,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
+    console.log("MapSection, shouldComponentUpdate()");
     if (Object.keys(diff(this.state, nextState)).length > 0) {
       return true;
     }
@@ -103,6 +113,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
     // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
     //If the props diff is only functions, then we shouldn't update!
     const propsDiff: any = diff(this.props, nextProps);
+    delete propsDiff['renderCounter'];
     const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
       if (acc === false) {
         return acc;
@@ -306,6 +317,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
+    console.log(`MapSection render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View style={{
@@ -391,6 +403,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MapSection);
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(MapSection);
 
 

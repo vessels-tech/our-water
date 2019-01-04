@@ -50,6 +50,7 @@
     "react-native-phone-input": "^0.2.1",
     "react-native-qrcode-scanner": "^1.1.0",
     "react-native-scrollable-tab-view": "git://github.com/vessels-tech/react-native-scrollable-tab-view#100741b7e26abcc0e9dd1844789148513418c817",
+    "react-native-slowlog": "^1.0.2",
     "react-native-splash-screen": "3.0.6",
     "react-native-svg": "^6.5.2",
     "react-native-svg-charts": "^5.2.0",
