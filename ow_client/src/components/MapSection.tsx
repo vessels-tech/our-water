@@ -5,7 +5,7 @@ import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark, primaryLight } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -69,6 +69,7 @@ export interface OwnProps {
 class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   state: State;
   mapRef?: any;
+  debouncedOnRegionChangeComplete: any;
 
   constructor(props: OwnProps & StateProps & ActionProps & DebugProps) {
     super(props);
@@ -78,6 +79,9 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
       mapHeight: MapHeightOption.default,
       mapState: MapStateOption.default,
     }
+
+    this.debouncedOnRegionChangeComplete = debounced(1000, this.props.onMapRegionChange);
+
   }
 
   // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
@@ -325,8 +329,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
         flex: mapState === MapStateOption.small ? 0.75 : 2.2,
         maxHeight: mapHeight
       }}>
-        <ClusteredMapView
-          mapRef={(ref: any) => {
+        <MapView
+          ref={(ref: any) => {
             this.props.mapRef(ref);
           }}
           style={{
@@ -334,14 +338,18 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
             width: '100%',
             height: mapHeight,
           }}
-          radius={25}
-          clustering={false}
-          clusterColor={primaryDark}
-          clusterTextColor={primaryText}
-          clusterBorderColor={primaryText}
-          onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
+          // radius={25}
+          // clustering={false}
+          // clusterColor={primaryDark}
+          // clusterTextColor={primaryText}
+          // clusterBorderColor={primaryText}
+          // onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
+          showsMyLocationButton={false}
+          showsPointsOfInterest={false}
+          showsUserLocation={true}
           initialRegion={initialRegion}
-          onRegionChangeComplete={(region: Region) => this.props.onMapRegionChange(region)}
+          // onRegionChangeComplete={(region: Region) => this.props.onMapRegionChange(region)}
+          onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
         >
           {/* TODO: Hide and show different groups at different levels */}
           {/* Pincode */}
@@ -374,7 +382,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               {/* {this.getCalloutForResource(resource)} */}
             </Marker>
           })}
-        </ClusteredMapView>
+        </MapView>
         <View style={{
           position: 'absolute',
           width: '100%',
