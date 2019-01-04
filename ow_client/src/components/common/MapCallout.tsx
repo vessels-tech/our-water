@@ -34,7 +34,7 @@ export default class MapCallout extends React.PureComponent<Props, State> {
     return (
       <Callout
         onPress={() => onCalloutPressed(resource)}
-        tooltip
+        tooltip={true}
       >
         <View style={{
           flex: 1,
@@ -51,8 +51,8 @@ export default class MapCallout extends React.PureComponent<Props, State> {
               alignSelf: 'center',
               marginRight: 10,
             }}
-            rounded
-            small
+            rounded={true}
+            small={true}
             title={avatarText}
             activeOpacity={0.7}
           />

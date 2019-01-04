@@ -224,7 +224,7 @@ class ClusteredMapView extends React.PureComponent<Props> {
         ref={(ref) => { this.props.mapRef(ref)}}
         showsMyLocationButton={false}
         showsPointsOfInterest={false}
-        showsUserLocation
+        showsUserLocation={true}
         initialRegion={this.state.currentRegion}
         onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
       >

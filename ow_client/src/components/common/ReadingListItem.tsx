@@ -32,7 +32,7 @@ export default function ReadingListItem(props: Props) {
       containerStyle={{
         paddingLeft: 6,
       }}
-      roundAvatar
+      roundAvatar={true}
       rightIcon={
         <TouchableNativeFeedback
           onPress={() => props.deletePendingReading(props.pendingReading.id)}

@@ -36,8 +36,8 @@ export default class IconButton extends Component<Props> {
         height: 45,
       }}>
         <Icon
-          reverse
-          raised
+          reverse={true}
+          raised={true}
           size={20}
           name={this.props.name}
           onPress={() => this.props.onPress()}

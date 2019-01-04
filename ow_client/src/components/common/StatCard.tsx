@@ -37,7 +37,9 @@ class StatCard extends Component<Props> {
         >
           {this.props.title}
         </Text>
-        <Text h3 style={{
+        <Text 
+          h3={true} 
+          style={{
           flex: 3,
           textAlign: 'center',
           color: highlightColor,
