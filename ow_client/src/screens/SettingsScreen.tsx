@@ -56,12 +56,100 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.externalApi = this.props.config.getExternalServiceApi();
 
     /* binds */
+    this.showConnectToServiceScreen = this.showConnectToServiceScreen.bind(this);
+    this.showSignInScreen = this.showSignInScreen.bind(this);
+    this.showSyncScreen = this.showSyncScreen.bind(this);
+    this.showPendingScreen = this.showPendingScreen.bind(this);
+    this.showSelectLanguageModal = this.showSelectLanguageModal.bind(this);
+    this.showEditResourceScreen = this.showEditResourceScreen.bind(this);
     this.logoutPressed = this.logoutPressed.bind(this);
+  }
+
+
+  showConnectToServiceScreen() {
+    const { settings_connect_to_pending_title } = this.props.translation.templates;
+    const { externalLoginDetails } = this.props;
+    
+    showModal(
+      this.props,
+      'screen.menu.ConnectToServiceScreen',
+      settings_connect_to_pending_title,
+      {
+        config: this.props.config,
+        //TODO: how to get the userId in here???
+        userId: this.props.userId,
+        isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
+      }
+    )
+  }
+
+  showSignInScreen() {
+    const { settings_connect_to_pending_title } = this.props.translation.templates;
+    const { externalLoginDetails } = this.props;
+
+    showModal(
+      this.props,
+      'screen.menu.SignInScreen',
+      settings_connect_to_pending_title,
+      {
+        config: this.props.config,
+        userId: this.props.userId,
+        isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
+      }
+    )
+  }
+
+  showSyncScreen() {
+    const { settings_sync_heading } = this.props.translation.templates;
+
+    showModal(
+      this.props,
+      'screen.menu.SyncScreen',
+      settings_sync_heading,
+      {
+        config: this.props.config,
+        userId: this.props.userId,
+      }
+    )
+  }
+
+  showPendingScreen() {
+    const { settings_pending_heading } = this.props.translation.templates;
+
+    showModal(
+      this.props,
+      'screen.PendingScreen',
+      settings_pending_heading,
+      {
+        config: this.props.config,
+      }
+    )
+  }
+
+  showSelectLanguageModal() {
+    showLighbox(
+      this.props,
+      'modal.SelectLanguageModal',
+      {
+        config: this.props.config,
+        userId: this.props.userId,
+      }
+    );
+  }
+
+  showEditResourceScreen() {
+    const { settings_new_resource } = this.props.translation.templates;
+    showModal(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
+      config: this.props.config,
+      userId: this.props.userId,
+    })
   }
 
   logoutPressed() {
     this.props.disconnectFromExternalService(this.externalApi);
   }
+
+
 
   /**
    * Connect to button is only available for variants which connect to external services
@@ -122,17 +210,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     return (
       <ListItem
         title={title}
-        onPress={() => showModal(
-          this.props, 
-          'screen.menu.ConnectToServiceScreen',
-          settings_connect_to_pending_title,
-          {
-            config: this.props.config,
-            //TODO: how to get the userId in here???
-            userId: this.props.userId,
-            isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
-          }
-        )}
+        onPress={this.showConnectToServiceScreen}
         disabled={loading}
         leftIcon={leftIcon}
         hideChevron={true}
@@ -183,16 +261,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     return (
       <ListItem
         title={title}
-        onPress={() => showModal(
-          this.props,
-          'screen.menu.SignInScreen',
-          settings_connect_to_pending_title,
-          {
-            config: this.props.config,
-            userId: this.props.userId,
-            isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
-          }
-        )}
+        onPress={this.showSignInScreen}
         disabled={loading}
         leftIcon={leftIcon}
         hideChevron={true}
@@ -219,15 +288,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     return (
       <ListItem
         title={settings_sync_heading}
-        onPress={() => showModal(
-          this.props,
-          'screen.menu.SyncScreen',
-          settings_sync_heading,
-          {
-            config: this.props.config,
-            userId: this.props.userId,
-          }
-        )}
+        onPress={this.showSyncScreen}
         disabled={false}
         leftIcon={leftIcon}
         hideChevron={true}
@@ -254,14 +315,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     return (
       <ListItem
         title={settings_pending_heading}
-        onPress={() => showModal(
-          this.props,
-          'screen.PendingScreen',
-          settings_pending_heading,
-          {
-            config: this.props.config,
-          }
-        )}
+        onPress={this.showPendingScreen}
         disabled={false}
         leftIcon={leftIcon}
         hideChevron={true}
@@ -278,14 +332,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     return (
       <ListItem
         title={settings_language}
-        onPress={() => showLighbox(
-          this.props,
-          'modal.SelectLanguageModal',
-          {
-            config: this.props.config,
-            userId: this.props.userId,
-          }
-        )}
+        onPress={this.showSelectLanguageModal}
         leftIcon={{
           name: 'language',
           color: secondaryText,
@@ -317,14 +364,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         {this.getPendingButton()}
         <ListItem
           title={settings_new_resource}
-          onPress={() => {
-            //TODO: dismiss the sidebar
-            showModal(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
-              config: this.props.config,
-              userId: this.props.userId,
-            })
-          }
-          }
+          onPress={this.showEditResourceScreen}
           leftIcon={{
             name: 'create',
             color: secondaryText,
