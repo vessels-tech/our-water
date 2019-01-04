@@ -95,7 +95,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
             backgroundColor: primary,
             alignSelf: 'center',
           }}
-          rounded
+          rounded={true}
           title="GW"
           activeOpacity={0.7}
         />

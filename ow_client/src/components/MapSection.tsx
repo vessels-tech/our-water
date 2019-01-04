@@ -352,7 +352,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           {pendingResources.map((p: PendingResource) => {
             //@ts-ignore
             return <Marker
-              collapsable
+              collapsable={true}
               key={`pending_${p.id}`}
               coordinate={p.coords}
               title={`${p.id}`}

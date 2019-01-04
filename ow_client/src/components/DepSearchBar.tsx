@@ -130,7 +130,7 @@ export default class SearchPanel extends Component<Props> {
         flexDirection: 'column',
       }}>
         <SB
-          lightTheme
+          lightTheme={true}
           containerStyle={{ 
             backgroundColor: 'transparent',
             borderWidth:0,

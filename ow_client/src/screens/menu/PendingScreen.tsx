@@ -193,7 +193,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           paddingLeft: 6,
         }}
         key={i}
-        roundAvatar
+        roundAvatar={true}
         rightIcon={
           <TouchableNativeFeedback
             onPress={() => this.displayDeleteResourceModal(r.id)}

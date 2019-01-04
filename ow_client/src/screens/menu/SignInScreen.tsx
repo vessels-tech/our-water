@@ -365,7 +365,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <Text>{connect_to_login_code(this.state.mobile)}</Text>
         <CodeInput
           ref="codeInputRef2"
-          secureTextEntry
+          secureTextEntry={true}
           codeLength={6}
           activeColor={primaryLight}
           inactiveColor={primaryText}
