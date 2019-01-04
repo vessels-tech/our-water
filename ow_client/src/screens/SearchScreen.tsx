@@ -123,12 +123,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
-  onSearchResultPressed = (r: AnyResource) => {
+  onSearchResultPressed(r: AnyResource){
     this.props.navigator.pop();
     this.props.onSearchResultPressed(r)
   }
 
-  onRecentSearchPressed = (r: string) => {
+  onRecentSearchPressed(r: string){
     this.setState({ searchQuery: r }, () => { this.performSearch() });
   }
 
@@ -171,7 +171,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
                 hideChevron={true}
                 key={i}
-                onPress={this.onSearchResultPressed(r)}
+                onPress={this.onSearchResultPressed.bind(this, r)}
                 roundAvatar={true}
                 title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
@@ -301,7 +301,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   hideChevron={true}
                   key={i}
                   component={TouchableNativeFeedback}
-                  onPress={this.onRecentSearchPressed(r)}
+                  onPress={this.onRecentSearchPressed.bind(this, r)}
                   roundAvatar={true}
                   title={r}
                 />

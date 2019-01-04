@@ -396,6 +396,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
         }}
         title={ts.name}
       />
+    );
   }
 
   getReadingsView() {
