@@ -11,15 +11,13 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId, navigateTo, getShortIdOrFallback } from '../utils';
+import { View } from 'react-native';
+import { navigateTo, getShortIdOrFallback } from '../utils';
 import { ResourceType } from '../enums';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState, CacheType } from '../reducers';
-import { UserType } from '../typings/UserTypes';
 import { connect } from 'react-redux'
 import { AnyResource } from '../typings/models/Resource';
-
 
 
 export interface OwnProps {

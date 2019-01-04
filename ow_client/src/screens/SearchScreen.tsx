@@ -16,7 +16,7 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import { getGroundwaterAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
-import { ActionMeta, SearchResultsMeta } from '../typings/Reducer';
+import { SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
 import { TranslationFile } from 'ow_translations';

@@ -135,13 +135,12 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         )}
         disabled={loading}
         leftIcon={leftIcon}
-        hideChevron
+        hideChevron={true}
         subtitle={subtitle}
         subtitleStyle={{
           color: error1,
         }}
-      >
-      </ListItem>
+      />
     );
   }
 
@@ -196,7 +195,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         )}
         disabled={loading}
         leftIcon={leftIcon}
-        hideChevron
+        hideChevron={true}
         subtitle={subtitle}
         subtitleStyle={{
           color: error1,
@@ -231,7 +230,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         )}
         disabled={false}
         leftIcon={leftIcon}
-        hideChevron
+        hideChevron={true}
         // subtitle={''}
         subtitleStyle={{
           color: error1,
@@ -265,7 +264,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         )}
         disabled={false}
         leftIcon={leftIcon}
-        hideChevron
+        hideChevron={true}
         // subtitle={''}
         subtitleStyle={{
           color: error1,
@@ -291,7 +290,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           name: 'language',
           color: secondaryText,
         }}
-        hideChevron
+        hideChevron={true}
       />
     );
   }
@@ -330,7 +329,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
             name: 'create',
             color: secondaryText,
           }}
-          hideChevron
+          hideChevron={true}
         />
         {this.getLanguageButton()}
       </KeyboardAvoidingView>
