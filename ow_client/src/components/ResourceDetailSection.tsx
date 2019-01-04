@@ -15,7 +15,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest,
+  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest, maybeLog,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -90,7 +90,7 @@ export interface State {
   hackViewPager: number,
 }
 
-class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
+class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {
     hackViewPager: 1,
@@ -108,8 +108,29 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (prevProps.resourceId !== this.props.resourceId) {
       this.reloadResourceAndReadings();
     }
+  }
 
-    // const propsDiff = diff(originalObj, updatedObj)
+  shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
+    if (Object.keys(diff(this.state, nextState)).length > 0) {
+      return true;
+    }
+
+    // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
+    //If the props diff is only functions, then we shouldn't update!
+    const propsDiff: any = diff(this.props, nextProps);
+    const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
+      if (acc === false) {
+        return acc;
+      }
+      return typeof propsDiff[curr] === 'function';
+    }, true);
+
+    if (functionsOnly) {
+      maybeLog('ResourceDetailSection shouldComponentUpdate skipping render');
+      return !functionsOnly;
+    }
+
+    return true;
   }
 
   async reloadResourceAndReadings() {
@@ -189,17 +210,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     return (
       <View style={{
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: primaryLight,
-      }}>
+          flex: 1,
+          flexDirection: 'row',
+          backgroundColor: primaryLight,
+        }}>
         <Avatar
           containerStyle={{
             marginLeft: 15,
             backgroundColor: primary,
             alignSelf: 'center',
           }}
-          rounded
+          rounded={true}
           title="GW"
           activeOpacity={0.7}
         />
@@ -373,9 +394,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           height: '90%',
           alignItems: 'center',
         }}
-        title={ts.name}>
-      </Card>
-    )
+        title={ts.name}
+      />
   }
 
   getReadingsView() {
@@ -495,6 +515,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           height: '100%',
         }}
         name={iconName}
+        // HERE
         onPress={() => this.toggleFavourites()}
         color={secondary}
         isLoading={favouriteResourcesMeta.loading}

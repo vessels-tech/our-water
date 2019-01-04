@@ -89,6 +89,8 @@ const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRea
 class SimpleChart extends React.PureComponent<Props> {
 
   render() {
+    console.log("SimpleChart render()");
+
     const { readings } = this.props;
     
     const contentInset = { top: 5, bottom: 20, left: 20, right: 20 };

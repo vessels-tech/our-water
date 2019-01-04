@@ -1,5 +1,6 @@
 {
   "extends": [
+    "tslint-react"
   ],
   "rules": {
 
@@ -9,26 +10,13 @@
     "comment-format": [
       false
     ],
-    // "quotemark": [
-    //   true,
-    //   "single",
-    //   "double",
-    //   "jsx-single",
-    //   "avoid-escape"
-    // ],
+
     "member-access": [
       false
     ],
     "member-ordering": [
       false
     ],
-    // "trailing-comma": [
-    //   true,
-    //   {
-    //     "singleline": "never",
-    //     "multiline": "never"
-    //   }
-    // ],
     "no-empty": false,
     "no-submodule-imports": false,
     "no-implicit-dependencies": false,
@@ -45,11 +33,9 @@
       }
     ],
     "no-duplicate-imports": false,
-    "jsx-alignment": true,
+    "jsx-alignment": false,
     "jsx-no-bind": true,
     "jsx-no-lambda": true,
-    "max-classes-per-file": [
-      false
-    ]
+    "jsx-no-multiline-js": false
   }
 }
