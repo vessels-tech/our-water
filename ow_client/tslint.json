@@ -14,7 +14,7 @@
       false
     ],
     "member-ordering": [
-      true
+      false
     ],
     "no-empty": false,
     "no-submodule-imports": false,
@@ -36,6 +36,10 @@
     "jsx-no-bind": true,
     "jsx-no-lambda": true,
     "jsx-no-multiline-js": false,
-    "jsx-no-string-ref": false
+    "jsx-no-string-ref": false,
+    "object-literal-sort-keys": [
+      true,
+      "match-declaration-order"
+    ]  
   }
 }

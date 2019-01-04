@@ -3,8 +3,8 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
-import { randomPrettyColorForId, maybeLog, navigateTo, getShortIdOrFallback } from '../utils';
+import { View, ToastAndroid } from 'react-native';
+import { maybeLog, navigateTo, getShortIdOrFallback } from '../utils';
 import { bgLight } from '../utils/Colors';
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
@@ -18,16 +18,13 @@ import { isNullOrUndefined } from 'util';
 import MapSection, { MapRegion } from '../components/MapSection';
 import { MapStateOption } from '../enums';
 import * as appActions from '../actions/index';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Region } from 'react-native-maps';
 import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
 import { ResultType, SomeResult } from '../typings/AppProviderTypes';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { PendingResource } from '../typings/models/PendingResource';
-import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
-
-
 
 export interface OwnProps {
   navigator: any;
@@ -82,6 +79,15 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
+
+    //binds
+    this.getMapRef = this.getMapRef.bind(this);
+    this.onMapRegionChange = this.onMapRegionChange.bind(this);
+    this.selectResource = this.selectResource.bind(this);
+    this.clearSelectedResource = this.clearSelectedResource.bind(this);
+    this.updateGeoLocation = this.updateGeoLocation.bind(this);
+    this.onCalloutPressed = this.onCalloutPressed.bind(this);
+    this.onMapStateChanged = this.onMapStateChanged.bind(this);
   }
 
   getPassiveLoadingIndicator() {
@@ -108,6 +114,10 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
   }
 
+  getMapRef(ref: any) {
+    this.mapRef = ref;
+  }
+
   selectResource(resource: AnyResource | PendingResource ) {
     this.setState({
       hasSelectedResource: true,
@@ -129,6 +139,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       maybeLog("tried to animate map, but map is null");
     }
   }
+
   clearSelectedResource() {
     this.setState({
       hasSelectedResource: false,
@@ -143,6 +154,10 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       config: this.props.config,
       userId: this.props.userId
     });
+  }
+
+  onMapStateChanged(m: MapStateOption) {
+    this.setState({ mapState: m })
   }
 
   render() {
@@ -176,22 +191,22 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
-            mapRef={(ref: any) => { this.mapRef = ref }}
+            mapRef={this.getMapRef}
             initialRegion={initialRegion}
             resources={this.props.resources}
             pendingResources={this.props.pendingResources}
-            onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
-            onResourceSelected={(r: AnyResource | PendingResource) => this.selectResource(r)}
-            onResourceDeselected={() => this.clearSelectedResource()}
-            onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
-            onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
+            onMapRegionChange={this.onMapRegionChange}
+            onResourceSelected={this.selectResource}
+            onResourceDeselected={this.clearSelectedResource}
+            onGetUserLocation={this.updateGeoLocation}
+            onMapStateChanged={this.onMapStateChanged}
             // Will never have a selected resource?
             hasSelectedResource={false}
             shouldShrinkForSelectedResource={false}
             shouldShowCallout={true}
             // shouldShowCallout={false}
             shouldDisplayFullSceenButton={false}
-            onCalloutPressed={(r: AnyResource | PendingResource) => this.onCalloutPressed(r)}
+            onCalloutPressed={this.onCalloutPressed}
           />}
       </View>
     )
