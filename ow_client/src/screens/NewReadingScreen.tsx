@@ -299,7 +299,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
         { readingImage.type === ReadingImageType.NONE ? 
           <Button
             title="Add an Image"
-            raised
+            raised={true}
             icon={{ name: 'camera' }}
             buttonStyle={{
               backgroundColor: primary,
@@ -444,7 +444,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <Button
         title={new_reading_save_button}
-        raised
+        raised={true}
         textStyle={{
           color: secondaryText
         }}

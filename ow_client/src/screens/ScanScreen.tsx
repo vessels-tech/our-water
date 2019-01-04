@@ -15,7 +15,6 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { ResourceScanResult } from '../typings/models/OurWater';
 import { validateScanResult } from '../api/ValidationApi';
 import * as EnvironmentConfig from '../utils/EnvConfig';
-import { parse } from 'url';
 import { compose } from 'redux';
 import { withTabWrapper } from '../components/TabWrapper';
 import { TranslationFile } from 'ow_translations/src/Types';
@@ -154,9 +153,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
           showMarker={true}
           reactivateTimeout={1000 * 10}
           onRead={this.onScan}
-          topContent={
-            <Text style={{ fontWeight: '800', fontSize: 20 }}>{scan_hint}</Text>
-          }
+          topContent={<Text style={{ fontWeight: '800', fontSize: 20 }}>{scan_hint}</Text>}
           bottomContent={
             null
           }

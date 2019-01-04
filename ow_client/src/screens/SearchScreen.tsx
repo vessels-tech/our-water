@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions';
-import { TranslationFile } from 'ow_translations';
+import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 
@@ -71,8 +71,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <SearchBar
-        lightTheme
-        noIcon
+        lightTheme={true}
+        noIcon={true}
         onChangeText={(searchQuery) => this.setState({ searchQuery, hasSearched: false })}
         onEndEditing={() => this.performSearch(1)}
         value={this.state.searchQuery}
@@ -148,17 +148,16 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 containerStyle={{
                   paddingLeft: 10,
                 }}
-                hideChevron
+                hideChevron={true}
                 key={i}
                 onPress={() => {
                   this.props.navigator.pop();
                   this.props.onSearchResultPressed(r)
                 }}
-                roundAvatar
+                roundAvatar={true}
                 title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
-                >
-              </ListItem>
+              />
             );
           })  
         }
@@ -283,13 +282,13 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                     paddingLeft: 0,
                     marginLeft: 0,
                   }}
-                  hideChevron
+                  hideChevron={true}
                   key={i}
                   component={TouchableNativeFeedback}
                   onPress={() => {
                     this.setState({searchQuery: r}, () => {this.performSearch()});
                   }}
-                  roundAvatar
+                  roundAvatar={true}
                   title={r}
                 />
               );
