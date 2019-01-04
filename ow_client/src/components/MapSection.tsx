@@ -132,18 +132,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
    * scroll to the top of the view, and display the resource details
    * 
    */
-  focusResource(coordinate: BasicCoords) {
-    const resource = getSelectedResourceFromCoords(this.props.resources, coordinate);
-    if (isNullOrUndefined(resource)) {
-      console.warn("tried to call focusResource, but resource was null");
-      return;
-    }
+  focusResource(resource: AnyResource | PendingResource) {
 
-    this.selectResource(resource);
-  }
-
-  focusPendingResource(coordinate: BasicCoords) {
-    const resource = getSelectedPendingResourceFromCoords(this.props.pendingResources, coordinate);
+    //We shouldn't use the coords here - 
+    // const resource = getSelectedResourceFromCoords(this.props.resources, coordinate);
+    // const resource = this.props.resources.filter(r => r.id === resourceId).shift();
     if (isNullOrUndefined(resource)) {
       console.warn("tried to call focusResource, but resource was null");
       return;
@@ -343,42 +336,28 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps> {
           {/* Villages */}
           {resources.map((resource: AnyResource) => {
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
+            //@ts-ignore
             return <Marker
-              //@ts-ignore
               collapsable={true}
               key={`any_${resource.id}`}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
               pinColor={secondary}
-
-              // description={resource.resourceType}
-              
-              //This is making massive images on some devices
-              // image={imageForResourceType(resource.resourceType)}
-              onPress={(e: any) => this.focusResource(e.nativeEvent.coordinate)}
-              //Temporary
-              // onCalloutPress={() => {
-              //   this.props.onCalloutPressed(resource)}
-              // }
+              onPress={(e: any) => this.focusResource(resource)}
             >
               {this.getCalloutForResource(resource)}
             </Marker>
           }
           )}
           {pendingResources.map((p: PendingResource) => {
+            //@ts-ignore
             return <Marker
-              //@ts-ignore
-              collapsable={true}
+              collapsable
               key={`pending_${p.id}`}
               coordinate={p.coords}
               title={`${p.id}`}
               pinColor={'navy'}
-              // description={resource.resourceType}
-
-              //This is making massive images on some devices
-              // image={imageForResourceType(resource.resourceType)}
-              // TODO: make this work for pending resource
-              onPress={(e: any) => this.focusPendingResource(e.nativeEvent.coordinate)}
+              onPress={(e: any) => this.focusResource(p)}
             >
               {/* {this.getCalloutForResource(resource)} */}
             </Marker>
