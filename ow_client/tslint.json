@@ -3,7 +3,6 @@
     "tslint-react"
   ],
   "rules": {
-
     "ordered-imports": [
       false
     ],
@@ -15,7 +14,7 @@
       false
     ],
     "member-ordering": [
-      false
+      true
     ],
     "no-empty": false,
     "no-submodule-imports": false,

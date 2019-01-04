@@ -53,15 +53,15 @@ import { secondaryText } from '../utils/NewColors';
 
 
 export interface OwnProps {
-  resourceId: string,
-  //This is a hack to fix the issues with ids in GGMN
-  temporaryGroundwaterStationId: string | null,
   config: ConfigFactory,
   hideTopBar: boolean,
-  onAddReadingPressed: (resourceId: string) => any,
-  onEditReadingsPressed: (resourceId: string) => any,
-  onEditResourcePressed: (pendingResource: PendingResource) => any,
   isPending: boolean,
+  onAddReadingPressed: (resourceId: string) => any,
+  onEditReadingsPressed?: (resourceId: string) => any,
+  temporaryGroundwaterStationId: string | null,
+  onEditResourcePressed?: (pendingResource: PendingResource) => any,
+  resourceId: string,
+  //This is a hack to fix the issues with ids in GGMN
 }
 
 export interface StateProps {

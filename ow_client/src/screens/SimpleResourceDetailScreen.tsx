@@ -53,12 +53,26 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
     this.appApi = props.config.getAppApi();
 
     this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+
+    //Binds
+    this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
   }
 
   componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State, snapshot: any) {
     if (this.props.resourceId !== prevProps.resourceId) {
       this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
     }
+  }
+
+  onAddReadingPressed(resourceId: string) { 
+    const { resource_detail_new } = this.props.translation.templates;
+
+    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+      resourceId,
+      resourceType: 'well',
+      config: this.props.config,
+      userId: this.props.userId
+    });
   }
 
   getResourceDetailSection() {
@@ -80,18 +94,12 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
 
     return (
       <ResourceDetailSection
-        hideTopBar={true}
         config={this.props.config}
+        hideTopBar={true}
+        isPending={false}
+        onAddReadingPressed={this.onAddReadingPressed}
         resourceId={resource.id}
-        onEditReadingsPressed={() => console.log("TODO: onEditReadingsPressed")}
-        onAddReadingPressed={(resourceId: string) => {
-          navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-            resourceId,
-            resourceType: 'well',
-            config: this.props.config,
-            userId: this.props.userId
-          });
-        }}
+        temporaryGroundwaterStationId={null}
       />
     );
   }
