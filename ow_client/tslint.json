@@ -36,6 +36,7 @@
     "jsx-alignment": false,
     "jsx-no-bind": true,
     "jsx-no-lambda": true,
-    "jsx-no-multiline-js": false
+    "jsx-no-multiline-js": false,
+    "jsx-no-string-ref": false
   }
 }

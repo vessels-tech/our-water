@@ -96,16 +96,17 @@ class FavouriteResourceList extends Component<Props> {
     }
 
     if (favouriteResources.length === 0) {
-      const icon = (<Icon
-        style={{
-          flex: 1,
-        }}
-        //@ts-ignore
-        raised
-        size={12}
-        name='star'
-        color='yellow'
-      />);
+      const icon = (
+        <Icon
+          style={{
+            flex: 1,
+          }}
+          //@ts-ignore
+          raised={true}
+          size={12}
+          name='star'
+          color='yellow'
+        />);
     
       //TODO: change this hint to use translations
       return (
@@ -287,7 +288,7 @@ class FavouriteResourceList extends Component<Props> {
           {favourite_resource_heading}:
         </Text>
         {this.getFavouritesSection()}
-        <Text style = {{
+        <Text style={{
           marginLeft: 13,
         }}>
           {recent_resource_heading}:

@@ -106,34 +106,36 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //if no login, just display a message saying 'login to sync'
     if (user.type === UserType.NO_USER) {
-      return <Button
-        style={{
-          paddingBottom: 20,
-          minHeight: 50,
-        }}
-        containerViewStyle={{
-          borderRadius: 15,
-          position: 'relative',
-        }}
-        color={primaryText}
-        backgroundColor={primary}
-        borderRadius={15}
-        icon={{ name: 'cached', color: primaryText }}
-        title={sync_login_message}
-        onPress={() => {
-          //Redirect user to settings view
-          showModal(
-            this.props,
-            'screen.menu.SignInScreen',
-            settings_connect_to_pending_title,
-            {
-              config: this.props.config,
-              userId: this.props.userId,
-              isConnected: false, //This is an assumption, we should probably check again...
-            }
-          );
-        }}
-      />
+      return (
+        <Button
+          style={{
+            paddingBottom: 20,
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            borderRadius: 15,
+            position: 'relative',
+          }}
+          color={primaryText}
+          backgroundColor={primary}
+          borderRadius={15}
+          icon={{ name: 'cached', color: primaryText }}
+          title={sync_login_message}
+          onPress={() => {
+            //Redirect user to settings view
+            showModal(
+              this.props,
+              'screen.menu.SignInScreen',
+              settings_connect_to_pending_title,
+              {
+                config: this.props.config,
+                userId: this.props.userId,
+                isConnected: false, //This is an assumption, we should probably check again...
+              }
+            );
+          }}
+        />
+      );
     }
 
     if (userStatus === UserStatus.Rejected) {

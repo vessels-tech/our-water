@@ -14,7 +14,6 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { bgLight } from '../../utils/Colors';
 
 
-
 export interface OwnProps {
   navigator: any,
   config: ConfigFactory,

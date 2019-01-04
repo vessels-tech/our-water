@@ -82,13 +82,10 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   //Bound functions
   groundwaterSyncPressed() {
-    const { externalLoginDetails, externalSyncStatus,
+    const {
       translation: { templates: {
         settings_sync_heading,
-        sync_login_message,
-        sync_start_sync_button,
-        sync_start_sync_button_loading,
-      } }
+      }}
     } = this.props;
 
     // screen.GroundwaterSyncScreen
@@ -122,34 +119,36 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //if no login, just display a message saying 'login to sync'
     if (externalLoginDetails.status !== ConnectionStatus.SIGN_IN_SUCCESS) {
-      return <Button
-        style={{
-          paddingBottom: 20,
-          minHeight: 50,
-        }}
-        containerViewStyle={{
-          borderRadius: 15,
-          position: 'relative',
-        }}
-        color={primaryText}
-        backgroundColor={primary}
-        borderRadius={15}
-        icon={{ name: 'cached', color: primaryText }}
-        title={sync_login_message}
-        onPress={() => {
-          //Redirect user to settings view
-          showModal(
-            this.props,
-            'screen.menu.ConnectToServiceScreen',
-            settings_sync_heading,
-            {
-              config: this.props.config,
-              userId: this.props.userId,
-              isConnected: false, //This is an assumption, we should probably check again...
-            }
-          );
-        }}
-      />
+      return (
+        <Button
+          style={{
+            paddingBottom: 20,
+            minHeight: 50,
+          }}
+          containerViewStyle={{
+            borderRadius: 15,
+            position: 'relative',
+          }}
+          color={primaryText}
+          backgroundColor={primary}
+          borderRadius={15}
+          icon={{ name: 'cached', color: primaryText }}
+          title={sync_login_message}
+          onPress={() => {
+            //Redirect user to settings view
+            showModal(
+              this.props,
+              'screen.menu.ConnectToServiceScreen',
+              settings_sync_heading,
+              {
+                config: this.props.config,
+                userId: this.props.userId,
+                isConnected: false, //This is an assumption, we should probably check again...
+              }
+            );
+          }}
+        />
+      );
     }
 
     const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
@@ -207,7 +206,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
           paddingLeft: 6,
         }}
         key={i}
-        roundAvatar
+        roundAvatar={true}
         rightIcon={
           <TouchableNativeFeedback
             onPress={() => this.displayDeleteResourceModal(r.id)}
