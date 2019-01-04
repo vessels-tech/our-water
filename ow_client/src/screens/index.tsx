@@ -36,6 +36,7 @@ import SignInScreen from './menu/SignInScreen';
 import { RNFirebase } from 'react-native-firebase';
 import { AnonymousUser } from '../typings/api/FirebaseApi';
 import EditReadingsScreen from './EditReadingsScreen';
+// @ts-ignore
 import * as AsyncStorage from 'rn-async-storage';
 import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';

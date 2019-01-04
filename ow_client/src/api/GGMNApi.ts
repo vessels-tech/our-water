@@ -816,13 +816,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
-    this.pendingReadingsSubscription = FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
-  }
-
-  unsubscribeFromPendingReadings() {
-    if (this.pendingReadingsSubscription) {
-      this.pendingReadingsSubscription.unsubscribe();
-    }
+    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
   }
 
   subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void {

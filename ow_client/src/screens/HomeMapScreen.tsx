@@ -141,7 +141,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
       });
 
-      if (!updatedSelectedResource) {
+      if (!this.state.selectedResource.pending && !updatedSelectedResource) {
         this.setState({ selectedResource: null, hasSelectedResource: false });
         return;
       }
@@ -167,8 +167,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
       });
 
-      if (!updatedSelectedResource) {
-        console.log("handleUpdatedPendingResource, no more selectedResource");
+      if (this.state.selectedResource.pending && !updatedSelectedResource) {
         this.setState({selectedResource: null, hasSelectedResource: false});
         return;
       }
