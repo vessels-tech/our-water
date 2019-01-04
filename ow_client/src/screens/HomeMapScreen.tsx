@@ -1,14 +1,8 @@
-/**
- * Main OurWater App
- * 
- */
 import * as React from 'react'; import { Component } from 'react';
 import {
   BackHandler,
   ScrollView,
-  Text,
   View,
-  ProgressBarAndroid,
   ToastAndroid,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
@@ -24,7 +18,7 @@ import {
   MapStateOption,
   MapHeightOption,
 } from '../enums';
-import { bgLight, primaryDark, primary, primaryLight } from '../utils/Colors';
+import { bgLight } from '../utils/Colors';
 import FavouriteResourceList from '../components/FavouriteResourceList';
 import BaseApi from '../api/BaseApi';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -46,7 +40,6 @@ import { SearchButtonPressedEvent } from '../utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import PassiveLoadingIndicator from '../components/common/PassiveLoadingIndicator';
 import { AnyResource } from '../typings/models/Resource';
-import PendingResourceDetailSection from '../components/PendingResourceDetailSection';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
@@ -106,7 +99,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
@@ -176,6 +168,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       });
 
       if (!updatedSelectedResource) {
+        console.log("handleUpdatedPendingResource, no more selectedResource");
         this.setState({selectedResource: null, hasSelectedResource: false});
         return;
       }

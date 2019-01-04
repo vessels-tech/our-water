@@ -235,15 +235,14 @@ class FavouriteResourceList extends Component<Props> {
     return (
       <View
         style={{
-          height: '100%',
-          width: '100%',
+          flex: 1,
           flexDirection: "column",
         }}
       >
         <View style={{
           flex: 1,
-          padding: 30,
-          paddingTop: 50,
+          paddingHorizontal: 30,
+          paddingTop: 20,
         }}>
           <Text style={{ fontWeight: '500', fontSize: 18 }}>{resource_detail_empty_heading}</Text>
           <Text style={{ fontWeight: '200', fontSize: 18, paddingTop: 10, }}>{resource_detail_empty_hint}</Text>

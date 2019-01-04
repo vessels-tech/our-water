@@ -44,7 +44,6 @@ export type AppState = {
   externalLoginDetailsMeta: SyncMeta,
   location: Location | NoLocation,
   locationMeta: SyncMeta,
-  //TODO: cache this locally as well as on firebase
   language: TranslationEnum,
   translation: TranslationFile,
   translations: TranslationFiles,
@@ -56,11 +55,9 @@ export type AppState = {
 
   //Api
   resources: AnyResource[],
-  myResources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
   resourcesCache: CacheType<AnyResource>,
-  // resourcesCache: Map<string, AnyResource>, //A super simple cache implementation
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
@@ -71,8 +68,6 @@ export type AppState = {
 
   shortIdMeta: CacheType<ActionMeta>,
   shortIdCache: CacheType<string>,
-  // shortIdMeta: Map<string, ActionMeta>, //resourceId => ActionMeta, for loading individual shortIds on request
-  // shortIdCache: Map<string, string>, //resourceId => shortId
   unsubscribeFromUser: () => void,
   
   //Firebase
@@ -116,7 +111,6 @@ export const initialState: AppState = {
 
   //Api
   resources: [],
-  myResources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourceMeta: {},
   resourcesCache: {}, 
