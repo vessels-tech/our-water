@@ -1,14 +1,9 @@
 'use strict';
-import * as React from 'react'; import { Component } from 'react';
+import * as React from 'react';
 import {
-  AppRegistry,
-  Dimensions,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  Platform,
-  PermissionsAndroid,
   TouchableNativeFeedback
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
@@ -19,7 +14,6 @@ export interface Props {
   onTakePicture: (dataUri: string) => void,
   onTakePictureError: (message: string) => void,
 }
-
 
 export interface State {
   loading: boolean

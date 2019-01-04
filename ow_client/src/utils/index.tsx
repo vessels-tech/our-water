@@ -322,10 +322,10 @@ export function getGroundwaterAvatar(title?: string) {
         backgroundColor: secondaryLight,
         alignSelf: 'center',
       }}
-      rounded
+      rounded={true}
       // size="large"
-      title = {title || "GW"}
-      activeOpacity = { 0.7}
+      title={title || "GW"}
+      activeOpacity={0.7}
     />
   );
 }
@@ -337,10 +337,9 @@ export function getReadingAvatar() {
         backgroundColor: primaryLight,
         alignSelf: 'center',
       }}
-      rounded
-      // size="large"
-      title = "R"
-      activeOpacity = { 0.7}
+      rounded={true}
+      title="R"
+      activeOpacity={0.7}
     />
   );
 }
