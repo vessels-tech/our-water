@@ -64,6 +64,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       hasSearched: false,
       page: 1,
     };
+
+    //Binds
+    this.loadMore = this.loadMore.bind(this);
+    this.searchFirstPage = this.searchFirstPage.bind(this);
+    this.performSearch = this.performSearch.bind(this);
+    this.onChangeText = this.onChangeText.bind(this);
   }
 
   getSearchBar() {
@@ -73,8 +79,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       <SearchBar
         lightTheme={true}
         noIcon={true}
-        onChangeText={(searchQuery) => this.setState({ searchQuery, hasSearched: false })}
-        onEndEditing={() => this.performSearch(1)}
+        onChangeText={this.onChangeText}
+        onEndEditing={this.searchFirstPage}
         value={this.state.searchQuery}
         placeholder={search_heading} />
     );
@@ -91,7 +97,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return;
     }
 
-
     if (pageOverride) {
       this.setState({page: pageOverride});
     }
@@ -99,9 +104,16 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page);
        
     if (result.type === ResultType.ERROR) {
-      // ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
-      ToastAndroid.showWithGravity(result.message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
     }
+  }
+
+  onChangeText(searchQuery: string) {
+    this.setState({ searchQuery, hasSearched: false });
+  }
+
+  searchFirstPage() { 
+    this.performSearch(1);
   }
 
   loadMore() {
@@ -109,6 +121,15 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.setState({page: page + 1}, 
       () => this.performSearch()
     );
+  }
+
+  onSearchResultPressed = (r: AnyResource) => {
+    this.props.navigator.pop();
+    this.props.onSearchResultPressed(r)
+  }
+
+  onRecentSearchPressed = (r: string) => {
+    this.setState({ searchQuery: r }, () => { this.performSearch() });
   }
 
   /**
@@ -150,10 +171,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
                 hideChevron={true}
                 key={i}
-                onPress={() => {
-                  this.props.navigator.pop();
-                  this.props.onSearchResultPressed(r)
-                }}
+                onPress={this.onSearchResultPressed(r)}
                 roundAvatar={true}
                 title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
@@ -168,11 +186,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
             containerStyle={{
               paddingLeft: 10,
             }}
-            hideChevron
+            hideChevron={true}
             key={'load_more'}
-            onPress={() => {
-              this.loadMore()
-            }}
+            onPress={this.loadMore}
             title={loading? '' : search_more}
             avatar={loading ? <Loading/> : undefined}
           /> : null
@@ -285,9 +301,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                   hideChevron={true}
                   key={i}
                   component={TouchableNativeFeedback}
-                  onPress={() => {
-                    this.setState({searchQuery: r}, () => {this.performSearch()});
-                  }}
+                  onPress={this.onRecentSearchPressed(r)}
                   roundAvatar={true}
                   title={r}
                 />
