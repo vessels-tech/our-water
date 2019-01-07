@@ -328,18 +328,12 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
             width: '100%',
             height: mapHeight,
           }}
-          // radius={25}
-          // clustering={false}
-          // clusterColor={primaryDark}
-          // clusterTextColor={primaryText}
-          // clusterBorderColor={primaryText}
-          // onClusterPress={(e: any) => this.onClusterPressed(e.nativeEvent)}
           showsMyLocationButton={false}
           showsPointsOfInterest={false}
           showsUserLocation={true}
           initialRegion={initialRegion}
-          // onRegionChangeComplete={(region: Region) => this.props.onMapRegionChange(region)}
           onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
+          // onMarkerPress={(marker: any) => console.log("On marker press", marker)}
         >
           {/* TODO: Hide and show different groups at different levels */}
           {/* Pincode */}
