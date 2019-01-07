@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 import FirebaseApi from '../api/FirebaseApi';
-import { randomPrettyColorForId, getShortId } from '../utils';
+import { randomPrettyColorForId, getShortId, maybeLog } from '../utils';
 
 import Config from 'react-native-config'
 import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
@@ -304,7 +304,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
     let favouriteResources = this.props.favouriteResources;
     const { filterResourceType } = this.props;
 
-    console.log(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
+    maybeLog(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
 
     if (filterResourceType) {
       favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)

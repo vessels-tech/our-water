@@ -112,9 +112,9 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
-    console.log("ResourceDetailSection componentWillUpdate():");
-    console.log("     - ", diff(this.props, nextProps));
-    console.log("     - ", diff(this.state, nextState));
+    maybeLog("ResourceDetailSection componentWillUpdate():");
+    maybeLog("     - ", diff(this.props, nextProps));
+    maybeLog("     - ", diff(this.state, nextState));
   }
 
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
@@ -544,7 +544,7 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
   }
 
   render() {   
-    console.log(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
+    maybeLog(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View style={{

@@ -163,7 +163,6 @@ export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: 
   }
 
   if (filtered.length > 1) {
-    console.log("Found more than 1 resource for coords. returning just the first");
     maybeLog("Found more than 1 resource for coords. returning just the first");
   }
 

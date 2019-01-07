@@ -93,17 +93,6 @@ class ClusteredMapView extends React.PureComponent<Props> {
     this.createMarkersOnMap();
   }
 
-   componentWillUpdate(nextProps: Props, nextState: State, nextContext: any) {
-    console.log("ClusteredMapView componentWillUpdate():");
-    console.log("     - ", diff(this.props, nextProps));
-    console.log("this.state", this.state);
-    // console.log("nextState", nextState);
-
-    //TODO: there is some issue with nextState, which causes the app to hang
-
-    // console.log("     - ", diff(this.state, nextState));
-  }
-
   componentWillReceiveProps() {
     this.createMarkersOnMap();
   }
@@ -229,8 +218,6 @@ class ClusteredMapView extends React.PureComponent<Props> {
   };
 
   render() {
-    console.log(`ClusteredMapView render(). Count: N/A`);
-
     return (
       <MapView
         {...this.removeChildrenFromProps(this.props)}

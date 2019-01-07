@@ -81,12 +81,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   }
 
-  // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
-  //   console.log("MapSection componentWillUpdate():");
-  //   console.log("     - ", diff(this.props, nextProps));
-  //   console.log("     - ", diff(this.state, nextState));
-  // }
-
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     if (nextProps.hasSelectedResource !== this.state.hasSelectedResource) {
       let mapHeight = MapHeightOption.default
@@ -106,7 +100,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   }
 
   shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
-    console.log("MapSection, shouldComponentUpdate()");
+    maybeLog("MapSection, shouldComponentUpdate()");
     if (Object.keys(diff(this.state, nextState)).length > 0) {
       return true;
     }
@@ -207,7 +201,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   }
 
   clearSelectedResource() {
-    console.log("MapSection clearSelectedResource()");
+    maybeLog("MapSection clearSelectedResource()");
     this.setState({
       mapState: MapStateOption.default,
       mapHeight: MapHeightOption.default,
@@ -317,7 +311,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   render() {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
-    console.log(`MapSection render(). Count: ${this.props.renderCounter}`);
+    maybeLog(`MapSection render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View style={{
