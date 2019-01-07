@@ -43,7 +43,7 @@ export interface State {
   hasSelectedResource: boolean,
   mapHeight: MapHeightOption
   mapState: MapStateOption,
-  selectedMapMarkerRef?: Marker,
+  // selectedMapMarkerRef?: Marker,
 }
 
 export interface OwnProps {
@@ -69,6 +69,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   mapRef?: any;
   debouncedOnRegionChangeComplete: any;
   markers: CacheType<Marker> = {};
+  selectedMapMarkerRef?: Marker;
 
   constructor(props: OwnProps & StateProps & ActionProps & DebugProps) {
     super(props);
@@ -152,16 +153,16 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
     this.selectResource(resource);
   }
 
-  //TODO: fix infinite loop here
+  //TODO: fix infinite loop here?
   selectResource(resource: AnyResource | PendingResource) {
-    const selectedMapMarkerRef = this.markers[getMarkerKey(resource)] || null;
+    console.log("SelectResource: ", resource.id);
+    this.selectedMapMarkerRef = this.markers[getMarkerKey(resource)] || null;
     let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
     };
     let newState = {
       hasSelectedResource: true,
-      selectedMapMarkerRef,
     };
 
     if (this.props.shouldShrinkForSelectedResource) {
@@ -181,10 +182,10 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   }
 
   toggleFullscreenMap() {
-    const { mapState, selectedMapMarkerRef} = this.state;
+    const { mapState } = this.state;
 
-    if (selectedMapMarkerRef) {
-      selectedMapMarkerRef.hideCallout();
+    if (this.selectedMapMarkerRef) {
+      this.selectedMapMarkerRef.hideCallout();
     }
 
     let newMapState = MapStateOption.default;
@@ -209,10 +210,10 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   clearSelectedResource() {
     maybeLog("MapSection clearSelectedResource()");
-    const { selectedMapMarkerRef } = this.state;
+    // const { selectedMapMarkerRef } = this.state;
 
-    if (selectedMapMarkerRef) {
-      selectedMapMarkerRef.hideCallout();
+    if (this.selectedMapMarkerRef) {
+      this.selectedMapMarkerRef.hideCallout();
     }
     this.setState({
       mapState: MapStateOption.default,
@@ -351,11 +352,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
             //@ts-ignore
             return <Marker
               ref={(ref: any) => {
-                //TD: don't use this long term, _reactInternalFiber may change
-                if (!ref || !ref._reactInternalFiber) {
-                  return;
+                const key = getMarkerKey(resource);
+                if (!ref) {
+                  delete this.markers[key];
                 }
-                this.markers[ref._reactInternalFiber.key] = ref;
+                this.markers[key] = ref;
               }}
               collapsable={true}
               key={getMarkerKey(resource)}
@@ -374,11 +375,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
             //@ts-ignore
             return <Marker
               ref={(ref: any) => {
-                //TD: don't use this long term, _reactInternalFiber may change
-                if (!ref || !ref._reactInternalFiber) {
-                  return;
+                const key = getMarkerKey(p);
+                if (!ref) {
+                  delete this.markers[key];
                 }
-                this.markers[ref._reactInternalFiber.key] = ref;
+                this.markers[key] = ref;
               }}
               collapsable={true}
               key={getMarkerKey(p)}
