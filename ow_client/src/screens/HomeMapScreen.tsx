@@ -43,8 +43,6 @@ import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
-import slowlog from 'react-native-slowlog';
-
 
 export interface OwnProps {
   navigator: any;
@@ -119,6 +117,9 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     this.updateGeoLocation = this.updateGeoLocation.bind(this);
     this.onMapStateChanged = this.onMapStateChanged.bind(this);
     this.onBannerPressed = this.onBannerPressed.bind(this);
+    this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
+    this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
+    this.onEditResourcePressed = this.onEditResourcePressed.bind(this);
 
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
@@ -343,10 +344,63 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
   }
 
   clearSelectedResource() {
+    console.log("HomeMapScreen clearSelectedResource()");
     this.setState({
       hasSelectedResource: false,
       selectedResource: null,
     });
+  }
+
+  onAddReadingPressed(resourceId: string) {
+    const { hasSelectedResource, selectedResource } = this.state;
+    const {
+      resource_detail_new,
+      resource_detail_edit_resource,
+      resource_detail_edit_readings,
+    } = this.props.translation.templates;
+    if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
+      return null;
+    }
+
+    let groundwaterStationId: string | null = null;
+    if (selectedResource.type === OrgType.GGMN) {
+      groundwaterStationId = selectedResource.groundwaterStationId;
+    }
+
+    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+      resourceId,
+      groundwaterStationId,
+      //TODO: fix
+      resourceType: 'well',
+      config: this.props.config,
+      userId: this.props.userId
+    });
+  }
+
+  onEditReadingsPressed(resourceId: string) {
+    const {
+      resource_detail_edit_readings,
+    } = this.props.translation.templates;
+
+    showModal(this.props, 'screen.EditReadingsScreen', resource_detail_edit_readings, {
+      resourceId,
+      resourceType: 'well',
+      config: this.props.config,
+    })
+  }
+
+  onEditResourcePressed(pendingResource: PendingResource) {
+    const {
+      resource_detail_edit_resource,
+    } = this.props.translation.templates;
+
+    showModal(this.props, 'screen.menu.EditResourceScreen', resource_detail_edit_resource, {
+      resourceId: pendingResource.id,
+      resource: pendingResource,
+      resourceType: 'well',
+      config: this.props.config,
+      userId: this.props.userId,
+    })
   }
 
   getPassiveLoadingIndicator() {
@@ -383,11 +437,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
   getResourceView() {
     const { hasSelectedResource, selectedResource } = this.state;
-    const { 
-      resource_detail_new, 
-      resource_detail_edit_resource,
-      resource_detail_edit_readings, 
-    } = this.props.translation.templates;
 
     if (!hasSelectedResource || isNullOrUndefined(selectedResource)) {
       return null;
@@ -405,33 +454,9 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         config={this.props.config}
         resourceId={selectedResource.id}
         temporaryGroundwaterStationId={groundwaterStationId}
-        //TODO: fix this to handle only resourceId
-        onAddReadingPressed={(resourceId: string) => {
-          navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-            resourceId,
-            groundwaterStationId,
-            //TODO: fix
-            resourceType: 'well',
-            config: this.props.config,
-            userId: this.props.userId
-          });
-        }}
-        onEditReadingsPressed={(resourceId: string) => {
-          showModal(this.props, 'screen.EditReadingsScreen', resource_detail_edit_readings, {
-            resourceId,
-            resourceType: 'well',
-            config: this.props.config,
-          })
-        }}
-        onEditResourcePressed={(pendingResource: PendingResource) => {
-          showModal(this.props, 'screen.menu.EditResourceScreen', resource_detail_edit_resource, {
-            resourceId: pendingResource.id,
-            resource: pendingResource,
-            resourceType: 'well',
-            config: this.props.config ,
-            userId: this.props.userId,
-          })
-        }}
+        onAddReadingPressed={this.onAddReadingPressed}
+        onEditReadingsPressed={this.onEditReadingsPressed}
+        onEditResourcePressed={this.onEditResourcePressed}
       />
     );
   }

@@ -42,7 +42,7 @@ export interface State {
 
 }
  
-class PendingChangesBanner extends Component<OwnProps & StateProps & ActionProps> {
+class PendingChangesBanner extends React.PureComponent<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);

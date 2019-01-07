@@ -54,7 +54,7 @@ export interface State {
  * resources.
  * 
  */
-class FavouriteResourceList extends Component<Props> {
+class FavouriteResourceList extends React.PureComponent<Props> {
   unsubscribe: any;
   state: State;
 

@@ -206,9 +206,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   }
 
-
   clearSelectedResource() {
-
+    console.log("MapSection clearSelectedResource()");
     this.setState({
       mapState: MapStateOption.default,
       mapHeight: MapHeightOption.default,
