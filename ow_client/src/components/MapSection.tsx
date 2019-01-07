@@ -5,7 +5,7 @@ import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark, primaryLight } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced, getMarkerKey } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -43,6 +43,7 @@ export interface State {
   hasSelectedResource: boolean,
   mapHeight: MapHeightOption
   mapState: MapStateOption,
+  selectedMapMarkerRef?: Marker,
 }
 
 export interface OwnProps {
@@ -67,6 +68,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   state: State;
   mapRef?: any;
   debouncedOnRegionChangeComplete: any;
+  markers: CacheType<Marker> = {};
 
   constructor(props: OwnProps & StateProps & ActionProps & DebugProps) {
     super(props);
@@ -153,12 +155,14 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   //TODO: fix infinite loop here
   selectResource(resource: AnyResource | PendingResource) {
+    const selectedMapMarkerRef = this.markers[getMarkerKey(resource)] || null;
     let shrinkState = {
       mapHeight: MapHeightOption.small,
       mapState: MapStateOption.small,
     };
     let newState = {
-      hasSelectedResource: true
+      hasSelectedResource: true,
+      selectedMapMarkerRef,
     };
 
     if (this.props.shouldShrinkForSelectedResource) {
@@ -178,7 +182,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
   }
 
   toggleFullscreenMap() {
-    const { mapState } = this.state;
+    const { mapState, selectedMapMarkerRef} = this.state;
+
+    if (selectedMapMarkerRef) {
+      selectedMapMarkerRef.hideCallout();
+    }
 
     let newMapState = MapStateOption.default;
     let newMapHeight: any = MapHeightOption.default;
@@ -202,11 +210,17 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   clearSelectedResource() {
     maybeLog("MapSection clearSelectedResource()");
+    const { selectedMapMarkerRef } = this.state;
+
+    if (selectedMapMarkerRef) {
+      selectedMapMarkerRef.hideCallout();
+    }
     this.setState({
       mapState: MapStateOption.default,
       mapHeight: MapHeightOption.default,
       hasSelectedResource: false,
       selectedResource: null,
+      selectedMapMarkerRef: null,
     });
 
     this.props.onResourceDeselected();
@@ -285,7 +299,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
       return null;
     }
 
-
     //TD: code smell
     if (resource.type === OrgType.GGMN) {
       //GGMN Resources don't have callouts
@@ -333,21 +346,26 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           showsUserLocation={true}
           initialRegion={initialRegion}
           onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
-          // onMarkerPress={(marker: any) => console.log("On marker press", marker)}
         >
-          {/* TODO: Hide and show different groups at different levels */}
-          {/* Pincode */}
-          {/* Villages */}
           {resources.map((resource: AnyResource) => {
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
             //@ts-ignore
             return <Marker
+              ref={(ref: any) => {
+                //TD: don't use this long term, _reactInternalFiber may change
+                if (!ref || !ref._reactInternalFiber) {
+                  return;
+                }
+                this.markers[ref._reactInternalFiber.key] = ref;
+              }}
               collapsable={true}
-              key={`any_${resource.id}`}
+              key={getMarkerKey(resource)}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
               pinColor={secondary}
-              onPress={(e: any) => this.focusResource(resource)}
+              onPress={(e: any) => {
+                return this.focusResource(resource)
+              }}
             >
               {this.getCalloutForResource(resource)}
             </Marker>
@@ -356,8 +374,15 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           {pendingResources.map((p: PendingResource) => {
             //@ts-ignore
             return <Marker
+              ref={(ref: any) => {
+                //TD: don't use this long term, _reactInternalFiber may change
+                if (!ref || !ref._reactInternalFiber) {
+                  return;
+                }
+                this.markers[ref._reactInternalFiber.key] = ref;
+              }}
               collapsable={true}
-              key={`pending_${p.id}`}
+              key={getMarkerKey(p)}
               coordinate={p.coords}
               title={`${p.id}`}
               pinColor={'navy'}

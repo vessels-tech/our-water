@@ -668,3 +668,11 @@ export function arrayLowest<T>(array: Array<T>, accessor: (item: T) => string | 
     return acc;
   }, array[0]);
 }
+
+export function getMarkerKey(resource: AnyResource | PendingResource) {
+  if (resource.pending) {
+    return `pending_${resource.id}`
+  }
+
+  return `any_${resource.id}`;
+}
