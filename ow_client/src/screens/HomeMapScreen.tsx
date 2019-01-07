@@ -111,7 +111,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     this.appApi = props.config.getAppApi();
 
     //Binds
+    this.setMapRef = this.setMapRef.bind(this);
     this.hardwareBackPressed = this.hardwareBackPressed.bind(this);
+    this.onMapRegionChange = this.onMapRegionChange.bind(this);
+    this.selectResource = this.selectResource.bind(this);
+    this.clearSelectedResource = this.clearSelectedResource.bind(this);
+    this.updateGeoLocation = this.updateGeoLocation.bind(this);
+    this.onMapStateChanged = this.onMapStateChanged.bind(this);
+    this.onBannerPressed = this.onBannerPressed.bind(this);
 
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
@@ -268,7 +275,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       await this.onSearchResultPressed(r);
       this.setState({ loadingSearchResult: false})
     });
+  }
 
+  onMapStateChanged(m: MapStateOption) {
+    this.setState({ mapState: m });
+  }
+
+  setMapRef(ref: any) {
+    this.mapRef = ref;
   }
 
   /**
@@ -362,7 +376,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       <FavouriteResourceList
         config={this.props.config}
         userId={this.props.userId}
-        onResourceCellPressed={(r: AnyResource) => this.selectResource(r)}
+        onResourceCellPressed={this.selectResource}
       />
     );
   }
@@ -414,7 +428,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
             resourceId: pendingResource.id,
             resource: pendingResource,
             resourceType: 'well',
-            config: this.props.config,
+            config: this.props.config ,
             userId: this.props.userId,
           })
         }}
@@ -454,21 +468,18 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
-            mapRef={(ref: any) => { this.mapRef = ref }}
+            mapRef={this.setMapRef}
             initialRegion={initialRegion}
-            resources={this.props.resources}
-            pendingResources={this.props.pendingResources}
-            onMapRegionChange={(l: Region) => this.onMapRegionChange(l)}
-            onResourceSelected={(r: PendingResource | AnyResource) => this.selectResource(r)}
-            onResourceDeselected={() => this.clearSelectedResource()}
-            onGetUserLocation={(l: Location) => this.updateGeoLocation(l)}
-            onMapStateChanged={(m: MapStateOption) => this.setState({ mapState: m })}
+            onMapRegionChange={this.onMapRegionChange}
+            onResourceSelected={this.selectResource}
+            onResourceDeselected={this.clearSelectedResource}
+            onGetUserLocation={this.updateGeoLocation}
+            onMapStateChanged={this.onMapStateChanged}
             selectedResource={this.state.selectedResource}
             hasSelectedResource={this.state.hasSelectedResource}
             shouldShrinkForSelectedResource={true}
             shouldDisplayFullSceenButton={true}
             shouldShowCallout={false}
-            onCalloutPressed={() => console.log("nothing")}
           />}
         {mapState === MapStateOption.fullscreen ? null :
           <ScrollView
@@ -479,7 +490,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
             {this.getFavouritesList()}
           </ScrollView>
         }
-        <PendingChangesBanner onBannerPressed={(bannerState: SyncStatus) => this.onBannerPressed(bannerState)} />
+        <PendingChangesBanner onBannerPressed={this.onBannerPressed} />
         <NetworkStatusBanner />
       </View>
     );

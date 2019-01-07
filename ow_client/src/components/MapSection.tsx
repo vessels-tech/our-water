@@ -10,14 +10,12 @@ import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
 import { Location } from '../typings/Location';
-import { AnyResource, MyWellResource } from '../typings/models/Resource';
+import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { PendingResource } from '../typings/models/PendingResource';
-import { Text } from 'react-native-elements';
 import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import MapCallout from './common/MapCallout';
-import MapMarker from './common/MapMarker';
 import { diff } from "deep-object-diff";
 
 export type MapRegion = {
@@ -27,9 +25,10 @@ export type MapRegion = {
   longitudeDelta: number,
 }
 
-
 export interface StateProps {
   shortIdCache: CacheType<string>, //resourceId => shortId
+  resources: AnyResource[],
+  pendingResources: PendingResource[],
 }
 
 export interface ActionProps {
@@ -55,15 +54,13 @@ export interface OwnProps {
   onResourceDeselected: any,
   onMapStateChanged: (h: MapStateOption) => void,
   initialRegion: MapRegion,
-  resources: AnyResource[],
-  pendingResources: PendingResource[],
   selectedResource?: AnyResource | PendingResource,
   hasSelectedResource: boolean,
   mapRef: any,
   shouldDisplayFullSceenButton: boolean,
   shouldShrinkForSelectedResource: boolean,
   shouldShowCallout: boolean,
-  onCalloutPressed: (r: AnyResource | PendingResource) => void,
+  onCalloutPressed?: (r: AnyResource | PendingResource) => void,
 }
 
 class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
@@ -402,6 +399,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     shortIdCache: state.shortIdCache,
+    resources: state.resources,
+    pendingResources: state.pendingSavedResources,
   };
 }
 

@@ -34,7 +34,7 @@
     "no-duplicate-imports": false,
     "jsx-alignment": false,
     "jsx-no-bind": true,
-    "jsx-no-lambda": false,
+    "jsx-no-lambda": true,
     "jsx-no-multiline-js": false,
     "jsx-no-string-ref": false,
     "object-literal-sort-keys": [
