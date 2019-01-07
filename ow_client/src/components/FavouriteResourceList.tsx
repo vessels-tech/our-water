@@ -98,11 +98,11 @@ class FavouriteResourceList extends React.PureComponent<Props> {
 
     if (favouriteResources.length === 0) {
       const icon = (
+        //@ts-ignore
         <Icon
           style={{
             flex: 1,
           }}
-          //@ts-ignore
           raised={true}
           size={12}
           name='star'

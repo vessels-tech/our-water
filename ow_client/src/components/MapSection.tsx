@@ -80,7 +80,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
     }
 
     this.debouncedOnRegionChangeComplete = debounced(1000, this.props.onMapRegionChange);
-
   }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {

@@ -58,7 +58,10 @@ export interface StateProps {
   resources: AnyResource[],
   pendingResources: PendingResource[],
   resourcesMeta: SyncMeta,
-  translation: TranslationFile
+  translation: TranslationFile,
+  //Ideally we wouldn't have these here as they will trigger many complete re-renders
+  favouriteResources: AnyResource[],
+  recentResources: AnyResource[],
 }
 
 export interface ActionProps {
@@ -161,6 +164,24 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
           updatedSelectedResource = r;
         }
       });
+
+      //Also check to see if its in the favourites or recents - this is a little hacky as it will technically be 
+      //hard/impossible to a well from being visible even though it may be deleted
+      //
+      // TD - store selected resource globally, instead of implying it like this.
+      if (!updatedSelectedResource) {
+        nextProps.favouriteResources.forEach(r => {
+          if (r.id === selectedResourceId) {
+            updatedSelectedResource = r;
+          }
+        });
+
+        nextProps.recentResources.forEach(r => {
+          if (r.id === selectedResourceId) {
+            updatedSelectedResource = r;
+          }
+        });
+      }
 
       if (!this.state.selectedResource.pending && !updatedSelectedResource) {
         this.setState({ selectedResource: null, hasSelectedResource: false });
@@ -545,6 +566,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     pendingResources: state.pendingSavedResources,
     resourcesMeta: state.resourcesMeta,
     translation: state.translation,
+    favouriteResources: state.favouriteResources,
+    recentResources: state.recentResources,
   }
 }
 
