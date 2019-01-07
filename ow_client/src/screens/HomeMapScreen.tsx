@@ -55,8 +55,8 @@ export interface StateProps {
   userIdMeta: ActionMeta,
   location: Location,
   locationMeta: SyncMeta,
-  // resources: AnyResource[],
-  // pendingResources: PendingResource[],
+  resources: AnyResource[],
+  pendingResources: PendingResource[],
   resourcesMeta: SyncMeta,
   translation: TranslationFile
 }
@@ -142,60 +142,60 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     // If a resource is selected, and it changes in the props, we need to update it.
-    // this.handleUpdatedResource(nextProps);
-    // this.handleUpdatedPendingResource(nextProps);
+    this.handleUpdatedResource(nextProps);
+    this.handleUpdatedPendingResource(nextProps);
   }
 
-  // handleUpdatedResource(nextProps: OwnProps & StateProps & ActionProps) {
-  //   const resourcesDiff: any = diff(this.props.resources, nextProps.resources);
-  //   if (Object.keys(resourcesDiff).length > 0) {
-  //     //Don't worry about updated the selected resource if there is none
-  //     if (!this.state.hasSelectedResource || !this.state.selectedResource) {
-  //       return;
-  //     }
+  handleUpdatedResource(nextProps: OwnProps & StateProps & ActionProps) {
+    const resourcesDiff: any = diff(this.props.resources, nextProps.resources);
+    if (Object.keys(resourcesDiff).length > 0) {
+      //Don't worry about updated the selected resource if there is none
+      if (!this.state.hasSelectedResource || !this.state.selectedResource) {
+        return;
+      }
 
-  //     const selectedResourceId = this.state.selectedResource.id;
-  //     let updatedSelectedResource: AnyResource | null = null;
-  //     nextProps.resources.forEach(r => {
-  //       if (r.id === selectedResourceId) {
-  //         updatedSelectedResource = r;
-  //       }
-  //     });
+      const selectedResourceId = this.state.selectedResource.id;
+      let updatedSelectedResource: AnyResource | null = null;
+      nextProps.resources.forEach(r => {
+        if (r.id === selectedResourceId) {
+          updatedSelectedResource = r;
+        }
+      });
 
-  //     if (!this.state.selectedResource.pending && !updatedSelectedResource) {
-  //       this.setState({ selectedResource: null, hasSelectedResource: false });
-  //       return;
-  //     }
+      if (!this.state.selectedResource.pending && !updatedSelectedResource) {
+        this.setState({ selectedResource: null, hasSelectedResource: false });
+        return;
+      }
 
-  //     this.setState({ selectedResource: updatedSelectedResource });
-  //   }
-  // }
+      this.setState({ selectedResource: updatedSelectedResource });
+    }
+  }
 
-  // handleUpdatedPendingResource(nextProps: OwnProps & StateProps & ActionProps) {
-  //   const pendingResourcesDiff: any = diff(this.props.pendingResources, nextProps.pendingResources);
+  handleUpdatedPendingResource(nextProps: OwnProps & StateProps & ActionProps) {
+    const pendingResourcesDiff: any = diff(this.props.pendingResources, nextProps.pendingResources);
 
-  //   if (Object.keys(pendingResourcesDiff).length > 0) {
-  //     //Don't worry about updated the selected resource if there is none
-  //     if (!this.state.hasSelectedResource || !this.state.selectedResource) {
-  //       return;
-  //     }
+    if (Object.keys(pendingResourcesDiff).length > 0) {
+      //Don't worry about updated the selected resource if there is none
+      if (!this.state.hasSelectedResource || !this.state.selectedResource) {
+        return;
+      }
 
-  //     const selectedResourceId = this.state.selectedResource.id;
-  //     let updatedSelectedResource: PendingResource | null = null;
-  //     nextProps.pendingResources.forEach(r => {
-  //       if (r.id === selectedResourceId) {
-  //         updatedSelectedResource = r;
-  //       }
-  //     });
+      const selectedResourceId = this.state.selectedResource.id;
+      let updatedSelectedResource: PendingResource | null = null;
+      nextProps.pendingResources.forEach(r => {
+        if (r.id === selectedResourceId) {
+          updatedSelectedResource = r;
+        }
+      });
 
-  //     if (this.state.selectedResource.pending && !updatedSelectedResource) {
-  //       this.setState({selectedResource: null, hasSelectedResource: false});
-  //       return;
-  //     }
+      if (this.state.selectedResource.pending && !updatedSelectedResource) {
+        this.setState({selectedResource: null, hasSelectedResource: false});
+        return;
+      }
 
-  //     this.setState({ selectedResource: updatedSelectedResource });
-  //   }
-  // }
+      this.setState({ selectedResource: updatedSelectedResource });
+    }
+  }
 
   /*--- externally bound events ---*/
   hardwareBackPressed() {
@@ -541,8 +541,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     userIdMeta: state.userIdMeta,
     location,
     locationMeta: state.locationMeta,
-    // resources: state.resources,
-    // pendingResources: state.pendingSavedResources,
+    resources: state.resources,
+    pendingResources: state.pendingSavedResources,
     resourcesMeta: state.resourcesMeta,
     translation: state.translation,
   }
