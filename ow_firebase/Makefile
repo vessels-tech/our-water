@@ -24,6 +24,11 @@ run_local:
 	cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
+function_shell:
+  @firebase functions:shell
+
+watch:
+	@yarn run watch
 
 run_lt:
 	@lt --subdomain ourwater --port 5000
