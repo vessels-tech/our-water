@@ -91,7 +91,7 @@ export interface State {
   hackViewPager: number,
 }
 
-class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProps> {
+class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State = {
     hackViewPager: 1,
@@ -117,29 +117,29 @@ class ResourceDetailSection extends Component<OwnProps & StateProps & ActionProp
     maybeLog("     - ", diff(this.state, nextState));
   }
 
-  shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
-    if (Object.keys(diff(this.state, nextState)).length > 0) {
-      return true;
-    }
+  // shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
+  //   if (Object.keys(diff(this.state, nextState)).length > 0) {
+  //     return true;
+  //   }
 
-    // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
-    //If the props diff is only functions, then we shouldn't update!
-    const propsDiff: any = diff(this.props, nextProps);
-    delete propsDiff['renderCounter'];
-    const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
-      if (acc === false) {
-        return acc;
-      }
-      return typeof propsDiff[curr] === 'function';
-    }, true);
+  //   // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
+  //   //If the props diff is only functions, then we shouldn't update!
+  //   const propsDiff: any = diff(this.props, nextProps);
+  //   delete propsDiff['renderCounter'];
+  //   const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
+  //     if (acc === false) {
+  //       return acc;
+  //     }
+  //     return typeof propsDiff[curr] === 'function';
+  //   }, true);
 
-    if (functionsOnly) {
-      maybeLog('ResourceDetailSection shouldComponentUpdate skipping render');
-      return !functionsOnly;
-    }
+  //   if (functionsOnly) {
+  //     maybeLog('ResourceDetailSection shouldComponentUpdate skipping render');
+  //     return !functionsOnly;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;

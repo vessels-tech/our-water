@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const admin = require('firebase-admin');
+exports.admin = admin;
 /* Not in git. Download from FB console*/
 const serviceAccount = require('./.serviceAccountKey.json');
 let firestore;
@@ -11,6 +12,7 @@ if (admin.apps.length === 0) {
     });
     exports.firestore = firestore = admin.firestore();
     const settings = { timestampsInSnapshots: true };
+    console.log("TestFirebase calling firestore.settings");
     firestore.settings(settings);
 }
 const auth = admin.auth();

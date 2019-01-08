@@ -19,6 +19,7 @@ const morganBody = require("morgan-body");
 const QRCode_1 = require("../../common/apis/QRCode");
 const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
 const utils_1 = require("../../common/utils");
+const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -71,6 +72,36 @@ module.exports = (functions) => {
         const file = `/tmp/qr_${id}.png`;
         yield utils_1.writeFileAsync(file, base64Data, 'base64');
         res.download(file);
+    }));
+    /**
+     * ChangeUserStatus
+     * PATCH /:orgId/:userId/status
+     *
+     * Change the user's status to either Approved or Rejected.
+     * If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
+     */
+    const changeUserStatusValidation = {
+        options: {
+            allowUnknownBody: false,
+        },
+        body: {
+            status: Joi.string().valid('Approved', 'Rejected'),
+        },
+    };
+    app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, userId } = req.params;
+        const { status } = req.body;
+        const statusResult = yield FirebaseApi_1.default.changeUserStatus(orgId, userId, status);
+        if (statusResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            throw new Error(statusResult.message);
+        }
+        if (status === "Approved") {
+            const syncResult = yield FirebaseApi_1.default.syncPendingForUser(orgId, userId);
+            if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                throw new Error(syncResult.message);
+            }
+        }
+        res.status(204).send(true);
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });

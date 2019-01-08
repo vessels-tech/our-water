@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const utils_1 = require("../utils");
 const Zip_1 = require("./Zip");
+const moment = require("moment");
 class GGMNApi {
     /**
      * pendingResourceToZip
@@ -35,9 +36,15 @@ class GGMNApi {
      *
      * Converts pending readings into a csv format for creating timeseries in GGMN.
      */
-    static pendingResourceToCSV(pendingResources, timeseriesNames) {
-        const contents = GGMNApi._generateCSV(pendingResources, timeseriesNames);
-        const filename = `/tmp/${pendingResources[0].id}.csv`;
+    static pendingResourceToCSV(pendingResources, pendingReadings, timeseriesNames) {
+        let contents;
+        try {
+            contents = GGMNApi._generateCSV(pendingResources, pendingReadings, timeseriesNames);
+        }
+        catch (err) {
+            return Promise.resolve(AppProviderTypes_1.makeError(err));
+        }
+        const filename = `/tmp/${moment().unix()}.csv`;
         return utils_1.writeFileAsync(filename, contents, 'utf8')
             .then(() => AppProviderTypes_1.makeSuccess(filename))
             .catch(err => AppProviderTypes_1.makeError(err.message));
@@ -48,16 +55,24 @@ class GGMNApi {
             "features": pendingResources.map(pr => GGMNApi._pendingResourceToFeature(pr))
         };
     }
-    static _generateCSV(pendingResources, timeseriesNames) {
+    static _generateCSV(pendingResources, pendingReadings, timeseriesNames) {
+        //Make a set containing the resource ids, and remove duplicated
+        const idSet = {}; // resourceId -> true
+        pendingResources.forEach(r => idSet[r.id] = true);
+        pendingReadings.forEach(r => idSet[r.resourceId] = true);
         let builder = '';
-        pendingResources.forEach(r => timeseriesNames.forEach(timeseriesName => builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${r.id}\n`));
+        Object.keys(idSet).forEach(k => timeseriesNames.forEach(timeseriesName => builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${k}\n`));
         return builder;
     }
     static _pendingResourceToFeature(pendingResource) {
         let name = pendingResource.id;
+        let height = 0;
         //TD: this is a hack, we should specify a proper name
-        if (pendingResource.owner.name) {
-            name = pendingResource.owner.name;
+        if (pendingResource.name) {
+            name = pendingResource.name;
+        }
+        if (pendingResource.waterColumnHeight) {
+            height = pendingResource.waterColumnHeight;
         }
         return {
             "type": "Feature",
@@ -65,7 +80,7 @@ class GGMNApi {
                 "ID_1": `${pendingResource.id}`,
                 //TODO: should we enable users to add their own names?
                 "NAME": `${name}`,
-                "HEIGHT": 0,
+                "HEIGHT": height,
                 "LAT": pendingResource.coords.latitude,
                 "LON": pendingResource.coords.longitude,
                 "2_code": `${pendingResource.id}`

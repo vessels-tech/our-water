@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const OWGeoPoint_1 = require("../../common/models/OWGeoPoint");
-const Firestore_1 = require("../../common/apis/Firestore");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
@@ -42,14 +42,14 @@ module.exports = (functions) => {
         req.body.coords = newCoords;
         console.log("org id:", orgId);
         //Ensure the orgId exists
-        const orgRef = Firestore_1.default.collection('org').doc(orgId);
+        const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            .then(() => Firestore_1.default.collection(`/org/${orgId}/group`).add(req.body))
+            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/group`).add(req.body))
             .then(result => res.json({ groupId: result.id }))
             .catch(err => next(err));
     });
@@ -73,7 +73,7 @@ module.exports = (functions) => {
         // var citiesRef = db.collection('cities');
         // // Create a query against the collection
         // var queryRef = citiesRef.where('state', '==', 'CA');
-        const readingsRef = Firestore_1.default.collection(`/org/${orgId}/resource`)
+        const readingsRef = FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`)
             .where(`groups.${groupId}`, '==', true).get()
             .then(snapshot => {
             const resources = [];

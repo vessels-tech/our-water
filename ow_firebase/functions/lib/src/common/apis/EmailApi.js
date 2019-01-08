@@ -5,9 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
 const env_1 = require("../env");
-const functions = require('firebase-functions');
 const nodemailer = require('nodemailer');
-//TODO: configure a zoho address for ourwater@vessels.tech here: https://stackoverflow.com/questions/45772221/nodemailer-with-zoho-mail
 const mailTransport = nodemailer.createTransport({
     host: 'smtp.zoho.com',
     port: 465,
@@ -20,12 +18,11 @@ const mailTransport = nodemailer.createTransport({
 const APP_NAME = 'GGMN';
 class EmailApi {
     static sendResourceEmail(email, subject, message, attachments) {
-        //TODO: add attachments in the form of a zip file.
         const mailOptions = {
             from: `${APP_NAME} <admin@vessels.tech>`,
             to: email,
             subject,
-            message,
+            html: message,
             attachments,
         };
         // The user subscribed to the newsletter.

@@ -9,18 +9,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("../types/AppProviderTypes");
-const Firestore_1 = require("./Firestore");
+const FirebaseAdmin_1 = require("./FirebaseAdmin");
 const ShortId_1 = require("../models/ShortId");
 const sleep = require("thread-sleep");
 const utils_1 = require("../utils");
 const util_1 = require("util");
-const ow_types_1 = require("ow_types");
+const admin = require("firebase-admin");
+function makePageResult(startAfter, hasNext, result) {
+    return {
+        result,
+        hasNext,
+        startAfter,
+    };
+}
+exports.makePageResult = makePageResult;
 class FirebaseApi {
     static batchSave(fs, docs) {
         return __awaiter(this, void 0, void 0, function* () {
             const batch = fs.batch();
             //Readings are unique by their timestamp + resourceId.
             docs.forEach(doc => doc.batchCreate(batch, fs, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+            return batch.commit();
+        });
+    }
+    /**
+     *
+     * @param fs
+     * @param docs
+     * @param docIds - optional. If provided, will use these ids instead of the doc's id
+     */
+    static batchDelete(fs, docs, docIds) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const batch = fs.batch();
+            if (docIds && docIds.length !== docs.length) {
+                return Promise.reject(new Error("docs.length and docIds.length must match"));
+            }
+            if (docIds) {
+                docs.forEach((doc, idx) => {
+                    const id = docIds[idx];
+                    doc.batchDelete(batch, FirebaseAdmin_1.firestore, id);
+                });
+            }
+            else {
+                docs.forEach(doc => doc.batchDelete(batch, FirebaseAdmin_1.firestore));
+            }
             return batch.commit();
         });
     }
@@ -37,9 +69,9 @@ class FirebaseApi {
             const maxLat = latitude + distanceMultiplier * distance;
             const maxLng = longitude + distanceMultiplier * distance;
             console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
-            return Firestore_1.default.collection(`/org/${orgId}/resource`)
-                .where('coords', '>=', new ow_types_1.OWGeoPoint(minLat, minLng))
-                .where('coords', '<=', new ow_types_1.OWGeoPoint(maxLat, maxLng)).get()
+            return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`)
+                .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
                 .then(snapshot => {
                 const resources = [];
                 snapshot.forEach(doc => {
@@ -64,6 +96,86 @@ class FirebaseApi {
             });
         });
     }
+    /**
+     * Readings In Bounding Box
+     *
+     * Get the readings taken within a bounding box
+     */
+    static readingsWithinBoundingBox(orgId, bbox, pageParams) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { minLat, minLng, maxLat, maxLng } = bbox;
+            console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+            return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                .orderBy('coords')
+                .limit(pageParams.limit)
+                .get()
+                .then(snapshot => {
+                const readings = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    // Filter based on longitude. TODO: remove this once google fixes this query
+                    if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+                        return;
+                    }
+                    readings.push(data);
+                });
+                return AppProviderTypes_1.makeSuccess(readings);
+            })
+                .catch(err => AppProviderTypes_1.makeError(err.message));
+        });
+    }
+    /**
+     * Readings In Bounding Box
+     *
+     * Get the readings taken within a bounding box
+     */
+    static readingsWithinBoundingBoxPaginated(orgId, bbox, pageParams) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { minLat, minLng, maxLat, maxLng } = bbox;
+            // console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
+            return Promise.resolve()
+                .then(() => {
+                if (pageParams.startAfter) {
+                    return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                        .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                        .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                        .orderBy('coords')
+                        .startAfter(pageParams.startAfter)
+                        .limit(pageParams.limit)
+                        .get();
+                }
+                return FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
+                    .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
+                    .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                    .orderBy('coords')
+                    .limit(pageParams.limit)
+                    .get();
+            })
+                .then(snapshot => {
+                const readings = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    // Filter based on longitude. TODO: remove this once google fixes this query
+                    if (data.coords._longitude < minLng || data.coords._longitude > maxLng) {
+                        // return;
+                    }
+                    readings.push(data);
+                });
+                const startAfter = snapshot.docs[snapshot.docs.length - 1];
+                let hasNext = false;
+                if (snapshot.docs.length === pageParams.limit) {
+                    hasNext = true;
+                }
+                const result = AppProviderTypes_1.makeSuccess(makePageResult(startAfter, hasNext, readings));
+                return result;
+            })
+                .catch(err => AppProviderTypes_1.makeError(err.message));
+        });
+    }
     //
     // ShortId
     // ----------------------------------------
@@ -76,7 +188,7 @@ class FirebaseApi {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: update the lastUsed
             try {
-                const result = yield Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(shortId).get();
+                const result = yield FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(shortId).get();
                 if (util_1.isNullOrUndefined(result.data())) {
                     return {
                         type: AppProviderTypes_1.ResultType.ERROR,
@@ -105,7 +217,7 @@ class FirebaseApi {
     static getShortId(orgId, longId) {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: update the lastUsed
-            return Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName)
+            return FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName)
                 .where('longId', '==', longId).get()
                 .then((snapshot) => {
                 const shortIds = [];
@@ -150,11 +262,11 @@ class FirebaseApi {
                 return existingShortIdResult;
             }
             //I think the transactions handle the retries for us
-            const lockRef = Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest');
+            const lockRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest');
             let shortIdLock;
             let shortIdRef;
             let shortId;
-            return Firestore_1.default.runTransaction(tx => {
+            return FirebaseAdmin_1.firestore.runTransaction(tx => {
                 return tx.get(lockRef)
                     .then(doc => {
                     shortIdLock = doc.data();
@@ -178,7 +290,7 @@ class FirebaseApi {
                     .then(() => {
                     //Set the new value
                     const nextId = utils_1.pad(parseInt(shortIdLock.id) + 1, 9);
-                    shortIdRef = Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(nextId);
+                    shortIdRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(nextId);
                     shortId = ShortId_1.default.fromShortId(orgId, {
                         shortId: nextId,
                         longId,
@@ -226,14 +338,14 @@ class FirebaseApi {
                 return existingShortIdResult;
             }
             //1: Get the next short Id, ensure it's not locked. Retry if needed
-            const result = yield Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest').get();
+            const result = yield FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest').get();
             let shortIdLock = result.data();
             console.log("1. shortIdLock:", shortIdLock);
             //TODO: use timeout instead of lock
             if (!shortIdLock) {
                 //This must be the first time
                 shortIdLock = { id: '100000', lock: false };
-                yield Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest').set(shortIdLock);
+                yield FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest').set(shortIdLock);
             }
             else if (shortIdLock.lock === true) {
                 console.log("lock is locked. Sleeping and trying again");
@@ -246,9 +358,9 @@ class FirebaseApi {
                 sleep(timeoutMs);
                 return this.dep_createShortId(orgId, longId, retries - 1, timeoutMs * 2);
             }
-            const lockRef = Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest');
+            const lockRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc('latest');
             const nextId = utils_1.pad(parseInt(shortIdLock.id) + 1, 9);
-            const shortIdRef = Firestore_1.default.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(nextId);
+            const shortIdRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection(ShortId_1.default.docName).doc(nextId);
             const shortId = ShortId_1.default.fromShortId(orgId, {
                 shortId: nextId,
                 longId,
@@ -290,6 +402,26 @@ class FirebaseApi {
             //     message: err.message
             //   }
             // });
+        });
+    }
+    /**
+     * Change the user's status
+     */
+    static changeUserStatus(orgId, userId, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return FirebaseAdmin_1.firestore.collection('org').doc(orgId).collection('user').doc(userId).set({ status }, { merge: true })
+                .then(() => AppProviderTypes_1.makeSuccess(undefined))
+                .catch(err => AppProviderTypes_1.makeError(err.message));
+        });
+    }
+    /**
+     * syncPendingForUser
+     *
+     * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+     */
+    static syncPendingForUser(orgId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.resolve(AppProviderTypes_1.makeError("method not implemented."));
         });
     }
 }

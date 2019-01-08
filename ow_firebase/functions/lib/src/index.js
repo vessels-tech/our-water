@@ -39,7 +39,7 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
     exports.admin = require('./handlers/fn_admin/admin')(functions);
 }
 //Cron Api
-_a = require('./fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
+_a = require('./handlers/fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
 var _a;
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});

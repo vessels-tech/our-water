@@ -34,7 +34,7 @@ exports.validateFirebaseIdToken = (req, res, next) => {
         res.status(403).send('Unauthorized');
         return;
     }
-    FirebaseAdmin_1.default.auth().verifyIdToken(idToken).then((decodedIdToken) => {
+    FirebaseAdmin_1.admin.auth().verifyIdToken(idToken).then((decodedIdToken) => {
         console.log('ID Token correctly decoded', decodedIdToken);
         req.user = decodedIdToken;
         return next();

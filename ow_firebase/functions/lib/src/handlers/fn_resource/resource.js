@@ -20,7 +20,7 @@ const ResourceIdType_1 = require("../../common/types/ResourceIdType");
 const ResourceType_1 = require("../../common/enums/ResourceType");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
-const Firestore_1 = require("../../common/apis/Firestore");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
 //@ts-ignore
 const morgan = require("morgan");
@@ -48,7 +48,7 @@ module.exports = (functions) => {
     }
     app.use(middleware_1.validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
-        return Firestore_1.default.collection('org').doc(orgId)
+        return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
             .collection('resource')
             .orderBy('createdAt')
             .startAfter(last_createdAt)
@@ -83,7 +83,7 @@ module.exports = (functions) => {
             new ow_types_1.OWGeoPoint(34.34, -115.67),
         ];
         const group = new Group_1.Group('5000', orgId, GroupType_1.GroupType.Pincode, coords, null);
-        return group.create({ firestore: Firestore_1.default })
+        return group.create({ firestore: FirebaseAdmin_1.firestore })
             .then((saved) => res.json(saved));
     });
     /**
@@ -131,19 +131,18 @@ module.exports = (functions) => {
         const oldCoords = req.body.data.coords;
         const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
         req.body.data.coords = newCoords;
-        console.log("org id:", orgId);
         //Add default lastReading
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
         //Ensure the orgId exists
-        const orgRef = Firestore_1.default.collection('org').doc(orgId);
+        const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
             .then(doc => {
             if (!doc.exists) {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            .then(() => Firestore_1.default.collection(`/org/${orgId}/resource`).add(req.body.data))
+            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
             .then(result => {
             console.log(JSON.stringify({ resourceId: result.id }));
             return res.json({ resource: result.id });
@@ -180,7 +179,7 @@ module.exports = (functions) => {
         const newData = req.body.data;
         try {
             //get the resource
-            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: Firestore_1.default });
+            const resource = yield Resource_1.Resource.getResource({ orgId, id: resourceId, firestore: FirebaseAdmin_1.firestore });
             const modifiableKeys = ['owner', 'externalIds', 'resourceType', 'coords'];
             modifiableKeys.forEach(key => {
                 let newValue = newData[key];
@@ -195,7 +194,7 @@ module.exports = (functions) => {
                 }
                 resource[key] = newValue;
             });
-            yield resource.save({ firestore: Firestore_1.default });
+            yield resource.save({ firestore: FirebaseAdmin_1.firestore });
             return res.json(resource);
         }
         catch (err) {
@@ -204,26 +203,34 @@ module.exports = (functions) => {
         }
     }));
     app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
-        //TODO: build an email and send it.
         const { subject, message } = req.body;
         const pendingResources = req.body.pendingResources;
-        const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
-        if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
-            throw new Error(generateZipResult.message);
+        const pendingReadings = req.body.pendingReadings;
+        const attachments = [];
+        console.log("pre resources");
+        /* only add the pending resouces if the user is trying to save new resources */
+        if (pendingResources.length > 0) {
+            const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
+            if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                console.log("ggmnResourceEmail generateZipResult error", generateZipResult.message);
+                throw new Error(generateZipResult.message);
+            }
+            attachments.push({ filename: 'id.zip', path: generateZipResult.result });
         }
-        const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, ['GWmMSL', 'GWmBGS']);
+        console.log("generated pending resources. Now generating csv");
+        const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
         if (generateCSVResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            console.log("ggmnResourceEmail generateCSVResult error", generateCSVResult.message);
             throw new Error(generateCSVResult.message);
         }
-        const attachments = [
-            { filename: 'id.zip', path: generateZipResult.result },
-            { filename: 'id.csv', path: generateCSVResult.result },
-        ];
+        console.log("generated csv");
+        attachments.push({ filename: 'id.csv', path: generateCSVResult.result });
         const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, subject, message, attachments);
         if (sendEmailResult.type === AppProviderTypes_1.ResultType.ERROR) {
             console.log("Error sending emails:", sendEmailResult.message);
             throw new Error(sendEmailResult.message);
         }
+        console.log("sent email");
         res.json(true);
     }));
     /**
@@ -248,7 +255,7 @@ module.exports = (functions) => {
         // // Create a query against the collection
         // var queryRef = citiesRef.where('state', '==', 'CA');
         //TODO: implement optional type filter
-        const readingsRef = Firestore_1.default.collection(`/org/${orgId}/reading`)
+        const readingsRef = FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading`)
             .where(`resourceId`, '==', resourceId).get()
             .then(snapshot => {
             const resources = [];

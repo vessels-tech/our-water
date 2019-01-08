@@ -46,7 +46,7 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
 }
 
 //Cron Api
-export const { hourly_job, daily_job, weekly_job} = require('./fn_cron/cron');
+export const { hourly_job, daily_job, weekly_job} = require('./handlers/fn_cron/cron');
 
 
 

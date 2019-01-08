@@ -141,7 +141,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
    * 
    */
   focusResource(resource: AnyResource | PendingResource) {
-
     //We shouldn't use the coords here - 
     // const resource = getSelectedResourceFromCoords(this.props.resources, coordinate);
     // const resource = this.props.resources.filter(r => r.id === resourceId).shift();
@@ -155,7 +154,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
 
   //TODO: fix infinite loop here?
   selectResource(resource: AnyResource | PendingResource) {
-    console.log("SelectResource: ", resource.id);
     this.selectedMapMarkerRef = this.markers[getMarkerKey(resource)] || null;
     let shrinkState = {
       mapHeight: MapHeightOption.small,
