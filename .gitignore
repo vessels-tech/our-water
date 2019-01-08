@@ -5,4 +5,5 @@ node_modules
 .service*
 *google-services.json
 *.keystore
+.backupServiceAccountKey.json
 

@@ -44,8 +44,7 @@ function getAuthHeader(admin) {
 }
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
-// const key = require('../src/test/.serviceAccountKey.json');
-const key = {};
+const key = require('../src/test/.serviceAccountKey.json');
 /**
  * getAdminAccessToken
  *
@@ -70,14 +69,14 @@ exports.getAdminAccessToken = getAdminAccessToken;
  *
  * Gets the access token for triggering a backup
  */
-function getBackupAccessToken() {
+function getBackupAccessToken(backupKey) {
     return __awaiter(this, void 0, void 0, function* () {
         const scopes = [
             'https://www.googleapis.com/auth/datastore',
             'https://www.googleapis.com/auth/cloud-platform'
         ];
         //TODO: this may need a different key
-        const client = new JWT(key.client_email, null, key.private_key, scopes, null);
+        const client = new JWT(backupKey.client_email, null, backupKey.private_key, scopes, null);
         try {
             const result = yield client.authorize();
             console.log(result);

@@ -62,7 +62,9 @@ exports.hourly_job = hourly_job;
 const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __awaiter(this, void 0, void 0, function* () {
     console.log("This job is ran every day!");
     //TODO: perform backup
-    const accessToken = yield tools_1.getBackupAccessToken();
+    // const accessToken = "12345";
+    const backupKey = require('./.backupServiceAccountKey.json');
+    const accessToken = yield tools_1.getBackupAccessToken(backupKey);
     const url = `https://firestore.googleapis.com/v1beta1/projects/our-water/databases/(default):exportDocuments`;
     const options = {
         headers: {
@@ -77,7 +79,7 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __aw
 }));
 exports.daily_job = daily_job;
 const weekly_job = functions.pubsub.topic('weekly-tick').onPublish((event) => {
-    console.log("This job is ran every week");
+    console.log("Cool");
     return true;
 });
 exports.weekly_job = weekly_job;

@@ -78,7 +78,7 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __aw
 }));
 exports.daily_job = daily_job;
 const weekly_job = functions.pubsub.topic('weekly-tick').onPublish((event) => {
-    console.log("This job is ran evasdasdery week");
+    console.log("Cool");
     return true;
 });
 exports.weekly_job = weekly_job;

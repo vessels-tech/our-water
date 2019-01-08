@@ -8,7 +8,7 @@ import { Sync } from '../../common/models/Sync';
 import CronUtils from './CronUtils';
 import { SyncFrequency } from '../../common/enums/SyncFrequency';
 
-// import { getBackupAccessToken } from '../../../tools';
+import { getBackupAccessToken } from '../../../tools';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");
@@ -66,8 +66,10 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) =
   console.log("This job is ran every day!")
 
   //TODO: perform backup
-  const accessToken = "12345";
-  // const accessToken = await getBackupAccessToken();
+  // const accessToken = "12345";
+  const backupKey = require('./.backupServiceAccountKey.json');
+
+  const accessToken = await getBackupAccessToken(backupKey);
   const url = `https://firestore.googleapis.com/v1beta1/projects/our-water/databases/(default):exportDocuments`
   const options = {
     headers: {
@@ -83,7 +85,7 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) =
 });
 
 const weekly_job = functions.pubsub.topic('weekly-tick').onPublish((event) => {
-  console.log("This job is ran evasdasdery week")
+  console.log("Cool")
 
   return true;
 });
