@@ -22,6 +22,7 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) =
 
   console.log("Performing Cloud Firestore Backup");
   const accessToken = await getBackupAccessToken(backupKey);
+  // reference: https://firebase.google.com/docs/firestore/manage-data/export-import
   const url = `https://firestore.googleapis.com/v1beta1/projects/our-water/databases/(default):exportDocuments`
   const options = {
     headers: {
