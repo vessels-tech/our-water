@@ -8,7 +8,7 @@ export const surfaceText = {
   disabled: "#9E9E9E",
 }
 
-export const primary = "#005198";
+export const primary = "#FFFFFF";
 export const primaryPallette = {
   '_900': '#3c3c3c',
   '_800': '#606060',
@@ -21,8 +21,8 @@ export const primaryPallette = {
   '_100': '#FAFAFA',
   '_50': '#FFFFFF',
 }
-export const primaryLight = "#4e7dc9";
-export const primaryDark = "#002a69"
+export const primaryLight = primaryPallette._50;
+export const primaryDark="#F6F6F6"
 
 export const primaryText = {
   high: "#212121",
@@ -30,7 +30,7 @@ export const primaryText = {
   disabled: "#9E9E9E",
 }
 
-export const secondary = "#f37121"
+export const secondary = "#7986CB"
 export const secondaryPallette = {
   '_900': '#1A237E',
   '_800': '#283593',
@@ -44,8 +44,8 @@ export const secondaryPallette = {
   '_50': '#E8EAF6',
 }
 
-export const secondaryLight = "#ffa251";
-export const secondaryDark = "#b94200";
+export const secondaryLight = secondaryPallette._100;
+export const secondaryDark = secondaryPallette._500;
 
 // primaryText="212121"
 export const secondaryText = {
@@ -68,16 +68,11 @@ export const secondaryText = {
 
 //Pretty Colors
 export const prettyColors = [
-  "#d1c4e9",
-  "#e1bee7",
-  "#c5cae9",
-  "#b2dfdb",
-  "#c8e6c9",
-  "#dcedc8",
-  "#f0f4c3",
-  "#fff9c4",
+  primaryPallette._50,
+  secondaryPallette._200,
+  secondaryPallette._100,
+  primaryPallette._100,
 ];
-
 
 // export const navBarTextColor = surfaceText;
 export const navBarTextColor = '#FFFFFF';
