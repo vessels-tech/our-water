@@ -305,12 +305,12 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: navBarTextColor,
+  navBarTextColor: primaryText.high,
   navBarBackgroundColor: primary,
   statusBarColor: statusBarColor,
   statusBarTextColorScheme: statusBarTextColorScheme,
   screenBackgroundColor: surface,
-  navBarButtonColor: navBarTextColor,
+  navBarButtonColor: primaryText.high,
   drawUnderStatusBar: false,
 }
 

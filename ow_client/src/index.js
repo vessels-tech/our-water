@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { primaryText, primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
+import { primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -17,6 +17,7 @@ import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
 import { HomeScreenType } from './enums';
+import { primaryText } from './utils/NewColors';
 
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
@@ -69,7 +70,7 @@ Promise.resolve(true)
       id: 'sideMenu',
       disabled: false,
       disableIconTint: true,
-      buttonColor: primaryText,
+      buttonColor: primaryText.high,
       buttonFontSize: 14,
       buttonFontWeight: '600'
     }],
