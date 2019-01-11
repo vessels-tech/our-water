@@ -307,8 +307,10 @@ export const defaultNavigatorStyle = {
   navBarHidden: false,
   navBarTextColor: primaryText.high,
   navBarBackgroundColor: primary,
+
   statusBarColor: statusBarColor,
   statusBarTextColorScheme: statusBarTextColorScheme,
+  
   screenBackgroundColor: surface,
   navBarButtonColor: primaryText.high,
   drawUnderStatusBar: false,

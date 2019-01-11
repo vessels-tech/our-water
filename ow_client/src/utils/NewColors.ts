@@ -74,7 +74,6 @@ export const prettyColors = [
   primaryPallette._100,
 ];
 
-// export const navBarTextColor = surfaceText;
-export const navBarTextColor = '#FFFFFF';
-export const statusBarColor = primaryDark;
-export const statusBarTextColorScheme = 'light';
+export const navBarTextColor = surfaceText;
+export const statusBarColor = surfaceDark;
+export const statusBarTextColorScheme = 'dark';
