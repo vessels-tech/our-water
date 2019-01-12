@@ -5,10 +5,12 @@ var ResourceType;
     ResourceType["Well"] = "well";
     ResourceType["Raingauge"] = "raingauge";
     ResourceType["Checkdam"] = "checkdam";
+    ResourceType["Quality"] = "quality";
     // TODO: remove this! HAck for the front end to work
     ResourceType["well"] = "well";
     ResourceType["raingauge"] = "raingauge";
     ResourceType["checkdam"] = "checkdam";
+    ResourceType["quality"] = "quality";
 })(ResourceType = exports.ResourceType || (exports.ResourceType = {}));
 exports.resourceTypeFromString = (type) => {
     switch (type) {
@@ -18,6 +20,8 @@ exports.resourceTypeFromString = (type) => {
             return ResourceType.Raingauge;
         case 'checkdam':
             return ResourceType.Checkdam;
+        case 'quality':
+            return ResourceType.Quality;
         default:
             throw new Error(`Unknown ResourceType conversion: ${type}`);
     }

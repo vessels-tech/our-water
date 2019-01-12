@@ -12,7 +12,8 @@
     "logs": "firebase functions:log",
     "unit": "ts-mocha ./**/*.unit.ts",
     "unit_new": "mocha --require @babel/register --require @babel/polyfill ./**/*.unit.js",
-    "service": "mocha -r ts-node/register ./**/*.service.ts"
+    "service_old": "mocha ./**/*.service.ts",
+    "service": "ts-mocha ./**/*.service.ts"
   },
   "main": "lib/src/index.js",
   "dependencies": {

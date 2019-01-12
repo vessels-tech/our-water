@@ -57,6 +57,7 @@ export default class FirebaseApi {
       return Promise.resolve(true);
     }
 
+
     const batch = this.firestore.batch();
     docs.forEach(doc => doc.batchCreate(batch, this.firestore));
     return batch.commit();
@@ -65,7 +66,9 @@ export default class FirebaseApi {
   public async batchSaveReadings(docs: Reading[]): Promise<any> {
     const batch = this.firestore.batch();
     //Readings are unique by their timestamp + resourceId.
-    docs.forEach(doc => doc.batchCreate(batch, this.firestore, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+    docs.forEach(doc => {
+      doc.batchCreate(batch, this.firestore, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime))
+    });
     return batch.commit();
   }
 
@@ -109,8 +112,6 @@ export default class FirebaseApi {
     const maxLat = latitude + distanceMultiplier * distance;
     const maxLng = longitude + distanceMultiplier * distance;
 
-    console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
-
     return this.firestore.collection(`/org/${orgId}/resource`)
       .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
       .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
@@ -142,7 +143,6 @@ export default class FirebaseApi {
   public async readingsWithinBoundingBox(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
   Promise<SomeResult<Reading[]>> {
     const { minLat, minLng, maxLat, maxLng } = bbox;
-    console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
 
     return this.firestore.collection(`/org/${orgId}/reading`)
     .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
@@ -401,25 +401,58 @@ export default class FirebaseApi {
 
     //map them to the Firebase Domain (if needed)
     //Save to public
-    const batchResultResources = await this.batchSaveResources(pendingResources)
-    const batchResultReadings = await this.batchSaveReadings(pendingReadings);
-
-    if (batchResultResources.type === ResultType.ERROR) {
-      errorResults.push(batchResultResources);
+    let batchResultResources;
+    try {
+      batchResultResources = await this.batchSaveResources(pendingResources)
+    } catch (err) {
+      errorResults.push({type: ResultType.ERROR, message:err});
     }
 
-    if (batchResultReadings.type === ResultType.ERROR) {
-      errorResults.push(batchResultReadings);
+    let batchResultReadings;
+    try {
+      batchResultReadings = await this.batchSaveReadings(pendingReadings);
+    } catch(err) {
+      errorResults.push({ type: ResultType.ERROR, message: err });
     }
 
     if (errorResults.length > 0) {
       return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
-
     //Delete pending resources and readings
+    //We get them again since our first array has been modified in place.
+    const pendingResourceResult2 = await this.getPendingResources(orgId, userId);
+    const pendingReadingsResult2 = await this.getPendingReadings(orgId, userId);
 
+    if (pendingResourceResult2.type === ResultType.ERROR) {
+      errorResults.push(pendingResourceResult2);
+    } 
 
+    if (pendingReadingsResult2.type === ResultType.ERROR) {
+      errorResults.push(pendingReadingsResult2);
+    }
+
+    if (errorResults.length > 0) {
+      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+    }
+
+    //@ts-ignore
+    const deleteResourcesResult = await this.batchDeletePendingResources(orgId, userId, pendingResourceResult2.result);
+    //@ts-ignore
+    const deleteReadingsResult = await this.batchDeletePendingReadings(orgId, userId, pendingReadingsResult2.result);
+
+    if (deleteResourcesResult.type === ResultType.ERROR) {
+      errorResults.push(deleteResourcesResult);
+    }
+    if (deleteReadingsResult.type === ResultType.ERROR) {
+      errorResults.push(deleteReadingsResult);
+    }
+
+    if (errorResults.length > 0) {
+      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+    }
+
+    return makeSuccess<void>(undefined);
   }
 
   //

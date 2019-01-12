@@ -16,6 +16,7 @@ import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
 import * as moment from 'moment';
 import { pendingResourcesData, basicResource, basicReading } from '../test/Data';
+import { getAllReadings, getAllResources } from '../test/TestUtils';
 import { Resource } from '../models/Resource';
 
 const orgId = process.env.ORG_ID;
@@ -111,7 +112,6 @@ describe('Firebase Api', function() {
       //Act
       const result = await fbApi.getLongId(orgId, shortId1);
 
-      console.log("result", result);
       if (result.type === ResultType.ERROR) {
         throw new Error(result.message);
       }
@@ -184,16 +184,10 @@ describe('Firebase Api', function() {
 
       //Act
       const result = await fbApi.batchSaveResources(resourcesToSave);
-      const savedResources = await fbApi.resourceCol(orgId).get()
-        .then(sn => {
-          const resources = [];
-          sn.forEach(doc => resources.push(doc.data()));
-          return resources;
-        });
-      
+      const allResources = await getAllResources(fbApi);      
 
       //Assert
-      assert.equal(resourcesToSave.length, savedResources.length);
+      assert.equal(resourcesToSave.length, allResources.length);
     });
 
 
@@ -203,16 +197,10 @@ describe('Firebase Api', function() {
 
       //Act
       const result = await fbApi.batchSaveReadings(readingsToSave);
-      const savedReadings = await fbApi.readingCol(orgId).get()
-        .then(sn => {
-          const readings = [];
-          sn.forEach(doc => readings.push(doc.data()));
-          return readings;
-        });
-
+      const allReadings = await getAllReadings(fbApi);
 
       //Assert
-      assert.equal(readingsToSave.length, savedReadings.length);
+      assert.equal(readingsToSave.length, allReadings.length);
     });
   });
 
@@ -297,4 +285,37 @@ describe('Firebase Api', function() {
       assert.equal(readingsResult.result.length, 2);
     });
   });
+
+  describe('syncPendingForUser()', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('Performs a full sync, and cleans up the pending resources', async () => {
+      //Arrange
+      //Act
+      const result = await fbApi.syncPendingForUser(orgId, userId);
+      if (result.type === ResultType.ERROR) {
+        throw new Error(result.message);
+      }
+
+      const pendingResourcesResult = await fbApi.getPendingResources(orgId, userId);
+      if (pendingResourcesResult.type === ResultType.ERROR) {
+        throw new Error(pendingResourcesResult.message);
+      }
+      const pendingReadingsResult = await fbApi.getPendingReadings(orgId, userId);
+      if (pendingReadingsResult.type === ResultType.ERROR) {
+        throw new Error(pendingReadingsResult.message);
+      }
+
+      const allResources = await getAllResources(fbApi);
+      const allReadings = await getAllReadings(fbApi);
+
+      //Assert
+      assert.equal(pendingResourcesResult.result.length, 0);
+      assert.equal(pendingReadingsResult.result.length, 0);
+      assert.equal(allResources.length, 3);
+      assert.equal(allReadings.length, 2);
+    });
+  })
 });
