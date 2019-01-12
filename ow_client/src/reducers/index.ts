@@ -617,7 +617,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };      
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };  
+
+      if (action.result.type === ResultType.ERROR) {
+        console.log("ADD_RECENT_RESPONSE error", action.result);
+      }
+
       return Object.assign({}, state, { recentResourcesMeta })
     }
     case ActionType.SAVE_READING_REQUEST: {

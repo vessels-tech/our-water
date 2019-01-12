@@ -65,13 +65,7 @@ export function addRecent(api: BaseApi, userId: string, resource: AnyResource): 
   return async function (dispatch: any) {
     dispatch(addRecentRequest(resource));
     const result = await api.addRecentResource(resource, userId);
-
-    //TODO: make this result void
-    let voidResult: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
-    dispatch(addRecentResponse(voidResult));
+    dispatch(addRecentResponse(result));
   }
 }
 
@@ -82,7 +76,7 @@ function addRecentRequest(resource: AnyResource): AddRecentActionRequest {
   }
 }
 
-function addRecentResponse(result: SomeResult<void>): AddRecentActionResponse {
+function addRecentResponse(result: SomeResult<any>): AddRecentActionResponse {
   return {
     type: ActionType.ADD_RECENT_RESPONSE,
     result

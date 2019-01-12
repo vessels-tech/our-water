@@ -220,7 +220,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   //Default location
   let location: Location = { type: LocationType.LOCATION, coords: { latitude: -20.4010, longitude: 32.3373 } };
-  if (state.user.type === UserType.USER) {
+  if (state.user.type !== UserType.NO_USER) {
     userId = state.user.userId;
   }
 
