@@ -20,7 +20,7 @@ const baseUrl = process.env.BASE_URL;
 describe('Firebase Api', function() {
   this.timeout(10000);
 
-  describe.only('Readings', function() {
+  describe('Readings', function() {
     let newReadings;
     const readingIds = [];
 
@@ -162,5 +162,27 @@ describe('Firebase Api', function() {
       ));
       await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').delete();
     })
+  });
+
+
+  describe('Creates Resources and Readings in batches', function() {
+    it('batchSaveResources()');
+    it('batchSave()');
+  });
+
+  describe('Deletes Resources and Readings in Batches', function() {
+    it('Deletes a batch of pendingResources succesfully');
+    it('Deletes a batch of pendingReadings succesfully');
+  })
+
+  describe('Pending Resources and Readings', function() {
+
+    it('getPendingResources()', () => {
+
+
+    });
+
+
+    it('getPendingReadings()');
   });
 });

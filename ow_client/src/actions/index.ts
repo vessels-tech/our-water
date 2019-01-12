@@ -380,6 +380,7 @@ export function getReadings(api: BaseApi, resourceId: string, timeseriesName: st
     dispatch(getReadingsRequest(resourceId, timeseriesName, timeseriesId, range));
     let result: SomeResult<AnyReading[]>;
     try {
+      console.log("getReadings", resourceId, timeseriesName, timeseriesId);
       const readings = await api.getReadingsForTimeseries(resourceId, timeseriesName, timeseriesId, range);
       if (!readings) {
         throw new Error("No readings found!");

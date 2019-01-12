@@ -147,7 +147,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     //TODO: this is triggering an endless loop here.
     //We should re evaluate the way MyWell loads resources, now that we've changed quite a bit from last time.
     
-    return;
+    // return;
 
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {

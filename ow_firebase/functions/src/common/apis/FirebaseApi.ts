@@ -1,6 +1,6 @@
-import { SomeResult, ResultType, makeSuccess, makeError } from "../types/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError, ErrorResult } from "../types/AppProviderTypes";
 
-import { firestore } from './FirebaseAdmin';
+// import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
@@ -45,6 +45,18 @@ export function makePageResult<T>(startAfter: FirebaseFirestore.DocumentSnapshot
 }
 
 export default class FirebaseApi {
+  firestore: FirebaseFirestore.Firestore;
+
+  constructor(firestore: FirebaseFirestore.Firestore) {
+    this.firestore = firestore;
+  }
+
+  public static async batchSaveResources(fs: admin.firestore.Firestore, docs: Resource[]): Promise<any> {
+    const batch = fs.batch();
+    //Readings are unique by their timestamp + resourceId.
+    docs.forEach(doc => doc.batchCreate(batch, fs));
+    return batch.commit();
+  }
 
   public static async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
     const batch = fs.batch();
@@ -371,100 +383,6 @@ export default class FirebaseApi {
     });
   }
 
-
-  /**
-   * CreateNewShortId
-   * 
-   * Creates a new shortId for the given resource.
-   * If there already is a ShortId for the resource, returns the existing one
-   * 
-   * If this fails for any reason, will retry until retries is 0
-   * 
-   * @returns ShortId, wrapped in a Promise & SomeResult
-   */
-  public static async dep_createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
-    console.log(`CreateShortId with retries: ${retries}, timeoutMs: ${timeoutMs}`)
-
-    //0: Check to make sure the id hasn't already been created
-    const existingShortIdResult = await this.getShortId(orgId, longId);
-    if (existingShortIdResult.type === ResultType.SUCCESS) {
-      return existingShortIdResult;
-    }
-
-    //1: Get the next short Id, ensure it's not locked. Retry if needed
-    const result = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get();
-    let shortIdLock: ShortIdLock = result.data();
-
-    console.log("1. shortIdLock:", shortIdLock);
-
-    //TODO: use timeout instead of lock
-    if (!shortIdLock) {
-      //This must be the first time
-      shortIdLock = {id: '100000', lock: false};
-      await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').set(shortIdLock);
-    } else if (shortIdLock.lock === true) {
-      console.log("lock is locked. Sleeping and trying again");
-      if (retries === 0) {
-        return {
-          type: ResultType.ERROR,
-          message: 'createShortId out of retries',
-        }
-      }
-
-      sleep(timeoutMs);
-      return this.dep_createShortId(orgId, longId, retries - 1, timeoutMs * 2);
-    }
-
-    const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
-    const nextId = pad(parseInt(shortIdLock.id) + 1, 9);
-    const shortIdRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(nextId);
-    const shortId = ShortId.fromShortId(orgId, {
-      shortId: nextId,
-      longId,
-      lastUsed: new Date(),
-    });
-  
-    try {
-      await lockRef.set({id: nextId, lock: true});
-      await shortIdRef.set(shortId.serialize());
-      await lockRef.set({ lock: false });
-      
-      return {
-        type: ResultType.SUCCESS,
-        result: shortId,
-      }
-    } catch(err) {
-      console.log("Error", err);
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
-    } 
-
-    // const batch = firestore.batch();
-    // batch.update(lockRef, {id: nextId, lock: true });
-    // batch.set(shortIdRef, shortId.serialize());
-    // //I'm not 100% sure this will work as intended
-    // batch.update(lockRef, { id: nextId, lock: false });
-    
-    // return batch.commit()
-    // .then((batchResult: any) => {
-    //   console.log("batchResult", batchResult);
-
-    //   return {
-    //     type: ResultType.SUCCESS,
-    //     result: shortId,
-    //   }
-    // })
-    // .catch((err: any) => {
-    //   console.log("error saving batch: ", err);
-    //   return {
-    //     type: ResultType.ERROR,
-    //     message: err.message
-    //   }
-    // });
-  }
-
   /**
    * Change the user's status
    */
@@ -474,13 +392,167 @@ export default class FirebaseApi {
     .catch(err => makeError(err.message))
   }
 
-
   /**
    * syncPendingForUser
    * 
    * Save the user's pendingResources and pendingReadings and delete from their collection in user.
    */
   public static async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<void>> {
-    return Promise.resolve(makeError<void>("method not implemented."));
+    const errorResults: ErrorResult[] = [];
+
+    //Get the user's pending resources and readings
+    const pendingResourceResult = await this.getPendingResources(orgId, userId);
+    const pendingReadingsResult = await this.getPendingReadings(orgId, userId);
+    
+    let pendingResources;
+    let pendingReadings;
+    if (pendingResourceResult.type === ResultType.ERROR) {
+      errorResults.push(pendingResourceResult);
+    } else {
+      pendingResources = pendingResourceResult.result;
+    }
+
+    if (pendingReadingsResult.type === ResultType.ERROR) {
+      errorResults.push(pendingReadingsResult);
+    } else {
+      pendingReadings = pendingReadingsResult.result;
+    }
+
+    if (errorResults.length > 0) {
+      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+    }
+
+    //map them to the Firebase Domain (if needed)
+    //Save to public
+    const batchResultResources = await this.batchSaveResources(firestore, pendingResources)
+    const batchResultReadings = await this.batchSave(firestore, pendingReadings);
+
+    if (batchResultResources.type === ResultType.ERROR) {
+      errorResults.push(batchResultResources);
+    }
+
+    if (batchResultReadings.type === ResultType.ERROR) {
+      errorResults.push(batchResultReadings);
+    }
+
+    if (errorResults.length > 0) {
+      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+    }
+
+
+    //Delete pending resources and readings
+
+
   }
+
+  //
+  // COMMON - Can be refactored to combine with front end Firebase Api
+  //------------------------------------------------------------------------
+
+  /**
+   * getPendingResources
+   * 
+   * Get the Pending Resources from the user's object.
+   * 
+   * @param orgId 
+   * @param userId 
+   */
+  public static async getPendingResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
+    return this.userDoc(orgId, userId).collection('pendingResources').get()
+      .then((sn: any) => {
+        const resources: Resource[] = [];
+        //TODO: not sure if deser will work
+        sn.forEach((doc: any) => resources.push(Resource.fromDoc(doc)));
+        return makeSuccess(resources);
+      })
+      .catch((err: Error) => makeError(err.message))
+  }
+
+  /**
+   * getPendingReadings
+   *
+   * Get the Pending Readings from the user's object.
+   *
+   * @param orgId
+   * @param userId
+   */
+  public static async getPendingReadings(orgId: string, userId: string): Promise<SomeResult<Reading[]>> {
+    return this.userDoc(orgId, userId).collection('pendingReadings').get()
+      .then((sn: any) => {
+        const readings: Reading[] = [];
+        //TODO: not sure if deser will work
+        sn.forEach((doc: any) => readings.push(Reading.deserialize(doc)));
+        makeSuccess(readings);
+      })
+      .catch((err: Error) => makeError(err.message))
+  }
+
+
+  /**
+  * deletePendingResource
+  * 
+  * Delete a pending resource from the user's pending resource list
+  */
+  public static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
+    return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
+      .then(() => makeSuccess(undefined))
+      .catch((err: Error) => makeError(err.message));
+  }
+
+
+  /**
+   * batchDeletePendingResources
+   * 
+   * Delete an array of pending Resources in a batch
+   * 
+   * @param orgId 
+   * @param userId 
+   * @param resources 
+   */
+  public static async batchDeletePendingResources(orgId: string, userId: string, resources: Resource[]): Promise<SomeResult<void>> {
+    const batch = firestore.batch();
+    resources.forEach(r => {
+      const ref = firestore.collection('org').doc(orgId).collection('pendingResources').doc(r.id);
+      batch.delete(ref);
+    });
+    return batch.commit()
+    .then(() => makeSuccess<void>(undefined))
+    .catch((error: Error) => makeError<void>(error.message))
+  }
+
+  /**
+   * batchDeletePendingReadings
+   * 
+   * Delete an array of pending Resources in a batch
+   * 
+   * @param orgId 
+   * @param userId 
+   * @param readings
+   */
+  public static async batchDeletePendingReadings(orgId: string, userId: string, readings: Reading[]): Promise<SomeResult<void>> {
+    const batch = firestore.batch();
+    readings.forEach(r => {
+      const ref = firestore.collection('org').doc(orgId).collection('pendingReadings').doc(r.id);
+      batch.delete(ref);
+    });
+    return batch.commit()
+      .then(() => makeSuccess<void>(undefined))
+      .catch((error: Error) => makeError<void>(error.message))
+  }
+
+  /**
+   * Doc shortcuts
+   */
+  private userDoc(orgId: string, userId: string): any {
+    return this.firestore.collection('org').doc(orgId).collection('user').doc(userId)
+  }
+
+  private readingCol(orgId: string): any {
+    return this.firestore.collection('org').doc(orgId).collection('reading');
+  }
+
+  private shortIdCol(orgId: string): any {
+    return this.firestore.collection('org').doc(orgId).collection('shortId');
+  }
+
 }

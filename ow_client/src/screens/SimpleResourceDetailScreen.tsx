@@ -12,7 +12,7 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo, unwrapUserId } from '../utils';
+import {navigateTo, unwrapUserId, renderLog } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
@@ -34,7 +34,7 @@ export interface OwnProps {
 
 export interface StateProps {
   translation: TranslationFile,
-  resource: AnyResource | null,
+  // resource: AnyResource | null,
   meta: ActionMeta,
   userId: string,
 }
@@ -54,16 +54,16 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     super(props);
     this.appApi = props.config.getAppApi();
 
-    this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+    // this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
 
     //Binds
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
   }
 
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
-    console.log("SimpleResourceDetailScreen componentDidUpdate", this.props.resourceId, nextProps.resourceId,);
-    console.log("     - ", diff(this.props, nextProps));
-    console.log("     - ", diff(this.state, nextState));
+    renderLog(`SimpleResourceDetailScreen componentDidUpdate, ${this.props.resourceId}, ${nextProps.resourceId}`);
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
 
     if (this.props.resourceId !== nextProps.resourceId) {
       console.log("Getting new resource");
@@ -85,19 +85,19 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   getResourceDetailSection() {
     const { meta, userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
 
-    if (meta.loading) {
-      return (
-        <Loading/>
-      )
-    }
+    // if (meta.loading) {
+    //   return (
+    //     <Loading/>
+    //   )
+    // }
 
-    if (meta.error || !resource) {
-      return (
-        <View>
-          <Text>{meta.errorMessage}</Text>
-        </View>
-      )
-    }
+    // if (meta.error || !resource) {
+    //   return (
+    //     <View>
+    //       <Text>{meta.errorMessage}</Text>
+    //     </View>
+    //   )
+    // }
 
     return (
       <ResourceDetailSection
@@ -105,14 +105,14 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
         hideTopBar={true}
         isPending={false}
         onAddReadingPressed={this.onAddReadingPressed}
-        resourceId={resource.id}
+        resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
       />
     );
   }
 
   render() {
-    console.log("SimpleResourceDetailScreen, render()");
+    renderLog("SimpleResourceDetailScreen, render()");
     return (
       <View style={{
         width: '100%',
@@ -129,7 +129,6 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
 }
 
-//If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
   let resource = null;
@@ -147,7 +146,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     translation: state.translation,
-    resource,
+    // resource,
     meta,
     userId: unwrapUserId(state.user),
   };

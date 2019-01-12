@@ -193,8 +193,6 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
           <MapSection
             mapRef={this.getMapRef}
             initialRegion={initialRegion}
-            resources={this.props.resources}
-            pendingResources={this.props.pendingResources}
             onMapRegionChange={this.onMapRegionChange}
             onResourceSelected={this.selectResource}
             onResourceDeselected={this.clearSelectedResource}

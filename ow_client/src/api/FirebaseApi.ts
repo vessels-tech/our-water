@@ -536,14 +536,20 @@ class FirebaseApi {
    * getReadings
    * 
    * Get readings from the readings collection
+   * 
+   * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
+    console.log("getting readings, ", resourceId, timeseriesId)
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
       .limit(300)
       .get()
-    .then((sn: any) => this.snapshotToReadings(sn))
+    .then((sn: any) => {
+      console.log("readings result", sn);
+      return this.snapshotToReadings(sn);
+    })
     .then((readings: AnyReading[]) => makeSuccess(readings))
     .catch((err: Error) => {
       maybeLog("error: ", err.message);

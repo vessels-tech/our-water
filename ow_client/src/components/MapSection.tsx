@@ -361,9 +361,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
               pinColor={secondary}
-              onPress={(e: any) => {
-                return this.focusResource(resource)
-              }}
+              onPress={(e: any) => this.focusResource(resource)}
             >
               {this.getCalloutForResource(resource)}
             </Marker>
@@ -386,7 +384,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               pinColor={'navy'}
               onPress={(e: any) => this.focusResource(p)}
             >
-              {/* {this.getCalloutForResource(resource)} */}
+              {this.getCalloutForResource(p)}
             </Marker>
           })}
         </MapView>
