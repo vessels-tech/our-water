@@ -49,9 +49,6 @@ export default abstract class FirestoreDoc {
       this.id = id;
     }
 
-    console.log("batchCreate(), docName is", this.docName);
-    console.log("batchCreate(), serialize is", this.serialize());
-
     this.createdAt = new Date();
     this.updatedAt = new Date();
     batch.set(ref, this.serialize());

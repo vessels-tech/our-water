@@ -203,18 +203,16 @@ describe('Firebase Api', function() {
 
       //Act
       const result = await fbApi.batchSaveReadings(readingsToSave);
-      const savedResources = await fbApi.resourceCol(orgId).get()
+      const savedReadings = await fbApi.readingCol(orgId).get()
         .then(sn => {
-          const resources = [];
-          sn.forEach(doc => resources.push(doc.data()));
-          return resources;
+          const readings = [];
+          sn.forEach(doc => readings.push(doc.data()));
+          return readings;
         });
 
 
       //Assert
-      assert.equal(readingsToSave.length, savedResources.length);
-
-
+      assert.equal(readingsToSave.length, savedReadings.length);
     });
   });
 
