@@ -4,6 +4,8 @@ import * as assert from 'assert';
 import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
 import { ResultType, SomeResult } from '../types/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
+import * as MockFirebase from 'mock-cloud-firestore';
+
 
 import ShortId from '../models/ShortId';
 import { pad, hashReadingId } from '../utils';
@@ -13,6 +15,7 @@ import ResourceIdType from '../types/ResourceIdType';
 import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
 import * as moment from 'moment';
+import { pendingResourcesData } from '../test/Data';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -174,19 +177,85 @@ describe('Firebase Api', function() {
     it('batchSave()');
   });
 
-  describe('Deletes Resources and Readings in Batches', function() {
-    it('Deletes a batch of pendingResources succesfully');
-    it('Deletes a batch of pendingReadings succesfully');
-  })
+  describe.only('Deletes Resources and Readings in Batches', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
 
-  describe('Pending Resources and Readings', function() {
+    it('Deletes a batch of pendingResources succesfully', async () => {
+      //Arrange
+      const resourcesResult = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
 
-    it('getPendingResources()', () => {
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingResources(orgId, userId, resourcesResult.result);
 
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const resourcesResult2 = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult2.type === ResultType.ERROR) {
+        throw new Error(resourcesResult2.message);
+      }
 
+      assert.equal(resourcesResult2.result.length, 0);
     });
 
 
-    it('getPendingReadings()');
+    it('Deletes a batch of pendingReadings succesfully', async () => {
+      //Arrange
+      const readingsResult = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingReadings(orgId, userId, readingsResult.result);
+
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const readingsResult2 = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult2.type === ResultType.ERROR) {
+        throw new Error(readingsResult2.message);
+      }
+
+      assert.equal(readingsResult2.result.length, 0);
+    });
+  })
+
+  describe('Pending Resources and Readings', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+
+    it('getPendingResources()', async () => {
+      //Arrange
+      //Act
+      const resourcesResult = await fbApi.getPendingResources(orgId, 'user_a');
+
+      //Assert
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
+
+      assert.equal(resourcesResult.result.length, 3);
+    });
+
+    it('getPendingReadings()', async () => {
+      //Arrange
+      //Act
+      const readingsResult = await fbApi.getPendingReadings(orgId, 'user_a');
+
+      //Assert
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      assert.equal(readingsResult.result.length, 2);
+    });
   });
 });

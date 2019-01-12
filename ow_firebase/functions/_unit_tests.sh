@@ -8,6 +8,7 @@ export MYWELL_LEGACY_BASE_URL="http://localhost:3000"
 # export MYWELL_LEGACY_BASE_URL="https://mywell-server.vessels.tech"
 # export BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 # DATE=`date '+%Y%m%dT%H%M%S'`
+
 # export ORG_ID="test_$DATE"
 export ORG_ID="test_12347"
 #TODO: change to a test project

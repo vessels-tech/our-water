@@ -89,7 +89,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a json object
    */
-  public static deserialize(data): Resource {
+  public static deserialize(data, deserId?: string): Resource {
     const {
       id,
       orgId,
@@ -111,7 +111,7 @@ export class Resource extends FirestoreDoc {
     const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
 
     //private vars
-    des.id = id;
+    des.id = id || deserId;
     des.lastValue = lastValue;
     des.lastReadingDatetime = lastReadingDatetime;
     des.createdAt = createdAt;
@@ -123,8 +123,8 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a Firestore Document
    */
-  public static fromDoc(doc): Resource {
-    return this.deserialize(doc.data());
+  public static fromDoc(doc, id?: string): Resource {
+    return this.deserialize(doc.data(), id);
   }
 
   /**

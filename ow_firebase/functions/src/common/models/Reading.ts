@@ -95,7 +95,7 @@ export class Reading extends FirestoreDoc {
     * Deserialize from a document
     * @param sn 
     */
-  public static deserialize(doc): Reading {
+  public static deserialize(doc, docId?: string): Reading {
     const {
       docName,
       orgId,
@@ -119,7 +119,7 @@ export class Reading extends FirestoreDoc {
       groups, datetime, value, externalIdsObj);
 
     //private vars
-    des.id = des.id;
+    des.id = des.id || docId;
     des.docName = docName;
     des.createdAt = createdAt;
     des.updatedAt = updatedAt;

@@ -435,10 +435,11 @@ export default class FirebaseApi {
       .then((sn: any) => {
         const resources: Resource[] = [];
         //TODO: not sure if deser will work
-        sn.forEach((doc: any) => resources.push(Resource.fromDoc(doc)));
+        sn.forEach((doc: any) => resources.push(Resource.fromDoc(doc, doc.id)));
+        
         return makeSuccess(resources);
       })
-      .catch((err: Error) => makeError(err.message))
+      .catch((err: Error) => makeError(err.message + err.stack))
   }
 
   /**
@@ -454,10 +455,11 @@ export default class FirebaseApi {
       .then((sn: any) => {
         const readings: Reading[] = [];
         //TODO: not sure if deser will work
-        sn.forEach((doc: any) => readings.push(Reading.deserialize(doc)));
-        makeSuccess(readings);
+        sn.forEach((doc: any) => readings.push(Reading.deserialize(doc, doc.id)));
+        
+        return makeSuccess(readings);
       })
-      .catch((err: Error) => makeError(err.message))
+      .catch((err: Error) => makeError(err.message + err.stack))
   }
 
 
@@ -482,15 +484,21 @@ export default class FirebaseApi {
    * @param userId 
    * @param resources 
    */
-  public async batchDeletePendingResources(orgId: string, userId: string, resources: Resource[]): Promise<SomeResult<void>> {
+  public batchDeletePendingResources(orgId: string, userId: string, resources: Resource[]): Promise<SomeResult<void>> {
+    if (resources.length === 0) {
+      console.warn('Tried to delete a batch of resources, but resources was empty.');
+      return Promise.resolve(makeSuccess<void>(undefined));
+    }
+
     const batch = this.firestore.batch();
     resources.forEach(r => {
-      const ref = this.firestore.collection('org').doc(orgId).collection('pendingResources').doc(r.id);
+      const ref = this.firestore.collection('org').doc(orgId).collection('user').doc(userId).collection('pendingResources').doc(r.id);
       batch.delete(ref);
     });
+
     return batch.commit()
-    .then(() => makeSuccess<void>(undefined))
-    .catch((error: Error) => makeError<void>(error.message))
+    .then((res: any) => makeSuccess<void>(undefined))
+    .catch((error: Error) => makeError<void>(error.message + error.stack))
   }
 
   /**
@@ -502,15 +510,21 @@ export default class FirebaseApi {
    * @param userId 
    * @param readings
    */
-  public async batchDeletePendingReadings(orgId: string, userId: string, readings: Reading[]): Promise<SomeResult<void>> {
+  public batchDeletePendingReadings(orgId: string, userId: string, readings: Reading[]): Promise<SomeResult<void>> {
+    if (readings.length === 0) {
+      console.warn('Tried to delete a batch of readings, but readings was empty.');
+      return Promise.resolve(makeSuccess<void>(undefined));
+    }
+
     const batch = this.firestore.batch();
     readings.forEach(r => {
-      const ref = this.firestore.collection('org').doc(orgId).collection('pendingReadings').doc(r.id);
+      const ref = this.firestore.collection('org').doc(orgId).collection('user').doc(userId).collection('pendingReadings').doc(r.id);
       batch.delete(ref);
     });
+
     return batch.commit()
-      .then(() => makeSuccess<void>(undefined))
-      .catch((error: Error) => makeError<void>(error.message))
+    .then(() => makeSuccess<void>(undefined))
+    .catch((error: Error) => makeError<void>(error.message + error.stack))
   }
 
   /**
