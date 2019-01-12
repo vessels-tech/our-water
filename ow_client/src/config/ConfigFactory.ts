@@ -118,7 +118,6 @@ export class ConfigFactory {
    * TODO: handle feature flags and translations!
    */
   getApplicationName() {
-    console.log("ConfigFactory getApplicationName()", this.remoteConfig.applicationName);
     if (this.remoteConfig.applicationName) {
       return this.remoteConfig.applicationName;
     }

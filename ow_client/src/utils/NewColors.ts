@@ -68,10 +68,12 @@ export const secondaryText = {
 
 //Pretty Colors
 export const prettyColors = [
-  primaryPallette._50,
+  primaryPallette._600,
   secondaryPallette._200,
   secondaryPallette._100,
-  primaryPallette._100,
+  secondaryPallette._500,
+  secondaryPallette._700,
+  secondaryPallette._800,
 ];
 
 export const navBarTextColor = surfaceText;

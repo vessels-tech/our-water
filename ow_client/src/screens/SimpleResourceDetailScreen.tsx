@@ -22,6 +22,8 @@ import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
+import { diff } from "deep-object-diff";
+
 
 
 export interface OwnProps {
@@ -45,7 +47,7 @@ export interface State {
 
 }
 
-class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & ActionProps> {
+class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
@@ -58,8 +60,13 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
   }
 
-  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State, snapshot: any) {
-    if (this.props.resourceId !== prevProps.resourceId) {
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    console.log("SimpleResourceDetailScreen componentDidUpdate", this.props.resourceId, nextProps.resourceId,);
+    console.log("     - ", diff(this.props, nextProps));
+    console.log("     - ", diff(this.state, nextState));
+
+    if (this.props.resourceId !== nextProps.resourceId) {
+      console.log("Getting new resource");
       this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
     }
   }
@@ -105,6 +112,7 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
   }
 
   render() {
+    console.log("SimpleResourceDetailScreen, render()");
     return (
       <View style={{
         width: '100%',

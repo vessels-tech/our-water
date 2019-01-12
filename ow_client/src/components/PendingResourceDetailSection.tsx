@@ -12,27 +12,19 @@ import * as moment from 'moment';
 
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
-import {
-  getShortId, isFavourite, getTimeseriesReadingKey,
-} from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading } from '../typings/models/OurWater';
+import { Reading, OWTimeseries } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import HeadingText from './common/HeadingText';
 import HeadingSubtitleText from './common/HeadingSubtitleText';
-import FlatIconButton from './common/FlatIconButton';
-import TimeseriesCard from './common/TimeseriesCard';
 
 import { AppState, CacheType } from '../reducers';
-import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta } from '../typings/Reducer';
 
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
-import { AnyTimeseries } from '../typings/models/Timeseries';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
 import PendingTimeseriesCard from './common/PendingTimeseriesCard';
@@ -258,8 +250,8 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
           height: '90%',
           alignItems: 'center',
         }}
-        title={ts.name}>
-      </Card>
+        title={ts.name}
+      />
     )
   }
 

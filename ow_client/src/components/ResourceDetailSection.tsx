@@ -106,6 +106,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
+    console.log("ResourceDetailSection componentDidUpdate", prevProps.resourceId, this.props.resourceId);
     if (prevProps.resourceId !== this.props.resourceId) {
       this.reloadResourceAndReadings();
     }
@@ -142,6 +143,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   // }
 
   async reloadResourceAndReadings() {
+
+    //TODO: this is triggering an endless loop here.
+    //We should re evaluate the way MyWell loads resources, now that we've changed quite a bit from last time.
+    
+    return;
+
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
       resource_loading_error,
