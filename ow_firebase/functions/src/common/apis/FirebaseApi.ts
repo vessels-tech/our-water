@@ -5,7 +5,7 @@ import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
 import { BasicAuthSecurity } from "soap";
-import { pad, hashReadingId } from "../utils";
+import { pad, hashReadingId, resourceIdForResourceType } from "../utils";
 import { isNullOrUndefined } from "util";
 import { OWGeoPoint } from "ow_types";
 import * as admin from "firebase-admin";
@@ -51,17 +51,21 @@ export default class FirebaseApi {
     this.firestore = firestore;
   }
 
-  public async batchSaveResources(fs: admin.firestore.Firestore, docs: Resource[]): Promise<any> {
-    const batch = fs.batch();
-    //Readings are unique by their timestamp + resourceId.
-    docs.forEach(doc => doc.batchCreate(batch, fs));
+  public batchSaveResources(docs: Resource[]): Promise<any> {
+    if (docs.length === 0) {
+      console.warn('Tried to save a batch of resources, but readings was empty.');
+      return Promise.resolve(true);
+    }
+
+    const batch = this.firestore.batch();
+    docs.forEach(doc => doc.batchCreate(batch, this.firestore));
     return batch.commit();
   }
 
-  public async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
-    const batch = fs.batch();
+  public async batchSaveReadings(docs: Reading[]): Promise<any> {
+    const batch = this.firestore.batch();
     //Readings are unique by their timestamp + resourceId.
-    docs.forEach(doc => doc.batchCreate(batch, fs, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
+    docs.forEach(doc => doc.batchCreate(batch, this.firestore, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
     return batch.commit();
   }
 
@@ -397,8 +401,8 @@ export default class FirebaseApi {
 
     //map them to the Firebase Domain (if needed)
     //Save to public
-    const batchResultResources = await this.batchSaveResources(this.firestore, pendingResources)
-    const batchResultReadings = await this.batchSave(this.firestore, pendingReadings);
+    const batchResultResources = await this.batchSaveResources(pendingResources)
+    const batchResultReadings = await this.batchSaveReadings(pendingReadings);
 
     if (batchResultResources.type === ResultType.ERROR) {
       errorResults.push(batchResultResources);
@@ -530,15 +534,19 @@ export default class FirebaseApi {
   /**
    * Doc shortcuts
    */
-  private userDoc(orgId: string, userId: string): any {
+  public userDoc(orgId: string, userId: string): any {
     return this.firestore.collection('org').doc(orgId).collection('user').doc(userId)
   }
 
-  private readingCol(orgId: string): any {
+  public resourceCol(orgId: string): FirebaseFirestore.CollectionReference {
+    return this.firestore.collection('org').doc(orgId).collection('resource');
+  }
+
+  public readingCol(orgId: string): FirebaseFirestore.CollectionReference {
     return this.firestore.collection('org').doc(orgId).collection('reading');
   }
 
-  private shortIdCol(orgId: string): any {
+  public shortIdCol(orgId: string): any {
     return this.firestore.collection('org').doc(orgId).collection('shortId');
   }
 

@@ -15,7 +15,8 @@ import ResourceIdType from '../types/ResourceIdType';
 import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
 import * as moment from 'moment';
-import { pendingResourcesData } from '../test/Data';
+import { pendingResourcesData, basicResource, basicReading } from '../test/Data';
+import { Resource } from '../models/Resource';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -40,7 +41,7 @@ describe('Firebase Api', function() {
         new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
       ];
 
-      await fbApi.batchSave(firestore, newReadings);
+      await fbApi.batchSaveReadings(newReadings);
       newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
@@ -173,11 +174,51 @@ describe('Firebase Api', function() {
 
 
   describe('Creates Resources and Readings in batches', function() {
-    it('batchSaveResources()');
-    it('batchSave()');
+    const mockFirestore = new MockFirebase({}).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('batchSaveResources()', async () => {
+      //Arrange
+      const resourcesToSave = [ basicResource(orgId) ];
+
+      //Act
+      const result = await fbApi.batchSaveResources(resourcesToSave);
+      const savedResources = await fbApi.resourceCol(orgId).get()
+        .then(sn => {
+          const resources = [];
+          sn.forEach(doc => resources.push(doc.data()));
+          return resources;
+        });
+      
+
+      //Assert
+      assert.equal(resourcesToSave.length, savedResources.length);
+    });
+
+
+    it('batchSaveReadings()', async () => {
+      //Arrange
+      const readingsToSave = [basicReading(orgId)];
+
+      //Act
+      const result = await fbApi.batchSaveReadings(readingsToSave);
+      const savedResources = await fbApi.resourceCol(orgId).get()
+        .then(sn => {
+          const resources = [];
+          sn.forEach(doc => resources.push(doc.data()));
+          return resources;
+        });
+
+
+      //Assert
+      assert.equal(readingsToSave.length, savedResources.length);
+
+
+    });
   });
 
-  describe.only('Deletes Resources and Readings in Batches', function() {
+  describe('Deletes Resources and Readings in Batches', function() {
     const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
     const fbApi = new FirebaseApi(mockFirestore);
     const userId = 'user_a';
