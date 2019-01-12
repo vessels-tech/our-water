@@ -9,7 +9,8 @@ import * as morganBody from 'morgan-body';
 import ErrorHandler from '../../common/ErrorHandler';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { ResultType } from '../../common/types/AppProviderTypes';
-// import FirebaseApi from '../common/apis/FirebaseApi';
+import { firestore } from '../../common/apis/FirebaseAdmin';
+
 
 require('express-async-errors');
 
@@ -50,8 +51,9 @@ module.exports = (functions: any) => {
   app.post('/:orgId', validate(createShortIdValidation), async (req, res) => {
     const { orgId } = req.params;
     const { resourceId } = req.body;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await FirebaseApi.createShortId(orgId, resourceId);
+    const result = await fbApi.createShortId(orgId, resourceId);
     if (result.type === ResultType.ERROR) {
       throw new Error(result.message);
     }

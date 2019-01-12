@@ -71,6 +71,7 @@ function pendingResourcesData(orgId) {
                                         ],
                                         type: "MYWELL",
                                         userId: "user_a",
+                                        orgId,
                                     },
                                     12346: {
                                         coords: {
@@ -88,6 +89,7 @@ function pendingResourcesData(orgId) {
                                         ],
                                         type: "MYWELL",
                                         userId: "user_a",
+                                        orgId,
                                     },
                                     12347: {
                                         coords: {
@@ -105,6 +107,7 @@ function pendingResourcesData(orgId) {
                                         ],
                                         type: "MYWELL",
                                         userId: "user_a",
+                                        orgId,
                                     },
                                 }
                             },
@@ -113,12 +116,14 @@ function pendingResourcesData(orgId) {
                                     12345: {
                                         createdAt: null,
                                         date: "2018-12-11T01:28:50Z",
+                                        //TODO: wrong model...
+                                        datetime: "2018-12-11T01:28:50Z",
                                         deleted: false,
                                         docName: "reading",
                                         id: null,
                                         image: { type: "NONE" },
                                         location: { _latitude: -34.85434, _longitude: 138.123 },
-                                        orgId: "mywell",
+                                        orgId,
                                         pending: false,
                                         resourceId: "MRKR5318r0mQFn9EBJfq",
                                         timeseriesId: "gwmbgs",
@@ -130,13 +135,14 @@ function pendingResourcesData(orgId) {
                                     },
                                     12346: {
                                         createdAt: null,
-                                        date: "2018-12-11T01:28:50Z",
+                                        date: "2018-12-11T01:29:50Z",
+                                        datetime: "2018-12-11T01:29:50Z",
                                         deleted: false,
                                         docName: "reading",
                                         id: null,
                                         image: { type: "NONE" },
                                         location: { _latitude: -34.85434, _longitude: 138.123 },
-                                        orgId: "mywell",
+                                        orgId,
                                         pending: false,
                                         resourceId: "MRKR5318r0mQFn9EBJfq",
                                         timeseriesId: "gwmbgs",

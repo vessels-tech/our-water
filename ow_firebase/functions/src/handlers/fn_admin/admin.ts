@@ -13,6 +13,7 @@ import { generateQRCode } from '../../common/apis/QRCode';
 import { ResultType } from '../../common/types/AppProviderTypes';
 import { writeFileAsync } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
+import { firestore } from '../../common/apis/FirebaseAdmin';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -100,14 +101,15 @@ module.exports = (functions) => {
   app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), async (req, res) => {
     const { orgId, userId } = req.params;
     const { status } = req.body;
+    const fbApi = new FirebaseApi(firestore);
 
-    const statusResult = await FirebaseApi.changeUserStatus(orgId, userId, status);
+    const statusResult = await fbApi.changeUserStatus(orgId, userId, status);
     if (statusResult.type === ResultType.ERROR) {
       throw new Error(statusResult.message);
     }
 
     if (status === "Approved") {
-      const syncResult = await FirebaseApi.syncPendingForUser(orgId, userId);
+      const syncResult = await fbApi.syncPendingForUser(orgId, userId);
       if (syncResult.type === ResultType.ERROR) {
         throw new Error(syncResult.message);
       }

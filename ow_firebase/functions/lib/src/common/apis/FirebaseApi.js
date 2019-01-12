@@ -42,7 +42,7 @@ class FirebaseApi {
             const batch = this.firestore.batch();
             //Readings are unique by their timestamp + resourceId.
             docs.forEach(doc => {
-                console.log("batch saving doc:", doc);
+                // console.log("batchSaveReadings, doc", hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
                 doc.batchCreate(batch, this.firestore, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
             });
             return batch.commit();
@@ -84,7 +84,6 @@ class FirebaseApi {
             const minLng = longitude - distanceMultiplier * distance;
             const maxLat = latitude + distanceMultiplier * distance;
             const maxLng = longitude + distanceMultiplier * distance;
-            console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
             return this.firestore.collection(`/org/${orgId}/resource`)
                 .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                 .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
@@ -112,7 +111,6 @@ class FirebaseApi {
     readingsWithinBoundingBox(orgId, bbox, pageParams) {
         return __awaiter(this, void 0, void 0, function* () {
             const { minLat, minLng, maxLat, maxLng } = bbox;
-            console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
             return this.firestore.collection(`/org/${orgId}/reading`)
                 .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                 .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
@@ -203,6 +201,7 @@ class FirebaseApi {
                         message: `No id mapping found for orgId: ${orgId}, shortId: ${shortId}.`
                     };
                 }
+                //@ts-ignore
                 const shortIdObj = ShortId_1.default.deserialize(result.data());
                 return {
                     type: AppProviderTypes_1.ResultType.SUCCESS,
@@ -266,6 +265,7 @@ class FirebaseApi {
             return this.firestore.runTransaction(tx => {
                 return tx.get(lockRef)
                     .then(doc => {
+                    //@ts-ignore
                     shortIdLock = doc.data();
                     //Lock has never been created. Set to initial value
                     if (!shortIdLock) {
@@ -343,22 +343,58 @@ class FirebaseApi {
                 pendingReadings = pendingReadingsResult.result;
             }
             if (errorResults.length > 0) {
+                console.log("Error: ", errorResults);
                 return Promise.resolve(AppProviderTypes_1.makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
             }
             //map them to the Firebase Domain (if needed)
             //Save to public
-            const batchResultResources = yield this.batchSaveResources(pendingResources);
-            const batchResultReadings = yield this.batchSaveReadings(pendingReadings);
-            if (batchResultResources.type === AppProviderTypes_1.ResultType.ERROR) {
-                errorResults.push(batchResultResources);
+            let batchResultResources;
+            try {
+                batchResultResources = yield this.batchSaveResources(pendingResources);
             }
-            if (batchResultReadings.type === AppProviderTypes_1.ResultType.ERROR) {
-                errorResults.push(batchResultReadings);
+            catch (err) {
+                errorResults.push({ type: AppProviderTypes_1.ResultType.ERROR, message: err });
+            }
+            let batchResultReadings;
+            try {
+                batchResultReadings = yield this.batchSaveReadings(pendingReadings);
+            }
+            catch (err) {
+                errorResults.push({ type: AppProviderTypes_1.ResultType.ERROR, message: err });
             }
             if (errorResults.length > 0) {
+                console.log("Error: ", errorResults);
                 return Promise.resolve(AppProviderTypes_1.makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
             }
             //Delete pending resources and readings
+            //We get them again since our first array has been modified in place.
+            const pendingResourceResult2 = yield this.getPendingResources(orgId, userId);
+            const pendingReadingsResult2 = yield this.getPendingReadings(orgId, userId);
+            if (pendingResourceResult2.type === AppProviderTypes_1.ResultType.ERROR) {
+                errorResults.push(pendingResourceResult2);
+            }
+            if (pendingReadingsResult2.type === AppProviderTypes_1.ResultType.ERROR) {
+                errorResults.push(pendingReadingsResult2);
+            }
+            if (errorResults.length > 0) {
+                console.log("Error: ", errorResults);
+                return Promise.resolve(AppProviderTypes_1.makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+            }
+            //@ts-ignore
+            const deleteResourcesResult = yield this.batchDeletePendingResources(orgId, userId, pendingResourceResult2.result);
+            //@ts-ignore
+            const deleteReadingsResult = yield this.batchDeletePendingReadings(orgId, userId, pendingReadingsResult2.result);
+            if (deleteResourcesResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                errorResults.push(deleteResourcesResult);
+            }
+            if (deleteReadingsResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                errorResults.push(deleteReadingsResult);
+            }
+            if (errorResults.length > 0) {
+                console.log("Error: ", errorResults);
+                return Promise.resolve(AppProviderTypes_1.makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+            }
+            return AppProviderTypes_1.makeSuccess(undefined);
         });
     }
     //

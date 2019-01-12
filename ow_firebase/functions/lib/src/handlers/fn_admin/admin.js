@@ -20,6 +20,7 @@ const QRCode_1 = require("../../common/apis/QRCode");
 const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
 const utils_1 = require("../../common/utils");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -91,12 +92,13 @@ module.exports = (functions) => {
     app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const { status } = req.body;
-        const statusResult = yield FirebaseApi_1.default.changeUserStatus(orgId, userId, status);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const statusResult = yield fbApi.changeUserStatus(orgId, userId, status);
         if (statusResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(statusResult.message);
         }
         if (status === "Approved") {
-            const syncResult = yield FirebaseApi_1.default.syncPendingForUser(orgId, userId);
+            const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
             if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
                 throw new Error(syncResult.message);
             }

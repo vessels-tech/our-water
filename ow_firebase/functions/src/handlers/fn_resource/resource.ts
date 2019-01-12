@@ -334,8 +334,9 @@ module.exports = (functions) => {
   app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), async (req, res, next) => {
     const { latitude, longitude, distance } = req.query;
     const { orgId } = req.params;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await FirebaseApi.resourcesNearLocation(orgId, latitude,longitude, distance);
+    const result = await fbApi.resourcesNearLocation(orgId, latitude,longitude, distance);
     if (result.type === ResultType.ERROR) {
       next(result.message);
       return;

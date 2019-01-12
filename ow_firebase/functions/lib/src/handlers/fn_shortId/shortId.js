@@ -18,7 +18,7 @@ const morganBody = require("morgan-body");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
-// import FirebaseApi from '../common/apis/FirebaseApi';
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 require('express-async-errors');
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -53,7 +53,8 @@ module.exports = (functions) => {
     app.post('/:orgId', validate(createShortIdValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId } = req.params;
         const { resourceId } = req.body;
-        const result = yield FirebaseApi_1.default.createShortId(orgId, resourceId);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const result = yield fbApi.createShortId(orgId, resourceId);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(result.message);
         }

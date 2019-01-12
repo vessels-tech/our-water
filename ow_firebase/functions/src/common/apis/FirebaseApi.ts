@@ -57,7 +57,6 @@ export default class FirebaseApi {
       return Promise.resolve(true);
     }
 
-
     const batch = this.firestore.batch();
     docs.forEach(doc => doc.batchCreate(batch, this.firestore));
     return batch.commit();
@@ -67,6 +66,7 @@ export default class FirebaseApi {
     const batch = this.firestore.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => {
+      // console.log("batchSaveReadings, doc", hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
       doc.batchCreate(batch, this.firestore, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime))
     });
     return batch.commit();
@@ -166,9 +166,9 @@ export default class FirebaseApi {
           readings.push(data);
         });
 
-        return makeSuccess(readings);
+        return makeSuccess<Reading[]>(readings);
       })
-      .catch(err => makeError(err.message))
+      .catch(err => makeError<Reading[]>(err.message))
   }
 
 
@@ -248,6 +248,7 @@ export default class FirebaseApi {
           message: `No id mapping found for orgId: ${orgId}, shortId: ${shortId}.`
         }
       }
+      //@ts-ignore
       const shortIdObj = ShortId.deserialize(result.data());
 
       return {
@@ -318,6 +319,7 @@ export default class FirebaseApi {
     return this.firestore.runTransaction(tx => {
       return tx.get(lockRef)
       .then(doc => {
+        //@ts-ignore
         shortIdLock = doc.data();
         //Lock has never been created. Set to initial value
         if (!shortIdLock) {
@@ -365,8 +367,8 @@ export default class FirebaseApi {
    */
   public async changeUserStatus(orgId: string, userId: string, status: 'Approved' | 'Rejected'): Promise<SomeResult<void>> {
     return this.firestore.collection('org').doc(orgId).collection('user').doc(userId).set({status}, {merge: true})
-    .then(() => makeSuccess(undefined))
-    .catch(err => makeError(err.message))
+    .then(() => makeSuccess<void>(undefined))
+    .catch(err => makeError<void>(err.message))
   }
 
   /**
@@ -396,7 +398,8 @@ export default class FirebaseApi {
     }
 
     if (errorResults.length > 0) {
-      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      console.log("Error: ", errorResults);
+      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //map them to the Firebase Domain (if needed)
@@ -416,7 +419,8 @@ export default class FirebaseApi {
     }
 
     if (errorResults.length > 0) {
-      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      console.log("Error: ", errorResults);
+      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //Delete pending resources and readings
@@ -433,7 +437,8 @@ export default class FirebaseApi {
     }
 
     if (errorResults.length > 0) {
-      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      console.log("Error: ", errorResults);
+      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //@ts-ignore
@@ -449,7 +454,8 @@ export default class FirebaseApi {
     }
 
     if (errorResults.length > 0) {
-      return Promise.resolve(makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      console.log("Error: ", errorResults);
+      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     return makeSuccess<void>(undefined);
