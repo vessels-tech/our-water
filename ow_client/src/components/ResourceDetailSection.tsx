@@ -15,7 +15,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest, maybeLog,
+  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest, maybeLog, renderLog,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
@@ -106,16 +106,16 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
-    console.log("ResourceDetailSection componentDidUpdate", prevProps.resourceId, this.props.resourceId);
+    renderLog(`ResourceDetailSection componentDidUpdate: ${prevProps.resourceId} ${this.props.resourceId}`);
     if (prevProps.resourceId !== this.props.resourceId) {
       this.reloadResourceAndReadings();
     }
   }
 
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
-    maybeLog("ResourceDetailSection componentWillUpdate():");
-    maybeLog("     - ", diff(this.props, nextProps));
-    maybeLog("     - ", diff(this.state, nextState));
+    renderLog("ResourceDetailSection componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
   }
 
   // shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {

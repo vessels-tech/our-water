@@ -9,7 +9,7 @@ import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
-import { EnableLogging } from './EnvConfig';
+import { EnableLogging, EnableRenderLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
@@ -494,6 +494,16 @@ export function getBoolean(value: any) {
 
 export function maybeLog(message: any, object?: any) {
   if (EnableLogging) {
+    if (object) {
+      console.log(message, object);
+      return;
+    }
+    console.log(message);
+  }
+}
+
+export function renderLog(message: any, object?: any) {
+  if (EnableRenderLogging) {
     if (object) {
       console.log(message, object);
       return;

@@ -11,6 +11,7 @@ export REACT_APP_BASE_URL="https://us-central1-our-water.cloudfunctions.net"
 export REACT_APP_REMOTE_CONFIG_TIMEOUT=10
 export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='true'
+export ENABLE_RENDER_LOGGING='true'
 export ENABLE_REDUX_LOGGING='true'
 export ENABLE_CACHE='true'
 

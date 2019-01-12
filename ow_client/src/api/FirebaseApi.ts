@@ -264,7 +264,6 @@ class FirebaseApi {
   }
 
   static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
-    console.log("getRecentResources, uid is", userId);
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
         const response: SomeResult<AnyResource[]> = {
@@ -285,12 +284,9 @@ class FirebaseApi {
   }
 
   static async addRecentResource(orgId: string, resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
-    console.log(`FirebaseApi addRecentResource(), orgId: ${orgId}, userId: ${userId}`);
-
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
     if (r.type === ResultType.ERROR) {
-      console.log("error", r);
       return r;
     }
 
@@ -305,7 +301,6 @@ class FirebaseApi {
       filtered.pop();
     }
     const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: filtered }, {merge: true});
-    console.log("result is", result);
     return await this.getRecentResources(orgId, userId);
   }
 
