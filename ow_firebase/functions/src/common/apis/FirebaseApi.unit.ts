@@ -23,6 +23,8 @@ describe('Firebase Api', function() {
   describe('Readings', function() {
     let newReadings;
     const readingIds = [];
+    const fbApi = new FirebaseApi(firestore);
+
 
     before(async () => {
       //TODO: create a bunch of readings
@@ -35,7 +37,7 @@ describe('Firebase Api', function() {
         new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
       ];
 
-      await FirebaseApi.batchSave(firestore, newReadings);
+      await fbApi.batchSave(firestore, newReadings);
       newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
@@ -47,10 +49,10 @@ describe('Firebase Api', function() {
         minLng: 34.0122,
         maxLng: 40,
       };
-      const pageParams: PageParams = { limit: 100, page: 0 };
+      const pageParams: PageParams = { limit: 100 };
       
       //Act
-      const readingsResult = await FirebaseApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
+      const readingsResult = await fbApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
       if (readingsResult.type === ResultType.ERROR) {
         throw new Error(readingsResult.message);
       }
@@ -69,11 +71,12 @@ describe('Firebase Api', function() {
   describe('ShortIds', function() {
     let shortId1;
     let shortId2; 
+    const fbApi = new FirebaseApi(firestore);
 
     before(async () => {
       //Create 2 new ids
-      const result1 = await FirebaseApi.createShortId(orgId, 'longId_1');
-      const result2 = await FirebaseApi.createShortId(orgId, 'longId_2');
+      const result1 = await fbApi.createShortId(orgId, 'longId_1');
+      const result2 = await fbApi.createShortId(orgId, 'longId_2');
       
       if (result1.type !== ResultType.SUCCESS && result2.type !== ResultType.SUCCESS ) {
         throw new Error(`couldn't create shortIds`);   
@@ -93,7 +96,7 @@ describe('Firebase Api', function() {
       //Arrange
       
       //Act
-      const result = await FirebaseApi.getLongId(orgId, '12345');
+      const result = await fbApi.getLongId(orgId, '12345');
 
       //Assert
       assert.equal(result.type, ResultType.ERROR);
@@ -102,7 +105,7 @@ describe('Firebase Api', function() {
     it('gets a long id for an existing shortId', async() => {
       //Arrange
       //Act
-      const result = await FirebaseApi.getLongId(orgId, shortId1);
+      const result = await fbApi.getLongId(orgId, shortId1);
 
       console.log("result", result);
       if (result.type === ResultType.ERROR) {
@@ -127,6 +130,7 @@ describe('Firebase Api', function() {
 
   describe('shortId stress tests', function() {
     this.timeout(20000);
+    const fbApi = new FirebaseApi(firestore);
 
     //It seems like it can handle about 5 simultaneous writes.
     //That's good enough for our purposes now.
@@ -135,7 +139,7 @@ describe('Firebase Api', function() {
     before(async () => {
       //Create 2 new ids
       const range = Array.from(Array(n).keys())
-      return Promise.all(range.map(i => FirebaseApi.createShortId(orgId, `longId_${i}`)))
+      return Promise.all(range.map(i => fbApi.createShortId(orgId, `longId_${i}`)))
       .then((results: SomeResult<ShortId>[]) => {
         results.forEach(result => {
           if (result.type === ResultType.ERROR) {

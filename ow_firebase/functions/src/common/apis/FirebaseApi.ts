@@ -1,6 +1,6 @@
 import { SomeResult, ResultType, makeSuccess, makeError, ErrorResult } from "../types/AppProviderTypes";
 
-// import { firestore } from './FirebaseAdmin';
+// import {this. } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
@@ -51,14 +51,14 @@ export default class FirebaseApi {
     this.firestore = firestore;
   }
 
-  public static async batchSaveResources(fs: admin.firestore.Firestore, docs: Resource[]): Promise<any> {
+  public async batchSaveResources(fs: admin.firestore.Firestore, docs: Resource[]): Promise<any> {
     const batch = fs.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => doc.batchCreate(batch, fs));
     return batch.commit();
   }
 
-  public static async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
+  public async batchSave(fs: admin.firestore.Firestore, docs: Reading[]): Promise<any> {
     const batch = fs.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => doc.batchCreate(batch, fs, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime)));
@@ -71,7 +71,7 @@ export default class FirebaseApi {
    * @param docs 
    * @param docIds - optional. If provided, will use these ids instead of the doc's id
    */
-  public static async batchDelete(fs: admin.firestore.Firestore, docs: Reading[], docIds?: string[]): Promise<any> {
+  public async batchDelete(fs: admin.firestore.Firestore, docs: Reading[], docIds?: string[]): Promise<any> {
     const batch = fs.batch();
 
     if (docIds && docIds.length !== docs.length) {
@@ -81,10 +81,10 @@ export default class FirebaseApi {
     if (docIds) {
       docs.forEach((doc, idx) => {
         const id = docIds[idx];
-        doc.batchDelete(batch, firestore, id);
+        doc.batchDelete(batch, this.firestore, id);
       });
     } else {
-      docs.forEach(doc => doc.batchDelete(batch, firestore));
+      docs.forEach(doc => doc.batchDelete(batch, this.firestore));
     }
 
     return batch.commit();
@@ -95,7 +95,7 @@ export default class FirebaseApi {
    * 
    * Get the resources near a given location
    */
-  public static async resourcesNearLocation(orgId: string, latitude: number, longitude: number, distance: number): 
+  public async resourcesNearLocation(orgId: string, latitude: number, longitude: number, distance: number): 
   Promise<SomeResult<Resource[]>> {
 
     const distanceMultiplier = 100; //TODO: tune this value based on the queries we are getting back once we can see it a map
@@ -107,7 +107,7 @@ export default class FirebaseApi {
 
     console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
 
-    return firestore.collection(`/org/${orgId}/resource`)
+    return this.firestore.collection(`/org/${orgId}/resource`)
       .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
       .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng)).get()
       .then(snapshot => {
@@ -124,17 +124,9 @@ export default class FirebaseApi {
           resources.push(data);
         });
 
-        return {
-          type: ResultType.SUCCESS,
-          result: resources,
-        }
+        return makeSuccess<Resource[]>(resources);
       })
-      .catch(err => {
-        return {
-          type: ResultType.ERROR,
-          message: err.message,
-        }
-      });
+      .catch(err => makeError<Resource[]>(err.message));
   }
 
 
@@ -143,12 +135,12 @@ export default class FirebaseApi {
    * 
    * Get the readings taken within a bounding box
    */
-  public static async readingsWithinBoundingBox(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
+  public async readingsWithinBoundingBox(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
   Promise<SomeResult<Reading[]>> {
     const { minLat, minLng, maxLat, maxLng } = bbox;
     console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
 
-    return firestore.collection(`/org/${orgId}/reading`)
+    return this.firestore.collection(`/org/${orgId}/reading`)
     .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
     .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
     //We need to order by coords to make sure the pagination works
@@ -181,7 +173,7 @@ export default class FirebaseApi {
    * 
    * Get the readings taken within a bounding box
    */
-  public static async readingsWithinBoundingBoxPaginated(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
+  public async readingsWithinBoundingBoxPaginated(orgId: string, bbox: BoundingBox, pageParams: PageParams ):
   Promise<SomeResult<PageResult<Reading[]>>> {
     const { minLat, minLng, maxLat, maxLng } = bbox;
     // console.log(`Coords are: min:(${minLat},${minLng}), max:(${maxLat},${maxLng}).`);
@@ -189,7 +181,7 @@ export default class FirebaseApi {
     return Promise.resolve()
     .then(() => {
       if (pageParams.startAfter) {
-        return firestore.collection(`/org/${orgId}/reading`)
+        return this.firestore.collection(`/org/${orgId}/reading`)
           .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
           .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
           //We need to order by coords to make sure the pagination works
@@ -199,7 +191,7 @@ export default class FirebaseApi {
           .get()
       }
 
-      return firestore.collection(`/org/${orgId}/reading`)
+      return this.firestore.collection(`/org/${orgId}/reading`)
         .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
         .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
         //We need to order by coords to make sure the pagination works
@@ -242,10 +234,10 @@ export default class FirebaseApi {
    * 
    * Get the longId given a short Id and orgId
    */
-  public static async getLongId(orgId: string, shortId: string): Promise<SomeResult<string>> {
+  public async getLongId(orgId: string, shortId: string): Promise<SomeResult<string>> {
     //TODO: update the lastUsed
     try {
-      const result = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(shortId).get();
+      const result = await this.firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(shortId).get();
       if (isNullOrUndefined(result.data())) {
         return {
           type: ResultType.ERROR,
@@ -271,10 +263,10 @@ export default class FirebaseApi {
    * 
    * Get the shortId given the longId and orgId
    */
-  public static async getShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+  public async getShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
     //TODO: update the lastUsed
 
-    return firestore.collection('org').doc(orgId).collection(ShortId.docName)
+    return this.firestore.collection('org').doc(orgId).collection(ShortId.docName)
       .where('longId', '==', longId).get()
     .then((snapshot: any) => {
       const shortIds = []
@@ -289,26 +281,16 @@ export default class FirebaseApi {
       }
 
       if (shortIds.length === 0) {
-        return {
-          type: ResultType.ERROR,
-          message: `Couldn't find a shortId for id: ${longId}`,
-        }
+        return makeError<ShortId>(`Couldn't find a shortId for id: ${longId}`);
       }
 
       const shortId = shortIds[0];
       const shortIdObj = ShortId.deserialize(shortId);
 
-      return {
-        type: ResultType.SUCCESS,
-        result: shortIdObj
-      }
+      return makeSuccess<ShortId>(shortIdObj);
+      
     })
-    .catch((err: any) => {
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
-    });
+    .catch((err: Error) => makeError<ShortId>(err.message));
   }
 
 
@@ -317,19 +299,19 @@ export default class FirebaseApi {
    * 
    * Test of CreateShortId with Firebase Transactions
    */
-  public static async createShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
+  public async createShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
     const existingShortIdResult = await this.getShortId(orgId, longId);
     if (existingShortIdResult.type === ResultType.SUCCESS) {
       return existingShortIdResult;
     }
 
     //I think the transactions handle the retries for us
-    const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
+    const lockRef = this.firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
     let shortIdLock: ShortIdLock;
     let shortIdRef;
     let shortId;
 
-    return firestore.runTransaction(tx => {
+    return this.firestore.runTransaction(tx => {
       return tx.get(lockRef)
       .then(doc => {
         shortIdLock = doc.data();
@@ -353,7 +335,7 @@ export default class FirebaseApi {
       .then(() => {
         //Set the new value
         const nextId = pad(parseInt(shortIdLock.id) + 1, 9);
-        shortIdRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(nextId);
+        shortIdRef = this.firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(nextId);
         shortId = ShortId.fromShortId(orgId, {
           shortId: nextId,
           longId,
@@ -367,27 +349,18 @@ export default class FirebaseApi {
         return tx.set(lockRef, { id: shortId.shortId, lock: false });
       })
     })
-    .then(result => {
-      // console.log("TX success, result", result);
-      return {
-        type: ResultType.SUCCESS,
-        result: shortId
-      }
-    })    
-    .catch(err => {
+    .then(result => makeSuccess(shortId))   
+    .catch((err: Error) => {
       console.log("TX Error", err);
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
+      return makeError<ShortId>(err.message);
     });
   }
 
   /**
    * Change the user's status
    */
-  public static async changeUserStatus(orgId: string, userId: string, status: 'Approved' | 'Rejected'): Promise<SomeResult<void>> {
-    return firestore.collection('org').doc(orgId).collection('user').doc(userId).set({status}, {merge: true})
+  public async changeUserStatus(orgId: string, userId: string, status: 'Approved' | 'Rejected'): Promise<SomeResult<void>> {
+    return this.firestore.collection('org').doc(orgId).collection('user').doc(userId).set({status}, {merge: true})
     .then(() => makeSuccess(undefined))
     .catch(err => makeError(err.message))
   }
@@ -397,7 +370,7 @@ export default class FirebaseApi {
    * 
    * Save the user's pendingResources and pendingReadings and delete from their collection in user.
    */
-  public static async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<void>> {
+  public async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<void>> {
     const errorResults: ErrorResult[] = [];
 
     //Get the user's pending resources and readings
@@ -424,8 +397,8 @@ export default class FirebaseApi {
 
     //map them to the Firebase Domain (if needed)
     //Save to public
-    const batchResultResources = await this.batchSaveResources(firestore, pendingResources)
-    const batchResultReadings = await this.batchSave(firestore, pendingReadings);
+    const batchResultResources = await this.batchSaveResources(this.firestore, pendingResources)
+    const batchResultReadings = await this.batchSave(this.firestore, pendingReadings);
 
     if (batchResultResources.type === ResultType.ERROR) {
       errorResults.push(batchResultResources);
@@ -457,7 +430,7 @@ export default class FirebaseApi {
    * @param orgId 
    * @param userId 
    */
-  public static async getPendingResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
+  public async getPendingResources(orgId: string, userId: string): Promise<SomeResult<Resource[]>> {
     return this.userDoc(orgId, userId).collection('pendingResources').get()
       .then((sn: any) => {
         const resources: Resource[] = [];
@@ -476,7 +449,7 @@ export default class FirebaseApi {
    * @param orgId
    * @param userId
    */
-  public static async getPendingReadings(orgId: string, userId: string): Promise<SomeResult<Reading[]>> {
+  public async getPendingReadings(orgId: string, userId: string): Promise<SomeResult<Reading[]>> {
     return this.userDoc(orgId, userId).collection('pendingReadings').get()
       .then((sn: any) => {
         const readings: Reading[] = [];
@@ -493,7 +466,7 @@ export default class FirebaseApi {
   * 
   * Delete a pending resource from the user's pending resource list
   */
-  public static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
+  public async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
     return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
       .then(() => makeSuccess(undefined))
       .catch((err: Error) => makeError(err.message));
@@ -509,10 +482,10 @@ export default class FirebaseApi {
    * @param userId 
    * @param resources 
    */
-  public static async batchDeletePendingResources(orgId: string, userId: string, resources: Resource[]): Promise<SomeResult<void>> {
-    const batch = firestore.batch();
+  public async batchDeletePendingResources(orgId: string, userId: string, resources: Resource[]): Promise<SomeResult<void>> {
+    const batch = this.firestore.batch();
     resources.forEach(r => {
-      const ref = firestore.collection('org').doc(orgId).collection('pendingResources').doc(r.id);
+      const ref = this.firestore.collection('org').doc(orgId).collection('pendingResources').doc(r.id);
       batch.delete(ref);
     });
     return batch.commit()
@@ -529,10 +502,10 @@ export default class FirebaseApi {
    * @param userId 
    * @param readings
    */
-  public static async batchDeletePendingReadings(orgId: string, userId: string, readings: Reading[]): Promise<SomeResult<void>> {
-    const batch = firestore.batch();
+  public async batchDeletePendingReadings(orgId: string, userId: string, readings: Reading[]): Promise<SomeResult<void>> {
+    const batch = this.firestore.batch();
     readings.forEach(r => {
-      const ref = firestore.collection('org').doc(orgId).collection('pendingReadings').doc(r.id);
+      const ref = this.firestore.collection('org').doc(orgId).collection('pendingReadings').doc(r.id);
       batch.delete(ref);
     });
     return batch.commit()
