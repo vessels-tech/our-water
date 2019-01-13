@@ -107,6 +107,8 @@ export function fromCommonReadingToFBReadingBuilder(orgId: string, userId: strin
       userId,
       image: reading.image,
       location: reading.location,
+      resourceType: reading.resourceType,
+      datetime: reading.date,
     }
   } else {
     options = {

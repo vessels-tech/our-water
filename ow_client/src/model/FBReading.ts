@@ -3,6 +3,7 @@ import { OrgType } from "../typings/models/OrgType";
 import { MaybeReadingImage } from "../typings/models/ReadingImage";
 import { MaybeReadingLocation } from "../typings/models/ReadingLocation";
 import { AnyReading, GGMNReading, MyWellReading } from "../typings/models/Reading";
+import { ResourceType } from "../enums";
 
 export type CommonReadingBuilder = {
   orgId: string,
@@ -19,6 +20,9 @@ export type MyWellReadingBuilder = {
   userId?: string,
   image?: MaybeReadingImage,
   location?: MaybeReadingLocation, //This is the location that the reading was taken, not the coords of the resource the readings is for
+  
+  resourceType?: ResourceType
+  datetime?: string
 }
 
 export type GGMNReadingBuilder = {
@@ -44,6 +48,8 @@ export default class FBReading extends FirestoreDoc {
   userId?: string
   image?: MaybeReadingImage
   location?: MaybeReadingLocation
+  resourceType?: ResourceType
+  datetime?: string
 
   /* GGMN Specific */
   groundwaterStationId?: string
@@ -63,11 +69,16 @@ export default class FBReading extends FirestoreDoc {
     this.image = builder.image;
     this.location = builder.location;
     this.groundwaterStationId = builder.groundwaterStationId;
+
+    this.datetime = builder.datetime;
+    this.resourceType = builder.resourceType;
   }
 
   public serialize(): any {
     return {
       type: this.type,
+      resourceType: this.resourceType,
+      datetime: this.datetime,
       pending: this.pending,
       deleted: this.deleted,
       resourceId: this.resourceId,

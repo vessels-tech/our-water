@@ -93,6 +93,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     // }
 
     // const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+
     const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);

@@ -23,6 +23,8 @@ import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
 import { diff } from "deep-object-diff";
+import { ResourceType } from '../enums';
+import { isNullOrUndefined } from 'util';
 
 
 
@@ -36,6 +38,7 @@ export interface OwnProps {
 export interface StateProps {
   translation: TranslationFile,
   // resource: AnyResource | null,
+  resourceType: ResourceType,
   meta: ActionMeta,
   userId: string,
 }
@@ -77,7 +80,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
     navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
       resourceId,
-      resourceType: 'well',
+      resourceType: this.props.resourceType,
       config: this.props.config,
       userId: this.props.userId
     });
@@ -132,22 +135,44 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
-  let resource = null;
+  let resource: AnyResource | null = null;
   let resourceMeta = state.resourceMeta;
   let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
-
+  console.log("State.resources", state.resources);
+  console.log("ownProps.resourceId", ownProps.resourceId);
+  
+  //TD Hacky way to get the resource
   state.resources.forEach(r => {
     if (r.id === ownProps.resourceId) {
       resource = r;
     }
   });
+  if (!resource) {
+    state.recentResources.forEach(r => {
+      if (r.id === ownProps.resourceId) {
+        resource = r;
+      }
+    })
+  }
+  if (!resource) {
+    state.favouriteResources.forEach(r => {
+      if (r.id === ownProps.resourceId) {
+        resource = r;
+      }
+    })
+  }
+  
+  let resourceType: ResourceType = ResourceType.well;
+  if (!isNullOrUndefined(resource) && resource.resourceType) {
+    resourceType = resource.resourceType;
+  }
 
   return {
     translation: state.translation,
-    // resource,
+    resourceType,
     meta,
     userId: unwrapUserId(state.user),
   };

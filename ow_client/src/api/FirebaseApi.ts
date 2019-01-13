@@ -483,6 +483,8 @@ class FirebaseApi {
    * and not actually commited to the server
    */
   static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<void>> {
+    console.log("Reading is", reading);
+
     /* we don't want to wait for this to resolve */
     this.saveReadingToUser(orgId, userId, reading);
 

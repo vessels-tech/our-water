@@ -201,6 +201,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       image: readingImage,
       location: readingLocation,
       groundwaterStationId,
+
+      //TD: hacks while we wait for a fix on types
+      datetime: moment(date).utc().format(), //converts to iso string
+      resourceType: this.props.resourceType,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -215,6 +219,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
       return;
     }
+
+    console.log("Validate result is", validateResult);
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, this.props.resourceId, validateResult.result);
 
@@ -356,7 +362,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       new_reading_timeseries,
     } = this.props.translation.templates;
 
+    console.log("Resource type is", resourceType);
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
+    console.log("timeseriesList is", timeseriesList);
 
     return (
       <View style={{
