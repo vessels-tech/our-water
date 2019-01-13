@@ -124,6 +124,11 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       selectedResource: resource,
     });
 
+    if (resource.pending) {
+      //Don't add to recents if it's pending.
+      return;
+    }
+    
     this.props.addRecent(this.appApi, this.props.userId, resource);
   }
 

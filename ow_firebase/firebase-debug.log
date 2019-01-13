@@ -1,0 +1,68 @@
+[debug] [2019-01-12T05:26:33.100Z] ----------------------------------------------------------------------
+[debug] [2019-01-12T05:26:33.102Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
+[debug] [2019-01-12T05:26:33.102Z] CLI Version:   6.1.0
+[debug] [2019-01-12T05:26:33.102Z] Platform:      darwin
+[debug] [2019-01-12T05:26:33.102Z] Node Version:  v8.11.1
+[debug] [2019-01-12T05:26:33.103Z] Time:          Sat Jan 12 2019 15:56:33 GMT+1030 (ACDT)
+[debug] [2019-01-12T05:26:33.103Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-01-12T05:26:33.116Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-01-12T05:26:33.116Z] > authorizing via signed-in user
+[debug] [2019-01-12T05:26:33.116Z] [iam] checking project our-water for permissions ["firebase.projects.get"]
+[debug] [2019-01-12T05:26:33.118Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water:testIamPermissions  
+
+[debug] [2019-01-12T05:26:34.565Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-12T05:26:34.566Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+ 
+[debug] [2019-01-12T05:26:36.055Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2019-01-12T05:26:36.834Z] Fetching environment
+[debug] [2019-01-12T05:26:36.836Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+ 
+[debug] [2019-01-12T05:26:37.419Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-12T05:26:37.420Z] Starting @google-cloud/functions-emulator
+[debug] [2019-01-12T05:26:38.990Z] Parsing function triggers
+[info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading
+[info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
+[info] ✔  functions: shortId: http://localhost:5000/our-water/us-central1/shortId
+[info] ✔  functions: admin: http://localhost:5000/our-water/us-central1/admin
+[info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
+[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
+[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
+[debug] [2019-01-13T03:30:51.344Z] ----------------------------------------------------------------------
+[debug] [2019-01-13T03:30:51.346Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
+[debug] [2019-01-13T03:30:51.346Z] CLI Version:   6.1.0
+[debug] [2019-01-13T03:30:51.346Z] Platform:      darwin
+[debug] [2019-01-13T03:30:51.346Z] Node Version:  v8.11.1
+[debug] [2019-01-13T03:30:51.347Z] Time:          Sun Jan 13 2019 14:00:51 GMT+1030 (ACDT)
+[debug] [2019-01-13T03:30:51.347Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-01-13T03:30:51.357Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-01-13T03:30:51.358Z] > authorizing via signed-in user
+[debug] [2019-01-13T03:30:51.358Z] [iam] checking project our-water for permissions ["firebase.projects.get"]
+[debug] [2019-01-13T03:30:51.359Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water:testIamPermissions  
+
+[debug] [2019-01-13T03:30:52.764Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-13T03:30:52.765Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+ 
+[debug] [2019-01-13T03:30:54.116Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2019-01-13T03:30:54.826Z] Fetching environment
+[debug] [2019-01-13T03:30:54.828Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+ 
+[debug] [2019-01-13T03:30:55.538Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-13T03:30:55.538Z] Starting @google-cloud/functions-emulator
+[debug] [2019-01-13T03:30:57.112Z] Parsing function triggers
+[info] ✔  functions: org: http://localhost:5000/our-water/us-central1/org
+[info] ✔  functions: group: http://localhost:5000/our-water/us-central1/group
+[info] ✔  functions: shortId: http://localhost:5000/our-water/us-central1/shortId
+[info] ✔  functions: admin: http://localhost:5000/our-water/us-central1/admin
+[info] ✔  functions: resource: http://localhost:5000/our-water/us-central1/resource
+[info] ✔  functions: reading: http://localhost:5000/our-water/us-central1/reading
+[info] ✔  functions: sync: http://localhost:5000/our-water/us-central1/sync
