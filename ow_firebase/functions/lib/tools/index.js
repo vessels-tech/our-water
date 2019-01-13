@@ -231,9 +231,7 @@ function getNewConfig() {
         const parameters = {
             applicationName: buildParameter('MyWell', 'the application name', conditionKeys, ['GGMN', 'GGMN DEV', 'MyWell']),
             baseApiType: buildParameter('MyWellApi', '', conditionKeys, ['GGMNApi', 'GGMNApi', 'MyWellApi']),
-            firebaseBaseUrl: buildParameter(
-            // 'https://us-central1-our-water.cloudfunctions.net', 
-            'https://ourwater2.localtunnel.me/our-water/us-central1', '', conditionKeys, ['GGMN', 'GGMN', 'https://ourwater2.localtunnel.me/our-water/us-central1']),
+            firebaseBaseUrl: buildParameter('https://us-central1-our-water.cloudfunctions.net', '', conditionKeys, ['GGMN', 'GGMN', 'https://us-central1-our-water.cloudfunctions.net']),
             ggmnBaseUrl: buildParameter('https://ggmn.lizard.net', '', conditionKeys, ['https://ggmn.lizard.net', 'https://ggmn.lizard.net', '']),
             showConnectToButton: buildParameter('false', 'should should the connect to button?', conditionKeys, ['true', 'true', 'false']),
             showSyncButton: buildParameter('false', 'should should the sync to button?', conditionKeys, ['true', 'true', 'false']),
