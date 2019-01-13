@@ -53,7 +53,13 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   /**
    * saveReading
    * 
-   * @description Save a reading. If the user is not approved 
+   * @description Save a reading.
+   * 
+   * In order to get efficent realtime updates and improve the UX for the user,
+   * we always save the reading locally to the user's `pendingReadings` collection 
+   * first. That also keeps things more consistent with GGMN for now.
+   * 
+   * The user or we can then run a sync at any stage and update the readings globally.
    * 
    * 
    * @param resourceId 
@@ -78,13 +84,15 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //   return makeSuccess<SaveReadingResult>({ requiresLogin: true, reading: saveResult.result });
     // }
 
-    const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+    // const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);
       return makeError(saveResult.message);
     }
 
-    return makeSuccess<SaveReadingResult>({ requiresLogin: false, reading: saveResult.result });
+    // return makeSuccess<SaveReadingResult>({ requiresLogin: false, reading: saveResult.result });
+    return makeSuccess<SaveReadingResult>({ requiresLogin: false });
   }
 
   //

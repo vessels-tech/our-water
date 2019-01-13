@@ -69,7 +69,6 @@ export interface StateProps {
   favouriteResourcesMeta: SyncMeta,
   favourite: boolean,
   translation: TranslationFile,
-  pendingReadings: PendingReading[],
   userId: string,
   resource: Maybe<AnyResource>, 
   pendingResource: Maybe<PendingResource>,
@@ -316,13 +315,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       );
     }
 
+    console.log("getLatestReadingsForTimeseries, timeseriesList", timeseriesList);
+
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
+      console.log("readings for this timeseries are:", readings);
 
       let content = 'N/A';
       let contentSubtitle;
     
       const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
+      console.log("latestReading is", latestReading);
       content = `${latestReading.value.toFixed(2)}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 
@@ -389,7 +392,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
               />
-            {allowEditReadings && <ResourceDetailBottomButton
+          {allowEditReadings   && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
               onPress={() => this.props.onEditReadingsPressed(resourceId)}
             />}
@@ -623,7 +626,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favourite,
     translation: state.translation,
-    pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resourceId),
     userId: state.user.type === UserType.NO_USER ? '' : state.user.userId,
     resource,
     pendingResource,

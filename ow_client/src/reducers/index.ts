@@ -561,30 +561,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         });
         newTsReadings[id] = dedup;
       });
-
-
-
-      // const newTsReadings = state.newTsReadings;
-      // const newTsReadingsMeta = state.newTsReadingsMeta;
-      // let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-
-      // const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
-      //   .filter(r => r.resourceId === action.resourceId);
-
-      // const duplicateArray = currentReadings.concat(pendingReadings).filter(r => !isNullOrUndefined(r));
-      // const dedup = dedupArray(duplicateArray, (r) => {
-      //   if (!r) {
-      //     console.warn("undefined resource in array!", r);
-      //     return '1';
-      //   }
-      //   return `${r.date}+${r.resourceId}+${r.timeseriesId}`
-      // });
-
-      // //Update the values
-      // newTsReadings[action.resourceId] = dedup;
-      // newTsReadingsMeta[action.resourceId] = meta;
-
-      // return Object.assign({}, state, { newTsReadings, newTsReadingsMeta });
+      
       return Object.assign({}, state, { newTsReadings });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {

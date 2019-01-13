@@ -33,6 +33,7 @@ import { OrgType } from '../typings/models/OrgType';
 import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
 import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 import { UserStatus } from '../typings/UserTypes';
+import { date } from 'react-native-joi';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -548,7 +549,10 @@ class FirebaseApi {
       .get()
     .then((sn: any) => {
       console.log("readings result", sn);
-      return this.snapshotToReadings(sn);
+      const parsedReadings = this.snapshotToReadings(sn);
+      console.log("parsed readings are", parsedReadings);
+
+      return parsedReadings;
     })
     .then((readings: AnyReading[]) => makeSuccess(readings))
     .catch((err: Error) => {
@@ -1152,13 +1156,14 @@ class FirebaseApi {
         location = data.location;
       }
 
+      //TD: This really needs to be fixed
       const reading: MyWellReading = {
         type: OrgType.MYWELL,
         resourceId: data.resourceId,
         timeseriesId: data.timeseriesId,
-        date: data.datetime,
+        date: data.datetime || data.date,
         value: data.value,
-        userId: 'unknown',
+        userId: data.userId || 'unknown',
         image,
         location,
       };
