@@ -145,8 +145,13 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
     // If a resource is selected, and it changes in the props, we need to update it.
-    this.handleUpdatedResource(nextProps);
-    this.handleUpdatedPendingResource(nextProps);
+    if (this.state.selectedResource) {
+      if (!this.state.selectedResource.pending) {
+        this.handleUpdatedResource(nextProps);
+      } else {
+        this.handleUpdatedPendingResource(nextProps);
+      }
+    }
   }
 
   handleUpdatedResource(nextProps: OwnProps & StateProps & ActionProps) {
@@ -183,6 +188,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         });
       }
 
+      
       if (!this.state.selectedResource.pending && !updatedSelectedResource) {
         this.setState({ selectedResource: null, hasSelectedResource: false });
         return;
@@ -463,7 +469,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       return null;
     }
 
-    let groundwaterStationId: string | null= null;
+    let groundwaterStationId: string | null = null;
     if (selectedResource.type === OrgType.GGMN) {
       groundwaterStationId = selectedResource.groundwaterStationId;
     }
