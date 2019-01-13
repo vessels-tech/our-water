@@ -30,7 +30,7 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } f
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
-import { unwrapUserId, displayAlert } from '../../utils';
+import { unwrapUserId, displayAlert, debounced } from '../../utils';
 import { isNullOrUndefined } from 'util';
 
 export interface Props { 
@@ -87,6 +87,7 @@ class EditResourceScreen extends Component<Props> {
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.displayDeleteModal = this.displayDeleteModal.bind(this);
+    this.handleSubmit = debounced(1000, this.handleSubmit);
 
     this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
   }
@@ -221,7 +222,7 @@ class EditResourceScreen extends Component<Props> {
     const result = await this.extendedResourceApi.checkNewId(control.value);
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
+      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.LONG);
 
       throw { invalidId: true };
     }
@@ -460,7 +461,7 @@ class EditResourceScreen extends Component<Props> {
               loading={loading}
               disabled={invalid}
               title={loading ? '' : new_resource_submit_button}
-              onPress={() => this.handleSubmit()}
+              onPress={this.handleSubmit}
             />
           </View>
         )}

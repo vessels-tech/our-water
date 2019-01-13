@@ -464,7 +464,7 @@ export function throttled(delay: number, cb: any) {
 }
 
 // ES6
-export function debounced(delay: number, fn: any) {
+export function debounced(delay: number, fn: any): any {
   let timerId: any;
   return function (...args: any[]) {
     if (timerId) {
