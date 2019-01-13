@@ -13,7 +13,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
-import { maybeLog, convertRangeToDates } from '../utils';
+import { maybeLog, convertRangeToDates, naiveParseFetchResponse } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
 //@ts-ignore
@@ -292,12 +292,19 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     console.log("syncURL is", syncUrl);
 
     return ftch(syncUrl, options)
-      .then(() => makeSuccess({ 
-        status: ExternalSyncStatusType.COMPLETE,
-        pendingResourcesResults: [],
-        pendingReadingsResults: [],
-        newResources: [],
-      }))
+      .then((response: any) => naiveParseFetchResponse<any>(response))
+      .then((parsed: SomeResult<any>) => {
+        if(parsed.type === ResultType.ERROR) {
+          return parsed;
+        }
+
+        return makeSuccess({ 
+          status: ExternalSyncStatusType.COMPLETE,
+          pendingResourcesResults: [],
+          pendingReadingsResults: [],
+          newResources: [],
+        })
+      })
       .catch((err: Error) => makeError<ExternalSyncStatusComplete>(err.message + err.stack))
   }
 

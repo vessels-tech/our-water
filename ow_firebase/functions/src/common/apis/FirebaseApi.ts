@@ -64,6 +64,11 @@ export default class FirebaseApi {
   }
 
   public async batchSaveReadings(docs: Reading[]): Promise<any> {
+    if (docs.length === 0) {
+      console.warn('Tried to save a batch of resources, but readings was empty.');
+      return Promise.resolve(true);
+    }
+
     const batch = this.firestore.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => {
@@ -80,6 +85,11 @@ export default class FirebaseApi {
    * @param docIds - optional. If provided, will use these ids instead of the doc's id
    */
   public async batchDelete(fs: admin.firestore.Firestore, docs: Reading[], docIds?: string[]): Promise<any> {
+    if (docs.length === 0) {
+      console.warn('Tried to save a batch of resources, but readings was empty.');
+      return Promise.resolve(true);
+    }
+    
     const batch = fs.batch();
 
     if (docIds && docIds.length !== docs.length) {

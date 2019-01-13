@@ -39,6 +39,10 @@ class FirebaseApi {
     }
     batchSaveReadings(docs) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (docs.length === 0) {
+                console.warn('Tried to save a batch of resources, but readings was empty.');
+                return Promise.resolve(true);
+            }
             const batch = this.firestore.batch();
             //Readings are unique by their timestamp + resourceId.
             docs.forEach(doc => {
@@ -56,6 +60,10 @@ class FirebaseApi {
      */
     batchDelete(fs, docs, docIds) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (docs.length === 0) {
+                console.warn('Tried to save a batch of resources, but readings was empty.');
+                return Promise.resolve(true);
+            }
             const batch = fs.batch();
             if (docIds && docIds.length !== docs.length) {
                 return Promise.reject(new Error("docs.length and docIds.length must match"));
