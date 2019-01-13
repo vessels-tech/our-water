@@ -86,5 +86,5 @@ export const menuColors = [
   "#735D9B",
   "#77B79F",
   "#D27F89",
-  "#F2D68F",
+  "#B88C1E",
 ];
