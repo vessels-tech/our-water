@@ -668,6 +668,30 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
       return Object.assign({}, state, { externalSyncStatus })
     }
+    case ActionType.START_INTERNAL_SYNC_REQUEST: {
+      //TD: this is hacky, I just don't want to make an InternalSyncStatus
+      const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
+
+      //TODO: handle login error case here?
+      return Object.assign({}, state, { externalSyncStatus })
+    }
+
+    case ActionType.START_INTERNAL_SYNC_RESPONSE: {      
+      //If this errored out, then something serious went wrong
+      if (action.result.type === ResultType.ERROR) {
+        const externalSyncStatus: ExternalSyncStatusComplete = { 
+          status: ExternalSyncStatusType.COMPLETE,  
+          pendingResourcesResults: {},
+          pendingReadingsResults: {},
+          newResources: [],
+        };
+
+        return Object.assign({}, state, { externalSyncStatus })
+      }
+
+      const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
+      return Object.assign({}, state, { externalSyncStatus })
+    }
 
     case ActionType.SET_EXTERNAL_ORGANISATION: {
       const currentExternalLoginDetails = state.externalLoginDetails;

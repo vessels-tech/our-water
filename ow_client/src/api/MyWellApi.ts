@@ -16,9 +16,15 @@ import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
+//@ts-ignore
+import { default as ftch } from '../utils/Fetch';
+import { ExternalSyncStatusComplete, ExternalSyncStatusType } from '../typings/api/ExternalServiceApi';
+
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
+
+const timeout = 1000 * 15; //15 seconds
 
 
 /**
@@ -30,12 +36,14 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   orgId: string
   networkApi: NetworkApi;
+  baseUrl: string;
   pendingReadingsSubscription: any;
   internalAccountApiType: InternalAccountApiType.Has = InternalAccountApiType.Has;
 
-  constructor(networkApi: NetworkApi, orgId: string) {
+  constructor(networkApi: NetworkApi, orgId: string, baseUrl: string) {
     this.networkApi = networkApi;
     this.orgId = orgId;
+    this.baseUrl = baseUrl;
   }
 
   /**
@@ -197,6 +205,18 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   }
 
   /**
+   * Delete pending resource
+   * 
+   * Returns immediately as it needs to work offline
+   */
+  deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
+    FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
+    FirebaseApi.deletePendingReadingsForResource(this.orgId, userId, pendingResourceId);
+
+    return Promise.resolve(makeSuccess(undefined));
+  }
+
+  /**
    * GetShortId
    * 
    * MyWell uses the default firebase implementation. 
@@ -240,6 +260,41 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     return makeSuccess(shortIds);
   }
 
+
+  /**
+   * RunInternalSync
+   *
+   * Run a sync where we save Resources and Readings from the user's private collections to
+   * the public. For now, this will call the Firebase Admin API endpoint.
+   * 
+   * In the future, we can refactor this to use the common FirebaseApi
+   *
+   *
+   * @param userId
+   */
+  runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
+    const syncUrl = `${this.baseUrl}/admin/${this.orgId}/${userId}/sync`;
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    };
+
+    console.log("syncURL is", syncUrl);
+
+    return ftch(syncUrl, options)
+      .then(() => makeSuccess({ 
+        status: ExternalSyncStatusType.COMPLETE,
+        pendingResourcesResults: [],
+        pendingReadingsResults: [],
+        newResources: [],
+      }))
+      .catch((err: Error) => makeError<ExternalSyncStatusComplete>(err.message + err.stack))
+  }
+
   //
   // Reading API
   //----------------------------------------------------------------
@@ -256,6 +311,13 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
     return result.result;
   }
+
+  deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
+
+    return Promise.resolve(makeSuccess(undefined));
+  }
+
   
   //
   // Subscriptions

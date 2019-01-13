@@ -102,7 +102,7 @@ export class ConfigFactory {
 
     } else {
       //Default to MyWellApi
-      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId, this.remoteConfig.firebaseBaseUrl);
       //@ts-ignore
       this.appApi = mywellApi;
       //@ts-ignore

@@ -18,6 +18,7 @@ import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux'
 import { AnyResource } from '../typings/models/Resource';
+import { PendingResource } from '../typings/models/PendingResource';
 
 
 export interface OwnProps {
@@ -47,13 +48,14 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
     this.selectResource = this.selectResource.bind(this);
   }
 
-  selectResource(resource: AnyResource) {
+  selectResource(resource: AnyResource | PendingResource) {
     const title = getShortIdOrFallback(resource.id, this.props.shortIdCache);
     //Navigate to a standalone resource view
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', title, {
       resourceId: resource.id,
       config: this.props.config,
-      userId: this.props.userId
+      userId: this.props.userId,
+      isPending: resource.pending,
     });
   }
 

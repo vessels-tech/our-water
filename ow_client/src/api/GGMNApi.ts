@@ -556,6 +556,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
 
+  runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
+    throw new Error("Method not implemented");
+  }
+
+
+
   //
   // Reading API
   //----------------------------------------------------------------------

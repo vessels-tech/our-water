@@ -34,7 +34,7 @@ export interface StateProps {
 
 export interface ActionProps {
   startExternalSync: (baseApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => any,
-  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
+  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) => any,
   deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
 
@@ -257,7 +257,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <ReadingListItem
         key={i}
-        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id)}
+        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
         pendingReading={r}
         sync_date_format={sync_date_format}
         message={message}
@@ -413,8 +413,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
       dispatch(appActions.startExternalSync(appApi, api, userId, pendingResources, pendingReadings)),
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
-    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
-      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId))
+    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
+      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
   }
 }
 

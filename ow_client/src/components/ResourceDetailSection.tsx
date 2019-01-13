@@ -15,16 +15,13 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest, maybeLog, renderLog,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import HeadingText from './common/HeadingText';
-import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
-import TimeseriesCard from './common/TimeseriesCard';
 
 import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
@@ -37,7 +34,6 @@ import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
-import { PendingReading } from '../typings/models/PendingReading';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
@@ -45,11 +41,8 @@ import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom'
 import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
-import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
 import { diff } from 'deep-object-diff';
-import { getDefaultSettings } from 'http2';
 import TimeseriesCardSimple from './common/TimeseriesCardSimple';
-import { secondaryText } from '../utils/NewColors';
 
 
 export interface OwnProps {

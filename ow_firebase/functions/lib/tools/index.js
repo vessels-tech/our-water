@@ -44,18 +44,17 @@ function getAuthHeader(admin) {
 }
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
-// const key = require('../src/test/.serviceAccountKey.json');
 //TODO: make the user specify the key
-const key = {
-    client_email: '12345',
-    private_key: '12345',
-};
+// const key = {
+//   client_email: '12345',
+//   private_key: '12345',
+// };
 /**
  * getAdminAccessToken
  *
  * Gets the admin access token for using firebase admin tools.
  */
-function getAdminAccessToken() {
+function getAdminAccessToken(key) {
     return __awaiter(this, void 0, void 0, function* () {
         const client = new JWT(key.client_email, null, key.private_key, ['https://www.googleapis.com/auth/firebase.remoteconfig'], null);
         try {
@@ -232,7 +231,7 @@ function getNewConfig() {
         const parameters = {
             applicationName: buildParameter('MyWell', 'the application name', conditionKeys, ['GGMN', 'GGMN DEV', 'MyWell']),
             baseApiType: buildParameter('MyWellApi', '', conditionKeys, ['GGMNApi', 'GGMNApi', 'MyWellApi']),
-            firebaseBaseUrl: buildParameter('localhost:5000', '', conditionKeys, ['GGMN', 'GGMN', 'localhost:5000']),
+            firebaseBaseUrl: buildParameter('https://us-central1-our-water.cloudfunctions.net', '', conditionKeys, ['GGMN', 'GGMN', 'https://us-central1-our-water.cloudfunctions.net']),
             ggmnBaseUrl: buildParameter('https://ggmn.lizard.net', '', conditionKeys, ['https://ggmn.lizard.net', 'https://ggmn.lizard.net', '']),
             showConnectToButton: buildParameter('false', 'should should the connect to button?', conditionKeys, ['true', 'true', 'false']),
             showSyncButton: buildParameter('false', 'should should the sync to button?', conditionKeys, ['true', 'true', 'false']),
@@ -279,14 +278,15 @@ function getNewConfig() {
                 },
                 //MyWell
                 {
-                    well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
-                    raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'mm' }],
+                    //TODO: I'm not sure what the parameter should be - default?
+                    well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
+                    raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
                     quality: [
                         { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
                         { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
                         { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
                     ],
-                    checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
+                    checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
                 }
             ]),
             editResource_allowCustomId: buildParameter(false, 'When creating a resource, is the user allowed to enter a custom id?', conditionKeys, [true, true, false]),

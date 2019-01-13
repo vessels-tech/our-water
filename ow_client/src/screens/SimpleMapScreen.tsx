@@ -152,7 +152,8 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
       config: this.props.config,
-      userId: this.props.userId
+      userId: this.props.userId,
+      isPending: resource.pending,
     });
   }
 

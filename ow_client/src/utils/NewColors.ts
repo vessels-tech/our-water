@@ -68,14 +68,23 @@ export const secondaryText = {
 
 //Pretty Colors
 export const prettyColors = [
-  primaryPallette._600,
-  secondaryPallette._200,
   secondaryPallette._100,
+  secondaryPallette._200,
   secondaryPallette._500,
-  secondaryPallette._700,
-  secondaryPallette._800,
+  "#735D9B",
+  "#77B79F",
+  "#D27F89",
+  "#F2D68F",
 ];
 
 export const navBarTextColor = surfaceText;
 export const statusBarColor = surfaceDark;
 export const statusBarTextColorScheme = 'dark';
+
+//Menu Colors (MyWell Only)
+export const menuColors = [
+  "#735D9B",
+  "#77B79F",
+  "#D27F89",
+  "#F2D68F",
+];

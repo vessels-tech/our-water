@@ -252,10 +252,10 @@ export async function getNewConfig(): Promise<any> {
       ['GGMNApi', 'GGMNApi', 'MyWellApi']
     ),
     firebaseBaseUrl: buildParameter(
-      'localhost:5000', 
+      'https://us-central1-our-water.cloudfunctions.net', 
       '', 
       conditionKeys, 
-      ['GGMN', 'GGMN', 'localhost:5000']
+      ['GGMN', 'GGMN', 'https://us-central1-our-water.cloudfunctions.net']
     ),
     ggmnBaseUrl: buildParameter(
       'https://ggmn.lizard.net', 

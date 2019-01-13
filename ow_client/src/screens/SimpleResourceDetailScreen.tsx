@@ -30,6 +30,7 @@ export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
   resourceId: string,
+  isPending: boolean,
 }
 
 export interface StateProps {
@@ -83,7 +84,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   }
 
   getResourceDetailSection() {
-    const { meta, userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
+    const { meta, userId, isPending, translation: { templates: { resource_detail_new } } } = this.props;
 
     // if (meta.loading) {
     //   return (
@@ -103,7 +104,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
       <ResourceDetailSection
         config={this.props.config}
         hideTopBar={true}
-        isPending={false}
+        isPending={isPending}
         onAddReadingPressed={this.onAddReadingPressed}
         resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}

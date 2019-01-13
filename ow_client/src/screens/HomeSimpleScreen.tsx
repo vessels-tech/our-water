@@ -13,6 +13,7 @@ import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
 import MenuButton from '../components/common/MenuButton';
+import { menuColors } from '../utils/NewColors';
 
 
 export interface OwnProps {
@@ -68,10 +69,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
         }}>
           <MenuButton 
+            color={menuColors[0]}
             name={menu_well}
             onPress={() => presentResourceScreen('Wells', ResourceType.well)}
           />
           <MenuButton 
+            color={menuColors[1]}
             name={menu_rainfall}
             onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
           />
@@ -81,10 +84,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
         }}>
           <MenuButton
+            color={menuColors[2]}
             name={menu_water_quality}
             onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
           />
           <MenuButton
+            color={menuColors[3]}
             name={menu_checkdam}
             onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}
           />

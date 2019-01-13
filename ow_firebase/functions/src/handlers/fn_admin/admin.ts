@@ -118,6 +118,29 @@ module.exports = (functions) => {
     res.status(204).send(true);
   });
 
+  /**
+   * SyncUserData
+   * POST /:orgId/:userId/sync
+   * 
+   * Syncronises the user's pendingResources and pendingReadings, and cleans them up
+   * The user MUST be approved before calling this method. 
+   *
+   */
+  //TODO: secure this endpoint
+  app.post('/:orgId/:userId/sync', async (req, res) => {
+    const { orgId, userId } = req.params;
+    const fbApi = new FirebaseApi(firestore);
+
+    //TODO: check that the user is approved, throw a 400 if not
+    // const user = fbApi.getUser(orgId, userId);
+
+    const syncResult = await fbApi.syncPendingForUser(orgId, userId);
+    if (syncResult.type === ResultType.ERROR) {
+      throw new Error(syncResult.message);
+    }
+
+    res.status(204).send(true);
+  });
 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });

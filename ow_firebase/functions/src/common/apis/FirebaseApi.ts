@@ -10,6 +10,7 @@ import { isNullOrUndefined } from "util";
 import { OWGeoPoint } from "ow_types";
 import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
+import { UserBuilder } from "firebase-functions/lib/providers/auth";
 
 
 
