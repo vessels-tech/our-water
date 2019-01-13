@@ -164,31 +164,36 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
   /**
    * saveResource
+   * 
+   * Always saves the resource to the user's pendingResources. This allows us to easily get the offline features
+   * working, and keeps things more similar to GGMN.
    */
   async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.MYWELL;
-    const userResult = await FirebaseApi.getUser(this.orgId, userId);
-    if (userResult.type === ResultType.ERROR) {
-      maybeLog(userResult.message);
-      return makeError(userResult.message);
-    }
+    // const userResult = await FirebaseApi.getUser(this.orgId, userId);
+    // if (userResult.type === ResultType.ERROR) {
+    //   maybeLog(userResult.message);
+    //   return makeError(userResult.message);
+    // }
 
-    if (userResult.result.status !== OWUserStatus.Approved) {
+    // if (userResult.result.status !== OWUserStatus.Approved) {
       const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
       if (saveResult.type === ResultType.ERROR) {
         maybeLog(saveResult.message);
         return makeError(saveResult.message);
       }
+
+      //TODO: We need to update this flag for the offline features etc.
       return makeSuccess({requiresLogin: true});
-    }
+    // }
 
-    const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
-    if (saveResult.type === ResultType.ERROR) {
-      maybeLog(saveResult.message);
-      return makeError('Could not save resource');
-    }
+    // const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
+    // if (saveResult.type === ResultType.ERROR) {
+    //   maybeLog(saveResult.message);
+    //   return makeError('Could not save resource');
+    // }
 
-    return makeSuccess({requiresLogin: false});
+    // return makeSuccess({requiresLogin: false});
   }
 
   /**
