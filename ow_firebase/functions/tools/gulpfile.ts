@@ -1,6 +1,6 @@
 import * as gulp from 'gulp';
 import { getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig } from '.';
-import { admin } from '../src/test/TestFirebase';
+import { admin, firestore } from '../src/test/TestFirebase';
 const request = require('request-promise-native');
 import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg, functionReplacer, translationFromJSON} from 'ow_translations';
 import FirebaseApi, { BoundingBox, PageParams } from '../src/common/apis/FirebaseApi';
@@ -9,6 +9,7 @@ import { Reading } from '../src/common/models/Reading';
 import { readingToCSV, readingHeading } from './csv';
 
 var fs = require('fs');
+const fbApi = new FirebaseApi(firestore);
 
 const PROJECT_ID = 'our-water';
 
@@ -65,7 +66,7 @@ gulp.task('get_readings_csv', async() => {
   writer.write(readingHeading());
 
   let pageParams: PageParams = { limit: PAGE_SIZE };
-  const readingsResult = await FirebaseApi.readingsWithinBoundingBoxPaginated('mywell', bbox, pageParams);
+  const readingsResult = await fbApi.readingsWithinBoundingBoxPaginated('mywell', bbox, pageParams);
   if (readingsResult.type === ResultType.ERROR) {
     throw new Error(readingsResult.message);
   }
@@ -85,7 +86,7 @@ gulp.task('get_readings_csv', async() => {
   //Is there a better way than a while loop?
   while (hasNext === true) {
     pageParams = Object.assign(pageParams, { startAfter });
-    const next = await FirebaseApi.readingsWithinBoundingBoxPaginated('mywell', bbox, pageParams);
+    const next = await fbApi.readingsWithinBoundingBoxPaginated('mywell', bbox, pageParams);
 
     if (next.type === ResultType.ERROR) {
       console.error("Error loading query with page query", pageParams);

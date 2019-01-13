@@ -389,14 +389,15 @@ export async function getNewConfig(): Promise<any> {
         }, 
         //MyWell
         {
-          well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
-          raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'mm' }],
+          //TODO: I'm not sure what the parameter should be - default?
+          well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
+          raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
           quality: [
             { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
             { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
             { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
           ],
-          checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
+          checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
         }
       ]),
     editResource_allowCustomId: buildParameter(
