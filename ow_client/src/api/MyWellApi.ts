@@ -177,13 +177,18 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Always saves the resource to the user's pendingResources. This allows us to easily get the offline features
    * working, and keeps things more similar to GGMN.
    */
-  async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
+  async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.MYWELL;
     // const userResult = await FirebaseApi.getUser(this.orgId, userId);
     // if (userResult.type === ResultType.ERROR) {
     //   maybeLog(userResult.message);
     //   return makeError(userResult.message);
     // }
+
+    
+    //TD: hacky - need to fix types
+    resource.orgId = this.orgId;
+    resource.docName = "resource";
 
     // if (userResult.result.status !== OWUserStatus.Approved) {
       const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
