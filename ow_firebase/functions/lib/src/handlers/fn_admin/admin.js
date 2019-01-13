@@ -103,7 +103,7 @@ module.exports = (functions) => {
                 throw new Error(syncResult.message);
             }
         }
-        res.status(204).send(true);
+        res.status(204).send("true");
     }));
     /**
      * SyncUserData
@@ -123,7 +123,7 @@ module.exports = (functions) => {
         if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(syncResult.message);
         }
-        res.status(204).send(true);
+        res.status(204).send("true");
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });

@@ -115,7 +115,7 @@ module.exports = (functions) => {
       }
     }
 
-    res.status(204).send(true);
+    res.status(204).send("true");
   });
 
   /**
@@ -139,7 +139,7 @@ module.exports = (functions) => {
       throw new Error(syncResult.message);
     }
 
-    res.status(204).send(true);
+    res.status(204).send("true");
   });
 
   /* CORS Configuration */

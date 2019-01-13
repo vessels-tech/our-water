@@ -292,7 +292,16 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     console.log("syncURL is", syncUrl);
 
     return ftch(syncUrl, options)
-      .then((response: any) => naiveParseFetchResponse<any>(response))
+      // .then((response: any) => naiveParseFetchResponse<any>(response))
+      .then((response: any) => {
+        if (!response.ok) {
+          return {
+            type: ResultType.ERROR,
+            message: 'Network request failed',
+          };
+        }
+        return makeSuccess<any>(undefined);
+      })
       .then((parsed: SomeResult<any>) => {
         if(parsed.type === ResultType.ERROR) {
           return parsed;

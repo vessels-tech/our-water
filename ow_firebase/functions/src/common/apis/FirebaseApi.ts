@@ -12,8 +12,6 @@ import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
 import { UserBuilder } from "firebase-functions/lib/providers/auth";
 
-
-
 export type ShortIdLock = {
   id: string, //9 digit number as string
   lock: boolean,
@@ -89,7 +87,7 @@ export default class FirebaseApi {
       console.warn('Tried to save a batch of resources, but readings was empty.');
       return Promise.resolve(true);
     }
-    
+
     const batch = fs.batch();
 
     if (docIds && docIds.length !== docs.length) {
