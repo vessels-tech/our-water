@@ -35,19 +35,18 @@ export async function getAuthHeader(admin: any): Promise<{Authorization: string}
 }
 
 const { JWT } = require('google-auth-library');
-// const key = require('../src/test/.serviceAccountKey.json');
 //TODO: make the user specify the key
-const key = {
-  client_email: '12345',
-  private_key: '12345',
-};
+// const key = {
+//   client_email: '12345',
+//   private_key: '12345',
+// };
 
 /**
  * getAdminAccessToken
  * 
  * Gets the admin access token for using firebase admin tools.
  */
-export async function getAdminAccessToken(): Promise<string> {
+export async function getAdminAccessToken(key: any): Promise<string> {
   const client = new JWT(
     key.client_email,
     null,

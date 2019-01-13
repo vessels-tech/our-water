@@ -187,6 +187,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   getDefaultTimeseries(): Array<ConfigTimeseries> {
     const { resource } = this.props;
 
+    //TD: this is a hacky fix
     let resourceType = 'well';
     if (resource) {
       if (resource.type === OrgType.GGMN) {

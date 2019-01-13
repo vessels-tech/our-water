@@ -10,6 +10,7 @@ import { readingToCSV, readingHeading } from './csv';
 
 var fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
+const key = require('../src/test/.serviceAccountKey.json');
 
 const PROJECT_ID = 'our-water';
 
@@ -29,7 +30,7 @@ gulp.task('test_translation_parsing', async () => {
 });
 
 gulp.task('deploy_remote_config', async () => {
-  const accessToken = await getAdminAccessToken()
+  const accessToken = await getAdminAccessToken(key)
   const [etag, _] = await getRemoteConfig(PROJECT_ID, accessToken);
 
   const newConfig = await getNewConfig();
@@ -41,7 +42,7 @@ gulp.task('deploy_remote_config', async () => {
 });
 
 gulp.task('get_remote_config', async () => {
-  const accessToken = await getAdminAccessToken()
+  const accessToken = await getAdminAccessToken(key)
   const [etag, currentConfig] = await getRemoteConfig(PROJECT_ID, accessToken);
 
   console.log("etag:", etag);
