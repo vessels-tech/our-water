@@ -116,7 +116,7 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
-      console.log("Starting tabBasedApp");
+      console.log("Starting tabBasedApp", config.getApplicationName());
       //@ts-ignore
       Navigation.startTabBasedApp({
         tabs: [
@@ -128,14 +128,14 @@ Promise.resolve(true)
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
-          {
-            // label: 'Scan',
-            screen: 'screen.ScanScreen',
-            icon: require('./assets/scan.png'),
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          },
+          // {
+          //   // label: 'Scan',
+          //   screen: 'screen.ScanScreen',
+          //   icon: require('./assets/scan.png'),
+          //   title: config.getApplicationName(),
+          //   navigatorButtons,
+          //   navigatorStyle: defaultNavigatorStyle,
+          // },
           {
             // label: 'Map',
             screen: 'screen.SimpleMapScreen',

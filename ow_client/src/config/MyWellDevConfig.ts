@@ -16,6 +16,7 @@ const MyWellDevConfig: RemoteConfig = {
   //This should be false, just for fixing map layout problems
   map_shouldLoadAllResources: true,
   newReading_enableImageUpload: true,
+  // homeScreen: HomeScreenType.Map,
   homeScreen: HomeScreenType.Simple,
   resourceDetail_showSubtitle: true,
   resourceDetail_allowEditing: false,

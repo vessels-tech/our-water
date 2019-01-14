@@ -26,7 +26,7 @@
     "firebase": "^5.5.9",
     "firebase-admin": "^6.2.0",
     "moment": "^2.22.1",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#286541438695c764606ab44378918d0d3bbb7c35",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#1cad9837dbfca1d0974c986564ea36d8ec75daf2",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
     "react": "16.3.1",
