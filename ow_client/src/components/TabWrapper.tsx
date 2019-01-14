@@ -28,7 +28,6 @@ export interface ActionProps {
 
 export function withTabWrapper(WrappedComponent: any) {
 
-
   return class extends React.Component<OwnProps & StateProps & ActionProps> {
     constructor(props: OwnProps & StateProps & ActionProps) {
       super(props);
@@ -56,7 +55,6 @@ export function withTabWrapper(WrappedComponent: any) {
 
     onSearchResultPressed(result: GGMNSearchEntity) {
       //TODO: make sure we are visible
-      console.log("TODO: search result pressed");
     }
 
     render() {

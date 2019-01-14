@@ -308,17 +308,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       );
     }
 
-    console.log("getLatestReadingsForTimeseries, timeseriesList", timeseriesList);
-
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
-      console.log("readings for this timeseries are:", readings);
 
       let content = 'N/A';
       let contentSubtitle;
     
       const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
-      console.log("latestReading is", latestReading);
       content = `${latestReading.value.toFixed(2)}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 

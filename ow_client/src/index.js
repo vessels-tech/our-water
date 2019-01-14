@@ -96,7 +96,6 @@ Promise.resolve(true)
     }
   };
 
-  console.log("Setting up Home Screen");
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
       Navigation.startSingleScreenApp({
@@ -116,28 +115,23 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
-      console.log("Starting tabBasedApp", config.getApplicationName());
-      //@ts-ignore
       Navigation.startTabBasedApp({
         tabs: [
           {
-            // label: 'Home', 
             screen: 'screen.App',
             icon: require('./assets/home.png'),
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
-          // {
-          //   // label: 'Scan',
-          //   screen: 'screen.ScanScreen',
-          //   icon: require('./assets/scan.png'),
-          //   title: config.getApplicationName(),
-          //   navigatorButtons,
-          //   navigatorStyle: defaultNavigatorStyle,
-          // },
           {
-            // label: 'Map',
+            screen: 'screen.ScanScreen',
+            icon: require('./assets/scan.png'),
+            title: config.getApplicationName(),
+            navigatorButtons,
+            navigatorStyle: defaultNavigatorStyle,
+          },
+          {
             screen: 'screen.SimpleMapScreen',
             icon: require('./assets/map.png'),
             title: config.getApplicationName(),

@@ -23,8 +23,6 @@ import * as appActions from '../actions/index';
 
 
 const orgId = EnvironmentConfig.OrgId;
-
-
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,

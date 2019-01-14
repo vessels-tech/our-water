@@ -28,7 +28,6 @@ import { isNullOrUndefined } from 'util';
 import { secondary, primary, secondaryText } from '../utils/NewColors';
 
 
-
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -72,7 +71,6 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     renderLog("     - ", diff(this.state, nextState));
 
     if (this.props.resourceId !== nextProps.resourceId) {
-      console.log("Getting new resource");
       this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
     }
   }

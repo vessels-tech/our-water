@@ -483,8 +483,6 @@ class FirebaseApi {
    * and not actually commited to the server
    */
   static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<void>> {
-    console.log("Reading is", reading);
-
     /* we don't want to wait for this to resolve */
     this.saveReadingToUser(orgId, userId, reading);
 
@@ -543,17 +541,13 @@ class FirebaseApi {
    * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
-    console.log("getting readings, ", resourceId, timeseriesId)
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
       .limit(300)
       .get()
     .then((sn: any) => {
-      console.log("readings result", sn);
       const parsedReadings = this.snapshotToReadings(sn);
-      console.log("parsed readings are", parsedReadings);
-
       return parsedReadings;
     })
     .then((readings: AnyReading[]) => makeSuccess(readings))
