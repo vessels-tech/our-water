@@ -8,11 +8,11 @@
 
 import * as React from 'react';
 import { Component } from 'react';
-import { Text } from 'react-native-elements';
+import { Text, Button } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo, unwrapUserId, renderLog } from '../utils';
+import {navigateTo, unwrapUserId, renderLog, showModal } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
@@ -25,6 +25,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { diff } from "deep-object-diff";
 import { ResourceType } from '../enums';
 import { isNullOrUndefined } from 'util';
+import { secondary, primary, secondaryText } from '../utils/NewColors';
 
 
 
@@ -62,6 +63,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
     //Binds
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
+    this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
   }
 
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
@@ -86,22 +88,62 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     });
   }
 
+  onSyncButtonPressed() {
+    const { settings_pending_heading } = this.props.translation.templates;
+
+    showModal(
+      this.props,
+      'screen.PendingScreen',
+      settings_pending_heading,
+      {
+        config: this.props.config,
+      }
+    );
+  }
+
   getResourceDetailSection() {
-    const { meta, userId, isPending, translation: { templates: { resource_detail_new } } } = this.props;
+    const { isPending } = this.props;
+    const { settings_pending_heading } = this.props.translation.templates;
 
-    // if (meta.loading) {
-    //   return (
-    //     <Loading/>
-    //   )
-    // }
+    //TODO: translate
+    const resource_detail_sync_required = "This location needs to be synced before you can save any readings.";
 
-    // if (meta.error || !resource) {
-    //   return (
-    //     <View>
-    //       <Text>{meta.errorMessage}</Text>
-    //     </View>
-    //   )
-    // }
+    if (isPending) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            alignSelf: 'center',
+            justifyContent: 'center',
+            paddingVertical: 100,
+          }}
+        >
+          <Text
+            style={{
+              flex: 1,
+              paddingHorizontal: 30,
+            }}
+          >
+            {resource_detail_sync_required}
+          </Text>
+          <Button
+            color={secondaryText.high}
+            buttonStyle={{
+              backgroundColor: secondary,
+              borderRadius: 5,
+              // height: '100%',
+            }}
+            containerViewStyle={{
+              flex: 1,
+              alignSelf: 'center',
+              justifyContent: 'center',
+            }}
+            title={settings_pending_heading}
+            onPress={this.onSyncButtonPressed}
+          />
+        </View>
+      );
+    }
 
     return (
       <ResourceDetailSection
@@ -136,13 +178,10 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
   let resource: AnyResource | null = null;
-  let resourceMeta = state.resourceMeta;
   let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
-  console.log("State.resources", state.resources);
-  console.log("ownProps.resourceId", ownProps.resourceId);
   
   //TD Hacky way to get the resource
   state.resources.forEach(r => {
