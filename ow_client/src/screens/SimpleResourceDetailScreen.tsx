@@ -103,8 +103,11 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     const { isPending } = this.props;
     const { 
       settings_pending_heading,
-      resource_detail_sync_required,
+      // resource_detail_sync_required,
     } = this.props.translation.templates;
+
+    //TODO: TD: Issues with TransactionTooLargeException crash when updating translations
+    const resource_detail_sync_required = "Location needs to be synced before you can save any readings."; 
 
     if (isPending) {
       return (
