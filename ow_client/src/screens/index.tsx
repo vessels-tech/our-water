@@ -42,6 +42,7 @@ import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
 import PendingScreen from './menu/PendingScreen';
+import { ExternalServiceApiType } from '../api/ExternalServiceApi';
 
 
 let loggerMiddleware: any = null;
@@ -196,10 +197,11 @@ export async function registerScreens(config: ConfigFactory) {
   // @ts-ignore
   const locationResult = await store.dispatch(appActions.getGeolocation());
 
-  if (config.externalServiceApi) {
+  if (config.externalServiceApi.externalServiceApiType === ExternalServiceApiType.Has) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
+  console.log("registering navigation components");
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);

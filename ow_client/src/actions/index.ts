@@ -261,7 +261,7 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
 export function getExternalLoginDetails(externalServiceApi: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
     if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
-      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found 3");
       return;
     }
 

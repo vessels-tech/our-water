@@ -60,7 +60,9 @@ Promise.resolve(true)
   return registerScreens(config);
 })
 .then(() => {
+  console.log("registering AppRegistry");
   AppRegistry.registerComponent('App', () => TestApp);
+  console.log("registering search button");
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
   const navigatorButtons = {
@@ -94,7 +96,7 @@ Promise.resolve(true)
     }
   };
 
-
+  console.log("Setting up Home Screen");
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
       Navigation.startSingleScreenApp({
@@ -114,6 +116,7 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
+      console.log("Starting tabBasedApp");
       //@ts-ignore
       Navigation.startTabBasedApp({
         tabs: [
@@ -162,6 +165,8 @@ Promise.resolve(true)
       });
     break;
     }
+    default: 
+      throw new Error(`Unknown home screen type: ${config.getHomeScreenType()}`);
   }
 })
 .catch((err: Error) => console.error(err));
