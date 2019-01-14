@@ -103,10 +103,10 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
   getResourceDetailSection() {
     const { isPending } = this.props;
-    const { settings_pending_heading } = this.props.translation.templates;
-
-    //TODO: translate
-    const resource_detail_sync_required = "This location needs to be synced before you can save any readings.";
+    const { 
+      settings_pending_heading,
+      resource_detail_sync_required,
+    } = this.props.translation.templates;
 
     if (isPending) {
       return (

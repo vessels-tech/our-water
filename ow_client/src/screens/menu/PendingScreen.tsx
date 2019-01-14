@@ -105,18 +105,14 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
   getSyncSection() {
     const { user, userStatus, externalSyncStatus, pendingSavedResources, pendingSavedReadings } = this.props;
     const {
-      settings_sync_heading,
       sync_login_message,
       sync_start_sync_button,
       sync_start_sync_button_loading,
-      sync_manual_text,
-      sync_manual_show_me_how,
-      settings_connect_to_pending_title
+      settings_connect_to_pending_title,
+      pending_status_rejected,
+      pending_status_unapproved,
+      pending_status_approved
     } = this.props.translation.templates;
-
-    const pending_status_rejected = "Your account has been suspended. You won't be able to save anything until an administrator fixes your account.";
-    const pending_status_unapproved = "Your account is still waiting for approval. If it's been too long, reach out to an administrator at ____ to rectify the problem.";
-    const pending_status_approved = "Your account is approved! Your readings and resources will be synced shortly, or you can sync manually now.";
 
     //if no login, just display a message saying 'login to sync'
     if (user.type === UserType.NO_USER) {
@@ -152,7 +148,6 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    //TODO: translate
     if (userStatus === UserStatus.Rejected) {
       return (
         <View>
