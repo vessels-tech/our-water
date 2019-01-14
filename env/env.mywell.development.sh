@@ -13,10 +13,10 @@ export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='true'
 export ENABLE_RENDER_LOGGING='true'
 export ENABLE_REDUX_LOGGING='false'
-export ENABLE_CACHE='false'
+export ENABLE_CACHE='true'
 
 #Remote config setup
-export SHOULD_USE_LOCAL_CONFIG='true'
+export SHOULD_USE_LOCAL_CONFIG='false'
 
 #Just for now, as we are still sorting this out.
 export CONFIG_TYPE='MyWellDevConfig'
