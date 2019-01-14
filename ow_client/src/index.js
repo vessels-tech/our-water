@@ -19,6 +19,10 @@ import TestApp from './TestApp';
 import { HomeScreenType } from './enums';
 import { primaryText } from './utils/NewColors';
 
+const homeIcon = require('./assets/home.png');
+const scanIcon = require('./assets/scan.png');
+const mapIcon = require('./assets/map.png');
+
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
 require('core-js/es6/array')
@@ -119,21 +123,21 @@ Promise.resolve(true)
         tabs: [
           {
             screen: 'screen.App',
-            icon: require('./assets/home.png'),
+            icon: homeIcon,
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
           {
             screen: 'screen.ScanScreen',
-            icon: require('./assets/scan.png'),
+            icon: scanIcon,
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
           },
           {
             screen: 'screen.SimpleMapScreen',
-            icon: require('./assets/map.png'),
+            icon: mapIcon,
             title: config.getApplicationName(),
             navigatorButtons,
             navigatorStyle: defaultNavigatorStyle,
