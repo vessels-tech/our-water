@@ -24,3 +24,5 @@ export CONFIG_TYPE='MyWellDevConfig'
 export APP_NAME="MyWell Dev"
 export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="mywell.debug"
+export KEYSTORE_PATH="/Users/ldaly/.android/debug.keystore"
+export KEYSTORE_ALIAS="androiddebugkey"
