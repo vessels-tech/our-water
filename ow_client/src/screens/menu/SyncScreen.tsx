@@ -256,7 +256,6 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       <ReadingListItem
         key={i}
         deletePendingReading={(id: string) => this.props.deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
-        // deletePendingReading={this.props.deletePendingReading}
         pendingReading={r}
         sync_date_format={sync_date_format}
         message={message}
