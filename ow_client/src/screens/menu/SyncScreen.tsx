@@ -34,7 +34,7 @@ export interface StateProps {
 
 export interface ActionProps {
   startExternalSync: (baseApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => any,
-  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
+  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) => any,
   deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
 }
 
@@ -71,7 +71,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.externalApi = this.props.config.getExternalServiceApi();
 
     /* Binds */
-    this.props.deletePendingReading.bind(this);
+    // this.props.deletePendingReading.bind(this);
     this.props.deletePendingResource.bind(this);
     this.groundwaterSyncPressed = this.groundwaterSyncPressed.bind(this);
     this.handleDeletePendingResource = this.handleDeletePendingResource.bind(this);
@@ -249,15 +249,14 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   readingListItem(r: PendingReading, i: number, message?: string) {
-    const { deletePendingReading } = this.props;
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
-
 
     return (
       <ReadingListItem
         key={i}
-        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id)}
+        deletePendingReading={(id: string) => this.props.deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
+        // deletePendingReading={this.props.deletePendingReading}
         pendingReading={r}
         sync_date_format={sync_date_format}
         message={message}
@@ -413,8 +412,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
       dispatch(appActions.startExternalSync(appApi, api, userId, pendingResources, pendingReadings)),
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
-    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
-      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId))
+    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
+      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
   }
 }
 
