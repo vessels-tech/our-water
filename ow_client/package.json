@@ -11,6 +11,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
+    "@types/react-native-htmlview": "^0.12.2",
     "@types/react-native-scrollable-tab-view": "^0.8.4",
     "@types/react-redux": "^6.0.9",
     "@types/redux-logger": "^3.0.6",
