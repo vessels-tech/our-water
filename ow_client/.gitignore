@@ -57,3 +57,5 @@ buck-out/
 .env*
 dist
 *.keystore
+*index.android.bundle
+*index.android.bundle.meta
