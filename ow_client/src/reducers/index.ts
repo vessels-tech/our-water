@@ -210,16 +210,16 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //Lookup the pendingReadingId in the readings, and remove
 
       //TODO: TD types are broken here
-      console.log(`DELETE_PENDING_READING_RESPONSE, pre readings has ${readings.length} items`);
+      // console.log(`DELETE_PENDING_READING_RESPONSE, pre readings has ${readings.length} items`);
       const index = readings.map((r: any) => r.id).indexOf(action.pendingReadingId);
       if (index > -1) {
-        console.log(`Deleting item with pendingReadingId: ${action.pendingReadingId}`)
+        // console.log(`Deleting item with pendingReadingId: ${action.pendingReadingId}`)
         readings.splice(index, 1);
       } else {
         console.log(`Couldn't find reading to delete with pendingReadingId: ${action.pendingReadingId}`)
       }
 
-      console.log(`DELETE_PENDING_READING_RESPONSE post readings has ${readings.length} items`);
+      // console.log(`DELETE_PENDING_READING_RESPONSE post readings has ${readings.length} items`);
 
       newTsReadings[action.resourceId] = readings;
       return Object.assign({}, state, { newTsReadings });

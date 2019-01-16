@@ -9,9 +9,11 @@ import { View } from 'react-native';
 import * as moment from 'moment'
 import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
+//@ts-ignore
 import * as scale from 'd3-scale';
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import { arrayLowest } from '../../utils';
+import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
 
 export type Props = {
   readings: AnyOrPendingReading[],
@@ -20,15 +22,15 @@ export type Props = {
 }
 
 const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
-  return data.map((value: AnyOrPendingReading, index: number) => 
+  return data.map((value: AnyOrPendingReading, index: number) => (
     <Circle
       key={index}
       cx={x(moment(value.date).toDate())}
-      cy = { y(value.value)}
+      cy={y(value.value)}
       r={4}
       stroke={primaryLight}
       fill={'white'}
-    />
+    />)
   );
 }
 
@@ -39,7 +41,7 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
   const minValue = arrayLowest(data, (r) => r.value);
   const cy = y(minValue.value);
 
-  return xAxisData.map((value: Date, index: number) => 
+  return xAxisData.map((value: Date, index: number) => (
       <Rect
         key={`${value}${index}`}
         x={x(moment(value).toDate())}
@@ -50,12 +52,12 @@ const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]
         strokeWidth={0}
         stroke="rgb(0,0,0)"
       />
+    )
   );
 }
 
 const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
   const dates = data.map((item) => moment(item.date).toDate());
-  // const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(4);
   const xAxisData = [dates[0], dates[dates.length - 1]];
 
   const minValue = arrayLowest(data, (r) => r.value);
@@ -65,17 +67,11 @@ const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRea
   return xAxisData.map((value: Date, index: number) => {
     const cx = x(moment(value).toDate());
     let textAnchor: 'middle' | 'start' | 'end' = 'middle';
-    // if (index === 0) {
-    //   textAnchor = 'start';
-    // }
-    // if (index === xAxisData.length - 1) {
-    //   textAnchor = 'end'
-    // }
 
     return (
       <Text
         fontSize="8"
-        key={`${value}${index}`}
+        key={`${cx}${value}${index}`}
         x={cx}
         y={cy}
         textAnchor={textAnchor}>
@@ -131,12 +127,12 @@ class SimpleChart extends React.PureComponent<Props> {
               strokeWidth: 3
             }}
             contentInset={contentInset}
-            xScale={ scale.scaleTime }
+            xScale={scale.scaleTime}
           >
-            <Grid />
-            <Decorator />
-            <ShortGrid />
-            <ShortGridLabels />
+            <Grid/>
+            <Decorator/>
+            <ShortGrid/>
+            <ShortGridLabels/>
           </LineChart>
         </View>
       </View>
