@@ -1,6 +1,6 @@
-export const surface="#FFFFFF"
-export const surfaceLight="#FFFFFF"
-export const surfaceDark="#F5F5F5"
+export const surface = "#FFFFFF"
+export const surfaceLight = "#FFFFFF"
+export const surfaceDark = "#F5F5F5"
 
 export const surfaceText = {
   high: "#212121",
@@ -22,7 +22,7 @@ export const primaryPallette = {
   '_50': '#FFFFFF',
 }
 export const primaryLight = primaryPallette._50;
-export const primaryDark="#F6F6F6"
+export const primaryDark = "#F6F6F6"
 
 export const primaryText = {
   high: "#212121",
