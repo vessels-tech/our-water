@@ -42,6 +42,7 @@ import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
 import PendingScreen from './menu/PendingScreen';
+import AboutScreen from './menu/AboutScreen';
 
 
 let loggerMiddleware: any = null;
@@ -217,6 +218,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
   Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
   Navigation.registerComponent('screen.PendingScreen', () => PendingScreen, store, Provider);
+  Navigation.registerComponent('AboutScreen', () => AboutScreen, store, Provider);
 
   return store;
 }

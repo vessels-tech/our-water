@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   View, KeyboardAvoidingView, ScrollView, Image, Button,
 } from 'react-native';
+import {Button as RNEButton} from 'react-native-elements'
 import {
   ListItem, Badge, Text,
 } from 'react-native-elements';
@@ -63,6 +64,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.showSelectLanguageModal = this.showSelectLanguageModal.bind(this);
     this.showEditResourceScreen = this.showEditResourceScreen.bind(this);
     this.logoutPressed = this.logoutPressed.bind(this);
+    this.showAboutScreen = this.showAboutScreen.bind(this);
   }
 
 
@@ -149,6 +151,19 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.props.disconnectFromExternalService(this.externalApi);
   }
 
+  showAboutScreen() {
+    const { settings_about } = this.props.translation.templates;
+
+    showModal(
+      this.props,
+      'AboutScreen',
+      settings_about,
+      {
+        config: this.props.config,
+        userId: this.props.userId,
+      }
+    )
+  }
 
 
   /**
@@ -342,6 +357,29 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     );
   }
 
+  getAboutButton() {
+    const { settings_about } = this.props.translation.templates;
+    return (
+      <RNEButton
+        style={{
+          // paddingBottom: 20,
+          // minHeight: 50,
+        }}
+        buttonStyle={{
+          backgroundColor: bgLight,
+        }}
+        textStyle={{
+          color: secondaryText,
+          fontSize: 13,
+          fontWeight: '400',
+          // textTransform: 'capitalize',
+        }}
+        title={settings_about}
+        onPress={this.showAboutScreen}
+      />
+    );
+  }
+
   render() {
     const { translation: { templates: { settings_new_resource }}} = this.props;
 
@@ -372,6 +410,15 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           hideChevron={true}
         />
         {this.getLanguageButton()}
+        {/* TODO: spacer  */}
+        <View 
+          style={{
+            flex: 1, 
+            flexDirection: 'column-reverse',
+          }}
+          >
+          {this.getAboutButton()}
+        </View>
       </KeyboardAvoidingView>
     );
   }
