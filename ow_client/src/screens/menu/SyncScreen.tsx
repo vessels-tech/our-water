@@ -71,7 +71,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.externalApi = this.props.config.getExternalServiceApi();
 
     /* Binds */
-    this.props.deletePendingReading.bind(this);
+    // this.props.deletePendingReading.bind(this);
     this.props.deletePendingResource.bind(this);
     this.groundwaterSyncPressed = this.groundwaterSyncPressed.bind(this);
     this.handleDeletePendingResource = this.handleDeletePendingResource.bind(this);
@@ -249,19 +249,19 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   readingListItem(r: PendingReading, i: number, message?: string) {
-    const { deletePendingReading } = this.props;
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
-
 
     return (
       <ReadingListItem
         key={i}
-        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
+        deletePendingReading={(id: string) => this.props.deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
+        // deletePendingReading={this.props.deletePendingReading}
         pendingReading={r}
         sync_date_format={sync_date_format}
         message={message}
         errorMessage={errorMessage}
+        //TODO: change this for MyWell
         unitSuffix=" m"
       />
     )

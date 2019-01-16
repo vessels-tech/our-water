@@ -394,19 +394,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     );
   }
 
-  getCardForTimeseries(ts: OWTimeseries) {
-    return (
-      <Card
-        containerStyle={{
-          width: '90%',
-          height: '90%',
-          alignItems: 'center',
-        }}
-        title={ts.name}
-      />
-    );
-  }
-
   getReadingsView() {
     const { resource_detail_summary_tab } = this.props.translation.templates;
     const { timeseriesList } = this.props;

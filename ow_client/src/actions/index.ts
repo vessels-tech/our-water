@@ -698,9 +698,10 @@ export function saveReading(api: BaseApi, externalApi: MaybeExternalServiceApi, 
     dispatch(refreshReadings([resourceId], false));
 
     //Attempt to do a sync, just this resource
-    if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
-      dispatch(startExternalSync(api, externalApi, userId, [], [reading]));
-    }
+    //TD: do we want to enable this? For now it's causing confusion for the user.
+    // if (externalApi.externalServiceApiType === ExternalServiceApiType.Has) {
+    //   dispatch(startExternalSync(api, externalApi, userId, [], [reading]));
+    // }
 
     return result;
   }
