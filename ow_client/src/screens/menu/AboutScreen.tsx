@@ -1,18 +1,12 @@
 import * as React from 'react';
-import { Component } from 'react';
-import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { View, TouchableNativeFeedback, StyleSheet, ScrollView } from 'react-native';
-import { randomPrettyColorForId, navigateTo } from '../../utils';
-import { ResourceType } from '../../enums';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { connect } from 'react-redux'
 import { AppState } from '../../reducers';
 import { UserType } from '../../typings/UserTypes';
-import { withTabWrapper } from '../../components/TabWrapper';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
-import MenuButton from '../../components/common/MenuButton';
 import HTMLView from 'react-native-htmlview';
 
 
