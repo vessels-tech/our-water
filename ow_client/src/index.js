@@ -64,9 +64,7 @@ Promise.resolve(true)
   return registerScreens(config);
 })
 .then(() => {
-  console.log("registering AppRegistry");
   AppRegistry.registerComponent('App', () => TestApp);
-  console.log("registering search button");
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
   const navigatorButtons = {
