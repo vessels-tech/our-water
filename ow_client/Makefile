@@ -61,6 +61,9 @@ android:
 android-log:
 	@react-native log-android
 
+reinstall-node:
+	rm -rf node_modules; yarn
+
 clean:
 	watchman watch-del-all
 	rm -rf /tmp/ow_env
