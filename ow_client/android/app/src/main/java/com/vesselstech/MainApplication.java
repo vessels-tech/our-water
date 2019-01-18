@@ -81,6 +81,7 @@ public class MainApplication extends NavigationApplication {
   @Override
   public void onCreate() {
     super.onCreate();
+    System.out.println("MainApplication.java onCreate()");
     SoLoader.init(this, /* native exopackage */ false);
     // Crashlytics.getInstance().crash(); // Force a crash
   }

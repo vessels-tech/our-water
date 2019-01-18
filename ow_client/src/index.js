@@ -19,9 +19,6 @@ import TestApp from './TestApp';
 import { HomeScreenType } from './enums';
 import { primaryText } from './utils/NewColors';
 
-const homeIcon = require('./assets/home.png');
-const scanIcon = require('./assets/scan.png');
-const mapIcon = require('./assets/map.png');
 
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
@@ -117,6 +114,10 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
+      const homeIcon = require('./assets/home.png');
+      const scanIcon = require('./assets/scan.png');
+      const mapIcon = require('./assets/map.png');
+      
       Navigation.startTabBasedApp({
         tabs: [
           {

@@ -6552,9 +6552,9 @@ react-native-material-ripple@^0.7.0:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-navigation@^1.1.480:
-  version "1.1.480"
-  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-1.1.480.tgz#7090a2adbc0399f223d8be906df33fbe12f6c272"
+react-native-navigation@^1.1.65:
+  version "1.1.493"
+  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-1.1.493.tgz#01d57dd9822ac603cd04d4529abacf193bbbcdac"
   dependencies:
     lodash "4.x.x"
 
