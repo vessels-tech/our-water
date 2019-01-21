@@ -45,7 +45,7 @@ function getAuthHeader(admin) {
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
 // const key = require('../src/test/.serviceAccountKey.json');
-//TODO: make the user specify the key
+// TODO: make the user specify the key
 const key = {
     client_email: '12345',
     private_key: '12345',
