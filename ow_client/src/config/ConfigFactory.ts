@@ -91,7 +91,8 @@ export class ConfigFactory {
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
       const options: GGMNApiOptions = {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
-      }
+        remoteConfig, 
+      };
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
       
       //@ts-ignore
@@ -270,19 +271,19 @@ export class ConfigFactory {
     return this.remoteConfig.translationOptions;
   }
 
-  getGGMNIgnoreReadingDate(): Moment {
-    if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
-      return moment(this.remoteConfig.ggmn_ignoreReading.date);
-    }
+  // getGGMNIgnoreReadingDate(): Moment {
+  //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
+  //     return moment(this.remoteConfig.ggmn_ignoreReading.date);
+  //   }
 
-    return moment("2017-01-01");
-  }
+  //   return moment("1970-01-01");
+  // }
 
-  getGGMNIgnoreReadingValue(): number {
-    if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.value) {
-      return this.remoteConfig.ggmn_ignoreReading.value;
-    }
+  // getGGMNIgnoreReadingValue(): number {
+  //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.value) {
+  //     return this.remoteConfig.ggmn_ignoreReading.value;
+  //   }
 
-    return 0;
-  }
+  //   return 0;
+  // }
 }
