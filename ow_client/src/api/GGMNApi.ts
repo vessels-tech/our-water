@@ -656,7 +656,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
 
       const timeseries: OWTimeseries = response.results[0];
-      console.log("events are", timeseries.events);
       return timeseries.events
       .filter(e => 
         //Filter out the readings hidden in ggmn_ignoreReading
