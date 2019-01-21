@@ -34,7 +34,7 @@ const MyWellDevConfig: RemoteConfig = {
   translations: translationsForTranslationOrg(orgId),
   translationOptions: possibleTranslationsForOrg(orgId),
   //Not used in MyWell
-  ggmn_ignoreReading: { date: "2017-01-01", value: 0 },
+  ggmn_ignoreReading: { date: "2017-01-01T00:00:00.000Z", value: 0 },
 }
 
 export default MyWellDevConfig;``
