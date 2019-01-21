@@ -91,7 +91,7 @@ export class ConfigFactory {
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
       const options: GGMNApiOptions = {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
-        remoteConfig, 
+        // remoteConfig, 
       };
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
       

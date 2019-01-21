@@ -43,7 +43,7 @@ const defaultHeaders = {
 export interface GGMNApiOptions {
   baseUrl: string,
   auth?: any,
-  remoteConfig: RemoteConfig,
+  // remoteConfig: RemoteConfig,
 }
 
 
@@ -55,7 +55,7 @@ export interface GGMNApiOptions {
 class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceApi {
   auth: any = null;
   baseUrl: string;
-  remoteConfig: RemoteConfig;
+  // remoteConfig: RemoteConfig;
   networkApi: NetworkApi;
   orgId: string;
   pendingReadingsSubscription: any;
@@ -75,7 +75,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    */
   constructor(networkApi: NetworkApi, orgId: string, options: GGMNApiOptions) {
     this.baseUrl = options.baseUrl;
-    this.remoteConfig = options.remoteConfig;
+    // this.remoteConfig = options.remoteConfig;
     if (options.auth) {
       this.auth = options.auth;
     }
@@ -656,11 +656,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
 
       const timeseries: OWTimeseries = response.results[0];
+      console.log("events are", timeseries.events);
       return timeseries.events
       .filter(e => 
         //Filter out the readings hidden in ggmn_ignoreReading
-        moment(e.timestamp).toISOString() !== this.remoteConfig.ggmn_ignoreReading.date &&
-        e.value !== this.remoteConfig.ggmn_ignoreReading.value)
+        // moment(e.timestamp).toISOString() !== this.remoteConfig.ggmn_ignoreReading.date &&
+        // e.value !== this.remoteConfig.ggmn_ignoreReading.value)
+        moment(e.timestamp).toISOString() !== '2017-01-01T01:11:01Z' &&
+        e.value !== 0)
       .map((e: OWTimeseriesEvent): GGMNReading => ({
         type: OrgType.GGMN,
         resourceId,

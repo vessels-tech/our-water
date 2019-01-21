@@ -16,13 +16,15 @@ export class FirebaseConfig {
       config.enableDeveloperMode();
     }
 
+    console.log("FirebaseConfig getting config");
     return config.fetch(parseInt(Config.REACT_APP_REMOTE_CONFIG_TIMEOUT))
-    // return config.fetch(10)
       .then(() => config.activateFetched())
       .then(() => config.getKeysByPrefix())
       .then(allKeys => allKeys.map((key: String) => key.toString()))
       .then((allKeys: Array<string>) => config.getValues(allKeys))
       .then((obj: any) => {
+        console.log("FirebaseConfig got config");
+
         const remoteConfig: RemoteConfig = {
           applicationName: obj.applicationName.val(),
           baseApiType: obj.baseApiType.val(),
