@@ -33,6 +33,8 @@ const MyWellDevConfig: RemoteConfig = {
   allowsUserRegistration: true,
   translations: translationsForTranslationOrg(orgId),
   translationOptions: possibleTranslationsForOrg(orgId),
+  //Not used in MyWell
+  ggmn_ignoreReading: { date: "2017-01-01", value: 0 },
 }
 
-export default MyWellDevConfig;
+export default MyWellDevConfig;``

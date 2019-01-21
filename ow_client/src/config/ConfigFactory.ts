@@ -13,6 +13,8 @@ import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
+import { Moment } from "moment";
+import moment = require("moment");
 
 
 /**
@@ -50,6 +52,7 @@ export type RemoteConfig = {
   allowsUserRegistration: boolean,
   translations: TranslationFiles,
   translationOptions: TranslationEnum[],
+  ggmn_ignoreReading: {date: string, value: number},
 }
 
 /**
@@ -265,5 +268,21 @@ export class ConfigFactory {
 
   getTranslationOptions(): TranslationEnum[] {
     return this.remoteConfig.translationOptions;
+  }
+
+  getGGMNIgnoreReadingDate(): Moment {
+    if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
+      return moment(this.remoteConfig.ggmn_ignoreReading.date);
+    }
+
+    return moment("2017-01-01");
+  }
+
+  getGGMNIgnoreReadingValue(): number {
+    if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.value) {
+      return this.remoteConfig.ggmn_ignoreReading.value;
+    }
+
+    return 0;
   }
 }

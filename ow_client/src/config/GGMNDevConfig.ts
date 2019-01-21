@@ -34,6 +34,8 @@ const GGMNDevConfig: RemoteConfig = {
   allowsUserRegistration: false,
   translations: translationsForTranslationOrg(orgId),
   translationOptions: possibleTranslationsForOrg(orgId),
+  ggmn_ignoreReading: { date: "2017-01-01", value: 0 },
+
 }
 
 export default GGMNDevConfig;

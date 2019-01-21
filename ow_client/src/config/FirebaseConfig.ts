@@ -51,6 +51,7 @@ export class FirebaseConfig {
           allowsUserRegistration: obj.allowsUserRegistration.val(),
           translations: translationFromJSON(obj.translations.val()),
           translationOptions: JSON.parse(obj.translationOptions.val()),
+          ggmn_ignoreReading: JSON.parse(obj.ggmn_ignoreReading.val()),
         }
         return remoteConfig;
       });
