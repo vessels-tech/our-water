@@ -86,6 +86,9 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     //ref: https://medium.com/handlebar-labs/how-to-add-a-splash-screen-to-a-react-native-app-ios-and-android-30a3cec835ae
     // SplashScreen.hide()
     
+    //Maybe try get location here?
+    appActions.getGeolocation();
+
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
