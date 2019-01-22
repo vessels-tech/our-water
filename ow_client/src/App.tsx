@@ -38,23 +38,12 @@ import PendingChangesBanner from './components/PendingChangesBanner';
 import { SyncStatus } from './typings/enums';
 
 import { connect } from 'react-redux'
-import NetworkStatusBanner from './components/NetworkStatusBanner';
 import { AppState } from './reducers';
 import * as appActions from './actions/index';
-import { UserType } from './typings/UserTypes';
-import { ActionMeta, SyncMeta } from './typings/Reducer';
-import { ResultType, SomeResult } from './typings/AppProviderTypes';
-import ExternalServiceApi, { MaybeExternalServiceApi } from './api/ExternalServiceApi';
-import { GGMNSearchEntity } from './typings/models/GGMN';
+import { MaybeExternalServiceApi } from './api/ExternalServiceApi';
 import { TranslationFile } from 'ow_translations';
-import { SearchButtonPressedEvent } from './utils/Events';
-//@ts-ignore
-import EventEmitter from "react-native-eventemitter";
 import HomeMapScreen from './screens/HomeMapScreen';
 import HomeSimpleScreen from './screens/HomeSimpleScreen';
-
-import SplashScreen from 'react-native-splash-screen';
-
 
 export interface OwnProps {
   navigator: any;
@@ -67,7 +56,7 @@ export interface StateProps {
 }
 
 export interface ActionProps {
-
+  getGeoLocation(): () => any,
 }
 
 export interface State {
@@ -85,13 +74,15 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     //Hide the react-native-splashscreen
     //ref: https://medium.com/handlebar-labs/how-to-add-a-splash-screen-to-a-react-native-app-ios-and-android-30a3cec835ae
     // SplashScreen.hide()
-    
-    //Maybe try get location here?
-    appActions.getGeolocation();
+  
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
+  }
+
+  componentDidMount() {
+    this.props.getGeoLocation();
   }
   
   render() {
@@ -129,7 +120,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    
+    getGeoLocation: () => dispatch(appActions.getGeolocation()),
   }
 }
 
