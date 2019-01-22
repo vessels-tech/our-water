@@ -59,7 +59,8 @@ Promise.resolve(true)
   return registerScreens(config);
 })
 .then(() => {
-  AppRegistry.registerComponent('App', () => TestApp);
+  console.log("GGMN Registering app component")
+  // AppRegistry.registerComponent('App', () => TestApp);
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
   const navigatorButtons = {
@@ -93,9 +94,9 @@ Promise.resolve(true)
     }
   };
 
-
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
+      console.log("GGMN STARTING SINGLE SCREEN APP");
       Navigation.startSingleScreenApp({
         screen: {
           screen: 'screen.App',
@@ -105,9 +106,7 @@ Promise.resolve(true)
         },
         drawer,
         animationType: 'fade',
-        passProps: {
-          config,
-        },
+        passProps: { config },
       });
 
       break;
@@ -163,4 +162,4 @@ Promise.resolve(true)
     }
   }
 })
-.catch((err: Error) => console.error(err));
+.catch((err: Error) => console.log('Error Launching App:', err));

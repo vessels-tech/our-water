@@ -74,7 +74,7 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 export async function getCached(id: string): Promise<any | null> {
   if (!EnableCaching) {
     maybeLog("Tried getCached but EnableCaching is false.");
-    return null;
+    return Promise.resolve(null);
   }
 
   try {
@@ -144,6 +144,7 @@ export async function registerScreens(config: ConfigFactory) {
     initialState.shortIdMeta = shortIdMeta;
   }
 
+  console.log("GGMN creating store");
   const store = createStore(
     OWApp, 
     initialState,
@@ -154,7 +155,6 @@ export async function registerScreens(config: ConfigFactory) {
 
   //Update the translations to use the remote config
   store.dispatch(appActions.updatedTranslation(config.getTranslationFiles(), config.getTranslationOptions()));
-
 
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
@@ -194,13 +194,16 @@ export async function registerScreens(config: ConfigFactory) {
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
   });
 
+  console.log("GGMN getting geolocation");
   // @ts-ignore
-  const locationResult = await store.dispatch(appActions.getGeolocation());
+  // store.dispatch(appActions.getGeolocation());
 
+  console.log("GGMN getting external login details");
   if (config.externalServiceApi) {
-    await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
+    store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
+  console.log("GGMN Registering screens")
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
