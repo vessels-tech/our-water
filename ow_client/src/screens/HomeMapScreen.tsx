@@ -147,6 +147,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
   }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
+    console.log("HomeMapScreen componentWillRecieveProps");
+
     // If a resource is selected, and it changes in the props, we need to update it.
     if (this.state.selectedResource) {
       if (!this.state.selectedResource.pending) {
@@ -165,6 +167,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
           latitude: nextProps.location.coords.latitude,
           longitude: nextProps.location.coords.longitude,
         }
+        //Navigate the map here.
+        this.updateGeoLocation(nextProps.location);
         this.setState({initialRegion});
       }
     }
@@ -579,8 +583,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   if (state.location.type !== LocationType.NO_LOCATION) {
     location = state.location;
   }
-  console.log("HomeMapScreen, mapStateToProps, state.location is:", state.location)
-  console.log("HomeMapScreen, mapStateToProps, location is:", location)
 
   return {
     userId,

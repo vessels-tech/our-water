@@ -124,20 +124,45 @@ export const formatCoords = (fbCoords: any) => {
   };
 }
 
+
+/**
+ * getLocation
+ * 
+ * Get's the location or times out.
+ * 
+ * TD: For some reason, when the user denies location access getCurrentPosition()
+ * never returns. So we implement our own timeout using Promise.race()
+ */
 export const getLocation = (): Promise<SomeResult<Location>> => {
-  return new Promise((resolve, reject) => {
+  const timeoutMs = 5000;
+  const timeoutPromise = new Promise<SomeResult<Location>>((resolve, reject) => {
+    setTimeout(() => {
+      resolve(makeError<Location>("Request timed out."));
+    }, timeoutMs)
+  });
+
+  const getLocationPromise = new Promise<SomeResult<Location>>((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(
       (p: Position) => {
+        console.log("got location");
         const location: Location = {
           type: LocationType.LOCATION,
           coords: p.coords,
         }
-        resolve({type: ResultType.SUCCESS, result: location});
+        resolve(makeSuccess(location));
       },
-      (err: any) => (reject({type: ResultType.ERROR, message: 'Error loading location.'})),
+      (err: any) => {
+        console.log("Error loading location", err);
+        return resolve(makeError('Error loading location.'));
+      },
       {timeout: 5000}
     );
   });
+
+  return Promise.race([
+    getLocationPromise,
+    timeoutPromise,
+  ]);
 }
 
 export const pinColorForResourceType = (resourceType: any) => {

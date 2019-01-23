@@ -3,40 +3,13 @@
  * 
  */
 import * as React from 'react'; import { Component } from 'react';
+//Disable the annoying yellow box in prod.
 console.ignoredYellowBox = ['Remote debugger'];
 import {
-  BackHandler,
-  ScrollView,
-  Text,
-  View,
-  ProgressBarAndroid,
-  ToastAndroid,
-  TabBarIOSItem,
-} from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
-import Loading from './components/common/Loading';
-import ResourceDetailSection from './components/ResourceDetailSection';
-import { Location, LocationType } from './typings/Location';
-import { 
-  navigateTo,
-  showModal,
-  maybeLog,
-} from './utils';
-import {
-  MapStateOption,
-  MapHeightOption,
   HomeScreenType,
 } from './enums';
-import { bgLight, primaryDark, primary, primaryLight } from './utils/Colors';
-import FavouriteResourceList from './components/FavouriteResourceList';
 import BaseApi from './api/BaseApi';
 import { ConfigFactory } from './config/ConfigFactory';
-import { Resource, BasicCoords } from './typings/models/OurWater';
-import { isNullOrUndefined } from 'util';
-import MapSection, { MapRegion } from './components/MapSection';
-import PendingChangesBanner from './components/PendingChangesBanner';
-import { SyncStatus } from './typings/enums';
-
 import { connect } from 'react-redux'
 import { AppState } from './reducers';
 import * as appActions from './actions/index';
