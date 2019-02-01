@@ -1,19 +1,18 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, ScrollView, Image, Button,
+  View, KeyboardAvoidingView, Button,
 } from 'react-native';
 import {Button as RNEButton} from 'react-native-elements'
 import {
-  ListItem, Badge, Text,
+  ListItem,
 } from 'react-native-elements';
 import {
-  navigateTo, showModal, showLighbox,
+ showModal, showLighbox,
 } from '../utils';
-import { primary, primaryDark, error1, secondaryDark, secondary, secondaryText, bgLight, } from '../utils/Colors';
+import { error1, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
-import ExternalServiceApi, { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
-import BaseApi from '../api/BaseApi';
-import { EmptyLoginDetails, LoginDetails, ConnectionStatus, AnyLoginDetails, LoginDetailsType } from '../typings/api/ExternalServiceApi';
+import { MaybeExternalServiceApi } from '../api/ExternalServiceApi';
+import { ConnectionStatus, AnyLoginDetails } from '../typings/api/ExternalServiceApi';
 import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
@@ -38,8 +37,6 @@ export interface StateProps {
 export interface ActionProps {
   disconnectFromExternalService: (api: MaybeExternalServiceApi) => any,
 }
-
-
 
 export interface State {
 
