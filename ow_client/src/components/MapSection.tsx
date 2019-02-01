@@ -80,7 +80,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
     }
 
     const waitTime = props.config.getMapRegionChangeDebounceTimeMs();
-    console.log("WAIT TIME IS:", waitTime);
     this.debouncedOnRegionChangeComplete = debounced(waitTime, this.props.onMapRegionChange);
   }
 
