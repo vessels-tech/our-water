@@ -4,7 +4,7 @@ import BaseApi from "../api/BaseApi";
 import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
-import { Location } from "../typings/Location";
+import { Location, MaybeLocation } from "../typings/Location";
 import { getLocation, maybeLog, dedupArray } from "../utils";
 import { RNFirebase } from "react-native-firebase";
 import UserApi from "../api/UserApi";
@@ -482,7 +482,7 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
       }
     }
 
-    dispatch(getResourcesResponse(result));
+    dispatch(getResourcesResponse(result, region));
 
     return result;
   }
@@ -494,10 +494,11 @@ function getResourcesRequest(): GetResourcesActionRequest {
   }
 }
 
-function getResourcesResponse(result: SomeResult<AnyResource[]>): GetResourcesActionResponse {
+function getResourcesResponse(result: SomeResult<AnyResource[]>, safeArea: Region): GetResourcesActionResponse {
   return {
     type: ActionType.GET_RESOURCES_RESPONSE,
     result,
+    safeArea
   }
 }
 
