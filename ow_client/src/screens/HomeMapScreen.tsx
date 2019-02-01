@@ -4,6 +4,7 @@ import {
   ScrollView,
   View,
   ToastAndroid,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Loading from '../components/common/Loading';
@@ -529,6 +530,9 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     }
 
     return (
+      <TouchableWithoutFeedback
+        onPress={() => console.log("HomeMapScreen pressed wrapping touchable")}
+      >
       <View style={{
         marginTop: 0,
         flex: 1,
@@ -563,6 +567,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         <PendingChangesBanner onBannerPressed={this.onBannerPressed} />
         <NetworkStatusBanner />
       </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

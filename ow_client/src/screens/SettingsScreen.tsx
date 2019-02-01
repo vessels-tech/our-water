@@ -69,17 +69,18 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     const { settings_connect_to_pending_title } = this.props.translation.templates;
     const { externalLoginDetails } = this.props;
     
-    showModal(
-      this.props,
-      'screen.menu.ConnectToServiceScreen',
-      settings_connect_to_pending_title,
-      {
-        config: this.props.config,
-        //TODO: how to get the userId in here???
-        userId: this.props.userId,
-        isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
-      }
-    )
+    console.log("SettingsScreen, showConnectToServiceScreen()");
+    // showModal(
+    //   this.props,
+    //   'screen.menu.ConnectToServiceScreen',
+    //   settings_connect_to_pending_title,
+    //   {
+    //     config: this.props.config,
+    //     //TODO: how to get the userId in here???
+    //     userId: this.props.userId,
+    //     isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
+    //   }
+    // )
   }
 
   showSignInScreen() {
@@ -389,12 +390,12 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         width: '100%'
       }}>
         {Logo(this.props.config.getApplicationName())}
-        {/* For connecting to external service */}
-        {this.getConnectToButton()} 
-        {/* For connecting to default service */}
-        {this.getSignInButton()}
         {/* For syncing to an external service */}
         {this.getSyncButton()}
+        {/* For connecting to default service */}
+        {this.getSignInButton()}
+        {/* For connecting to external service */}
+        {this.getConnectToButton()} 
         {/* For saving pending readings/resources to default service */}
         {this.getPendingButton()}
         <ListItem
