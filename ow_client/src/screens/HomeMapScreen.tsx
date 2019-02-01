@@ -538,6 +538,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
+            config={this.props.config}
             mapRef={this.setMapRef}
             initialRegion={initialRegion}
             onMapRegionChange={this.onMapRegionChange}

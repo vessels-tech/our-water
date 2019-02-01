@@ -80,8 +80,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     const { settings_connect_to_pending_title } = this.props.translation.templates;
     const { externalLoginDetails } = this.props;
 
-    console.log("showConnectToServiceScreen1");
-
     showModal(
       this.props,
       'screen.menu.ConnectToServiceScreen',

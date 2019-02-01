@@ -17,6 +17,7 @@ import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import MapCallout from './common/MapCallout';
 import { diff } from "deep-object-diff";
+import { ConfigFactory } from '../config/ConfigFactory';
 
 export type MapRegion = {
   latitude: number,
@@ -43,12 +44,10 @@ export interface State {
   hasSelectedResource: boolean,
   mapHeight: MapHeightOption
   mapState: MapStateOption,
-  // selectedMapMarkerRef?: Marker,
 }
 
 export interface OwnProps {
-  // mapHeight: MapHeightOption,
-  // mapState: MapStateOption,
+  config: ConfigFactory,
   onGetUserLocation: any,
   onMapRegionChange: any,
   onResourceSelected: (r: AnyResource | PendingResource) => void,
@@ -80,7 +79,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
       mapState: MapStateOption.default,
     }
 
-    this.debouncedOnRegionChangeComplete = debounced(1000, this.props.onMapRegionChange);
+    const waitTime = props.config.getMapRegionChangeDebounceTimeMs();
+    this.debouncedOnRegionChangeComplete = debounced(waitTime, this.props.onMapRegionChange);
   }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {

@@ -452,7 +452,17 @@ export async function getNewConfig(): Promise<any> {
         JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
         JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
         JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
-      ])
+      ]),
+    map_regionChangeReloadDebounceTimeMs: buildParameter(
+      '1000',
+      'MS wait time after user has dragged map, but before reloading resources',
+      conditionKeys,
+      [
+        '500',
+        '500',
+        '1000',
+      ]
+    ),
   };
 
   return Promise.resolve({

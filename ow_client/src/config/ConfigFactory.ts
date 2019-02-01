@@ -53,6 +53,7 @@ export type RemoteConfig = {
   translations: TranslationFiles,
   translationOptions: TranslationEnum[],
   ggmn_ignoreReading: {date: string, value: number},
+  map_regionChangeReloadDebounceTimeMs: number,
 }
 
 /**
@@ -269,6 +270,10 @@ export class ConfigFactory {
 
   getTranslationOptions(): TranslationEnum[] {
     return this.remoteConfig.translationOptions;
+  }
+
+  getMapRegionChangeDebounceTimeMs(): number {
+    return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
   }
 
   // getGGMNIgnoreReadingDate(): Moment {
