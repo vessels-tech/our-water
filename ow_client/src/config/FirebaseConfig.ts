@@ -54,6 +54,7 @@ export class FirebaseConfig {
           translations: translationFromJSON(obj.translations.val()),
           translationOptions: JSON.parse(obj.translationOptions.val()),
           ggmn_ignoreReading: JSON.parse(obj.ggmn_ignoreReading.val()),
+          map_regionChangeReloadDebounceTimeMs: obj.map_regionChangeReloadDebounceTimeMs.val(),
         }
         return remoteConfig;
       });
