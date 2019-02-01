@@ -59,7 +59,6 @@ Promise.resolve(true)
   return registerScreens(config);
 })
 .then(() => {
-  console.log("GGMN Registering app component")
   // AppRegistry.registerComponent('App', () => TestApp);
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
@@ -96,7 +95,6 @@ Promise.resolve(true)
 
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
-      console.log("GGMN STARTING SINGLE SCREEN APP");
       Navigation.startSingleScreenApp({
         screen: {
           screen: 'screen.App',

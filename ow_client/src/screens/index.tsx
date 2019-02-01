@@ -194,11 +194,9 @@ export async function registerScreens(config: ConfigFactory) {
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
   });
 
-  console.log("GGMN getting geolocation");
   // @ts-ignore
   // store.dispatch(appActions.getGeolocation());
 
-  console.log("GGMN getting external login details");
   if (config.externalServiceApi) {
     store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }

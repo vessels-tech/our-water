@@ -1,6 +1,6 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View } from "react-native";
+import { View, TouchableWithoutFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
@@ -385,9 +385,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               title={`${p.id}`}
               pinColor={'navy'}
               onPress={(e: any) => this.focusResource(p)}
-            >
-              {/* {this.getCalloutForResource(resource)} */}
-            </Marker>
+            />
           })}
         </MapView>
         <View style={{
@@ -401,11 +399,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           {this.getUpButton()}
         </View>
       </View>    
-    )
+      )
+    }
   }
-}
-
-//If we don't have a user id, we should load a different app I think.
+  
+  //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     shortIdCache: state.shortIdCache,

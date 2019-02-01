@@ -147,8 +147,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
   }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
-    console.log("HomeMapScreen componentWillRecieveProps");
-
     // If a resource is selected, and it changes in the props, we need to update it.
     if (this.state.selectedResource) {
       if (!this.state.selectedResource.pending) {
