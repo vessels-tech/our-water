@@ -330,7 +330,6 @@ export function getGeolocation(): (dispatch: any) => Promise<SomeResult<Location
     dispatch(getGeolocationRequest());
 
     const result = await getLocation();
-    console.log("GetGeoLocation result:", result);
 
     dispatch(getGeoLocationResponse(result));
     return result;

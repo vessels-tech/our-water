@@ -144,7 +144,6 @@ export const getLocation = (): Promise<SomeResult<Location>> => {
   const getLocationPromise = new Promise<SomeResult<Location>>((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(
       (p: Position) => {
-        console.log("got location");
         const location: Location = {
           type: LocationType.LOCATION,
           coords: p.coords,
@@ -152,7 +151,7 @@ export const getLocation = (): Promise<SomeResult<Location>> => {
         resolve(makeSuccess(location));
       },
       (err: any) => {
-        console.log("Error loading location", err);
+        maybeLog("Error loading location", err);
         return resolve(makeError('Error loading location.'));
       },
       {timeout: 5000}
