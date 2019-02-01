@@ -7,7 +7,7 @@ import {
   ListItem,
 } from 'react-native-elements';
 import {
- showModal, showLighbox,
+ showModal, showLighbox, maybeLog,
 } from '../utils';
 import { error1, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -21,6 +21,8 @@ import { UserType } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
+import { Navigation } from 'react-native-navigation';
+import { secondaryDark } from '../utils/NewColors';
 
 export interface OwnProps {
   navigator: any,
@@ -65,22 +67,32 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
 
+  /**
+   * TD: this is the dummy touch event that will be called if this
+   * screen is touched by a rogue event.
+   */
+  showDummyConnectToServiceScreen() {
+    maybeLog("showDummyConnectToServiceScreen");
+    return;
+  }
+
   showConnectToServiceScreen() {
     const { settings_connect_to_pending_title } = this.props.translation.templates;
     const { externalLoginDetails } = this.props;
-    
-    console.log("SettingsScreen, showConnectToServiceScreen()");
-    // showModal(
-    //   this.props,
-    //   'screen.menu.ConnectToServiceScreen',
-    //   settings_connect_to_pending_title,
-    //   {
-    //     config: this.props.config,
-    //     //TODO: how to get the userId in here???
-    //     userId: this.props.userId,
-    //     isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
-    //   }
-    // )
+
+    console.log("showConnectToServiceScreen1");
+
+    showModal(
+      this.props,
+      'screen.menu.ConnectToServiceScreen',
+      settings_connect_to_pending_title,
+      {
+        config: this.props.config,
+        //TODO: how to get the userId in here???
+        userId: this.props.userId,
+        isConnected: externalLoginDetails.status === ConnectionStatus.NO_CREDENTIALS,
+      }
+    );
   }
 
   showSignInScreen() {
@@ -163,12 +175,27 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     )
   }
 
-
-  /**
-   * Connect to button is only available for variants which connect to external services
-   * 
-   * if already connected, displays a button that says "Connected to XYZ"
-   */
+  getDummyConnectToButton() {
+    return (
+      <ListItem
+        containerStyle={{
+          height: 0,
+          padding: 0,
+          margin: 0,
+          backgroundColor: secondaryDark,
+        }}
+        
+        onPress={() => this.showDummyConnectToServiceScreen()}
+        hideChevron={true}
+      />
+    );
+  }
+  
+ /**
+  * Connect to button is only available for variants which connect to external services
+  *
+  * if already connected, displays a button that says "Connected to XYZ"
+  */
   getConnectToButton() {
     const { 
       externalLoginDetails,
@@ -184,7 +211,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     } = this.props;
 
     if (!this.props.config.getShowConnectToButton()) {
-      return false;
+      return null;
     }
 
     let title = settings_connect_to_pending_title;
@@ -237,7 +264,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
 
   getSignInButton() {
     if (!this.props.config.allowsUserRegistration()) {
-      return false;
+      return null;
     }
 
     const {
@@ -390,12 +417,17 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         width: '100%'
       }}>
         {Logo(this.props.config.getApplicationName())}
-        {/* For syncing to an external service */}
-        {this.getSyncButton()}
-        {/* For connecting to default service */}
-        {this.getSignInButton()}
+        {/* 
+          TD we need to put a dummy button in here as for some reason the
+          first button is clickable from other views.
+        */}
+        {this.getDummyConnectToButton()} 
         {/* For connecting to external service */}
         {this.getConnectToButton()} 
+        {/* For connecting to default service */}
+        {this.getSignInButton()}
+        {/* For syncing to an external service */}
+        {this.getSyncButton()}
         {/* For saving pending readings/resources to default service */}
         {this.getPendingButton()}
         <ListItem
@@ -408,7 +440,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           hideChevron={true}
         />
         {this.getLanguageButton()}
-        {/* TODO: spacer  */}
         <View 
           style={{
             flex: 1, 
