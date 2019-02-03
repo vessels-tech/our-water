@@ -29,7 +29,6 @@ import { AnyResource } from '../typings/models/Resource';
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
-  appApi: BaseApi,
 }
 
 export interface StateProps {
@@ -197,6 +196,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
+            config={this.props.config}
             mapRef={this.getMapRef}
             initialRegion={initialRegion}
             onMapRegionChange={this.onMapRegionChange}

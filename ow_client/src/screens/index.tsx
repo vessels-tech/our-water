@@ -101,7 +101,8 @@ export async function registerScreens(config: ConfigFactory) {
         if (action.result.type === ResultType.SUCCESS) {
           const state = store.getState();
           AsyncStorage.setItem('ourwater_resources', JSON.stringify(state.resources));
-          AsyncStorage.setItem('ourwater_resourcesCache', JSON.stringify(state.resourcesCache));
+          //This number has changed to not break backwards compatibility
+          AsyncStorage.setItem('ourwater_resourcesCache2', JSON.stringify(state.resourcesCache));
         }
       }
 
@@ -118,7 +119,8 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   let resources = await getCached('ourwater_resources');
-  let resourcesCache = await getCached('ourwater_resourcesCache');
+  //Increment this number as we changed the type
+  let resourcesCache = await getCached('ourwater_resourcesCache2');
   let shortIdCache = await getCached('ourwater_shortIdCache');
   let shortIdMeta = await getCached('ourwater_shortIdMeta');
 
@@ -134,6 +136,7 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   if (resourcesCache) {
+    console.log("refreshed resourcesCache is:", resourcesCache);
     initialState.resourcesCache = resourcesCache;
   }
 
@@ -145,7 +148,6 @@ export async function registerScreens(config: ConfigFactory) {
     initialState.shortIdMeta = shortIdMeta;
   }
 
-  console.log("GGMN creating store");
   const store = createStore(
     OWApp, 
     initialState,

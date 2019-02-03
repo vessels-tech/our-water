@@ -7,7 +7,7 @@ import {
   ListItem,
 } from 'react-native-elements';
 import {
- showModal, showLighbox, maybeLog,
+ showModal, showLighbox, maybeLog, navigateTo,
 } from '../utils';
 import { error1, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -63,6 +63,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.showEditResourceScreen = this.showEditResourceScreen.bind(this);
     this.logoutPressed = this.logoutPressed.bind(this);
     this.showAboutScreen = this.showAboutScreen.bind(this);
+    this.pushMapScreen = this.pushMapScreen.bind(this);
   }
 
 
@@ -144,6 +145,21 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         userId: this.props.userId,
       }
     );
+  }
+
+  pushMapScreen() {
+    //TODO: Translate
+    const settings_map = "Browse on Map"
+
+    
+    navigateTo(
+      this.props,
+      'screen.SimpleMapScreen',
+      settings_map,
+      {
+        config: this.props.config,
+      }
+    )
   }
 
   showEditResourceScreen() {
@@ -369,13 +385,16 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       return null;
     }
 
-    const { settings_language } = this.props.translation.templates;
+    //TODO: Translate
+    // const { settings_map } = this.props.translation.templates;
+    const settings_map = "Browse on Map"
+
     return (
       <ListItem
-        title={settings_language}
-        onPress={this.showSelectLanguageModal}
+        title={settings_map}
+        onPress={this.pushMapScreen}
         leftIcon={{
-          name: 'language',
+          name: 'map',
           color: secondaryText,
         }}
         hideChevron={true}

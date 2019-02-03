@@ -56,7 +56,6 @@ export type AppState = {
   resources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  // resourcesCache: CacheType<[AnyResource, number]>, //Store the cache type with the timestamp it was loaded into the cache
   resourcesCache: AnyResource[],
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
@@ -353,7 +352,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_RESOURCES_RESPONSE: {
       let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       let resources: AnyResource[] = state.resources;
-      let resourcesCache = state.resourcesCache;
+      let resourcesCache: AnyResource[] = state.resourcesCache;
       let pendingSavedResources = state.pendingSavedResources;
 
       if (action.result.type === ResultType.ERROR) {
@@ -366,6 +365,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       /* Save to cache */
 
       //Add new resources to cache
+      // console.log("resourcesCache is", resourcesCache.length);
+      // console.log("newResources is", newResources.length);
+
+      if (!resourcesCache) {
+        console.log("No resources cache?");
+        resourcesCache = [];
+      }
       resourcesCache = resourcesCache.concat(newResources);
 
       //Deuplicate the cache
