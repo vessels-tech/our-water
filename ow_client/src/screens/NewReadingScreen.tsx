@@ -68,6 +68,7 @@ export interface State {
   date: moment.Moment,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
+  formHeight: number,
 }
 
 class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -95,6 +96,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
       timeseries: timeseriesList[0],
+      formHeight: SCREEN_HEIGHT,
     };
 
     //Binds
@@ -103,10 +105,34 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.onTakePictureError = this.onTakePictureError.bind(this);
     this.clearReadingImage = this.clearReadingImage.bind(this);
     this.saveReading = this.saveReading.bind(this);
+
+    /* Listeners */
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
   }
 
   componentWillMount() {
     this.props.getGeolocation();
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  /**
+   * Listeners
+   * //TD: these listeners aren't always removed properly
+   */
+  keyboardDidShow(event: any): void {
+    const formHeight = SCREEN_HEIGHT - event.endCoordinates.height;
+    this.setState({ formHeight });
+  }
+
+  keyboardDidHide(event: any): void {
+    this.setState({
+      formHeight: SCREEN_HEIGHT,
+    });
   }
 
   showTakePictureScreen() {
@@ -368,11 +394,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     console.log("timeseriesList is", timeseriesList);
 
     return (
-      <View style={{
+      <ScrollView style={{
         flex: 1,
         width: '100%',
-        paddingHorizontal: 20,
-        marginTop: 10,
+        paddingHorizontal: 10,
         flexDirection: 'column',
         paddingBottom: 10,
       }}>
@@ -431,7 +456,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           </Picker>
         </View>
         {this.getImageSection()}
-      </View>
+      </ScrollView>
     );
   }
 
@@ -464,6 +489,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           backgroundColor: secondary,
           width: SCREEN_WIDTH - 20,
         }}
+        containerViewStyle={{
+          marginTop: 10
+        }}
         onPress={this.saveReading}
         underlayColor="transparent"
       />
@@ -477,13 +505,17 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
           flexDirection: 'column',  
           width: '100%',
-          height: '100%'
         }}
         onPress={() => {
           return false;
         }}
       >
-        <ScrollView style={{
+        <View
+          style={{
+            height: this.state.formHeight - 90,
+          }}
+        >
+        {/* <ScrollView style={{
           flex: 1,
           flexDirection: 'column',
           backgroundColor: bgLight,
@@ -492,10 +524,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           paddingHorizontal: 10,
         }}
           keyboardShouldPersistTaps={'always'}
-        >
+        > */}
           {this.getForm()}
           {this.getButton()}
-        </ScrollView>
+        </View>
+        {/* </ScrollView> */}
       </TouchableWithoutFeedback>
     );
   }
