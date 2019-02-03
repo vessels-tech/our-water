@@ -54,6 +54,8 @@ export type RemoteConfig = {
   translationOptions: TranslationEnum[],
   ggmn_ignoreReading: {date: string, value: number},
   map_regionChangeReloadDebounceTimeMs: number,
+  //Should we display the map in the sidebar?
+  showMapInSidebar: boolean,
 }
 
 /**
@@ -276,7 +278,11 @@ export class ConfigFactory {
     return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
   }
 
-  // getGGMNIgnoreReadingDate(): Moment {
+  getShowMapInSidebar() {
+    return this.remoteConfig.showMapInSidebar;
+  }
+
+    // getGGMNIgnoreReadingDate(): Moment {
   //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
   //     return moment(this.remoteConfig.ggmn_ignoreReading.date);
   //   }

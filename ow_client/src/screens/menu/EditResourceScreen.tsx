@@ -105,15 +105,12 @@ class EditResourceScreen extends Component<Props> {
 
   /**
    * Listeners
+   * //TD: these listeners aren't always removed properly
    */
 
   keyboardDidShow(event: any): void {
     const formHeight = Dimensions.get('window').height - event.endCoordinates.height;
-    console.log("eventHeight is: ", JSON.stringify(event));
-    console.log("formHeight is", formHeight);
-    this.setState({
-      formHeight
-    });
+    this.setState({ formHeight });
   }
 
   keyboardDidHide(event: any): void {

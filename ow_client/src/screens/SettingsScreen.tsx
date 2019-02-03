@@ -21,7 +21,6 @@ import { UserType } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
-import { Navigation } from 'react-native-navigation';
 import { secondaryDark } from '../utils/NewColors';
 
 export interface OwnProps {
@@ -365,6 +364,25 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     );
   }
 
+  getMapButton() {
+    if (!this.props.config.getShowMapInSidebar()) {
+      return null;
+    }
+
+    const { settings_language } = this.props.translation.templates;
+    return (
+      <ListItem
+        title={settings_language}
+        onPress={this.showSelectLanguageModal}
+        leftIcon={{
+          name: 'language',
+          color: secondaryText,
+        }}
+        hideChevron={true}
+      />
+    );    
+  }
+
   getLanguageButton() {
     const { settings_language } = this.props.translation.templates;
     return (
@@ -437,6 +455,9 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           hideChevron={true}
         />
+        {/* For browsing resources on map */}
+        {this.getMapButton()}
+
         {this.getLanguageButton()}
         <View 
           style={{

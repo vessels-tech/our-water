@@ -37,6 +37,7 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface OwnProps {
   groundwaterStationId: string | null,
@@ -502,7 +503,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
-  const resource = state.resourcesCache[ownProps.resourceId];
+  const resourceIdx = state.resourcesCache.findIndex(r => r.id === ownProps.resourceId);
+  if (resourceIdx === -1) {
+    //We don't have the resource!
+  }
+  const resource = state.resourcesCache[resourceIdx];
   let resourceMeta = state.resourceMeta[ownProps.resourceId];
   //TODO: clean this up
   if (!resourceMeta) {
