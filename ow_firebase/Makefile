@@ -10,10 +10,12 @@ update_translations:
 	@echo 'pulling translations'
 	cd ${dir}/../ow_translations && make 
 
+	@make install_translations
+	@make update_remote_config
+
+install_translations:
 	@echo 'installing latest packages'
 	cd ${dir}/functions && npm install
-
-	@make update_remote_config
 	
 update_remote_config:
 	@echo 'deploying remote config'
