@@ -43,6 +43,7 @@ import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
 import PendingScreen from './menu/PendingScreen';
 import { ExternalServiceApiType } from '../api/ExternalServiceApi';
+import AboutScreen from './menu/AboutScreen';
 
 
 let loggerMiddleware: any = null;
@@ -74,7 +75,7 @@ const setUpUserSubscriptions = (store: any, config: ConfigFactory, userId: strin
 export async function getCached(id: string): Promise<any | null> {
   if (!EnableCaching) {
     maybeLog("Tried getCached but EnableCaching is false.");
-    return null;
+    return Promise.resolve(null);
   }
 
   try {
@@ -144,6 +145,7 @@ export async function registerScreens(config: ConfigFactory) {
     initialState.shortIdMeta = shortIdMeta;
   }
 
+  console.log("GGMN creating store");
   const store = createStore(
     OWApp, 
     initialState,
@@ -154,7 +156,6 @@ export async function registerScreens(config: ConfigFactory) {
 
   //Update the translations to use the remote config
   store.dispatch(appActions.updatedTranslation(config.getTranslationFiles(), config.getTranslationOptions()));
-
 
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
@@ -195,7 +196,7 @@ export async function registerScreens(config: ConfigFactory) {
   });
 
   // @ts-ignore
-  const locationResult = await store.dispatch(appActions.getGeolocation());
+  // store.dispatch(appActions.getGeolocation());
 
   if (config.externalServiceApi.externalServiceApiType === ExternalServiceApiType.Has) {
     await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
@@ -219,6 +220,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
   Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
   Navigation.registerComponent('screen.PendingScreen', () => PendingScreen, store, Provider);
+  Navigation.registerComponent('AboutScreen', () => AboutScreen, store, Provider);
 
   return store;
 }

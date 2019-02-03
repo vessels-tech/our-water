@@ -58,3 +58,5 @@ buck-out/
 dist
 *.keystore
 .ow_config
+*index.android.bundle
+*index.android.bundle.meta

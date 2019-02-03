@@ -73,7 +73,7 @@ export default class GGMNApi {
     let builder = '';
     Object.keys(idSet).forEach(k => 
       timeseriesNames.forEach(timeseriesName => 
-        builder += `1970-01-01T00:00:00Z,${timeseriesName},00.00,${k}\n`
+        builder += `2017-01-01T01:11:01Z,${timeseriesName},00.00,${k}\n`
       )
     );
 

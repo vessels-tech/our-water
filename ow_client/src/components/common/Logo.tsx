@@ -2,19 +2,19 @@ import * as React from 'react'; import { Component } from 'react';
 
 import { View, Image } from "react-native";
 import { Text } from 'react-native-elements';
-import { secondary } from '../../utils/NewColors';
+import { secondary, secondaryDark } from '../../utils/NewColors';
 
 
 const Logo = (text: string) => {
   return (
     <View style={{
       width: '100%',
-      height: 100,
-      backgroundColor: secondary,
+      height: 90,
+      backgroundColor: secondaryDark,
       justifyContent: 'center',
       alignContent: 'center',
     }}>
-      <Text style={{fontSize: 35, fontWeight: '700', textAlign: 'center'}}>{text}</Text>
+      <Text style={{fontSize: 35, fontWeight: '700', textAlign: 'center', paddingTop: 20}}>{text}</Text>
       {/* <Image
         style={{
           // backgroundColor: 'tomato',

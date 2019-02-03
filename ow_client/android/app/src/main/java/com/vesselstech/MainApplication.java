@@ -6,6 +6,7 @@ import com.reactnativenavigation.NavigationApplication;
 
 import com.facebook.react.ReactApplication;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import org.devio.rn.splashscreen.SplashScreen;
 import com.horcrux.svg.SvgPackage;
 import org.gamega.RNAsyncStoragePackage;
 import com.oblador.keychain.KeychainPackage;
@@ -105,9 +106,8 @@ public class MainApplication extends NavigationApplication {
   //     );
   //   }
 
-  //   @Override
-  //   protected String getJSMainModuleName() {
-  //     return "index";
-  //   }
-  // };
+    @Override
+    public String getJSMainModuleName() {
+        return "index";
+    }
 }

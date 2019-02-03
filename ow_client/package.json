@@ -11,6 +11,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
+    "@types/react-native-htmlview": "^0.12.2",
     "@types/react-native-scrollable-tab-view": "^0.8.4",
     "@types/react-redux": "^6.0.9",
     "@types/redux-logger": "^3.0.6",
@@ -26,7 +27,7 @@
     "firebase": "^5.5.9",
     "firebase-admin": "^6.2.0",
     "moment": "^2.22.1",
-    "ow_translations": "git://github.com/vessels-tech/ow_translations#72d6f5d18078cff820d66d60dfac303ab6f763b5",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations#04e4fcf4903bf1195b8513af99605159f90e27d0",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
     "react": "16.3.1",
@@ -41,6 +42,7 @@
     "react-native-fetch-polyfill": "^1.1.2",
     "react-native-firebase": "^4.3.0",
     "react-native-form": "^2.1.2",
+    "react-native-htmlview": "^0.13.0",
     "react-native-joi": "^0.0.5",
     "react-native-keychain": "^3.0.0",
     "react-native-map-clustering": "^1.3.0",

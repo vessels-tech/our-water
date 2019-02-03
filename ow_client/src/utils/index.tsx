@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { stringify } from 'query-string';
 // import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
 import { Location, LocationType } from '../typings/Location';
-import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings } from '../typings/models/OurWater';
+import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings, OWGeoPoint } from '../typings/models/OurWater';
 import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
@@ -24,6 +24,13 @@ import { secondaryText } from '../assets/ggmn/Colors';
 
 /**
  * Convert a region to a bounding box
+ * 
+ * @returns array, region tuple: [
+ *  min Longitude,
+ *  min Latitude,
+ *  max Longitude,
+ *  max Latitude
+ * ]
  */
 export function calculateBBox(region: Region){
   return [
@@ -124,20 +131,44 @@ export const formatCoords = (fbCoords: any) => {
   };
 }
 
+
+/**
+ * getLocation
+ * 
+ * Get's the location or times out.
+ * 
+ * TD: For some reason, when the user denies location access getCurrentPosition()
+ * never returns. So we implement our own timeout using Promise.race()
+ */
 export const getLocation = (): Promise<SomeResult<Location>> => {
-  return new Promise((resolve, reject) => {
+  const timeoutMs = 5000;
+  const timeoutPromise = new Promise<SomeResult<Location>>((resolve, reject) => {
+    setTimeout(() => {
+      resolve(makeError<Location>("Request timed out."));
+    }, timeoutMs)
+  });
+
+  const getLocationPromise = new Promise<SomeResult<Location>>((resolve, reject) => {
     return navigator.geolocation.getCurrentPosition(
       (p: Position) => {
         const location: Location = {
           type: LocationType.LOCATION,
           coords: p.coords,
         }
-        resolve({type: ResultType.SUCCESS, result: location});
+        resolve(makeSuccess(location));
       },
-      (err: any) => (reject({type: ResultType.ERROR, message: 'Error loading location.'})),
+      (err: any) => {
+        maybeLog("Error loading location", err);
+        return resolve(makeError('Error loading location.'));
+      },
       {timeout: 5000}
     );
   });
+
+  return Promise.race([
+    getLocationPromise,
+    timeoutPromise,
+  ]);
 }
 
 export const pinColorForResourceType = (resourceType: any) => {
@@ -623,7 +654,10 @@ export function filterAndSort(readings: AnyOrPendingReading[], range: Timeseries
 //------------------------------------------------------------------------------------------
 
 /**
- * Deduplicate an array of items based on an accessor
+ * Deduplicate an array of items based on an accessor.
+ * 
+ * Note: This doesn't appear to preserve order.
+ * @returns Array<T> - the modified array
  */
 export function dedupArray<T>(array: Array<T>, accessor: (any: T) => string): Array<T> {
   const dedup: CacheType<T> = {};
@@ -632,6 +666,33 @@ export function dedupArray<T>(array: Array<T>, accessor: (any: T) => string): Ar
     dedup[id] = r;
   });
   return Object.keys(dedup).map(k => dedup[k]);
+}
+
+
+/**
+ * Deduplicate an array of items based on an accessor while preserving the order
+ * of the elements. It removes the Earlier instances, not later.
+ *
+ * @returns Array<T> - the modified array
+ */
+export function dedupArrayPreserveOrder<T>(array: Array<T>, accessor: (any: T) => string): Array<T> {
+  const idMap: CacheType<T> = {};
+  array.forEach(r => {
+    const id = accessor(r);
+    idMap[id] = r;
+  });
+
+  //First map the array to a list of ids only
+  const dupIds = array.map(accessor);
+
+  //Reverse the order of dupIds to keep right-most-items
+  const revDupIds = dupIds.reverse()
+
+  //Dedup the Ids (this works from the left only)
+  const uniqueArray = revDupIds.filter((id, pos) => revDupIds.indexOf(id) === pos);
+
+  //Map from ids back to array, with left-most duplicates removed
+  return uniqueArray.map(id => idMap[id]);
 }
 
 
@@ -679,6 +740,77 @@ export function arrayLowest<T>(array: Array<T>, accessor: (item: T) => string | 
     }
     return acc;
   }, array[0]);
+}
+
+/**
+ * Expire earlier elements from array. 
+ * This requires array to be FIFO, where new elements are added
+ * to the end of the array
+ */
+export function arrayExpire<T>(array: Array<T>, maxElements: number): Array<T> {
+  if (array.length <= maxElements) {
+    return array;
+  }
+
+  const overCount = array.length - maxElements;
+  array.splice(0, overCount);
+  return array;
+}
+
+/**
+ * Expire earlier elements from array.
+ * If elements are in the safe region, then we don't expire them.
+ * 
+ * @param maxElements - approx number of elements we want. Result may be over this number if there are too many
+ *   resources in the safeArea
+ */
+export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: number, safeArea: Region): Array<AnyResource> {
+  if (array.length <= maxElements) {
+    return array;
+  }
+
+  //Make a list of safe resources:
+  const safeResources: AnyResource[] = [];
+  array.forEach(r => {
+    if (isInRegion(safeArea, r.coords)) {
+      safeResources.push(r);
+    }
+  });
+
+  //delete anything over
+  const initialDeleted = arrayExpire(array, maxElements);
+  //add back safe resources
+  const duplicateArray = initialDeleted.concat(safeResources);
+  //Deduplicate
+  const deduped = dedupArrayPreserveOrder(duplicateArray, (r) => r.id);
+  return deduped;
+}
+
+
+/**
+ * Calculates whether or not a given coordinate is in a given region.
+ * @param region 
+ * @param coords 
+ */
+export function isInRegion(region: Region, coords: OWGeoPoint) {
+  const boundingBox = calculateBBox(region);
+  if (coords._latitude < boundingBox[1]) {
+    return false;
+  }
+
+  if (coords._latitude > boundingBox[3]) {
+    return false;
+  }
+
+  if (coords._longitude < boundingBox[0]) {
+    return false;
+  }
+
+  if (coords._longitude > boundingBox[2]) {
+    return false;
+  }
+
+  return true;
 }
 
 export function getMarkerKey(resource: AnyResource | PendingResource) {
