@@ -30,6 +30,7 @@ import { GGMNTimeseries, AnyTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
 import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
+import { RemoteConfig } from "../config/ConfigFactory";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -42,6 +43,7 @@ const defaultHeaders = {
 export interface GGMNApiOptions {
   baseUrl: string,
   auth?: any,
+  // remoteConfig: RemoteConfig,
 }
 
 
@@ -53,6 +55,7 @@ export interface GGMNApiOptions {
 class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceApi {
   auth: any = null;
   baseUrl: string;
+  // remoteConfig: RemoteConfig;
   networkApi: NetworkApi;
   orgId: string;
   pendingReadingsSubscription: any;
@@ -72,9 +75,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    */
   constructor(networkApi: NetworkApi, orgId: string, options: GGMNApiOptions) {
     this.baseUrl = options.baseUrl;
+    // this.remoteConfig = options.remoteConfig;
     if (options.auth) {
       this.auth = options.auth;
     }
+
 
     this.networkApi = networkApi;
     this.orgId = orgId;
@@ -651,18 +656,23 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
 
       const timeseries: OWTimeseries = response.results[0];
-      return timeseries.events.map((e: OWTimeseriesEvent): GGMNReading => {
-        return {
-          type: OrgType.GGMN,
-          resourceId,
-          timeseriesId: timeseries.parameter,
-          date: moment(e.timestamp).toISOString(),
-          value: e.value,
-          //TODO: this will cause bugs
-          groundwaterStationId: undefined,
-          timeseriesCode: timeseries.id,
-        };
-      });
+      return timeseries.events
+      .filter(e => 
+        //Filter out the readings hidden in ggmn_ignoreReading
+        // moment(e.timestamp).toISOString() !== this.remoteConfig.ggmn_ignoreReading.date &&
+        // e.value !== this.remoteConfig.ggmn_ignoreReading.value)
+        moment(e.timestamp).toISOString() !== '2017-01-01T01:11:01Z' &&
+        e.value !== 0)
+      .map((e: OWTimeseriesEvent): GGMNReading => ({
+        type: OrgType.GGMN,
+        resourceId,
+        timeseriesId: timeseries.parameter,
+        date: moment(e.timestamp).toISOString(),
+        value: e.value,
+        //TODO: this will cause bugs
+        groundwaterStationId: undefined,
+        timeseriesCode: timeseries.id,
+      }));
     })
     .catch((err: Error) => {
       //TODO: handle this error?

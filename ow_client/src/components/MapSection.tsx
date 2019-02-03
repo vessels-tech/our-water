@@ -1,6 +1,6 @@
 import * as React from 'react'; import { Component } from 'react';
 import ClusteredMapView from "./common/ClusteredMapView";
-import { View } from "react-native";
+import { View, TouchableWithoutFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
@@ -17,6 +17,7 @@ import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import MapCallout from './common/MapCallout';
 import { diff } from "deep-object-diff";
+import { ConfigFactory } from '../config/ConfigFactory';
 
 export type MapRegion = {
   latitude: number,
@@ -43,12 +44,10 @@ export interface State {
   hasSelectedResource: boolean,
   mapHeight: MapHeightOption
   mapState: MapStateOption,
-  // selectedMapMarkerRef?: Marker,
 }
 
 export interface OwnProps {
-  // mapHeight: MapHeightOption,
-  // mapState: MapStateOption,
+  config: ConfigFactory,
   onGetUserLocation: any,
   onMapRegionChange: any,
   onResourceSelected: (r: AnyResource | PendingResource) => void,
@@ -80,7 +79,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
       mapState: MapStateOption.default,
     }
 
-    this.debouncedOnRegionChangeComplete = debounced(1000, this.props.onMapRegionChange);
+    const waitTime = props.config.getMapRegionChangeDebounceTimeMs();
+    this.debouncedOnRegionChangeComplete = debounced(waitTime, this.props.onMapRegionChange);
   }
 
   componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps) {
@@ -385,9 +385,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               title={`${p.id}`}
               pinColor={'navy'}
               onPress={(e: any) => this.focusResource(p)}
-            >
-              {/* {this.getCalloutForResource(resource)} */}
-            </Marker>
+            />
           })}
         </MapView>
         <View style={{
@@ -401,11 +399,11 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           {this.getUpButton()}
         </View>
       </View>    
-    )
+      )
+    }
   }
-}
-
-//If we don't have a user id, we should load a different app I think.
+  
+  //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     shortIdCache: state.shortIdCache,

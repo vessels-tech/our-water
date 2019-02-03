@@ -45,7 +45,7 @@ function getAuthHeader(admin) {
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
 // const key = require('../src/test/.serviceAccountKey.json');
-//TODO: make the user specify the key
+// TODO: make the user specify the key
 const key = {
     client_email: '12345',
     private_key: '12345',
@@ -304,6 +304,11 @@ function getNewConfig() {
                 ggmnTranslationsJSON,
                 mywellTranslationsJSON,
             ]),
+            ggmn_ignoreReading: buildParameter(JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2), 'A reading in GGMN that should be ignored by the graphs', conditionKeys, [
+                JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
+                JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
+                JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
+            ])
         };
         return Promise.resolve({
             conditions,

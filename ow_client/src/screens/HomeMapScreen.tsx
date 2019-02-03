@@ -44,6 +44,9 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
 
+const initialLat: number = -20.4010;
+const initialLng: number = 32.3373;
+
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -150,6 +153,21 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         this.handleUpdatedResource(nextProps);
       } else {
         this.handleUpdatedPendingResource(nextProps);
+      }
+    }
+
+    //Update the initial region if applicable:
+    if (this.state.initialRegion) {
+     if (this.state.initialRegion.latitude === initialLat && 
+      this.state.initialRegion.longitude === initialLng) {
+        const initialRegion = {
+          ...this.state.initialRegion,
+          latitude: nextProps.location.coords.latitude,
+          longitude: nextProps.location.coords.longitude,
+        }
+        //Navigate the map here.
+        this.updateGeoLocation(nextProps.location);
+        this.setState({initialRegion});
       }
     }
   }
@@ -520,6 +538,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
+            config={this.props.config}
             mapRef={this.setMapRef}
             initialRegion={initialRegion}
             onMapRegionChange={this.onMapRegionChange}
@@ -541,7 +560,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
             {this.getResourceView()}
             {this.getFavouritesList()}
           </ScrollView>
-        }
+         }
         <PendingChangesBanner onBannerPressed={this.onBannerPressed} />
         <NetworkStatusBanner />
       </View>
@@ -554,11 +573,12 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let userId = ''; //I don't know if this fixes the problem...
 
   //Default location
-  let location: Location = { type: LocationType.LOCATION, coords: { latitude: -20.4010, longitude: 32.3373 } };
+  let location: Location = { type: LocationType.LOCATION, coords: { latitude: initialLat, longitude: initialLng } };
   if (state.user.type === UserType.USER) {
     userId = state.user.userId;
   }
 
+  
   if (state.location.type !== LocationType.NO_LOCATION) {
     location = state.location;
   }

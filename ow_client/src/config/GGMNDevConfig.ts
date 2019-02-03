@@ -34,6 +34,9 @@ const GGMNDevConfig: RemoteConfig = {
   allowsUserRegistration: false,
   translations: translationsForTranslationOrg(orgId),
   translationOptions: possibleTranslationsForOrg(orgId),
+  ggmn_ignoreReading: { date: "2017-01-01T00:00:00.000Z", value: 0 },
+  map_regionChangeReloadDebounceTimeMs: 1000,
+
 }
 
 export default GGMNDevConfig;

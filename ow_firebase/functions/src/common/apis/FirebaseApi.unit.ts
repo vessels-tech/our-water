@@ -20,7 +20,7 @@ const baseUrl = process.env.BASE_URL;
 describe('Firebase Api', function() {
   this.timeout(10000);
 
-  describe.only('Readings', function() {
+  describe('Readings', function() {
     let newReadings;
     const readingIds = [];
 

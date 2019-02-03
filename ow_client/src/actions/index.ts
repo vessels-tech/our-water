@@ -1,29 +1,25 @@
-import { Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
+import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
-import { AsyncResource } from "async_hooks";
 import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings } from "./AnyAction";
 import { ActionType } from "./ActionType";
-import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
-import { Location } from "../typings/Location";
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
+import { Location, MaybeLocation } from "../typings/Location";
 import { getLocation, maybeLog, dedupArray } from "../utils";
-import { Firebase, RNFirebase } from "react-native-firebase";
-import FirebaseApi from "../api/FirebaseApi";
+import { RNFirebase } from "react-native-firebase";
 import UserApi from "../api/UserApi";
-import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
+import { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import { ToastAndroid } from "react-native";
-import { MapRegion } from "../components/MapSection";
 import { Region } from "react-native-maps";
-import { GGMNSearchEntity, GGMNOrganisation } from "../typings/models/GGMN";
+import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles } from "ow_translations";
-import { ShortId } from "../typings/models/ShortId";
 import { AnyResource } from "../typings/models/Resource";
 import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
-import InternalAccountApi, { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
+import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -486,7 +482,7 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
       }
     }
 
-    dispatch(getResourcesResponse(result));
+    dispatch(getResourcesResponse(result, region));
 
     return result;
   }
@@ -498,10 +494,11 @@ function getResourcesRequest(): GetResourcesActionRequest {
   }
 }
 
-function getResourcesResponse(result: SomeResult<AnyResource[]>): GetResourcesActionResponse {
+function getResourcesResponse(result: SomeResult<AnyResource[]>, safeArea: Region): GetResourcesActionResponse {
   return {
     type: ActionType.GET_RESOURCES_RESPONSE,
     result,
+    safeArea
   }
 }
 
