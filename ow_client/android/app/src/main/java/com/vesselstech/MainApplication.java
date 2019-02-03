@@ -105,9 +105,4 @@ public class MainApplication extends NavigationApplication {
   //         new RNFirebaseAuthPackage()
   //     );
   //   }
-
-    @Override
-    public String getJSMainModuleName() {
-        return "index";
-    }
 }

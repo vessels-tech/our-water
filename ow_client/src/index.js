@@ -115,37 +115,17 @@ Promise.resolve(true)
       const homeIcon = require('./assets/home.png');
       const scanIcon = require('./assets/scan.png');
       const mapIcon = require('./assets/map.png');
-      
-      Navigation.startTabBasedApp({
-        tabs: [
-          {
-            screen: 'screen.App',
-            icon: homeIcon,
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          },
-          {
-            screen: 'screen.ScanScreen',
-            icon: scanIcon,
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          },
-          {
-            screen: 'screen.SimpleMapScreen',
-            icon: mapIcon,
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          }
-        ],
-        tabsStyle: { 
-          tabBarButtonColor: primaryText,
-          tabBarSelectedButtonColor: primaryDark,
-          tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
-          initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
+
+      Navigation.startSingleScreenApp({
+              screen: {
+          screen: 'screen.App',
+          title: config.getApplicationName(),
+          navigatorStyle: defaultNavigatorStyle,
+          navigatorButtons,
         },
+        drawer,
+        animationType: 'fade',
+        passProps: { config },
         appStyle: {
           // Here for android
           tabBarButtonColor: bgMed,
@@ -154,10 +134,50 @@ Promise.resolve(true)
           bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
           bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
         },
-        drawer,
-        passProps: {config},
-        animationType: 'fade'
       });
+      
+      // Navigation.startTabBasedApp({
+      //   tabs: [
+      //     {
+      //       screen: 'screen.App',
+      //       icon: homeIcon,
+      //       title: config.getApplicationName(),
+      //       navigatorButtons,
+      //       navigatorStyle: defaultNavigatorStyle,
+      //     },
+      //     {
+      //       screen: 'screen.ScanScreen',
+      //       icon: scanIcon,
+      //       title: config.getApplicationName(),
+      //       navigatorButtons,
+      //       navigatorStyle: defaultNavigatorStyle,
+      //     },
+      //     {
+      //       screen: 'screen.SimpleMapScreen',
+      //       icon: mapIcon,
+      //       title: config.getApplicationName(),
+      //       navigatorButtons,
+      //       navigatorStyle: defaultNavigatorStyle,
+      //     }
+      //   ],
+      //   tabsStyle: { 
+      //     tabBarButtonColor: primaryText,
+      //     tabBarSelectedButtonColor: primaryDark,
+      //     tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
+      //     initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
+      //   },
+      //   appStyle: {
+      //     // Here for android
+      //     tabBarButtonColor: bgMed,
+      //     tabBarSelectedButtonColor: primaryDark,
+      //     orientation: 'portrait',
+      //     bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
+      //     bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
+      //   },
+      //   drawer,
+      //   passProps: {config},
+      //   animationType: 'fade'
+      // });
     break;
     }
     default: 
