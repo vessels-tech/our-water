@@ -7,7 +7,7 @@ const orgId = EnvConfig.OrgId;
 const MyWellDevConfig: RemoteConfig = {
   applicationName: 'MyWell',
   baseApiType: BaseApiType.MyWellApi,
-  firebaseBaseUrl: 'localhost:5000',
+  firebaseBaseUrl: 'https://us-central1-our-water.cloudfunctions.net',
   ggmnBaseUrl: 'https://ggmn.lizard.net/api',
   showConnectToButton: false,
   showSyncButton: false,
@@ -39,6 +39,7 @@ const MyWellDevConfig: RemoteConfig = {
   map_regionChangeReloadDebounceTimeMs: 1000,
   showMapInSidebar: true,
   resourceDetail_shouldShowTable: true,
+  resourceDetail_shouldShowQRCode: true,
 }
 
 export default MyWellDevConfig;``

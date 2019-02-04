@@ -56,7 +56,6 @@ exports.userAccountDefaults = functions.firestore
     .document('org/mywell/user/{userId}')
     .onCreate((snapshot, context) => {
     const { userId } = context.params;
-    // const user = UserBuilder snapshot.data();
     console.log("user id is", userId);
     const userDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
     return userDoc.set({ status: 'Unapproved' }, { merge: true });

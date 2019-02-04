@@ -38,7 +38,7 @@ const GGMNDevConfig: RemoteConfig = {
   map_regionChangeReloadDebounceTimeMs: 1000,
   showMapInSidebar: false,
   resourceDetail_shouldShowTable: false,
-
+  resourceDetail_shouldShowQRCode: false,
 }
 
 export default GGMNDevConfig;

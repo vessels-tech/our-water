@@ -57,6 +57,7 @@ export type RemoteConfig = {
   //Should we display the map in the sidebar?
   showMapInSidebar: boolean,
   resourceDetail_shouldShowTable: boolean,
+  resourceDetail_shouldShowQRCode: boolean,
 }
 
 /**
@@ -285,6 +286,10 @@ export class ConfigFactory {
 
   getResourceDetailShouldShowTable() {
     return this.remoteConfig.resourceDetail_shouldShowTable;
+  }
+
+  getResourceDetailShouldShowQRCode() {
+    return this.remoteConfig.resourceDetail_shouldShowQRCode;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

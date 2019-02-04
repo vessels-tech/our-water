@@ -43,7 +43,6 @@ module.exports = (functions) => {
    * Generate a QR code for a given id.
    * 
    */
-
   const generateQRCodeValidation = {
     options: {
       allowUnknownBody: false,
@@ -56,6 +55,8 @@ module.exports = (functions) => {
   app.get('/:orgId/qrCode', validate(generateQRCodeValidation), async (req, res) => {
     const { id } = req.query;
     const { orgId } = req.params;
+
+    console.log("Getting QR Code");
 
     const result = await generateQRCode(orgId, id);
     if (result.type === ResultType.ERROR) {

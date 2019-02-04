@@ -56,6 +56,7 @@ module.exports = (functions) => {
     app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
+        console.log("Getting QR Code");
         const result = yield QRCode_1.generateQRCode(orgId, id);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(result.message);

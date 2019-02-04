@@ -57,6 +57,7 @@ export class FirebaseConfig {
           map_regionChangeReloadDebounceTimeMs: parseInt(obj.map_regionChangeReloadDebounceTimeMs.val()),
           showMapInSidebar: obj.showMapInSidebar.val(),
           resourceDetail_shouldShowTable: obj.resourceDetail_shouldShowTable.val(),
+          resourceDetail_shouldShowQRCode: obj.resourceDetail_shouldShowQRCode.val(),
         }
         return remoteConfig;
       });

@@ -3,6 +3,8 @@ import {
   View,
   ViewPagerAndroid,
   ToastAndroid,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { 
   Avatar,
@@ -15,7 +17,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, qrCodeForResource,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
@@ -43,6 +45,8 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 import { diff } from 'deep-object-diff';
 import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export interface OwnProps {
@@ -330,6 +334,27 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     });
   }
 
+  getQRCode() {
+    if (!this.props.config.getResourceDetailShouldShowQRCode()) {
+      return null;
+    }
+
+    const qrCode = qrCodeForResource('12345', this.props.resourceId);
+
+    return (
+      <View
+        style={{
+          flex: 5,
+        }}
+      >
+        <Image 
+          style={{flex: 1, resizeMode: "contain"}}
+          source={{ uri: `data:image/png;base64,${qrCode}`}}
+        />
+      </View>
+    )
+  }
+
   getSummaryCard() {
     const { resource_detail_edit_resource, resource_detail_latest, resource_detail_new_reading_button, resource_detail_edit_readings } = this.props.translation.templates;
     const { resourceId, pendingResource, isPending} = this.props;
@@ -346,7 +371,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}>
           <View style={{
             flexDirection: 'column',
-            flex: 2,
+            flex: 1,
           }}>
             <Text style={{
               paddingVertical: 10,
@@ -360,12 +385,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
           <View style={{
             flexDirection: 'column',
-            flex: 5,
+            flex: 3,
             justifyContent: 'center',
           }}>
             {this.getLatestReadingsForTimeseries()}
           </View>
-
+          {this.getQRCode()}
           {/* Bottom Buttons */}
           <View style={{
             flex: 0.5,
