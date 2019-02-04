@@ -142,6 +142,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     if (result.type === ResultType.SUCCESS) {
+      console.log("Result timeseries is:", result.result.timeseries);
+
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
           //This needs to be a different number maybe?

@@ -372,6 +372,7 @@ export function getPendingResourcesResponse(result: SomeResult<PendingResource[]
  * //TD - remove the need for timeseriesId
  */
 export function getReadings(api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): asyncDispatchResult<AnyReading[]> {
+  console.log(`Actions. Getting readings, resourceId: ${resourceId}, tsName: ${timeseriesName}, tsId: ${timeseriesId}, range: ${range}`);
   return async (dispatch: any) => {
     dispatch(getReadingsRequest(resourceId, timeseriesName, timeseriesId, range));
     let result: SomeResult<AnyReading[]>;

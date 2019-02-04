@@ -26,6 +26,7 @@ export function toAnyTimeseriesList(fbTimeseriesMap: FBTimeseriesMap): AnyTimese
 
 //TODO: figure out how to get readings in here!
 export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
+  console.log("toAnyTimeseries, inbound:", fbTimeseries);
   switch(fbTimeseries.type) {
     case OrgType.GGMN: {
       const ts: GGMNTimeseries = {
@@ -47,10 +48,13 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
         type: OrgType.MYWELL,
 
         /* Common values*/
-        id: fbTimeseries.id,
-        name: fbTimeseries.id,
+        //TD: WTF???
+        //Must've been drunk when writing this originally
+        //Once again, this calls for a types overhaul
+        id: fbTimeseries.name,
+        name: fbTimeseries.name,
         readings: [],
-        parameter: 'parameter',
+        parameter: fbTimeseries.parameter,
       }
       return ts;
     }
