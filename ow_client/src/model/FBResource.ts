@@ -6,6 +6,8 @@ import { AnyResource, MyWellResource, GGMNResource } from "../typings/models/Res
 import { AnyTimeseries } from "../typings/models/Timeseries";
 import { OrgType } from "../typings/models/OrgType";
 import { FBTimeseriesMap, toAnyTimeseriesList } from "./FBTimeseries";
+import { diff } from "deep-object-diff";
+import { ResourceType } from "../enums";
 
 //TODO: move these elsewhere
 export enum FBResourceType {
@@ -196,6 +198,14 @@ export default class FBResource extends FirestoreDoc {
       case OrgType.MYWELL: 
       //TODO: make more explicit - be less lazy and fix the type on the server side
       default: {
+        //TD: MyWell timeseries for old resources are quite wrong.
+        //They can also only have one type...
+        // if (Object.keys(diff(this.timeseries, { id: 'default' })).length === 0) {
+        //   if (this.resourceType === FBResourceType.well) {
+        //     this.timeseries = [{ "name": "default", "parameter": "default", "readings": [], "unitOfMeasure": "m" }]
+        //   }
+        // }
+
         const resource: MyWellResource = {
           id: this.id,
           type: OrgType.MYWELL,

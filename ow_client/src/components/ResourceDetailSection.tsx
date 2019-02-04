@@ -17,7 +17,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, qrCodeForResource,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
@@ -142,8 +142,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
 
     if (result.type === ResultType.SUCCESS) {
-      console.log("Result timeseries is:", result.result.timeseries);
-
       result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
         .then(result => {
           //This needs to be a different number maybe?
@@ -250,7 +248,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getLatestReadingsForTimeseries() {
-    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList } = this.props;
+    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList, resource } = this.props;
     const { 
       timeseries_name_title, 
       timeseries_date_format, 
@@ -259,6 +257,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       timeseries_loading_error
     } = this.props.translation.templates;
 
+    const defaultTimeseriesList = this.getDefaultTimeseries();
 
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>
@@ -290,12 +289,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
+      const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.name === key);
+      let unitOfMeasure = 'm';
+      if (defaultTimeseries) {
+        unitOfMeasure = defaultTimeseries.unitOfMeasure;
+      }
 
       let content = 'N/A';
       let contentSubtitle;
     
       const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
-      content = `${latestReading.value.toFixed(2)}`;
+      content = `${latestReading.value.toFixed(2)} ${unitOfMeasure}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 
       return (

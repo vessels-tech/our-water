@@ -84,10 +84,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    // let resourceType = 'well';
-    // if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
-    //   resourceType = props.resource.resourceType
-    // }
     const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(props.resourceType);
     this.state = {
       enableSubmitButton: false,
@@ -515,20 +511,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
             height: this.state.formHeight - 90,
           }}
         >
-        {/* <ScrollView style={{
-          flex: 1,
-          flexDirection: 'column',
-          backgroundColor: bgLight,
-          width: '100%',
-          marginBottom: 40,
-          paddingHorizontal: 10,
-        }}
-          keyboardShouldPersistTaps={'always'}
-        > */}
           {this.getForm()}
           {this.getButton()}
         </View>
-        {/* </ScrollView> */}
       </TouchableWithoutFeedback>
     );
   }
