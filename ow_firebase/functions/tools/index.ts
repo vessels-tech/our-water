@@ -463,6 +463,8 @@ export async function getNewConfig(): Promise<any> {
         '1000',
       ]
     ),
+    showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+    resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
   };
 
   return Promise.resolve({
