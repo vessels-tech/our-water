@@ -11,6 +11,8 @@ import { readingToCSV, readingHeading } from './csv';
 var fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
 const key = require('../src/test/.serviceAccountKey.json');
+const baseUrl = process.env.BASE_URL;
+const orgId = process.env.ORG_ID;
 
 const PROJECT_ID = 'our-water';
 
@@ -113,4 +115,52 @@ gulp.task('get_readings_csv', async() => {
   
   writer.end();
   console.log("wrote file: ", filename);
+});
+
+
+gulp.task('upload_readings_from_csv', async () => {
+  const files = [
+    //Place your links to firebase files here.
+    'https://firebasestorage.googleapis.com/v0/b/our-water.appspot.com/o/MywelluploadDharta2017.xlsx%20-%20B-Well.tsv?alt=media&token=1e17d48f-5404-4f27-90f3-fb6a76a6dc45',
+  ];
+
+  //Build the sync requests
+  const syncOptions: any[] = files.map(fileUrl => {
+    const data = {
+      isOneTime: false,
+      frequency: 'weekly',
+        datasource: {
+          type: "FileDatasource",
+        fileUrl,
+        dataType: 'Reading',
+        fileFormat: 'TSV', //ignored for now
+        options: {
+          includesHeadings: true,
+          usesLegacyMyWellIds: true,
+        },
+        selectedDatatypes: [
+          'Reading',
+        ]
+      },
+      type: "unknown",
+    };
+
+    const createSyncOptions = {
+      method: 'POST',
+      uri: `${baseUrl}/sync/${orgId}`,
+      json: true,
+      body: {
+        data
+      }
+    };
+
+    return createSyncOptions;
+  });
+
+  const responses = await Promise.all(syncOptions.map(options => request(options)
+    .then((response: any) => JSON.parse(response))
+    .catch(err => console.log(err))
+  ));
+
+  console.log("Create syncs responses are: ", responses);
 });
