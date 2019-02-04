@@ -21,6 +21,10 @@ update_remote_config:
 	@echo 'deploying remote config'
 	cd ${dir}/functions/tools && gulp deploy_remote_config
 
+hacky_create_syncs:
+	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp upload_readings_from_csv
+
+
 run_local:
 	@echo 'running local firebase'	
 	cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
