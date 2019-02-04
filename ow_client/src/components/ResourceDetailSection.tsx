@@ -45,6 +45,7 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 import { diff } from 'deep-object-diff';
 import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
+import QRCode from 'react-native-qrcode-svg';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -98,6 +99,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     this.appApi = this.props.config.getAppApi();
 
+    //TD: This should probably be managed by global redux
     this.reloadResourceAndReadings();
   }
 
@@ -114,37 +116,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     renderLog("     - ", diff(this.state, nextState));
   }
 
-  // shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
-  //   if (Object.keys(diff(this.state, nextState)).length > 0) {
-  //     return true;
-  //   }
-
-  //   // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
-  //   //If the props diff is only functions, then we shouldn't update!
-  //   const propsDiff: any = diff(this.props, nextProps);
-  //   delete propsDiff['renderCounter'];
-  //   const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
-  //     if (acc === false) {
-  //       return acc;
-  //     }
-  //     return typeof propsDiff[curr] === 'function';
-  //   }, true);
-
-  //   if (functionsOnly) {
-  //     maybeLog('ResourceDetailSection shouldComponentUpdate skipping render');
-  //     return !functionsOnly;
-  //   }
-
-  //   return true;
-  // }
 
   async reloadResourceAndReadings() {
-
-    //TODO: this is triggering an endless loop here.
-    //We should re evaluate the way MyWell loads resources, now that we've changed quite a bit from last time.
-    
-    // return;
-
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
       resource_loading_error,
@@ -179,6 +152,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }));
     }
   }
+
 
   getDefaultTimeseries(): Array<ConfigTimeseries> {
     const { resource } = this.props;
@@ -339,17 +313,24 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return null;
     }
 
-    const qrCode = qrCodeForResource('12345', this.props.resourceId);
+    //TD: this format is important, and should be defined somewhere else.
+    const data = {
+      orgId: 'mywell',
+      id: this.props.resourceId,
+      assetType: 'resource',
+    };
+    
 
     return (
       <View
         style={{
           flex: 5,
+          alignSelf: 'center',
         }}
       >
-        <Image 
-          style={{flex: 1, resizeMode: "contain"}}
-          source={{ uri: `data:image/png;base64,${qrCode}`}}
+        <QRCode
+          size={SCREEN_WIDTH - 200}
+          value={JSON.stringify(data)}
         />
       </View>
     )

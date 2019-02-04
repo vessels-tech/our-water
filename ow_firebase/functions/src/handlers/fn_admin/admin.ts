@@ -56,8 +56,6 @@ module.exports = (functions) => {
     const { id } = req.query;
     const { orgId } = req.params;
 
-    console.log("Getting QR Code");
-
     const result = await generateQRCode(orgId, id);
     if (result.type === ResultType.ERROR) {
       throw new Error(result.message);
