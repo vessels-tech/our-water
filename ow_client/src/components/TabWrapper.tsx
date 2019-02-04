@@ -44,11 +44,17 @@ export function withTabWrapper(WrappedComponent: any) {
       }
 
       // const { translation: { templates: { search_heading } } } = this.props;
-      if (event === "SEARCH") {
-        navigateTo(this.props, 'screen.SearchScreen', 'Search', {
-          config: this.props.config,
-          onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+      // if (event === "SEARCH") {
+      //   navigateTo(this.props, 'screen.SearchScreen', 'Search', {
+      //     config: this.props.config,
+      //     onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
 
+      //   });
+      // }
+      //TD: Co-opting this for the QR search for now.
+      if (event === "SEARCH") {
+        navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+          config: this.props.config,
         });
       }
     }

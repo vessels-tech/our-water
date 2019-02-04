@@ -141,6 +141,8 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
     if (filteredReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
     }
+    //Reverse the array so that the recent readings appear on top
+    const reversed = filteredReadings.reverse();
 
     return (
       <View style={{
@@ -148,7 +150,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
         justifyContent: 'center'
       }}>
         <FlatList
-          data={filteredReadings}
+          data={reversed}
           keyExtractor={(item: AnyOrPendingReading) => `${item.date}+${item.value}`}
           renderItem={({item, index}: {item: AnyOrPendingReading, index: number}) => {
             return (
@@ -174,27 +176,6 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
         />
       </View>
     );
-
-
-    // return (
-    //   <FlatList
-    //     ItemSeparatorComponent={Platform.OS !== 'android' && ({ highlighted }) => (
-    //       <View style={[style.separator, highlighted && { marginLeft: 0 }]} />
-    //     )
-    //   }
-    //   data = { }
-    //   renderItem = {({ item, separators }) => (
-    //     <TouchableHighlight
-    //       onPress={() => this._onPress(item)}
-    //       onShowUnderlay={separators.highlight}
-    //       onHideUnderlay={separators.unhighlight}>
-    //       <View style={{ backgroundColor: 'white' }}>
-    //         <Text>{item.title}</Text>
-    //       </View>
-    //     </TouchableHighlight>
-    //   )}
-    // />
-    // );
   }
 
   getBottomButtons() {

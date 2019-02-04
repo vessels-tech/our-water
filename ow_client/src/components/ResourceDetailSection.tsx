@@ -416,7 +416,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         // @ts-ignore
         <View
-          tabLabel={`${timeseries.name}`}
+          tabLabel={`Graph: ${timeseries.name}`}
           key={`${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
@@ -453,7 +453,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         // @ts-ignore
         <View
-          tabLabel={`Graph: ${timeseries.name}`}
+          tabLabel={`Table: ${timeseries.name}`}
           key={`graph_${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
