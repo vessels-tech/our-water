@@ -42,7 +42,7 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 import { diff } from 'deep-object-diff';
-import TimeseriesCardSimple from './common/TimeseriesCardSimple';
+import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
 
 
 export interface OwnProps {
@@ -413,6 +413,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           style={{ alignItems: 'center' }}
         >
           <TimeseriesCardSimple
+            cardType={TimeseriesCardType.default}
             key={`${idx + 1}_${timeseries.name}`}
             config={this.props.config}
             timeseries={timeseries}
@@ -449,6 +450,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           style={{ alignItems: 'center' }}
         >
           <TimeseriesCardSimple
+            cardType={TimeseriesCardType.table}
             key={`${idx + 1}_${timeseries.name}`}
             config={this.props.config}
             timeseries={timeseries}
