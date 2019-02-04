@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
-const admin = require('firebase-admin');
-admin.initializeApp();
+const firebase_admin_1 = require("firebase-admin");
+// const admin = require('firebase-admin');
+// admin.initializeApp();
 /**
  * This file works better in JS,
  * When it is in TS, it gets compiled to JS and this breaks
@@ -40,6 +41,25 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
 }
 //Cron Api
 _a = require('./handlers/fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
+/**
+ * userAccountDefaults
+ *
+ * When a user account is first created, set the defaults:
+ * - status: "Unapproved"
+ *
+ * //TD: how to define for only some environments?
+ * //For now, this is mywell only.
+ *
+ * //TD: Use the properly defined types here.
+ */
+exports.userAccountDefaults = functions.firestore
+    .document('org/mywell/user/{userId}')
+    .onCreate((snapshot, context) => {
+    const { userId } = context.params;
+    // const user = UserBuilder snapshot.data();
+    const userDoc = firebase_admin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
+    userDoc.set({ status: 'Unapproved' }, { merge: true });
+});
 var _a;
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});

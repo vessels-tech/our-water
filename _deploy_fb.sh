@@ -7,13 +7,18 @@ cd "$DIR"/ow_firebase/functions/
 ##TODO: set separate project
 source "$DIR/env/.env.development.sh"
 
-# set the firebase env variables
-firebase functions:config:set \
-  config.mywell_legacy_access_token=$MYWELL_LEGACY_ACCESS_TOKEN \
-  config.outbound_email_address=$outbound_email_address \
-  config.outbound_email_password=$outbound_email_password \
-  config.should_send_emails=$should_send_emails \
-  config.test_email_whitelist=$test_email_whitelist
+echo 1
+
+#DO NOT MERGE: temporarily disabled because of internet issues here...
+# # set the firebase env variables
+# firebase functions:config:set \
+#   config.mywell_legacy_access_token=$MYWELL_LEGACY_ACCESS_TOKEN \
+#   config.outbound_email_address=$outbound_email_address \
+#   config.outbound_email_password=$outbound_email_password \
+#   config.should_send_emails=$should_send_emails \
+#   config.test_email_whitelist=$test_email_whitelist
+
+echo 2
 
 # deploy
 firebase deploy --only functions

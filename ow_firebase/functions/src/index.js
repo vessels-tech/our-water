@@ -1,6 +1,10 @@
 import * as functions from 'firebase-functions';
-const admin = require('firebase-admin');
-admin.initializeApp();
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { UserBuilder } from 'firebase-functions/lib/providers/auth';
+import { firestore } from 'firebase-admin';
+
+// const admin = require('firebase-admin');
+// admin.initializeApp();
 
 /**
  * This file works better in JS, 
@@ -49,7 +53,26 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
 export const { hourly_job, daily_job, weekly_job} = require('./handlers/fn_cron/cron');
 
 
+/**
+ * userAccountDefaults
+ * 
+ * When a user account is first created, set the defaults:
+ * - status: "Unapproved"
+ * 
+ * //TD: how to define for only some environments?
+ * //For now, this is mywell only.
+ * 
+ * //TD: Use the properly defined types here.
+ */
+export const userAccountDefaults = functions.firestore
+  .document('org/mywell/user/{userId}')
+  .onCreate((snapshot, context) => {
+    const { userId } = context.params;
+    // const user = UserBuilder snapshot.data();
 
+    const userDoc = firestore.collection('org').doc('mywell').collection('user').doc(userId);
+    userDoc.set({ status: 'Unapproved' }, { merge: true });
+  });
 
 
 // const fs = admin.firestore();
