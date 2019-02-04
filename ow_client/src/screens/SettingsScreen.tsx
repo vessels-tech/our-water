@@ -151,7 +151,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     //TODO: Translate
     const settings_map = "Browse on Map"
 
-    
     navigateTo(
       this.props,
       'screen.SimpleMapScreen',
@@ -159,7 +158,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       {
         config: this.props.config,
       }
-    )
+    );
   }
 
   showEditResourceScreen() {

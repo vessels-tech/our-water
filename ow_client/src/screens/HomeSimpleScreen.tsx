@@ -4,7 +4,7 @@ import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId, navigateTo } from '../utils';
+import { randomPrettyColorForId, navigateTo, showModal } from '../utils';
 import { ResourceType } from '../enums';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
@@ -13,7 +13,9 @@ import { withTabWrapper } from '../components/TabWrapper';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
 import MenuButton from '../components/common/MenuButton';
-import { menuColors } from '../utils/NewColors';
+import { menuColors, primaryText, primaryLight } from '../utils/NewColors';
+import Toolbar from '../components/common/Toolbar';
+import IconButton from '../components/common/IconButton';
 
 
 export interface OwnProps {
@@ -28,6 +30,8 @@ export interface StateProps {
   menu_rainfall: string,
   menu_water_quality: string,
   menu_checkdam: string,
+  settings_new_resource: string,
+
 }
 
 export interface ActionProps {
@@ -48,6 +52,11 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getMenuButtons() {
     const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props;
+
+    //TODO: Translate
+    const menu_browse_text = "Browse";
+    const menu_search_text = "Search";
+    const menu_new_text = "New";
     
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
@@ -58,41 +67,100 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     return (
-      <View style={{
-        flexDirection: 'column',
-        flex: 1,
-        width: '100%',
-        height: '100%',
-      }}>
+      <View
+        style={{flex: 1}}
+      >
+        {/* Top Toolbar */}
+        <Toolbar
+          style={{flex: 2}}
+          config={this.props.config}
+        >
+          <IconButton
+            textColor={primaryText.high}
+            color={primaryLight}
+            name={'map'}
+            onPress={() => {
+              //TODO: Translate
+              const settings_map = "Browse on Map"
+
+              navigateTo(
+                this.props,
+                'screen.SimpleMapScreen',
+                settings_map,
+                {
+                  config: this.props.config,
+                }
+              )
+            }}
+            bottomText={menu_browse_text}
+            size={25}
+          />
+          <IconButton
+            textColor={primaryText.high}
+            color={primaryLight}
+            name={'search'}
+            onPress={() => {
+              navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+                config: this.props.config,
+              });
+            }}
+            bottomText={menu_search_text}
+            size={25}
+          />
+          <IconButton
+            textColor={primaryText.high}
+            color={primaryLight}
+            name={'create'}
+            onPress={() => {
+              const { settings_new_resource } = this.props;
+              showModal(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
+                config: this.props.config,
+                userId: this.props.userId,
+              })
+            }}
+            bottomText={menu_new_text}
+            size={25}
+          />
+        </Toolbar>
+        
+
+        {/* Menu Buttons */}
         <View style={{
-          flexDirection: 'row',
-          flex: 1,
+          flexDirection: 'column',
+          flex: 10,
+          width: '100%',
+          height: '100%',
         }}>
-          <MenuButton 
-            color={menuColors[0]}
-            name={menu_well}
-            onPress={() => presentResourceScreen('Wells', ResourceType.well)}
-          />
-          <MenuButton 
-            color={menuColors[1]}
-            name={menu_rainfall}
-            onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
-          />
-        </View>
-        <View style={{
-          flexDirection: 'row',
-          flex: 1,
-        }}>
-          <MenuButton
-            color={menuColors[2]}
-            name={menu_water_quality}
-            onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
-          />
-          <MenuButton
-            color={menuColors[3]}
-            name={menu_checkdam}
-            onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}
-          />
+          <View style={{
+            flexDirection: 'row',
+            flex: 1,
+          }}>
+            <MenuButton 
+              color={menuColors[0]}
+              name={menu_well}
+              onPress={() => presentResourceScreen('Wells', ResourceType.well)}
+            />
+            <MenuButton 
+              color={menuColors[1]}
+              name={menu_rainfall}
+              onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
+            />
+          </View>
+          <View style={{
+            flexDirection: 'row',
+            flex: 1,
+          }}>
+            <MenuButton
+              color={menuColors[2]}
+              name={menu_water_quality}
+              onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
+            />
+            <MenuButton
+              color={menuColors[3]}
+              name={menu_checkdam}
+              onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}
+            />
+          </View>
         </View>
       </View>
     );
@@ -105,7 +173,6 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View style={{
         width: '100%',
         height: '100%',
-        // backgroundColor: 'tomato',
         alignContent: 'center',
       }}>
         {this.getMenuButtons()}
@@ -130,6 +197,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     menu_rainfall: state.translation.templates.menu_rainfall,
     menu_water_quality: state.translation.templates.menu_water_quality,
     menu_checkdam: state.translation.templates.menu_checkdam,
+    settings_new_resource: state.translation.templates.settings_new_resource,
   }
 }
 

@@ -261,12 +261,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
               marginLeft: 25,
               width: SCREEN_WIDTH - 50
             }}>
-              {/* Arrow icons pointing to menu buttons */}
-              <DownArrow />
-              <DownArrow />
-              <View style={{ 
-                flex: 1,
-              }}/>
+              {/* TODO: Add QR/Map buttons here. */}
             </View>
           </View>
         : null }
