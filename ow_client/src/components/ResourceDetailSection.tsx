@@ -394,11 +394,76 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     );
   }
 
+  getGraphChildren() {
+    const { timeseriesList } = this.props;
+    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
+
+    return Object.keys(timeseriesList).map((key, idx) => {
+      const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
+      if (!timeseries) {
+        console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
+        return;
+      }
+
+      return (
+        // @ts-ignore
+        <View
+          tabLabel={`${timeseries.name}`}
+          key={`${idx + 1}_${timeseries.name}`}
+          style={{ alignItems: 'center' }}
+        >
+          <TimeseriesCardSimple
+            key={`${idx + 1}_${timeseries.name}`}
+            config={this.props.config}
+            timeseries={timeseries}
+            resourceId={this.props.resourceId}
+            timeseriesId={key}
+            isPending={this.props.isPending}
+          />
+        </View>
+      )
+    });
+  }
+
+  getTableChildren() {
+    if (!this.props.config.getResourceDetailShouldShowTable()) {
+      return false;
+    }
+
+    const { timeseriesList } = this.props;
+    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
+
+    return Object.keys(timeseriesList).map((key, idx) => {
+      const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
+      if (!timeseries) {
+        console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
+        return;
+      }
+
+      //TODO: Make this a graph thingo
+      return (
+        // @ts-ignore
+        <View
+          tabLabel={`Graph: ${timeseries.name}`}
+          key={`graph_${idx + 1}_${timeseries.name}`}
+          style={{ alignItems: 'center' }}
+        >
+          <TimeseriesCardSimple
+            key={`${idx + 1}_${timeseries.name}`}
+            config={this.props.config}
+            timeseries={timeseries}
+            resourceId={this.props.resourceId}
+            timeseriesId={key}
+            isPending={this.props.isPending}
+          />
+        </View>
+      )
+    });
+  }
+
   getReadingsView() {
     const { resource_detail_summary_tab } = this.props.translation.templates;
-    const { timeseriesList } = this.props;
     const { hackViewPager } = this.state;
-    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
     return (
       // @ts-ignore
@@ -421,12 +486,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         tabBarInactiveTextColor={primaryText}
         renderTabBar={() => (
           <ScrollableTabView.DefaultTabBar
-            tabStyle={{
-              backgroundColor: primaryLight,
-            }}
-            // textStyle={{
-            //   color: primaryText,
-            // }}
+            tabStyle={{ backgroundColor: primaryLight }}
           />
         )}>
         <View 
@@ -440,31 +500,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           {this.getSummaryCard()}
         </View>
           {
-            Object.keys(timeseriesList).map((key, idx) => {
-              const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
-              if (!timeseries) {
-                console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
-                return;
-              }
-
-              return (
-                // @ts-ignore
-                <View 
-                  tabLabel={`${timeseries.name}`} 
-                  key={`${idx + 1}_${timeseries.name}`} 
-                  style={{ alignItems: 'center' }}
-                >
-                  <TimeseriesCardSimple
-                    key={`${idx + 1}_${timeseries.name}`} 
-                    config={this.props.config}
-                    timeseries={timeseries}
-                    resourceId={this.props.resourceId}
-                    timeseriesId={key}
-                    isPending={this.props.isPending}
-                  />
-                </View>
-              )
-            })
+            //Readings in Graph form
+            this.getGraphChildren()
+          }
+          {
+            //Optional Table of Readings
+            this.getTableChildren()
           }
       </ScrollableTabView>
     );
@@ -553,7 +594,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
 
-  const resource = state.resourcesCache[ownProps.resourceId];
+  const resourceIdx = state.resourcesCache.findIndex(r => r.id === ownProps.resourceId);
+  if (resourceIdx === -1) {
+    //We don't have the resource!
+  }
+  const resource = state.resourcesCache[resourceIdx];
+
+  // const resource = state.resourcesCache[ownProps.resourceId];
   let pendingResource: Maybe<PendingResource>;
   if (ownProps.isPending) {
     const filteredPendingResources = state.pendingSavedResources.filter(r => r.id === ownProps.resourceId);

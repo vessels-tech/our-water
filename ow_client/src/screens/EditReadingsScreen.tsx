@@ -156,12 +156,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
       dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
-
-    // addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
-    //   dispatch(appActions.addRecent(api, userId, resource))
-    // },
-    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-    //   dispatch(appActions.getResources(api, userId, region)),
   }
 }
 

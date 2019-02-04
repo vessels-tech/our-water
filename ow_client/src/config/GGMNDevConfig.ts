@@ -37,6 +37,7 @@ const GGMNDevConfig: RemoteConfig = {
   ggmn_ignoreReading: { date: "2017-01-01T00:00:00.000Z", value: 0 },
   map_regionChangeReloadDebounceTimeMs: 1000,
   showMapInSidebar: false,
+  resourceDetail_shouldShowTable: false,
 
 }
 

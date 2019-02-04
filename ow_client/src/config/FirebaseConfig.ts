@@ -56,6 +56,7 @@ export class FirebaseConfig {
           ggmn_ignoreReading: JSON.parse(obj.ggmn_ignoreReading.val()),
           map_regionChangeReloadDebounceTimeMs: parseInt(obj.map_regionChangeReloadDebounceTimeMs.val()),
           showMapInSidebar: obj.showMapInSidebar.val(),
+          resourceDetail_shouldShowTable: obj.resourceDetail_shouldShowTable.val(),
         }
         return remoteConfig;
       });

@@ -56,6 +56,7 @@ export type RemoteConfig = {
   map_regionChangeReloadDebounceTimeMs: number,
   //Should we display the map in the sidebar?
   showMapInSidebar: boolean,
+  resourceDetail_shouldShowTable: boolean,
 }
 
 /**
@@ -280,6 +281,10 @@ export class ConfigFactory {
 
   getShowMapInSidebar() {
     return this.remoteConfig.showMapInSidebar;
+  }
+
+  getResourceDetailShouldShowTable() {
+    return this.remoteConfig.resourceDetail_shouldShowTable;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {
