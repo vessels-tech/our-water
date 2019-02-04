@@ -27,10 +27,14 @@ run_local:
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
 function_shell:
-  @firebase functions:shell
+	@echo running firebase shell
+	# EG: 
+	# mock wildcards in path, for example: if the path was input/{group}/{id}
+	# > userAccountDefaults({'foo': 'bar'}, {params:{userId: 'a1'}})
+	firebase functions:shell
 
 watch:
-	@yarn run watch
+	@cd ${dir}/functions && yarn run watch
 
 run_lt:
 	@lt --subdomain ourwater --port 5000

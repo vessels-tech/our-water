@@ -1,7 +1,8 @@
 import * as functions from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import { UserBuilder } from 'firebase-functions/lib/providers/auth';
-import { firestore } from 'firebase-admin';
+import { firestore } from './common/apis/FirebaseAdmin';
+
 
 // const admin = require('firebase-admin');
 // admin.initializeApp();
@@ -68,10 +69,9 @@ export const userAccountDefaults = functions.firestore
   .document('org/mywell/user/{userId}')
   .onCreate((snapshot, context) => {
     const { userId } = context.params;
-    // const user = UserBuilder snapshot.data();
-
+    console.log("user id is", userId);
     const userDoc = firestore.collection('org').doc('mywell').collection('user').doc(userId);
-    userDoc.set({ status: 'Unapproved' }, { merge: true });
+    return userDoc.set({ status: 'Unapproved' }, { merge: true });
   });
 
 

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
-const firebase_admin_1 = require("firebase-admin");
+const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
 // const admin = require('firebase-admin');
 // admin.initializeApp();
 /**
@@ -57,8 +57,9 @@ exports.userAccountDefaults = functions.firestore
     .onCreate((snapshot, context) => {
     const { userId } = context.params;
     // const user = UserBuilder snapshot.data();
-    const userDoc = firebase_admin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
-    userDoc.set({ status: 'Unapproved' }, { merge: true });
+    console.log("user id is", userId);
+    const userDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
+    return userDoc.set({ status: 'Unapproved' }, { merge: true });
 });
 var _a;
 // const fs = admin.firestore();

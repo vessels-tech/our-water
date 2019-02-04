@@ -7,7 +7,7 @@ cd "$DIR"/ow_firebase/functions/
 ##TODO: set separate project
 source "$DIR/env/.env.development.sh"
 
-echo 1
+echo "WARNING: TERMPORARILY DISABLED UPDATING ENV VARIABLES AS INTERNET IS BAD"
 
 #DO NOT MERGE: temporarily disabled because of internet issues here...
 # # set the firebase env variables
