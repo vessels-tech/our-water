@@ -18,9 +18,10 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType, AnyOrPendingReading } from '../reducers';
-import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor } from './NewColors';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor, secondaryPallette } from './NewColors';
 //@ts-ignore
 import * as QRCode from 'qrcode';
+import { OrgType } from '../typings/models/OrgType';
 
 
 
@@ -821,4 +822,24 @@ export function getMarkerKey(resource: AnyResource | PendingResource) {
   }
 
   return `any_${resource.id}`;
+}
+
+
+export function pinColorForOrgAndResource(resource: AnyResource) {
+  if (resource.type === OrgType.GGMN) {
+    return secondary;
+  }
+
+  switch(resource.resourceType) {
+    case ResourceType.checkdam:
+      return 'yellow';
+    case ResourceType.custom:
+    case ResourceType.quality:
+      return 'grey';
+    case ResourceType.raingauge:
+      return 'navy';
+    case ResourceType.well:
+    default:
+      return 'orange';
+  }
 }

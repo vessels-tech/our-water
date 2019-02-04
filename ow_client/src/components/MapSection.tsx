@@ -5,7 +5,7 @@ import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark, primaryLight } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced, getMarkerKey } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced, getMarkerKey, pinColorForOrgAndResource } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -319,6 +319,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
     );
   }
 
+  
+
   render() {
     const { mapHeight, mapState } = this.state;
     const { initialRegion, resources, pendingResources } = this.props;
@@ -360,7 +362,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
               key={getMarkerKey(resource)}
               coordinate={formatCoords(resource.coords)}
               title={`${shortId}`}
-              pinColor={secondary}
+              pinColor={pinColorForOrgAndResource(resource)}
               onPress={(e: any) => this.focusResource(resource)}
             >
               {this.getCalloutForResource(resource)}

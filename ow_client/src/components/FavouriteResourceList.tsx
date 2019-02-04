@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 import FirebaseApi from '../api/FirebaseApi';
-import { randomPrettyColorForId, getShortId, maybeLog } from '../utils';
+import { randomPrettyColorForId, getShortId, maybeLog, renderLog } from '../utils';
 
 import Config from 'react-native-config'
 import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
@@ -109,9 +109,8 @@ class FavouriteResourceList extends React.PureComponent<Props> {
           color='yellow'
         />);
     
-      //TODO: change this hint to use translations
       return (
-        <Text style={{textAlign: 'center'}}>
+        <Text style={{textAlign: 'center', paddingVertical: 50}}>
           {favourite_resource_hint_1} {icon} {favourite_resource_hint_2}.
         </Text>
       );
@@ -285,6 +284,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
         </Text>
         {this.getFavouritesSection()}
         <Text style={{
+          // marginTop: 100,
           marginLeft: 13,
         }}>
           {recent_resource_heading}:
@@ -299,7 +299,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
     let favouriteResources = this.props.favouriteResources;
     const { filterResourceType } = this.props;
 
-    maybeLog(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
+    renderLog(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
 
     if (filterResourceType) {
       favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
