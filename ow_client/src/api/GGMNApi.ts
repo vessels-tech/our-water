@@ -36,7 +36,8 @@ import { Cursor } from "../screens/HomeMapScreen";
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
 const searchPageSize = 20;
-const GGMN_REGION_SCALE_AMOUNT = 0.75;
+const GGMN_REGION_SCALE_AMOUNT = 0.65;
+const GGMN_PAGE_SIZE = 10;
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -454,7 +455,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       cursor = {
         hasNext: true,
         page: 1,
-        limit: 100,
+        limit: GGMN_PAGE_SIZE,
       }
     }
 
@@ -468,8 +469,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const bBox = calculateBBox(trimmedRegion);
+    //Stop the page size from being too big
+    let page_size = 200;
+    if (cursor.limit <= 200) {
+      page_size = cursor.limit;
+    }
+
     const url = appendUrlParameters(resourceUrl, {
-      page_size: cursor.limit,
+      page_size,
       in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`,
       page: cursor.page,
     });
