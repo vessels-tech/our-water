@@ -34,7 +34,7 @@ import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
 
 // TODO: make configurable
-const timeout = 1000 * 50; //15 seconds
+const timeout = 1000 * 30; //30 seconds
 const searchPageSize = 20;
 const GGMN_REGION_SCALE_AMOUNT = 0.75;
 const defaultHeaders = {
