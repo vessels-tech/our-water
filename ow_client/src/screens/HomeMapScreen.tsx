@@ -103,6 +103,7 @@ export interface State {
 
 class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   mapRef?: MapView;
+  resourceRequestId: number = 0;
   state: State = {
     mapHeight: MapHeightOption.default,
     mapState: MapStateOption.default,
@@ -284,7 +285,8 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
    * Load new resources based on where they are looking
    */
   onMapRegionChange(region: Region) {
-    this.loadResourcesPaginated(region, startCursor);
+    this.resourceRequestId += 1;
+    this.loadResourcesPaginated(region, startCursor, this.resourceRequestId);
   }
 
   /**
@@ -294,19 +296,23 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
    * Loads all of the resources a given region. 
    * We should probably have a max limit or something.
    */
-  async loadResourcesPaginated(region: Region, cursor: Cursor): Promise<any> {
+  async loadResourcesPaginated(region: Region, cursor: Cursor, currentRequestId: number): Promise<any> {
     const { app_resource_load_error } = this.props.translation.templates;
 
-    //TODO: add the cursor params (whatever they may be) here:
-    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region, cursor);
+    //Check to see if this.requestId has changed, if so, then this request is no longer relevant;
+    if (currentRequestId !== this.resourceRequestId) {
+      maybeLog(`CANCELLING CURRENT REQUEST. global id: ${this.resourceRequestId}, currentId: ${currentRequestId}`);
+      return;
+    }
 
+    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region, cursor);
     if (result.type === ResultType.ERROR) {
       ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.BOTTOM);
       return;
     }
 
     if (result.result.hasNext) {
-      return this.loadResourcesPaginated(region, result.result);
+      return this.loadResourcesPaginated(region, result.result, currentRequestId);
     }
   }
 
@@ -635,7 +641,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     },
     loadResourcesForRegion: (api: BaseApi, userId: string, region: Region, cursor: Cursor) =>
       //TODO: change to paged
-      dispatch(appActions.getResourcesPaginated(api, userId, region)),
+      dispatch(appActions.getResourcesPaginated(api, userId, region, cursor)),
   }
 }
 
