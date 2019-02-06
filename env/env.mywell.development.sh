@@ -13,6 +13,7 @@ export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='true'
 export ENABLE_REDUX_LOGGING='true'
 export ENABLE_CACHE='false'
+export RESOURCE_CACHE_MAX_SIZE=350
 
 #Remote config setup
 export SHOULD_USE_LOCAL_CONFIG='true'

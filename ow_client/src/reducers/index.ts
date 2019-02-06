@@ -20,8 +20,7 @@ import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
 
 const orgId = EnvConfig.OrgId;
-
-const RESOURCE_CACHE_MAX_SIZE = 350;
+const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
 
 const defaultLanguage = TranslationEnum.en_AU;
 const defaultTranslations = translationsForTranslationOrg(orgId);

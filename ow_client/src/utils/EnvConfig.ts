@@ -40,3 +40,4 @@ export const EnableReduxLogging = getBoolean(Config.ENABLE_REDUX_LOGGING)
 export const OrgId: TranslationOrg = getOrgId(Config.REACT_APP_ORG_ID)
 export const RemoteConfigDeveloperMode = getBoolean(Config.REMOTE_CONFIG_DEVELOPER_MODE)
 export const EnableCaching = getBoolean(Config.ENABLE_CACHE)
+export const ResourceCacheMaxSize = Config.RESOURCE_CACHE_MAX_SIZE
