@@ -34,8 +34,9 @@ import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
 
 // TODO: make configurable
-const timeout = 1000 * 15; //15 seconds
+const timeout = 1000 * 50; //15 seconds
 const searchPageSize = 20;
+const GGMN_REGION_SCALE_AMOUNT = 0.75;
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -457,8 +458,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
     }
 
+    //Remove the edges from the region, this makes it less likely that locations off the map will load
+    const trimmedRegion: Region = {
+      latitude: region.latitude,
+      longitude: region.longitude,
+      latitudeDelta: region.latitudeDelta * GGMN_REGION_SCALE_AMOUNT,
+      longitudeDelta: region.longitudeDelta * GGMN_REGION_SCALE_AMOUNT,
+    }
+
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
-    const bBox = calculateBBox(region);
+    const bBox = calculateBBox(trimmedRegion);
     const url = appendUrlParameters(resourceUrl, {
       page_size: cursor.limit,
       in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`,
