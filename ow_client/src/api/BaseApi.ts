@@ -147,7 +147,7 @@ export default interface BaseApi {
    * If the region is too large, returns a cursor referring to next page.
    * //TODO: I don't think this will work with the firebase api...
    */
-  getResourcesWithinRegionPaginated(region: Region): Promise<SomeResult<[AnyResource[], Cursor]>>;
+  getResourcesWithinRegionPaginated(region: Region, cursor: Cursor): Promise<SomeResult<[AnyResource[], Cursor]>>;
 
   /**
    * Get a resource for an id.

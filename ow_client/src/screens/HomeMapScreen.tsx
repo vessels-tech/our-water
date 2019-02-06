@@ -57,7 +57,7 @@ export type Cursor = {
 
 const startCursor: Cursor = {
   hasNext: true,
-  page: 0,
+  page: 1,
   limit: 100,
 };
 

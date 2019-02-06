@@ -509,13 +509,10 @@ function getResourcesResponse(result: SomeResult<AnyResource[]>, safeArea: Regio
  * Get Resources in the given region, with a cursor to load multiple
  * pages
  */
-export function getResourcesPaginated(api: BaseApi, userId: string, region: Region): (dispatch: any) => Promise<SomeResult<Cursor>> {
+export function getResourcesPaginated(api: BaseApi, userId: string, region: Region, cursor: Cursor): (dispatch: any) => Promise<SomeResult<Cursor>> {
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
-
-
-    //TODO: Add pagination to this.
-    const result = await api.getResourcesWithinRegionPaginated(region);
+    const result = await api.getResourcesWithinRegionPaginated(region, cursor);
     
     //Load the shortIds for each resource in the response
     //TD - check the cache first

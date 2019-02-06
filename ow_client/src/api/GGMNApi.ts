@@ -31,6 +31,7 @@ import { AnonymousUser } from "../typings/api/FirebaseApi";
 import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
 import { RemoteConfig } from "../config/ConfigFactory";
+import { Cursor } from "../screens/HomeMapScreen";
 
 // TODO: make configurable
 const timeout = 1000 * 15; //15 seconds
@@ -447,12 +448,21 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     });
   }
   
-  async getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>> {
+  async getResourcesWithinRegion(region: Region, cursor?: Cursor): Promise<SomeResult<AnyResource[]>> {
+    if (!cursor) {
+      cursor = {
+        hasNext: true,
+        page: 1,
+        limit: 100,
+      }
+    }
+
     const resourceUrl = `${this.baseUrl}/api/v3/groundwaterstations/`;
     const bBox = calculateBBox(region);
     const url = appendUrlParameters(resourceUrl, {
-      page_size: 100,
-      in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`
+      page_size: cursor.limit,
+      in_bbox: `${bBox[0]},${bBox[1]},${bBox[2]},${bBox[3]}`,
+      page: cursor.page,
     });
     maybeLog("getResourcesWithinRegion. URL is", url);
 
@@ -490,8 +500,31 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   * Get the resources within a region, paginated
   * If the region is too large, returns a cursor referring to next page.
   */
-  getResourcesWithinRegionPaginated(region: Region): Promise<SomeResult<[AnyResource[], Cursor]>> {
+  async getResourcesWithinRegionPaginated(region: Region, cursor: Cursor): Promise<SomeResult<[AnyResource[], Cursor]>> {
+    //Use the existing call to make backwards compatible
+    const result = await this.getResourcesWithinRegion(region, cursor);
 
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    // const nextCursor: Cursor = cursor;
+    let hasNext = false;
+    let limit = cursor.limit;
+    let page = cursor.page + 1;
+    //Implicit next - this means we can leave getResourcesWithinRegion untouched
+    if (result.result.length === cursor.limit) {
+      hasNext = true;
+    }
+
+    const nextCursor: Cursor = {
+      hasNext,
+      limit,
+      page,
+    };
+
+    const response: [AnyResource[], Cursor] = [result.result, nextCursor];
+    return makeSuccess(response);
   }
 
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<AnyResource>> {
