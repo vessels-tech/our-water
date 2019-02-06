@@ -486,6 +486,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       })
   }
 
+  /**
+  * Get the resources within a region, paginated
+  * If the region is too large, returns a cursor referring to next page.
+  */
+  getResourcesWithinRegionPaginated(region: Region): Promise<SomeResult<[AnyResource[], Cursor]>> {
+
+  }
+
   getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<AnyResource>> {
     const realDistance = distance * 1000000; //not sure what units distance is in
     //TODO: confirm this - based on  the web app, it should be groundwaterstations, not locations

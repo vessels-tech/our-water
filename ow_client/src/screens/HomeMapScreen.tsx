@@ -47,6 +47,20 @@ import { diff } from 'deep-object-diff';
 const initialLat: number = -20.4010;
 const initialLng: number = 32.3373;
 
+
+//TODO: move elsewhere
+export type Cursor = {
+  hasNext: boolean,
+  page: number,
+  limit: number,
+}
+
+const startCursor: Cursor = {
+  hasNext: true,
+  page: 0,
+  limit: 100,
+};
+
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -69,7 +83,7 @@ export interface StateProps {
 
 export interface ActionProps {
   addRecent: any,
-  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
+  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region, cursor: Cursor) => SomeResult<Cursor>,
 }
 
 export interface DebugProps {
@@ -269,13 +283,30 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
    * The user has dragged the map in the MapSection.
    * Load new resources based on where they are looking
    */
-  async onMapRegionChange(region: Region) {
-    const { translation: { templates: { app_resource_load_error } } } = this.props;
+  onMapRegionChange(region: Region) {
+    this.loadResourcesPaginated(region, startCursor);
+  }
 
-    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
+  /**
+   * loadResourcesPaginated
+   * 
+   * Recursively calls itself with the resulting cursor.
+   * Loads all of the resources a given region. 
+   * We should probably have a max limit or something.
+   */
+  async loadResourcesPaginated(region: Region, cursor: Cursor): Promise<any> {
+    const { app_resource_load_error } = this.props.translation.templates;
+
+    //TODO: add the cursor params (whatever they may be) here:
+    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region, cursor);
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.TOP);
+      ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.BOTTOM);
+      return;
+    }
+
+    if (result.result.hasNext) {
+      return this.loadResourcesPaginated(region, result.result);
     }
   }
 
@@ -602,8 +633,9 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
-    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-      dispatch(appActions.getResources(api, userId, region)),
+    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region, cursor: Cursor) =>
+      //TODO: change to paged
+      dispatch(appActions.getResourcesPaginated(api, userId, region)),
   }
 }
 
