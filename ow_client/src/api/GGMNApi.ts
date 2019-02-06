@@ -36,8 +36,8 @@ import { Cursor } from "../screens/HomeMapScreen";
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
 const searchPageSize = 20;
-const GGMN_REGION_SCALE_AMOUNT = 0.65;
-const GGMN_PAGE_SIZE = 10;
+const GGMN_REGION_SCALE_AMOUNT = 1;
+const GGMN_PAGE_SIZE = 75;
 const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',

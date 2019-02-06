@@ -340,6 +340,8 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
             width: '100%',
             height: mapHeight,
           }}
+          minZoomLevel={7}
+          maxZoomLevel={15} 
           showsMyLocationButton={false}
           showsPointsOfInterest={false}
           showsUserLocation={true}

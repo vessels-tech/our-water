@@ -46,7 +46,7 @@ import { diff } from 'deep-object-diff';
 
 const initialLat: number = -20.4010;
 const initialLng: number = 32.3373;
-const GGMN_PAGE_SIZE = 10;
+const GGMN_PAGE_SIZE = 75;
 
 
 //TODO: move elsewhere
@@ -313,12 +313,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     }
 
     if (result.result.hasNext) {
-      const nextCursor = {
-        ...result.result,
-        //double the limit each time
-        limit: result.result.limit * 2,
-      };
-      return this.loadResourcesPaginated(region, nextCursor, currentRequestId);
+      return this.loadResourcesPaginated(region, result.result, currentRequestId);
     }
   }
 
