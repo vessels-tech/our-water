@@ -13,6 +13,8 @@ export REMOTE_CONFIG_DEVELOPER_MODE=false
 export ENABLE_LOGGING='false'
 export ENABLE_REDUX_LOGGING='false'
 export ENABLE_CACHE='true'
+export RESOURCE_CACHE_MAX_SIZE=500
+
 
 export SHOULD_USE_LOCAL_CONFIG='false'
 export CONFIG_TYPE='GGMNDevConfig'
