@@ -7,6 +7,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { Cursor } from "../screens/HomeMapScreen";
 
 
 /**
@@ -139,6 +140,14 @@ export default interface BaseApi {
    * May not necessarily return all resources if the region is too large
    */
   getResourcesWithinRegion(region: Region): Promise<SomeResult<AnyResource[]>>;
+
+
+  /**
+   * Get the resources within a region, paginated
+   * If the region is too large, returns a cursor referring to next page.
+   * //TODO: I don't think this will work with the firebase api...
+   */
+  getResourcesWithinRegionPaginated(region: Region, cursor: Cursor): Promise<SomeResult<[AnyResource[], Cursor]>>;
 
   /**
    * Get a resource for an id.

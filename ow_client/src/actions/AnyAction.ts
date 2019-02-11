@@ -15,6 +15,7 @@ import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { RNFirebase } from "react-native-firebase";
 import { MobileUser } from "../typings/UserTypes";
+import { Cursor } from "../screens/HomeMapScreen";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -48,6 +49,8 @@ export type AnyAction =
   GetReadingsActionResponse |
   GetResourcesActionRequest |
   GetResourcesActionResponse |
+  GetResourcesPaginatedActionRequest |
+  GetResourcesPaginatedActionResponse |
   GetShortIdActionRequest |
   GetShortIdActionResponse |
   GetUserActionRequest |
@@ -114,6 +117,8 @@ export type GetResourceActionRequest = { type: ActionType.GET_RESOURCE_REQUEST, 
 export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<AnyResource>}
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
 export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<AnyResource[]>, safeArea: Region };
+export type GetResourcesPaginatedActionRequest = { type: ActionType.GET_RESOURCES_REQUEST_PAGINATED};
+export type GetResourcesPaginatedActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE_PAGINATED, result: SomeResult<[AnyResource[], Cursor]>, safeArea: Region };
 export type GetShortIdActionRequest = { type: ActionType.GET_SHORT_ID_REQUEST, resourceId: string};
 export type GetShortIdActionResponse = { type: ActionType.GET_SHORT_ID_RESPONSE, resourceId: string, result: SomeResult<string>};
 export type GetUserActionRequest = { type: ActionType.GET_USER_REQUEST };

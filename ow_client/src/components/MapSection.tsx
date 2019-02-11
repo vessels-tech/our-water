@@ -1,11 +1,10 @@
 import * as React from 'react'; import { Component } from 'react';
-import ClusteredMapView from "./common/ClusteredMapView";
 import { View, TouchableWithoutFeedback } from "react-native";
 import MapView, { Callout, Marker, Region } from 'react-native-maps';
 import { BasicCoords, DeprecatedResource } from '../typings/models/OurWater';
 import { MapHeightOption, MapStateOption } from '../enums';
 import { bgMed, primaryDark, primaryText, primary, secondaryLight, secondary, greyMed, greyDark, primaryLight } from '../utils/Colors';
-import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced, getMarkerKey } from '../utils';
+import { getShortId, formatCoords, imageForResourceType, getSelectedResourceFromCoords, randomPrettyColorForId, getSelectedPendingResourceFromCoords, getShortIdOrFallback, maybeLog, debounced, getMarkerKey, isInRegion } from '../utils';
 import { isNullOrUndefined } from 'util';
 import LoadLocationButton from './LoadLocationButton';
 import IconButton from './common/IconButton';
@@ -66,6 +65,7 @@ export interface OwnProps {
 class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   state: State;
   mapRef?: any;
+  currentRegion: Region;
   debouncedOnRegionChangeComplete: any;
   markers: CacheType<Marker> = {};
   selectedMapMarkerRef?: Marker;
@@ -79,6 +79,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
       mapState: MapStateOption.default,
     }
 
+    this.currentRegion = props.initialRegion;
     const waitTime = props.config.getMapRegionChangeDebounceTimeMs();
     this.debouncedOnRegionChangeComplete = debounced(waitTime, this.props.onMapRegionChange);
   }
@@ -343,10 +344,20 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           showsPointsOfInterest={false}
           showsUserLocation={true}
           initialRegion={initialRegion}
-          onRegionChangeComplete={this.debouncedOnRegionChangeComplete}
+          onRegionChangeComplete={(region: Region) => {
+            console.log("updating current region");
+            this.currentRegion = region;
+            this.debouncedOnRegionChangeComplete(region);
+          }}
         >
           {resources.map((resource: AnyResource) => {
             const shortId = getShortIdOrFallback(resource.id, this.props.shortIdCache);
+
+            //Hide the resources from the map if they shouldn't be visible.
+            if (!isInRegion(this.currentRegion, resource.coords)) {
+              return null;
+            }
+
             //@ts-ignore
             return <Marker
               ref={(ref: any) => {
