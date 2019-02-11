@@ -55,11 +55,6 @@ export default interface BaseApi {
    */
   isResourceInFavourites(resourceId: string, userId: string): Promise<boolean>; 
 
-  /**
-   * Get a bunch of resources
-   * No guarantee that this is all the resources
-   */
-  getResources(): any;
 
 
   /**

@@ -49,45 +49,9 @@ export type SendResourceEmailOptions = {
 
 class FirebaseApi {
 
-  /**
-   * call this before everything, to make sure we're turning firestore off and on
-   * 
-   * //TODO: should this talk to the NetworkApi?
-   */
-  static checkNetworkAndToggleFirestore() {
-    return NetInfo.isConnected.fetch()
-    .then(isConnected => {
-      if (isConnected) {
-        maybeLog("FirebaseApi enableNetwork()");
-        return fs.enableNetwork().then(() => true);
-      }
-
-      maybeLog("FirebaseApi disableNetwork()");
-      return fs.disableNetwork().then(() => false);
-    });
-  }
-
   //
   // Authentication
   // ------------------------------------
-
-  /**
-   * User signIn() instead
-   */
-  static async deprecated_signIn(): Promise<SomeResult<string>> {
-    try {
-      const userCredential = await auth.signInAnonymouslyAndRetrieveData();
-      return {
-        type: ResultType.SUCCESS,
-        result: userCredential.user.uid,
-      }
-    } catch (err) {
-      return {
-        type: ResultType.ERROR,
-        message: 'Could not sign in.'
-      }
-    }
-  }
 
 
   /**
@@ -304,29 +268,6 @@ class FirebaseApi {
     }
     const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: filtered }, {merge: true});
     return await this.getRecentResources(orgId, userId);
-  }
-
-  static getResourcesForOrg(orgId: string): Promise<Array<AnyResource>> {
-    return this.checkNetworkAndToggleFirestore()
-    .then(() => fs.collection('org').doc(orgId).collection('resource')
-      .limit(10)
-      .get())
-    .then(sn => {
-      const resources: any[] = [];
-      sn.forEach((doc) => {
-        //Get each document, put in the id
-        const data = doc.data();
-        //@ts-ignore
-        data.id = doc.id;
-        resources.push(data);
-      });
-
-      return resources;
-    })
-    .catch(err => {
-      maybeLog('getResourcesForOrg', err);
-      return Promise.reject(err);
-    });
   }
 
   /**

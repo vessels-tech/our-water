@@ -4,3 +4,6 @@
 [submodule "ow_types"]
 	path = ow_types
 	url = git@github.com:vessels-tech/ow_types.git
+[submodule "ow_common"]
+	path = ow_common
+	url = git@github.com:vessels-tech/ow_common.git
