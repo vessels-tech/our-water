@@ -116,9 +116,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       });
   }
 
-  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
-    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
-  }
 
   // //TODO: make this look for the config!
   // getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
