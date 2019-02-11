@@ -9,7 +9,7 @@ import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 
-import FirebaseApi from '../api/FirebaseApi';
+import FirebaseApi from '../api/DeprecatedFirebaseApi';
 import { randomPrettyColorForId, getShortId, maybeLog } from '../utils';
 
 import Config from 'react-native-config'

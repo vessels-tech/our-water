@@ -10,7 +10,7 @@ import {
 } from 'react-native-elements';
 
 import Loading from './common/Loading';
-import FirebaseApi from '../api/FirebaseApi';
+import FirebaseApi from '../api/DeprecatedFirebaseApi';
 
 import Config from 'react-native-config'
 import { textDark } from '../utils/Colors';

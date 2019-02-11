@@ -1,7 +1,7 @@
 import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
 import { RNFirebase, Firebase } from "react-native-firebase";
-import FirebaseApi, { SendResourceEmailOptions } from "./FirebaseApi";
+import FirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from '../utils/Fetch';
@@ -32,6 +32,7 @@ import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
 import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
+import FirebaseUserApi from "./FirebaseUserApi";
 
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
@@ -97,7 +98,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<SomeResult<AnonymousUser>> {
-    return FirebaseApi.signIn();
+    return FirebaseUserApi.signIn();
   }
 
   /**
