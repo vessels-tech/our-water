@@ -5,7 +5,7 @@ import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionR
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location, MaybeLocation } from "../typings/Location";
-import { getLocation, maybeLog, dedupArray } from "../utils";
+import { getLocation, maybeLog, dedupArray, safeAreaFromPoint } from "../utils";
 import { RNFirebase } from "react-native-firebase";
 import UserApi from "../api/UserApi";
 import { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
@@ -439,7 +439,7 @@ export function getResource(api: BaseApi, resourceId: string, userId: string): (
 
     //Adds the single resource to the caches
     if (result.type === ResultType.SUCCESS) {
-      dispatch(getResourcesResponse(makeSuccess([result.result])))
+      dispatch(getResourcesResponse(makeSuccess([result.result]), safeAreaFromPoint(result.result.coords)))
     }
     return result;
   }
@@ -969,8 +969,15 @@ export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi
     //TD: this a little hacky, but we assume that the updated resources are in the user's recents
     if (result.type === ResultType.SUCCESS) {
       result.result.newResources.forEach(r => dispatch(addRecent(baseApi, userId, r)));
+
+      if (result.result.newResources.length === 0) {
+        return;
+      } 
+
+      //This is just a random guess. //TD: Make this calcualtion smarter
+      const safeArea = safeAreaFromPoint(result.result.newResources[0].coords)
       //add the updated resources to the list.
-      dispatch(getResourcesResponse(makeSuccess(result.result.newResources)));
+      dispatch(getResourcesResponse(makeSuccess(result.result.newResources), safeArea));
     }
 
     //TODO: update the favourites as well.

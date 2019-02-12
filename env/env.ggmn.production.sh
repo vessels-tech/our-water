@@ -16,6 +16,7 @@ export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=500
 
 
+
 export SHOULD_USE_LOCAL_CONFIG='false'
 export CONFIG_TYPE='GGMNDevConfig'
 
@@ -24,3 +25,4 @@ export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="ggmn"
 export KEYSTORE_PATH="/Users/ldaly/developer/vessels/our-water/env/ggmn_release.keystore"
 export KEYSTORE_ALIAS="ggmn"
+export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh

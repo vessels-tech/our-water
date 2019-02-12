@@ -24,3 +24,4 @@ export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="ggmn.debug"
 export KEYSTORE_PATH="/Users/ldaly/.android/debug.keystore"
 export KEYSTORE_ALIAS="androiddebugkey"
+export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
