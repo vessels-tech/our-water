@@ -1,5 +1,5 @@
 import * as QRCode from 'qrcode';
-import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
+import { SomeResult, makeSuccess, makeError } from 'ow_common/lib/utils/AppProviderTypes';
  
 
 /**

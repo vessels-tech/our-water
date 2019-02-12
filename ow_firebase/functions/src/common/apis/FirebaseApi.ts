@@ -1,4 +1,6 @@
-import { SomeResult, ResultType, makeSuccess, makeError } from "../types/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError } from "ow_common/lib/utils/AppProviderTypes";
+
+
 
 import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
@@ -17,6 +19,8 @@ export type ShortIdLock = {
   id: string, //9 digit number as string
   lock: boolean,
 }
+
+
 
 export type BoundingBox = {
   minLat: number, 

@@ -2,7 +2,7 @@ import 'mocha';
 import * as assert from 'assert';
 
 import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
-import { ResultType, SomeResult } from '../types/AppProviderTypes';
+import { ResultType, SomeResult } from 'ow_common/lib/utils/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
 
 import ShortId from '../models/ShortId';

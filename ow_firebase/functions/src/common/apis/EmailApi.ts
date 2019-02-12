@@ -1,13 +1,15 @@
 /**
  * Email API is a utility for sending emails
  */
-import { SomeResult, makeSuccess, makeError } from "../types/AppProviderTypes";
+import { SomeResult, makeSuccess, makeError } from "ow_common/lib/utils/AppProviderTypes";
 import {
   outboundEmailAddress,
   outboundEmailPassword,
   shouldSendEmails,
   testEmailWhitelist,
 } from '../env';
+
+
 
 const nodemailer = require('nodemailer');
 
