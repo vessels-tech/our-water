@@ -760,6 +760,8 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
   //Make a list of safe resources:
   const safeResources: AnyResource[] = [];
   array.forEach(r => {
+    // console.log("resource.coords is", r.id, r.coords);
+
     if (isInRegion(safeArea, r.coords)) {
       safeResources.push(r);
     }
@@ -807,4 +809,19 @@ export function getMarkerKey(resource: AnyResource | PendingResource) {
   }
 
   return `any_${resource.id}`;
+}
+
+/**
+ * safeAreaFromPoint
+ * 
+ * Given a point, calculate an implicit safe area by adding a generous delta.
+ */
+export function safeAreaFromPoint(coords: OWGeoPoint): Region {
+
+  return {
+    latitude: coords._latitude,
+    longitude: coords._longitude,
+    latitudeDelta: 15,
+    longitudeDelta: 10,
+  }
 }
