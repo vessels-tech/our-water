@@ -345,7 +345,6 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           showsUserLocation={true}
           initialRegion={initialRegion}
           onRegionChangeComplete={(region: Region) => {
-            console.log("updating current region");
             this.currentRegion = region;
             this.debouncedOnRegionChangeComplete(region);
           }}
