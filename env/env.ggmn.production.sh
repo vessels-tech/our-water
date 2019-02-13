@@ -26,4 +26,4 @@ export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="ggmn"
 export KEYSTORE_PATH="/Users/ldaly/developer/vessels/our-water/env/ggmn_release.keystore"
 export KEYSTORE_ALIAS="ggmn"
-export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
+export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.json"
