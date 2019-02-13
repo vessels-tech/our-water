@@ -1,7 +1,7 @@
 
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
-import FirebaseApi from './FirebaseApi';
+import FirebaseApi from './DeprecatedFirebaseApi';
 import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange, OWUserStatus } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
@@ -20,6 +20,8 @@ import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from 
 import { default as ftch } from '../utils/Fetch';
 import { ExternalSyncStatusComplete, ExternalSyncStatusType } from '../typings/api/ExternalServiceApi';
 
+import { Cursor } from '../screens/HomeMapScreen';
+import FirebaseUserApi from './FirebaseUserApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -50,7 +52,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<SomeResult<AnonymousUser>> {
-    return FirebaseApi.signIn();
+    return FirebaseUserApi.signIn();
   }
 
   //
@@ -131,13 +133,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       });
   }
 
-  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
-    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
-  }
-
-  getResources() {
-    return FirebaseApi.getResourcesForOrg(this.orgId);
-  }
 
   // //TODO: make this look for the config!
   // getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
@@ -159,6 +154,28 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
     return getResourcesResult;
     //TODO: "warm up" the shortId cache
+  }
+
+  /**
+  * Get the resources within a region, paginated
+  * If the region is too large, returns a cursor referring to next page.
+  */
+  async getResourcesWithinRegionPaginated(region: Region, cursor: Cursor): Promise<SomeResult<[AnyResource[], Cursor]>> {
+    maybeLog("WARNING: getResourcesWithinRegionPaginated() not implemented for MyWellApi. Defaulting to getResourcesWithinRegion");
+    const result = await this.getResourcesWithinRegion(region);
+
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    const startCursor: Cursor = {
+      hasNext: true,
+      page: 0,
+      limit: 100,
+    };
+
+    const response: [AnyResource[], Cursor] = [result.result, startCursor];
+    return makeSuccess(response);
   }
 
   /**
@@ -403,7 +420,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   }
 
   onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
-    return FirebaseApi.onAuthStateChanged(listener);
+    return FirebaseUserApi.onAuthStateChanged(listener);
   }
 
   saveUserDetails(userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
@@ -415,14 +432,14 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   //----------------------------------------------------------------------
 
   sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
-    return FirebaseApi.sendVerifyCode(mobile);
+    return FirebaseUserApi.sendVerifyCode(mobile);
   }
 
   verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
-    return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
+    return FirebaseUserApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
   }
 
   logout(): Promise<SomeResult<any>> {
-    return FirebaseApi.logout(this.orgId);
+    return FirebaseUserApi.logout(this.orgId);
   }
 }

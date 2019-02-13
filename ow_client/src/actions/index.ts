@@ -1,11 +1,11 @@
 import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
 import BaseApi from "../api/BaseApi";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, StartInternalSyncActionRequest, StartInternalSyncActionResponse } from "./AnyAction";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, GetResourcesPaginatedActionRequest, GetResourcesPaginatedActionResponse, StartInternalSyncActionRequest, StartInternalSyncActionResponse } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location, MaybeLocation } from "../typings/Location";
-import { getLocation, maybeLog, dedupArray } from "../utils";
+import { getLocation, maybeLog, dedupArray, safeAreaFromPoint } from "../utils";
 import { RNFirebase } from "react-native-firebase";
 import UserApi from "../api/UserApi";
 import { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
@@ -20,6 +20,8 @@ import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
+import { Cursor } from "../screens/HomeMapScreen";
+import { ResourceType } from "../enums";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -432,8 +434,7 @@ export function getResource(api: BaseApi, resourceId: string, userId: string): (
 
     //Adds the single resource to the caches
     if (result.type === ResultType.SUCCESS) {
-      //TD: bug here that will make some resources dissappear after a search
-      dispatch(getResourcesResponse(makeSuccess([result.result])))
+      dispatch(getResourcesResponse(makeSuccess([result.result]), safeAreaFromPoint(result.result.coords)))
     }
     return result;
   }
@@ -462,7 +463,7 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
 
-    //TODO: merge in with a cache 
+
     const result = await api.getResourcesWithinRegion(region);
     
     //Load the shortIds for each resource in the response
@@ -495,6 +496,42 @@ function getResourcesResponse(result: SomeResult<AnyResource[]>, safeArea: Regio
     type: ActionType.GET_RESOURCES_RESPONSE,
     result,
     safeArea
+  }
+}
+
+
+/**
+ * Get Resources in the given region, with a cursor to load multiple
+ * pages
+ */
+export function getResourcesPaginated(api: BaseApi, userId: string, region: Region, cursor: Cursor): (dispatch: any) => Promise<SomeResult<Cursor>> {
+  return async (dispatch: any) => {
+    dispatch(getResourcesRequest());
+    const result = await api.getResourcesWithinRegionPaginated(region, cursor);
+    
+    //Load the shortIds for each resource in the response
+    //TD - check the cache first
+    //TD - if just one of the loads fails, none of the others will end up in the cache
+    if (result.type === ResultType.SUCCESS) {
+      const resources = result.result[0];
+      const ids = resources.map(r => r.id);
+      const shortIdResult = await api.preloadShortIds(ids);
+      if (shortIdResult.type === ResultType.ERROR) {
+        maybeLog('Error loading many shortIds: ', shortIdResult.message);
+      } else {
+        dispatch(gotShortIds(shortIdResult.result, ids));
+      }
+    }
+
+    //Backwards compatibility - handle case where the request failed, and unwrap the resources list
+    if (result.type === ResultType.ERROR) {
+      dispatch(getResourcesResponse(result, region));
+      return result;
+    } else {
+      dispatch(getResourcesResponse(makeSuccess(result.result[0]), region));
+    }
+
+    return makeSuccess(result.result[1]);
   }
 }
 
@@ -927,8 +964,15 @@ export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi
     //TD: this a little hacky, but we assume that the updated resources are in the user's recents
     if (result.type === ResultType.SUCCESS) {
       result.result.newResources.forEach(r => dispatch(addRecent(baseApi, userId, r)));
+
+      if (result.result.newResources.length === 0) {
+        return;
+      } 
+
+      //This is just a random guess. //TD: Make this calcualtion smarter
+      const safeArea = safeAreaFromPoint(result.result.newResources[0].coords)
       //add the updated resources to the list.
-      dispatch(getResourcesResponse(makeSuccess(result.result.newResources)));
+      dispatch(getResourcesResponse(makeSuccess(result.result.newResources), safeArea));
     }
 
     //TODO: update the favourites as well.

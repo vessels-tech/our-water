@@ -8,9 +8,11 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import ErrorHandler from '../../common/ErrorHandler';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/AppProviderTypes';
-import { firestore } from '../../common/apis/FirebaseAdmin';
 
+import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+
+// import FirebaseApi from '../common/apis/FirebaseApi';
 
 require('express-async-errors');
 

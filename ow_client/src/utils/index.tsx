@@ -37,10 +37,10 @@ import { OrgType } from '../typings/models/OrgType';
  */
 export function calculateBBox(region: Region){
   return [
-    region.longitude - region.longitudeDelta, // westLng - min lng
-    region.latitude - region.latitudeDelta, // southLat - min lat
-    region.longitude + region.longitudeDelta, // eastLng - max lng
-    region.latitude + region.latitudeDelta// northLat - max lat
+    region.longitude - region.longitudeDelta/2, // westLng - min lng
+    region.latitude - region.latitudeDelta/2, // southLat - min lat
+    region.longitude + region.longitudeDelta/2, // eastLng - max lng
+    region.latitude + region.latitudeDelta/2// northLat - max lat
   ];
 }
 
@@ -775,6 +775,8 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
   //Make a list of safe resources:
   const safeResources: AnyResource[] = [];
   array.forEach(r => {
+    // console.log("resource.coords is", r.id, r.coords);
+
     if (isInRegion(safeArea, r.coords)) {
       safeResources.push(r);
     }
@@ -841,5 +843,17 @@ export function pinColorForOrgAndResource(resource: AnyResource) {
     case ResourceType.well:
     default:
       return 'orange';
+/**
+ * safeAreaFromPoint
+ * 
+ * Given a point, calculate an implicit safe area by adding a generous delta.
+ */
+export function safeAreaFromPoint(coords: OWGeoPoint): Region {
+
+  return {
+    latitude: coords._latitude,
+    longitude: coords._longitude,
+    latitudeDelta: 15,
+    longitudeDelta: 10,
   }
 }

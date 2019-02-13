@@ -10,10 +10,12 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { validateFirebaseIdToken } from '../../middleware';
 import { generateQRCode } from '../../common/apis/QRCode';
-import { ResultType } from '../../common/types/AppProviderTypes';
 import { writeFileAsync } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import { UserApi } from 'ow_common/lib/api';
+
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -102,7 +104,9 @@ module.exports = (functions) => {
     const { status } = req.body;
     const fbApi = new FirebaseApi(firestore);
 
-    const statusResult = await fbApi.changeUserStatus(orgId, userId, status);
+    const userApi = new UserApi(orgId, userId);
+
+    const statusResult = await userApi.changeUserStatus(userId, status);
     if (statusResult.type === ResultType.ERROR) {
       throw new Error(statusResult.message);
     }

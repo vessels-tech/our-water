@@ -116,7 +116,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     renderLog("     - ", diff(this.state, nextState));
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9add71aa589f3f2dac2306ea00b8c54b1f593742
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
@@ -608,13 +611,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
 
-  const resourceIdx = state.resourcesCache.findIndex(r => r.id === ownProps.resourceId);
-  if (resourceIdx === -1) {
-    //We don't have the resource!
-  }
-  const resource = state.resourcesCache[resourceIdx];
-
   // const resource = state.resourcesCache[ownProps.resourceId];
+  const resource = state.resourcesCache.find(r => r.id === ownProps.resourceId);
+
   let pendingResource: Maybe<PendingResource>;
   if (ownProps.isPending) {
     const filteredPendingResources = state.pendingSavedResources.filter(r => r.id === ownProps.resourceId);

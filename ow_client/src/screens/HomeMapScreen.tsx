@@ -46,6 +46,21 @@ import { diff } from 'deep-object-diff';
 
 const initialLat: number = -20.4010;
 const initialLng: number = 32.3373;
+const GGMN_PAGE_SIZE = 75;
+
+
+//TODO: move elsewhere
+export type Cursor = {
+  hasNext: boolean,
+  page: number,
+  limit: number,
+}
+
+const startCursor: Cursor = {
+  hasNext: true,
+  page: 1,
+  limit: GGMN_PAGE_SIZE,
+};
 
 export interface OwnProps {
   navigator: any;
@@ -69,7 +84,7 @@ export interface StateProps {
 
 export interface ActionProps {
   addRecent: any,
-  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
+  loadResourcesForRegion: (api: BaseApi, userId: string, region: Region, cursor: Cursor) => SomeResult<Cursor>,
 }
 
 export interface DebugProps {
@@ -89,6 +104,7 @@ export interface State {
 
 class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & DebugProps> {
   mapRef?: MapView;
+  resourceRequestId: number = 0;
   state: State = {
     mapHeight: MapHeightOption.default,
     mapState: MapStateOption.default,
@@ -269,13 +285,35 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
    * The user has dragged the map in the MapSection.
    * Load new resources based on where they are looking
    */
-  async onMapRegionChange(region: Region) {
-    const { translation: { templates: { app_resource_load_error } } } = this.props;
+  onMapRegionChange(region: Region) {
+    this.resourceRequestId += 1;
+    this.loadResourcesPaginated(region, startCursor, this.resourceRequestId);
+  }
 
-    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region);
+  /**
+   * loadResourcesPaginated
+   * 
+   * Recursively calls itself with the resulting cursor.
+   * Loads all of the resources a given region. 
+   * We should probably have a max limit or something.
+   */
+  async loadResourcesPaginated(region: Region, cursor: Cursor, currentRequestId: number): Promise<any> {
+    const { app_resource_load_error } = this.props.translation.templates;
 
+    //Check to see if this.requestId has changed, if so, then this request is no longer relevant;
+    if (currentRequestId !== this.resourceRequestId) {
+      maybeLog(`CANCELLING CURRENT REQUEST. global id: ${this.resourceRequestId}, currentId: ${currentRequestId}`);
+      return;
+    }
+
+    const result = await this.props.loadResourcesForRegion(this.appApi, this.props.userId, region, cursor);
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.TOP);
+      ToastAndroid.showWithGravity(app_resource_load_error, ToastAndroid.SHORT, ToastAndroid.BOTTOM);
+      return;
+    }
+
+    if (result.result.hasNext) {
+      return this.loadResourcesPaginated(region, result.result, currentRequestId);
     }
   }
 
@@ -602,8 +640,9 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
       dispatch(appActions.addRecent(api, userId, resource))
     },
-    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-      dispatch(appActions.getResources(api, userId, region)),
+    loadResourcesForRegion: (api: BaseApi, userId: string, region: Region, cursor: Cursor) =>
+      //TODO: change to paged
+      dispatch(appActions.getResourcesPaginated(api, userId, region, cursor)),
   }
 }
 

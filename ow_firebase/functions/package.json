@@ -17,6 +17,7 @@
   },
   "main": "lib/src/index.js",
   "dependencies": {
+    "ow_common": "0.1.5",
     "@firebase/app-types": "0.x",
     "@google-cloud/storage": "^1.7.0",
     "@types/mocha": "^5.2.5",

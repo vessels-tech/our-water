@@ -18,7 +18,7 @@ export enum ResultType {
   SUCCESS = 'SUCCESS',
 }
 
-export function makeSuccess<T>(result: T): SomeResult < T > {
+export function makeSuccess<T>(result: T): SomeResult <T> {
   return {
     type: ResultType.SUCCESS,
     result,

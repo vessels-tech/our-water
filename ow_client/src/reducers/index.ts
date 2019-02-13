@@ -18,10 +18,10 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
+import { Region } from "ow_translations/src/Types";
 
 const orgId = EnvConfig.OrgId;
-
-const RESOURCE_CACHE_MAX_SIZE = 350;
+const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
 
 const defaultLanguage = TranslationEnum.en_AU;
 const defaultTranslations = translationsForTranslationOrg(orgId);

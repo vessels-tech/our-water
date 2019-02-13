@@ -101,8 +101,7 @@ export async function registerScreens(config: ConfigFactory) {
         if (action.result.type === ResultType.SUCCESS) {
           const state = store.getState();
           AsyncStorage.setItem('ourwater_resources', JSON.stringify(state.resources));
-          //This number has changed to not break backwards compatibility
-          AsyncStorage.setItem('ourwater_resourcesCache2', JSON.stringify(state.resourcesCache));
+          AsyncStorage.setItem('ourwater_resourcesCache_2', JSON.stringify(state.resourcesCache));
         }
       }
 
@@ -119,8 +118,7 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   let resources = await getCached('ourwater_resources');
-  //Increment this number as we changed the type
-  let resourcesCache = await getCached('ourwater_resourcesCache2');
+  let resourcesCache = await getCached('ourwater_resourcesCache_2');
   let shortIdCache = await getCached('ourwater_shortIdCache');
   let shortIdMeta = await getCached('ourwater_shortIdMeta');
 

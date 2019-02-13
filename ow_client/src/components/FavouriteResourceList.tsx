@@ -8,9 +8,8 @@ import {
 import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
-import FirebaseApi from '../api/FirebaseApi';
 import { randomPrettyColorForId, getShortId, maybeLog, renderLog } from '../utils';
+import FirebaseApi from '../api/DeprecatedFirebaseApi';
 
 import Config from 'react-native-config'
 import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';

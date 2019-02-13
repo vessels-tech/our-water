@@ -9,7 +9,7 @@ import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../../common/types/ResourceIdType';
 import { resourceTypeFromString } from '../../common/enums/ResourceType';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/AppProviderTypes';
+import { ResultType } from '../../common/types/dep_AppProviderTypes';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import ErrorHandler from '../../common/ErrorHandler';
 
