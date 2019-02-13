@@ -8,13 +8,13 @@ include /tmp/ow_firebase_env
 dir = $(shell pwd)
 
 
+#
+#	Env Setup
+# ------------
+
 env:
 	cat ../env/.env.firebase.${stage}.sh ../env/env.firebase.${stage}.sh > /tmp/ow_firebase_env
 
-
-#
-# eg. make switch orgId="ggmn" stage="development"
-#
 switch:
 	@echo switching to stage: ${stage}
 	@echo 'export stage=${stage}\n' > .ow_firebase_config
@@ -26,6 +26,10 @@ switch-dev:
 
 switch-prod:
 	make switch stage="production"
+
+#
+#	Remote Config
+# ------------
 
 update_translations:
 	@echo 'pulling translations'
@@ -42,9 +46,12 @@ update_remote_config:
 	@echo 'deploying remote config'
 	cd ${dir}/functions/tools && gulp deploy_remote_config
 
+#
+#	Development
+# ------------
+
 hacky_create_syncs:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp upload_readings_from_csv
-
 
 run_local:
 	@echo 'running local firebase'	
@@ -67,9 +74,9 @@ run_lt:
 get_token:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && node generate_token.js
 
-rebuild:
-	@echo 'rebuilding node'
-	cd ${dir} && npm rebuild
+#
+# Deployment
+# ------------
 
 deploy:
 	@echo 'Deploying Firebase'
