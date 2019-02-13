@@ -2,7 +2,10 @@ const admin = require('firebase-admin');
 
 
 /* Not in git. Download from FB console*/
-const serviceAccount = require('./.serviceAccountKey.json');
+// const serviceAccount = require('./.serviceAccountKey.json');
+const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
+console.log("importing service account from", serviceAccountKeyFile);
+const serviceAccount = require(serviceAccountKeyFile);
 
 let firestore;
 
