@@ -16,6 +16,7 @@ describe('fn_resource', function () {
 
     before(async function() {
       authHeader = await getAuthHeader(admin);
+      console.log("authHeader is", authHeader);
     });
     
     it('sends the resource email', async () => {

@@ -2,7 +2,7 @@
 
 #TODO: use make
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$DIR/../../env/.env.development.sh"
+source /tmp/ow_firebase_env
 
 export BASE_URL="http://localhost:5000/our-water/us-central1"
 # export MYWELL_LEGACY_BASE_URL="http://localhost:3000"
