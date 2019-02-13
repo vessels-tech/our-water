@@ -19,6 +19,8 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
 import { Region } from "ow_translations/src/Types";
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+
 
 const orgId = EnvConfig.OrgId;
 const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
@@ -85,6 +87,7 @@ export type AppState = {
   user: MaybeUser,
   userIdMeta: ActionMeta,
   userStatus: UserStatus,
+  userType: UserAdminType,
 }
 
 export const initialState: AppState = {
@@ -134,6 +137,7 @@ export const initialState: AppState = {
   userIdMeta: { loading: false, error: false, errorMessage: '' },
   userStatus: UserStatus.Unapproved,
   syncStatus: SyncStatus.none,
+  userType: UserAdminType.User,
   favouriteResources: [],
   favouriteResourcesMeta: { loading: false, error: false, errorMessage: '' },
   recentResources: [],
@@ -435,6 +439,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let name = state.name;
       let nickname = state.nickname;
       let userStatus = state.userStatus;
+      let userType = state.userType;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -448,6 +453,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name = action.result.result.name && action.result.result.name;
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
+        userType = state.userType;
       }
       
       //TODO: error handling?
@@ -464,6 +470,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name,
         nickname,
         userStatus,
+        userType,
       });
     }
     case ActionType.GOT_SHORT_IDS: {

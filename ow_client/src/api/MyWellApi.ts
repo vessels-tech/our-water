@@ -297,7 +297,8 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    */
   runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
     //TODO: Add firebase token
-    const syncUrl = `${this.baseUrl}/admin/${this.orgId}/${userId}/sync`;
+    //TODO: this has changed to a different endpoint - double check
+    const syncUrl = `${this.baseUrl}/resource/${this.orgId}/${userId}/sync`;
     const options = {
       timeout,
       method: 'POST',

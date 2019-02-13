@@ -34,9 +34,10 @@ import { MaybeInternalAccountApi, SaveUserDetailsType } from '../../api/internal
 import { RNFirebase } from 'react-native-firebase';
 import Config from 'react-native-config';
 import UserApi from '../../api/UserApi';
-import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
+import { MaybeUser, UserStatus, UserType } from '../../typings/UserTypes';
 import HeadingText from '../../components/common/HeadingText';
 import { greyMed } from '../../assets/ggmn/Colors';
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
 
 export interface OwnProps {
   navigator: any,
@@ -57,6 +58,7 @@ export interface StateProps {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  userType: UserAdminType,
 }
 
 export interface ActionProps {
@@ -473,7 +475,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getProfile() {
-    const { mobile, email, name, nickname, userStatus } = this.props;
+    const { mobile, email, name, nickname, userStatus, userType } = this.props;
     const { 
       connect_to_signed_in_heading,
       connect_to_edit,
@@ -522,6 +524,11 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <HeadingText heading={connect_to_email_label} content={email || ''}/>
         <Divider style={{marginVertical: 20}}/>
         <HeadingText heading={"User Status"} content={statusText}/>
+        {
+          userType === UserAdminType.Admin ? 
+            <HeadingText heading={"User Type"} content={"Administrator"} /> :
+            null
+        }
         <Text>{statusDescription}</Text>
         <Button 
           style={{}}
@@ -610,6 +617,7 @@ const mapStateToProps = (state: AppState): StateProps => {
     email: state.email,
     name: state.name,
     nickname: state.nickname,
+    userType: state.userType,
   }
 }
 
