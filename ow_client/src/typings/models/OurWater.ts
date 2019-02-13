@@ -10,7 +10,7 @@ import { AnyARecord } from "dns";
 import { UserStatus } from "../UserTypes";
 
 export type DeprecatedResource = {
-  id: string,
+  id: string, DeprecatedResource
   //TODO: remove this, it no longer applies
   legacyId: string,
   // externalIds: ResourceIdType

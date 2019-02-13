@@ -1,7 +1,7 @@
 
 import BaseApi from './BaseApi';
 import NetworkApi from './NetworkApi';
-import FirebaseApi from './FirebaseApi';
+import FirebaseApi from './DeprecatedFirebaseApi';
 import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange, OWUserStatus } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
@@ -17,6 +17,7 @@ import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
 import { Cursor } from '../screens/HomeMapScreen';
+import FirebaseUserApi from './FirebaseUserApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -43,7 +44,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Sign the user in anonymously with Firebase
    */
   silentSignin(): Promise<SomeResult<AnonymousUser>> {
-    return FirebaseApi.signIn();
+    return FirebaseUserApi.signIn();
   }
 
   //
@@ -115,13 +116,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       });
   }
 
-  isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
-    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
-  }
-
-  getResources() {
-    return FirebaseApi.getResourcesForOrg(this.orgId);
-  }
 
   // //TODO: make this look for the config!
   // getResourceNearLocation(latitude: number, longitude: number, distance: number): Promise<Array<any>> {
@@ -329,7 +323,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   }
 
   onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
-    return FirebaseApi.onAuthStateChanged(listener);
+    return FirebaseUserApi.onAuthStateChanged(listener);
   }
 
   saveUserDetails(userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
@@ -341,14 +335,14 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   //----------------------------------------------------------------------
 
   sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
-    return FirebaseApi.sendVerifyCode(mobile);
+    return FirebaseUserApi.sendVerifyCode(mobile);
   }
 
   verifyCodeAndLogin(confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
-    return FirebaseApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
+    return FirebaseUserApi.verifyCodeAndLogin(this.orgId, confirmResult, code, oldUserId);
   }
 
   logout(): Promise<SomeResult<any>> {
-    return FirebaseApi.logout(this.orgId);
+    return FirebaseUserApi.logout(this.orgId);
   }
 }

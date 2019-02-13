@@ -33,6 +33,7 @@ import { OrgType } from '../typings/models/OrgType';
 import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
 import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 import { UserStatus } from '../typings/UserTypes';
+import FirebaseUserApi from './FirebaseUserApi';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -49,133 +50,6 @@ export type SendResourceEmailOptions = {
 
 class FirebaseApi {
 
-  /**
-   * call this before everything, to make sure we're turning firestore off and on
-   * 
-   * //TODO: should this talk to the NetworkApi?
-   */
-  static checkNetworkAndToggleFirestore() {
-    return NetInfo.isConnected.fetch()
-    .then(isConnected => {
-      if (isConnected) {
-        maybeLog("FirebaseApi enableNetwork()");
-        return fs.enableNetwork().then(() => true);
-      }
-
-      maybeLog("FirebaseApi disableNetwork()");
-      return fs.disableNetwork().then(() => false);
-    });
-  }
-
-  //
-  // Authentication
-  // ------------------------------------
-
-  /**
-   * User signIn() instead
-   */
-  static async deprecated_signIn(): Promise<SomeResult<string>> {
-    try {
-      const userCredential = await auth.signInAnonymouslyAndRetrieveData();
-      return {
-        type: ResultType.SUCCESS,
-        result: userCredential.user.uid,
-      }
-    } catch (err) {
-      return {
-        type: ResultType.ERROR,
-        message: 'Could not sign in.'
-      }
-    }
-  }
-
-
-  /**
-   * Sign in anonymously to firebase and get the user's Id token
-   */
-  static async signIn(): Promise<SomeResult<AnonymousUser>> {
-    let userId: string;
-
-    return auth.signInAnonymouslyAndRetrieveData()
-    .then(userCredential => {
-      userId = userCredential.user.uid;
-      return userCredential.user.getIdToken();
-    })
-    .then(token => makeSuccess<AnonymousUser>({userId, token}))
-    .catch(err => makeError<AnonymousUser>('Error logging in: ' + err.message))
-  }
-
-  /**
-   * Get the JWT token of the user
-   */
-  static async getIdToken(): Promise<SomeResult<string>> {
-    return auth.getIdToken()
-    .then((token: string) => makeSuccess(token))
-    .catch((err: Error) => makeError(err.message))
-  }
-
-
-  /**
-   *  Send the code to the given user.
-   */
-  static async sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
-    return auth.signInWithPhoneNumber(mobile)
-      .then(confirmResult => makeSuccess(confirmResult))
-      .catch(err => makeError<RNFirebase.ConfirmationResult>(err.message));
-  }
-
-  /**
-   * Verify the code and get the access token.
-   * 
-   * TODO: handle merging user identities
-   */
-  static async verifyCodeAndLogin(orgId: string, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
-    let anonymousCredential: RNFirebase.UserCredential;
-    let user: RNFirebase.User;
-    let mobile: string;
-  
-    return confirmResult.confirm(code)
-    .then(_user => {
-      if (!_user) {
-        return Promise.reject(new Error('No user found'));
-      }
-      user = _user;
-      if (!user.phoneNumber) {
-        return Promise.reject(new Error('User logged in, but no phone number found'));
-      }
-
-      //Save the user's phone number!
-      mobile = user.phoneNumber;
-      return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
-    })
-    .then(() => this.mergeUsers(orgId, oldUserId, user.uid))
-    .then(mergeResult => {
-      if (mergeResult.type === ResultType.ERROR) {
-        maybeLog("Non fatal error merging users:", mergeResult.message)
-      } 
-
-      return user.getIdToken();
-    })
-    .then(token => makeSuccess<FullUser>({userId: user.uid, token, mobile}))
-    .catch((err: Error) => {
-      maybeLog("ERROR", err);
-      return makeError<FullUser>(err.message)
-    });
-  }
-
-  static async logout(orgId: string): Promise<SomeResult<any>> {
-    return auth.signOut()
-    .then(() => this.signIn())
-    .catch((err: Error) => makeError<void>(err.message));
-  }
-
-  /**
-   * Authenticaion Callback
-   */
-  static onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
-    return auth.onAuthStateChanged(listener);
-  }
-
   static saveUserDetails(orgId: string, userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
     return this.userDoc(orgId, userId).set({...userDetails}, {merge: true})
     .then(() => makeSuccess<void>(undefined))
@@ -187,6 +61,8 @@ class FirebaseApi {
    * When a user changes, merge the old user's data into the new one
    * 
    * This doesn't handle subcollections
+   * 
+   * //TODO: move across
    */
   static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
     const oldUserResult = await this.getUser(orgId, oldUserId);
@@ -232,13 +108,6 @@ class FirebaseApi {
     });  
   }
 
-  static isInFavourites(orgId: string, resourceId: string, userId: string): Promise<boolean> {
-    return this.getFavouriteResources(orgId, userId)
-    .then(favouriteResources => {
-      return resourceId in favouriteResources;
-    });
-  }
-
   static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true})
     .catch(err => {
@@ -258,10 +127,6 @@ class FirebaseApi {
       })
   }
 
-  static getResourceListener(orgId: string, resourceId: string, onSnapshot: any) {
-    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId)
-    .onSnapshot(sn => onSnapshot(sn.data()));
-  }
 
   static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
   
@@ -306,60 +171,9 @@ class FirebaseApi {
     return await this.getRecentResources(orgId, userId);
   }
 
-  static getResourcesForOrg(orgId: string): Promise<Array<AnyResource>> {
-    return this.checkNetworkAndToggleFirestore()
-    .then(() => fs.collection('org').doc(orgId).collection('resource')
-      .limit(10)
-      .get())
-    .then(sn => {
-      const resources: any[] = [];
-      sn.forEach((doc) => {
-        //Get each document, put in the id
-        const data = doc.data();
-        //@ts-ignore
-        data.id = doc.id;
-        resources.push(data);
-      });
 
-      return resources;
-    })
-    .catch(err => {
-      maybeLog('getResourcesForOrg', err);
-      return Promise.reject(err);
-    });
-  }
 
-  /**
-   * functions.httpsCallable is not yet available for react-native-firebase
-   * instead, we can just use fetch
-   * 
-   * Use the firebase api, otherwise we don't get the caching tools
-   * 
-   * @param {*} param0 
-   */
-  static dep_getResourceNearLocation(orgId: string, latitude: number, longitude: number, distance: number) {
-    const resourceUrl = `${baseUrl}/resource/${orgId}/nearLocation`;
-    const url = appendUrlParameters(resourceUrl, {latitude, longitude, distance});
-    
-    const options = {
-      timeout,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      }
-    };
-
-    return ftch(url, options)
-      .then((response: any) => {
-        if (!response.ok) {
-          return rejectRequestWithError(response.status);
-        }
-
-        return response.json();
-      })
-      .catch((err: Error) => maybeLog('dep_getResourceNearLocation error' + err));
-  }
+  /////////refactor up to here.
 
   // /**
   //  * Local implementation of getResourceNearLocation
@@ -1007,6 +821,8 @@ class FirebaseApi {
   /**
    * SendResourceEmail
    * 
+   * //TODO: this doesn't belong in the FirebaseApi
+   * 
    * http://localhost:5000/our-water/us-central1/resource/ggmn/ggmnResourceEmail
    * 
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
@@ -1015,7 +831,7 @@ class FirebaseApi {
     const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
 
     //TD: Need a better way to get the token
-    const userResult = await this.signIn();
+    const userResult = await FirebaseUserApi.signIn();
     if (userResult.type === ResultType.ERROR) {
       return userResult;
     }
@@ -1065,6 +881,8 @@ class FirebaseApi {
   /**
    * Map a fb snapshot to a proper OWUser object
    * If the snapshot is null, returns an empty user object
+   * 
+   * //TODO: remove the need for this with proper object modelling
    */
   static snapshotToUser(userId: string, sn: any): OWUser {
     const data = sn.data();

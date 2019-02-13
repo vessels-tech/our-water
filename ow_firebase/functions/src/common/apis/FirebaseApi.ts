@@ -1,4 +1,5 @@
-import { SomeResult, ResultType, makeSuccess, makeError } from "../types/AppProviderTypes";
+import { SomeResult, ResultType, makeSuccess, makeError } from "ow_common/lib/utils/AppProviderTypes";
+
 
 import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
@@ -17,6 +18,8 @@ export type ShortIdLock = {
   id: string, //9 digit number as string
   lock: boolean,
 }
+
+
 
 export type BoundingBox = {
   minLat: number, 
@@ -369,100 +372,6 @@ export default class FirebaseApi {
         message: err.message,
       }
     });
-  }
-
-
-  /**
-   * CreateNewShortId
-   * 
-   * Creates a new shortId for the given resource.
-   * If there already is a ShortId for the resource, returns the existing one
-   * 
-   * If this fails for any reason, will retry until retries is 0
-   * 
-   * @returns ShortId, wrapped in a Promise & SomeResult
-   */
-  public static async dep_createShortId(orgId: string, longId: string, retries: number = 5, timeoutMs = 100): Promise<SomeResult<ShortId>> {
-    console.log(`CreateShortId with retries: ${retries}, timeoutMs: ${timeoutMs}`)
-
-    //0: Check to make sure the id hasn't already been created
-    const existingShortIdResult = await this.getShortId(orgId, longId);
-    if (existingShortIdResult.type === ResultType.SUCCESS) {
-      return existingShortIdResult;
-    }
-
-    //1: Get the next short Id, ensure it's not locked. Retry if needed
-    const result = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get();
-    let shortIdLock: ShortIdLock = result.data();
-
-    console.log("1. shortIdLock:", shortIdLock);
-
-    //TODO: use timeout instead of lock
-    if (!shortIdLock) {
-      //This must be the first time
-      shortIdLock = {id: '100000', lock: false};
-      await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').set(shortIdLock);
-    } else if (shortIdLock.lock === true) {
-      console.log("lock is locked. Sleeping and trying again");
-      if (retries === 0) {
-        return {
-          type: ResultType.ERROR,
-          message: 'createShortId out of retries',
-        }
-      }
-
-      sleep(timeoutMs);
-      return this.dep_createShortId(orgId, longId, retries - 1, timeoutMs * 2);
-    }
-
-    const lockRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest');
-    const nextId = pad(parseInt(shortIdLock.id) + 1, 9);
-    const shortIdRef = firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(nextId);
-    const shortId = ShortId.fromShortId(orgId, {
-      shortId: nextId,
-      longId,
-      lastUsed: new Date(),
-    });
-  
-    try {
-      await lockRef.set({id: nextId, lock: true});
-      await shortIdRef.set(shortId.serialize());
-      await lockRef.set({ lock: false });
-      
-      return {
-        type: ResultType.SUCCESS,
-        result: shortId,
-      }
-    } catch(err) {
-      console.log("Error", err);
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
-    } 
-
-    // const batch = firestore.batch();
-    // batch.update(lockRef, {id: nextId, lock: true });
-    // batch.set(shortIdRef, shortId.serialize());
-    // //I'm not 100% sure this will work as intended
-    // batch.update(lockRef, { id: nextId, lock: false });
-    
-    // return batch.commit()
-    // .then((batchResult: any) => {
-    //   console.log("batchResult", batchResult);
-
-    //   return {
-    //     type: ResultType.SUCCESS,
-    //     result: shortId,
-    //   }
-    // })
-    // .catch((err: any) => {
-    //   console.log("error saving batch: ", err);
-    //   return {
-    //     type: ResultType.ERROR,
-    //     message: err.message
-    //   }
-    // });
   }
 
   /**

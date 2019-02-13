@@ -1,8 +1,8 @@
-export enum ResourceType {
+export enum DepResourceType {
   Well = 'well',
   Raingauge = 'raingauge',
   Checkdam = 'checkdam',
-  // TODO: remove this! HAck for the front end to work
+  // //TD TODO: remove this! HAck for the front end to work
   well = 'well',
   raingauge = 'raingauge',
   checkdam = 'checkdam',
@@ -12,11 +12,11 @@ export enum ResourceType {
 export const resourceTypeFromString = (type: string) => {
   switch(type) {
     case 'well':
-      return ResourceType.Well;
+      return DepResourceType.Well;
     case 'raingauge':
-      return ResourceType.Raingauge;
+      return DepResourceType.Raingauge;
     case 'checkdam':
-      return ResourceType.Checkdam;
+      return DepResourceType.Checkdam;
     default:
       throw new Error(`Unknown ResourceType conversion: ${type}`);
   }
