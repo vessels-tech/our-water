@@ -44,7 +44,7 @@
     "jsx-xml": "^0.1.1",
     "jszip": "2.5.0",
     "mocha": "^5.1.1",
-    "mock-cloud-firestore": "https://github.com/vessels-tech/mock-cloud-firestore#2511ea3476fb178bf6873adc4c098404b8400174",
+    "mock-cloud-firestore": "^0.9.2",
     "moment": "^2.22.1",
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",

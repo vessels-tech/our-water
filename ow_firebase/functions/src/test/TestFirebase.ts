@@ -1,4 +1,4 @@
-const admin = require('firebase-admin');
+import * as admin from "firebase-admin";
 
 
 /* Not in git. Download from FB console*/

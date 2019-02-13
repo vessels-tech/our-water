@@ -31,6 +31,17 @@ exports.validateFirebaseIdToken = (req, res, next) => {
     });
 };
 /**
+ * validateUserIsAdmin
+ *
+ * Middleware that looks up the user object, and ensures they are an administrator!
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.validateUserIsAdmin = (req, res, next) => {
+    //TODO: implement!
+};
+/**
  * getIdToken
  *
  * Ensures that the required token is present in the Auth header
@@ -65,10 +76,10 @@ exports.getIdToken = getIdToken;
 function verifyIdToken(token) {
     return FirebaseAdmin_1.auth.verifyIdToken(token)
         .then((decodedIdToken) => {
-        console.log('ID Token correctly decoded', decodedIdToken);
+        console.log('ID Token correctly decoded');
         return AppProviderTypes_1.makeSuccess(decodedIdToken);
     }).catch((error) => {
-        console.error('Error while verifying Firebase ID token:', error);
+        console.error('Error while verifying Firebase ID token.');
         return AppProviderTypes_1.makeError(error.message);
     });
 }

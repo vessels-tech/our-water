@@ -3,9 +3,12 @@
  * 
  * taken from: https://github.com/firebase/functions-samples/blob/master/authorized-https-endpoint/functions/index.js
  */
-import { auth } from './common/apis/FirebaseAdmin';
-import { SomeResult, makeSuccess, ResultType, makeError } from 'ow_common/lib/utils/AppProviderTypes';
+import { auth, firestore } from './common/apis/FirebaseAdmin';
+import { SomeResult, makeSuccess, ResultType, makeError, resultsHasError } from 'ow_common/lib/utils/AppProviderTypes';
 import { auth as fbAuth } from 'firebase-admin';
+import { UserApi } from 'ow_common/lib/api';
+import { User } from 'ow_common/lib/model/User';
+import UserType from 'ow_common/lib/enums/UserType';
 type DecodedIdToken = fbAuth.DecodedIdToken;
 
 
@@ -14,7 +17,6 @@ type DecodedIdToken = fbAuth.DecodedIdToken;
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 export const validateFirebaseIdToken = (req, res, next) => {
-  console.log('Check if request is authorized with Firebase ID token');
   const validateResult = getIdToken(req);
   if (validateResult.type === ResultType.ERROR) {
     res.status(403).send('Unauthorized');
@@ -35,6 +37,60 @@ export const validateFirebaseIdToken = (req, res, next) => {
     });
 };
 
+const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o)
+
+/**
+ * validateUserIsAdmin
+ * 
+ * Middleware that looks up the user object, and ensures they are an administrator!
+ * Assumes you are using with validateFirebaseIdToken to inject the user Id, otherwise 
+ * req.user will be null
+ * 
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+export const validateUserIsAdmin = (req, res, next) => {
+  const userId = get(req, ['user', 'uid']);
+  if (!userId) {
+    console.warn("No user found on req object. You should be using validateFirebaseIdToken middleware before this middleware.");
+    res.status(403).send('Unauthorized');
+    return;
+  }
+
+  //TODO: getOrgId from the request somehow
+  const orgId = "unknown";
+  const userApi = new UserApi(firestore, orgId);
+  return getIsUserAdmin(userApi, orgId, userId)
+  .then((result) => {
+    if (result.type === ResultType.ERROR) {
+      res.status(403).send('Unauthorized');
+      return;
+    }
+
+    return next();
+  })
+  .catch((err: Error) => {
+    res.status(403).send('Unauthorized');
+    return;
+  });
+}
+
+
+export async function getIsUserAdmin(userApi: UserApi, orgId: string, userId: string): Promise<SomeResult<void>> {
+  const userResult = await userApi.getUser(userApi.userRef(orgId, userId));
+  if (userResult.type === ResultType.ERROR) {
+    return makeError<void>(userResult.message);
+  }
+
+  if (userResult.result.type !== UserType.Admin) {
+    return makeError<void>('User is not admin.');
+  }
+
+  return makeSuccess(undefined);
+}
 
 /**
  * getIdToken
@@ -75,10 +131,10 @@ export function verifyIdToken(token: string): Promise<SomeResult<DecodedIdToken>
 
   return auth.verifyIdToken(token)
     .then((decodedIdToken: DecodedIdToken) => {
-    console.log('ID Token correctly decoded', decodedIdToken);
+    console.log('ID Token correctly decoded');
     return makeSuccess(decodedIdToken)
   }).catch((error: Error) => {
-    console.error('Error while verifying Firebase ID token:', error);
+    console.error('Error while verifying Firebase ID token.');
     
     return makeError<DecodedIdToken>(error.message)
   });
