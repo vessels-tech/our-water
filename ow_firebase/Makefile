@@ -76,7 +76,11 @@ get_token:
 
 test-unit:
 	#TODO: refactor!
-	@ cd ${dir}/functions; ./_unit_tests.sh
+	@cd ${dir}/functions; ./_unit_tests.sh
+
+test-service:
+	#TODO: refactor!
+	@cd ${dir}/functions; ./_service_tests.sh
 
 
 #

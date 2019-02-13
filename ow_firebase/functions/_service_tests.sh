@@ -17,4 +17,13 @@ export ORG_ID="test_12348"
 export GOOGLE_CLOUD_PROJECT='our-water'
 export SKIP_CLEANUP='true'
 
+#make sure the server is up
+curl "$BASE_URL"/org
+
+if [ $? != 0 ];then
+  echo "Could not find server at $BASE_URL."
+  echo "Make sure it us up and running and try again."
+  exit 1
+fi
+
 yarn run service

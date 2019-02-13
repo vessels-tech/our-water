@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin = require('firebase-admin');
+// const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 exports.admin = admin;
 let firestore;
 exports.firestore = firestore;
