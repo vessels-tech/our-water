@@ -5,14 +5,14 @@ import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
 import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
-import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
-import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import * as btoa from 'btoa';
-var filesystem = require("fs");
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+
+const filesystem = require("fs");
 
 
 
@@ -260,26 +260,26 @@ export const downloadAndParseCSV = (url) => {
   });
 }
 
-export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceType => {
+export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceStationType => {
 
   if (legacyResourceId.startsWith('117')) {
-    return ResourceType.Raingauge;
+    return ResourceStationType.raingauge;
   }
 
   if (legacyResourceId.startsWith('118')) {
-    return ResourceType.Checkdam;
+    return ResourceStationType.checkdam;
   }
 
-  return ResourceType.Well;
+  return ResourceStationType.well;
 }
 
-export const resourceIdForResourceType = (resourceType: ResourceType): string => {
+export const resourceIdForResourceType = (resourceType: ResourceStationType): string => {
   switch (resourceType) {
-    case ResourceType.Well:
+    case ResourceStationType.well:
       return '10';
-    case ResourceType.Raingauge:
+    case ResourceStationType.raingauge:
       return '70';
-    case ResourceType.Checkdam:
+    case ResourceStationType.checkdam:
       return '80'
   }
 }

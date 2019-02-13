@@ -273,6 +273,7 @@ class LegacyMyWellDatasource {
                 errors,
             };
         })
+            //Catch fatal errors here
             .catch(err => {
             console.log("getReadingsData error, ", err.message);
             return {
@@ -328,6 +329,7 @@ class LegacyMyWellDatasource {
         return firestore.collection('org').doc(orgId).collection('reading')
             .where('externalIds.hasLegacyMyWellResourceId', '==', true)
             .where('createdAt', '>=', filterAfterDate)
+            //TODO: we need to set a maximum on this, and paginate properly
             .limit(50)
             .get()
             .then((sn) => {

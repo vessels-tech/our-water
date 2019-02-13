@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
-const ResourceType_1 = require("./enums/ResourceType");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
 const ow_types_1 = require("ow_types");
 const btoa = require("btoa");
-var filesystem = require("fs");
+const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
+const filesystem = require("fs");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
  * iterate through and return a list of resources
@@ -211,20 +211,20 @@ exports.downloadAndParseCSV = (url) => {
 };
 exports.resourceTypeForLegacyResourceId = (legacyResourceId) => {
     if (legacyResourceId.startsWith('117')) {
-        return ResourceType_1.ResourceType.Raingauge;
+        return ResourceStationType_1.default.raingauge;
     }
     if (legacyResourceId.startsWith('118')) {
-        return ResourceType_1.ResourceType.Checkdam;
+        return ResourceStationType_1.default.checkdam;
     }
-    return ResourceType_1.ResourceType.Well;
+    return ResourceStationType_1.default.well;
 };
 exports.resourceIdForResourceType = (resourceType) => {
     switch (resourceType) {
-        case ResourceType_1.ResourceType.Well:
+        case ResourceStationType_1.default.well:
             return '10';
-        case ResourceType_1.ResourceType.Raingauge:
+        case ResourceStationType_1.default.raingauge:
             return '70';
-        case ResourceType_1.ResourceType.Checkdam:
+        case ResourceStationType_1.default.checkdam:
             return '80';
     }
 };

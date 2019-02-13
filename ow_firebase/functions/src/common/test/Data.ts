@@ -1,9 +1,9 @@
 import { Resource } from "../models/Resource";
 import ResourceIdType from "../types/ResourceIdType";
-import { ResourceType } from "../enums/ResourceType";
 import { Reading } from "../models/Reading";
 import { OWGeoPoint } from "ow_types";
 import moment = require("moment");
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 
 
 //TODO: this is outdated, update to new cohesive model
@@ -21,7 +21,7 @@ export function basicResource(orgId: string): Resource {
       createdByUserId: '1'
     },
     // pending: true,
-    resourceType: ResourceType.Quality,
+    resourceType: ResourceStationType.quality,
     //This is broken...
     timeseries: {
       "default": { id: "default" },
@@ -33,7 +33,7 @@ export function basicResource(orgId: string): Resource {
 
 
 export function basicReading(orgId: string): Reading {
-  const reading = new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none());
+  const reading = new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none());
   return reading;
 }
 

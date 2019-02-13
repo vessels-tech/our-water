@@ -9,7 +9,6 @@ import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../../common/types/ResourceIdType';
 import { resourceTypeFromString } from '../../common/enums/ResourceType';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/dep_AppProviderTypes';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import ErrorHandler from '../../common/ErrorHandler';
 
@@ -22,6 +21,7 @@ import EmailApi from '../../common/apis/EmailApi';
 import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 var DepResourceType;
 (function (DepResourceType) {
     DepResourceType["Well"] = "well";
@@ -15,13 +16,13 @@ var DepResourceType;
 exports.resourceTypeFromString = (type) => {
     switch (type) {
         case 'well':
-            return DepResourceType.Well;
+            return ResourceStationType_1.default.well;
         case 'raingauge':
-            return DepResourceType.Raingauge;
+            return ResourceStationType_1.default.raingauge;
         case 'checkdam':
-            return DepResourceType.Checkdam;
+            return ResourceStationType_1.default.checkdam;
         case 'quality':
-            return DepResourceType.Quality;
+            return ResourceStationType_1.default.quality;
         default:
             throw new Error(`Unknown ResourceType conversion: ${type}`);
     }

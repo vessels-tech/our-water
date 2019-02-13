@@ -10,7 +10,7 @@ import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
 import { Resource, FBTimeseriesMap } from '../Resource';
 import ResourceIdType from '../../types/ResourceIdType';
-import { ResourceType, resourceTypeFromString } from '../../enums/ResourceType';
+import { resourceTypeFromString } from '../../enums/ResourceType';
 import ResourceOwnerType from '../../types/ResourceOwnerType';
 import { Reading } from '../Reading';
 import LegacyReading from '../../types/LegacyReading';

@@ -122,7 +122,9 @@ class FirebaseApi {
             return this.firestore.collection(`/org/${orgId}/reading`)
                 .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                 .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                //We need to order by coords to make sure the pagination works
                 .orderBy('coords')
+                //TODO: implement pagination
                 .limit(pageParams.limit)
                 .get()
                 .then(snapshot => {
@@ -156,6 +158,7 @@ class FirebaseApi {
                     return this.firestore.collection(`/org/${orgId}/reading`)
                         .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                         .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                        //We need to order by coords to make sure the pagination works
                         .orderBy('coords')
                         .startAfter(pageParams.startAfter)
                         .limit(pageParams.limit)
@@ -164,6 +167,7 @@ class FirebaseApi {
                 return this.firestore.collection(`/org/${orgId}/reading`)
                     .where('coords', '>=', new admin.firestore.GeoPoint(minLat, minLng))
                     .where('coords', '<=', new admin.firestore.GeoPoint(maxLat, maxLng))
+                    //We need to order by coords to make sure the pagination works
                     .orderBy('coords')
                     .limit(pageParams.limit)
                     .get();

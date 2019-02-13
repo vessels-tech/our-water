@@ -78,6 +78,7 @@ module.exports = (functions) => {
                 throw new Error(`Resource with with orgId: ${orgId}, resourceId: ${resourceId} not found`);
             }
         })
+            //TODO: standardize all these refs
             .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading/`).add(data))
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));

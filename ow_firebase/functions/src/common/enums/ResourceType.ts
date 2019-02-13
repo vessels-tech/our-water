@@ -1,3 +1,5 @@
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+
 export enum DepResourceType {
   Well = 'well',
   Raingauge = 'raingauge',
@@ -11,16 +13,16 @@ export enum DepResourceType {
 }
 
 
-export const resourceTypeFromString = (type: string) => {
+export const resourceTypeFromString = (type: string): ResourceStationType => {
   switch(type) {
     case 'well':
-      return DepResourceType.Well;
+      return ResourceStationType.well;
     case 'raingauge':
-      return DepResourceType.Raingauge;
+      return ResourceStationType.raingauge;
     case 'checkdam':
-      return DepResourceType.Checkdam;
+      return ResourceStationType.checkdam;
     case 'quality': 
-      return DepResourceType.Quality;
+      return ResourceStationType.quality;
     default:
       throw new Error(`Unknown ResourceType conversion: ${type}`);
   }

@@ -1,4 +1,5 @@
 "use strict";
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
 const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
@@ -70,7 +71,6 @@ exports.userAccountDefaults = functions.firestore
         type: UserType_1.default.User
     }, { merge: true });
 });
-var _a;
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});
 //TODO: move these functions to new doc
@@ -145,5 +145,5 @@ TODO: watches for SyncRuns:
 //TODO: on creation of a resource, send an email or sms
 //These aren't so pressing...
 //TODO: change group name, propagate to all resources and readings
-//TODO: add or remove group from resource, propagate to existing readings 
+//TODO: add or remove group from resource, propagate to existing readings
 //# sourceMappingURL=index.js.map

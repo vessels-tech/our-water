@@ -1,8 +1,9 @@
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import ResourceIdType from "../types/ResourceIdType";
 import { OWGeoPoint } from "ow_types";
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 const admin = require('firebase-admin');
 const GeoPoint = admin.firestore.GeoPoint;
 
@@ -14,7 +15,7 @@ export class Reading extends FirestoreDoc {
   resourceId: string
   externalIds: ResourceIdType
   coords: OWGeoPoint
-  resourceType: ResourceType
+  resourceType: ResourceStationType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   datetime: Date
   value: number
@@ -22,7 +23,7 @@ export class Reading extends FirestoreDoc {
   timeseriesId: string
 
   constructor(orgId: string, resourceId: string, coords: OWGeoPoint,
-    resourceType: ResourceType, groups, datetime: Date, value: number,
+    resourceType: ResourceStationType, groups, datetime: Date, value: number,
     externalIds: ResourceIdType) {
     
     super();
@@ -43,7 +44,7 @@ export class Reading extends FirestoreDoc {
    * Create a reading from legacy data
    * we put in empty fields, as they will be filled in later by a batch job
    */
-  public static legacyReading(orgId: string, resourceId: string, coords: OWGeoPoint, resourceType: ResourceType, datetime: Date, value: number, externalIds: ResourceIdType) {
+  public static legacyReading(orgId: string, resourceId: string, coords: OWGeoPoint, resourceType: ResourceStationType, datetime: Date, value: number, externalIds: ResourceIdType) {
     const reading = new Reading(orgId, resourceId, coords, resourceType, null, datetime, value, externalIds);
     reading.isLegacy = true;
 
@@ -113,7 +114,7 @@ export class Reading extends FirestoreDoc {
     } = doc.data();
 
     //nested variables
-    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    const resourceTypeObj: ResourceStationType = resourceTypeFromString(resourceType);
     const externalIdsObj = ResourceIdType.deserialize(externalIds);
     const des: Reading = new Reading(orgId, resourceId, coords, resourceTypeObj, 
       groups, datetime, value, externalIdsObj);

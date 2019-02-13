@@ -1,10 +1,11 @@
 
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import { OWGeoPoint } from "ow_types";
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 const admin = require('firebase-admin');
 const GeoPoint = admin.firestore.GeoPoint;
 
@@ -23,7 +24,7 @@ export type ResourceBuilder = {
   orgId: string,
   externalIds: ResourceIdType
   coords: OWGeoPoint
-  resourceType: ResourceType
+  resourceType: ResourceStationType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
@@ -35,7 +36,7 @@ export class Resource extends FirestoreDoc {
   id: string
   externalIds: ResourceIdType
   coords: OWGeoPoint
-  resourceType: ResourceType
+  resourceType: ResourceStationType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
@@ -44,7 +45,7 @@ export class Resource extends FirestoreDoc {
   lastReadingDatetime: Date = new Date(0);
 
   constructor(orgId: string, externalIds: ResourceIdType, coords: OWGeoPoint,
-    resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>,
+    resourceType: ResourceStationType, owner: ResourceOwnerType, groups: Map<string, boolean>,
     timeseries: FBTimeseriesMap) {
     super();
     
@@ -106,7 +107,7 @@ export class Resource extends FirestoreDoc {
     } = data;
 
     //Deserialize objects
-    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    const resourceTypeObj: ResourceStationType = resourceTypeFromString(resourceType);
     const externalIdsObj = ResourceIdType.deserialize(externalIds);
     const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
 

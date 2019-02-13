@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Resource_1 = require("../models/Resource");
 const ResourceIdType_1 = require("../types/ResourceIdType");
-const ResourceType_1 = require("../enums/ResourceType");
 const Reading_1 = require("../models/Reading");
 const ow_types_1 = require("ow_types");
 const moment = require("moment");
+const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 //TODO: this is outdated, update to new cohesive model
 function basicResource(orgId) {
     return Resource_1.Resource.build({
@@ -21,7 +21,7 @@ function basicResource(orgId) {
             createdByUserId: '1'
         },
         // pending: true,
-        resourceType: ResourceType_1.ResourceType.Quality,
+        resourceType: ResourceStationType_1.default.quality,
         //This is broken...
         timeseries: {
             "default": { id: "default" },
@@ -32,7 +32,7 @@ function basicResource(orgId) {
 }
 exports.basicResource = basicResource;
 function basicReading(orgId) {
-    const reading = new Reading_1.Reading(orgId, 'resA', new ow_types_1.OWGeoPoint(35.0123, 35.0123), ResourceType_1.ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType_1.default.none());
+    const reading = new Reading_1.Reading(orgId, 'resA', new ow_types_1.OWGeoPoint(35.0123, 35.0123), ResourceStationType_1.default.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType_1.default.none());
     return reading;
 }
 exports.basicReading = basicReading;
