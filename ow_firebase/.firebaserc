@@ -1,6 +1,6 @@
 {
   "projects": {
-    "development": "our-water-dev"
+    "development": "our-water-dev",
     "production": "our-water"
   }
 }

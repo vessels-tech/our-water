@@ -3,8 +3,29 @@
 #
 
 PROJECT = "OW_FIREBASE"
-
+include .ow_firebase_config
+include /tmp/ow_firebase_env 
 dir = $(shell pwd)
+
+
+env:
+	cat ../env/.env.firebase.${stage}.sh ../env/env.firebase.${stage}.sh > /tmp/ow_firebase_env
+
+
+#
+# eg. make switch orgId="ggmn" stage="development"
+#
+switch:
+	@echo switching to stage: ${stage}
+	@echo 'export stage=${stage}\n' > .ow_firebase_config
+	@make env
+	firebase use ${stage}
+
+switch-dev:
+	make switch stage="development"
+
+switch-prod:
+	make switch stage="production"
 
 update_translations:
 	@echo 'pulling translations'

@@ -17,7 +17,6 @@ export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=500
 
 
-
 export SHOULD_USE_LOCAL_CONFIG='false'
 export CONFIG_TYPE='GGMNDevConfig'
 
