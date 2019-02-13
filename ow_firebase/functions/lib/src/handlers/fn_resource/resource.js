@@ -19,7 +19,7 @@ const util_1 = require("util");
 const ResourceIdType_1 = require("../../common/types/ResourceIdType");
 const ResourceType_1 = require("../../common/enums/ResourceType");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
-const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
+const dep_AppProviderTypes_1 = require("../../common/types/dep_AppProviderTypes");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
 //@ts-ignore
@@ -211,7 +211,7 @@ module.exports = (functions) => {
         /* only add the pending resouces if the user is trying to save new resources */
         if (pendingResources.length > 0) {
             const generateZipResult = yield GGMNApi_1.default.pendingResourcesToZip(pendingResources);
-            if (generateZipResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            if (generateZipResult.type === dep_AppProviderTypes_1.ResultType.ERROR) {
                 console.log("ggmnResourceEmail generateZipResult error", generateZipResult.message);
                 throw new Error(generateZipResult.message);
             }
@@ -219,14 +219,14 @@ module.exports = (functions) => {
         }
         console.log("generated pending resources. Now generating csv");
         const generateCSVResult = yield GGMNApi_1.default.pendingResourceToCSV(pendingResources, pendingReadings, ['GWmMSL', 'GWmBGS']);
-        if (generateCSVResult.type === AppProviderTypes_1.ResultType.ERROR) {
+        if (generateCSVResult.type === dep_AppProviderTypes_1.ResultType.ERROR) {
             console.log("ggmnResourceEmail generateCSVResult error", generateCSVResult.message);
             throw new Error(generateCSVResult.message);
         }
         console.log("generated csv");
         attachments.push({ filename: 'id.csv', path: generateCSVResult.result });
         const sendEmailResult = yield EmailApi_1.default.sendResourceEmail(req.body.email, subject, message, attachments);
-        if (sendEmailResult.type === AppProviderTypes_1.ResultType.ERROR) {
+        if (sendEmailResult.type === dep_AppProviderTypes_1.ResultType.ERROR) {
             console.log("Error sending emails:", sendEmailResult.message);
             throw new Error(sendEmailResult.message);
         }
@@ -298,11 +298,29 @@ module.exports = (functions) => {
         const { orgId } = req.params;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
         const result = yield fbApi.resourcesNearLocation(orgId, latitude, longitude, distance);
-        if (result.type === AppProviderTypes_1.ResultType.ERROR) {
+        if (result.type === dep_AppProviderTypes_1.ResultType.ERROR) {
             next(result.message);
             return;
         }
         res.json(result.result);
+    }));
+    /**
+     * SyncUserData
+     * POST /:orgId/:userId/sync
+     *
+     * Syncronises the user's pendingResources and pendingReadings, and cleans them up
+     * The user MUST be approved before calling this method.
+     *
+     */
+    app.post('/:orgId/:userId/sync', (req, res) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, userId } = req.params;
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        //TODO: check to make sure user is Verified.
+        const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
+        if (syncResult.type === dep_AppProviderTypes_1.ResultType.ERROR) {
+            throw new Error(syncResult.message);
+        }
+        res.status(204).send("true");
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });

@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const AppProviderTypes_1 = require("../types/AppProviderTypes");
+const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 // import {this. } from './FirebaseAdmin';
 const Resource_1 = require("../models/Resource");
 const ShortId_1 = require("../models/ShortId");

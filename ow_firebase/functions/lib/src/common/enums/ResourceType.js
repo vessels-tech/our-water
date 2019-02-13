@@ -1,27 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ResourceType;
-(function (ResourceType) {
-    ResourceType["Well"] = "well";
-    ResourceType["Raingauge"] = "raingauge";
-    ResourceType["Checkdam"] = "checkdam";
-    ResourceType["Quality"] = "quality";
+var DepResourceType;
+(function (DepResourceType) {
+    DepResourceType["Well"] = "well";
+    DepResourceType["Raingauge"] = "raingauge";
+    DepResourceType["Checkdam"] = "checkdam";
+    DepResourceType["Quality"] = "quality";
     // TODO: remove this! HAck for the front end to work
-    ResourceType["well"] = "well";
-    ResourceType["raingauge"] = "raingauge";
-    ResourceType["checkdam"] = "checkdam";
-    ResourceType["quality"] = "quality";
-})(ResourceType = exports.ResourceType || (exports.ResourceType = {}));
+    DepResourceType["well"] = "well";
+    DepResourceType["raingauge"] = "raingauge";
+    DepResourceType["checkdam"] = "checkdam";
+    DepResourceType["quality"] = "quality";
+})(DepResourceType = exports.DepResourceType || (exports.DepResourceType = {}));
 exports.resourceTypeFromString = (type) => {
     switch (type) {
         case 'well':
-            return ResourceType.Well;
+            return DepResourceType.Well;
         case 'raingauge':
-            return ResourceType.Raingauge;
+            return DepResourceType.Raingauge;
         case 'checkdam':
-            return ResourceType.Checkdam;
+            return DepResourceType.Checkdam;
         case 'quality':
-            return ResourceType.Quality;
+            return DepResourceType.Quality;
         default:
             throw new Error(`Unknown ResourceType conversion: ${type}`);
     }

@@ -316,6 +316,7 @@ function getNewConfig() {
             ]),
             showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
+            resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
         };
         return Promise.resolve({
             conditions,

@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
 const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
+const UserType_1 = require("ow_common/lib/enums/UserType");
+const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
 // const admin = require('firebase-admin');
 // admin.initializeApp();
 /**
@@ -11,41 +13,46 @@ const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
  */
 const functionName = process.env.FUNCTION_NAME;
 console.log("init for function", functionName);
-//Org Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
-    exports.org = require('./handlers/fn_org/org')(functions);
-}
-//Group Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
-    exports.group = require('./handlers/fn_group/group')(functions);
-}
-//Resource Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
-    exports.resource = require('./handlers/fn_resource/resource')(functions);
-}
-//Reading Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
-    exports.reading = require('./handlers/fn_reading/reading')(functions);
-}
-//Sync Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
-    exports.sync = require('./handlers/fn_sync/sync')(functions);
-}
-//ShortId Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
-    exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
-}
 //Admin Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
     exports.admin = require('./handlers/fn_admin/admin')(functions);
 }
 //Cron Api
 _a = require('./handlers/fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
+//Group Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
+    exports.group = require('./handlers/fn_group/group')(functions);
+}
+//Org Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
+    exports.org = require('./handlers/fn_org/org')(functions);
+}
+//Public Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'public') {
+    exports.org = require('./handlers/fn_public/public')(functions);
+}
+//Reading Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
+    exports.reading = require('./handlers/fn_reading/reading')(functions);
+}
+//Resource Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
+    exports.resource = require('./handlers/fn_resource/resource')(functions);
+}
+//ShortId Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
+    exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
+}
+//Sync Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
+    exports.sync = require('./handlers/fn_sync/sync')(functions);
+}
 /**
  * userAccountDefaults
  *
  * When a user account is first created, set the defaults:
  * - status: "Unapproved"
+ * - type: "User"
  *
  * //TD: how to define for only some environments?
  * //For now, this is mywell only.
@@ -58,7 +65,10 @@ exports.userAccountDefaults = functions.firestore
     const { userId } = context.params;
     console.log("user id is", userId);
     const userDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
-    return userDoc.set({ status: 'Unapproved' }, { merge: true });
+    return userDoc.set({
+        status: UserStatus_1.default.Unapproved,
+        type: UserType_1.default.User
+    }, { merge: true });
 });
 var _a;
 // const fs = admin.firestore();

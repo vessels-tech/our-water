@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const AppProviderTypes_1 = require("../types/AppProviderTypes");
+const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const utils_1 = require("../utils");
 const Zip_1 = require("./Zip");
 const moment = require("moment");
