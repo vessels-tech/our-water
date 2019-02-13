@@ -23,6 +23,7 @@ import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { PendingTimeseries } from '../../typings/models/PendingTimeseries';
+import { TranslationFile } from 'ow_translations';
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -33,6 +34,7 @@ export interface OwnProps {
 
 export interface StateProps {
   tsReadings: TimeseriesReadings,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -61,13 +63,14 @@ class PendingTimeseriesCard extends Component<OwnProps & StateProps & ActionProp
   }
 
   getNotEnoughReadingsDialog() {
-    //TODO: translations
+    const { timeseries_card_not_enough } = this.props.translation.templates;
+
     return (
       <View style={{
         flex: 10,
         justifyContent: 'center',
       }}>
-        <Text style={{ textAlign: 'center' }}>Not enough readings for this time range.</Text>
+        <Text style={{ textAlign: 'center' }}>{timeseries_card_not_enough}</Text>
       </View>
     );
   }
@@ -132,6 +135,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   return {
     tsReadings: state.tsReadings,
+    translation: state.translation,
   }
 }
 

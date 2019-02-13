@@ -61,6 +61,9 @@ android:
 android-log:
 	@react-native log-android
 
+reinstall-node:
+	rm -rf node_modules; yarn
+
 clean:
 	watchman watch-del-all
 	rm -rf /tmp/ow_env
@@ -108,12 +111,14 @@ build-production:
 	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
 	@echo "signing with key: '${KEYSTORE_PATH}'"
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ${KEYSTORE_PATH} app-release-unsigned.apk -storepass ${KEYSTORE_PASSWORD} ${KEYSTORE_ALIAS}
+	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -f -v 4 app-release-unsigned.apk app-release-signed-aligned.apk
+	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -c -v 4 app-release-signed-aligned.apk
 
 install-android:
 	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
 
 install-android-production:
-	cd ${dir}/android/app/build/outputs/apk/release/ && adb install app-release-unsigned.apk
+	cd ${dir}/android/app/build/outputs/apk/release/ && adb install app-release-signed-aligned.apk
 
 build-and-install:
 	@make bundle build install-android

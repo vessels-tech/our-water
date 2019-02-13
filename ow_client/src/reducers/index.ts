@@ -7,7 +7,7 @@ import { MaybeUser, UserType, MobileUser, UserStatus } from "../typings/UserType
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { getTimeseriesReadingKey, maybeLog, dedupArray } from "../utils";
+import { getTimeseriesReadingKey, maybeLog, dedupArray, arrayExpire, arrayExpireRegionAware, dedupArrayPreserveOrder } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
@@ -18,10 +18,10 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
+import { Region } from "ow_translations/src/Types";
 
 const orgId = EnvConfig.OrgId;
-
-const RESOURCE_CACHE_MAX_SIZE = 350;
+const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
 
 const defaultLanguage = TranslationEnum.en_AU;
 const defaultTranslations = translationsForTranslationOrg(orgId);
@@ -56,7 +56,8 @@ export type AppState = {
   resources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  resourcesCache: CacheType<AnyResource>,
+  // resourcesCache: CacheType<[AnyResource, number]>, //Store the cache type with the timestamp it was loaded into the cache
+  resourcesCache: AnyResource[],
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
   externalOrgsMeta: ActionMeta,
@@ -112,7 +113,8 @@ export const initialState: AppState = {
   resources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourceMeta: {},
-  resourcesCache: {}, 
+  // resourcesCache: {}, 
+  resourcesCache: [],
   externalSyncStatus: { 
     status: ExternalSyncStatusType.COMPLETE,
     pendingResourcesResults: {},
@@ -358,32 +360,26 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         resourcesMeta = {loading: false, error: true, errorMessage: action.result.message}
         return Object.assign({}, state, { resourcesMeta, resources});
       }
-
-      /*Remove things from the cache - this targets items with low ids...*/
-      //TODO: ideally expire them properly, but this will work for now.
-      const over = Object.keys(resourcesCache).length - RESOURCE_CACHE_MAX_SIZE;
-      if (over > 0) {
-        const range = Array(over).fill(1).map((x, y) => x + y);
-        const keys = Object.keys(resourcesCache);
-        range.forEach(idx => {
-          const key = keys[idx];
-          delete resourcesCache[key];
-        });
-      }
-
+      
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
-      newResources.forEach(r => resourcesCache[r.id] = r);
-      /* Transform cache to list of resources*/
-      Object.keys(resourcesCache).forEach(k => {
-        const value = resourcesCache[k];
-        if (value) {
-          resources.push(value)
-        }
-      });
 
-      return Object.assign({}, state, { resourcesMeta, resources, resourcesCache });
+      //Add new resources to cache
+      resourcesCache = resourcesCache.concat(newResources);
+
+      //Deuplicate the cache
+      const preDedupCount = resourcesCache.length;
+      resourcesCache = dedupArrayPreserveOrder(resourcesCache, (r: AnyResource) => r.id);
+      maybeLog(`DEBUG Dedup removed ${preDedupCount - resourcesCache.length} resources`);
+
+      //Expire old elements from the cache, while preserving any visible resources
+      const preExpireCount = resourcesCache.length;
+      resourcesCache = arrayExpireRegionAware(resourcesCache, RESOURCE_CACHE_MAX_SIZE, action.safeArea);
+      maybeLog(`DEBUG  Expire removed ${preExpireCount - resourcesCache.length} resources`);
+      maybeLog("DEBUG resourcesCache.count is", resourcesCache.length);
+
+      return Object.assign({}, state, { resourcesMeta, resources: resourcesCache, resourcesCache });
     }
     case ActionType.GET_SHORT_ID_REQUEST: {
       const shortIdMeta = state.shortIdMeta;
@@ -399,7 +395,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (action.result.type === ResultType.ERROR) {
         meta = { loading: false, error: true, errorMessage: action.result.message };
-        // shortIdMeta.set(action.resourceId, meta);
         shortIdMeta[action.resourceId] = meta;
 
         return Object.assign({}, state, { shortIdMeta });
@@ -407,8 +402,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       shortIdCache[action.resourceId] = action.result.result;
       shortIdMeta[action.resourceId] = meta;
-      // shortIdCache.set(action.resourceId, action.result.result);
-      // shortIdMeta.set(action.resourceId, meta);
 
       return Object.assign({}, state, { shortIdCache, shortIdMeta });
     }

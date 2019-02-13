@@ -13,6 +13,8 @@ import { OrgType } from "../typings/models/OrgType";
 import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
+import { Moment } from "moment";
+import moment = require("moment");
 
 
 /**
@@ -50,6 +52,8 @@ export type RemoteConfig = {
   allowsUserRegistration: boolean,
   translations: TranslationFiles,
   translationOptions: TranslationEnum[],
+  ggmn_ignoreReading: {date: string, value: number},
+  map_regionChangeReloadDebounceTimeMs: number,
 }
 
 /**
@@ -88,7 +92,8 @@ export class ConfigFactory {
     if (this.remoteConfig.baseApiType === BaseApiType.GGMNApi) {
       const options: GGMNApiOptions = {
         baseUrl: this.remoteConfig.ggmnBaseUrl,
-      }
+        // remoteConfig, 
+      };
       const ggmnApi = new GGMNApi(this.networkApi, this.envConfig.orgId, options);
       
       //@ts-ignore
@@ -266,4 +271,24 @@ export class ConfigFactory {
   getTranslationOptions(): TranslationEnum[] {
     return this.remoteConfig.translationOptions;
   }
+
+  getMapRegionChangeDebounceTimeMs(): number {
+    return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
+  }
+
+  // getGGMNIgnoreReadingDate(): Moment {
+  //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
+  //     return moment(this.remoteConfig.ggmn_ignoreReading.date);
+  //   }
+
+  //   return moment("1970-01-01");
+  // }
+
+  // getGGMNIgnoreReadingValue(): number {
+  //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.value) {
+  //     return this.remoteConfig.ggmn_ignoreReading.value;
+  //   }
+
+  //   return 0;
+  // }
 }

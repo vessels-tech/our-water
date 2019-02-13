@@ -13,6 +13,7 @@ export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='true'
 export ENABLE_REDUX_LOGGING='true'
 export ENABLE_CACHE='false'
+export RESOURCE_CACHE_MAX_SIZE=350
 
 #Remote config setup
 export SHOULD_USE_LOCAL_CONFIG='true'
@@ -23,3 +24,4 @@ export CONFIG_TYPE='MyWellDevConfig'
 export APP_NAME="MyWell Dev"
 export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="mywell.debug"
+export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh

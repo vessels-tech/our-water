@@ -16,6 +16,7 @@ import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { maybeLog, convertRangeToDates } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
+import { Cursor } from '../screens/HomeMapScreen';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -142,6 +143,28 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
     return getResourcesResult;
     //TODO: "warm up" the shortId cache
+  }
+
+  /**
+  * Get the resources within a region, paginated
+  * If the region is too large, returns a cursor referring to next page.
+  */
+  async getResourcesWithinRegionPaginated(region: Region, cursor: Cursor): Promise<SomeResult<[AnyResource[], Cursor]>> {
+    maybeLog("WARNING: getResourcesWithinRegionPaginated() not implemented for MyWellApi. Defaulting to getResourcesWithinRegion");
+    const result = await this.getResourcesWithinRegion(region);
+
+    if (result.type === ResultType.ERROR) {
+      return result;
+    }
+
+    const startCursor: Cursor = {
+      hasNext: true,
+      page: 0,
+      limit: 100,
+    };
+
+    const response: [AnyResource[], Cursor] = [result.result, startCursor];
+    return makeSuccess(response);
   }
 
   /**

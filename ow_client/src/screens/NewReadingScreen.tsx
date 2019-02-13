@@ -494,7 +494,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
-  const resource = state.resourcesCache[ownProps.resourceId];
+  const resource = state.resourcesCache.find(r => r.id === ownProps.resourceId);
   let resourceMeta = state.resourceMeta[ownProps.resourceId];
   //TODO: clean this up
   if (!resourceMeta) {

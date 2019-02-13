@@ -117,30 +117,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     maybeLog("     - ", diff(this.state, nextState));
   }
 
-  // shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State): boolean {
-  //   if (Object.keys(diff(this.state, nextState)).length > 0) {
-  //     return true;
-  //   }
-
-  //   // diff function has problems with babel: https://github.com/mattphillips/deep-object-diff/issues/33
-  //   //If the props diff is only functions, then we shouldn't update!
-  //   const propsDiff: any = diff(this.props, nextProps);
-  //   delete propsDiff['renderCounter'];
-  //   const functionsOnly = Object.keys(propsDiff).reduce((acc: boolean, curr: string) => {
-  //     if (acc === false) {
-  //       return acc;
-  //     }
-  //     return typeof propsDiff[curr] === 'function';
-  //   }, true);
-
-  //   if (functionsOnly) {
-  //     maybeLog('ResourceDetailSection shouldComponentUpdate skipping render');
-  //     return !functionsOnly;
-  //   }
-
-  //   return true;
-  // }
-
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
@@ -553,7 +529,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
 
-  const resource = state.resourcesCache[ownProps.resourceId];
+  // const resource = state.resourcesCache[ownProps.resourceId];
+  const resource = state.resourcesCache.find(r => r.id === ownProps.resourceId);
+
   let pendingResource: Maybe<PendingResource>;
   if (ownProps.isPending) {
     const filteredPendingResources = state.pendingSavedResources.filter(r => r.id === ownProps.resourceId);
