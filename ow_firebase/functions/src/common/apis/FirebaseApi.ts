@@ -1,7 +1,6 @@
 import { SomeResult, ResultType, makeSuccess, makeError } from "ow_common/lib/utils/AppProviderTypes";
 
 
-
 import { firestore } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
