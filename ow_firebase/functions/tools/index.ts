@@ -5,25 +5,23 @@ import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationO
 
 export async function getToken(admin: any): Promise<string> {
   return admin.auth().createCustomToken('12345')
-  .then(function (customToken) {
-
+  .then((token: string) => {
     const options = {
       json: true,
       url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.WEB_API_KEY}`,
       method: 'POST',
       body: {
-        token: customToken,
+        token,
         returnSecureToken: true
       },
     };
     return request(options)
   })
-  .then(response => {
-    return response.idToken;
-  })
-  .catch(function (error) {
-    console.log("Error creating custom token:", error);
-  });
+  .then(response => response.idToken)
+  // .catch((error: Error) => {
+  //   console.log("Error creating custom token:", error.message);
+  //   return Promise.reject(error);
+  // });
 }
 
 export async function getAuthHeader(admin: any): Promise<{Authorization: string}> {

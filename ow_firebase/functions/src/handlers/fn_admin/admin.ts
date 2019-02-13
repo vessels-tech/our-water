@@ -8,7 +8,7 @@ import ErrorHandler from '../../common/ErrorHandler';
 import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
-import { validateFirebaseIdToken } from '../../middleware';
+import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
 import { generateQRCode } from '../../common/apis/QRCode';
 import { writeFileAsync } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
@@ -37,8 +37,7 @@ module.exports = (functions) => {
   }
 
   app.use(validateFirebaseIdToken);
-
-  //TODO: figure out how to ensure calling user is Admin?
+  app.use(validateUserIsAdmin);
 
 
   /**
@@ -105,8 +104,7 @@ module.exports = (functions) => {
 
     //TODO: how to make sure only Admin can call this endpoint? 
     //Can we add that as a rule to the Firestore rules?
-    const userApi = new UserApi(orgId, userId);
-
+    const userApi = new UserApi(firestore, orgId);
     const statusResult = await userApi.changeUserType(userId, type);
     if (statusResult.type === ResultType.ERROR) {
       throw new Error(statusResult.message);

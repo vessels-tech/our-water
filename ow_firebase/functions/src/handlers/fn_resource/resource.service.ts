@@ -74,7 +74,6 @@ describe('fn_resource', function () {
       //Act
       const response = await request(options);
       
-      console.log('response', response);
 
       //Assert
     });

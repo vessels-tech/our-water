@@ -6,7 +6,7 @@ import { verifyIdToken } from './middleware';
 import { unsafeUnwrap, ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import * as assert from 'assert';
 
-describe.only('Middleware integration tests', function() {
+describe('Middleware integration tests', function() {
   this.timeout(5000);
   const orgId = process.env.ORG_ID;
   const baseUrl = process.env.BASE_URL;

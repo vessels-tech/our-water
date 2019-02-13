@@ -9,6 +9,7 @@ import { auth as fbAuth } from 'firebase-admin';
 import { UserApi } from 'ow_common/lib/api';
 import { User } from 'ow_common/lib/model/User';
 import UserType from 'ow_common/lib/enums/UserType';
+import { unsafelyGetOrgId } from './common/utils';
 type DecodedIdToken = fbAuth.DecodedIdToken;
 
 
@@ -60,8 +61,15 @@ export const validateUserIsAdmin = (req, res, next) => {
     return;
   }
 
-  //TODO: getOrgId from the request somehow
-  const orgId = "unknown";
+  console.log("req.params", req.originalUrl);
+
+  const orgId = unsafelyGetOrgId(req.originalUrl);
+  if (!orgId) {
+    console.warn("No orgId found on req.params.");
+    res.status(400).send('Could not find orgId on request params');
+    return;
+  }
+
   const userApi = new UserApi(firestore, orgId);
   return getIsUserAdmin(userApi, orgId, userId)
   .then((result) => {

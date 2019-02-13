@@ -39,7 +39,7 @@ module.exports = (functions) => {
         morganBody(app);
     }
     app.use(middleware_1.validateFirebaseIdToken);
-    //TODO: figure out how to ensure calling user is Admin?
+    app.use(middleware_1.validateUserIsAdmin);
     /**
      * ChangeUserStatus
      * PATCH /:orgId/:userId/status
@@ -94,7 +94,7 @@ module.exports = (functions) => {
         const { type } = req.body;
         //TODO: how to make sure only Admin can call this endpoint? 
         //Can we add that as a rule to the Firestore rules?
-        const userApi = new api_1.UserApi(orgId, userId);
+        const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
         const statusResult = yield userApi.changeUserType(userId, type);
         if (statusResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(statusResult.message);

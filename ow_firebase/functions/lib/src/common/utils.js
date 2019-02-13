@@ -342,4 +342,19 @@ function chunkArray(array, size) {
     return chunks;
 }
 exports.chunkArray = chunkArray;
+/**
+ * Express middleware has no access to the req.params, but
+ * sometimes we still need the orgId in the middleware.
+ *
+ * Pass in req.originalUrl, and we will try to get the OrgId
+ *
+ */
+function unsafelyGetOrgId(originalUrl) {
+    const params = originalUrl.split('/');
+    if (params.length === 0) {
+        return null;
+    }
+    return params[1];
+}
+exports.unsafelyGetOrgId = unsafelyGetOrgId;
 //# sourceMappingURL=utils.js.map

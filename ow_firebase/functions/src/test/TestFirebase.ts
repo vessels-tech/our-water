@@ -1,13 +1,15 @@
 import * as admin from "firebase-admin";
+import { Maybe, isUndefined } from "ow_common/lib/utils/Maybe";
+type Firestore = admin.firestore.Firestore;
+
+// const admin = require('firebase-admin');
 
 
 /* Not in git. Download from FB console*/
-// const serviceAccount = require('./.serviceAccountKey.json');
 const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
-console.log("importing service account from", serviceAccountKeyFile);
 const serviceAccount = require(serviceAccountKeyFile);
 
-let firestore;
+let firestore: Firestore
 
 if (admin.apps.length === 0) {
   admin.initializeApp({
@@ -22,13 +24,24 @@ if (admin.apps.length === 0) {
 }
 
 const auth = admin.auth();
-if (!firestore) {
+if (isUndefined(firestore)) {
   firestore = admin.firestore();
 }
 
+// const myExports: {
+//   admin: any
+//   auth: any
+//   firestore: Firestore,
+// } = {
+//   admin,
+//   auth,
+//   firestore
+// }
+
+// export default myExports;
 
 export {
   admin,
   auth,
-  firestore,
-}
+  firestore
+};

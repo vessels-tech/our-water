@@ -13,24 +13,23 @@ const ow_translations_1 = require("ow_translations");
 function getToken(admin) {
     return __awaiter(this, void 0, void 0, function* () {
         return admin.auth().createCustomToken('12345')
-            .then(function (customToken) {
+            .then((token) => {
             const options = {
                 json: true,
                 url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.WEB_API_KEY}`,
                 method: 'POST',
                 body: {
-                    token: customToken,
+                    token,
                     returnSecureToken: true
                 },
             };
             return request(options);
         })
-            .then(response => {
-            return response.idToken;
-        })
-            .catch(function (error) {
-            console.log("Error creating custom token:", error);
-        });
+            .then(response => response.idToken);
+        // .catch((error: Error) => {
+        //   console.log("Error creating custom token:", error.message);
+        //   return Promise.reject(error);
+        // });
     });
 }
 exports.getToken = getToken;

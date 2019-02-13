@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 exports.admin = admin;
+const Maybe_1 = require("ow_common/lib/utils/Maybe");
+// const admin = require('firebase-admin');
 /* Not in git. Download from FB console*/
-// const serviceAccount = require('./.serviceAccountKey.json');
 const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
-console.log("importing service account from", serviceAccountKeyFile);
 const serviceAccount = require(serviceAccountKeyFile);
 let firestore;
 exports.firestore = firestore;
@@ -20,7 +20,7 @@ if (admin.apps.length === 0) {
 }
 const auth = admin.auth();
 exports.auth = auth;
-if (!firestore) {
+if (Maybe_1.isUndefined(firestore)) {
     exports.firestore = firestore = admin.firestore();
 }
 //# sourceMappingURL=TestFirebase.js.map

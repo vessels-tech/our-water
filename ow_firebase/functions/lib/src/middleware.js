@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Firebase admin middleware
@@ -7,12 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
+const api_1 = require("ow_common/lib/api");
+const UserType_1 = require("ow_common/lib/enums/UserType");
+const utils_1 = require("./common/utils");
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 exports.validateFirebaseIdToken = (req, res, next) => {
-    console.log('Check if request is authorized with Firebase ID token');
     const validateResult = getIdToken(req);
     if (validateResult.type === AppProviderTypes_1.ResultType.ERROR) {
         res.status(403).send('Unauthorized');
@@ -30,17 +40,59 @@ exports.validateFirebaseIdToken = (req, res, next) => {
         return next();
     });
 };
+const get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
 /**
  * validateUserIsAdmin
  *
  * Middleware that looks up the user object, and ensures they are an administrator!
+ * Assumes you are using with validateFirebaseIdToken to inject the user Id, otherwise
+ * req.user will be null
+ *
  * @param req
  * @param res
  * @param next
  */
 exports.validateUserIsAdmin = (req, res, next) => {
-    //TODO: implement!
+    const userId = get(req, ['user', 'uid']);
+    if (!userId) {
+        console.warn("No user found on req object. You should be using validateFirebaseIdToken middleware before this middleware.");
+        res.status(403).send('Unauthorized');
+        return;
+    }
+    console.log("req.params", req.originalUrl);
+    const orgId = utils_1.unsafelyGetOrgId(req.originalUrl);
+    if (!orgId) {
+        console.warn("No orgId found on req.params.");
+        res.status(400).send('Could not find orgId on request params');
+        return;
+    }
+    const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
+    return getIsUserAdmin(userApi, orgId, userId)
+        .then((result) => {
+        if (result.type === AppProviderTypes_1.ResultType.ERROR) {
+            res.status(403).send('Unauthorized');
+            return;
+        }
+        return next();
+    })
+        .catch((err) => {
+        res.status(403).send('Unauthorized');
+        return;
+    });
 };
+function getIsUserAdmin(userApi, orgId, userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const userResult = yield userApi.getUser(userApi.userRef(orgId, userId));
+        if (userResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            return AppProviderTypes_1.makeError(userResult.message);
+        }
+        if (userResult.result.type !== UserType_1.default.Admin) {
+            return AppProviderTypes_1.makeError('User is not admin.');
+        }
+        return AppProviderTypes_1.makeSuccess(undefined);
+    });
+}
+exports.getIsUserAdmin = getIsUserAdmin;
 /**
  * getIdToken
  *
