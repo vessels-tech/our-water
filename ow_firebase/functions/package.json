@@ -17,7 +17,7 @@
   },
   "main": "lib/src/index.js",
   "dependencies": {
-    "ow_common": "0.1.5",
+    "ow_common": "0.1.8",
     "@firebase/app-types": "0.x",
     "@google-cloud/storage": "^1.7.0",
     "@types/mocha": "^5.2.5",
@@ -32,7 +32,7 @@
     "express-async-errors": "^3.1.1",
     "express-fileupload": "^0.4.0",
     "express-validation": "^1.0.2",
-    "firebase-admin": "^5.13.1",
+    "firebase-admin": "^7.0.0",
     "firebase-app": "^0.0.1",
     "firebase-functions": "^2.0.2",
     "google-auth-library": "^2.0.1",
