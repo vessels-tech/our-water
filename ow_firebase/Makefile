@@ -72,7 +72,7 @@ run_lt:
 	@lt --subdomain ourwater --port 5000
 
 get_token:
-	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && node generate_token.js
+	@source /tmp/ow_firebase_env && cd ${dir}/functions/tools/ && node generate_token.js
 
 test-unit:
 	#TODO: refactor!

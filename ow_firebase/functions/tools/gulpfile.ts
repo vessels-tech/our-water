@@ -10,7 +10,8 @@ import { readingToCSV, readingHeading } from './csv';
 
 var fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
-const key = require('../src/test/.serviceAccountKey.json');
+const serviceAccountKeyFile = `../src/test/${process.env.service_account_key_filename}`;
+const key = require(serviceAccountKeyFile);
 const baseUrl = process.env.REACT_APP_BASE_URL;
 const orgId = process.env.REACT_APP_ORG_ID;
 
