@@ -10,7 +10,7 @@ import * as MockFirebase from 'mock-cloud-firestore';
 import ShortId from '../models/ShortId';
 import { pad, hashReadingId } from '../utils';
 import { Reading } from '../models/Reading';
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from '../types/ResourceIdType';
 import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
@@ -18,6 +18,7 @@ import * as moment from 'moment';
 import { pendingResourcesData, basicResource, basicReading } from '../test/Data';
 import { getAllReadings, getAllResources } from '../test/TestUtils';
 import { Resource } from '../models/Resource';
+import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -30,16 +31,15 @@ describe('Firebase Api', function() {
     const readingIds = [];
     const fbApi = new FirebaseApi(firestore);
 
-
     before(async () => {
       //TODO: create a bunch of readings
       newReadings = [
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
-        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
-        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
+        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
+        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
       ];
 
       await fbApi.batchSaveReadings(newReadings);
@@ -68,7 +68,7 @@ describe('Firebase Api', function() {
 
     after(async () => {
       //Clean up the readings;
-      // FirebaseApi.batchDelete(firestore, newReadings, readingIds);
+      fbApi.batchDelete(firestore, newReadings, readingIds);
     })
   });
 

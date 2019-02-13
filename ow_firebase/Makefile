@@ -74,6 +74,11 @@ run_lt:
 get_token:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && node generate_token.js
 
+test-unit:
+	#TODO: refactor!
+	@ cd ${dir}/functions; ./_unit_tests.sh
+
+
 #
 # Deployment
 # ------------
