@@ -27,3 +27,5 @@ export const outboundEmailAddress = envConfig.config.outbound_email_address;
 export const outboundEmailPassword = envConfig.config.outbound_email_password;
 export const shouldSendEmails = getBoolean(envConfig.config.should_send_emails);
 export const testEmailWhitelist = asList(envConfig.config.test_email_whitelist);
+export const backupServiceAccountKeyFilename = envConfig.config.backup_service_account_key_filename
+export const backupBucketName = envConfig.config.backup_bucket_name

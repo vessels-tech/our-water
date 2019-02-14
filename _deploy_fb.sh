@@ -20,7 +20,9 @@ firebase functions:config:set \
   config.outbound_email_address=$outbound_email_address \
   config.outbound_email_password=$outbound_email_password \
   config.should_send_emails=$should_send_emails \
-  config.test_email_whitelist=$test_email_whitelist
+  config.test_email_whitelist=$test_email_whitelist \
+  config.backup_service_account_key_filename=$backup_service_account_key_filename \
+  config.backup_bucket_name=$backup_bucket_name
 
 
 # deploy

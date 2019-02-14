@@ -31,18 +31,18 @@ switch-prod:
 #	Remote Config
 # ------------
 
-update_translations:
+update-translations:
 	@echo 'pulling translations'
 	cd ${dir}/../ow_translations && make 
 
 	@make install_translations
 	@make update_remote_config
 
-install_translations:
+install-translations:
 	@echo 'installing latest packages'
 	cd ${dir}/functions && npm install
 	
-update_remote_config:
+update-remote_config:
 	@echo 'deploying remote config'
 	cd ${dir}/functions/tools && gulp deploy_remote_config
 
@@ -53,12 +53,12 @@ update_remote_config:
 hacky_create_syncs:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp upload_readings_from_csv
 
-run_local:
+run-local:
 	@echo 'running local firebase'	
 	cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
-function_shell:
+function-shell:
 	@echo running firebase shell
 	# EG: 
 	# mock wildcards in path, for example: if the path was input/{group}/{id}
@@ -68,10 +68,10 @@ function_shell:
 watch:
 	@cd ${dir}/functions && yarn run watch
 
-run_lt:
+run-lt:
 	@lt --subdomain ourwater --port 5000
 
-get_token:
+get-token:
 	@source /tmp/ow_firebase_env && cd ${dir}/functions/tools/ && node generate_token.js
 
 test-unit:
@@ -81,6 +81,12 @@ test-unit:
 test-service:
 	#TODO: refactor!
 	@cd ${dir}/functions; ./_service_tests.sh
+
+clean-node:
+	@cd ${dir}/functions; rm -rf node_modules
+
+install:
+	@cd ${dir}/functions; yarn
 
 
 #

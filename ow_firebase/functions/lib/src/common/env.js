@@ -24,4 +24,6 @@ exports.outboundEmailAddress = envConfig.config.outbound_email_address;
 exports.outboundEmailPassword = envConfig.config.outbound_email_password;
 exports.shouldSendEmails = getBoolean(envConfig.config.should_send_emails);
 exports.testEmailWhitelist = asList(envConfig.config.test_email_whitelist);
+exports.backupServiceAccountKeyFilename = envConfig.config.backup_service_account_key_filename;
+exports.backupBucketName = envConfig.config.backup_bucket_name;
 //# sourceMappingURL=env.js.map

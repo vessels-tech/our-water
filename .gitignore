@@ -6,5 +6,6 @@ node_modules
 *google-services.json
 *.keystore
 .backupServiceAccountKey.js
+.backupServiceAccountKey*.js
 ow_common_setup
 

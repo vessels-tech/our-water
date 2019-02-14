@@ -1,3 +1,5 @@
 
 export should_send_emails=true
 export service_account_key_filename=.serviceAccountKey.json
+export backup_service_account_key_filename=.backupServiceAccountKey.json
+export backup_bucket_name=our-water-backup
