@@ -5,6 +5,7 @@ import { snapshotToSyncList } from '../../common/utils';
 import { SomeResult, makeError } from 'ow_common/lib/utils/AppProviderTypes';
 import { makeSuccess } from '../../common/types/dep_AppProviderTypes';
 import { backupBucketName } from '../../common/env';
+import FirebaseApi from '../../common/apis/FirebaseApi';
 const request = require('request-promise-native');
 
 
@@ -60,8 +61,20 @@ export default class CronUtils {
   /**
    * Search firebase storage for backups that should be deleted
    */
-  public static getBackupsToExpire(accessToken: string, backupDate: string): Promise<SomeResult<Array<string>>> {
+  public static async getBackupsToExpire(storage: any, accessToken: string, backupDate: string): Promise<SomeResult<Array<string>>> {
     //format is: gs://${backupBucketName}/2019-01-12T04:55:04_75044/
+    // const bucket = storage.bucket(`gs://${backupBucketName}`);
+    const bucket = storage.bucket(`our-water-dev`);
+    console.log("bucketname is", backupBucketName);
+
+    // console.log("bucket is", bucket);
+
+    const filesResult = await bucket.getFiles()
+    console.log("filesResult", filesResult);
+    
+
+
+
 
     return null;
 

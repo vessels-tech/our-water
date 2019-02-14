@@ -15,7 +15,7 @@ if (admin.apps.length === 0) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     // databaseURL: databaseUrl,
-    // storageBucket,
+    // storageBucket: 'our-water-dev'
   });
   firestore = admin.firestore();
   const settings = { timestampsInSnapshots: true };
@@ -28,20 +28,9 @@ if (isUndefined(firestore)) {
   firestore = admin.firestore();
 }
 
-// const myExports: {
-//   admin: any
-//   auth: any
-//   firestore: Firestore,
-// } = {
-//   admin,
-//   auth,
-//   firestore
-// }
-
-// export default myExports;
-
 export {
   admin,
   auth,
-  firestore
+  firestore,
+  
 };

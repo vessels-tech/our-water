@@ -55,7 +55,7 @@ hacky_create_syncs:
 
 run-local:
 	@echo 'running local firebase'	
-	cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
+	# cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
 function-shell:

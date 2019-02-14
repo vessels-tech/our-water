@@ -6,8 +6,11 @@ import { getBackupAccessToken } from '../../../tools';
 import CronUtils from './CronUtils';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import { backupServiceAccountKeyFilename } from '../../common/env';
+import { admin } from '../../common/apis/FirebaseAdmin';
 
-const backupKey = require(`${backupServiceAccountKeyFilename}`);
+//For some reason, we can't import these at runtime, so need to import all of them here.
+import * as prodBackupKey from './.backupServiceAccountKey';
+import * as devBackupKey from './.backupServiceAccountKey.development';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");
@@ -22,6 +25,10 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 
 const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) => {
+  let backupKey = prodBackupKey;
+  if (backupServiceAccountKeyFilename.indexOf('development') > -1) {
+    backupKey = devBackupKey;
+  }
 
   const accessToken = await getBackupAccessToken(backupKey);
 
@@ -33,15 +40,15 @@ const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) =
     CronUtils.backupDatabase(accessToken)
       .catch((err: Error) => console.warn("Error backing up db", err)),
 
-    CronUtils.getBackupsToExpire(accessToken, expiryDate)
-    .then((result) => {
-      if (result.type === ResultType.ERROR) {
-        console.warn(result.message);
-        return;
-      }
-      return Promise.all(result.result.map((path) => CronUtils.deleteBackup(path)));
-    })
-    .catch((err: Error) => console.warn("Error deleting backups", err))
+    // CronUtils.getBackupsToExpire(admin.storage(), accessToken, expiryDate)
+    // .then((result) => {
+    //   if (result.type === ResultType.ERROR) {
+    //     console.warn(result.message);
+    //     return;
+    //   }
+    //   return Promise.all(result.result.map((path) => CronUtils.deleteBackup(path)));
+    // })
+    // .catch((err: Error) => console.warn("Error deleting backups", err))
   ]);  
 });
 
