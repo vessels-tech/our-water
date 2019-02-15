@@ -41,4 +41,4 @@ firebase deploy --only functions
 #gcloud app deploy app.yaml cron.yaml
 
 ## Get any remote firebase config
-firebase functions:config:get > "$DIR"/ow_firebase/functions/.runtimeconfig.json
+firebase functions:config:get > "$DIR"/functions/.runtimeconfig.json

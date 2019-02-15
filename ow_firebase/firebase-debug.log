@@ -1,76 +1,34 @@
-[debug] [2019-02-14T10:02:42.904Z] ----------------------------------------------------------------------
-[debug] [2019-02-14T10:02:42.906Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
-[debug] [2019-02-14T10:02:42.906Z] CLI Version:   6.1.0
-[debug] [2019-02-14T10:02:42.906Z] Platform:      darwin
-[debug] [2019-02-14T10:02:42.907Z] Node Version:  v8.11.1
-[debug] [2019-02-14T10:02:42.907Z] Time:          Thu Feb 14 2019 18:02:42 GMT+0800 (PST)
-[debug] [2019-02-14T10:02:42.907Z] ----------------------------------------------------------------------
+[debug] [2019-02-15T02:23:28.671Z] ----------------------------------------------------------------------
+[debug] [2019-02-15T02:23:28.673Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
+[debug] [2019-02-15T02:23:28.673Z] CLI Version:   6.1.0
+[debug] [2019-02-15T02:23:28.673Z] Platform:      darwin
+[debug] [2019-02-15T02:23:28.673Z] Node Version:  v8.11.1
+[debug] [2019-02-15T02:23:28.674Z] Time:          Fri Feb 15 2019 10:23:28 GMT+0800 (PST)
+[debug] [2019-02-15T02:23:28.674Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2019-02-14T10:02:42.919Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2019-02-14T10:02:42.919Z] > authorizing via signed-in user
-[debug] [2019-02-14T10:02:42.920Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
-[debug] [2019-02-14T10:02:42.922Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
+[debug] [2019-02-15T02:23:28.684Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-02-15T02:23:28.684Z] > authorizing via signed-in user
+[debug] [2019-02-15T02:23:28.684Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
+[debug] [2019-02-15T02:23:28.686Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
 
-[debug] [2019-02-14T10:02:44.180Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-14T10:02:44.182Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev  
+[debug] [2019-02-15T02:23:29.857Z] <<< HTTP RESPONSE 200
+[debug] [2019-02-15T02:23:29.858Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev  
  
-[debug] [2019-02-14T10:02:45.416Z] <<< HTTP RESPONSE 200
+[debug] [2019-02-15T02:23:31.009Z] <<< HTTP RESPONSE 200
 [info] 
 [info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
 [info] 
 [info] i  functions: Preparing to emulate functions.
-[debug] [2019-02-14T10:02:45.918Z] Fetching environment
-[debug] [2019-02-14T10:02:45.919Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2019-02-14T10:02:45.919Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
- <request body omitted>
-[debug] [2019-02-14T10:02:46.257Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-14T10:02:46.272Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/329144717293:getServerAppConfig  
+[debug] [2019-02-15T02:23:31.500Z] Fetching environment
+[debug] [2019-02-15T02:23:31.502Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/329144717293:getServerAppConfig  
  
-[debug] [2019-02-14T10:02:46.802Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-14T10:02:46.802Z] Starting @google-cloud/functions-emulator
-[debug] [2019-02-14T10:02:48.374Z] Parsing function triggers
+[debug] [2019-02-15T02:23:31.955Z] <<< HTTP RESPONSE 200
+[debug] [2019-02-15T02:23:31.955Z] Starting @google-cloud/functions-emulator
+[debug] [2019-02-15T02:23:33.525Z] Parsing function triggers
+[info] ✔  functions: reading: http://localhost:5000/our-water-dev/us-central1/reading
 [info] ✔  functions: group: http://localhost:5000/our-water-dev/us-central1/group
 [info] ✔  functions: org: http://localhost:5000/our-water-dev/us-central1/org
-[info] ✔  functions: sync: http://localhost:5000/our-water-dev/us-central1/sync
-[info] ✔  functions: shortId: http://localhost:5000/our-water-dev/us-central1/shortId
-[info] ✔  functions: resource: http://localhost:5000/our-water-dev/us-central1/resource
 [info] ✔  functions: admin: http://localhost:5000/our-water-dev/us-central1/admin
-[info] ✔  functions: reading: http://localhost:5000/our-water-dev/us-central1/reading
-[debug] [2019-02-15T02:03:13.678Z] ----------------------------------------------------------------------
-[debug] [2019-02-15T02:03:13.680Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase serve --only functions
-[debug] [2019-02-15T02:03:13.680Z] CLI Version:   6.1.0
-[debug] [2019-02-15T02:03:13.680Z] Platform:      darwin
-[debug] [2019-02-15T02:03:13.680Z] Node Version:  v8.11.1
-[debug] [2019-02-15T02:03:13.681Z] Time:          Fri Feb 15 2019 10:03:13 GMT+0800 (PST)
-[debug] [2019-02-15T02:03:13.681Z] ----------------------------------------------------------------------
-[debug] 
-[debug] [2019-02-15T02:03:13.692Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2019-02-15T02:03:13.693Z] > authorizing via signed-in user
-[debug] [2019-02-15T02:03:13.693Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
-[debug] [2019-02-15T02:03:13.694Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2019-02-15T02:03:13.695Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
- <request body omitted>
-[debug] [2019-02-15T02:03:13.974Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-15T02:03:13.992Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
-
-[debug] [2019-02-15T02:03:15.240Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-15T02:03:15.241Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev  
- 
-[debug] [2019-02-15T02:03:16.388Z] <<< HTTP RESPONSE 200
-[info] 
-[info] === Serving from '/Users/ldaly/developer/vessels/our-water/ow_firebase'...
-[info] 
-[info] i  functions: Preparing to emulate functions.
-[debug] [2019-02-15T02:03:17.043Z] Fetching environment
-[debug] [2019-02-15T02:03:17.045Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/329144717293:getServerAppConfig  
- 
-[debug] [2019-02-15T02:03:17.736Z] <<< HTTP RESPONSE 200
-[debug] [2019-02-15T02:03:17.736Z] Starting @google-cloud/functions-emulator
-[debug] [2019-02-15T02:03:19.307Z] Parsing function triggers
-[info] ✔  functions: org: http://localhost:5000/our-water-dev/us-central1/org
-[info] ✔  functions: group: http://localhost:5000/our-water-dev/us-central1/group
-[info] ✔  functions: admin: http://localhost:5000/our-water-dev/us-central1/admin
-[info] ✔  functions: sync: http://localhost:5000/our-water-dev/us-central1/sync
-[info] ✔  functions: reading: http://localhost:5000/our-water-dev/us-central1/reading
-[info] ✔  functions: shortId: http://localhost:5000/our-water-dev/us-central1/shortId
 [info] ✔  functions: resource: http://localhost:5000/our-water-dev/us-central1/resource
+[info] ✔  functions: shortId: http://localhost:5000/our-water-dev/us-central1/shortId
+[info] ✔  functions: sync: http://localhost:5000/our-water-dev/us-central1/sync

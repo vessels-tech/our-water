@@ -6,8 +6,9 @@ let firestore;
 if (admin.apps.length === 0) {
   admin.initializeApp();
   firestore = admin.firestore();
-  const settings = { timestampsInSnapshots: true };
-  console.log("FirebaseAdmin calling firestore.settings");
+  // const settings = { timestampsInSnapshots: true };
+  const settings = { };
+  // console.log("FirebaseAdmin calling firestore.settings");
   firestore.settings(settings);
 }
 

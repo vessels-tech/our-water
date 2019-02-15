@@ -19,13 +19,15 @@ type DecodedIdToken = fbAuth.DecodedIdToken;
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 export const validateFirebaseIdToken = (req, res, next) => {
-
   //Allow a master token to be used to get through the authentication.
-  const insecureToken = get(req, ['headers', 'insecureToken']);
+  const insecureToken = get(req, ['headers', 'insecure_token']);
   if (insecureToken && insecureToken !== temporaryAdminAccessToken) {
+    console.warn("Found invalid insecure token.");
     res.status(403).send('Unauthorized');
     return;
   }
+
+  console.log("insecure token is", insecureToken);
 
   if (insecureToken) {
     console.warn("Using insecure access token. This should be replaced");

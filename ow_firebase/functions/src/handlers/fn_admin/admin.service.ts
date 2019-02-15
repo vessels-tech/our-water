@@ -36,7 +36,6 @@ describe('Admin integration tests', function () {
   
   it('changes the user status to Admin', async () => {
     //Arrange
-
     const body = {
       type: UserType.Admin,
     };
@@ -55,6 +54,28 @@ describe('Admin integration tests', function () {
     
     //Assert
 
+  });
+
+  it('changes the user status to Admin with the insecure token', async () => {
+    //Arrange
+    const insecure_token = process.env.temporary_admin_access_token;
+    const body = {
+      type: UserType.Admin,
+    };
+    const options = {
+      method: 'PATCH',
+      uri: `${baseUrl}/admin/${orgId}/${userId}/type`,
+      json: true,
+      body,
+      headers: {
+        insecure_token,
+      }
+    }
+
+    //Act 
+    const response = await request(options);
+
+    //Assert
   });
 
   this.afterAll(async () => {

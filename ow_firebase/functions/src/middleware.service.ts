@@ -41,5 +41,4 @@ describe('Middleware integration tests', function() {
     assert.equal(verifyToken.type, expected);
   });  
 
- 
 });

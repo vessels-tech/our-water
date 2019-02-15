@@ -25,11 +25,13 @@ const env_1 = require("./common/env");
 // when decoded successfully, the ID Token content will be added as `req.user`.
 exports.validateFirebaseIdToken = (req, res, next) => {
     //Allow a master token to be used to get through the authentication.
-    const insecureToken = utils_1.get(req, ['headers', 'insecureToken']);
+    const insecureToken = utils_1.get(req, ['headers', 'insecure_token']);
     if (insecureToken && insecureToken !== env_1.temporaryAdminAccessToken) {
+        console.warn("Found invalid insecure token.");
         res.status(403).send('Unauthorized');
         return;
     }
+    console.log("insecure token is", insecureToken);
     if (insecureToken) {
         console.warn("Using insecure access token. This should be replaced");
         req.user = { uid: env_1.temporaryAdminUserId };
