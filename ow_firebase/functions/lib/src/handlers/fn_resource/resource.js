@@ -21,16 +21,13 @@ const ResourceType_1 = require("../../common/enums/ResourceType");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
-//@ts-ignore
-const morgan = require("morgan");
-//@ts-ignore
-const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
 const EmailApi_1 = require("../../common/apis/EmailApi");
 const ow_types_1 = require("ow_types");
 const GGMNApi_1 = require("../../common/apis/GGMNApi");
 const middleware_1 = require("../../middleware");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
+const utils_1 = require("../../common/utils");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -38,14 +35,7 @@ require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    if (process.env.VERBOSE_LOG === 'false') {
-        console.log('Using simple log');
-        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-    }
-    else {
-        console.log('Using verbose log');
-        morganBody(app);
-    }
+    utils_1.enableLogging(app);
     app.use(middleware_1.validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return FirebaseAdmin_1.firestore.collection('org').doc(orgId)

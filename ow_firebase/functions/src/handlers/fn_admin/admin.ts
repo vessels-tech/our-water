@@ -10,7 +10,7 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
 import { generateQRCode } from '../../common/apis/QRCode';
-import { writeFileAsync } from '../../common/utils';
+import { writeFileAsync, enableLogging } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
@@ -27,15 +27,7 @@ require('express-async-errors');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
-
+  enableLogging(app);
   app.use(validateFirebaseIdToken);
   app.use(validateUserIsAdmin);
 

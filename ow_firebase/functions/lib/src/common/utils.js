@@ -8,6 +8,7 @@ const SyncRun_1 = require("./models/SyncRun");
 const ow_types_1 = require("ow_types");
 const btoa = require("btoa");
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
+const env_1 = require("./env");
 const filesystem = require("fs");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
@@ -364,4 +365,19 @@ exports.unsafelyGetOrgId = unsafelyGetOrgId;
  *   const userId = get(req, ['user', 'uid']);
  */
 exports.get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
+//@ts-ignore
+const morgan = require("morgan");
+//@ts-ignore
+const morganBody = require("morgan-body");
+function enableLogging(app) {
+    if (!env_1.verboseLog) {
+        console.log('Using simple log');
+        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+    }
+    else {
+        console.log('Using verbose log');
+        morganBody(app);
+    }
+}
+exports.enableLogging = enableLogging;
 //# sourceMappingURL=utils.js.map

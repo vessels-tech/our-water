@@ -12,11 +12,8 @@ const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
-//@ts-ignore
-const morgan = require("morgan");
-//@ts-ignore
-const morganBody = require("morgan-body");
 const middleware_1 = require("../../middleware");
+const utils_1 = require("../../common/utils");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
@@ -30,14 +27,7 @@ require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    if (process.env.VERBOSE_LOG === 'false') {
-        console.log('Using simple log');
-        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-    }
-    else {
-        console.log('Using verbose log');
-        morganBody(app);
-    }
+    utils_1.enableLogging(app);
     app.use(middleware_1.validateFirebaseIdToken);
     app.use(middleware_1.validateUserIsAdmin);
     /**

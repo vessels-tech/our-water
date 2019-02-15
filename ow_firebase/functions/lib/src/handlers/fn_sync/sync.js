@@ -28,10 +28,12 @@ const FileDatasource_1 = require("../../common/models/Datasources/FileDatasource
 const FileDatasourceOptions_1 = require("../../common/models/FileDatasourceOptions");
 const validate_1 = require("./validate");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const utils_1 = require("../../common/utils");
 module.exports = (functions) => {
     const app = express();
     app.use(fileUpload());
     app.use(bodyParser.json());
+    utils_1.enableLogging(app);
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
     app.use(openCors);

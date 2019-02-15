@@ -38,7 +38,7 @@
     "jsx-no-multiline-js": false,
     "jsx-no-string-ref": false,
     "object-literal-sort-keys": [
-      true,
+      false,
       "match-declaration-order"
     ]  
   }

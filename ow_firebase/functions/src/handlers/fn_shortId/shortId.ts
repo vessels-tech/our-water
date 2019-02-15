@@ -11,6 +11,7 @@ import FirebaseApi from '../../common/apis/FirebaseApi';
 
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import { enableLogging } from '../../common/utils';
 
 // import FirebaseApi from '../common/apis/FirebaseApi';
 
@@ -22,27 +23,19 @@ const Joi = require('joi');
 module.exports = (functions: any) => {
   const app = express();
   app.use(bodyParser.json());
+  enableLogging(app);
 
-
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
   /**
- * createShortId
- * 
- * @description 
- * Creates a shortId for a resource. If the shortId already exists,
- * it returns the existing one.
- * 
- * 
- * POST /:orgId/
- * body: { resourceId: string }
- */
-
+   * createShortId
+   * 
+   * @description 
+   * Creates a shortId for a resource. If the shortId already exists,
+   * it returns the existing one.
+   * 
+   * 
+   * POST /:orgId/
+   * body: { resourceId: string }
+   */
   const createShortIdValidation = {
     body: {
       resourceId: Joi.string().required()

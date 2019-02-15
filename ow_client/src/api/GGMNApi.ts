@@ -1,7 +1,7 @@
 import BaseApi from "./BaseApi";
 import NetworkApi from "./NetworkApi";
 import { RNFirebase, Firebase } from "react-native-firebase";
-import FirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
+import DeprecatedFirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
 import { default as ftch } from '../utils/Fetch';
@@ -393,12 +393,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Add a resource to the recently viewed list
    */
   addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
-    return FirebaseApi.addRecentResource(this.orgId, resource, userId);
+    return DeprecatedFirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
   addFavouriteResource(resource: AnyResource, userId: string): Promise<SomeResult<void>> {
 
-    return FirebaseApi.addFavouriteResource(this.orgId, resource, userId)
+    return DeprecatedFirebaseApi.addFavouriteResource(this.orgId, resource, userId)
     .then(() => {
       const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
       return result;
@@ -406,7 +406,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   removeFavouriteResource(resourceId: string, userId: string): Promise<SomeResult<void>> {
-    return FirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId)
+    return DeprecatedFirebaseApi.removeFavouriteResource(this.orgId, resourceId, userId)
     .then(() => {
       const result: SomeResult<void> = { type: ResultType.SUCCESS, result: undefined };
       return result;
@@ -414,7 +414,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   isResourceInFavourites(resourceId: string, userId: string): Promise<boolean> {
-    return FirebaseApi.isInFavourites(this.orgId, resourceId, userId);
+    return DeprecatedFirebaseApi.isInFavourites(this.orgId, resourceId, userId);
   }
 
 
@@ -760,7 +760,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    */
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
     reading.type = OrgType.GGMN;
-    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
+    const saveResult = await DeprecatedFirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       return {
         type: ResultType.ERROR,
@@ -788,7 +788,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.GGMN;    
-    const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
+    const saveResult = await DeprecatedFirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
         type: ResultType.ERROR,
@@ -859,8 +859,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Returns immediately
    */
   deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
-    FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
-    FirebaseApi.deletePendingReadingsForResource(this.orgId, userId, pendingResourceId);
+    DeprecatedFirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
+    DeprecatedFirebaseApi.deletePendingReadingsForResource(this.orgId, userId, pendingResourceId);
 
     return Promise.resolve(makeSuccess(undefined));
   }
@@ -871,7 +871,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Returns immediately
    */
   deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
-    FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
+    DeprecatedFirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
 
     return Promise.resolve(makeSuccess(undefined));
   }
@@ -886,15 +886,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * fix this later on.
    */
   subscribeToUser(userId: string, callback: any): () => void {
-    return FirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));  
+    return DeprecatedFirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));  
   }
 
   subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
-    FirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
+    DeprecatedFirebaseApi.listenForPendingReadingsToUser(this.orgId, userId, callback);
   }
 
   subscribeToPendingResources(userId: string, callback: (resources: PendingResource[]) => void): void {
-    FirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
+    DeprecatedFirebaseApi.listenForPendingResourcesToUser(this.orgId, userId, callback);
   }
 
 
@@ -920,11 +920,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   getPendingReadings(userId: string): Promise<Reading[]> {
-    return FirebaseApi.getPendingReadingsFromUser(this.orgId, userId);
+    return DeprecatedFirebaseApi.getPendingReadingsFromUser(this.orgId, userId);
   }
 
   getPendingReadingsForResourceId(userId: string, resourceId: string): Promise<Reading[]> {
-    return FirebaseApi.getPendingReadingsForUserAndResourceId(this.orgId, userId, resourceId);
+    return DeprecatedFirebaseApi.getPendingReadingsForUserAndResourceId(this.orgId, userId, resourceId);
   }
 
 
@@ -936,14 +936,14 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Get the most recent resources, courtesy of the firebase api
    */
   getRecentSearches(userId: string): Promise<string[]> {
-    return FirebaseApi.getRecentSearches(this.orgId, userId);
+    return DeprecatedFirebaseApi.getRecentSearches(this.orgId, userId);
   }
 
   /**
    * we use the firebase api to save, as this is a user setting
    */
   saveRecentSearch(userId: string, searchQuery: string): Promise<any> {
-    return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
+    return DeprecatedFirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
   /**
@@ -1112,7 +1112,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
    * Send Resource Email
    */
   sendResourceEmail(token: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
-    return FirebaseApi.sendResourceEmail(this.orgId, token, pendingResources, pendingReadings, sendOptions);
+    return DeprecatedFirebaseApi.sendResourceEmail(this.orgId, token, pendingResources, pendingReadings, sendOptions);
   }
 
   /**
@@ -1165,7 +1165,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
         const id = pendingResources[idx].id;
         try {
-          const deleteResult =  await FirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id)
+          const deleteResult =  await DeprecatedFirebaseApi.deletePendingResourceFromUser(this.orgId, userId, id)
           return deleteResult;
         } catch (err) {
           maybeLog("Error with deletePendingResourceFromUser: " + err);
@@ -1205,7 +1205,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
         const reading = pendingReadings[idx];
 
-        return await FirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
+        return await DeprecatedFirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
       })
     );
       
@@ -1252,15 +1252,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   //----------------------------------------------------------------------
 
   getUser(userId: string): Promise<SomeResult<OWUser>> {
-    return FirebaseApi.getUser(this.orgId, userId);
+    return DeprecatedFirebaseApi.getUser(this.orgId, userId);
   }
 
   changeTranslation(userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
-    return FirebaseApi.changeUserTranslation(this.orgId, userId, translation);
+    return DeprecatedFirebaseApi.changeUserTranslation(this.orgId, userId, translation);
   }
 
   onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
-    return FirebaseApi.onAuthStateChanged(listener);
+    return DeprecatedFirebaseApi.onAuthStateChanged(listener);
   }
 
 

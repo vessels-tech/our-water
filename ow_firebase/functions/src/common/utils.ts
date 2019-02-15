@@ -11,6 +11,7 @@ import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import * as btoa from 'btoa';
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+import { verboseLog } from "./env";
 
 const filesystem = require("fs");
 
@@ -440,3 +441,19 @@ export function unsafelyGetOrgId(originalUrl: string): string {
 export const get = (o: any, p: string[]) =>
   p.reduce((xs, x) =>
     (xs && xs[x]) ? xs[x] : null, o)
+
+
+//@ts-ignore
+import * as morgan from 'morgan';
+//@ts-ignore
+import * as morganBody from 'morgan-body';
+
+export function enableLogging(app: any): void {
+  if (!verboseLog) {
+    console.log('Using simple log');
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+  } else {
+    console.log('Using verbose log');
+    morganBody(app);
+  }
+}
