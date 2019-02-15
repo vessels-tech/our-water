@@ -430,3 +430,13 @@ export function unsafelyGetOrgId(originalUrl: string): string {
   
   return params[1];
 }
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o)

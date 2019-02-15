@@ -2,7 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$DIR"/ow_firebase/functions/
+cd "$DIR"/functions/
 
 if [ ! -f /tmp/ow_firebase_env ]; then
     echo "Couldn't find /tmp/ow_firebase_env"
@@ -22,7 +22,9 @@ firebase functions:config:set \
   config.should_send_emails=$should_send_emails \
   config.test_email_whitelist=$test_email_whitelist \
   config.backup_service_account_key_filename=$backup_service_account_key_filename \
-  config.backup_bucket_name=$backup_bucket_name
+  config.backup_bucket_name=$backup_bucket_name \
+  config.temporary_admin_access_token=$temporary_admin_access_token \
+  config.temporary_admin_user_id=$temporary_admin_user_id 
 
 
 # deploy

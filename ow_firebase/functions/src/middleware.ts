@@ -9,7 +9,8 @@ import { auth as fbAuth } from 'firebase-admin';
 import { UserApi } from 'ow_common/lib/api';
 import { User } from 'ow_common/lib/model/User';
 import UserType from 'ow_common/lib/enums/UserType';
-import { unsafelyGetOrgId } from './common/utils';
+import { unsafelyGetOrgId, get } from './common/utils';
+import { temporaryAdminAccessToken, temporaryAdminUserId } from './common/env';
 type DecodedIdToken = fbAuth.DecodedIdToken;
 
 
@@ -18,6 +19,20 @@ type DecodedIdToken = fbAuth.DecodedIdToken;
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 export const validateFirebaseIdToken = (req, res, next) => {
+
+  //Allow a master token to be used to get through the authentication.
+  const insecureToken = get(req, ['headers', 'insecureToken']);
+  if (!insecureToken || insecureToken !== temporaryAdminAccessToken) {
+    res.status(403).send('Unauthorized');
+    return;
+  }
+
+  if (insecureToken) {
+    console.warn("Using insecure access token. This should be replaced");
+    req.user = { uid: temporaryAdminUserId };
+    return next();
+  }
+
   const validateResult = getIdToken(req);
   if (validateResult.type === ResultType.ERROR) {
     res.status(403).send('Unauthorized');
@@ -38,9 +53,6 @@ export const validateFirebaseIdToken = (req, res, next) => {
     });
 };
 
-const get = (o: any, p: string[]) =>
-  p.reduce((xs, x) =>
-    (xs && xs[x]) ? xs[x] : null, o)
 
 /**
  * validateUserIsAdmin

@@ -4,18 +4,17 @@ import { admin, firestore } from '../src/test/TestFirebase';
 const request = require('request-promise-native');
 import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg, functionReplacer, translationFromJSON} from 'ow_translations';
 import FirebaseApi, { BoundingBox, PageParams } from '../src/common/apis/FirebaseApi';
-import { ResultType } from '../src/common/types/AppProviderTypes';
 import { Reading } from '../src/common/models/Reading';
 import { readingToCSV, readingHeading } from './csv';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 
-var fs = require('fs');
+const fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
 const serviceAccountKeyFile = `../src/test/${process.env.service_account_key_filename}`;
 const key = require(serviceAccountKeyFile);
 const baseUrl = process.env.REACT_APP_BASE_URL;
 const orgId = process.env.REACT_APP_ORG_ID;
-
-const PROJECT_ID = 'our-water';
+const PROJECT_ID = process.env.PROJECT_ID;
 
 
 gulp.task('test_translation_parsing', async () => {

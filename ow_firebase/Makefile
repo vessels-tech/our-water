@@ -95,4 +95,4 @@ install:
 
 deploy:
 	@echo 'Deploying Firebase'
-	cd ${dir}/../ && ./_deploy_fb.sh
+	@./_deploy_fb.sh
