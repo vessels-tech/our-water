@@ -47,6 +47,9 @@ switch-ggmn-prod:
 switch-mywell-dev:
 	make switch orgId="mywell" stage="development"
 
+switch-mywell-prod:
+	make switch orgId="mywell" stage="production"
+
 
 #
 #	Development

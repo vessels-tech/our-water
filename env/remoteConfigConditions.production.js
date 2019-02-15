@@ -12,7 +12,7 @@ const conditions = [
   },
   {
     "name": "mywell_android",
-    "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
+    "expression": "app.id == '1:276292750755:android:360c7a8185712f0f' && device.os == 'android'",
     "tagColor": "GREEN"
   }
 ];

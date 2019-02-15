@@ -6,6 +6,7 @@ import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationO
 export async function getToken(admin: any): Promise<string> {
   return admin.auth().createCustomToken('12345')
   .then((token: string) => {
+    
     const options = {
       json: true,
       url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.WEB_API_KEY}`,

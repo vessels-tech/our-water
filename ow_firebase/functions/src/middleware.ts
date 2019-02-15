@@ -156,7 +156,7 @@ export function verifyIdToken(token: string): Promise<SomeResult<DecodedIdToken>
     console.log('ID Token correctly decoded');
     return makeSuccess(decodedIdToken)
   }).catch((error: Error) => {
-    console.error('Error while verifying Firebase ID token.');
+    console.error('Error while verifying Firebase ID token.', error.message);
     
     return makeError<DecodedIdToken>(error.message)
   });

@@ -144,7 +144,7 @@ function verifyIdToken(token) {
         console.log('ID Token correctly decoded');
         return AppProviderTypes_1.makeSuccess(decodedIdToken);
     }).catch((error) => {
-        console.error('Error while verifying Firebase ID token.');
+        console.error('Error while verifying Firebase ID token.', error.message);
         return AppProviderTypes_1.makeError(error.message);
     });
 }

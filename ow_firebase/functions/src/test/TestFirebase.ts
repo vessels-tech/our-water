@@ -33,5 +33,4 @@ export {
   admin,
   auth,
   firestore,
-  
 };

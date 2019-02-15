@@ -13,7 +13,7 @@ import UserType from 'ow_common/lib/enums/UserType';
 type Firestore = admin.firestore.Firestore;
 
 
-describe('Admin integration tests', function () {
+describe.only('Admin integration tests', function () {
 
   this.timeout(5000);
   const orgId = process.env.ORG_ID;
