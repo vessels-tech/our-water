@@ -20,6 +20,8 @@ switch:
 	@echo 'export stage=${stage}\n' > .ow_firebase_config
 	@make env
 	firebase use ${stage}
+	@echo 'copying remoteConfigConditions.js across'
+	cp ${dir}/../env/remoteConfigConditions.${stage}.js ${dir}/functions/tools/remoteConfigConditions.js
 
 switch-dev:
 	make switch stage="development"

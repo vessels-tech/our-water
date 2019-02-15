@@ -212,30 +212,15 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
  * Build and return the new remote config
  */
 export async function getNewConfig(): Promise<any> {
-  const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+  // const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+  const { conditionKeys, conditions } = require('./remoteConfigConditions');
 
   const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
   const mywellTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.mywell), functionReplacer, 2);
   const ggmnTranslationsOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.ggmn), null, 2);
   const ggmnTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.ggmn), functionReplacer, 2);
 
-  const conditions = [
-    {
-      "name": "ggmn_android",
-      "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
-      "tagColor": "BLUE"
-    },
-    {
-      "name": "ggmn_dev_android",
-      "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
-      "tagColor": "BROWN"
-    },
-    {
-      "name": "mywell_android",
-      "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
-      "tagColor": "GREEN"
-    }
-  ];
+  
   const parameters = {
     applicationName: buildParameter(
       'MyWell', 

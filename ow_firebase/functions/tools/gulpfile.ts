@@ -38,9 +38,9 @@ gulp.task('deploy_remote_config', async () => {
   const newConfig = await getNewConfig();
   console.log('New config is', JSON.stringify(newConfig, null, 2));
 
-  const result = await saveNewConfig(accessToken, etag, PROJECT_ID, newConfig);
+  // const result = await saveNewConfig(accessToken, etag, PROJECT_ID, newConfig);
 
-  console.log("Result is", result);
+  // console.log("Result is", result);
 });
 
 gulp.task('get_remote_config', async () => {

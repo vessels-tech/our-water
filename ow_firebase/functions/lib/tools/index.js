@@ -205,28 +205,12 @@ function buildParameter(deflt, description, conditions, values) {
  */
 function getNewConfig() {
     return __awaiter(this, void 0, void 0, function* () {
-        const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+        // const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+        const { conditionKeys, conditions } = require('./remoteConfigConditions');
         const mywellTranslationOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.mywell), null, 2);
         const mywellTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.mywell), ow_translations_1.functionReplacer, 2);
         const ggmnTranslationsOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.ggmn), null, 2);
         const ggmnTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.ggmn), ow_translations_1.functionReplacer, 2);
-        const conditions = [
-            {
-                "name": "ggmn_android",
-                "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
-                "tagColor": "BLUE"
-            },
-            {
-                "name": "ggmn_dev_android",
-                "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
-                "tagColor": "BROWN"
-            },
-            {
-                "name": "mywell_android",
-                "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
-                "tagColor": "GREEN"
-            }
-        ];
         const parameters = {
             applicationName: buildParameter('MyWell', 'the application name', conditionKeys, ['GGMN', 'GGMN DEV', 'MyWell']),
             baseApiType: buildParameter('MyWellApi', '', conditionKeys, ['GGMNApi', 'GGMNApi', 'MyWellApi']),

@@ -204,7 +204,9 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
     
     //TD: hacky - need to fix types
+    //@ts-ignore
     resource.orgId = this.orgId;
+    //@ts-ignore
     resource.docName = "resource";
 
     // if (userResult.result.status !== OWUserStatus.Approved) {
