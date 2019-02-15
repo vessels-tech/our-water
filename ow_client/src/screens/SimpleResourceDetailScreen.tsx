@@ -12,7 +12,7 @@ import { Text, Button } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo, unwrapUserId, renderLog, showModal } from '../utils';
+import {navigateTo, unwrapUserId, renderLog, showModal, maybeLog } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
@@ -27,6 +27,8 @@ import { ResourceType } from '../enums';
 import { isNullOrUndefined } from 'util';
 import { secondary, primary, secondaryText } from '../utils/NewColors';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
+import { PendingResource } from '../typings/models/PendingResource';
+import { OrgType } from '../typings/models/OrgType';
 
 
 export interface OwnProps {
@@ -186,38 +188,25 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
-  let resource: AnyResource = null;
+  let maybeResource: PendingResource | AnyResource | undefined;
   let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
   
-  //TD Hacky way to get the resource
-  state.resources.forEach(r => {
-    if (r.id === ownProps.resourceId) {
-      resource = r;
-    }
-  });
 
-  //Lookup the resource in recents and favourites
-  if (!resource) {
-    state.recentResources.forEach(r => {
-      if (r.id === ownProps.resourceId) {
-        resource = r;
-      }
-    })
-  }
-  if (!resource) {
-    state.favouriteResources.forEach(r => {
-      if (r.id === ownProps.resourceId) {
-        resource = r;
-      }
-    })
-  }
-  
+  maybeResource = state.resources.find((r) => r.id === ownProps.resourceId);
+  if (!maybeResource) {maybeResource = state.pendingSavedResources.find((r) => r.id === ownProps.resourceId);}
+  if (!maybeResource) {maybeResource = state.recentResources.find((r) => r.id === ownProps.resourceId);}
+  if (!maybeResource) {maybeResource = state.favouriteResources.find((r) => r.id === ownProps.resourceId);}
+
   let resourceType: ResourceType = ResourceType.well;
-  if (!isNullOrUndefined(resource) && resource.resourceType) {
-    resourceType = resource.resourceType;
+  if (isNullOrUndefined(maybeResource)) {
+    maybeLog(`Resource of id: ${ownProps.resourceId} couldn't be found. Defaulting resourceType to well`);
+  } else {
+    if (maybeResource.pending || maybeResource.type === OrgType.MYWELL) {
+      resourceType = maybeResource.resourceType;
+    }
   }
 
   return {

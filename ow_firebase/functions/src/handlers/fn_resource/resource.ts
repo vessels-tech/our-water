@@ -23,6 +23,9 @@ import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import { enableLogging } from '../../common/utils';
+import { UserApi } from 'ow_common/lib/api';
+import { User } from 'ow_common/lib/model/User';
+import UserStatus from 'ow_common/lib/enums/UserStatus';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -343,22 +346,29 @@ module.exports = (functions) => {
    * SyncUserData
    * POST /:orgId/:userId/sync
    * 
-   * Syncronises the user's pendingResources and pendingReadings, and cleans them up
+   * Synchronises the user's pendingResources and pendingReadings, and cleans them up
    * The user MUST be approved before calling this method. 
    *
    */
   app.post('/:orgId/:userId/sync', async (req, res) => {
     const { orgId, userId } = req.params;
+    const userApi = new UserApi(firestore, orgId);
     const fbApi = new FirebaseApi(firestore);
 
-    //TODO: check to make sure user is Verified.
+    const userResult = await userApi.getUser(userApi.userRef(orgId, userId));
+    if (userResult.type === ResultType.ERROR) {
+      return res.status(400).send(`Couldn't find user with orgId: ${orgId}, userId: ${userId}`);
+    }
+    if (userResult.result.status !== UserStatus.Approved) {
+      return res.status(403).send("unauthorized");
+    }
 
     const syncResult = await fbApi.syncPendingForUser(orgId, userId);
     if (syncResult.type === ResultType.ERROR) {
       throw new Error(syncResult.message);
     }
 
-    res.status(204).send("true");
+    return res.status(204).send("true");
   });
 
   /* CORS Configuration */

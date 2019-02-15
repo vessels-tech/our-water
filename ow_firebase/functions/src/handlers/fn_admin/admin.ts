@@ -3,14 +3,8 @@ import * as express from 'express';
 import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
 
-
-//@ts-ignore
-import * as morgan from 'morgan';
-//@ts-ignore
-import * as morganBody from 'morgan-body';
 import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
-import { generateQRCode } from '../../common/apis/QRCode';
-import { writeFileAsync, enableLogging } from '../../common/utils';
+import { enableLogging } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';

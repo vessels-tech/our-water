@@ -2,7 +2,7 @@ import 'mocha';
 import * as assert from 'assert';
 
 import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
-import { ResultType, SomeResult } from 'ow_common/lib/utils/AppProviderTypes';
+import { ResultType, SomeResult, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
 import * as MockFirebase from 'mock-cloud-firestore';
 
@@ -299,21 +299,14 @@ describe('Firebase Api', function() {
         throw new Error(result.message);
       }
 
-      const pendingResourcesResult = await fbApi.getPendingResources(orgId, userId);
-      if (pendingResourcesResult.type === ResultType.ERROR) {
-        throw new Error(pendingResourcesResult.message);
-      }
-      const pendingReadingsResult = await fbApi.getPendingReadings(orgId, userId);
-      if (pendingReadingsResult.type === ResultType.ERROR) {
-        throw new Error(pendingReadingsResult.message);
-      }
-
+      const pendingResources = unsafeUnwrap(await fbApi.getPendingResources(orgId, userId));
+      const pendingReadings = unsafeUnwrap(await fbApi.getPendingReadings(orgId, userId));
       const allResources = await getAllResources(fbApi);
       const allReadings = await getAllReadings(fbApi);
 
       //Assert
-      assert.equal(pendingResourcesResult.result.length, 0);
-      assert.equal(pendingReadingsResult.result.length, 0);
+      assert.equal(pendingResources.length, 0);
+      assert.equal(pendingReadings.length, 0);
       assert.equal(allResources.length, 3);
       assert.equal(allReadings.length, 2);
     });

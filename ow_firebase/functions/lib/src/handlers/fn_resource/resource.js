@@ -28,6 +28,8 @@ const GGMNApi_1 = require("../../common/apis/GGMNApi");
 const middleware_1 = require("../../middleware");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const utils_1 = require("../../common/utils");
+const api_1 = require("ow_common/lib/api");
+const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -299,19 +301,26 @@ module.exports = (functions) => {
      * SyncUserData
      * POST /:orgId/:userId/sync
      *
-     * Syncronises the user's pendingResources and pendingReadings, and cleans them up
+     * Synchronises the user's pendingResources and pendingReadings, and cleans them up
      * The user MUST be approved before calling this method.
      *
      */
     app.post('/:orgId/:userId/sync', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
+        const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
-        //TODO: check to make sure user is Verified.
+        const userResult = yield userApi.getUser(userApi.userRef(orgId, userId));
+        if (userResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            return res.status(400).send(`Couldn't find user with orgId: ${orgId}, userId: ${userId}`);
+        }
+        if (userResult.result.status !== UserStatus_1.default.Approved) {
+            return res.status(403).send("unauthorized");
+        }
         const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
         if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(syncResult.message);
         }
-        res.status(204).send("true");
+        return res.status(204).send("true");
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });

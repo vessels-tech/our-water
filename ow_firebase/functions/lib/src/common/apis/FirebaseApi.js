@@ -31,17 +31,18 @@ class FirebaseApi {
     batchSaveResources(docs) {
         if (docs.length === 0) {
             console.warn('Tried to save a batch of resources, but readings was empty.');
-            return Promise.resolve(true);
+            return Promise.resolve([]);
         }
         const batch = this.firestore.batch();
-        docs.forEach(doc => doc.batchCreate(batch, this.firestore));
+        //Pass in the resourceId here - very low chance of colission
+        docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
         return batch.commit();
     }
     batchSaveReadings(docs) {
         return __awaiter(this, void 0, void 0, function* () {
             if (docs.length === 0) {
                 console.warn('Tried to save a batch of resources, but readings was empty.');
-                return Promise.resolve(true);
+                return Promise.resolve([]);
             }
             const batch = this.firestore.batch();
             //Readings are unique by their timestamp + resourceId.
@@ -367,6 +368,7 @@ class FirebaseApi {
             catch (err) {
                 errorResults.push({ type: AppProviderTypes_1.ResultType.ERROR, message: err });
             }
+            //TODO: transform the and pendingReadings where isResourcePending=true, and substitue the new resourceId.
             let batchResultReadings;
             try {
                 batchResultReadings = yield this.batchSaveReadings(pendingReadings);

@@ -27,7 +27,6 @@ export function toAnyTimeseriesList(fbTimeseriesMap: FBTimeseriesMap): AnyTimese
 
 //TODO: figure out how to get readings in here!
 export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
-  console.log("toAnyTimeseries, inbound:", fbTimeseries);
   switch(fbTimeseries.type) {
     case OrgType.GGMN: {
       const ts: GGMNTimeseries = {

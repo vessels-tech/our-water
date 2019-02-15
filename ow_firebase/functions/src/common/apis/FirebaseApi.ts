@@ -8,10 +8,9 @@ import * as sleep from 'thread-sleep';
 import { BasicAuthSecurity } from "soap";
 import { pad, hashReadingId, resourceIdForResourceType } from "../utils";
 import { isNullOrUndefined } from "util";
-import { OWGeoPoint } from "ow_types";
 import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
-import { UserBuilder } from "firebase-functions/lib/providers/auth";
+type WriteResult = admin.firestore.WriteResult;
 
 export type ShortIdLock = {
   id: string, //9 digit number as string
@@ -53,21 +52,22 @@ export default class FirebaseApi {
     this.firestore = firestore;
   }
 
-  public batchSaveResources(docs: Resource[]): Promise<any> {
+  public batchSaveResources(docs: Resource[]): Promise<WriteResult[]> {
     if (docs.length === 0) {
       console.warn('Tried to save a batch of resources, but readings was empty.');
-      return Promise.resolve(true);
+      return Promise.resolve([]);
     }
 
     const batch = this.firestore.batch();
-    docs.forEach(doc => doc.batchCreate(batch, this.firestore));
+    //Pass in the resourceId here - very low chance of colission
+    docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
     return batch.commit();
   }
 
-  public async batchSaveReadings(docs: Reading[]): Promise<any> {
+  public async batchSaveReadings(docs: Reading[]): Promise<WriteResult[]> {
     if (docs.length === 0) {
       console.warn('Tried to save a batch of resources, but readings was empty.');
-      return Promise.resolve(true);
+      return Promise.resolve([]);
     }
 
     const batch = this.firestore.batch();
@@ -422,6 +422,9 @@ export default class FirebaseApi {
     } catch (err) {
       errorResults.push({type: ResultType.ERROR, message:err});
     }
+
+    //TODO: transform the and pendingReadings where isResourcePending=true, and substitue the new resourceId.
+    
 
     let batchResultReadings;
     try {
