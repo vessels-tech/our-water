@@ -35,6 +35,7 @@ import { NoReadingLocation, ReadingLocationType } from '../typings/models/Readin
 import { UserStatus } from '../typings/UserTypes';
 import { date } from 'react-native-joi';
 import FirebaseUserApi from './FirebaseUserApi';
+import UserType from 'ow_common/lib/enums/UserType';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -908,6 +909,7 @@ class FirebaseApi {
         name: null,
         nickname: null,
         status: UserStatus.Unapproved,
+        type: UserType.User,
       }
     }
 
@@ -951,6 +953,7 @@ class FirebaseApi {
       name: data.name || null,
       nickname: data.nickname || null,
       status: data.status || OWUserStatus.Unapproved,
+      type: data.type || UserType.User,
     }
   }
 

@@ -453,7 +453,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name = action.result.result.name && action.result.result.name;
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
-        userType = state.userType;
+        userType = action.result.result.type;
       }
       
       //TODO: error handling?

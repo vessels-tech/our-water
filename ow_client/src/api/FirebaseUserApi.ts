@@ -14,8 +14,11 @@ import {
 
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
+import DeprecatedFirebaseApi from './DeprecatedFirebaseApi';
 
 const auth = firebase.auth();
+const fs = firebase.firestore();
+
 
 class FirebaseUserApi {
 
@@ -85,7 +88,7 @@ class FirebaseUserApi {
         return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
       })
       //TODO: call the common merge users
-      .then(() => this.mergeUsers(orgId, oldUserId, user.uid))
+      .then(() => DeprecatedFirebaseApi.mergeUsers(orgId, oldUserId, user.uid))
       .then(mergeResult => {
         if (mergeResult.type === ResultType.ERROR) {
           maybeLog("Non fatal error merging users:", mergeResult.message)
@@ -115,6 +118,10 @@ class FirebaseUserApi {
     return auth.onAuthStateChanged(listener);
   }
 
+
+  static userDoc(orgId: string, userId: string): any {
+    return fs.collection('org').doc(orgId).collection('user').doc(userId)
+  } 
 }
 
 export default FirebaseUserApi;

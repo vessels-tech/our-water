@@ -524,12 +524,15 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <HeadingText heading={connect_to_email_label} content={email || ''}/>
         <Divider style={{marginVertical: 20}}/>
         <HeadingText heading={"User Status"} content={statusText}/>
+        <Text>{statusDescription}</Text>
         {
-          userType === UserAdminType.Admin ? 
-            <HeadingText heading={"User Type"} content={"Administrator"} /> :
+          userType === UserAdminType.Admin ?
+          <View style={{paddingTop: 10}}> 
+            <HeadingText heading={"User Type"} content={"Administrator"} />
+            <Text>{"You can make new measurements on any location."}</Text>
+          </View>  :
             null
         }
-        <Text>{statusDescription}</Text>
         <Button 
           style={{}}
           buttonStyle={{
