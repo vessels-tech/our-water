@@ -299,15 +299,11 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    */
   async runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
     //First get the access token
-    const userResult = await FirebaseUserApi.signIn();
-    if (userResult.type === ResultType.ERROR) {
-      return userResult;
+    const tokenResult = await FirebaseUserApi.getIdToken();
+    if (tokenResult.type === ResultType.ERROR) {
+      return tokenResult;
     }
-    
-    const token = get(userResult, ['result', 'token']);
-    if (!token) {
-      return makeError<ExternalSyncStatusComplete>("Couldn't find user token");
-    }
+    const token = tokenResult.result;
 
     const syncUrl = `${this.baseUrl}/resource/${this.orgId}/${userId}/sync`;
     const options = {

@@ -45,9 +45,14 @@ class FirebaseUserApi {
    * Can't be moved into common
    */
   static async getIdToken(): Promise<SomeResult<string>> {
-    return auth.getIdToken()
+    let currentUser = auth.currentUser;
+    if (!currentUser) {
+      return makeError<string>("There is no currentlylogged in user");
+    }
+
+    return currentUser.getIdToken()
       .then((token: string) => makeSuccess(token))
-      .catch((err: Error) => makeError(err.message))
+      .catch((err: Error) => makeError<string>(err.message))
   }
 
 

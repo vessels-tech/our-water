@@ -159,6 +159,7 @@ export async function registerScreens(config: ConfigFactory) {
 
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
+    console.log("onAuthState changed: rnFirebaseUser", rnFirebaseUser);
     if (!rnFirebaseUser) {
       await store.dispatch(appActions.silentLogin(config.appApi));
       return;
@@ -190,6 +191,7 @@ export async function registerScreens(config: ConfigFactory) {
         mobile: rnFirebaseUser.phoneNumber,
       }
     }
+    console.log("built user:", user);
 
     setUpUserSubscriptions(store, config, user.userId);
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))

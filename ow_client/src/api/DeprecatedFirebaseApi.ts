@@ -67,10 +67,15 @@ class FirebaseApi {
    * //TODO: move across
    */
   static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
+
+
     const oldUserResult = await this.getUser(orgId, oldUserId);
     if (oldUserResult.type === ResultType.ERROR) {
       return oldUserResult;
     }
+
+    console.log("merging old user", oldUserResult.result);
+
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
     delete oldUser.email;
