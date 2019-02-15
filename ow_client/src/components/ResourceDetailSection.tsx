@@ -116,10 +116,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     renderLog("     - ", diff(this.state, nextState));
   }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 9add71aa589f3f2dac2306ea00b8c54b1f593742
   async reloadResourceAndReadings() {
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
