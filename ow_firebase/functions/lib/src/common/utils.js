@@ -357,4 +357,11 @@ function unsafelyGetOrgId(originalUrl) {
     return params[1];
 }
 exports.unsafelyGetOrgId = unsafelyGetOrgId;
+/**
+ * Saftely get things and check if null
+ *
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+exports.get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
 //# sourceMappingURL=utils.js.map

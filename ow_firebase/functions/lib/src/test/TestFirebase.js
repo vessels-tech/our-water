@@ -14,7 +14,8 @@ if (admin.apps.length === 0) {
         credential: admin.credential.cert(serviceAccount),
     });
     exports.firestore = firestore = admin.firestore();
-    const settings = { timestampsInSnapshots: true };
+    // const settings = { timestampsInSnapshots: true };
+    const settings = {};
     console.log("TestFirebase calling firestore.settings");
     firestore.settings(settings);
 }

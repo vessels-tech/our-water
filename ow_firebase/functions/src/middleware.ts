@@ -22,7 +22,7 @@ export const validateFirebaseIdToken = (req, res, next) => {
 
   //Allow a master token to be used to get through the authentication.
   const insecureToken = get(req, ['headers', 'insecureToken']);
-  if (!insecureToken || insecureToken !== temporaryAdminAccessToken) {
+  if (insecureToken && insecureToken !== temporaryAdminAccessToken) {
     res.status(403).send('Unauthorized');
     return;
   }

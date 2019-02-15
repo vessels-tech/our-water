@@ -18,11 +18,23 @@ const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const api_1 = require("ow_common/lib/api");
 const UserType_1 = require("ow_common/lib/enums/UserType");
 const utils_1 = require("./common/utils");
+const env_1 = require("./common/env");
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
 exports.validateFirebaseIdToken = (req, res, next) => {
+    //Allow a master token to be used to get through the authentication.
+    const insecureToken = utils_1.get(req, ['headers', 'insecureToken']);
+    if (insecureToken && insecureToken !== env_1.temporaryAdminAccessToken) {
+        res.status(403).send('Unauthorized');
+        return;
+    }
+    if (insecureToken) {
+        console.warn("Using insecure access token. This should be replaced");
+        req.user = { uid: env_1.temporaryAdminUserId };
+        return next();
+    }
     const validateResult = getIdToken(req);
     if (validateResult.type === AppProviderTypes_1.ResultType.ERROR) {
         res.status(403).send('Unauthorized');
@@ -40,7 +52,6 @@ exports.validateFirebaseIdToken = (req, res, next) => {
         return next();
     });
 };
-const get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
 /**
  * validateUserIsAdmin
  *
@@ -53,7 +64,7 @@ const get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
  * @param next
  */
 exports.validateUserIsAdmin = (req, res, next) => {
-    const userId = get(req, ['user', 'uid']);
+    const userId = utils_1.get(req, ['user', 'uid']);
     if (!userId) {
         console.warn("No user found on req object. You should be using validateFirebaseIdToken middleware before this middleware.");
         res.status(403).send('Unauthorized');
