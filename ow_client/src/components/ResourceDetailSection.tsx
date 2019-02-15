@@ -154,7 +154,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
 
   getDefaultTimeseries(): Array<ConfigTimeseries> {
-    const { resource } = this.props;
+    const { resource, pendingResource } = this.props;
 
     //TD: this is a hacky fix
     let resourceType = 'well';
@@ -165,6 +165,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       if (resource.type === OrgType.MYWELL) {
         resourceType = resource.resourceType;
       }
+    }
+
+    if (pendingResource) {
+      resourceType = pendingResource.resourceType;
     }
 
     return this.props.config.getDefaultTimeseries(resourceType);
@@ -417,7 +421,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { timeseriesList } = this.props;
     const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
+    console.log("Default timeseries is", defaultTimeseriesList);
+
     return Object.keys(timeseriesList).map((key, idx) => {
+      console.log("looking for timeseries with key", key);
+
       const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
       if (!timeseries) {
         console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
@@ -614,30 +622,29 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
-
-  // const resource = state.resourcesCache[ownProps.resourceId];
   const resource = state.resourcesCache.find(r => r.id === ownProps.resourceId);
 
   let pendingResource: Maybe<PendingResource>;
   if (ownProps.isPending) {
-    const filteredPendingResources = state.pendingSavedResources.filter(r => r.id === ownProps.resourceId);
-    if (filteredPendingResources.length > 0) {
-      pendingResource = filteredPendingResources[0];
-    }
+    pendingResource = state.pendingSavedResources.find(r => r.id === ownProps.resourceId);
   }
+
   let resourceMeta;
+  //TD: Hack to get GGMN working
   if (ownProps.temporaryGroundwaterStationId) {
     resourceMeta = state.resourceMeta[ownProps.temporaryGroundwaterStationId];
   } else {
     resourceMeta = state.resourceMeta[ownProps.resourceId];
   }
   
+  //TODO: clean this up - I no longer understand what its purpose is
+  //---
+
   //If we have no resource and no resourceMeta and no pendingResource, then we must be loading
   if (!resource && !resourceMeta && !pendingResource) {
     resourceMeta = { loading: true, error: false, errorMessage: '' };
   }
 
-  //TODO: clean this up
   if (!resourceMeta) {
     if (!pendingResource) {
       resourceMeta = { loading: true, error: false, errorMessage: '' };
@@ -649,6 +656,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   if (resourceMeta.error && ownProps.isPending) {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
+ 
 
   const newTsReadings = state.newTsReadings[ownProps.resourceId] || [];
   let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
@@ -659,8 +667,10 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   if (!newTsReadingsMeta) {
     newTsReadingsMeta = { loading: false, error: false, errorMessage: '' };
   }
+  //---
 
   const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
+  console.log("timeseries list is", timeseriesList);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,

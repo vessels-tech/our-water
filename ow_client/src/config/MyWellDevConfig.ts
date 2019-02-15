@@ -7,8 +7,8 @@ const orgId = EnvConfig.OrgId;
 const MyWellDevConfig: RemoteConfig = {
   applicationName: 'MyWell',
   baseApiType: BaseApiType.MyWellApi,
-  // firebaseBaseUrl: 'https://us-central1-our-water.cloudfunctions.net',
-  firebaseBaseUrl: 'https://ourwater.localtunnel.me/our-water-dev/us-central1',
+  firebaseBaseUrl: 'https://us-central1-our-water-dev.cloudfunctions.net',
+  // firebaseBaseUrl: 'https://ourwater.localtunnel.me/our-water-dev/us-central1',
   ggmnBaseUrl: 'https://ggmn.lizard.net/api',
   showConnectToButton: false,
   showSyncButton: false,
