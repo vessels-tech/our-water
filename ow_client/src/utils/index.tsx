@@ -843,6 +843,10 @@ export function pinColorForOrgAndResource(resource: AnyResource) {
     case ResourceType.well:
     default:
       return 'orange';
+
+  }
+}
+
 /**
  * safeAreaFromPoint
  * 
@@ -857,3 +861,13 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
     longitudeDelta: 10,
   }
 }
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o);

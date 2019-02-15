@@ -14,10 +14,11 @@ install:
 	yarn
 
 
+
 #
-# join together env files to set up the ENVFILE
-# that react-native-env likes
-#
+#	Env Setup
+# ------------
+
 env:
 	cat ../env/.env.${orgId}.${stage}.sh ../env/env.${orgId}.${stage}.sh > /tmp/ow_env
 
@@ -32,6 +33,9 @@ switch:
 	@cp -R ${dir}/src/assets/${orgId}/* ${dir}/android/app/src/main/res/
 	@cp -R ${dir}/src/assets/${orgId}/Colors.ts ${dir}/src/utils/Colors.ts
 	@cp -R ${dir}/src/assets/${orgId}/NewColors.ts ${dir}/src/utils/NewColors.ts
+	@echo 'Copying google-services.json across'
+	@cp ${dir}/../env/google-services.${stage}.json ${dir}/android/app/google-services.json
+
 
 
 switch-ggmn-dev:
@@ -42,6 +46,11 @@ switch-ggmn-prod:
 
 switch-mywell-dev:
 	make switch orgId="mywell" stage="development"
+
+
+#
+#	Development
+# ------------
 
 #
 # runs the local bundler server
@@ -61,6 +70,11 @@ android:
 
 android-log:
 	@react-native log-android
+
+android-emulator:
+	# @ cd ~/Library/Android/sdk/tools/bin/ && ./avdmanager list avd
+	# @look for name: Nexus_5X_API_P
+	@cd ~/Library/Android/sdk/emulator/ && ./emulator -avd Nexus_5X_API_P
 
 reinstall-node:
 	rm -rf node_modules; yarn
@@ -126,6 +140,11 @@ build-and-install:
 
 build-and-install-production:
 	@make bundle build-production install-android-production
+
+
+#
+#	Deployment
+# ------------
 
 hockey:
 	source ../env/.env.deployment.sh && \

@@ -13,7 +13,7 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
-import { maybeLog, convertRangeToDates, naiveParseFetchResponse } from '../utils';
+import { maybeLog, convertRangeToDates, naiveParseFetchResponse, get } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
 //@ts-ignore
@@ -295,9 +295,18 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    *
    * @param userId
    */
-  runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
-    //TODO: Add firebase token
-    //TODO: this has changed to a different endpoint - double check
+  async runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
+    //First get the access token
+    const userResult = await FirebaseUserApi.signIn();
+    if (userResult.type === ResultType.ERROR) {
+      return userResult;
+    }
+    
+    const token = get(userResult, ['result', 'token']);
+    if (!token) {
+      return makeError<ExternalSyncStatusComplete>("Couldn't find user token");
+    }
+
     const syncUrl = `${this.baseUrl}/resource/${this.orgId}/${userId}/sync`;
     const options = {
       timeout,
@@ -305,6 +314,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       }
     };
 
