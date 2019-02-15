@@ -212,7 +212,6 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
  * Build and return the new remote config
  */
 export async function getNewConfig(): Promise<any> {
-  // const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
   const { conditionKeys, conditions } = require('./remoteConfigConditions');
 
   const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
@@ -235,10 +234,10 @@ export async function getNewConfig(): Promise<any> {
       ['GGMNApi', 'GGMNApi', 'MyWellApi']
     ),
     firebaseBaseUrl: buildParameter(
-      'https://us-central1-our-water.cloudfunctions.net', 
-      '', 
+      `${process.env.firebase_base_url}`, 
+      'The base url', 
       conditionKeys, 
-      ['GGMN', 'GGMN', 'https://us-central1-our-water.cloudfunctions.net']
+      ['GGMN', 'GGMN', `${process.env.firebase_base_url}`]
     ),
     ggmnBaseUrl: buildParameter(
       'https://ggmn.lizard.net', 
