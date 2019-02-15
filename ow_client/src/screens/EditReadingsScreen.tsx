@@ -16,6 +16,7 @@ import ReadingListItem from '../components/common/ReadingListItem';
 import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
 import { navigateTo, unwrapUserId } from '../utils';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
 export interface OwnProps {
@@ -23,6 +24,7 @@ export interface OwnProps {
   config: ConfigFactory,
   resourceId: string,
   resourceType: string,
+  isResourcePending: boolean,
 }
 
 export interface StateProps {
@@ -39,6 +41,7 @@ export interface ActionProps {
 export interface State {
 
 }
+
 
 class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -59,12 +62,13 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
-    
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null,
       resourceId: this.props.resourceId,
       resourceType: this.props.resourceType,
+      // isResourcePending: this.props.isResourcePending,
       config: this.props.config,
-      userId: this.props.userId
     });
   }
   

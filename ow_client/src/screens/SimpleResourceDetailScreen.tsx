@@ -26,6 +26,7 @@ import { diff } from "deep-object-diff";
 import { ResourceType } from '../enums';
 import { isNullOrUndefined } from 'util';
 import { secondary, primary, secondaryText } from '../utils/NewColors';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
 export interface OwnProps {
@@ -78,11 +79,18 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   onAddReadingPressed(resourceId: string) { 
     const { resource_detail_new } = this.props.translation.templates;
 
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    //   resourceId,
+    //   resourceType: this.props.resourceType,
+    //   config: this.props.config,
+    //   userId: this.props.userId
+    // });
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null, //TD for ggmn only
       resourceId,
       resourceType: this.props.resourceType,
       config: this.props.config,
-      userId: this.props.userId
     });
   }
 
@@ -109,42 +117,42 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     //TODO: TD: Issues with TransactionTooLargeException crash when updating translations
     const resource_detail_sync_required = "Location needs to be synced before you can save any readings."; 
 
-    if (isPending) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            paddingVertical: 100,
-          }}
-        >
-          <Text
-            style={{
-              flex: 1,
-              paddingHorizontal: 30,
-            }}
-          >
-            {resource_detail_sync_required}
-          </Text>
-          <Button
-            color={secondaryText.high}
-            buttonStyle={{
-              backgroundColor: secondary,
-              borderRadius: 5,
-              // height: '100%',
-            }}
-            containerViewStyle={{
-              flex: 1,
-              alignSelf: 'center',
-              justifyContent: 'center',
-            }}
-            title={settings_pending_heading}
-            onPress={this.onSyncButtonPressed}
-          />
-        </View>
-      );
-    }
+    // if (isPending) {
+    //   return (
+    //     <View
+    //       style={{
+    //         flex: 1,
+    //         alignSelf: 'center',
+    //         justifyContent: 'center',
+    //         paddingVertical: 100,
+    //       }}
+    //     >
+    //       <Text
+    //         style={{
+    //           flex: 1,
+    //           paddingHorizontal: 30,
+    //         }}
+    //       >
+    //         {resource_detail_sync_required}
+    //       </Text>
+    //       <Button
+    //         color={secondaryText.high}
+    //         buttonStyle={{
+    //           backgroundColor: secondary,
+    //           borderRadius: 5,
+    //           // height: '100%',
+    //         }}
+    //         containerViewStyle={{
+    //           flex: 1,
+    //           alignSelf: 'center',
+    //           justifyContent: 'center',
+    //         }}
+    //         title={settings_pending_heading}
+    //         onPress={this.onSyncButtonPressed}
+    //       />
+    //     </View>
+    //   );
+    // }
 
     return (
       <ResourceDetailSection
@@ -171,14 +179,14 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
       }}>
         {this.getResourceDetailSection()}
       </View>
-    )
+    );
   }
 
 }
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
-  let resource: AnyResource | null = null;
+  let resource: AnyResource = null;
   let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
@@ -190,6 +198,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
       resource = r;
     }
   });
+
+  //Lookup the resource in recents and favourites
   if (!resource) {
     state.recentResources.forEach(r => {
       if (r.id === ownProps.resourceId) {

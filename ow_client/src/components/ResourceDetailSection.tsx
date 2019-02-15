@@ -313,8 +313,16 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     });
   }
 
+
+  /**
+   * a QR code that can be used to share wells with other users.
+   */
   getQRCode() {
     if (!this.props.config.getResourceDetailShouldShowQRCode()) {
+      return null;
+    }
+
+    if (this.props.isPending) {
       return null;
     }
 

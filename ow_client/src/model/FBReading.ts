@@ -23,6 +23,7 @@ export type MyWellReadingBuilder = {
   
   resourceType?: ResourceType
   datetime?: string
+  isResourcePending?: boolean
 }
 
 export type GGMNReadingBuilder = {
@@ -50,6 +51,7 @@ export default class FBReading extends FirestoreDoc {
   location?: MaybeReadingLocation
   resourceType?: ResourceType
   datetime?: string
+  isResourcePending?: boolean
 
   /* GGMN Specific */
   groundwaterStationId?: string
@@ -69,6 +71,7 @@ export default class FBReading extends FirestoreDoc {
     this.image = builder.image;
     this.location = builder.location;
     this.groundwaterStationId = builder.groundwaterStationId;
+    this.isResourcePending = builder.isResourcePending;
 
     this.datetime = builder.datetime;
     this.resourceType = builder.resourceType;
@@ -89,6 +92,7 @@ export default class FBReading extends FirestoreDoc {
       image: this.image,
       location: this.location,
       groundwaterStationId: this.groundwaterStationId,
+      isResourcePending: this.isResourcePending,
       ...super.serialize(),
     }
   }

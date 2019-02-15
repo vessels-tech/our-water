@@ -88,6 +88,8 @@ export function fromCommonTimeseriesToFBTimeseries(type: OrgType, from: Array<An
   return map;
 }
 
+
+//TODO: TD refactor, this is getting nonsensical
 export function fromCommonReadingToFBReadingBuilder(orgId: string, userId: string, reading: AnyReading | PendingReading): CommonReadingBuilder & MyWellReadingBuilder & GGMNReadingBuilder {
 
   const common: CommonReadingBuilder = {
@@ -109,12 +111,23 @@ export function fromCommonReadingToFBReadingBuilder(orgId: string, userId: strin
       location: reading.location,
       resourceType: reading.resourceType,
       datetime: reading.date,
+      isResourcePending: false,
     }
+
+    //TD: new types!
+    if (reading.pending) {
+      options = {
+        ...options,
+        isResourcePending: reading.isResourcePending
+      }
+    }
+
   } else {
     options = {
       groundwaterStationId: reading.groundwaterStationId,
     };
   }
+
 
   return {
     ...common,

@@ -48,6 +48,7 @@ const PendingReadingSchema = {
     })
   ]).required(),
   groundwaterStationId: Joi.any(),
+  isResourcePending: Joi.boolean().required(),
 }
 
 

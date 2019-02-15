@@ -40,10 +40,11 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface OwnProps {
+  navigator: any,
+
   groundwaterStationId: string | null,
   resourceId: string,
   resourceType: string,
-  navigator: any,
   config: ConfigFactory,
 }
 
@@ -54,6 +55,7 @@ export interface StateProps {
   location: MaybeLocation,
   resource: Maybe<AnyResource>,
   resourceMeta: ActionMeta
+  isResourcePending: boolean,
 }
 
 export interface ActionProps {
@@ -166,8 +168,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
-      pendingSavedReadingsMeta: {loading},
-
+      pendingSavedReadingsMeta: { loading },
+      isResourcePending,
       location, 
     } = this.props;
 
@@ -228,6 +230,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       //TD: hacks while we wait for a fix on types
       datetime: moment(date).utc().format(), //converts to iso string
       resourceType: this.props.resourceType,
+      isResourcePending,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -385,9 +388,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       new_reading_timeseries,
     } = this.props.translation.templates;
 
-    console.log("Resource type is", resourceType);
+    // console.log("Resource type is", resourceType);
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
-    console.log("timeseriesList is", timeseriesList);
+    // console.log("timeseriesList is", timeseriesList);
 
     return (
       <ScrollView style={{
@@ -528,6 +531,11 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
 
+  //Look for the resource in pending resources. If it's there, then this reading must be for a pending resource
+  let isResourcePending = false;
+  if (state.pendingSavedResources.findIndex((r) => r.id === ownProps.resourceId) >= -1) {
+    isResourcePending = true;
+  }
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
@@ -536,6 +544,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     userId: unwrapUserId(state.user),
     resource,
     resourceMeta,
+    isResourcePending,
   }
 }
 

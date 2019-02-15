@@ -43,6 +43,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 const initialLat: number = -20.4010;
 const initialLng: number = 32.3373;
@@ -450,14 +451,24 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       groundwaterStationId = selectedResource.groundwaterStationId;
     }
 
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null,
       resourceId,
-      groundwaterStationId,
-      //TODO: fix
-      resourceType: 'well',
+      resourceType: 'well', //TD: GGMN only
+      // isResourcePending: false, //TD: Set to false as it's not important for MyWell
       config: this.props.config,
-      userId: this.props.userId
     });
+
+
+    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    //   resourceId,
+    //   groundwaterStationId,
+    //   //TODO: fix
+    //   resourceType: 'well',
+    //   config: this.props.config,
+    //   userId: this.props.userId
+    // });
   }
 
   onEditReadingsPressed(resourceId: string) {
