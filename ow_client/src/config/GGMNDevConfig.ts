@@ -39,6 +39,7 @@ const GGMNDevConfig: RemoteConfig = {
   showMapInSidebar: false,
   resourceDetail_shouldShowTable: false,
   resourceDetail_shouldShowQRCode: false,
+  favouriteResource_showPendingResources: false,
 }
 
 export default GGMNDevConfig;

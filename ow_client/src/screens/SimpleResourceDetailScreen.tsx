@@ -12,13 +12,13 @@ import { Text, Button } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo, unwrapUserId, renderLog, showModal, maybeLog } from '../utils';
+import {navigateTo, unwrapUserId, renderLog, showModal, maybeLog, formatShortId } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
 import { TranslationFile } from 'ow_translations';
 import Loading from '../components/common/Loading';
-import { SomeResult } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
@@ -40,14 +40,17 @@ export interface OwnProps {
 
 export interface StateProps {
   translation: TranslationFile,
-  // resource: AnyResource | null,
   resourceType: ResourceType,
   meta: ActionMeta,
   userId: string,
+  shortId?: string,
+  shortIdMeta: ActionMeta
 }
 
 export interface ActionProps {
-  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<AnyResource>>
+  getResource: (api: BaseApi, resourceId: string, userId: string) => Promise<SomeResult<AnyResource>>,
+  getShortId: (api: BaseApi, resourceId: string) => any,
+
 }
 
 export interface State {
@@ -68,6 +71,16 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
   }
 
+  componentDidMount() {
+    
+    if (this.props.shortId) {
+      this.props.navigator.setTitle({ title: this.props.shortId});
+    } else {
+      this.props.navigator.setTitle({title: "Loading..."});
+      this.props.getShortId(this.appApi, this.props.resourceId);
+    }
+  }
+
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
     renderLog(`SimpleResourceDetailScreen componentDidUpdate, ${this.props.resourceId}, ${nextProps.resourceId}`);
     renderLog("     - ", diff(this.props, nextProps));
@@ -75,6 +88,10 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
     if (this.props.resourceId !== nextProps.resourceId) {
       this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+    }
+
+    if (!this.props.shortId && nextProps.shortId) {
+        this.props.navigator.setTitle({ title: nextProps.shortId });
     }
   }
 
@@ -209,11 +226,24 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     }
   }
 
+  let shortId;
+  const shortIdRaw = state.shortIdCache[ownProps.resourceId];
+  const shortIdResult = formatShortId(shortIdRaw);
+  if (shortIdResult.type === ResultType.SUCCESS) {
+    shortId = shortIdResult.result;
+  }
+  let shortIdMeta = state.shortIdMeta[ownProps.resourceId];
+  if (!shortId || !shortIdMeta) {
+    shortIdMeta = { loading: false, error: false, errorMessage: '' };
+  }
+
   return {
     translation: state.translation,
     resourceType,
     meta,
     userId: unwrapUserId(state.user),
+    shortId,
+    shortIdMeta,
   };
 }
 
@@ -221,7 +251,8 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     getResource: (api: BaseApi, resourceId: string, userId: string) => {
       return dispatch(appActions.getResource(api, resourceId, userId));
-    }
+    },
+    getShortId: (api: BaseApi, resourceId: string) => dispatch(appActions.getShortId(api, resourceId))
   }
 }
 

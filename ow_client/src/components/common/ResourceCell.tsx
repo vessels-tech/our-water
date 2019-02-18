@@ -1,6 +1,5 @@
 import * as React from 'react'; import { Component } from 'react';
-import { randomPrettyColorForId, formatShortId, getShortIdOrFallback } from '../../utils';
-import { DeprecatedResource } from '../../typings/models/OurWater';
+import { randomPrettyColorForId, formatShortId } from '../../utils';
 import { View, Dimensions } from 'react-native';
 import { Button } from 'react-native-elements';
 import { secondaryText } from '../../utils/Colors';
@@ -14,12 +13,13 @@ import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
 import { primaryText } from '../../assets/ggmn/Colors';
+import { PendingResource } from '../../typings/models/PendingResource';
 
 
 export interface OwnProps {
   config: ConfigFactory,
-  resource: AnyResource,
-  onResourceCellPressed: (resource: AnyResource) => void,
+  resource: AnyResource | PendingResource,
+  onResourceCellPressed: (resource: AnyResource | PendingResource) => void,
   style: any,
 
 }
@@ -57,12 +57,12 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
-      return ' . . . ';
+      return '. . . - . . .';
     } 
     
     const titleResult = formatShortId(shortId);
     if (titleResult.type === ResultType.ERROR) {
-      return ' . . . '
+      return '. . . - . . .';
     }
 
     return titleResult.result;

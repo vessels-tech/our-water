@@ -44,9 +44,13 @@ install-translations:
 	@echo 'installing latest packages'
 	cd ${dir}/functions && npm install
 	
-update-remote_config:
+update-remote-config:
 	@echo 'deploying remote config'
 	cd ${dir}/functions/tools && gulp deploy_remote_config
+
+get-remote-config:
+	@echo 'getting remote config to /tmp/config'
+	cd ${dir}/functions/tools && gulp get_remote_config > /tmp/config
 
 #
 #	Development

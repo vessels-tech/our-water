@@ -58,6 +58,7 @@ export type RemoteConfig = {
   showMapInSidebar: boolean,
   resourceDetail_shouldShowTable: boolean,
   resourceDetail_shouldShowQRCode: boolean,
+  favouriteResource_showPendingResources: boolean,
 }
 
 /**
@@ -290,6 +291,10 @@ export class ConfigFactory {
 
   getResourceDetailShouldShowQRCode() {
     return this.remoteConfig.resourceDetail_shouldShowQRCode;
+  }
+
+  getFavouriteResourcesShouldShowPending() {
+    return this.remoteConfig.favouriteResource_showPendingResources;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {
