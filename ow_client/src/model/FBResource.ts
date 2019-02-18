@@ -1,13 +1,9 @@
-
 import FirestoreDoc from "./FirestoreDoc";
 import { BasicCoords } from "../typings/models/OurWater";
 import firebase from "react-native-firebase";
 import { AnyResource, MyWellResource, GGMNResource } from "../typings/models/Resource";
-import { AnyTimeseries } from "../typings/models/Timeseries";
 import { OrgType } from "../typings/models/OrgType";
 import { FBTimeseriesMap, toAnyTimeseriesList } from "./FBTimeseries";
-import { diff } from "deep-object-diff";
-import { ResourceType } from "../enums";
 import { CacheType } from "../reducers";
 
 //TODO: move these elsewhere
@@ -197,7 +193,9 @@ export default class FBResource extends FirestoreDoc {
           groups: this.groups,
 
           /* Platform Specific */
+          //@ts-ignore
           description: this.description,
+          //@ts-ignore
           title: this.title,
         }
         return resource;
@@ -222,10 +220,15 @@ export default class FBResource extends FirestoreDoc {
           timeseries: toAnyTimeseriesList(this.timeseries),
 
           /* Platform Specific */
+          //@ts-ignore
           legacyId: this.legacyId,
+          //@ts-ignore
           owner: this.owner,
+          //@ts-ignore
           resourceType: this.resourceType,
+          //@ts-ignore
           lastValue: this.lastValue,
+          //@ts-ignore
           lastReadingDatetime: this.lastReadingDatetime,
         };
 
