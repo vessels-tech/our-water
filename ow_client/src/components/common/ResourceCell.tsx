@@ -58,12 +58,12 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
-      return ' . . . ';
+      return '. . . - . . .';
     } 
     
     const titleResult = formatShortId(shortId);
     if (titleResult.type === ResultType.ERROR) {
-      return ' . . . '
+      return '. . . - . . .';
     }
 
     return titleResult.result;
