@@ -24,7 +24,7 @@ export CONFIG_TYPE='MyWellDevConfig'
 
 export APP_NAME="MyWell Dev"
 export PACKAGE_NAME_PREFIX="com.vesselstech"
-export PACKAGE_NAME_SUFFIX="mywell.debug2" #TD change this back
+export PACKAGE_NAME_SUFFIX="mywell.debug" #TD change this back
 export KEYSTORE_PATH="/Users/ldaly/.android/debug.keystore"
 export KEYSTORE_ALIAS="androiddebugkey"
 export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
