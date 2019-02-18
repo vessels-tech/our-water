@@ -572,6 +572,10 @@ export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingRead
  * Format a 9 digit shortId to a 9 or dix digit version with dashes
  */
 export function formatShortId(shortId: string): SomeResult<string> {
+  if (!shortId) {
+    return makeError('ShortId is null or undefined');
+  }
+
   if (shortId.length !== 9) {
     return makeError('ShortId must be 9 digits long.');
   }

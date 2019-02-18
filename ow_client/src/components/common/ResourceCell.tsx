@@ -1,6 +1,5 @@
 import * as React from 'react'; import { Component } from 'react';
-import { randomPrettyColorForId, formatShortId, getShortIdOrFallback } from '../../utils';
-import { DeprecatedResource } from '../../typings/models/OurWater';
+import { randomPrettyColorForId, formatShortId } from '../../utils';
 import { View, Dimensions } from 'react-native';
 import { Button } from 'react-native-elements';
 import { secondaryText } from '../../utils/Colors';

@@ -74,6 +74,8 @@ export interface StateProps {
   newTsReadings: Array<AnyOrPendingReading>,
   newTsReadingsMeta: ActionMeta,
   timeseriesList: CacheType<Array<AnyOrPendingReading>>,
+  // shortId?: string,
+  // shortIdMeta: ActionMeta
 }
 
 export interface ActionProps {
@@ -117,6 +119,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   async reloadResourceAndReadings() {
+   
+
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
       resource_loading_error,
@@ -670,7 +674,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   //---
 
   const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
-  console.log("timeseries list is", timeseriesList);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
@@ -683,6 +686,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     newTsReadings,
     newTsReadingsMeta,
     timeseriesList,
+  
   }
 }
 
@@ -695,7 +699,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => 
       dispatch(appActions.getReadings(api, resourceId, timeseriesName, timeseriesId, range)),
     getResource: (api: BaseApi, resourceId: string, userId: string) => 
-      dispatch(appActions.getResource(api, resourceId, userId))
+      dispatch(appActions.getResource(api, resourceId, userId)),
   }
 }
 
