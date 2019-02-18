@@ -67,14 +67,14 @@ class Reading extends FirestoreDoc_1.default {
       * Deserialize from a document
       * @param sn
       */
-    static deserialize(doc) {
+    static deserialize(doc, docId) {
         const { docName, orgId, createdAt, updatedAt, datetime, value, resourceId, groups, isLegacy, resourceType, externalIds, coords, timeseriesId, } = doc.data();
         //nested variables
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
         const des = new Reading(orgId, resourceId, coords, resourceTypeObj, groups, datetime, value, externalIdsObj);
         //private vars
-        des.id = des.id;
+        des.id = des.id || docId;
         des.docName = docName;
         des.createdAt = createdAt;
         des.updatedAt = updatedAt;

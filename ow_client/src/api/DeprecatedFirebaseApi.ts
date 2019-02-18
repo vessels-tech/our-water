@@ -33,7 +33,9 @@ import { OrgType } from '../typings/models/OrgType';
 import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
 import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 import { UserStatus } from '../typings/UserTypes';
+import { date } from 'react-native-joi';
 import FirebaseUserApi from './FirebaseUserApi';
+import UserType from 'ow_common/lib/enums/UserType';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -65,10 +67,15 @@ class FirebaseApi {
    * //TODO: move across
    */
   static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
+
+
     const oldUserResult = await this.getUser(orgId, oldUserId);
     if (oldUserResult.type === ResultType.ERROR) {
       return oldUserResult;
     }
+
+    console.log("merging old user", oldUserResult.result);
+
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
     delete oldUser.email;
@@ -129,7 +136,6 @@ class FirebaseApi {
 
 
   static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
-  
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
       .then(sn => {
         const response: SomeResult<AnyResource[]> = {
@@ -152,7 +158,6 @@ class FirebaseApi {
   static async addRecentResource(orgId: string, resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
-
     if (r.type === ResultType.ERROR) {
       return r;
     }
@@ -263,6 +268,7 @@ class FirebaseApi {
         return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
       }
 
+      console.log("getResourceForId returned raw data", sn.data());
       const fbResource: FBResource = FBResource.deserialize(sn.data());
       const anyResource: AnyResource = fbResource.toAnyResource();
       return makeSuccess(anyResource);
@@ -352,14 +358,20 @@ class FirebaseApi {
    * getReadings
    * 
    * Get readings from the readings collection
+   * 
+   * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
+    console.log("firebaseAPi getting readings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
       .limit(300)
       .get()
-    .then((sn: any) => this.snapshotToReadings(sn))
+    .then((sn: any) => {
+      const parsedReadings = this.snapshotToReadings(sn);
+      return parsedReadings;
+    })
     .then((readings: AnyReading[]) => makeSuccess(readings))
     .catch((err: Error) => {
       maybeLog("error: ", err.message);
@@ -902,6 +914,7 @@ class FirebaseApi {
         name: null,
         nickname: null,
         status: UserStatus.Unapproved,
+        type: UserType.User,
       }
     }
 
@@ -945,6 +958,7 @@ class FirebaseApi {
       name: data.name || null,
       nickname: data.nickname || null,
       status: data.status || OWUserStatus.Unapproved,
+      type: data.type || UserType.User,
     }
   }
 
@@ -966,13 +980,14 @@ class FirebaseApi {
         location = data.location;
       }
 
+      //TD: This really needs to be fixed
       const reading: MyWellReading = {
         type: OrgType.MYWELL,
         resourceId: data.resourceId,
         timeseriesId: data.timeseriesId,
-        date: data.datetime,
+        date: data.datetime || data.date,
         value: data.value,
-        userId: 'unknown',
+        userId: data.userId || 'unknown',
         image,
         location,
       };

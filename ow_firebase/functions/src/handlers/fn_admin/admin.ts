@@ -3,17 +3,14 @@ import * as express from 'express';
 import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
 
-
-//@ts-ignore
-import * as morgan from 'morgan';
-//@ts-ignore
-import * as morganBody from 'morgan-body';
-import { validateFirebaseIdToken } from '../../middleware';
-import { generateQRCode } from '../../common/apis/QRCode';
-import { writeFileAsync } from '../../common/utils';
+import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
+import { enableLogging } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
+import { firestore } from '../../common/apis/FirebaseAdmin';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import { UserApi } from 'ow_common/lib/api';
+import UserType from 'ow_common/lib/enums/UserType';
+import UserStatus from 'ow_common/lib/enums/UserStatus';
 
 
 const bodyParser = require('body-parser');
@@ -24,64 +21,10 @@ require('express-async-errors');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
+  enableLogging(app);
+  app.use(validateFirebaseIdToken);
+  app.use(validateUserIsAdmin);
 
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
-
-  //TODO: figure out how to implement basic ACLS
-  //we don't want to validate these endpoints for now.
-  // app.use(validateFirebaseIdToken);
-
-
-  /**
-   * GenerateQRCode
-   * 
-   * Generate a QR code for a given id.
-   * 
-   */
-
-  const generateQRCodeValidation = {
-    options: {
-      allowUnknownBody: false,
-    },
-    query: {
-      id: Joi.string().required(),
-    }
-  }
-
-  app.get('/:orgId/qrCode', validate(generateQRCodeValidation), async (req, res) => {
-    const { id } = req.query;
-    const { orgId } = req.params;
-
-    const result = await generateQRCode(orgId, id);
-    if (result.type === ResultType.ERROR) {
-      throw new Error(result.message);
-    }
-
-    res.json(result.result);
-  });
-
-  
-  app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), async (req, res) => {
-    const { id } = req.query;
-    const { orgId } = req.params;
-
-    const qrResult = await generateQRCode(orgId, id);
-    if (qrResult.type === ResultType.ERROR) {
-      throw new Error(qrResult.message);
-    }
-
-    const base64Data = qrResult.result.replace(/^data:image\/png;base64,/, "");
-    const file = `/tmp/qr_${id}.png`;
-    await writeFileAsync(file, base64Data, 'base64');
-
-    res.download(file);
-  });
 
   /**
    * ChangeUserStatus
@@ -95,15 +38,19 @@ module.exports = (functions) => {
       allowUnknownBody: false,
     },
     body: {
-      status: Joi.string().valid('Approved', 'Rejected'),
+      status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
     },
   }
 
   app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), async (req, res) => {
     const { orgId, userId } = req.params;
     const { status } = req.body;
+    const fbApi = new FirebaseApi(firestore);
+    const userApi = new UserApi(firestore, orgId);
 
-    const userApi = new UserApi(orgId, userId);
+
+    //TODO: how to make sure only Admin can call this endpoint? 
+    //Can we add that as a rule to the Firestore rules?
 
     const statusResult = await userApi.changeUserStatus(userId, status);
     if (statusResult.type === ResultType.ERROR) {
@@ -111,15 +58,46 @@ module.exports = (functions) => {
     }
 
     if (status === "Approved") {
-      const syncResult = await FirebaseApi.syncPendingForUser(orgId, userId);
+      const syncResult = await fbApi.syncPendingForUser(orgId, userId);
       if (syncResult.type === ResultType.ERROR) {
         throw new Error(syncResult.message);
       }
     }
 
-    res.status(204).send(true);
+    res.status(204).send("true");
   });
 
+  //       status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
+
+  /**
+   * ChangeUserType
+   * PATCH /:orgId/:userId/type
+   * 
+   * Change the user's type to either User or Admin
+   */
+  const changeUserTypeValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    body: {
+      type: Joi.string().valid(Object.keys(UserType)),
+    },
+  }
+
+  app.patch('/:orgId/:userId/type', validate(changeUserTypeValidation), async (req, res) => {
+    const { orgId, userId } = req.params;
+    const { type } = req.body;
+
+    //TODO: how to make sure only Admin can call this endpoint? 
+    //Can we add that as a rule to the Firestore rules?
+    const userApi = new UserApi(firestore, orgId);
+    const statusResult = await userApi.changeUserType(userId, type);
+    if (statusResult.type === ResultType.ERROR) {
+      throw new Error(statusResult.message);
+    }
+
+    res.status(204).send("true");
+  });
 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });

@@ -3,7 +3,7 @@ import { Component } from "react";
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { View, KeyboardAvoidingView, ScrollView, ToastAndroid, Keyboard, Picker } from 'react-native';
 import { primaryDark, primary, error1, secondaryText, secondary, primaryLight, primaryText, bgLight, warning1 } from '../../utils/Colors';
-import { Text, FormInput, Button } from 'react-native-elements';
+import { Text, FormInput, Button, Divider } from 'react-native-elements';
 import {
   FormBuilder,
   FieldGroup,
@@ -34,9 +34,10 @@ import { MaybeInternalAccountApi, SaveUserDetailsType } from '../../api/internal
 import { RNFirebase } from 'react-native-firebase';
 import Config from 'react-native-config';
 import UserApi from '../../api/UserApi';
-import { MaybeUser, UserType } from '../../typings/UserTypes';
+import { MaybeUser, UserStatus, UserType } from '../../typings/UserTypes';
 import HeadingText from '../../components/common/HeadingText';
 import { greyMed } from '../../assets/ggmn/Colors';
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
 
 export interface OwnProps {
   navigator: any,
@@ -47,6 +48,7 @@ export interface StateProps {
   user: MaybeUser,
   userId: string,
   userIdMeta: ActionMeta,
+  userStatus: UserStatus,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
   externalOrgs: GGMNOrganisation[],
@@ -56,6 +58,7 @@ export interface StateProps {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  userType: UserAdminType,
 }
 
 export interface ActionProps {
@@ -403,7 +406,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   getProfileForm() {
     const { connect_to_service_submit_button } = this.props.translation.templates;
 
-    //TODO: transalte
+    //TODO: translate
     const connect_to_edit_heading = 'Tell Us More About Yourself';
     const connect_to_name_label = 'Full Name';
     const connect_to_nickname_label = 'Short Name';
@@ -472,7 +475,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getProfile() {
-    const { mobile, email, name, nickname } = this.props;
+    const { mobile, email, name, nickname, userStatus, userType } = this.props;
     const { 
       connect_to_signed_in_heading,
       connect_to_edit,
@@ -482,6 +485,28 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       connect_to_profile_mobile,
     } = this.props.translation.templates;
 
+    //TODO: Translate 
+    const unapproved = "unapproved";
+    const approved = "approved";
+    const rejected = "rejected";
+    const unapproved_description = "We're still waiting for an admin to verify your account.";
+    const approved_description = "Your account is approved! Feel free to sync measurements and locations now.";
+    const rejected_description = "Your account has been rejected. Reach out to ___@___ to learn more.";
+
+    let statusText = unapproved;
+    let statusDescription = unapproved_description;
+    switch (userStatus) {
+      case UserStatus.Approved: 
+        statusText = approved;
+        statusDescription = approved_description;
+        break;
+      case UserStatus.Rejected:
+        statusText = rejected;
+        statusDescription = rejected_description;
+      case UserStatus.Unapproved:
+        statusText = unapproved;
+        statusDescription = unapproved_description;
+    }
 
     return (
       <View
@@ -497,6 +522,17 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
         <HeadingText heading={connect_to_nickname_label} content={nickname || ''}/>
         <HeadingText heading={connect_to_profile_mobile} content={mobile || ''}/>
         <HeadingText heading={connect_to_email_label} content={email || ''}/>
+        <Divider style={{marginVertical: 20}}/>
+        <HeadingText heading={"User Status"} content={statusText}/>
+        <Text>{statusDescription}</Text>
+        {
+          userType === UserAdminType.Admin ?
+          <View style={{paddingTop: 10}}> 
+            <HeadingText heading={"User Type"} content={"Administrator"} />
+            <Text>{"You can make new measurements on any location."}</Text>
+          </View>  :
+            null
+        }
         <Button 
           style={{}}
           buttonStyle={{
@@ -574,6 +610,7 @@ const mapStateToProps = (state: AppState): StateProps => {
     user: state.user,
     userId: unwrapUserId(state.user),
     userIdMeta: state.userIdMeta,
+    userStatus: state.userStatus,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
     externalOrgs: state.externalOrgs,
@@ -583,6 +620,7 @@ const mapStateToProps = (state: AppState): StateProps => {
     email: state.email,
     name: state.name,
     nickname: state.nickname,
+    userType: state.userType,
   }
 }
 

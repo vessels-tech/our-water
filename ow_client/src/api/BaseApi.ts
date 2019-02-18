@@ -7,6 +7,7 @@ import { PendingReading } from "../typings/models/PendingReading";
 import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
+import { ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Cursor } from "../screens/HomeMapScreen";
 
 
@@ -25,8 +26,6 @@ export default interface BaseApi {
    */
   silentSignin(): Promise<SomeResult<AnonymousUser>>;
 
-
-  
 
 
   //
@@ -165,6 +164,19 @@ export default interface BaseApi {
    * @returns string[]: a list of the shortIds
    */
   preloadShortIds(ids: string[]): Promise<SomeResult<string[]>>;
+
+
+
+  /**
+   * RunInternalSync
+   * 
+   * Run a sync where we save Resources and Readings from the user's private collections to
+   * the public. For now, this will call the Firebase Admin API endpoint.
+   * 
+   * 
+   * @param userId 
+   */
+  runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>>;
 
 
   //

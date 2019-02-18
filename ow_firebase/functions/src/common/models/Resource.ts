@@ -1,10 +1,11 @@
 
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from "../types/ResourceIdType";
 import ResourceOwnerType from "../types/ResourceOwnerType";
 import FirestoreDoc from "./FirestoreDoc";
 import { serializeMap } from "../utils";
 import { OWGeoPoint } from "ow_types";
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 const admin = require('firebase-admin');
 const GeoPoint = admin.firestore.GeoPoint;
 
@@ -23,7 +24,7 @@ export type ResourceBuilder = {
   orgId: string,
   externalIds: ResourceIdType
   coords: OWGeoPoint
-  resourceType: ResourceType
+  resourceType: ResourceStationType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
@@ -35,7 +36,7 @@ export class Resource extends FirestoreDoc {
   id: string
   externalIds: ResourceIdType
   coords: OWGeoPoint
-  resourceType: ResourceType
+  resourceType: ResourceStationType
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
@@ -44,7 +45,7 @@ export class Resource extends FirestoreDoc {
   lastReadingDatetime: Date = new Date(0);
 
   constructor(orgId: string, externalIds: ResourceIdType, coords: OWGeoPoint,
-    resourceType: ResourceType, owner: ResourceOwnerType, groups: Map<string, boolean>,
+    resourceType: ResourceStationType, owner: ResourceOwnerType, groups: Map<string, boolean>,
     timeseries: FBTimeseriesMap) {
     super();
     
@@ -78,8 +79,8 @@ export class Resource extends FirestoreDoc {
       resourceType: this.resourceType,
       owner: this.owner,
       groups: serializeMap(this.groups),
-      lastValue: this.lastValue,
-      lastReadingDatetime: this.lastReadingDatetime,
+      lastValue: this.lastValue || null,
+      lastReadingDatetime: this.lastReadingDatetime || null,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       timeseries: this.timeseries,
@@ -89,7 +90,7 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a json object
    */
-  public static deserialize(data): Resource {
+  public static deserialize(data, deserId?: string): Resource {
     const {
       id,
       orgId,
@@ -106,12 +107,12 @@ export class Resource extends FirestoreDoc {
     } = data;
 
     //Deserialize objects
-    const resourceTypeObj: ResourceType = resourceTypeFromString(resourceType);
+    const resourceTypeObj: ResourceStationType = resourceTypeFromString(resourceType);
     const externalIdsObj = ResourceIdType.deserialize(externalIds);
     const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
 
     //private vars
-    des.id = id;
+    des.id = id || deserId;
     des.lastValue = lastValue;
     des.lastReadingDatetime = lastReadingDatetime;
     des.createdAt = createdAt;
@@ -123,8 +124,8 @@ export class Resource extends FirestoreDoc {
   /**
    * Deserialize from a Firestore Document
    */
-  public static fromDoc(doc): Resource {
-    return this.deserialize(doc.data());
+  public static fromDoc(doc, id?: string): Resource {
+    return this.deserialize(doc.data(), id);
   }
 
   /**

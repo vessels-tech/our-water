@@ -2,7 +2,6 @@ import * as React from 'react'; import { Component } from 'react';
 
 import { TouchableNativeFeedback, View } from "react-native";
 import { Text, Icon } from 'react-native-elements';
-import { error1, primaryText } from '../../utils/Colors';
 import { AppState } from '../../reducers';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations';
@@ -10,6 +9,7 @@ import { connect } from 'react-redux'
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { SearchButtonPressedEvent } from '../../utils/Events';
+import { primaryText } from '../../utils/NewColors';
 
 
 
@@ -61,7 +61,7 @@ class SearchButton extends Component<Props> {
               paddingTop: 10,
             }}
             name='search'
-            color={primaryText}
+            color={primaryText.high}
           />
         </View>
       </TouchableNativeFeedback>

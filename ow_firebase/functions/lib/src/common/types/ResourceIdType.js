@@ -107,7 +107,7 @@ class ResourceIdType {
     serialize() {
         return JSON.parse(JSON.stringify(this));
     }
-    static deserialize(obj) {
+    static deserialize(obj = {}) {
         let resourceIdType = new ResourceIdType();
         Object.keys(obj).forEach(key => {
             resourceIdType[key] = obj[key];

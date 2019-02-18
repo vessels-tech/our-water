@@ -37,12 +37,14 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface OwnProps {
+  navigator: any,
+
   groundwaterStationId: string | null,
   resourceId: string,
   resourceType: string,
-  navigator: any,
   config: ConfigFactory,
 }
 
@@ -53,6 +55,7 @@ export interface StateProps {
   location: MaybeLocation,
   resource: Maybe<AnyResource>,
   resourceMeta: ActionMeta
+  isResourcePending: boolean,
 }
 
 export interface ActionProps {
@@ -67,6 +70,7 @@ export interface State {
   date: moment.Moment,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
+  formHeight: number,
 }
 
 class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -82,10 +86,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    // let resourceType = 'well';
-    // if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
-    //   resourceType = props.resource.resourceType
-    // }
     const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(props.resourceType);
     this.state = {
       enableSubmitButton: false,
@@ -94,6 +94,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
       timeseries: timeseriesList[0],
+      formHeight: SCREEN_HEIGHT,
     };
 
     //Binds
@@ -102,10 +103,34 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.onTakePictureError = this.onTakePictureError.bind(this);
     this.clearReadingImage = this.clearReadingImage.bind(this);
     this.saveReading = this.saveReading.bind(this);
+
+    /* Listeners */
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
   }
 
   componentWillMount() {
     this.props.getGeolocation();
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  /**
+   * Listeners
+   * //TD: these listeners aren't always removed properly
+   */
+  keyboardDidShow(event: any): void {
+    const formHeight = SCREEN_HEIGHT - event.endCoordinates.height;
+    this.setState({ formHeight });
+  }
+
+  keyboardDidHide(event: any): void {
+    this.setState({
+      formHeight: SCREEN_HEIGHT,
+    });
   }
 
   showTakePictureScreen() {
@@ -143,8 +168,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
-      pendingSavedReadingsMeta: {loading},
-
+      pendingSavedReadingsMeta: { loading },
+      isResourcePending,
       location, 
     } = this.props;
 
@@ -201,6 +226,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       image: readingImage,
       location: readingLocation,
       groundwaterStationId,
+
+      //TD: hacks while we wait for a fix on types
+      datetime: moment(date).utc().format(), //converts to iso string
+      resourceType: this.props.resourceType,
+      isResourcePending,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -215,6 +245,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
       return;
     }
+
+    console.log("Validate result is", validateResult);
 
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, this.props.resourceId, validateResult.result);
 
@@ -356,14 +388,15 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       new_reading_timeseries,
     } = this.props.translation.templates;
 
+    // console.log("Resource type is", resourceType);
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
+    // console.log("timeseriesList is", timeseriesList);
 
     return (
-      <View style={{
+      <ScrollView style={{
         flex: 1,
         width: '100%',
-        paddingHorizontal: 20,
-        marginTop: 10,
+        paddingHorizontal: 10,
         flexDirection: 'column',
         paddingBottom: 10,
       }}>
@@ -422,7 +455,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           </Picker>
         </View>
         {this.getImageSection()}
-      </View>
+      </ScrollView>
     );
   }
 
@@ -455,6 +488,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           backgroundColor: secondary,
           width: SCREEN_WIDTH - 20,
         }}
+        containerViewStyle={{
+          marginTop: 10
+        }}
         onPress={this.saveReading}
         underlayColor="transparent"
       />
@@ -468,25 +504,19 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
           flexDirection: 'column',  
           width: '100%',
-          height: '100%'
         }}
         onPress={() => {
           return false;
         }}
       >
-        <ScrollView style={{
-          flex: 1,
-          flexDirection: 'column',
-          backgroundColor: bgLight,
-          width: '100%',
-          marginBottom: 40,
-          paddingHorizontal: 10,
-        }}
-          keyboardShouldPersistTaps={'always'}
+        <View
+          style={{
+            height: this.state.formHeight - 90,
+          }}
         >
           {this.getForm()}
           {this.getButton()}
-        </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -501,6 +531,11 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
 
+  //Look for the resource in pending resources. If it's there, then this reading must be for a pending resource
+  let isResourcePending = false;
+  if (state.pendingSavedResources.findIndex((r) => r.id === ownProps.resourceId) >= -1) {
+    isResourcePending = true;
+  }
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
@@ -509,6 +544,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     userId: unwrapUserId(state.user),
     resource,
     resourceMeta,
+    isResourcePending,
   }
 }
 

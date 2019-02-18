@@ -8,7 +8,11 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import ErrorHandler from '../../common/ErrorHandler';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/dep_AppProviderTypes';
+
+import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import { enableLogging } from '../../common/utils';
+
 // import FirebaseApi from '../common/apis/FirebaseApi';
 
 require('express-async-errors');
@@ -19,27 +23,19 @@ const Joi = require('joi');
 module.exports = (functions: any) => {
   const app = express();
   app.use(bodyParser.json());
+  enableLogging(app);
 
-
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
   /**
- * createShortId
- * 
- * @description 
- * Creates a shortId for a resource. If the shortId already exists,
- * it returns the existing one.
- * 
- * 
- * POST /:orgId/
- * body: { resourceId: string }
- */
-
+   * createShortId
+   * 
+   * @description 
+   * Creates a shortId for a resource. If the shortId already exists,
+   * it returns the existing one.
+   * 
+   * 
+   * POST /:orgId/
+   * body: { resourceId: string }
+   */
   const createShortIdValidation = {
     body: {
       resourceId: Joi.string().required()
@@ -50,8 +46,9 @@ module.exports = (functions: any) => {
   app.post('/:orgId', validate(createShortIdValidation), async (req, res) => {
     const { orgId } = req.params;
     const { resourceId } = req.body;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await FirebaseApi.createShortId(orgId, resourceId);
+    const result = await fbApi.createShortId(orgId, resourceId);
     if (result.type === ResultType.ERROR) {
       throw new Error(result.message);
     }

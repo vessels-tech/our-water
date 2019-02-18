@@ -1,4 +1,6 @@
-import { ResourceType } from "../../common/enums/ResourceType";
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+
+
 
 const Joi = require('joi');
 
@@ -10,7 +12,7 @@ const pendingResourceValidation = Joi.object().keys({
     longitude: Joi.number(),
   }).required(),
   //TODO: make one of ResourceType
-  resourceType: Joi.valid(Object.keys(ResourceType)).required(),
+  resourceType: Joi.valid(Object.keys(ResourceStationType)).required(),
   owner: Joi.object().keys({
     name: Joi.string().required(),
   }).required(),

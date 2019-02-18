@@ -79,6 +79,8 @@ export type AnyAction =
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
   StartExternalSyncActionResponse |
+  StartInternalSyncActionRequest |
+  StartInternalSyncActionResponse |
   UpdatedTranslationAction |
   VerifyCodeAndLoginActionRequest |
   VerifyCodeAndLoginActionResponse
@@ -147,6 +149,12 @@ export type SendVerifyCodeActionRequest = {type: ActionType.SEND_VERIFY_CODE_REQ
 export type SendVerifyCodeActionResponse = { type: ActionType.SEND_VERIFY_CODE_RESPONSE, result: SomeResult<RNFirebase.ConfirmationResult>};
 export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST};
 export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+
+//Internal sync is like external sync, but uses AppApi, and is just moving things from user's pending collections to the public collections
+export type StartInternalSyncActionRequest = { type: ActionType.START_INTERNAL_SYNC_REQUEST};
+//TD: Change from ExternalSyncStatusComplete
+export type StartInternalSyncActionResponse = { type: ActionType.START_INTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+
 export type UpdatedTranslationAction = { type: ActionType.UPDATED_TRANSLATION, translationFiles: TranslationFiles, translationOptions: TranslationEnum[]};
 export type VerifyCodeAndLoginActionRequest = {type: ActionType.VERIFY_CODE_AND_LOGIN_REQUEST }
 export type VerifyCodeAndLoginActionResponse = {type: ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE, result: SomeResult<FullUser>};

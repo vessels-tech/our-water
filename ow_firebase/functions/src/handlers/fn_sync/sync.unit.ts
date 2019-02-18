@@ -35,6 +35,8 @@ describe('SyncApi Unit Tests', function() {
       //Act
       const result = Joi.validate(input, createSyncValidation);
 
+      console.log(result.error);
+
       //Assert
       assert.equal(null, result.error);
     });

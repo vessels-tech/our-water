@@ -20,6 +20,11 @@ const PendingReadingSchema = {
   resourceId: Joi.string().required(),
   timeseriesId: Joi.string().required(),
   date: Joi.string().isoDate().required(),
+  
+  //Hacks while we wait to fix the type issue
+  datetime: Joi.string().isoDate().required(),
+  resourceType: Joi.string().required(),
+
   value: Joi.number().required(),
   image: Joi.allow([
     Joi.object().keys({
@@ -43,6 +48,7 @@ const PendingReadingSchema = {
     })
   ]).required(),
   groundwaterStationId: Joi.any(),
+  isResourcePending: Joi.boolean().required(),
 }
 
 

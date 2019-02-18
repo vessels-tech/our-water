@@ -10,7 +10,7 @@ import { GroupType } from '../../enums/GroupType';
 import LegacyResource from '../../types/LegacyResource';
 import { Resource, FBTimeseriesMap } from '../Resource';
 import ResourceIdType from '../../types/ResourceIdType';
-import { ResourceType, resourceTypeFromString } from '../../enums/ResourceType';
+import { resourceTypeFromString } from '../../enums/ResourceType';
 import ResourceOwnerType from '../../types/ResourceOwnerType';
 import { Reading } from '../Reading';
 import LegacyReading from '../../types/LegacyReading';
@@ -231,6 +231,7 @@ export default class LegacyMyWellDatasource implements Datasource {
    * ?filter=%7B%22where%22%3A%7B%22date%22%3A%7B%22gt%22%3A%20%222018-01-01T00%3A00%3A00.000Z%22%7D%7D%7D
    */
   public getReadingsData(orgId: string, firestore): Promise<DefaultSyncRunResult>  {
+    const fbApi = new FirebaseApi(firestore);
     const START_DATE = "2000-01-01T00:00:00.000Z";
     const END_DATE = "2012-01-01T00:00:00.000Z";
     const filter = { "where": { "and": [{ "date": { "gte": `${START_DATE}` } }, { "date": { "lte": `${END_DATE}` } } ]}};
@@ -307,7 +308,7 @@ export default class LegacyMyWellDatasource implements Datasource {
       //Save one batch at a time
       return batches.reduce(async (arr: Promise<any>, curr: Reading[], idx) => {
         await arr;
-        return FirebaseApi.batchSave(firestore, curr)
+        return fbApi.batchSaveReadings(curr)
           .then(results => {
             console.log(`SAVED BATCH ${idx} of ${batches.length}`);
             batchSaveResults = batchSaveResults.concat(results);

@@ -125,6 +125,7 @@ class FileDatasource {
      *   run a batch job which adds group and resource metadata to readings
      */
     pullDataFromDataSource(orgId, fs) {
+        const fbApi = new FirebaseApi_1.default(fs);
         let result = {
             results: [],
             warnings: [],
@@ -147,7 +148,7 @@ class FileDatasource {
             //Save one batch at a time
             return batches.reduce((arr, curr) => __awaiter(this, void 0, void 0, function* () {
                 yield arr;
-                return FirebaseApi_1.default.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results));
+                return fbApi.batchSaveReadings(curr).then(results => batchSaveResults = batchSaveResults.concat(results));
             }), Promise.resolve(true));
         })
             .then(() => {

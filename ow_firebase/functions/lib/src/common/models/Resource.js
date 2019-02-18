@@ -32,8 +32,8 @@ class Resource extends FirestoreDoc_1.default {
             resourceType: this.resourceType,
             owner: this.owner,
             groups: utils_1.serializeMap(this.groups),
-            lastValue: this.lastValue,
-            lastReadingDatetime: this.lastReadingDatetime,
+            lastValue: this.lastValue || null,
+            lastReadingDatetime: this.lastReadingDatetime || null,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             timeseries: this.timeseries,
@@ -42,14 +42,14 @@ class Resource extends FirestoreDoc_1.default {
     /**
      * Deserialize from a json object
      */
-    static deserialize(data) {
+    static deserialize(data, deserId) {
         const { id, orgId, externalIds, coords, resourceType, owner, groups, lastValue, lastReadingDatetime, createdAt, updatedAt, timeseries, } = data;
         //Deserialize objects
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
         const des = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
         //private vars
-        des.id = id;
+        des.id = id || deserId;
         des.lastValue = lastValue;
         des.lastReadingDatetime = lastReadingDatetime;
         des.createdAt = createdAt;
@@ -59,8 +59,8 @@ class Resource extends FirestoreDoc_1.default {
     /**
      * Deserialize from a Firestore Document
      */
-    static fromDoc(doc) {
-        return this.deserialize(doc.data());
+    static fromDoc(doc, id) {
+        return this.deserialize(doc.data(), id);
     }
     /**
      * getResource

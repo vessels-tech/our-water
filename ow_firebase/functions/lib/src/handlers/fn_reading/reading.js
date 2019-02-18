@@ -10,6 +10,7 @@ const Joi = require('joi');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
+    utils_1.enableLogging(app);
     //TODO: fix this error handler
     // app.use(defaultErrorHandler);
     app.use(function (err, req, res, next) {
@@ -78,6 +79,7 @@ module.exports = (functions) => {
                 throw new Error(`Resource with with orgId: ${orgId}, resourceId: ${resourceId} not found`);
             }
         })
+            //TODO: standardize all these refs
             .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/reading/`).add(data))
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));

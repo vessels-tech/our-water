@@ -1,8 +1,8 @@
 import * as React from 'react'; import { Component } from 'react';
 
 import { View, Image } from "react-native";
-import { secondaryDark } from '../../utils/Colors';
 import { Text } from 'react-native-elements';
+import { secondary, secondaryDark } from '../../utils/NewColors';
 
 
 const Logo = (text: string) => {

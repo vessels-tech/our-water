@@ -28,7 +28,6 @@ export interface ActionProps {
 
 export function withTabWrapper(WrappedComponent: any) {
 
-
   return class extends React.Component<OwnProps & StateProps & ActionProps> {
     constructor(props: OwnProps & StateProps & ActionProps) {
       super(props);
@@ -45,18 +44,23 @@ export function withTabWrapper(WrappedComponent: any) {
       }
 
       // const { translation: { templates: { search_heading } } } = this.props;
-      if (event === "SEARCH") {
-        navigateTo(this.props, 'screen.SearchScreen', 'Search', {
-          config: this.props.config,
-          onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
+      // if (event === "SEARCH") {
+      //   navigateTo(this.props, 'screen.SearchScreen', 'Search', {
+      //     config: this.props.config,
+      //     onSearchResultPressed: (result: GGMNSearchEntity) => this.onSearchResultPressed(result),
 
+      //   });
+      // }
+      //TD: Co-opting this for the QR search for now.
+      if (event === "SEARCH") {
+        navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+          config: this.props.config,
         });
       }
     }
 
     onSearchResultPressed(result: GGMNSearchEntity) {
       //TODO: make sure we are visible
-      console.log("TODO: search result pressed");
     }
 
     render() {

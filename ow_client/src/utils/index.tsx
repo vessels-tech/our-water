@@ -9,7 +9,7 @@ import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
-import { EnableLogging } from './EnvConfig';
+import { EnableLogging, EnableRenderLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
@@ -18,8 +18,11 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType, AnyOrPendingReading } from '../reducers';
-import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor } from './NewColors';
-import { secondaryText } from '../assets/ggmn/Colors';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor, secondaryPallette } from './NewColors';
+//@ts-ignore
+import * as QRCode from 'qrcode';
+import { OrgType } from '../typings/models/OrgType';
+
 
 
 /**
@@ -336,12 +339,14 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: navBarTextColor,
+  navBarTextColor: primaryText.high,
   navBarBackgroundColor: primary,
+
   statusBarColor: statusBarColor,
   statusBarTextColorScheme: statusBarTextColorScheme,
+  
   screenBackgroundColor: surface,
-  navBarButtonColor: navBarTextColor,
+  navBarButtonColor: primaryText.high,
   drawUnderStatusBar: false,
 }
 
@@ -493,7 +498,7 @@ export function throttled(delay: number, cb: any) {
 }
 
 // ES6
-export function debounced(delay: number, fn: any) {
+export function debounced(delay: number, fn: any): any {
   let timerId: any;
   return function (...args: any[]) {
     if (timerId) {
@@ -523,6 +528,16 @@ export function getBoolean(value: any) {
 
 export function maybeLog(message: any, object?: any) {
   if (EnableLogging) {
+    if (object) {
+      console.log(message, object);
+      return;
+    }
+    console.log(message);
+  }
+}
+
+export function renderLog(message: any, object?: any) {
+  if (EnableRenderLogging) {
     if (object) {
       console.log(message, object);
       return;
@@ -811,6 +826,27 @@ export function getMarkerKey(resource: AnyResource | PendingResource) {
   return `any_${resource.id}`;
 }
 
+
+export function pinColorForOrgAndResource(resource: AnyResource) {
+  if (resource.type === OrgType.GGMN) {
+    return secondary;
+  }
+
+  switch(resource.resourceType) {
+    case ResourceType.checkdam:
+      return 'yellow';
+    case ResourceType.custom:
+    case ResourceType.quality:
+      return 'grey';
+    case ResourceType.raingauge:
+      return 'navy';
+    case ResourceType.well:
+    default:
+      return 'orange';
+
+  }
+}
+
 /**
  * safeAreaFromPoint
  * 
@@ -825,3 +861,13 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
     longitudeDelta: 10,
   }
 }
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o);

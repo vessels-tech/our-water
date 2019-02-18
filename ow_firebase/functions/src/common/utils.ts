@@ -5,14 +5,15 @@ import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
 import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
-import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
-import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import * as btoa from 'btoa';
-var filesystem = require("fs");
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+import { verboseLog } from "./env";
+
+const filesystem = require("fs");
 
 
 
@@ -260,26 +261,26 @@ export const downloadAndParseCSV = (url) => {
   });
 }
 
-export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceType => {
+export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceStationType => {
 
   if (legacyResourceId.startsWith('117')) {
-    return ResourceType.Raingauge;
+    return ResourceStationType.raingauge;
   }
 
   if (legacyResourceId.startsWith('118')) {
-    return ResourceType.Checkdam;
+    return ResourceStationType.checkdam;
   }
 
-  return ResourceType.Well;
+  return ResourceStationType.well;
 }
 
-export const resourceIdForResourceType = (resourceType: ResourceType): string => {
+export const resourceIdForResourceType = (resourceType: ResourceStationType): string => {
   switch (resourceType) {
-    case ResourceType.Well:
+    case ResourceStationType.well:
       return '10';
-    case ResourceType.Raingauge:
+    case ResourceStationType.raingauge:
       return '70';
-    case ResourceType.Checkdam:
+    case ResourceStationType.checkdam:
       return '80'
   }
 }
@@ -412,4 +413,47 @@ export function chunkArray(array: any[], size: number): any[][] {
   }
 
   return chunks;
+}
+
+
+/**
+ * Express middleware has no access to the req.params, but 
+ * sometimes we still need the orgId in the middleware.
+ * 
+ * Pass in req.originalUrl, and we will try to get the OrgId
+ * 
+ */
+export function unsafelyGetOrgId(originalUrl: string): string {
+  const params = originalUrl.split('/');
+  if (params.length === 0) {
+    return null;
+  }
+  
+  return params[1];
+}
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o)
+
+
+//@ts-ignore
+import * as morgan from 'morgan';
+//@ts-ignore
+import * as morganBody from 'morgan-body';
+
+export function enableLogging(app: any): void {
+  if (!verboseLog) {
+    console.log('Using simple log');
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+  } else {
+    console.log('Using verbose log');
+    morganBody(app);
+  }
 }

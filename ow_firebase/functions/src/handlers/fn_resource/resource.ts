@@ -9,7 +9,6 @@ import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../../common/types/ResourceIdType';
 import { resourceTypeFromString } from '../../common/enums/ResourceType';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/dep_AppProviderTypes';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import ErrorHandler from '../../common/ErrorHandler';
 
@@ -22,6 +21,11 @@ import EmailApi from '../../common/apis/EmailApi';
 import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import { enableLogging } from '../../common/utils';
+import { UserApi } from 'ow_common/lib/api';
+import { User } from 'ow_common/lib/model/User';
+import UserStatus from 'ow_common/lib/enums/UserStatus';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -31,14 +35,7 @@ require('express-async-errors');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
+  enableLogging(app);
 
   app.use(validateFirebaseIdToken);
 
@@ -334,15 +331,44 @@ module.exports = (functions) => {
   app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), async (req, res, next) => {
     const { latitude, longitude, distance } = req.query;
     const { orgId } = req.params;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await FirebaseApi.resourcesNearLocation(orgId, latitude,longitude, distance);
+    const result = await fbApi.resourcesNearLocation(orgId, latitude,longitude, distance);
     if (result.type === ResultType.ERROR) {
       next(result.message);
       return;
     }
 
     res.json(result.result);
-  
+  });
+
+  /**
+   * SyncUserData
+   * POST /:orgId/:userId/sync
+   * 
+   * Synchronises the user's pendingResources and pendingReadings, and cleans them up
+   * The user MUST be approved before calling this method. 
+   *
+   */
+  app.post('/:orgId/:userId/sync', async (req, res) => {
+    const { orgId, userId } = req.params;
+    const userApi = new UserApi(firestore, orgId);
+    const fbApi = new FirebaseApi(firestore);
+
+    const userResult = await userApi.getUser(userApi.userRef(orgId, userId));
+    if (userResult.type === ResultType.ERROR) {
+      return res.status(400).send(`Couldn't find user with orgId: ${orgId}, userId: ${userId}`);
+    }
+    if (userResult.result.status !== UserStatus.Approved) {
+      return res.status(403).send("unauthorized");
+    }
+
+    const syncResult = await fbApi.syncPendingForUser(orgId, userId);
+    if (syncResult.type === ResultType.ERROR) {
+      throw new Error(syncResult.message);
+    }
+
+    return res.status(204).send("true");
   });
 
   /* CORS Configuration */

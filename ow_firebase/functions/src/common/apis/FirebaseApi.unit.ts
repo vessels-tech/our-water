@@ -2,17 +2,23 @@ import 'mocha';
 import * as assert from 'assert';
 
 import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
-import { ResultType, SomeResult } from 'ow_common/lib/utils/AppProviderTypes';
+import { ResultType, SomeResult, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
+import * as MockFirebase from 'mock-cloud-firestore';
+
 
 import ShortId from '../models/ShortId';
 import { pad, hashReadingId } from '../utils';
 import { Reading } from '../models/Reading';
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from '../types/ResourceIdType';
 import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
 import * as moment from 'moment';
+import { pendingResourcesData, basicResource, basicReading } from '../test/Data';
+import { getAllReadings, getAllResources } from '../test/TestUtils';
+import { Resource } from '../models/Resource';
+import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -23,19 +29,20 @@ describe('Firebase Api', function() {
   describe('Readings', function() {
     let newReadings;
     const readingIds = [];
+    const fbApi = new FirebaseApi(firestore);
 
     before(async () => {
       //TODO: create a bunch of readings
       newReadings = [
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
-        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
-        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
+        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
+        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
       ];
 
-      await FirebaseApi.batchSave(firestore, newReadings);
+      await fbApi.batchSaveReadings(newReadings);
       newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
@@ -47,10 +54,10 @@ describe('Firebase Api', function() {
         minLng: 34.0122,
         maxLng: 40,
       };
-      const pageParams: PageParams = { limit: 100, page: 0 };
+      const pageParams: PageParams = { limit: 100 };
       
       //Act
-      const readingsResult = await FirebaseApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
+      const readingsResult = await fbApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
       if (readingsResult.type === ResultType.ERROR) {
         throw new Error(readingsResult.message);
       }
@@ -61,7 +68,7 @@ describe('Firebase Api', function() {
 
     after(async () => {
       //Clean up the readings;
-      // FirebaseApi.batchDelete(firestore, newReadings, readingIds);
+      fbApi.batchDelete(firestore, newReadings, readingIds);
     })
   });
 
@@ -69,11 +76,12 @@ describe('Firebase Api', function() {
   describe('ShortIds', function() {
     let shortId1;
     let shortId2; 
+    const fbApi = new FirebaseApi(firestore);
 
     before(async () => {
       //Create 2 new ids
-      const result1 = await FirebaseApi.createShortId(orgId, 'longId_1');
-      const result2 = await FirebaseApi.createShortId(orgId, 'longId_2');
+      const result1 = await fbApi.createShortId(orgId, 'longId_1');
+      const result2 = await fbApi.createShortId(orgId, 'longId_2');
       
       if (result1.type !== ResultType.SUCCESS && result2.type !== ResultType.SUCCESS ) {
         throw new Error(`couldn't create shortIds`);   
@@ -93,7 +101,7 @@ describe('Firebase Api', function() {
       //Arrange
       
       //Act
-      const result = await FirebaseApi.getLongId(orgId, '12345');
+      const result = await fbApi.getLongId(orgId, '12345');
 
       //Assert
       assert.equal(result.type, ResultType.ERROR);
@@ -102,9 +110,8 @@ describe('Firebase Api', function() {
     it('gets a long id for an existing shortId', async() => {
       //Arrange
       //Act
-      const result = await FirebaseApi.getLongId(orgId, shortId1);
+      const result = await fbApi.getLongId(orgId, shortId1);
 
-      console.log("result", result);
       if (result.type === ResultType.ERROR) {
         throw new Error(result.message);
       }
@@ -127,6 +134,7 @@ describe('Firebase Api', function() {
 
   describe('shortId stress tests', function() {
     this.timeout(20000);
+    const fbApi = new FirebaseApi(firestore);
 
     //It seems like it can handle about 5 simultaneous writes.
     //That's good enough for our purposes now.
@@ -135,7 +143,7 @@ describe('Firebase Api', function() {
     before(async () => {
       //Create 2 new ids
       const range = Array.from(Array(n).keys())
-      return Promise.all(range.map(i => FirebaseApi.createShortId(orgId, `longId_${i}`)))
+      return Promise.all(range.map(i => fbApi.createShortId(orgId, `longId_${i}`)))
       .then((results: SomeResult<ShortId>[]) => {
         results.forEach(result => {
           if (result.type === ResultType.ERROR) {
@@ -163,4 +171,144 @@ describe('Firebase Api', function() {
       await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').delete();
     })
   });
+
+
+  describe('Creates Resources and Readings in batches', function() {
+    const mockFirestore = new MockFirebase({}).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('batchSaveResources()', async () => {
+      //Arrange
+      const resourcesToSave = [ basicResource(orgId) ];
+
+      //Act
+      const result = await fbApi.batchSaveResources(resourcesToSave);
+      const allResources = await getAllResources(fbApi);      
+
+      //Assert
+      assert.equal(resourcesToSave.length, allResources.length);
+    });
+
+
+    it('batchSaveReadings()', async () => {
+      //Arrange
+      const readingsToSave = [basicReading(orgId)];
+
+      //Act
+      const result = await fbApi.batchSaveReadings(readingsToSave);
+      const allReadings = await getAllReadings(fbApi);
+
+      //Assert
+      assert.equal(readingsToSave.length, allReadings.length);
+    });
+  });
+
+  describe('Deletes Resources and Readings in Batches', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('Deletes a batch of pendingResources succesfully', async () => {
+      //Arrange
+      const resourcesResult = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
+
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingResources(orgId, userId, resourcesResult.result);
+
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const resourcesResult2 = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult2.type === ResultType.ERROR) {
+        throw new Error(resourcesResult2.message);
+      }
+
+      assert.equal(resourcesResult2.result.length, 0);
+    });
+
+
+    it('Deletes a batch of pendingReadings succesfully', async () => {
+      //Arrange
+      const readingsResult = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingReadings(orgId, userId, readingsResult.result);
+
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const readingsResult2 = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult2.type === ResultType.ERROR) {
+        throw new Error(readingsResult2.message);
+      }
+
+      assert.equal(readingsResult2.result.length, 0);
+    });
+  })
+
+  describe('Pending Resources and Readings', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+
+    it('getPendingResources()', async () => {
+      //Arrange
+      //Act
+      const resourcesResult = await fbApi.getPendingResources(orgId, 'user_a');
+
+      //Assert
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
+
+      assert.equal(resourcesResult.result.length, 3);
+    });
+
+    it('getPendingReadings()', async () => {
+      //Arrange
+      //Act
+      const readingsResult = await fbApi.getPendingReadings(orgId, 'user_a');
+
+      //Assert
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      assert.equal(readingsResult.result.length, 2);
+    });
+  });
+
+  describe('syncPendingForUser()', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('Performs a full sync, and cleans up the pending resources', async () => {
+      //Arrange
+      //Act
+      const result = await fbApi.syncPendingForUser(orgId, userId);
+      if (result.type === ResultType.ERROR) {
+        throw new Error(result.message);
+      }
+
+      const pendingResources = unsafeUnwrap(await fbApi.getPendingResources(orgId, userId));
+      const pendingReadings = unsafeUnwrap(await fbApi.getPendingReadings(orgId, userId));
+      const allResources = await getAllResources(fbApi);
+      const allReadings = await getAllReadings(fbApi);
+
+      //Assert
+      assert.equal(pendingResources.length, 0);
+      assert.equal(pendingReadings.length, 0);
+      assert.equal(allResources.length, 3);
+      assert.equal(allReadings.length, 2);
+    });
+  })
 });

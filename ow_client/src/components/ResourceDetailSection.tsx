@@ -3,6 +3,8 @@ import {
   View,
   ViewPagerAndroid,
   ToastAndroid,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { 
   Avatar,
@@ -15,16 +17,13 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, getTimeseriesReadingKey, mergePendingAndSavedReadingsAndSort, dedupArray, splitArray, groupArray, arrayHighest, maybeLog,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
-import { Reading, OWTimeseries, TimeseriesRange, TimeseriesReadings, TimeSeriesReading, PendingReadingsByTimeseriesName } from '../typings/models/OurWater';
+import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import HeadingText from './common/HeadingText';
-import HeadingSubtitleText from './common/HeadingSubtitleText';
 import FlatIconButton from './common/FlatIconButton';
-import TimeseriesCard from './common/TimeseriesCard';
 
 import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
@@ -37,7 +36,6 @@ import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
-import { PendingReading } from '../typings/models/PendingReading';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
@@ -45,11 +43,11 @@ import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom'
 import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
-import { fromCommonResourceToFBResoureBuilder } from '../utils/Mapper';
 import { diff } from 'deep-object-diff';
-import { getDefaultSettings } from 'http2';
-import TimeseriesCardSimple from './common/TimeseriesCardSimple';
-import { secondaryText } from '../utils/NewColors';
+import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
+import QRCode from 'react-native-qrcode-svg';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export interface OwnProps {
@@ -69,7 +67,6 @@ export interface StateProps {
   favouriteResourcesMeta: SyncMeta,
   favourite: boolean,
   translation: TranslationFile,
-  pendingReadings: PendingReading[],
   userId: string,
   resource: Maybe<AnyResource>, 
   pendingResource: Maybe<PendingResource>,
@@ -102,19 +99,21 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     this.appApi = this.props.config.getAppApi();
 
+    //TD: This should probably be managed by global redux
     this.reloadResourceAndReadings();
   }
 
   componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State) {
+    renderLog(`ResourceDetailSection componentDidUpdate: ${prevProps.resourceId} ${this.props.resourceId}`);
     if (prevProps.resourceId !== this.props.resourceId) {
       this.reloadResourceAndReadings();
     }
   }
 
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
-    maybeLog("ResourceDetailSection componentWillUpdate():");
-    maybeLog("     - ", diff(this.props, nextProps));
-    maybeLog("     - ", diff(this.state, nextState));
+    renderLog("ResourceDetailSection componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
   }
 
   async reloadResourceAndReadings() {
@@ -153,9 +152,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
   }
 
-  getDefaultTimeseries(): Array<ConfigTimeseries> {
-    const { resource } = this.props;
 
+  getDefaultTimeseries(): Array<ConfigTimeseries> {
+    const { resource, pendingResource } = this.props;
+
+    //TD: this is a hacky fix
     let resourceType = 'well';
     if (resource) {
       if (resource.type === OrgType.GGMN) {
@@ -164,6 +165,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       if (resource.type === OrgType.MYWELL) {
         resourceType = resource.resourceType;
       }
+    }
+
+    if (pendingResource) {
+      resourceType = pendingResource.resourceType;
     }
 
     return this.props.config.getDefaultTimeseries(resourceType);
@@ -246,7 +251,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getLatestReadingsForTimeseries() {
-    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList } = this.props;
+    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList, resource } = this.props;
     const { 
       timeseries_name_title, 
       timeseries_date_format, 
@@ -255,6 +260,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       timeseries_loading_error
     } = this.props.translation.templates;
 
+    const defaultTimeseriesList = this.getDefaultTimeseries();
 
     if (resourceMeta.loading || newTsReadingsMeta.loading) {
       return <Loading/>
@@ -286,12 +292,17 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
+      const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.name === key);
+      let unitOfMeasure = 'm';
+      if (defaultTimeseries) {
+        unitOfMeasure = defaultTimeseries.unitOfMeasure;
+      }
 
       let content = 'N/A';
       let contentSubtitle;
     
       const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
-      content = `${latestReading.value.toFixed(2)}`;
+      content = `${latestReading.value.toFixed(2)} ${unitOfMeasure}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 
       return (
@@ -304,6 +315,42 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         />
       )
     });
+  }
+
+
+  /**
+   * a QR code that can be used to share wells with other users.
+   */
+  getQRCode() {
+    if (!this.props.config.getResourceDetailShouldShowQRCode()) {
+      return null;
+    }
+
+    if (this.props.isPending) {
+      return null;
+    }
+
+    //TD: this format is important, and should be defined somewhere else.
+    const data = {
+      orgId: 'mywell',
+      id: this.props.resourceId,
+      assetType: 'resource',
+    };
+    
+
+    return (
+      <View
+        style={{
+          flex: 5,
+          alignSelf: 'center',
+        }}
+      >
+        <QRCode
+          size={SCREEN_WIDTH - 200}
+          value={JSON.stringify(data)}
+        />
+      </View>
+    )
   }
 
   getSummaryCard() {
@@ -322,7 +369,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}>
           <View style={{
             flexDirection: 'column',
-            flex: 2,
+            flex: 1,
           }}>
             <Text style={{
               paddingVertical: 10,
@@ -336,12 +383,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
           <View style={{
             flexDirection: 'column',
-            flex: 5,
+            flex: 3,
             justifyContent: 'center',
           }}>
             {this.getLatestReadingsForTimeseries()}
           </View>
-
+          {this.getQRCode()}
           {/* Bottom Buttons */}
           <View style={{
             flex: 0.5,
@@ -357,7 +404,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
               />
-            {allowEditReadings && <ResourceDetailBottomButton
+          {allowEditReadings   && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
               onPress={() => this.props.onEditReadingsPressed(resourceId)}
             />}
@@ -370,11 +417,82 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     );
   }
 
+  getGraphChildren() {
+    const { timeseriesList } = this.props;
+    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
+
+    console.log("Default timeseries is", defaultTimeseriesList);
+
+    return Object.keys(timeseriesList).map((key, idx) => {
+      console.log("looking for timeseries with key", key);
+
+      const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
+      if (!timeseries) {
+        console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
+        return;
+      }
+
+      return (
+        // @ts-ignore
+        <View
+          tabLabel={`Graph: ${timeseries.name}`}
+          key={`${idx + 1}_${timeseries.name}`}
+          style={{ alignItems: 'center' }}
+        >
+          <TimeseriesCardSimple
+            cardType={TimeseriesCardType.default}
+            key={`${idx + 1}_${timeseries.name}`}
+            config={this.props.config}
+            timeseries={timeseries}
+            resourceId={this.props.resourceId}
+            timeseriesId={key}
+            isPending={this.props.isPending}
+          />
+        </View>
+      )
+    });
+  }
+
+  getTableChildren() {
+    if (!this.props.config.getResourceDetailShouldShowTable()) {
+      return false;
+    }
+
+    const { timeseriesList } = this.props;
+    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
+
+    return Object.keys(timeseriesList).map((key, idx) => {
+      const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
+      if (!timeseries) {
+        console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
+        return;
+      }
+
+      //TODO: Make this a graph thingo
+      return (
+        // @ts-ignore
+        <View
+          tabLabel={`Table: ${timeseries.name}`}
+          key={`graph_${idx + 1}_${timeseries.name}`}
+          style={{ alignItems: 'center' }}
+        >
+          <TimeseriesCardSimple
+            cardType={TimeseriesCardType.table}
+            key={`${idx + 1}_${timeseries.name}`}
+            config={this.props.config}
+            timeseries={timeseries}
+            resourceId={this.props.resourceId}
+            timeseriesId={key}
+            isPending={this.props.isPending}
+          />
+        </View>
+      )
+    });
+  }
+
   getReadingsView() {
     const { resource_detail_summary_tab } = this.props.translation.templates;
-    const { timeseriesList } = this.props;
     const { hackViewPager } = this.state;
-    const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
     return (
       // @ts-ignore
@@ -397,12 +515,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         tabBarInactiveTextColor={primaryText}
         renderTabBar={() => (
           <ScrollableTabView.DefaultTabBar
-            tabStyle={{
-              backgroundColor: primaryLight,
-            }}
-            // textStyle={{
-            //   color: primaryText,
-            // }}
+            tabStyle={{ backgroundColor: primaryLight }}
           />
         )}>
         <View 
@@ -416,31 +529,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           {this.getSummaryCard()}
         </View>
           {
-            Object.keys(timeseriesList).map((key, idx) => {
-              const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
-              if (!timeseries) {
-                console.warn("No timeseries found for key and defaultTimeseriesList", key, defaultTimeseriesList);
-                return;
-              }
-
-              return (
-                // @ts-ignore
-                <View 
-                  tabLabel={`${timeseries.name}`} 
-                  key={`${idx + 1}_${timeseries.name}`} 
-                  style={{ alignItems: 'center' }}
-                >
-                  <TimeseriesCardSimple
-                    key={`${idx + 1}_${timeseries.name}`} 
-                    config={this.props.config}
-                    timeseries={timeseries}
-                    resourceId={this.props.resourceId}
-                    timeseriesId={key}
-                    isPending={this.props.isPending}
-                  />
-                </View>
-              )
-            })
+            //Readings in Graph form
+            this.getGraphChildren()
+          }
+          {
+            //Optional Table of Readings
+            this.getTableChildren()
           }
       </ScrollableTabView>
     );
@@ -528,30 +622,29 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   const favourite = isFavourite(state.favouriteResources, ownProps.resourceId);
-
-  // const resource = state.resourcesCache[ownProps.resourceId];
   const resource = state.resourcesCache.find(r => r.id === ownProps.resourceId);
 
   let pendingResource: Maybe<PendingResource>;
   if (ownProps.isPending) {
-    const filteredPendingResources = state.pendingSavedResources.filter(r => r.id === ownProps.resourceId);
-    if (filteredPendingResources.length > 0) {
-      pendingResource = filteredPendingResources[0];
-    }
+    pendingResource = state.pendingSavedResources.find(r => r.id === ownProps.resourceId);
   }
+
   let resourceMeta;
+  //TD: Hack to get GGMN working
   if (ownProps.temporaryGroundwaterStationId) {
     resourceMeta = state.resourceMeta[ownProps.temporaryGroundwaterStationId];
   } else {
     resourceMeta = state.resourceMeta[ownProps.resourceId];
   }
   
+  //TODO: clean this up - I no longer understand what its purpose is
+  //---
+
   //If we have no resource and no resourceMeta and no pendingResource, then we must be loading
   if (!resource && !resourceMeta && !pendingResource) {
     resourceMeta = { loading: true, error: false, errorMessage: '' };
   }
 
-  //TODO: clean this up
   if (!resourceMeta) {
     if (!pendingResource) {
       resourceMeta = { loading: true, error: false, errorMessage: '' };
@@ -563,6 +656,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   if (resourceMeta.error && ownProps.isPending) {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
+ 
 
   const newTsReadings = state.newTsReadings[ownProps.resourceId] || [];
   let newTsReadingsMeta = state.newTsReadingsMeta[ownProps.resourceId];
@@ -573,14 +667,15 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   if (!newTsReadingsMeta) {
     newTsReadingsMeta = { loading: false, error: false, errorMessage: '' };
   }
+  //---
 
   const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
+  console.log("timeseries list is", timeseriesList);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
     favourite,
     translation: state.translation,
-    pendingReadings: state.pendingSavedReadings.filter(r => r.resourceId === ownProps.resourceId),
     userId: state.user.type === UserType.NO_USER ? '' : state.user.userId,
     resource,
     pendingResource,

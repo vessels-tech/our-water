@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from 'react';
 import {
-  View, Keyboard, ToastAndroid, ScrollView, Alert,
+  View, Keyboard, ToastAndroid, ScrollView, Alert, KeyboardAvoidingView, Dimensions, ShadowPropTypesIOS,
 } from 'react-native';
 import {
   Button
@@ -30,7 +30,7 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } f
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
-import { unwrapUserId, displayAlert } from '../../utils';
+import { unwrapUserId, displayAlert, debounced } from '../../utils';
 import { isNullOrUndefined } from 'util';
 
 export interface Props { 
@@ -53,6 +53,7 @@ export interface Props {
 }
 
 export interface State {
+  formHeight: number,
 
 }
 
@@ -81,14 +82,41 @@ class EditResourceScreen extends Component<Props> {
     this.externalApi = this.props.config.getExternalServiceApi();
     this.extendedResourceApi = this.props.config.getExtendedResourceApi();
     
-    this.state = {};
+    this.state = {
+      formHeight: Dimensions.get('window').height, 
+    };
 
     /* Binds */
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.displayDeleteModal = this.displayDeleteModal.bind(this);
-
+    this.handleSubmit = debounced(1000, this.handleSubmit);
     this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
+
+    /* Listeners */
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  /**
+   * Listeners
+   * //TD: these listeners aren't always removed properly
+   */
+
+  keyboardDidShow(event: any): void {
+    const formHeight = Dimensions.get('window').height - event.endCoordinates.height;
+    this.setState({ formHeight });
+  }
+
+  keyboardDidHide(event: any): void {
+    this.setState({
+      formHeight: Dimensions.get('window').height,
+    });
   }
 
   /**
@@ -221,7 +249,7 @@ class EditResourceScreen extends Component<Props> {
     const result = await this.extendedResourceApi.checkNewId(control.value);
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
+      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.LONG);
 
       throw { invalidId: true };
     }
@@ -372,35 +400,44 @@ class EditResourceScreen extends Component<Props> {
         strict={false}
         control={this.editResourceForm}
         render={({get, invalid}) => (
-          <View>
-            {this.props.config.getEditResourceAllowCustomId() ?
-              <FieldControl
-                name="id"
-                render={TextIdInput}
-                meta={{ 
-                  //Don't allow user to edit existing resource ids
-                  editable: this.props.resource ? false : true, 
-                  label: new_resource_id, 
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                  errorMessage: general_is_required_error,
-                  asyncErrorMessage: new_resource_id_check_taken,
-                }}
-              /> : null}
-            {this.props.config.getEditResourceHasResourceName() ?
-              <FieldControl
-                name="name"
-                render={TextInput}
-                meta={{ 
-                  editable: true, 
-                  label: new_resource_name, 
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                }}
-              /> : null}
-            <View style={{
-              flexDirection: 'row',
-            }}>
+          <View
+            style={{
+              height: this.state.formHeight - 70,
+            }}
+          >
+            <ScrollView
+              // style={{flex: 1, height: 200}}
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps={'always'}
+            >
+              {this.props.config.getEditResourceAllowCustomId() ?
+                <FieldControl
+                  name="id"
+                  render={TextIdInput}
+                  meta={{ 
+                    //Don't allow user to edit existing resource ids
+                    editable: this.props.resource ? false : true, 
+                    label: new_resource_id, 
+                    secureTextEntry: false, 
+                    keyboardType: 'default',
+                    errorMessage: general_is_required_error,
+                    asyncErrorMessage: new_resource_id_check_taken,
+                  }}
+                /> : null}
+              {this.props.config.getEditResourceHasResourceName() ?
+                <FieldControl
+                  name="name"
+                  render={TextInput}
+                  meta={{ 
+                    editable: true, 
+                    label: new_resource_name, 
+                    secureTextEntry: false, 
+                    keyboardType: 'default',
+                  }}
+                /> : null}
+              <View style={{
+                flexDirection: 'row',
+              }}>
               <LoadLocationButton 
                 style={{
                   alignSelf: 'center',
@@ -428,19 +465,19 @@ class EditResourceScreen extends Component<Props> {
                 keyboardType: 'default' 
               }}
             />
-            { this.props.config.getEditResourceHasWaterColumnHeight() ?
+              {this.props.config.getEditResourceHasWaterColumnHeight() ?
               <FieldControl
                 name="waterColumnHeight"
                 render={TextInput}
                 meta={{ editable: true, label: new_resource_water_column_height, secureTextEntry: false, keyboardType: 'numeric' }}
               /> : null}
-
-            { this.props.config.getEditResourceShouldShowOwnerName() ?
+              {this.props.config.getEditResourceShouldShowOwnerName() ?
               <FieldControl
                 name="ownerName"
                 render={TextInput}
                 meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
               /> : null }
+            </ScrollView>
             <Button
               style={{
                 paddingBottom: 20,
@@ -460,7 +497,7 @@ class EditResourceScreen extends Component<Props> {
               loading={loading}
               disabled={invalid}
               title={loading ? '' : new_resource_submit_button}
-              onPress={() => this.handleSubmit()}
+              onPress={this.handleSubmit}
             />
           </View>
         )}
@@ -498,16 +535,14 @@ class EditResourceScreen extends Component<Props> {
 
   render() {
     return (
-      <ScrollView
+      <View
         style={{
           flexDirection: 'column',
         }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps={'always'}
       >
         {this.getForm()}
         {this.props.resource && this.getDeleteButton()}
-      </ScrollView>
+      </View>
     );
   }
 }

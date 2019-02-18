@@ -4,7 +4,9 @@ node_modules
 .runtimeconfig.json.*.env
 .service*
 *google-services.json
+*google-services*.json
 *.keystore
 .backupServiceAccountKey.js
+.backupServiceAccountKey*.js
 ow_common_setup
 

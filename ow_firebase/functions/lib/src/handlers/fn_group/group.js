@@ -4,11 +4,13 @@ const validate = require("express-validation");
 const express = require("express");
 const OWGeoPoint_1 = require("../../common/models/OWGeoPoint");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const utils_1 = require("../../common/utils");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
+    utils_1.enableLogging(app);
     // const defaultErrorHandler = require('../common/defaultErrorHandler');
     //TODO: fix this error handler
     // app.use(defaultErrorHandler);

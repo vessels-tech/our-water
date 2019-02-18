@@ -19,6 +19,8 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
 import { Region } from "ow_translations/src/Types";
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+
 
 const orgId = EnvConfig.OrgId;
 const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
@@ -56,7 +58,6 @@ export type AppState = {
   resources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  // resourcesCache: CacheType<[AnyResource, number]>, //Store the cache type with the timestamp it was loaded into the cache
   resourcesCache: AnyResource[],
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
@@ -86,6 +87,7 @@ export type AppState = {
   user: MaybeUser,
   userIdMeta: ActionMeta,
   userStatus: UserStatus,
+  userType: UserAdminType,
 }
 
 export const initialState: AppState = {
@@ -135,6 +137,7 @@ export const initialState: AppState = {
   userIdMeta: { loading: false, error: false, errorMessage: '' },
   userStatus: UserStatus.Unapproved,
   syncStatus: SyncStatus.none,
+  userType: UserAdminType.User,
   favouriteResources: [],
   favouriteResourcesMeta: { loading: false, error: false, errorMessage: '' },
   recentResources: [],
@@ -353,7 +356,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_RESOURCES_RESPONSE: {
       let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       let resources: AnyResource[] = state.resources;
-      let resourcesCache = state.resourcesCache;
+      let resourcesCache: AnyResource[] = state.resourcesCache;
       let pendingSavedResources = state.pendingSavedResources;
 
       if (action.result.type === ResultType.ERROR) {
@@ -366,6 +369,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       /* Save to cache */
 
       //Add new resources to cache
+      // console.log("resourcesCache is", resourcesCache.length);
+      // console.log("newResources is", newResources.length);
+
+      if (!resourcesCache) {
+        console.log("No resources cache?");
+        resourcesCache = [];
+      }
       resourcesCache = resourcesCache.concat(newResources);
 
       //Deuplicate the cache
@@ -429,6 +439,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let name = state.name;
       let nickname = state.nickname;
       let userStatus = state.userStatus;
+      let userType = state.userType;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -442,6 +453,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name = action.result.result.name && action.result.result.name;
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
+        userType = action.result.result.type;
       }
       
       //TODO: error handling?
@@ -458,6 +470,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name,
         nickname,
         userStatus,
+        userType,
       });
     }
     case ActionType.GOT_SHORT_IDS: {
@@ -554,30 +567,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         });
         newTsReadings[id] = dedup;
       });
-
-
-
-      // const newTsReadings = state.newTsReadings;
-      // const newTsReadingsMeta = state.newTsReadingsMeta;
-      // let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-
-      // const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
-      //   .filter(r => r.resourceId === action.resourceId);
-
-      // const duplicateArray = currentReadings.concat(pendingReadings).filter(r => !isNullOrUndefined(r));
-      // const dedup = dedupArray(duplicateArray, (r) => {
-      //   if (!r) {
-      //     console.warn("undefined resource in array!", r);
-      //     return '1';
-      //   }
-      //   return `${r.date}+${r.resourceId}+${r.timeseriesId}`
-      // });
-
-      // //Update the values
-      // newTsReadings[action.resourceId] = dedup;
-      // newTsReadingsMeta[action.resourceId] = meta;
-
-      // return Object.assign({}, state, { newTsReadings, newTsReadingsMeta });
+      
       return Object.assign({}, state, { newTsReadings });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
@@ -610,7 +600,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };      
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };  
+
+      if (action.result.type === ResultType.ERROR) {
+        console.log("ADD_RECENT_RESPONSE error", action.result);
+      }
+
       return Object.assign({}, state, { recentResourcesMeta })
     }
     case ActionType.SAVE_READING_REQUEST: {
@@ -664,6 +659,30 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.START_EXTERNAL_SYNC_RESPONSE: {      
+      //If this errored out, then something serious went wrong
+      if (action.result.type === ResultType.ERROR) {
+        const externalSyncStatus: ExternalSyncStatusComplete = { 
+          status: ExternalSyncStatusType.COMPLETE,  
+          pendingResourcesResults: {},
+          pendingReadingsResults: {},
+          newResources: [],
+        };
+
+        return Object.assign({}, state, { externalSyncStatus })
+      }
+
+      const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
+      return Object.assign({}, state, { externalSyncStatus })
+    }
+    case ActionType.START_INTERNAL_SYNC_REQUEST: {
+      //TD: this is hacky, I just don't want to make an InternalSyncStatus
+      const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
+
+      //TODO: handle login error case here?
+      return Object.assign({}, state, { externalSyncStatus })
+    }
+
+    case ActionType.START_INTERNAL_SYNC_RESPONSE: {      
       //If this errored out, then something serious went wrong
       if (action.result.type === ResultType.ERROR) {
         const externalSyncStatus: ExternalSyncStatusComplete = { 

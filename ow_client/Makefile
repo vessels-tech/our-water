@@ -14,10 +14,11 @@ install:
 	yarn
 
 
+
 #
-# join together env files to set up the ENVFILE
-# that react-native-env likes
-#
+#	Env Setup
+# ------------
+
 env:
 	cat ../env/.env.${orgId}.${stage}.sh ../env/env.${orgId}.${stage}.sh > /tmp/ow_env
 
@@ -32,6 +33,9 @@ switch:
 	@cp -R ${dir}/src/assets/${orgId}/* ${dir}/android/app/src/main/res/
 	@cp -R ${dir}/src/assets/${orgId}/Colors.ts ${dir}/src/utils/Colors.ts
 	@cp -R ${dir}/src/assets/${orgId}/NewColors.ts ${dir}/src/utils/NewColors.ts
+	@echo 'Copying google-services.json across'
+	@cp ${dir}/../env/google-services.${stage}.json ${dir}/android/app/google-services.json
+
 
 
 switch-ggmn-dev:
@@ -43,12 +47,21 @@ switch-ggmn-prod:
 switch-mywell-dev:
 	make switch orgId="mywell" stage="development"
 
+switch-mywell-prod:
+	make switch orgId="mywell" stage="production"
+
+
+#
+#	Development
+# ------------
+
 #
 # runs the local bundler server
 #
 server: 
 	@make env
 	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
+	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot ./src/
 
 #
 # runs on an android device.
@@ -60,6 +73,11 @@ android:
 
 android-log:
 	@react-native log-android
+
+android-emulator:
+	# @ cd ~/Library/Android/sdk/tools/bin/ && ./avdmanager list avd
+	# @look for name: Nexus_5X_API_P
+	@cd ~/Library/Android/sdk/emulator/ && ./emulator -avd Nexus_5X_API_P
 
 reinstall-node:
 	rm -rf node_modules; yarn
@@ -105,10 +123,10 @@ build:
 	source /tmp/ow_env && source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug --stacktrace
 
 build-production:
-	@make env
-	@echo 'Building production only'
-	../env/increment_build.sh
-	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
+	# @make env
+	# @echo 'Building production only'
+	# ../env/increment_build.sh
+	# source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
 	@echo "signing with key: '${KEYSTORE_PATH}'"
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ${KEYSTORE_PATH} app-release-unsigned.apk -storepass ${KEYSTORE_PASSWORD} ${KEYSTORE_ALIAS}
 	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -f -v 4 app-release-unsigned.apk app-release-signed-aligned.apk
@@ -125,6 +143,11 @@ build-and-install:
 
 build-and-install-production:
 	@make bundle build-production install-android-production
+
+
+#
+#	Deployment
+# ------------
 
 hockey:
 	source ../env/.env.deployment.sh && \

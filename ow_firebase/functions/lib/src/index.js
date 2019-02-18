@@ -1,8 +1,12 @@
 "use strict";
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const functions = require("firebase-functions");
-const admin = require('firebase-admin');
-admin.initializeApp();
+const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
+const UserType_1 = require("ow_common/lib/enums/UserType");
+const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
+// const admin = require('firebase-admin');
+// admin.initializeApp();
 /**
  * This file works better in JS,
  * When it is in TS, it gets compiled to JS and this breaks
@@ -10,37 +14,63 @@ admin.initializeApp();
  */
 const functionName = process.env.FUNCTION_NAME;
 console.log("init for function", functionName);
-//Org Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
-    exports.org = require('./handlers/fn_org/org')(functions);
-}
-//Group Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
-    exports.group = require('./handlers/fn_group/group')(functions);
-}
-//Resource Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
-    exports.resource = require('./handlers/fn_resource/resource')(functions);
-}
-//Reading Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
-    exports.reading = require('./handlers/fn_reading/reading')(functions);
-}
-//Sync Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
-    exports.sync = require('./handlers/fn_sync/sync')(functions);
-}
-//ShortId Api
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
-    exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
-}
 //Admin Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
     exports.admin = require('./handlers/fn_admin/admin')(functions);
 }
 //Cron Api
 _a = require('./handlers/fn_cron/cron'), exports.hourly_job = _a.hourly_job, exports.daily_job = _a.daily_job, exports.weekly_job = _a.weekly_job;
-var _a;
+//Group Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
+    exports.group = require('./handlers/fn_group/group')(functions);
+}
+//Org Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'org') {
+    exports.org = require('./handlers/fn_org/org')(functions);
+}
+//Public Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'public') {
+    exports.org = require('./handlers/fn_public/public')(functions);
+}
+//Reading Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'reading') {
+    exports.reading = require('./handlers/fn_reading/reading')(functions);
+}
+//Resource Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'resource') {
+    exports.resource = require('./handlers/fn_resource/resource')(functions);
+}
+//ShortId Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
+    exports.shortId = require('./handlers/fn_shortId/shortId')(functions);
+}
+//Sync Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
+    exports.sync = require('./handlers/fn_sync/sync')(functions);
+}
+/**
+ * userAccountDefaults
+ *
+ * When a user account is first created, set the defaults:
+ * - status: "Unapproved"
+ * - type: "User"
+ *
+ * //TD: how to define for only some environments?
+ * //For now, this is mywell only.
+ *
+ * //TD: Use the properly defined types here.
+ */
+exports.userAccountDefaults = functions.firestore
+    .document('org/mywell/user/{userId}')
+    .onCreate((snapshot, context) => {
+    const { userId } = context.params;
+    console.log("user id is", userId);
+    const userDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
+    return userDoc.set({
+        status: UserStatus_1.default.Unapproved,
+        type: UserType_1.default.User
+    }, { merge: true });
+});
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});
 //TODO: move these functions to new doc
@@ -115,5 +145,5 @@ TODO: watches for SyncRuns:
 //TODO: on creation of a resource, send an email or sms
 //These aren't so pressing...
 //TODO: change group name, propagate to all resources and readings
-//TODO: add or remove group from resource, propagate to existing readings 
+//TODO: add or remove group from resource, propagate to existing readings
 //# sourceMappingURL=index.js.map

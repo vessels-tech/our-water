@@ -54,6 +54,10 @@ export type RemoteConfig = {
   translationOptions: TranslationEnum[],
   ggmn_ignoreReading: {date: string, value: number},
   map_regionChangeReloadDebounceTimeMs: number,
+  //Should we display the map in the sidebar?
+  showMapInSidebar: boolean,
+  resourceDetail_shouldShowTable: boolean,
+  resourceDetail_shouldShowQRCode: boolean,
 }
 
 /**
@@ -107,7 +111,7 @@ export class ConfigFactory {
 
     } else {
       //Default to MyWellApi
-      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId, this.remoteConfig.firebaseBaseUrl);
       //@ts-ignore
       this.appApi = mywellApi;
       //@ts-ignore
@@ -244,6 +248,7 @@ export class ConfigFactory {
    * This determines the default timeseries for the environment
    */
   getDefaultTimeseries(resourceTypeString: string): ConfigTimeseries[] {
+    console.log("getting default timeseries for resourcetype", resourceTypeString);
     const defaultTypes = JSON.parse(this.remoteConfig.editResource_defaultTypes);
     return defaultTypes[resourceTypeString];
   }
@@ -276,7 +281,19 @@ export class ConfigFactory {
     return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
   }
 
-  // getGGMNIgnoreReadingDate(): Moment {
+  getShowMapInSidebar() {
+    return this.remoteConfig.showMapInSidebar;
+  }
+
+  getResourceDetailShouldShowTable() {
+    return this.remoteConfig.resourceDetail_shouldShowTable;
+  }
+
+  getResourceDetailShouldShowQRCode() {
+    return this.remoteConfig.resourceDetail_shouldShowQRCode;
+  }
+
+    // getGGMNIgnoreReadingDate(): Moment {
   //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
   //     return moment(this.remoteConfig.ggmn_ignoreReading.date);
   //   }

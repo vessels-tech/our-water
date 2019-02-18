@@ -1,6 +1,6 @@
-export const surface="#FFFFFF"
-export const surfaceLight="#FFFFFF"
-export const surfaceDark="#F5F5F5"
+export const surface = "#FFFFFF"
+export const surfaceLight = "#FFFFFF"
+export const surfaceDark = "#F5F5F5"
 
 export const surfaceText = {
   high: "#212121",
@@ -22,7 +22,7 @@ export const primaryPallette = {
   '_50': '#FFFFFF',
 }
 export const primaryLight = primaryPallette._50;
-export const primaryDark="#F6F6F6"
+export const primaryDark = "#F6F6F6"
 
 export const primaryText = {
   high: "#212121",
@@ -68,13 +68,23 @@ export const secondaryText = {
 
 //Pretty Colors
 export const prettyColors = [
-  primaryPallette._50,
-  secondaryPallette._200,
   secondaryPallette._100,
-  primaryPallette._100,
+  secondaryPallette._200,
+  secondaryPallette._500,
+  "#735D9B",
+  "#77B79F",
+  "#D27F89",
+  "#F2D68F",
 ];
 
-// export const navBarTextColor = surfaceText;
-export const navBarTextColor = '#FFFFFF';
-export const statusBarColor = primaryDark;
-export const statusBarTextColorScheme = 'light';
+export const navBarTextColor = surfaceText;
+export const statusBarColor = surfaceDark;
+export const statusBarTextColorScheme = 'dark';
+
+//Menu Colors (MyWell Only)
+export const menuColors = [
+  "#735D9B",
+  "#77B79F",
+  "#D27F89",
+  "#B88C1E",
+];

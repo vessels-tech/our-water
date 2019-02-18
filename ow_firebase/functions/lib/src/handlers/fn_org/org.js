@@ -3,11 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const utils_1 = require("../../common/utils");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
+    utils_1.enableLogging(app);
     app.get('/', (req, res) => {
         console.log("TODO");
         res.json(['test_12345', 'mywell', 'igrac']);

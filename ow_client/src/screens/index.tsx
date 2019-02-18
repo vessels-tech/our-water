@@ -42,6 +42,7 @@ import { AnyAction } from '../actions/AnyAction';
 import { ActionType } from '../actions/ActionType';
 import { maybeLog } from '../utils';
 import PendingScreen from './menu/PendingScreen';
+import { ExternalServiceApiType } from '../api/ExternalServiceApi';
 import AboutScreen from './menu/AboutScreen';
 
 
@@ -133,6 +134,7 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   if (resourcesCache) {
+    console.log("refreshed resourcesCache is:", resourcesCache);
     initialState.resourcesCache = resourcesCache;
   }
 
@@ -144,7 +146,6 @@ export async function registerScreens(config: ConfigFactory) {
     initialState.shortIdMeta = shortIdMeta;
   }
 
-  console.log("GGMN creating store");
   const store = createStore(
     OWApp, 
     initialState,
@@ -158,6 +159,7 @@ export async function registerScreens(config: ConfigFactory) {
 
   //Listen for a user
   const authUnsubscribe = config.userApi.onAuthStateChanged(async (rnFirebaseUser: null | RNFirebase.User) => {
+    console.log("onAuthState changed: rnFirebaseUser", rnFirebaseUser);
     if (!rnFirebaseUser) {
       await store.dispatch(appActions.silentLogin(config.appApi));
       return;
@@ -189,6 +191,7 @@ export async function registerScreens(config: ConfigFactory) {
         mobile: rnFirebaseUser.phoneNumber,
       }
     }
+    console.log("built user:", user);
 
     setUpUserSubscriptions(store, config, user.userId);
     store.dispatch(appActions.loginCallback(makeSuccess<AnonymousUser | MobileUser>(user)))
@@ -197,11 +200,11 @@ export async function registerScreens(config: ConfigFactory) {
   // @ts-ignore
   // store.dispatch(appActions.getGeolocation());
 
-  if (config.externalServiceApi) {
-    store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
+  if (config.externalServiceApi.externalServiceApiType === ExternalServiceApiType.Has) {
+    await store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
-  console.log("GGMN Registering screens")
+  console.log("registering navigation components");
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);

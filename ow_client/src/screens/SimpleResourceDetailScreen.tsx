@@ -8,11 +8,11 @@
 
 import * as React from 'react';
 import { Component } from 'react';
-import { Text } from 'react-native-elements';
+import { Text, Button } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
 import { View } from 'react-native';
-import {navigateTo, unwrapUserId } from '../utils';
+import {navigateTo, unwrapUserId, renderLog, showModal, maybeLog } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux'
 import ResourceDetailSection from '../components/ResourceDetailSection';
@@ -22,17 +22,26 @@ import { SomeResult } from '../typings/AppProviderTypes';
 import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
+import { diff } from "deep-object-diff";
+import { ResourceType } from '../enums';
+import { isNullOrUndefined } from 'util';
+import { secondary, primary, secondaryText } from '../utils/NewColors';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
+import { PendingResource } from '../typings/models/PendingResource';
+import { OrgType } from '../typings/models/OrgType';
 
 
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
   resourceId: string,
+  isPending: boolean,
 }
 
 export interface StateProps {
   translation: TranslationFile,
-  resource: AnyResource | null,
+  // resource: AnyResource | null,
+  resourceType: ResourceType,
   meta: ActionMeta,
   userId: string,
 }
@@ -45,21 +54,26 @@ export interface State {
 
 }
 
-class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & ActionProps> {
+class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
     this.appApi = props.config.getAppApi();
 
-    this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
+    // this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
 
     //Binds
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
+    this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
   }
 
-  componentDidUpdate(prevProps: OwnProps & StateProps & ActionProps, prevState: State, snapshot: any) {
-    if (this.props.resourceId !== prevProps.resourceId) {
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    renderLog(`SimpleResourceDetailScreen componentDidUpdate, ${this.props.resourceId}, ${nextProps.resourceId}`);
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
+
+    if (this.props.resourceId !== nextProps.resourceId) {
       this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
     }
   }
@@ -67,44 +81,95 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
   onAddReadingPressed(resourceId: string) { 
     const { resource_detail_new } = this.props.translation.templates;
 
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    //   resourceId,
+    //   resourceType: this.props.resourceType,
+    //   config: this.props.config,
+    //   userId: this.props.userId
+    // });
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null, //TD for ggmn only
       resourceId,
-      resourceType: 'well',
+      resourceType: this.props.resourceType,
       config: this.props.config,
-      userId: this.props.userId
     });
   }
 
+  onSyncButtonPressed() {
+    const { settings_pending_heading } = this.props.translation.templates;
+
+    showModal(
+      this.props,
+      'screen.PendingScreen',
+      settings_pending_heading,
+      {
+        config: this.props.config,
+      }
+    );
+  }
+
   getResourceDetailSection() {
-    const { meta, userId, resource, translation: { templates: { resource_detail_new } } } = this.props;
+    const { isPending } = this.props;
+    const { 
+      settings_pending_heading,
+      // resource_detail_sync_required,
+    } = this.props.translation.templates;
 
-    if (meta.loading) {
-      return (
-        <Loading/>
-      )
-    }
+    //TODO: TD: Issues with TransactionTooLargeException crash when updating translations
+    const resource_detail_sync_required = "Location needs to be synced before you can save any readings."; 
 
-    if (meta.error || !resource) {
-      return (
-        <View>
-          <Text>{meta.errorMessage}</Text>
-        </View>
-      )
-    }
+    // if (isPending) {
+    //   return (
+    //     <View
+    //       style={{
+    //         flex: 1,
+    //         alignSelf: 'center',
+    //         justifyContent: 'center',
+    //         paddingVertical: 100,
+    //       }}
+    //     >
+    //       <Text
+    //         style={{
+    //           flex: 1,
+    //           paddingHorizontal: 30,
+    //         }}
+    //       >
+    //         {resource_detail_sync_required}
+    //       </Text>
+    //       <Button
+    //         color={secondaryText.high}
+    //         buttonStyle={{
+    //           backgroundColor: secondary,
+    //           borderRadius: 5,
+    //           // height: '100%',
+    //         }}
+    //         containerViewStyle={{
+    //           flex: 1,
+    //           alignSelf: 'center',
+    //           justifyContent: 'center',
+    //         }}
+    //         title={settings_pending_heading}
+    //         onPress={this.onSyncButtonPressed}
+    //       />
+    //     </View>
+    //   );
+    // }
 
     return (
       <ResourceDetailSection
         config={this.props.config}
         hideTopBar={true}
-        isPending={false}
+        isPending={isPending}
         onAddReadingPressed={this.onAddReadingPressed}
-        resourceId={resource.id}
+        resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
       />
     );
   }
 
   render() {
+    renderLog("SimpleResourceDetailScreen, render()");
     return (
       <View style={{
         width: '100%',
@@ -116,30 +181,37 @@ class SimpleResourceDetailScreen extends Component<OwnProps & StateProps & Actio
       }}>
         {this.getResourceDetailSection()}
       </View>
-    )
+    );
   }
 
 }
 
-//If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   //Grab the resource from the list of resources
-  let resource = null;
-  let resourceMeta = state.resourceMeta;
+  let maybeResource: PendingResource | AnyResource | undefined;
   let meta = state.resourceMeta[ownProps.resourceId];
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
+  
 
-  state.resources.forEach(r => {
-    if (r.id === ownProps.resourceId) {
-      resource = r;
+  maybeResource = state.resources.find((r) => r.id === ownProps.resourceId);
+  if (!maybeResource) {maybeResource = state.pendingSavedResources.find((r) => r.id === ownProps.resourceId);}
+  if (!maybeResource) {maybeResource = state.recentResources.find((r) => r.id === ownProps.resourceId);}
+  if (!maybeResource) {maybeResource = state.favouriteResources.find((r) => r.id === ownProps.resourceId);}
+
+  let resourceType: ResourceType = ResourceType.well;
+  if (isNullOrUndefined(maybeResource)) {
+    maybeLog(`Resource of id: ${ownProps.resourceId} couldn't be found. Defaulting resourceType to well`);
+  } else {
+    if (maybeResource.pending || maybeResource.type === OrgType.MYWELL) {
+      resourceType = maybeResource.resourceType;
     }
-  });
+  }
 
   return {
     translation: state.translation,
-    resource,
+    resourceType,
     meta,
     userId: unwrapUserId(state.user),
   };

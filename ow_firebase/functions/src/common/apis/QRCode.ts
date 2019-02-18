@@ -15,11 +15,7 @@ export function generateQRCode(orgId: string, id: string): Promise<SomeResult<st
   };
 
   return QRCode.toDataURL(JSON.stringify(data))
-  .then(url => {
-    return makeSuccess(url);
-  })
-  .catch(err => {
-    return makeError(err.message);
-  });
+  .then(url => makeSuccess(url))
+  .catch(err => makeError(err.message));
 }
 

@@ -10,7 +10,7 @@ const baseUrl = process.env.BASE_URL;
 const orgId = process.env.ORG_ID;
 const mywellLegacyBaseUrl = process.env.MYWELL_LEGACY_BASE_URL;
 
-describe('SyncAPI', function() {
+describe.skip('SyncAPI', function() {
   this.timeout(30000000);
 
   //Objects to clean up later
@@ -29,14 +29,14 @@ describe('SyncAPI', function() {
         datasource: {
           type: "FileDatasource",
           fileUrl,
-          dataType: 'Reading',
+          dataType: 'reading',
           fileFormat: 'TSV', //ignored for now
           options: {
             includesHeadings: true,
             usesLegacyMyWellIds: true,
           },
           selectedDatatypes: [
-            'Reading',
+            'reading',
           ]
         },
         type: "unknown",
@@ -90,14 +90,14 @@ describe('SyncAPI', function() {
         datasource: {
           type: "FileDatasource",
           fileUrl,
-          dataType: 'Reading',
+          dataType: 'reading',
           fileFormat: 'TSV', //ignored for now
           options: {
             includesHeadings: true,
             usesLegacyMyWellIds: true,
           },
           selectedDatatypes: [
-            'Reading',
+            'reading',
           ]
         },
         type: "unknown",
@@ -157,7 +157,7 @@ describe('SyncAPI', function() {
           selectedDatatypes: [
             // 'Group',
             // 'Resource',
-            'Reading',
+            'reading',
           ]
         },
         type: "unknown",

@@ -258,5 +258,5 @@
 //         });
 //     });
 //   });
-// }); 
+// });
 //# sourceMappingURL=LegacyMyWellDatasource.unit_dep.js.map

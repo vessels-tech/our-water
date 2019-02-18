@@ -5,13 +5,14 @@ import { randomPrettyColorForId } from '../../utils';
 import { primaryText } from '../../utils/Colors';
 
 export interface Props {
+  color?: string,
   name: string, 
   onPress: () => void,
 }
 
 
 export default function MenuButton(props: Props) {
-  const { onPress, name } = props;
+  const { color, onPress, name } = props;
 
   return (
     <TouchableNativeFeedback
@@ -24,7 +25,7 @@ export default function MenuButton(props: Props) {
         flex: 1,
         padding: 10,
         margin: 10,
-        backgroundColor: randomPrettyColorForId(name),
+        backgroundColor: color || randomPrettyColorForId(name),
       }}>
         <Text style={{ 
           fontWeight: '800', 

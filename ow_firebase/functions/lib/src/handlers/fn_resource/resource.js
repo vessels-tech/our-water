@@ -19,18 +19,17 @@ const util_1 = require("util");
 const ResourceIdType_1 = require("../../common/types/ResourceIdType");
 const ResourceType_1 = require("../../common/enums/ResourceType");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
-const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
-//@ts-ignore
-const morgan = require("morgan");
-//@ts-ignore
-const morganBody = require("morgan-body");
 const validation_1 = require("./validation");
 const EmailApi_1 = require("../../common/apis/EmailApi");
 const ow_types_1 = require("ow_types");
 const GGMNApi_1 = require("../../common/apis/GGMNApi");
 const middleware_1 = require("../../middleware");
+const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
+const utils_1 = require("../../common/utils");
+const api_1 = require("ow_common/lib/api");
+const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -38,14 +37,7 @@ require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    if (process.env.VERBOSE_LOG === 'false') {
-        console.log('Using simple log');
-        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-    }
-    else {
-        console.log('Using verbose log');
-        morganBody(app);
-    }
+    utils_1.enableLogging(app);
     app.use(middleware_1.validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
@@ -142,6 +134,7 @@ module.exports = (functions) => {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
+            //TODO: standardize all these refs
             .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
             .then(result => {
             console.log(JSON.stringify({ resourceId: result.id }));
@@ -296,12 +289,38 @@ module.exports = (functions) => {
     app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         const { latitude, longitude, distance } = req.query;
         const { orgId } = req.params;
-        const result = yield FirebaseApi_1.default.resourcesNearLocation(orgId, latitude, longitude, distance);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const result = yield fbApi.resourcesNearLocation(orgId, latitude, longitude, distance);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
             next(result.message);
             return;
         }
         res.json(result.result);
+    }));
+    /**
+     * SyncUserData
+     * POST /:orgId/:userId/sync
+     *
+     * Synchronises the user's pendingResources and pendingReadings, and cleans them up
+     * The user MUST be approved before calling this method.
+     *
+     */
+    app.post('/:orgId/:userId/sync', (req, res) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, userId } = req.params;
+        const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const userResult = yield userApi.getUser(userApi.userRef(orgId, userId));
+        if (userResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            return res.status(400).send(`Couldn't find user with orgId: ${orgId}, userId: ${userId}`);
+        }
+        if (userResult.result.status !== UserStatus_1.default.Approved) {
+            return res.status(403).send("unauthorized");
+        }
+        const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
+        if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
+            throw new Error(syncResult.message);
+        }
+        return res.status(204).send("true");
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });

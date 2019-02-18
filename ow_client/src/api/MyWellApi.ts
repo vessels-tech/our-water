@@ -13,14 +13,20 @@ import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
-import { maybeLog, convertRangeToDates } from '../utils';
+import { maybeLog, convertRangeToDates, naiveParseFetchResponse, get } from '../utils';
 import { OrgType } from '../typings/models/OrgType';
 import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from './InternalAccountApi';
+//@ts-ignore
+import { default as ftch } from '../utils/Fetch';
+import { ExternalSyncStatusComplete, ExternalSyncStatusType } from '../typings/api/ExternalServiceApi';
+
 import { Cursor } from '../screens/HomeMapScreen';
 import FirebaseUserApi from './FirebaseUserApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
+
+const timeout = 1000 * 15; //15 seconds
 
 
 /**
@@ -32,12 +38,14 @@ type Snapshot = RNFirebase.firestore.QuerySnapshot;
 export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   orgId: string
   networkApi: NetworkApi;
+  baseUrl: string;
   pendingReadingsSubscription: any;
   internalAccountApiType: InternalAccountApiType.Has = InternalAccountApiType.Has;
 
-  constructor(networkApi: NetworkApi, orgId: string) {
+  constructor(networkApi: NetworkApi, orgId: string, baseUrl: string) {
     this.networkApi = networkApi;
     this.orgId = orgId;
+    this.baseUrl = baseUrl;
   }
 
   /**
@@ -55,7 +63,13 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   /**
    * saveReading
    * 
-   * @description Save a reading. If the user is not approved 
+   * @description Save a reading.
+   * 
+   * In order to get efficent realtime updates and improve the UX for the user,
+   * we always save the reading locally to the user's `pendingReadings` collection 
+   * first. That also keeps things more consistent with GGMN for now.
+   * 
+   * The user or we can then run a sync at any stage and update the readings globally.
    * 
    * 
    * @param resourceId 
@@ -80,13 +94,16 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //   return makeSuccess<SaveReadingResult>({ requiresLogin: true, reading: saveResult.result });
     // }
 
-    const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+    // const saveResult = await FirebaseApi.saveReading(this.orgId, userId, reading);
+
+    const saveResult = await FirebaseApi.saveReadingPossiblyOffineToUser(this.orgId, userId, reading);
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);
       return makeError(saveResult.message);
     }
 
-    return makeSuccess<SaveReadingResult>({ requiresLogin: false, reading: saveResult.result });
+    // return makeSuccess<SaveReadingResult>({ requiresLogin: false, reading: saveResult.result });
+    return makeSuccess<SaveReadingResult>({ requiresLogin: false });
   }
 
   //
@@ -173,31 +190,55 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
   /**
    * saveResource
+   * 
+   * Always saves the resource to the user's pendingResources. This allows us to easily get the offline features
+   * working, and keeps things more similar to GGMN.
    */
-  async saveResource(userId: string, resource: AnyResource): Promise<SomeResult<SaveResourceResult>> {
+  async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
     resource.type = OrgType.MYWELL;
-    const userResult = await FirebaseApi.getUser(this.orgId, userId);
-    if (userResult.type === ResultType.ERROR) {
-      maybeLog(userResult.message);
-      return makeError(userResult.message);
-    }
+    // const userResult = await FirebaseApi.getUser(this.orgId, userId);
+    // if (userResult.type === ResultType.ERROR) {
+    //   maybeLog(userResult.message);
+    //   return makeError(userResult.message);
+    // }
 
-    if (userResult.result.status !== OWUserStatus.Approved) {
+    
+    //TD: hacky - need to fix types
+    //@ts-ignore
+    resource.orgId = this.orgId;
+    //@ts-ignore
+    resource.docName = "resource";
+
+    // if (userResult.result.status !== OWUserStatus.Approved) {
       const saveResult = await FirebaseApi.saveResourceToUser(this.orgId, userId, resource);
       if (saveResult.type === ResultType.ERROR) {
         maybeLog(saveResult.message);
         return makeError(saveResult.message);
       }
+
+      //TODO: We need to update this flag for the offline features etc.
       return makeSuccess({requiresLogin: true});
-    }
+    // }
 
-    const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
-    if (saveResult.type === ResultType.ERROR) {
-      maybeLog(saveResult.message);
-      return makeError('Could not save resource');
-    }
+    // const saveResult = await FirebaseApi.saveResource(this.orgId, userId, resource);
+    // if (saveResult.type === ResultType.ERROR) {
+    //   maybeLog(saveResult.message);
+    //   return makeError('Could not save resource');
+    // }
 
-    return makeSuccess({requiresLogin: false});
+    // return makeSuccess({requiresLogin: false});
+  }
+
+  /**
+   * Delete pending resource
+   * 
+   * Returns immediately as it needs to work offline
+   */
+  deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
+    FirebaseApi.deletePendingResource(this.orgId, userId, pendingResourceId);
+    FirebaseApi.deletePendingReadingsForResource(this.orgId, userId, pendingResourceId);
+
+    return Promise.resolve(makeSuccess(undefined));
   }
 
   /**
@@ -244,6 +285,65 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     return makeSuccess(shortIds);
   }
 
+
+  /**
+   * RunInternalSync
+   *
+   * Run a sync where we save Resources and Readings from the user's private collections to
+   * the public. For now, this will call the Firebase Admin API endpoint.
+   * 
+   * In the future, we can refactor this to use the common FirebaseApi
+   *
+   *
+   * @param userId
+   */
+  async runInternalSync(userId: string): Promise<SomeResult<ExternalSyncStatusComplete>> {
+    //First get the access token
+    const tokenResult = await FirebaseUserApi.getIdToken();
+    if (tokenResult.type === ResultType.ERROR) {
+      return tokenResult;
+    }
+    const token = tokenResult.result;
+
+    const syncUrl = `${this.baseUrl}/resource/${this.orgId}/${userId}/sync`;
+    const options = {
+      timeout,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    };
+
+    console.log("syncURL is", syncUrl);
+
+    return ftch(syncUrl, options)
+      // .then((response: any) => naiveParseFetchResponse<any>(response))
+      .then((response: any) => {
+        if (!response.ok) {
+          return {
+            type: ResultType.ERROR,
+            message: 'Network request failed',
+          };
+        }
+        return makeSuccess<any>(undefined);
+      })
+      .then((parsed: SomeResult<any>) => {
+        if(parsed.type === ResultType.ERROR) {
+          return parsed;
+        }
+
+        return makeSuccess({ 
+          status: ExternalSyncStatusType.COMPLETE,
+          pendingResourcesResults: [],
+          pendingReadingsResults: [],
+          newResources: [],
+        })
+      })
+      .catch((err: Error) => makeError<ExternalSyncStatusComplete>(err.message + err.stack))
+  }
+
   //
   // Reading API
   //----------------------------------------------------------------
@@ -260,6 +360,13 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
     return result.result;
   }
+
+  deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+    FirebaseApi.deletePendingReading(this.orgId, userId, pendingReadingId);
+
+    return Promise.resolve(makeSuccess(undefined));
+  }
+
   
   //
   // Subscriptions

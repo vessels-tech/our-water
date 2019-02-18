@@ -6,6 +6,9 @@ import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } fr
 import ResourceIdType from './types/ResourceIdType';
 import { Group } from './models/Group';
 import { GroupType } from './enums/GroupType';
+import * as FbFirestore from 'firebase-admin';
+
+type GeoPoint = FbFirestore.firestore.GeoPoint;
 
 const orgId = process.env.ORG_ID;
   
@@ -59,7 +62,7 @@ describe('Misc Tests', function() {
       this.timeout(10000);
 
       //Create 3 groups, 2 of which are legacy
-      const coords: FirebaseFirestore.GeoPoint = new FirebaseFirestore.GeoPoint(0, 0);
+      const coords: GeoPoint = new FbFirestore.firestore.GeoPoint(0, 0);
       // const group1 = new Group("group1", orgId, "village", coords, utils.anyToMap({ 'mywell.12345.1':true }));
       const group1 = new Group("group1", orgId, GroupType.Village, [coords], ResourceIdType.fromLegacyVillageId(12345, 1));
       const group2 = new Group("group2", orgId, GroupType.Pincode, [coords], ResourceIdType.fromLegacyPincode(12345));

@@ -160,6 +160,7 @@ export class FileDatasource implements Datasource {
    *   run a batch job which adds group and resource metadata to readings
    */
   pullDataFromDataSource(orgId: string, fs: admin.firestore.Firestore): Promise<SyncRunResult> {
+    const fbApi = new FirebaseApi(fs);
     let result = {
       results: [],
       warnings: [],
@@ -186,7 +187,7 @@ export class FileDatasource implements Datasource {
       //Save one batch at a time
       return batches.reduce(async (arr: Promise<any>, curr: Reading[]) => {
         await arr;
-        return FirebaseApi.batchSave(fs, curr).then(results => batchSaveResults = batchSaveResults.concat(results))
+        return fbApi.batchSaveReadings(curr).then(results => batchSaveResults = batchSaveResults.concat(results))
       }, Promise.resolve(true));
     })
     .then(() => {

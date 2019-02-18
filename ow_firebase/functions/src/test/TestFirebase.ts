@@ -1,31 +1,36 @@
-const admin = require('firebase-admin');
+import * as admin from "firebase-admin";
+import { Maybe, isUndefined } from "ow_common/lib/utils/Maybe";
+type Firestore = admin.firestore.Firestore;
+
+// const admin = require('firebase-admin');
 
 
 /* Not in git. Download from FB console*/
-const serviceAccount = require('./.serviceAccountKey.json');
+const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
+const serviceAccount = require(serviceAccountKeyFile);
 
-let firestore;
+let firestore: Firestore
 
 if (admin.apps.length === 0) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     // databaseURL: databaseUrl,
-    // storageBucket,
+    // storageBucket: 'our-water-dev'
   });
   firestore = admin.firestore();
-  const settings = { timestampsInSnapshots: true };
+  // const settings = { timestampsInSnapshots: true };
+  const settings = { };
   console.log("TestFirebase calling firestore.settings");
   firestore.settings(settings);
 }
 
 const auth = admin.auth();
-if (!firestore) {
+if (isUndefined(firestore)) {
   firestore = admin.firestore();
 }
-
 
 export {
   admin,
   auth,
   firestore,
-}
+};

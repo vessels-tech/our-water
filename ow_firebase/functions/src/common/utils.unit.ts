@@ -1,13 +1,12 @@
 
 import * as assert from 'assert';
-import * as mocha from 'mocha';
-
 import * as crypto from 'crypto';
+// import * as mocha from 'mocha';
 
-import fs from './apis/Firestore';
+// import fs from './apis/Firestore';
 import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty, hashReadingId } from './utils';
-import ResourceIdType from './types/ResourceIdType';
-import OWGeoPoint from '../common/models/OWGeoPoint';
+// import ResourceIdType from './types/ResourceIdType';
+// import OWGeoPoint from '../common/models/OWGeoPoint';
 
 const orgId = process.env.ORG_ID;
 
