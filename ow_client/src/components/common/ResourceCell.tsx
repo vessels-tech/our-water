@@ -14,12 +14,13 @@ import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
 import { primaryText } from '../../assets/ggmn/Colors';
+import { PendingResource } from '../../typings/models/PendingResource';
 
 
 export interface OwnProps {
   config: ConfigFactory,
-  resource: AnyResource,
-  onResourceCellPressed: (resource: AnyResource) => void,
+  resource: AnyResource | PendingResource,
+  onResourceCellPressed: (resource: AnyResource | PendingResource) => void,
   style: any,
 
 }

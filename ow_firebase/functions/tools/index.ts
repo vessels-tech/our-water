@@ -215,6 +215,8 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
 export async function getNewConfig(): Promise<any> {
   const { conditionKeys, conditions } = require('./remoteConfigConditions');
 
+  console.log('conditions are', conditionKeys);
+
   const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
   const mywellTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.mywell), functionReplacer, 2);
   const ggmnTranslationsOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.ggmn), null, 2);
@@ -449,6 +451,7 @@ export async function getNewConfig(): Promise<any> {
     showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
     resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
     resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
+    favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true])
   };
 
   return Promise.resolve({

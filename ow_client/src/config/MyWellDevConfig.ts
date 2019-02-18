@@ -41,6 +41,7 @@ const MyWellDevConfig: RemoteConfig = {
   showMapInSidebar: true,
   resourceDetail_shouldShowTable: true,
   resourceDetail_shouldShowQRCode: true,
+  favouriteResource_showPendingResources: true,
 }
 
 export default MyWellDevConfig;``

@@ -58,6 +58,7 @@ export class FirebaseConfig {
           showMapInSidebar: obj.showMapInSidebar.val(),
           resourceDetail_shouldShowTable: obj.resourceDetail_shouldShowTable.val(),
           resourceDetail_shouldShowQRCode: obj.resourceDetail_shouldShowQRCode.val(),
+          favouriteResource_showPendingResources: obj.favouriteResource_showPendingResources.val(),
         }
         return remoteConfig;
       });
