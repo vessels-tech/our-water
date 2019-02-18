@@ -248,7 +248,6 @@ export class ConfigFactory {
    * This determines the default timeseries for the environment
    */
   getDefaultTimeseries(resourceTypeString: string): ConfigTimeseries[] {
-    console.log("getting default timeseries for resourcetype", resourceTypeString);
     const defaultTypes = JSON.parse(this.remoteConfig.editResource_defaultTypes);
     return defaultTypes[resourceTypeString];
   }
