@@ -70,6 +70,7 @@ export type EnvConfig = {
 export type GroupSpecificationType = {
   id: string, 
   required: boolean,
+  order: number,
 }
 
 /**

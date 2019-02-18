@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Component } from 'react';
 import {
-  View, Keyboard, ToastAndroid, ScrollView, Alert, KeyboardAvoidingView, Dimensions, ShadowPropTypesIOS,
+  View, Keyboard, ToastAndroid, ScrollView, Alert, KeyboardAvoidingView, Dimensions, ShadowPropTypesIOS, Group,
 } from 'react-native';
 import {
-  Button
+  Button, Text
 } from 'react-native-elements';
 import { ResourceType } from '../../enums';
-import { ConfigFactory } from '../../config/ConfigFactory';
+import { ConfigFactory, GroupSpecificationType } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
 import { SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
@@ -32,6 +32,9 @@ import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
 import { unwrapUserId, displayAlert, debounced } from '../../utils';
 import { isNullOrUndefined } from 'util';
+//@ts-ignore
+import { callingCountries } from 'country-data';
+
 
 export interface Props { 
   resourceId: string,
@@ -73,6 +76,7 @@ class EditResourceScreen extends Component<Props> {
   externalApi: MaybeExternalServiceApi;
   extendedResourceApi: MaybeExtendedResourceApi
   editResourceForm: any;
+  countryList: {label: string, key: string};
 
   constructor(props: Props) {
     super(props);
@@ -81,6 +85,8 @@ class EditResourceScreen extends Component<Props> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
     this.extendedResourceApi = this.props.config.getExtendedResourceApi();
+    //Key is a ISO 3166-1 alpha 3 code
+    this.countryList = callingCountries.all.map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha3}));
     
     this.state = {
       formHeight: Dimensions.get('window').height, 
@@ -368,6 +374,83 @@ class EditResourceScreen extends Component<Props> {
     this.props.navigator.dismissModal();
   }
 
+
+  /**
+   * getEditableGroupField
+   * 
+   * 
+   * renders special-case group fields depending on the id
+   */
+  getEditableGroupField(spec: GroupSpecificationType) {
+
+    /*
+    <FieldControl
+      name="id"
+      render={TextIdInput}
+      meta={{
+        //Don't allow user to edit existing resource ids
+        editable: this.props.resource ? false : true,
+        label: new_resource_id,
+        secureTextEntry: false,
+        keyboardType: 'default',
+        errorMessage: general_is_required_error,
+        asyncErrorMessage: new_resource_id_check_taken,
+      }}
+    />
+    */
+
+    //TODO: translate
+    const country_label = "Country";
+
+
+    switch(spec.id) {
+      case 'country': {
+
+        return (
+          <FieldControl
+            key={spec.id}
+            name={spec.id}
+            // @ts-ignore
+            render={DropdownInput}
+            meta={{
+              options: this.countryList,
+              editable: false,
+              label: country_label,
+              secureTextEntry: false,
+              keyboardType: 'default',
+              defaultValue: 'IND'
+            }}
+          />
+        )
+      }
+      case 'pincode': {
+        return <Text key={spec.id}>Pincode requirements!</Text>
+      }
+      default: {
+        return <Text key={spec.id}>normal text box</Text>
+      }
+    }
+  }
+
+  /**
+   * getEditableGroupsFields
+   * 
+   * Loads a list of the editable groups that can be configured in the 
+   * remote config
+   */
+  getEditableGroupsFields() {
+
+    if (Object.keys(this.props.config.getAvailableGroupTypes()).length  === 0) {
+      return null;
+    }
+
+    const groupList: GroupSpecificationType[] = Object.keys(this.props.config.getAvailableGroupTypes())
+      .map(key => this.props.config.getAvailableGroupTypes()[key])
+      .sort((a, b) => a.order - b.order);
+
+    return groupList.map(g => this.getEditableGroupField(g));
+  }
+
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
@@ -387,13 +470,12 @@ class EditResourceScreen extends Component<Props> {
       new_resource_water_column_height,
     } = this.props.translation.templates;
 
-    const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
-      return {
+    const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
+      .map((t: ResourceType) => ({
         key: t,
         //TODO: translate based on language settings
         label: t,
-      }
-    });
+      }));
 
     return (
       <FieldGroup
@@ -477,6 +559,7 @@ class EditResourceScreen extends Component<Props> {
                 render={TextInput}
                 meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
               /> : null }
+              {this.getEditableGroupsFields()}
             </ScrollView>
             <Button
               style={{

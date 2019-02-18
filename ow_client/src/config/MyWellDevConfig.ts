@@ -43,8 +43,8 @@ const MyWellDevConfig: RemoteConfig = {
   resourceDetail_shouldShowQRCode: true,
   favouriteResource_showPendingResources: true,
   availableGroupTypes: {
-    pincode: { id: 'pincode', required: true },
-    country: { id: 'country', required: true },
+    pincode: { id: 'pincode', required: true, order: 1 },
+    country: { id: 'country', required: true, order: 0 },
   },
 }
 
