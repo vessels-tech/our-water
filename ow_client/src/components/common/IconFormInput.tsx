@@ -181,7 +181,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
           flex: 5
         }}
         // ref={input => this.dateInput = input}
-        onSubmitEditing={() => onSubmitEditing()}
+        onSubmitEditing={() => onSubmitEditing && onSubmitEditing()}
         onChangeText={text => onChangeText(text)}
       />
     )
