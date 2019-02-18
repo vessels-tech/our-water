@@ -2,19 +2,16 @@ import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../e
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
-import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
+import { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
-import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations'
+import { TranslationFiles, TranslationEnum } from 'ow_translations'
 import { maybeLog } from "../utils";
-import { SomeResult, ResultType } from "../typings/AppProviderTypes";
-import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
-import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
-import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
+import { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
+import { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
-import { Moment } from "moment";
-import moment = require("moment");
+import { CacheType } from "../reducers";
 
 
 /**
@@ -59,6 +56,7 @@ export type RemoteConfig = {
   resourceDetail_shouldShowTable: boolean,
   resourceDetail_shouldShowQRCode: boolean,
   favouriteResource_showPendingResources: boolean,
+  availableGroupTypes: CacheType<GroupSpecificationType>,
 }
 
 /**
@@ -67,6 +65,11 @@ export type RemoteConfig = {
 export type EnvConfig = {
   orgId: string,
 
+}
+
+export type GroupSpecificationType = {
+  id: string, 
+  required: boolean,
 }
 
 /**
@@ -281,20 +284,24 @@ export class ConfigFactory {
     return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
   }
 
-  getShowMapInSidebar() {
+  getShowMapInSidebar(): boolean {
     return this.remoteConfig.showMapInSidebar;
   }
 
-  getResourceDetailShouldShowTable() {
+  getResourceDetailShouldShowTable(): boolean {
     return this.remoteConfig.resourceDetail_shouldShowTable;
   }
 
-  getResourceDetailShouldShowQRCode() {
+  getResourceDetailShouldShowQRCode(): boolean {
     return this.remoteConfig.resourceDetail_shouldShowQRCode;
   }
 
-  getFavouriteResourcesShouldShowPending() {
+  getFavouriteResourcesShouldShowPending(): boolean {
     return this.remoteConfig.favouriteResource_showPendingResources;
+  }
+
+  getAvailableGroupTypes(): CacheType<GroupSpecificationType> {
+    return this.remoteConfig.availableGroupTypes;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

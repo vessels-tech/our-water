@@ -40,6 +40,7 @@ const GGMNDevConfig: RemoteConfig = {
   resourceDetail_shouldShowTable: false,
   resourceDetail_shouldShowQRCode: false,
   favouriteResource_showPendingResources: false,
+  availableGroupTypes: {},
 }
 
 export default GGMNDevConfig;

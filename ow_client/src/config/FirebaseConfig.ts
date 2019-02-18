@@ -59,6 +59,7 @@ export class FirebaseConfig {
           resourceDetail_shouldShowTable: obj.resourceDetail_shouldShowTable.val(),
           resourceDetail_shouldShowQRCode: obj.resourceDetail_shouldShowQRCode.val(),
           favouriteResource_showPendingResources: obj.favouriteResource_showPendingResources.val(),
+          availableGroupTypes: JSON.parse(obj.availableGroupTypes.val()),
         }
         return remoteConfig;
       });

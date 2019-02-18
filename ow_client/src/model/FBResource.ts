@@ -8,6 +8,7 @@ import { OrgType } from "../typings/models/OrgType";
 import { FBTimeseriesMap, toAnyTimeseriesList } from "./FBTimeseries";
 import { diff } from "deep-object-diff";
 import { ResourceType } from "../enums";
+import { CacheType } from "../reducers";
 
 //TODO: move these elsewhere
 export enum FBResourceType {
@@ -36,6 +37,7 @@ export type FBResourceBuilder = {
   deleted: boolean,
   coords: BasicCoords,
   timeseries: FBTimeseriesMap,
+  groups: CacheType<string>,
 
   /* MyWell Optionals */
   legacyId?: string, //TODO: change to exernal ids // TODO: add groups?
@@ -59,6 +61,7 @@ export default class FBResource extends FirestoreDoc {
   deleted: boolean
   coords: BasicCoords
   timeseries: FBTimeseriesMap
+  groups: CacheType<string>
 
   /* MyWell Optionals */
   legacyId?: string
@@ -87,6 +90,7 @@ export default class FBResource extends FirestoreDoc {
     this.lastReadingDatetime = builder.lastReadingDatetime;
     this.description = builder.description;
     this.title = builder.title;
+    this.groups = builder.groups;
   }
 
   public serialize(): any {
@@ -103,6 +107,7 @@ export default class FBResource extends FirestoreDoc {
       lastReadingDatetime: this.lastReadingDatetime,
       description: this.description,
       title: this.title,
+      groups: this.groups,
       ...super.serialize(),
     };
   }
@@ -146,6 +151,7 @@ export default class FBResource extends FirestoreDoc {
       lastReadingDatetime,
       description,
       title,
+      groups: data.groups ? data.groups : {},
     };
     const des: FBResource = new FBResource(builder);
 
@@ -188,6 +194,7 @@ export default class FBResource extends FirestoreDoc {
           pending: false,
           coords: { _latitude: this.coords.latitude, _longitude: this.coords.longitude },
           timeseries: toAnyTimeseriesList(this.timeseries),
+          groups: this.groups,
 
           /* Platform Specific */
           description: this.description,
@@ -211,7 +218,7 @@ export default class FBResource extends FirestoreDoc {
           type: OrgType.MYWELL,
           pending: false,
           coords: { _latitude: this.coords.latitude, _longitude: this.coords.longitude },
-
+          groups: this.groups,
           timeseries: toAnyTimeseriesList(this.timeseries),
 
           /* Platform Specific */
