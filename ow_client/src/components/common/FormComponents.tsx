@@ -91,8 +91,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
         {touched
           && hasError("email")
           && `${meta.label} ${meta.errorMessage}`}
-        {hasError("invalid")
-          && `${meta.asyncErrorMessage}`}
+        {handler().value.length > 3 && hasError("invalid") && `${meta.asyncErrorMessage}`}
       </FormValidationMessage>
     </View>
   );

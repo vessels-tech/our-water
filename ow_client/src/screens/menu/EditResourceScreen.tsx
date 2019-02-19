@@ -13,7 +13,7 @@ import { SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
 import { AppState, CacheType } from '../../reducers';
 import { connect } from 'react-redux'
-import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl } from 'react-reactive-form';
+import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl, ValidationErrors, FormGroup } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { TextInput, DropdownInput, TextIdInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
@@ -100,7 +100,7 @@ class EditResourceScreen extends Component<Props> {
     this.handleDelete = this.handleDelete.bind(this);
     this.displayDeleteModal = this.displayDeleteModal.bind(this);
     this.handleSubmit = debounced(1000, this.handleSubmit);
-    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
+    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props), this.getGroupValidators());
 
     /* Listeners */
     Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
@@ -248,14 +248,16 @@ class EditResourceScreen extends Component<Props> {
         validators.push(Validators.required);
       }
 
-      //We are adding pincode do group, but should we validate the pincode per country?
-      if (this.props.config.getEditResourceValidatesPincode()) {
-        validators.push(this.pincodeValidator);
-      } else {
-        validators.push(this.simplePincodeValidator);
-      }
-
       formBuilderGroup['pincode'] = validators;
+      
+      //We are adding pincode do group, but should we validate the pincode per country?
+
+      //moved to getGroupValidators
+      // if (this.props.config.getEditResourceValidatesPincode()) {
+      //   validators.push(this.pincodeValidator);
+      // } else {
+      //   validators.push(this.simplePincodeValidator);
+      // }
     }
 
     if (this.props.config.getEditResourceHasCountry()) {
@@ -270,6 +272,19 @@ class EditResourceScreen extends Component<Props> {
     }
   
     return formBuilderGroup;
+  }
+
+  /**
+   * Group validators are required for validating multiple fields together
+   */
+  getGroupValidators(): any {
+    if (!this.props.config.getEditResourceValidatesPincode()) {
+      return {};
+    }
+
+    return {
+      validators: this.pincodeValidator('pincode', 'country'),
+    }
   }
 
 
@@ -301,17 +316,33 @@ class EditResourceScreen extends Component<Props> {
     return null;
   }
 
-  async pincodeValidator(control: AbstractControl) {
-    //It's safe to access country here:
-    const pincode = control.value;
-    const country = this.editResourceForm.get('country').value;
+  pincodeValidator(pincodeId: string, countryId: string) {
+    return (group: FormGroup): ValidationErrors | null => {
+      console.log("calling pincodeValidator");
+      const pincodeInput = group.controls[pincodeId];
+      const countryInput = group.controls[countryId];
 
-    const validateResult = validatePincode(country, pincode);
-    if (validateResult.type === ResultType.ERROR) {
-      throw { invalid: true };
+      const validateResult = validatePincode(countryInput.value, pincodeInput.value);
+      if (validateResult.type === ResultType.ERROR) {
+        pincodeInput.setErrors({invalid: true});
+        // throw { invalid: true };
+      } else {
+        pincodeInput.setErrors(null);
+      }
+
+      return null;
     }
 
-    return null;
+    // //It's safe to access country here:
+    // const pincode = control.value;
+    // const country = this.editResourceForm.get('country').value;
+
+    // const validateResult = validatePincode(country, pincode);
+    // if (validateResult.type === ResultType.ERROR) {
+    //   throw { invalid: true };
+    // }
+
+    // return null;
   }
 
   async simplePincodeValidator(control: AbstractControl) {

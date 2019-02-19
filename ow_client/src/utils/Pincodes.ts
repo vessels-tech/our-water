@@ -1457,7 +1457,9 @@ export const Pincodes: PincodeType[] = [
   "Country": "United Kingdom",
   "ISO": "GB",
   "Format": "A(A)N(A/N)NAA (A[A]N[A/N] NAA)",
-  "Regex": "^[A-Z]{1,2}[0-9R][0-9A-Z]?\\s*[0-9][A-Z-[CIKMOV]]{2}"
+  // "Regex": "^[A-Z]{1,2}[0-9R][0-9A-Z]?\\s*[0-9][A-Z-[CIKMOV]]{2}"
+  "Regex": "([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})"
+  
 }, {
   "Note": "Known as the ZIP Code with five digits 99999* or the ZIP+4 Code with nine digits 99999-9999* (while the minimum requirement is the first five digits, the U.S. Postal Service encourages everyone to use all nine). Also used by the former US Pacific Territories: Federated States of Micronesia; Palau; and the Marshall Islands, as well as in current US territories American Samoa, Guam, Northern Mariana Islands, Puerto Rico, and the United States Virgin Islands. An individual delivery point may be represented as an 11-digit number, but these are usually represented by Intelligent Mail barcode or formerly POSTNET bar code.",
   "Country": "United States",
@@ -1573,6 +1575,8 @@ export function regexHasNumbersOnly(regex: string): boolean {
 }
 
 export function validatePincode(isoCode: string, pincode: string): SomeResult<void> {
+  console.log("Validating pincode");
+
   const regex = regexForIsoCode(isoCode);
   if (!pincode.match(regex)) {
     return makeError("Pincode is invalid");
