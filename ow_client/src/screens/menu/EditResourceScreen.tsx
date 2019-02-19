@@ -77,7 +77,7 @@ class EditResourceScreen extends Component<Props> {
   externalApi: MaybeExternalServiceApi;
   extendedResourceApi: MaybeExtendedResourceApi
   editResourceForm: any;
-  countryList: {label: string, key: string};
+  countryList: Array<{label: string, key: string, name: string}>;
 
   constructor(props: Props) {
     super(props);
@@ -87,7 +87,14 @@ class EditResourceScreen extends Component<Props> {
     this.externalApi = this.props.config.getExternalServiceApi();
     this.extendedResourceApi = this.props.config.getExtendedResourceApi();
     //Key is a ISO 3166-2
-    this.countryList = callingCountries.all.map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2}));
+    this.countryList = callingCountries.all
+      .filter((c: any) => c.emoji ? true : false)
+      .map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2, name: c.name}));
+    this.countryList.sort((a, b) => {
+      if (a.name > b.name) return 1;
+      if (a.name < b.name) return -1;
+      return 0;
+    });
     
     this.state = {
       formHeight: Dimensions.get('window').height, 
