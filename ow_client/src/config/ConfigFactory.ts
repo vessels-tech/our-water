@@ -305,6 +305,23 @@ export class ConfigFactory {
     return this.remoteConfig.availableGroupTypes;
   }
 
+  getEditResourceHasPincode(): boolean {
+    return this.remoteConfig.availableGroupTypes['pincode'] ? true : false;
+  }
+
+  //If the resource validates pincode but not country, then we don't know what country to validate
+  getEditResourceValidatesPincode(): boolean {
+    if (this.getEditResourceHasCountry() && this.getEditResourceHasPincode()) {
+      return true;
+    }
+    
+    return false
+  }
+
+  getEditResourceHasCountry(): boolean { 
+    return this.remoteConfig.availableGroupTypes['country'] ? true : false;
+  }
+
     // getGGMNIgnoreReadingDate(): Moment {
   //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
   //     return moment(this.remoteConfig.ggmn_ignoreReading.date);

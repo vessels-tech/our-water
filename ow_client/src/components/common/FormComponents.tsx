@@ -65,7 +65,7 @@ export type MobileInputParams = {
 }
 
 export const TextInput = ({ meta, handler, hasError, touched }: any) => {
-  
+
   return (
     <View style={{
       flex: 1,
@@ -91,6 +91,8 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
         {touched
           && hasError("email")
           && `${meta.label} ${meta.errorMessage}`}
+        {hasError("invalid")
+          && `${meta.asyncErrorMessage}`}
       </FormValidationMessage>
     </View>
   );
@@ -141,11 +143,6 @@ export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
 
 export const DropdownInput = (params: DropdownInputParams) => {
   const { type, handler, meta: { label, options, defaultValue }, errorMessage, hasError } = params;
-// defaultValue
-//   let selectedValue = defaultValue;
-//   if (handler.value()) {
-//     selectedValue = handler.value();
-//   }
 
   return (
     <View style={{
