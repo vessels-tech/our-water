@@ -6,7 +6,7 @@ import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
 import PhoneNumberEntry, { CallingCountry } from './PhoneNumberEntry';
-import { FormGroup, FormControl } from 'react-reactive-form';
+
 
 export enum InputParams {
   Text = 'Text',
@@ -44,6 +44,7 @@ export type DropdownInputParams = {
     label: string,
     //key is the actual value, label for translations
     options: {key: string, label: string}[],
+    defaultValue: string, //the default
   },
   hasError: (key: string) => boolean
   errorMessage: string,
@@ -64,7 +65,7 @@ export type MobileInputParams = {
 }
 
 export const TextInput = ({ meta, handler, hasError, touched }: any) => {
-  
+
   return (
     <View style={{
       flex: 1,
@@ -90,6 +91,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
         {touched
           && hasError("email")
           && `${meta.label} ${meta.errorMessage}`}
+        {handler().value.length > 3 && hasError("invalid") && `${meta.asyncErrorMessage}`}
       </FormValidationMessage>
     </View>
   );
@@ -139,7 +141,7 @@ export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
 
 
 export const DropdownInput = (params: DropdownInputParams) => {
-  const { type, handler, meta: { label, options }, errorMessage, hasError } = params;
+  const { type, handler, meta: { label, options, defaultValue }, errorMessage, hasError } = params;
 
   return (
     <View style={{
@@ -147,7 +149,7 @@ export const DropdownInput = (params: DropdownInputParams) => {
     }}>
       <FormLabel>{label}</FormLabel>
       <Picker
-        selectedValue={handler().value}
+        selectedValue={handler().value || defaultValue}
         style={{
           flex: 2,
           marginLeft: 10,
@@ -155,7 +157,7 @@ export const DropdownInput = (params: DropdownInputParams) => {
         mode={'dropdown'}
         onValueChange={(e: any) => handler().onChange(e)}
       >
-        {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key} />)}
+        {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key}/>)}
       </Picker>
       <FormValidationMessage>
         {hasError("required")

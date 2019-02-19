@@ -410,11 +410,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               />
           {allowEditReadings   && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
-              onPress={() => this.props.onEditReadingsPressed(resourceId)}
+              onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
             />}
            {allowEdit && pendingResource && <ResourceDetailBottomButton
               title={resource_detail_edit_resource}
-              onPress={() => this.props.onEditResourcePressed(pendingResource)}
+              onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
             />}
           </View>
         </View>
@@ -522,12 +522,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             tabStyle={{ backgroundColor: primaryLight }}
           />
         )}>
+        //@ts-ignore
         <View 
           key="0_summary" 
           style={{
             backgroundColor: bgLight,
             flex: 1,
           }}
+          //@ts-ignore
           tabLabel={resource_detail_summary_tab}
           >
           {this.getSummaryCard()}

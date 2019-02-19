@@ -1543,6 +1543,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         _longitude: from.geometry.coordinates[0],
       },
       timeseries,
+      waterColumnHeight: 0,
+      groups: {},
     };
 
     return to;
@@ -1564,6 +1566,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         _longitude: 0
       },
       timeseries: [],
+      waterColumnHeight: 0,
+      groups: {},
     };
 
     return to;

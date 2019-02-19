@@ -31,13 +31,17 @@ import { PendingResource } from '../typings/models/PendingResource';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
-export interface Props {
+export interface OwnProps {
   userId: string,
   config: ConfigFactory,
   onResourceCellPressed: any,
   //If this exists, will filter the displayed resources to be only the given resource type
   filterResourceType?: ResourceType;
 
+
+}
+
+export interface StateProps {
   pendingResources: PendingResource[],
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: AnyResource[],
@@ -46,6 +50,11 @@ export interface Props {
   translation: TranslationFile,
   renderCounter?: number,
 }
+
+export interface ActionProps {
+}
+
+
 
 export interface State {
   recents: any[],
@@ -56,11 +65,11 @@ export interface State {
  * resources.
  * 
  */
-class FavouriteResourceList extends React.PureComponent<Props> {
+class FavouriteResourceList extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   unsubscribe: any;
   state: State;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     this.state = {
@@ -331,7 +340,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: Props) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let pendingResources = state.pendingSavedResources;
   let favouriteResources = state.favouriteResources;
   let recentResources = state.recentResources;
@@ -354,7 +363,7 @@ const mapStateToProps = (state: AppState, ownProps: Props) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
    
   }

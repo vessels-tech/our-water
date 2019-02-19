@@ -208,9 +208,11 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
 
 // export default connect(mapStateToProps, mapDispatchToProps)(HomeSimpleScreen);
 
-const enhance = compose(
-  withTabWrapper,
-  connect(mapStateToProps, mapDispatchToProps),
-);
+// const enhance = compose(
+//   withTabWrapper,
+//   connect(mapStateToProps, mapDispatchToProps),
+// );
 
-export default enhance(HomeSimpleScreen);
+// export default enhance(HomeSimpleScreen);
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(HomeSimpleScreen);
