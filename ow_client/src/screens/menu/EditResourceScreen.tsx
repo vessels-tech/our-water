@@ -302,16 +302,11 @@ class EditResourceScreen extends Component<Props> {
   }
 
   async pincodeValidator(control: AbstractControl) {
-    console.log("pincodeValidator", control);
-
     //It's safe to access country here:
-    // const country = this.editResourceForm.get('country').;
     const pincode = control.value;
     const country = this.editResourceForm.get('country').value;
-    console.log("country is", country);
 
     const validateResult = validatePincode(country, pincode);
-    console.log('validated pincode:', validateResult);
     if (validateResult.type === ResultType.ERROR) {
       throw { invalid: true };
     }
@@ -453,7 +448,13 @@ class EditResourceScreen extends Component<Props> {
     const country_label = "Country";
     const pincode_invalid_message = "Pincode is not valid."
     const labelForEditableField = (id: string) => {
-      return 'Pincode';
+      switch(id) {
+        case 'pincode': {
+          return "Pincode";
+        }
+        default:
+          return id;
+      }
     }
 
     //Change the keyboard type based on the country

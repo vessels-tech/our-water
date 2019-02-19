@@ -457,7 +457,7 @@ export async function getNewConfig(): Promise<any> {
         pincode: { id: 'pincode', required: true, order: 1 },
         country: { id: 'country', required: true, order: 0 },
       }), 
-      "The group types available on a resource",
+      "The Available group types. Required is currently ignored.",
       conditionKeys, [
         JSON.stringify({}),
         JSON.stringify({}),
