@@ -25,12 +25,10 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 exports.hourly_job = hourly_job;
 const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __awaiter(this, void 0, void 0, function* () {
-    console.log("HELLO");
     let backupKey = _backupServiceAccountKey_1.default;
     if (env_1.backupServiceAccountKeyFilename.indexOf('development') > -1) {
         backupKey = _backupServiceAccountKey_development_1.default;
     }
-    console.log("backupKey is", backupKey);
     const accessToken = yield tools_1.getBackupAccessToken(backupKey);
     //TODO: figure out an expiry date
     const expiryDate = "!234";

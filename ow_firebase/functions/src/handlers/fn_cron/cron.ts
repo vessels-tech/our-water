@@ -1,12 +1,7 @@
-
 import * as functions from 'firebase-functions';
-
-
 import { getBackupAccessToken } from '../../../tools';
 import CronUtils from './CronUtils';
-import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import { backupServiceAccountKeyFilename } from '../../common/env';
-import { admin } from '../../common/apis/FirebaseAdmin';
 
 //For some reason, we can't import these at runtime, so need to import all of them here.
 import prodBackupKey from './.backupServiceAccountKey';
@@ -25,13 +20,10 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 
 const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) => {
-  console.log("HELLO");
   let backupKey = prodBackupKey;
   if (backupServiceAccountKeyFilename.indexOf('development') > -1) {
     backupKey = devBackupKey;
   }
-
-  console.log("backupKey is", backupKey);
 
   const accessToken = await getBackupAccessToken(backupKey);
 
