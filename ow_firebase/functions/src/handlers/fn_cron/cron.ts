@@ -9,8 +9,8 @@ import { backupServiceAccountKeyFilename } from '../../common/env';
 import { admin } from '../../common/apis/FirebaseAdmin';
 
 //For some reason, we can't import these at runtime, so need to import all of them here.
-import * as prodBackupKey from './.backupServiceAccountKey';
-import * as devBackupKey from './.backupServiceAccountKey.development';
+import prodBackupKey from './.backupServiceAccountKey';
+import devBackupKey from './.backupServiceAccountKey.development';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");
@@ -25,10 +25,13 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 
 const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) => {
+  console.log("HELLO");
   let backupKey = prodBackupKey;
   if (backupServiceAccountKeyFilename.indexOf('development') > -1) {
     backupKey = devBackupKey;
   }
+
+  console.log("backupKey is", backupKey);
 
   const accessToken = await getBackupAccessToken(backupKey);
 
