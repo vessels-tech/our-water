@@ -365,7 +365,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return { 
     isConnected: state.isConnected,
     recentSearches: state.recentSearches,
-    searchResults: state.searchResults,
+    searchResults: state.searchResultsV1,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
   }

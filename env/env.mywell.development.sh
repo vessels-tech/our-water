@@ -15,6 +15,7 @@ export ENABLE_RENDER_LOGGING='false'
 export ENABLE_REDUX_LOGGING='true'
 export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=350
+export PLACE_API_BASE_URL="https://nominatim.openstreetmap.org/search"
 
 #Remote config setup
 export SHOULD_USE_LOCAL_CONFIG='true'
@@ -27,5 +28,6 @@ export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="mywell.debug" #TD change this back
 export KEYSTORE_PATH="/Users/ldaly/.android/debug.keystore"
 export KEYSTORE_ALIAS="androiddebugkey"
-export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.development.json"
+
+export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh

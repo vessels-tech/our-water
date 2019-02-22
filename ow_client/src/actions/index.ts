@@ -1,7 +1,7 @@
-import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
+import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult as SearchResultV1 } from "../typings/models/OurWater";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
-import BaseApi from "../api/BaseApi";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, GetResourcesPaginatedActionRequest, GetResourcesPaginatedActionResponse, StartInternalSyncActionRequest, StartInternalSyncActionResponse } from "./AnyAction";
+import BaseApi, { GenericSearchResult } from "../api/BaseApi";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, GetResourcesPaginatedActionRequest, GetResourcesPaginatedActionResponse, StartInternalSyncActionRequest, StartInternalSyncActionResponse, PerformSearchActionResponseV2 } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location, MaybeLocation } from "../typings/Location";
@@ -22,6 +22,7 @@ import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
 import { Cursor } from "../screens/HomeMapScreen";
 import { ResourceType } from "../enums";
+import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -653,15 +654,29 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
   return async (dispatch: any) => {
     dispatch(performSearchRequest(page, searchQuery));
 
-    const searchResult = await api.performSearch(searchQuery, page);
-
-    dispatch(performSearchResponse(searchResult))
-
-    if (searchResult.type !== ResultType.ERROR) {
-        if (searchResult.result.resources.length > 0) {
+    if (api.usesSearchApiV2) {
+      //TODO: figure out pagination
+      const searchResult = await api.performSearchV2(searchQuery);
+      dispatch(performSearchResponseV2(searchResult))
+      
+      if (searchResult.type !== ResultType.ERROR) {
+        const allResultsCount = searchResult.result.reduce((acc, curr) => acc + curr.results.length, 0);
+        if (allResultsCount > 0) {
           await api.saveRecentSearch(userId, searchQuery);
         }
       }
+      return searchResult;
+
+    }
+
+    const searchResult = await api.performSearch(searchQuery, page);
+    dispatch(performSearchResponse(searchResult));
+
+    if (searchResult.type !== ResultType.ERROR) {
+      if (searchResult.result.resources.length > 0) {
+        await api.saveRecentSearch(userId, searchQuery);
+      }
+    }
     return searchResult;
   }
 }
@@ -674,9 +689,17 @@ function performSearchRequest(page: number, searchQuery: string): PerformSearchA
   }
 }
 
-function performSearchResponse(result: SomeResult<SearchResult>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<SearchResultV1>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
+    result,
+  }
+}
+
+// performSearchV2(searchQuery: string): Promise<SomeResult<SearchResult<Array<PartialResourceResult | PlaceResult>>>>;
+function performSearchResponseV2(result: GenericSearchResult): PerformSearchActionResponseV2 {
+  return {
+    type: ActionType.PERFORM_SEARCH_RESPONSE_V2,
     result,
   }
 }

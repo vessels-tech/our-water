@@ -16,6 +16,7 @@ export ENABLE_RENDER_LOGGING='false'
 export ENABLE_REDUX_LOGGING='false'
 export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=500
+export PLACE_API_BASE_URL="https://nominatim.openstreetmap.org/search"
 
 export SHOULD_USE_LOCAL_CONFIG='false'
 export CONFIG_TYPE='GGMNDevConfig'
@@ -25,5 +26,7 @@ export PACKAGE_NAME_PREFIX="com.vesselstech"
 export PACKAGE_NAME_SUFFIX="ggmn.debug"
 export KEYSTORE_PATH="/Users/ldaly/.android/debug.keystore"
 export KEYSTORE_ALIAS="androiddebugkey"
-export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.development.json"
+
+
+export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh

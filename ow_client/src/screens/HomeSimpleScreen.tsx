@@ -16,6 +16,10 @@ import MenuButton from '../components/common/MenuButton';
 import { menuColors, primaryText, primaryLight } from '../utils/NewColors';
 import Toolbar from '../components/common/Toolbar';
 import IconButton from '../components/common/IconButton';
+//@ts-ignore
+import EventEmitter from "react-native-eventemitter";
+import { SearchButtonPressedEvent } from '../utils/Events';
+import { AnyResource } from '../typings/models/Resource';
 
 
 export interface OwnProps {
@@ -31,6 +35,7 @@ export interface StateProps {
   menu_water_quality: string,
   menu_checkdam: string,
   settings_new_resource: string,
+  translation: TranslationFile,
 
 }
 
@@ -43,6 +48,34 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    this.onSearchResultPressed = this.onSearchResultPressed.bind(this);
+    EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
+  }
+
+  componentWillUnmount() {
+    EventEmitter.removeAllListeners(SearchButtonPressedEvent);
+  }
+
+  onNavigatorEvent(event: any) {
+    const { translation: { templates: { search_heading } } } = this.props;
+
+    if (event === 'SEARCH') {
+      navigateTo(this.props, 'screen.SearchScreen', search_heading, {
+        config: this.props.config,
+        userId: this.props.userId,
+        // TODO: AnyResource needs to be something else
+        onSearchResultPressed: this.onSearchResultPressed,
+      });
+    }
+  }
+
+  /**
+   * Handle when a user clicks a result from the search screen.
+   * 
+   */
+  async onSearchResultPressed(r: any): Promise<void> {
+    console.log("onSearchResultPressed, result", r);
   }
 
   /**
@@ -187,6 +220,9 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let userId = ''; //I don't know if this fixes the problem...
 
+  // const thingo = state.user.ego.thingo1;
+  // thingo.doSmoething();
+
   if (state.user.type === UserType.USER) {
     userId = state.user.userId;
   }
@@ -198,6 +234,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     menu_water_quality: state.translation.templates.menu_water_quality,
     menu_checkdam: state.translation.templates.menu_checkdam,
     settings_new_resource: state.translation.templates.settings_new_resource,
+    translation: state.translation,
   }
 }
 

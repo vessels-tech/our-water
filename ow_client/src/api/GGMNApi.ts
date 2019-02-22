@@ -1,4 +1,4 @@
-import BaseApi from "./BaseApi";
+import BaseApi, { GenericSearchResult } from "./BaseApi";
 import NetworkApi from "./NetworkApi";
 import { RNFirebase, Firebase } from "react-native-firebase";
 import DeprecatedFirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
@@ -33,6 +33,8 @@ import { CacheType } from "../reducers";
 import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
 import FirebaseUserApi from "./FirebaseUserApi";
+import { SearchResult as SearchResultV2, PartialResourceResult, PlaceResult } from 'ow_common/lib/api/SearchApi';
+
 
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
@@ -65,6 +67,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   pendingReadingsSubscription: any;
   externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
   extendedResourceApiType: ExtendedResourceApiType.Has = ExtendedResourceApiType.Has;
+
+  usesSearchApiV2 = false;
 
   // private syncStatusCallback: any;
 
@@ -1005,6 +1009,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       type: ResultType.SUCCESS,
       result,
     }
+  }
+
+  async performSearchV2(searchQuery: string): Promise<GenericSearchResult> {
+    throw new Error("V2 Search not implemented")
   }
 
   /**
