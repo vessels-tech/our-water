@@ -17,7 +17,7 @@ export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=350
 
 #Remote config setup
-export SHOULD_USE_LOCAL_CONFIG='false'
+export SHOULD_USE_LOCAL_CONFIG='true'
 
 #Just for now, as we are still sorting this out.
 export CONFIG_TYPE='MyWellDevConfig'
