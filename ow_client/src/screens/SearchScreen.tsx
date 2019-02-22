@@ -9,7 +9,7 @@ import {
   SearchBar,
   Text,
 } from 'react-native-elements';
-import { SearchResult } from '../typings/models/OurWater';
+import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -22,6 +22,7 @@ import * as appActions from '../actions';
 import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
+import { SearchResult, PartialResourceResult, PlaceResult } from 'ow_common/lib/api/SearchApi';
 
 export interface OwnProps {
   onSearchResultPressed: (result: AnyResource) => void,
@@ -33,7 +34,8 @@ export interface OwnProps {
 export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
-  searchResults: SearchResult, //This may be more than just resources in the future
+  searchResultsV1: SearchResultV1, //This may be more than just resources in the future
+  // searchResults: Array<SearchResult<PartialResourceResult | PlaceResult>>,
   searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
 }
@@ -136,9 +138,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Display the search results, in a series of cards and grids
    * similar to google maps.
    */
-  getSearchResults() {
+  getSearchResultsV1() {
     const { 
-      searchResults, 
+      searchResultsV1, 
       searchResultsMeta: { loading }, 
       translation: { templates: { search_more } },
     } = this.props;
@@ -156,14 +158,14 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (searchResults.resources.length === 0) {
+    if (searchResultsV1.resources.length === 0) {
       return null;
     }
 
     return (
       <View>
         {
-          searchResults.resources.map((r: AnyResource, i) => {
+          searchResultsV1.resources.map((r: AnyResource, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -181,7 +183,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         {/* TODO: only display if we have 25 results, 
             we need to pass through the page size in the meta field */}
-        {searchResults.hasNextPage ?
+        {searchResultsV1.hasNextPage ?
           <ListItem
             containerStyle={{
               paddingLeft: 10,
@@ -197,10 +199,43 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
+  /**
+   * getSearchResults
+   * 
+   * Display the search results, divided by category
+   * Currently only resource and place
+   */
+  getSearchResults() {
+    const {
+      searchResultsV1,
+      searchResultsMeta: { loading },
+    } = this.props;
+    const { page } = this.state;
+
+
+    if (loading) {
+      return (
+        <View style={{
+          justifyContent: 'center',
+          height: 350,
+        }}>
+          <Loading />
+        </View>
+      );
+    }
+
+    
+    return (
+      <View>
+        <Text>TODO: Search Results</Text>
+      </View>
+    );
+  }
+
   getNoResultsFoundText() {
     const { hasSearched } = this.state;
     const { 
-      searchResults, 
+      searchResultsV1, 
       searchResultsMeta: { loading },
       translation: { templates: { search_no_results } },
     } = this.props;
@@ -209,7 +244,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.resources.length > 0) {
+    if (searchResultsV1.resources.length > 0) {
       return null;
     }
 
@@ -238,7 +273,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { searchQuery } = this.state;
     const { 
       recentSearches, 
-      searchResults,
+      searchResultsV1,
       searchResultsMeta: { loading },
       translation: { templates: { search_hint } },
     } = this.props;
@@ -249,7 +284,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: SearchResults is somehow undefined here
 
-    if (recentSearches.length === 0 && searchQuery.length === 0 && searchResults.resources.length === 0) {
+    if (recentSearches.length === 0 && searchQuery.length === 0 && searchResultsV1.resources.length === 0) {
       return (
         <View style={{
           flex: 1,
@@ -271,7 +306,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { 
       recentSearches, 
       searchResultsMeta: {loading}, 
-      searchResults,
+      searchResultsV1,
       translation: { templates: { search_recent_searches } },
     } = this.props;
 
@@ -279,7 +314,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.resources.length > 0) {
+    if (searchResultsV1.resources.length > 0) {
       return null;
     }
 
@@ -348,7 +383,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps={'always'}
         >
-          {this.getSearchResults()}
+          {this.props.config.getShouldUseV1Search() ? this.getSearchResultsV1() : this.getSearchResults()}
           {this.getNoResultsFoundText()}
           {this.getSearchHint()}
           {this.getRecentSearches()}
@@ -365,7 +400,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return { 
     isConnected: state.isConnected,
     recentSearches: state.recentSearches,
-    searchResults: state.searchResultsV1,
+    searchResultsV1: state.searchResultsV1,
+    // searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
   }
