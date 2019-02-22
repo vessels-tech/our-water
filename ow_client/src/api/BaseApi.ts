@@ -18,7 +18,6 @@ export type GenericSearchResult = SomeResult<Array<SearchResult<Array<PartialRes
  * BaseApi is the base API for Our Water
  */
 export default interface BaseApi {
-  usesSearchApiV2: boolean;
   
   //
   // Auth API

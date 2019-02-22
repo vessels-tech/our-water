@@ -46,6 +46,7 @@ const MyWellDevConfig: RemoteConfig = {
     pincode: { id: 'pincode', required: true, order: 1 },
     country: { id: 'country', required: true, order: 0 },
   },
+  shouldUseV1Search: false,
 }
 
 export default MyWellDevConfig;``

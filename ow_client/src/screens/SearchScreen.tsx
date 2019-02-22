@@ -39,7 +39,7 @@ export interface StateProps {
 }
 
 export interface ActionProps { 
-  performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => SomeResult<void>
+  performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => SomeResult<void>
 }
 
 export interface State {
@@ -101,7 +101,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       this.setState({page: pageOverride});
     }
     this.setState({hasSearched: true});
-    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page);
+    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page, this.props.config.getShouldUseV1Search());
        
     if (result.type === ResultType.ERROR) {
       ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
@@ -373,8 +373,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => 
-      dispatch(appActions.performSearch(api, userId, searchQuery, page))
+    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => 
+      dispatch(appActions.performSearch(api, userId, searchQuery, page, v1))
   }
 } 
 

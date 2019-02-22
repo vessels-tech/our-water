@@ -48,9 +48,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   pendingReadingsSubscription: any;
   internalAccountApiType: InternalAccountApiType.Has = InternalAccountApiType.Has;
 
-  //Try configuring this way
-  usesSearchApiV2 = true;
-
   constructor(networkApi: NetworkApi, orgId: string, baseUrl: string) {
     this.networkApi = networkApi;
     this.orgId = orgId;

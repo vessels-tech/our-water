@@ -650,11 +650,11 @@ export function passOnUserSubscription(unsubscribe: () => void): any {
 /**
  * Async search for resources
  */
-export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number): any {
+export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean): any {
   return async (dispatch: any) => {
     dispatch(performSearchRequest(page, searchQuery));
 
-    if (api.usesSearchApiV2) {
+    if (!v1) {
       //TODO: figure out pagination
       const searchResult = await api.performSearchV2(searchQuery);
       dispatch(performSearchResponseV2(searchResult))

@@ -68,8 +68,6 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   externalServiceApiType: ExternalServiceApiType.Has = ExternalServiceApiType.Has;
   extendedResourceApiType: ExtendedResourceApiType.Has = ExtendedResourceApiType.Has;
 
-  usesSearchApiV2 = false;
-
   // private syncStatusCallback: any;
 
   firebasePendingReadingsSubscriptionId: string | null = null;

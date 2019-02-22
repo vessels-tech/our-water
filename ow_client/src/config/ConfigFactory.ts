@@ -57,6 +57,7 @@ export type RemoteConfig = {
   resourceDetail_shouldShowQRCode: boolean,
   favouriteResource_showPendingResources: boolean,
   availableGroupTypes: CacheType<GroupSpecificationType>,
+  shouldUseV1Search: boolean,
 }
 
 /**
@@ -320,6 +321,10 @@ export class ConfigFactory {
 
   getEditResourceHasCountry(): boolean { 
     return this.remoteConfig.availableGroupTypes['country'] ? true : false;
+  }
+
+  getShouldUseV1Search(): boolean {
+    return this.remoteConfig.shouldUseV1Search;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

@@ -41,6 +41,7 @@ const GGMNDevConfig: RemoteConfig = {
   resourceDetail_shouldShowQRCode: false,
   favouriteResource_showPendingResources: false,
   availableGroupTypes: {},
+  shouldUseV1Search: true,
 }
 
 export default GGMNDevConfig;
