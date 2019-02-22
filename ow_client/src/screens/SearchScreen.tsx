@@ -22,7 +22,7 @@ import * as appActions from '../actions';
 import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
-import { SearchResult, PartialResourceResult, PlaceResult } from 'ow_common/lib/api/SearchApi';
+import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
 
 export interface OwnProps {
   onSearchResultPressed: (result: AnyResource) => void,
@@ -35,7 +35,7 @@ export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
   searchResultsV1: SearchResultV1, //This may be more than just resources in the future
-  // searchResults: Array<SearchResult<PartialResourceResult | PlaceResult>>,
+  searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
 }
@@ -199,6 +199,30 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
+
+  getSearchResultsForResultType(result: SearchResult<Array<PartialResourceResult | PlaceResult>>) {
+
+    switch (result.type) {
+      case SearchResultType.PlaceResult: {
+        return null;
+      }
+      case SearchResultType.PartialResourceResult: {
+        return (
+          <View key={result.type}>
+            <Text>Resources:</Text>
+            {
+              result.results.map(row => {
+                return (
+                  <Text key={row.id}>{row.id}</Text>
+                );
+              })
+            }
+          </View>
+        )
+      }
+    }
+  }
+
   /**
    * getSearchResults
    * 
@@ -207,11 +231,10 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getSearchResults() {
     const {
-      searchResultsV1,
+      searchResults,
       searchResultsMeta: { loading },
     } = this.props;
     const { page } = this.state;
-
 
     if (loading) {
       return (
@@ -224,10 +247,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    
     return (
       <View>
-        <Text>TODO: Search Results</Text>
+        {searchResults.map(r => this.getSearchResultsForResultType(r))}
       </View>
     );
   }
@@ -401,7 +423,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     isConnected: state.isConnected,
     recentSearches: state.recentSearches,
     searchResultsV1: state.searchResultsV1,
-    // searchResults: state.searchResults,
+    searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
   }

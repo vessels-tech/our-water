@@ -660,7 +660,13 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
       dispatch(performSearchResponseV2(searchResult))
       
       if (searchResult.type !== ResultType.ERROR) {
-        const allResultsCount = searchResult.result.reduce((acc, curr) => acc + curr.results.length, 0);
+        const allResultsCount = searchResult.result.reduce((acc, curr) => {
+          if (curr.type === ResultType.ERROR) {
+            return acc;
+          }
+          
+          return acc + curr.result.results.length;
+        }, 0);
         if (allResultsCount > 0) {
           await api.saveRecentSearch(userId, searchQuery);
         }

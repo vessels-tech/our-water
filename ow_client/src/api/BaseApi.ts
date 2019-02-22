@@ -12,7 +12,7 @@ import { Cursor } from "../screens/HomeMapScreen";
 import { SearchResult, PlaceResult, PartialResourceResult } from "ow_common/lib/api/SearchApi";
 
 
-export type GenericSearchResult = SomeResult<Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>>;
+export type GenericSearchResult = SomeResult<Array<SomeResult<SearchResult<Array<PartialResourceResult | PlaceResult>>>>>;
 
 /**
  * BaseApi is the base API for Our Water

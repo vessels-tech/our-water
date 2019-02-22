@@ -84,8 +84,7 @@ export type AppState = {
   recentSearches: string[],
   syncStatus: SyncStatus,
   searchResultsV1: SearchResultV1,
-  searchResults: Array<SearchResult<PartialResourceResult | PlaceResult>>,
-  // searchResultsV2: 
+  searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
@@ -547,6 +546,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.PERFORM_SEARCH_RESPONSE_V2: {
       let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
       let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery };
+      let searchResults = state.searchResults;
 
       const result = action.result;
       if (result.type === ResultType.ERROR) {
@@ -555,7 +555,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       }
 
       //TODO: implement pagination for search later
-      let searchResults = result.result;
+      searchResults = [];
+      result.result.forEach(r => {
+        if (r.type !== ResultType.ERROR) {
+          searchResults.push(r.result)
+        }
+      });
     
       return Object.assign({}, state, { searchResultsMeta, searchResults });
     }
