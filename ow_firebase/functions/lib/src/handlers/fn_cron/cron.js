@@ -13,8 +13,8 @@ const tools_1 = require("../../../tools");
 const CronUtils_1 = require("./CronUtils");
 const env_1 = require("../../common/env");
 //For some reason, we can't import these at runtime, so need to import all of them here.
-const prodBackupKey = require("./.backupServiceAccountKey");
-const devBackupKey = require("./.backupServiceAccountKey.development");
+const _backupServiceAccountKey_1 = require("./.backupServiceAccountKey");
+const _backupServiceAccountKey_development_1 = require("./.backupServiceAccountKey.development");
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
     console.log("This job is ran every hour!");
     //TODO: where do we get the orgId from? Can't we just run all syncs for all orgs???
@@ -25,9 +25,9 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 exports.hourly_job = hourly_job;
 const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __awaiter(this, void 0, void 0, function* () {
-    let backupKey = prodBackupKey;
+    let backupKey = _backupServiceAccountKey_1.default;
     if (env_1.backupServiceAccountKeyFilename.indexOf('development') > -1) {
-        backupKey = devBackupKey;
+        backupKey = _backupServiceAccountKey_development_1.default;
     }
     const accessToken = yield tools_1.getBackupAccessToken(backupKey);
     //TODO: figure out an expiry date

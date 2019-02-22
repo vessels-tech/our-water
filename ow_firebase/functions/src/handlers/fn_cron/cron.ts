@@ -1,16 +1,11 @@
-
 import * as functions from 'firebase-functions';
-
-
 import { getBackupAccessToken } from '../../../tools';
 import CronUtils from './CronUtils';
-import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import { backupServiceAccountKeyFilename } from '../../common/env';
-import { admin } from '../../common/apis/FirebaseAdmin';
 
 //For some reason, we can't import these at runtime, so need to import all of them here.
-import * as prodBackupKey from './.backupServiceAccountKey';
-import * as devBackupKey from './.backupServiceAccountKey.development';
+import prodBackupKey from './.backupServiceAccountKey';
+import devBackupKey from './.backupServiceAccountKey.development';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");
