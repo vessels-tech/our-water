@@ -277,7 +277,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         config: this.props.config,
         userId: this.props.userId,
         // TODO: AnyResource needs to be something else
-        onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressedWithState(result),
+        onSearchResultPressedV1: (result: AnyResource) => this.onSearchResultPressedWithState(result),
       });
     }
   }

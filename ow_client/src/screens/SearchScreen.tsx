@@ -13,7 +13,7 @@ import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar, dedupArray } from '../utils';
+import { getGroundwaterAvatar, dedupArray, getPlaceAvatar } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
@@ -26,7 +26,8 @@ import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } fr
 import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
 
 export interface OwnProps {
-  onSearchResultPressed: (result: AnyResource) => void,
+  onSearchResultPressedV1: (result: AnyResource) => void,
+  onSearchResultPressed: (result: PartialResourceResult | PlaceResult) => void,
   navigator: any;
   userId: string,
   config: ConfigFactory,
@@ -127,7 +128,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
-  onSearchResultPressed(r: AnyResource){
+  onSearchResultPressedV1(r: AnyResource){
+    this.props.navigator.pop();
+    this.props.onSearchResultPressedV1(r)
+  }
+
+  onSearchResultPressed(r: PartialResourceResult | PlaceResult){
     this.props.navigator.pop();
     this.props.onSearchResultPressed(r)
   }
@@ -175,7 +181,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
                 hideChevron={true}
                 key={i}
-                onPress={this.onSearchResultPressed.bind(this, r)}
+                onPress={this.onSearchResultPressedV1.bind(this, r)}
                 roundAvatar={true}
                 title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
@@ -200,31 +206,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       </View>
     );
   }
-
-
-  // getSearchResultsForResultType(result: Array<PartialResourceResult | PlaceResult>) {
-
-  //   switch (result.type) {
-  //     case SearchResultType.PlaceResult: {
-  //       return null;
-  //     }
-  //     case SearchResultType.PartialResourceResult: {
-  //       return (
-  //         <View key={result.type}>
-  //           <Text>Resources:</Text>
-  //           {
-  //             result.results.map(row => {
-  //               return (
-  //                 // TODO: make into a row
-  //                 <Text key={row.shortId}>{row.shortId}</Text>
-  //               );
-  //             })
-  //           }
-  //         </View>
-  //       )
-  //     }
-  //   }
-  // }
 
   /**
    * getSearchResults
@@ -254,16 +235,38 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const partialResourceResults = mapAndDedupSearchResults<PartialResourceResult>(searchResults, SearchResultType.PartialResourceResult, (r) => r.id);
     const placeResults = mapAndDedupSearchResults<PlaceResult>(searchResults, SearchResultType.PlaceResult, (r) => r.name);
 
+    console.log("placeResults are", placeResults);
+
     return (
       <View>
-        <Text>Resources:</Text>
         {partialResourceResults
         .map(r => (
-          <Text key={getOrElse(r.shortId, '. . .')}>{getOrElse(r.shortId, '. . .')}</Text>
+          // <Text key={getOrElse(r.shortId, '. . .')}>{getOrElse(r.shortId, '. . .')}</Text>
+          <ListItem
+            containerStyle={{
+              paddingLeft: 10,
+            }}
+            hideChevron={true}
+            key={getOrElse(r.shortId, '. . .')}
+            onPress={this.onSearchResultPressed.bind(this, r)}
+            roundAvatar={true}
+            title={getOrElse(r.shortId, '. . .')}
+            avatar={getGroundwaterAvatar()}
+          />
+            // );
         ))}
-        <Text>Places:</Text>
         {placeResults.map(r => (
-          <Text key={r.name}>{r.name}</Text>
+          <ListItem
+            containerStyle={{
+              paddingLeft: 10,
+            }}
+            hideChevron={true}
+            key={r.name}
+            onPress={this.onSearchResultPressed.bind(this, r)}
+            roundAvatar={true}
+            title={r.name}
+            avatar={getPlaceAvatar()}
+          />
         ))}
       </View>
     );
@@ -344,6 +347,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       recentSearches, 
       searchResultsMeta: {loading}, 
       searchResultsV1,
+      searchResults,
       translation: { templates: { search_recent_searches } },
     } = this.props;
 
@@ -352,6 +356,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (searchResultsV1.resources.length > 0) {
+      return null;
+    }
+
+    //TODO: this won't work, we need to look at each of the arrays in the searchResults
+    if (searchResults.length > 0) {
       return null;
     }
 
@@ -458,14 +467,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
 /**
  * Given search results, map and deduplicate by category
  */
-
 function mapAndDedupSearchResults<T>(
   results: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   type: SearchResultType,
   dedupFunction: (item: T) => string): Array<T> 
 {
   const resultsDup: Array<T> = results
-    .filter(sr => sr.type === SearchResultType.PartialResourceResult)
+    .filter(sr => sr.type === type)
     .reduce((acc: Array<T>, curr) => {
       curr.results.forEach(r => {
         //TODO: Add types here

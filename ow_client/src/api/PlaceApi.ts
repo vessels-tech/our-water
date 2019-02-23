@@ -1,4 +1,4 @@
-import { SomeResult, makeSuccess, makeError } from "ow_common/lib/utils/AppProviderTypes";
+import { SomeResult, makeSuccess, makeError, ResultType } from "ow_common/lib/utils/AppProviderTypes";
 import { SearchResult, PlaceResult, SearchPageParams, SearchResultType } from "ow_common/lib/api/SearchApi";
 import { safeLower } from 'ow_common/lib/utils';
 //@ts-ignore
@@ -6,6 +6,9 @@ import { default as ftch } from '../utils/Fetch';
 
 //TD: this should probably be in the config api...
 import { PlaceApiBaseUrl as baseUrl } from '../utils/EnvConfig';
+import { naiveParseFetchResponse } from "../utils";
+
+const timeout = 1000 * 30; //30 seconds
 
 
 export default class PlaceApi {
@@ -22,13 +25,24 @@ export default class PlaceApi {
     //TODO: proper param parsing etc.
     const uri = `${baseUrl}/${placeName}?format=json&email=admin@vesselstech.com&limit=${limit}`;
     const options = {
-      method: "GET",
-      uri,
-      json: true,
+      timeout,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include' //make sure fetch sets the cookie for us.
     };
+
     //TODO: make generic enough for both request and fetch
-    return ftch(options)
-      .then((response: any) => {
+    return ftch(uri, options)
+      .then((response: any) => naiveParseFetchResponse<any>(response))
+      .then((response: SomeResult<any>) => {
+        console.log("response is", response);
+        if (response.type === ResultType.ERROR) {
+          return response;
+        }
+
+        const rawPlaces = response.result;
 
         /*
           example response: {
@@ -42,7 +56,8 @@ export default class PlaceApi {
             display_name: 'Adelaide, Ortega, Tolima, Colombia',
           }
         */
-        const places: PlaceResult[] = response.map((r: any) => ({
+        const places: PlaceResult[] = rawPlaces.map((r: any) => ({
+          type: SearchResultType.PlaceResult,
           name: r.display_name,
           coords: { latitude: parseFloat(r.lat), longitude: parseFloat(r.lon) },
           boundingBox: r.boundingbox.map((point: string) => parseFloat(point)),

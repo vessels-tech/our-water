@@ -20,6 +20,7 @@ import IconButton from '../components/common/IconButton';
 import EventEmitter from "react-native-eventemitter";
 import { SearchButtonPressedEvent } from '../utils/Events';
 import { AnyResource } from '../typings/models/Resource';
+import { PlaceResult, PartialResourceResult } from 'ow_common/lib/api/SearchApi';
 
 
 export interface OwnProps {
@@ -74,7 +75,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Handle when a user clicks a result from the search screen.
    * 
    */
-  async onSearchResultPressed(r: any): Promise<void> {
+  async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
     console.log("onSearchResultPressed, result", r);
   }
 

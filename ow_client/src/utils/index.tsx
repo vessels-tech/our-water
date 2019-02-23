@@ -379,6 +379,20 @@ export function getReadingAvatar() {
   );
 }
 
+export function getPlaceAvatar() {
+  return (
+    <Avatar
+      containerStyle={{
+        backgroundColor: primaryLight,
+        alignSelf: 'center',
+      }}
+      rounded={true}
+      title="P"
+      activeOpacity={0.7}
+    />
+  );
+}
+
 /**
    * Iterate through favourite resources, and find out
    * if this is in the list
