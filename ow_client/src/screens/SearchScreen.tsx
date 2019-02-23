@@ -13,7 +13,7 @@ import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar } from '../utils';
+import { getGroundwaterAvatar, dedupArray } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
@@ -23,6 +23,7 @@ import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
+import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
 
 export interface OwnProps {
   onSearchResultPressed: (result: AnyResource) => void,
@@ -49,6 +50,7 @@ export interface State {
   hasSearched: boolean,
   page: number,
 }
+
 
 class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
@@ -200,28 +202,29 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
 
-  getSearchResultsForResultType(result: SearchResult<Array<PartialResourceResult | PlaceResult>>) {
+  // getSearchResultsForResultType(result: Array<PartialResourceResult | PlaceResult>) {
 
-    switch (result.type) {
-      case SearchResultType.PlaceResult: {
-        return null;
-      }
-      case SearchResultType.PartialResourceResult: {
-        return (
-          <View key={result.type}>
-            <Text>Resources:</Text>
-            {
-              result.results.map(row => {
-                return (
-                  <Text key={row.id}>{row.id}</Text>
-                );
-              })
-            }
-          </View>
-        )
-      }
-    }
-  }
+  //   switch (result.type) {
+  //     case SearchResultType.PlaceResult: {
+  //       return null;
+  //     }
+  //     case SearchResultType.PartialResourceResult: {
+  //       return (
+  //         <View key={result.type}>
+  //           <Text>Resources:</Text>
+  //           {
+  //             result.results.map(row => {
+  //               return (
+  //                 // TODO: make into a row
+  //                 <Text key={row.shortId}>{row.shortId}</Text>
+  //               );
+  //             })
+  //           }
+  //         </View>
+  //       )
+  //     }
+  //   }
+  // }
 
   /**
    * getSearchResults
@@ -247,9 +250,21 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
+    //Rearrange search results and deduplicate
+    const partialResourceResults = mapAndDedupSearchResults<PartialResourceResult>(searchResults, SearchResultType.PartialResourceResult, (r) => r.id);
+    const placeResults = mapAndDedupSearchResults<PlaceResult>(searchResults, SearchResultType.PlaceResult, (r) => r.name);
+
     return (
       <View>
-        {searchResults.map(r => this.getSearchResultsForResultType(r))}
+        <Text>Resources:</Text>
+        {partialResourceResults
+        .map(r => (
+          <Text key={getOrElse(r.shortId, '. . .')}>{getOrElse(r.shortId, '. . .')}</Text>
+        ))}
+        <Text>Places:</Text>
+        {placeResults.map(r => (
+          <Text key={r.name}>{r.name}</Text>
+        ))}
       </View>
     );
   }
@@ -437,3 +452,30 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
 } 
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
+
+
+
+/**
+ * Given search results, map and deduplicate by category
+ */
+
+function mapAndDedupSearchResults<T>(
+  results: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
+  type: SearchResultType,
+  dedupFunction: (item: T) => string): Array<T> 
+{
+  const resultsDup: Array<T> = results
+    .filter(sr => sr.type === SearchResultType.PartialResourceResult)
+    .reduce((acc: Array<T>, curr) => {
+      curr.results.forEach(r => {
+        //TODO: Add types here
+        if (r.type === type) {
+          acc.push(r);
+        }
+      });
+
+      return acc;
+    }, []);
+
+  return dedupArray(resultsDup, dedupFunction);
+}

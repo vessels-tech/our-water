@@ -649,6 +649,8 @@ export function passOnUserSubscription(unsubscribe: () => void): any {
 
 /**
  * Async search for resources
+ * 
+ * TD: Code smell, boolean switches are bad
  */
 export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean): any {
   return async (dispatch: any) => {
