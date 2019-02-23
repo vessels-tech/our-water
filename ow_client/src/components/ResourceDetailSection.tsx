@@ -29,7 +29,6 @@ import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
@@ -499,7 +498,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { hackViewPager } = this.state;
 
     return (
-      // @ts-ignore
       <ScrollableTabView 
         id={hackViewPager}
         style={{ 
@@ -522,8 +520,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             tabStyle={{ backgroundColor: primaryLight }}
           />
         )}>
-        //@ts-ignore
-        <View 
+        <View
           key="0_summary" 
           style={{
             backgroundColor: bgLight,

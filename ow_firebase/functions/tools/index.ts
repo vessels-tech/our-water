@@ -466,7 +466,8 @@ export async function getNewConfig(): Promise<any> {
           country: { id: 'country', required: true, order: 0 },
         }),
       ]
-    )
+    ),
+    shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
   };
 
   return Promise.resolve({
