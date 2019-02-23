@@ -100,10 +100,10 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           settings_map,
           {
             config: this.props.config,
-            //TODO: improve this calculation to make more accurate
             initialRegion: {
               latitude: r.coords.latitude,
               longitude: r.coords.longitude,
+              //TODO: improve this calculation to make more accurate to the 
               // latitudeDelta: Math.abs(r.boundingBox[0] - r.boundingBox[2]) / 2,
               // longitudeDelta: Math.abs(r.boundingBox[1] - r.boundingBox[3]) / 2,
               latitudeDelta: 10,
@@ -115,8 +115,6 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         break;
       }
     }
-
-    console.log("onSearchResultPressed, result", r);
   }
 
   /**
@@ -129,6 +127,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: Translate
     const menu_browse_text = "Browse";
+    const menu_scan_text = "Scan";
     const menu_search_text = "Search";
     const menu_new_text = "New";
     
@@ -172,13 +171,13 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           <IconButton
             textColor={primaryText.high}
             color={primaryLight}
-            name={'search'}
+            name={'crop-free'}
             onPress={() => {
-              navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+              navigateTo(this.props, 'screen.ScanScreen', menu_scan_text, {
                 config: this.props.config,
               });
             }}
-            bottomText={menu_search_text}
+            bottomText={menu_scan_text}
             size={25}
           />
           <IconButton
