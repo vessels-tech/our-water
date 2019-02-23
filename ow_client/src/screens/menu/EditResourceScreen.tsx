@@ -89,7 +89,7 @@ class EditResourceScreen extends Component<Props> {
     //Key is a ISO 3166-2
     this.countryList = callingCountries.all
       .filter((c: any) => c.emoji ? true : false)
-      .map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2, name: c.name}));
+      .map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2.toLowerCase(), name: c.name}));
     this.countryList.sort((a, b) => {
       if (a.name > b.name) return 1;
       if (a.name < b.name) return -1;
@@ -269,7 +269,7 @@ class EditResourceScreen extends Component<Props> {
 
     if (this.props.config.getEditResourceHasCountry()) {
       //Default to india.
-      const validators: any[] = ['IN'];
+      const validators: any[] = ['in'];
       const countrySpec = this.props.config.getAvailableGroupTypes()['country']; 
       if (countrySpec.required) {
         validators.push(Validators.required);
