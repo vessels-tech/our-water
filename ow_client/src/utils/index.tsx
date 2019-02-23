@@ -606,6 +606,27 @@ export function formatShortId(shortId: string): SomeResult<string> {
   return makeSuccess(`${parts[0]}-${parts[1]}-${parts[2]}`);
 }
 
+export function formatShortIdOrElse(shortId: string, dflt: string): string {
+  if (!shortId) {
+    return dflt;
+  }
+
+  if (shortId.length !== 9) {
+    return dflt;
+  }
+
+  const parts = shortId.match(/.{1,3}/g);
+  if (!parts || parts.length !== 3) {
+    return dflt;
+  }
+
+  if (parts[0] === '000') {
+    return `${parts[1]}-${parts[2]}`;
+  }
+
+  return `${parts[0]}-${parts[1]}-${parts[2]}`;
+}
+
 
 export function getShortIdOrFallback(id: string, cache: CacheType<string>, fallback?: string): string {
   let title = fallback || id;

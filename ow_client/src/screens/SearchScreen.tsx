@@ -13,7 +13,7 @@ import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar, dedupArray, getPlaceAvatar } from '../utils';
+import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
@@ -235,26 +235,27 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const partialResourceResults = mapAndDedupSearchResults<PartialResourceResult>(searchResults, SearchResultType.PartialResourceResult, (r) => r.id);
     const placeResults = mapAndDedupSearchResults<PlaceResult>(searchResults, SearchResultType.PlaceResult, (r) => r.name);
 
-    console.log("placeResults are", placeResults);
+    console.log("partialResourceResults are", partialResourceResults);
 
     return (
       <View>
         {partialResourceResults
-        .map(r => (
-          // <Text key={getOrElse(r.shortId, '. . .')}>{getOrElse(r.shortId, '. . .')}</Text>
-          <ListItem
-            containerStyle={{
-              paddingLeft: 10,
-            }}
-            hideChevron={true}
-            key={getOrElse(r.shortId, '. . .')}
-            onPress={this.onSearchResultPressed.bind(this, r)}
-            roundAvatar={true}
-            title={getOrElse(r.shortId, '. . .')}
-            avatar={getGroundwaterAvatar()}
-          />
-            // );
-        ))}
+        .map(r => {
+          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, r.id), r.id);
+
+          return (
+            <ListItem
+              containerStyle={{
+                paddingLeft: 10,
+              }}
+              hideChevron={true}
+              key={r.id}
+              onPress={this.onSearchResultPressed.bind(this, r)}
+              roundAvatar={true}
+              title={shortIdFormatted}
+              avatar={getGroundwaterAvatar()}
+            />
+        )})}
         {placeResults.map(r => (
           <ListItem
             containerStyle={{
@@ -275,7 +276,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   getNoResultsFoundText() {
     const { hasSearched } = this.state;
     const { 
-      searchResultsV1, 
+      searchResultsV1,
+      searchResults,
       searchResultsMeta: { loading },
       translation: { templates: { search_no_results } },
     } = this.props;
@@ -285,6 +287,10 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (searchResultsV1.resources.length > 0) {
+      return null;
+    }
+
+    if (getInnerSearchResultCount(searchResults) > 0) {
       return null;
     }
 
@@ -360,7 +366,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     //TODO: this won't work, we need to look at each of the arrays in the searchResults
-    if (searchResults.length > 0) {
+    if (getInnerSearchResultCount(searchResults) > 0) {
       return null;
     }
 
@@ -486,4 +492,12 @@ function mapAndDedupSearchResults<T>(
     }, []);
 
   return dedupArray(resultsDup, dedupFunction);
+}
+
+function getInnerSearchResultCount(searchResults: SearchResult<(PartialResourceResult | PlaceResult)[]>[]): number {
+  let count = 0;
+  searchResults.forEach(r => {
+    r.results.forEach(() => count += 1);
+  });
+  return count;
 }
