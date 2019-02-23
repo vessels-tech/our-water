@@ -20,7 +20,8 @@ import IconButton from '../components/common/IconButton';
 import EventEmitter from "react-native-eventemitter";
 import { SearchButtonPressedEvent } from '../utils/Events';
 import { AnyResource } from '../typings/models/Resource';
-import { PlaceResult, PartialResourceResult } from 'ow_common/lib/api/SearchApi';
+import { PlaceResult, PartialResourceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
+import { getOrElse } from 'ow_common/lib/utils';
 
 
 export interface OwnProps {
@@ -76,6 +77,45 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * 
    */
   async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
+    switch(r.type) {
+      case SearchResultType.PartialResourceResult: {
+        //TODO: load the resource type
+        //TODO: translate loading
+        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, "Loading..."), {
+          resourceId: r.id,
+          config: this.props.config,
+          userId: this.props.userId
+        });
+        break;
+      }
+      case SearchResultType.PlaceResult: {
+        //TODO: also drop a marker?
+
+        //TODO: Translate
+        const settings_map = "Browse on Map"
+
+        navigateTo(
+          this.props,
+          'screen.SimpleMapScreen',
+          settings_map,
+          {
+            config: this.props.config,
+            //TODO: improve this calculation to make more accurate
+            initialRegion: {
+              latitude: r.coords.latitude,
+              longitude: r.coords.longitude,
+              // latitudeDelta: Math.abs(r.boundingBox[0] - r.boundingBox[2]) / 2,
+              // longitudeDelta: Math.abs(r.boundingBox[1] - r.boundingBox[3]) / 2,
+              latitudeDelta: 10,
+              longitudeDelta: 10,
+            }
+          }
+        )
+
+        break;
+      }
+    }
+
     console.log("onSearchResultPressed, result", r);
   }
 
@@ -97,7 +137,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         config: this.props.config,
         userId: this.props.userId,
         resourceType
-      })
+      });
     }
 
     return (

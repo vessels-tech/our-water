@@ -529,7 +529,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             backgroundColor: bgLight,
             flex: 1,
           }}
-          //@ts-ignore
           tabLabel={resource_detail_summary_tab}
           >
           {this.getSummaryCard()}

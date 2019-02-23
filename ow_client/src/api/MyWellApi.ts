@@ -422,7 +422,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //Search multiple things at once:
     const allSearchResults: GenericSearchResult = await Promise.all([
       searchApi.searchByShortId(searchQuery, {limit: 10}),
-      // searchApi.searchForResourceInGroup(searchQuery, 'pincode', {limit: 10}),
+      searchApi.searchForResourceInGroup(searchQuery, 'pincode', {limit: 10}),
       // searchApi.searchForResourceInGroup(searchQuery, 'country', {limit: 10}),
       PlaceApi.searchForPlaceName(searchQuery, { limit: 10}),
 

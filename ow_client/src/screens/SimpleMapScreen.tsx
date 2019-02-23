@@ -29,6 +29,7 @@ import { AnyResource } from '../typings/models/Resource';
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
+  initialRegion?: MapRegion
 }
 
 export interface StateProps {
@@ -59,21 +60,28 @@ export interface State {
 
 class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   mapRef?: MapView;
-  state: State = {
-    mapState: MapStateOption.default,
-    hasSelectedResource: false,
-    initialRegion: {
-      latitude: this.props.location.coords.latitude,
-      longitude: this.props.location.coords.longitude,
-      latitudeDelta: 3.0,
-      longitudeDelta: 3.0,
-    },
-  };
+  state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+    
+    let initialRegion = props.initialRegion;
+    if (!initialRegion) {
+      initialRegion = {
+        latitude: this.props.location.coords.latitude,
+        longitude: this.props.location.coords.longitude,
+        latitudeDelta: 3.0,
+        longitudeDelta: 3.0,
+      };
+    }
+
+    this.state = {
+      mapState: MapStateOption.default,
+      hasSelectedResource: false,
+      initialRegion,
+    };
 
     //@ts-ignore
     this.appApi = props.config.getAppApi();
