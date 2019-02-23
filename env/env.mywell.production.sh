@@ -23,7 +23,7 @@ export CONFIG_TYPE='MyWellConfig'
 
 export APP_NAME="MyWell"
 export PACKAGE_NAME_PREFIX="com.vesselstech"
-export PACKAGE_NAME_SUFFIX="mywell" #TD change this back
+export PACKAGE_NAME_SUFFIX="mywell"
 export KEYSTORE_PATH="/Users/ldaly/developer/vessels/our-water/env/mywell_release.keystore"
 export KEYSTORE_ALIAS=mywell
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.json"

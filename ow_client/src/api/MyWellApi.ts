@@ -427,9 +427,9 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
 
       //TODO: add other searches here.
     ])
-    // .then((allResults: <Array<SomeResult<SearchResult<PartialResourceResult | PlaceResult>>>>) => makeSuccess(allResults))
     .then(allResults => makeSuccess(allResults))
     .catch((err: Error) => {
+      console.log("saerch error", err);
       //This shouldn't happen.
       return makeError(err.message);
     });

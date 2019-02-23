@@ -30,7 +30,7 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } f
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
-import { unwrapUserId, displayAlert, debounced } from '../../utils';
+import { unwrapUserId, displayAlert, debounced, maybeLog } from '../../utils';
 import { isNullOrUndefined } from 'util';
 //@ts-ignore
 import { callingCountries } from 'country-data';
@@ -132,10 +132,11 @@ class EditResourceScreen extends Component<Props> {
     //We need to wait until the resize finished, otherwise scrollTo doesn't work.
     if (this.scrollView) {
       const scrollFunction = () => {
+        maybeLog("scrolling to", this.scrollTo);
         this.scrollView.scrollTo({ x: 0, y: this.scrollTo, animated: true });
       };
       
-      setTimeout(scrollFunction, 10);
+      setTimeout(scrollFunction, 500);
     }
   }
 
@@ -542,7 +543,7 @@ class EditResourceScreen extends Component<Props> {
             render={TextInput}
             meta={{
               // onFocus: (event: any) => { this.scrollView && this.scrollView.scrollToEnd({ animated: false})},
-              onFocus: (event: any) => { this.scrollTo = 280 },
+              onFocus: (event: any) => { this.scrollTo = 380 },
               editable: true,
               label: labelForEditableField(spec.id),
               secureTextEntry: false,
@@ -634,6 +635,7 @@ class EditResourceScreen extends Component<Props> {
           >
             <ScrollView
               ref={(sv) => this.scrollView = sv}
+              onScroll={(event: any) => maybeLog("scroll offset", event.nativeEvent.contentOffset.y)}
               // style={{flex: 1, height: 200}}
               style={{ 
                 height: '100%',
@@ -719,7 +721,7 @@ class EditResourceScreen extends Component<Props> {
                 name="ownerName"
                 render={TextInput}
                 meta={{
-                  onFocus: (event: any) => { this.scrollTo = 100 },
+                  onFocus: (event: any) => { this.scrollTo = 187 },
                   editable: true,
                   label: new_resource_owner_name_label, 
                   secureTextEntry: false, 
