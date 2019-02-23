@@ -1,4 +1,4 @@
-import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
+import { DeprecatedResource, SearchResult as SearchResultV1, Reading, SaveReadingResult, OWUser, SaveResourceResult, TimeseriesRange } from "../typings/models/OurWater";
 import { Region } from "react-native-maps";
 import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNSearchEntity } from "../typings/models/GGMN";
@@ -9,7 +9,10 @@ import { AnyReading } from "../typings/models/Reading";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
 import { ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Cursor } from "../screens/HomeMapScreen";
+import { SearchResult, PlaceResult, PartialResourceResult } from "ow_common/lib/api/SearchApi";
 
+
+export type GenericSearchResult = SomeResult<Array<SomeResult<SearchResult<Array<PartialResourceResult | PlaceResult>>>>>;
 
 /**
  * BaseApi is the base API for Our Water
@@ -201,7 +204,16 @@ export default interface BaseApi {
    * If the user is currently offline, API will still try and complete
    * the search if possible.
    */
-  performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>>;
+  performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResultV1>>;
+
+  /**
+   * Perform a search with the given search query
+   * Will return an assortment of search results
+   * 
+   * If the user is currently offline, API will still try and complete
+   * the search if possible.
+   */
+  performSearchV2(searchQuery: string): Promise<GenericSearchResult>;
 
 
   /**

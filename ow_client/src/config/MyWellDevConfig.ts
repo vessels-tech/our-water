@@ -41,6 +41,12 @@ const MyWellDevConfig: RemoteConfig = {
   showMapInSidebar: true,
   resourceDetail_shouldShowTable: true,
   resourceDetail_shouldShowQRCode: true,
+  favouriteResource_showPendingResources: true,
+  availableGroupTypes: {
+    pincode: { id: 'pincode', required: true, order: 1 },
+    country: { id: 'country', required: true, order: 0 },
+  },
+  shouldUseV1Search: false,
 }
 
 export default MyWellDevConfig;``

@@ -1,8 +1,8 @@
 
-import BaseApi from './BaseApi';
+import BaseApi, { GenericSearchResult } from './BaseApi';
 import NetworkApi from './NetworkApi';
 import FirebaseApi from './DeprecatedFirebaseApi';
-import { DeprecatedResource, SearchResult, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange, OWUserStatus } from '../typings/models/OurWater';
+import { DeprecatedResource, SearchResult as SearchResultV1, OWUser, Reading, SaveReadingResult, SaveResourceResult, TimeseriesRange, OWUserStatus } from '../typings/models/OurWater';
 import UserApi from './UserApi';
 import { SomeResult, ResultType, resultsHasError, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
@@ -19,9 +19,15 @@ import InternalAccountApi, { InternalAccountApiType, SaveUserDetailsType } from 
 //@ts-ignore
 import { default as ftch } from '../utils/Fetch';
 import { ExternalSyncStatusComplete, ExternalSyncStatusType } from '../typings/api/ExternalServiceApi';
+import firebase from 'react-native-firebase';
+
+const fs = firebase.firestore();
+
+import {SearchApi, SearchResult, PartialResourceResult, PlaceResult} from 'ow_common/lib/api/SearchApi';
 
 import { Cursor } from '../screens/HomeMapScreen';
 import FirebaseUserApi from './FirebaseUserApi';
+import PlaceApi from './PlaceApi';
 
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
@@ -399,12 +405,37 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     return FirebaseApi.saveRecentSearch(this.orgId, userId, searchQuery);
   }
 
+  async performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResultV1>> {
+    throw new Error("V1 search not implented");
+  }
+
+
   /**
-   * Peform the search with the firebase api
-   * TODO: implement a better search api - will require an endpoint methinks
-   */
-  async performSearch(searchQuery: string): Promise<SomeResult<SearchResult>> {
-    return makeError<SearchResult>("Search hasn't been implement yet.");
+   * Peform the search using the OW_Common Search Api
+   * 
+   */ //TODO: update the type of result we get back
+  async performSearchV2(searchQuery: string): Promise<GenericSearchResult> {
+    //TODO: figure out a generic firebase
+    const searchApi = new SearchApi(fs, this.orgId);
+
+    //Search multiple things at once:
+    const allSearchResults: GenericSearchResult = await Promise.all([
+      searchApi.searchByShortId(searchQuery, {limit: 10}),
+      searchApi.searchForResourceInGroup(searchQuery, 'pincode', {limit: 10}),
+      searchApi.searchForResourceInGroup(searchQuery, 'country', {limit: 10}),
+      PlaceApi.searchForPlaceName(searchQuery, { limit: 10}),
+
+      //TODO: add other searches here.
+    ])
+    .then(allResults => makeSuccess(allResults))
+    .catch((err: Error) => {
+      console.log("saerch error", err);
+      //This shouldn't happen.
+      return makeError(err.message);
+    });
+
+
+    return allSearchResults;
   }
 
   //

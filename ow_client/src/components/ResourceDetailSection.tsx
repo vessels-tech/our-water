@@ -29,7 +29,6 @@ import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-
 import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
@@ -74,6 +73,8 @@ export interface StateProps {
   newTsReadings: Array<AnyOrPendingReading>,
   newTsReadingsMeta: ActionMeta,
   timeseriesList: CacheType<Array<AnyOrPendingReading>>,
+  // shortId?: string,
+  // shortIdMeta: ActionMeta
 }
 
 export interface ActionProps {
@@ -117,6 +118,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   async reloadResourceAndReadings() {
+   
+
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
       resource_loading_error,
@@ -406,11 +409,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
               />
           {allowEditReadings   && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
-              onPress={() => this.props.onEditReadingsPressed(resourceId)}
+              onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
             />}
            {allowEdit && pendingResource && <ResourceDetailBottomButton
               title={resource_detail_edit_resource}
-              onPress={() => this.props.onEditResourcePressed(pendingResource)}
+              onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
             />}
           </View>
         </View>
@@ -495,7 +498,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { hackViewPager } = this.state;
 
     return (
-      // @ts-ignore
       <ScrollableTabView 
         id={hackViewPager}
         style={{ 
@@ -518,7 +520,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             tabStyle={{ backgroundColor: primaryLight }}
           />
         )}>
-        <View 
+        <View
           key="0_summary" 
           style={{
             backgroundColor: bgLight,
@@ -670,7 +672,6 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
   //---
 
   const timeseriesList = groupArray<AnyOrPendingReading>(newTsReadings, (r) => r.timeseriesId);
-  console.log("timeseries list is", timeseriesList);
 
   return {
     favouriteResourcesMeta: state.favouriteResourcesMeta,
@@ -683,6 +684,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     newTsReadings,
     newTsReadingsMeta,
     timeseriesList,
+  
   }
 }
 
@@ -695,7 +697,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
     getReadings: (api: BaseApi, resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange) => 
       dispatch(appActions.getReadings(api, resourceId, timeseriesName, timeseriesId, range)),
     getResource: (api: BaseApi, resourceId: string, userId: string) => 
-      dispatch(appActions.getResource(api, resourceId, userId))
+      dispatch(appActions.getResource(api, resourceId, userId)),
   }
 }
 

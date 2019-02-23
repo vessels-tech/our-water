@@ -379,6 +379,20 @@ export function getReadingAvatar() {
   );
 }
 
+export function getPlaceAvatar() {
+  return (
+    <Avatar
+      containerStyle={{
+        backgroundColor: primaryLight,
+        alignSelf: 'center',
+      }}
+      rounded={true}
+      title="P"
+      activeOpacity={0.7}
+    />
+  );
+}
+
 /**
    * Iterate through favourite resources, and find out
    * if this is in the list
@@ -572,6 +586,10 @@ export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingRead
  * Format a 9 digit shortId to a 9 or dix digit version with dashes
  */
 export function formatShortId(shortId: string): SomeResult<string> {
+  if (!shortId) {
+    return makeError('ShortId is null or undefined');
+  }
+
   if (shortId.length !== 9) {
     return makeError('ShortId must be 9 digits long.');
   }
@@ -586,6 +604,27 @@ export function formatShortId(shortId: string): SomeResult<string> {
   }
 
   return makeSuccess(`${parts[0]}-${parts[1]}-${parts[2]}`);
+}
+
+export function formatShortIdOrElse(shortId: string, dflt: string): string {
+  if (!shortId) {
+    return dflt;
+  }
+
+  if (shortId.length !== 9) {
+    return dflt;
+  }
+
+  const parts = shortId.match(/.{1,3}/g);
+  if (!parts || parts.length !== 3) {
+    return dflt;
+  }
+
+  if (parts[0] === '000') {
+    return `${parts[1]}-${parts[2]}`;
+  }
+
+  return `${parts[0]}-${parts[1]}-${parts[2]}`;
 }
 
 

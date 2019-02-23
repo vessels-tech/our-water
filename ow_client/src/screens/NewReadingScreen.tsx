@@ -246,8 +246,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       return;
     }
 
-    console.log("Validate result is", validateResult);
-
     const saveResult: SomeResult<SaveReadingResult> = await this.props.saveReading(this.appApi, this.externalApi, this.props.userId, this.props.resourceId, validateResult.result);
 
     if (saveResult.type === ResultType.ERROR) {
@@ -386,7 +384,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       new_reading_value_field,
       new_reading_value_field_invalid,
       new_reading_timeseries,
+      // long_date_format
     } = this.props.translation.templates;
+
 
     // console.log("Resource type is", resourceType);
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
@@ -405,8 +405,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
-          onChangeText={(dateStr: Date) => {
-            const date: moment.Moment = moment(dateStr);
+          onChangeText={(date: moment.Moment) => {
+            // console.log("onchange ")
+            // const date: moment.Moment = moment(dateStr);
+            console.log("setting date to: ", date);
             this.setState({date});
           }}
           fieldType={InputType.dateTimeInput}

@@ -3,6 +3,7 @@ import { ResourceOwnerType } from "./OurWater";
 import { AnyTimeseries } from "./Timeseries";
 import { PendingTimeseries } from "./PendingTimeseries";
 import { OrgType } from "./OrgType";
+import { CacheType } from "../../reducers";
 
 /**
  * Pending resource models a resource which hasn't been saved
@@ -22,4 +23,5 @@ export type PendingResource = {
   userId: string,
   timeseries: PendingTimeseries[],
   waterColumnHeight: number,
+  groups: CacheType<string>,
 }

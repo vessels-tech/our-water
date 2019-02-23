@@ -1,5 +1,5 @@
 import { NetInfo } from 'react-native';
-import firebase, { Firebase, RNFirebase } from 'react-native-firebase';
+import firebase from 'react-native-firebase';
 //@ts-ignore
 import { default as ftch } from 'react-native-fetch-polyfill';
 import Config from 'react-native-config';
@@ -9,21 +9,16 @@ import {
   rejectRequestWithError, 
   maybeLog
 } from '../utils';
-import {
-  boundingBoxForCoords
-} from '../utils';
-import NetworkApi from './NetworkApi';
 import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange, OWUserStatus} from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { TranslationEnum } from 'ow_translations';
 import { Region } from 'react-native-maps';
 import { AnyResource } from '../typings/models/Resource';
 import { ShortId } from '../typings/models/ShortId';
-import { isNullOrUndefined, isError } from 'util';
+import { isNullOrUndefined } from 'util';
 import { AnyReading, MyWellReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
 import { PendingResource } from '../typings/models/PendingResource';
-import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import { SyncError } from '../typings/api/ExternalServiceApi';
 import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuilder } from '../utils/Mapper';
 import FBResource from '../model/FBResource';
@@ -33,9 +28,10 @@ import { OrgType } from '../typings/models/OrgType';
 import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
 import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
 import { UserStatus } from '../typings/UserTypes';
-import { date } from 'react-native-joi';
 import FirebaseUserApi from './FirebaseUserApi';
 import UserType from 'ow_common/lib/enums/UserType';
+import { ResourceType } from '../enums';
+import { CacheType } from '../reducers';
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -74,7 +70,7 @@ class FirebaseApi {
       return oldUserResult;
     }
 
-    console.log("merging old user", oldUserResult.result);
+    // console.log("merging old user", oldUserResult.result);
 
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
@@ -268,7 +264,7 @@ class FirebaseApi {
         return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
       }
 
-      console.log("getResourceForId returned raw data", sn.data());
+      // console.log("getResourceForId returned raw data", sn.data());
       const fbResource: FBResource = FBResource.deserialize(sn.data());
       const anyResource: AnyResource = fbResource.toAnyResource();
       return makeSuccess(anyResource);
@@ -362,7 +358,7 @@ class FirebaseApi {
    * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
-    console.log("firebaseAPi getting readings", orgId, resourceId, timeseriesId);
+    // console.log("firebaseAPi getting readings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
@@ -931,21 +927,36 @@ class FirebaseApi {
     if (!data) {
       throw new Error("Data from snapshot was undefined or null");
     }
-
   
 
     let favouriteResources: AnyResource[] = [];
-    const favouriteResourcesDict = data.favouriteResources;
+    const favouriteResourcesDict: CacheType<AnyResource> = data.favouriteResources;
     if (favouriteResourcesDict) {
       favouriteResources = Object
         .keys(favouriteResourcesDict)
         .map(k => favouriteResourcesDict[k])
-        .filter(v => v !== null);
+        .filter(v => v !== null)
+        .map(r => ({
+          //Fill in default/missing values here
+          groups: {},
+          ...r
+        }))
+    }
+
+    
+    let recentResources: AnyResource[] = data.recentResources;
+    if (recentResources) {
+      recentResources = recentResources.map(r => ({
+        groups: {},
+        ...r
+      }));
+    } else {
+      recentResources = [];
     }
 
     return {
       userId: sn.id,
-      recentResources: data.recentResources || [],
+      recentResources,
       //Stored as a dict, we want an array
       favouriteResources,
       pendingSavedReadings: data.pendingSavedReadings || [],
@@ -990,6 +1001,7 @@ class FirebaseApi {
         userId: data.userId || 'unknown',
         image,
         location,
+        resourceType: data.resourceType ? data.resourceType : ResourceType.well,
       };
 
       readings.push(reading);

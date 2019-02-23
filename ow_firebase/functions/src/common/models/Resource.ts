@@ -26,6 +26,8 @@ export type ResourceBuilder = {
   coords: OWGeoPoint
   resourceType: ResourceStationType
   owner: ResourceOwnerType
+  //Hmm, this is no longer valid.
+  //Perhaps we need a groups field, as well as a groupMembership field that gets auto created?
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
 }

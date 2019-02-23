@@ -1,5 +1,5 @@
 
-import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings/models/OurWater";
+import {  TimeseriesReadings, TimeSeriesReading, SearchResult as SearchResultV1 } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { ResultType, SomeResult, resultsHasError } from "../typings/AppProviderTypes";
@@ -20,6 +20,7 @@ import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
 import { Region } from "ow_translations/src/Types";
 import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
 
 
 const orgId = EnvConfig.OrgId;
@@ -82,7 +83,8 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: SearchResult,
+  searchResultsV1: SearchResultV1,
+  searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
@@ -148,7 +150,8 @@ export const initialState: AppState = {
   pendingSavedResources: [],
   pendingSavedResourcesMeta: { loading: false },
 
-  searchResults: { resources: [], hasNextPage: false},
+  searchResultsV1: { resources: [], hasNextPage: false},
+  searchResults: [],
   searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
 };
 
@@ -513,21 +516,21 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.PERFORM_SEARCH_REQUEST: {
-      const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
-      let searchResults = state.searchResults;
+      const searchResultsMeta: SearchResultsMeta = { loading: true, error: false, errorMessage: '', searchQuery: '' };
+      let searchResultsV1 = state.searchResultsV1;
       searchResultsMeta.searchQuery = action.searchQuery;
 
       //We are on the first page, clear out old results
       if (action.page === 1) {
-        searchResults = {resources: [], hasNextPage: false};
+        searchResultsV1 = {resources: [], hasNextPage: false};
       }
 
-      return Object.assign({}, state, { searchResultsMeta, searchResults })
+      return Object.assign({}, state, { searchResultsMeta, searchResultsV1 })
     }
     case ActionType.PERFORM_SEARCH_RESPONSE: {
       let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
       let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery};
-      let searchResults = state.searchResults;
+      let searchResultsV1 = state.searchResultsV1;
       
       const result = action.result;
       if (result.type === ResultType.ERROR) {
@@ -535,10 +538,31 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         return Object.assign({}, state, { searchResultsMeta });
       }
 
-      const resources: AnyResource[] = searchResults.resources.concat(result.result.resources);
-      searchResults = { resources, hasNextPage: result.result.hasNextPage };
+      const resources: AnyResource[] = searchResultsV1.resources.concat(result.result.resources);
+      searchResultsV1 = { resources, hasNextPage: result.result.hasNextPage };
       
-      return Object.assign({}, state, {searchResults, searchResultsMeta});
+      return Object.assign({}, state, { searchResultsV1, searchResultsMeta});
+    }
+    case ActionType.PERFORM_SEARCH_RESPONSE_V2: {
+      let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
+      let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery };
+      let searchResults = state.searchResults;
+
+      const result = action.result;
+      if (result.type === ResultType.ERROR) {
+        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.', searchQuery: lastSearchResultsMeta.searchQuery };
+        return Object.assign({}, state, { searchResultsMeta });
+      }
+
+      //TODO: implement pagination for search later
+      searchResults = [];
+      result.result.forEach(r => {
+        if (r.type !== ResultType.ERROR) {
+          searchResults.push(r.result)
+        }
+      });
+    
+      return Object.assign({}, state, { searchResultsMeta, searchResults });
     }
     case ActionType.REFRESH_READINGS: {
       const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;

@@ -15,6 +15,7 @@ export ENABLE_RENDER_LOGGING='false'
 export ENABLE_REDUX_LOGGING='false'
 export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=350
+export PLACE_API_BASE_URL="https://nominatim.openstreetmap.org/search"
 
 #Remote config setup
 export SHOULD_USE_LOCAL_CONFIG='false'
@@ -22,7 +23,7 @@ export CONFIG_TYPE='MyWellConfig'
 
 export APP_NAME="MyWell"
 export PACKAGE_NAME_PREFIX="com.vesselstech"
-export PACKAGE_NAME_SUFFIX="mywell" #TD change this back
+export PACKAGE_NAME_SUFFIX="mywell"
 export KEYSTORE_PATH="/Users/ldaly/developer/vessels/our-water/env/mywell_release.keystore"
 export KEYSTORE_ALIAS=mywell
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.json"

@@ -6487,9 +6487,10 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.9.tgz#ec5d99e396376ad9f789cfe4706da5b118804f16"
+ow_common@^0.1.18:
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.18.tgz#759873a2c4d1db046a571699d7b915dee89786ac"
+  integrity sha512-VkzwKk2KFK5AHloqjAKKXyXORkocK97NcGe+4ePEpB+TgqbO6WPw8M6kCzsknCZzgkKm5HFmylhQ0q0CsQPTQQ==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -6936,6 +6937,10 @@ rc@^1.2.7:
 react-clone-referenced-element@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-clone-referenced-element/-/react-clone-referenced-element-1.0.1.tgz#2bba8c69404c5e4a944398600bcc4c941f860682"
+
+react-country-flag@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-country-flag/-/react-country-flag-1.0.2.tgz#c15390c7a032ecc595dd89754b523c81a60c595f"
 
 react-deep-force-update@^1.0.0:
   version "1.1.1"

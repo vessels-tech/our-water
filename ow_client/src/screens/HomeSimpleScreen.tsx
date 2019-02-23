@@ -16,6 +16,12 @@ import MenuButton from '../components/common/MenuButton';
 import { menuColors, primaryText, primaryLight } from '../utils/NewColors';
 import Toolbar from '../components/common/Toolbar';
 import IconButton from '../components/common/IconButton';
+//@ts-ignore
+import EventEmitter from "react-native-eventemitter";
+import { SearchButtonPressedEvent } from '../utils/Events';
+import { AnyResource } from '../typings/models/Resource';
+import { PlaceResult, PartialResourceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
+import { getOrElse } from 'ow_common/lib/utils';
 
 
 export interface OwnProps {
@@ -31,6 +37,7 @@ export interface StateProps {
   menu_water_quality: string,
   menu_checkdam: string,
   settings_new_resource: string,
+  translation: TranslationFile,
 
 }
 
@@ -43,6 +50,71 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    this.onSearchResultPressed = this.onSearchResultPressed.bind(this);
+    EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
+  }
+
+  componentWillUnmount() {
+    EventEmitter.removeAllListeners(SearchButtonPressedEvent);
+  }
+
+  onNavigatorEvent(event: any) {
+    const { translation: { templates: { search_heading } } } = this.props;
+
+    if (event === 'SEARCH') {
+      navigateTo(this.props, 'screen.SearchScreen', search_heading, {
+        config: this.props.config,
+        userId: this.props.userId,
+        // TODO: AnyResource needs to be something else
+        onSearchResultPressed: this.onSearchResultPressed,
+      });
+    }
+  }
+
+  /**
+   * Handle when a user clicks a result from the search screen.
+   * 
+   */
+  async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
+    switch(r.type) {
+      case SearchResultType.PartialResourceResult: {
+        //TODO: load the resource type
+        //TODO: translate loading
+        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, "Loading..."), {
+          resourceId: r.id,
+          config: this.props.config,
+          userId: this.props.userId
+        });
+        break;
+      }
+      case SearchResultType.PlaceResult: {
+        //TODO: also drop a marker?
+
+        //TODO: Translate
+        const settings_map = "Browse on Map"
+
+        navigateTo(
+          this.props,
+          'screen.SimpleMapScreen',
+          settings_map,
+          {
+            config: this.props.config,
+            initialRegion: {
+              latitude: r.coords.latitude,
+              longitude: r.coords.longitude,
+              //TODO: improve this calculation to make more accurate to the 
+              // latitudeDelta: Math.abs(r.boundingBox[0] - r.boundingBox[2]) / 2,
+              // longitudeDelta: Math.abs(r.boundingBox[1] - r.boundingBox[3]) / 2,
+              latitudeDelta: 10,
+              longitudeDelta: 10,
+            }
+          }
+        )
+
+        break;
+      }
+    }
   }
 
   /**
@@ -55,6 +127,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: Translate
     const menu_browse_text = "Browse";
+    const menu_scan_text = "Scan";
     const menu_search_text = "Search";
     const menu_new_text = "New";
     
@@ -63,7 +136,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         config: this.props.config,
         userId: this.props.userId,
         resourceType
-      })
+      });
     }
 
     return (
@@ -98,13 +171,13 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           <IconButton
             textColor={primaryText.high}
             color={primaryLight}
-            name={'search'}
+            name={'crop-free'}
             onPress={() => {
-              navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+              navigateTo(this.props, 'screen.ScanScreen', menu_scan_text, {
                 config: this.props.config,
               });
             }}
-            bottomText={menu_search_text}
+            bottomText={menu_scan_text}
             size={25}
           />
           <IconButton
@@ -187,6 +260,9 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   let userId = ''; //I don't know if this fixes the problem...
 
+  // const thingo = state.user.ego.thingo1;
+  // thingo.doSmoething();
+
   if (state.user.type === UserType.USER) {
     userId = state.user.userId;
   }
@@ -198,6 +274,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     menu_water_quality: state.translation.templates.menu_water_quality,
     menu_checkdam: state.translation.templates.menu_checkdam,
     settings_new_resource: state.translation.templates.settings_new_resource,
+    translation: state.translation,
   }
 }
 
@@ -208,9 +285,11 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
 
 // export default connect(mapStateToProps, mapDispatchToProps)(HomeSimpleScreen);
 
-const enhance = compose(
-  withTabWrapper,
-  connect(mapStateToProps, mapDispatchToProps),
-);
+// const enhance = compose(
+//   withTabWrapper,
+//   connect(mapStateToProps, mapDispatchToProps),
+// );
 
-export default enhance(HomeSimpleScreen);
+// export default enhance(HomeSimpleScreen);
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { renderCountProp: 'renderCounter' })(HomeSimpleScreen);

@@ -70,6 +70,8 @@ export function validateReading(orgType: OrgType, reading: any): SomeResult<Pend
  * Validate the resource from the form.
  * We use this method as joi lets us be more specific than Typescript
  * Plus it also converts values for us.
+ * 
+ * https://github.com/hapijs/joi/blob/v14.3.1/API.md
  */
 export function validateResource(resource: any): SomeResult<PendingResource> {
   const schema: Joi.SchemaLike = Joi.object().keys({
@@ -94,6 +96,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       unitOfMeasure: Joi.string().allow('m', 'mm', 'ppm'),
     })).required(),
     waterColumnHeight: Joi.number(),
+    groups: Joi.object().required(),
   });
 
   const result = Joi.validate(resource, schema);

@@ -18,6 +18,7 @@ import { AppState } from '../../reducers';
 import { connect } from 'react-redux';
 import { primaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations';
+import * as moment from 'moment';
 
 // const SCREEN_WIDTH = Dimensions.get('window').width;
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -26,8 +27,6 @@ export enum InputType {
   fieldInput,
   dateTimeInput,
 };
-
-const dateFormat = 'MMMM Do YYYY, h: mm: ss a'
 
 export interface OwnProps {
   errorMessage: string | null,
@@ -108,11 +107,13 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
   }
   
   getFormInputCalendar() {
-    const { minDate, maxDate } = getMinAndMaxReadingDates(dateFormat);
     const {
       calendar_input_confirm,
       calendar_input_cancel,
     } = this.props.translation.templates;
+    //TODO: translate
+    const long_date_format = "DD-MM-YYYY h:mm a"
+    const { minDate, maxDate } = getMinAndMaxReadingDates(long_date_format);
 
     return (
       <DatePicker
@@ -126,7 +127,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
         date={this.props.value}
         mode="datetime"
         placeholder="select date"
-        // format={dateFormat}
+        format={long_date_format}
         minDate={minDate}
         maxDate={maxDate}
         confirmBtnText={calendar_input_confirm}
@@ -141,7 +142,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
           return false;
         }}
         onDateChange={(date) => {
-          this.props.onChangeText(date);
+          this.props.onChangeText(moment(date, long_date_format));
           // this.setState({ date: date }) 
         }}
         onOpenModal={() => {
@@ -181,7 +182,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
           flex: 5
         }}
         // ref={input => this.dateInput = input}
-        onSubmitEditing={() => onSubmitEditing()}
+        onSubmitEditing={() => onSubmitEditing && onSubmitEditing()}
         onChangeText={text => onChangeText(text)}
       />
     )
