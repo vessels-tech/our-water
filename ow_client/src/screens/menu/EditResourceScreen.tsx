@@ -58,7 +58,7 @@ export interface Props {
 
 export interface State {
   formHeight: number,
-
+  scrollOffset: number,
 }
 
 export type EditResourceFormBuilder = {
@@ -78,6 +78,8 @@ class EditResourceScreen extends Component<Props> {
   extendedResourceApi: MaybeExtendedResourceApi
   editResourceForm: any;
   countryList: Array<{label: string, key: string, name: string}>;
+  scrollView?: any;
+  scrollTo: number = 0;
 
   constructor(props: Props) {
     super(props);
@@ -98,6 +100,7 @@ class EditResourceScreen extends Component<Props> {
     
     this.state = {
       formHeight: Dimensions.get('window').height, 
+      scrollOffset: 0,
     };
 
     /* Binds */
@@ -125,14 +128,21 @@ class EditResourceScreen extends Component<Props> {
    */
 
   keyboardDidShow(event: any): void {
-    const formHeight = Dimensions.get('window').height - event.endCoordinates.height;
-    this.setState({ formHeight });
+    //This is a hacky fix for the rn scrolling
+    //We need to wait until the resize finished, otherwise scrollTo doesn't work.
+    if (this.scrollView) {
+      const scrollFunction = () => {
+        this.scrollView.scrollTo({ x: 0, y: this.scrollTo, animated: true });
+      };
+      
+      setTimeout(scrollFunction, 10);
+    }
   }
 
   keyboardDidHide(event: any): void {
-    this.setState({
-      formHeight: Dimensions.get('window').height,
-    });
+    // this.setState({
+    //   formHeight: Dimensions.get('window').height,
+    // });
   }
 
   /**
@@ -325,7 +335,6 @@ class EditResourceScreen extends Component<Props> {
 
   pincodeValidator(pincodeId: string, countryId: string) {
     return (group: FormGroup): ValidationErrors | null => {
-      console.log("calling pincodeValidator");
       const pincodeInput = group.controls[pincodeId];
       const countryInput = group.controls[countryId];
 
@@ -532,6 +541,8 @@ class EditResourceScreen extends Component<Props> {
             name={spec.id}
             render={TextInput}
             meta={{
+              // onFocus: (event: any) => { this.scrollView && this.scrollView.scrollToEnd({ animated: false})},
+              onFocus: (event: any) => { this.scrollTo = 280 },
               editable: true,
               label: labelForEditableField(spec.id),
               secureTextEntry: false,
@@ -587,6 +598,8 @@ class EditResourceScreen extends Component<Props> {
       pendingSavedResourcesMeta: { loading },
     } = this.props;
 
+    const fixedButtonHeight = 100;
+
     const { 
       new_resource_id,
       new_resource_id_check_taken,
@@ -614,11 +627,20 @@ class EditResourceScreen extends Component<Props> {
         render={({get, invalid}) => (
           <View
             style={{
-              height: this.state.formHeight - 70,
+              flex: 1,
+              // height: this.state.formHeight - 70,
+              // backgroundColor: 'purple',
             }}
           >
             <ScrollView
+              ref={(sv) => this.scrollView = sv}
               // style={{flex: 1, height: 200}}
+              style={{ 
+                height: '100%',
+                paddingBottom: fixedButtonHeight,
+                // backgroundColor: 'purple',
+              }}
+              contentOffset={{x: 0, y: this.state.scrollOffset}}
               contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps={'always'}
             >
@@ -628,6 +650,7 @@ class EditResourceScreen extends Component<Props> {
                   render={TextIdInput}
                   meta={{ 
                     //Don't allow user to edit existing resource ids
+                    onFocus: (event: any) => { this.scrollTo = 0 },
                     editable: this.props.resource ? false : true, 
                     label: new_resource_id, 
                     secureTextEntry: false, 
@@ -642,6 +665,7 @@ class EditResourceScreen extends Component<Props> {
                   render={TextInput}
                   meta={{ 
                     editable: true, 
+                    onFocus: (event: any) => { this.scrollTo = 0 },
                     label: new_resource_name, 
                     secureTextEntry: false, 
                     keyboardType: 'default',
@@ -695,6 +719,7 @@ class EditResourceScreen extends Component<Props> {
                 name="ownerName"
                 render={TextInput}
                 meta={{
+                  onFocus: (event: any) => { this.scrollTo = 100 },
                   editable: true,
                   label: new_resource_owner_name_label, 
                   secureTextEntry: false, 
@@ -703,28 +728,54 @@ class EditResourceScreen extends Component<Props> {
                 }}
               /> : null }
               {this.getEditableGroupsFields()}
+              <View
+                style={{
+                  height: fixedButtonHeight,
+                  // backgroundColor: 'green',
+                }}
+              />
             </ScrollView>
-            <Button
+            <View
               style={{
-                paddingBottom: 20,
-                minHeight: 50,
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'transparent'
+                // opacity: 0.5,
+                // backgroundColor: 'blue',
+                // shadowColor: '#000000',
+                // shadowOffset: {
+                //   width: 0,
+                //   height: -5
+                // },
+                // shadowRadius: 10,
+                // shadowOpacity: 1.0
               }}
-              buttonStyle={{
-                backgroundColor: secondary,
-                minHeight: 50,
-              }}
-              containerViewStyle={{
-                marginVertical: 20,
-              }}
-              textStyle={{
-                color: secondaryText,
-                fontWeight: '700',
-              }}
-              loading={loading}
-              disabled={invalid}
-              title={loading ? '' : new_resource_submit_button}
-              onPress={this.handleSubmit}
-            />
+            >
+              <Button
+                raised={true}
+                style={{
+                  paddingBottom: 20,
+                  height: fixedButtonHeight,
+                }}
+                buttonStyle={{
+                  backgroundColor: secondary,
+                }}
+                containerViewStyle={{
+                  marginVertical: 20,
+                  opacity: 1,
+                }}
+                textStyle={{
+                  color: secondaryText,
+                  fontWeight: '700',
+                }}
+                loading={loading}
+                disabled={invalid}
+                title={loading ? '' : new_resource_submit_button}
+                onPress={this.handleSubmit}
+              />
+            </View>
           </View>
         )}
       />
@@ -764,6 +815,7 @@ class EditResourceScreen extends Component<Props> {
       <View
         style={{
           flexDirection: 'column',
+          flex: 1,
         }}
       >
         {this.getForm()}

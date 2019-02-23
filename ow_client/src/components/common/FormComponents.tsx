@@ -22,6 +22,7 @@ export type TextInputParams = {
   meta: {
     label: string,
     errorMessage: string,
+    onFocus: () => void
   }
 }
 
@@ -34,6 +35,7 @@ export type TextIdInputParams = {
     label: string,
     errorMessage: string,
     asyncErrorMessage: string,
+    onFocus: () => void
   }
 }
 
@@ -72,8 +74,10 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
     }}>
       <FormLabel>{meta.label}</FormLabel>
       <FormInput
+        {...handler()}
         autoCapitalize={'none'} 
         keyboardType={meta.keyboardType}
+        onFocus={meta.onFocus}
         // placeholder={`${meta.label}`}
         secureTextEntry={meta.secureTextEntry} 
         editable={meta.editable}
@@ -82,7 +86,6 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
           borderBottomColor: bgLightHighlight,
           borderBottomWidth: 2,
         }}
-        {...handler()} 
       />
       <FormValidationMessage>
         {touched
@@ -129,7 +132,7 @@ export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
           </Text>
         </View>
       }
-      <FormValidationMessage>
+      <FormValidationMessage style={{minHeight: 10}}>
         {touched
           && hasError("required")
           && `${meta.label} ${meta.errorMessage}`}

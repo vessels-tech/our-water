@@ -1548,7 +1548,7 @@ Pincodes.forEach(p => pincodeDict[p.ISO] = p);
  * If no country is found in the list, returns the regex for the US.
  */
 export function regexForIsoCode(isoCode: string): string {
-  let pincode = pincodeDict[isoCode];
+  let pincode = pincodeDict[isoCode.toUpperCase()];
 
   if (!pincode) {
     return pincodeDict.US.Regex;
@@ -1562,7 +1562,6 @@ export function regexForIsoCode(isoCode: string): string {
  * This allows us to change the keyboard based on the country
  */
 export function regexHasNumbersOnly(regex: string): boolean {
-  console.log("checking regex has numbers only", regex);
   if (regex.length === 0) {
     return false;
   }
@@ -1575,8 +1574,6 @@ export function regexHasNumbersOnly(regex: string): boolean {
 }
 
 export function validatePincode(isoCode: string, pincode: string): SomeResult<void> {
-  console.log("Validating pincode");
-
   const regex = regexForIsoCode(isoCode);
   if (!pincode.match(regex)) {
     return makeError("Pincode is invalid");
