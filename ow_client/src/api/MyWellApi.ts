@@ -415,9 +415,8 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * 
    */ //TODO: update the type of result we get back
   async performSearchV2(searchQuery: string): Promise<GenericSearchResult> {
-    //TODO: figure out firebase stuff
+    //TODO: figure out a generic firebase
     const searchApi = new SearchApi(fs, this.orgId);
-
 
     //Search multiple things at once:
     const allSearchResults: GenericSearchResult = await Promise.all([
@@ -429,17 +428,12 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       //TODO: add other searches here.
     ])
     // .then((allResults: <Array<SomeResult<SearchResult<PartialResourceResult | PlaceResult>>>>) => makeSuccess(allResults))
-    .then(allResults => {
-      console.log("allResults are", allResults);
-      return makeSuccess(allResults)
-
-    })
+    .then(allResults => makeSuccess(allResults))
     .catch((err: Error) => {
       //This shouldn't happen.
       return makeError(err.message);
     });
 
-    console.log("all search resultsAre", allSearchResults)
 
     return allSearchResults;
   }

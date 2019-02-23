@@ -37,7 +37,6 @@ export default class PlaceApi {
     return ftch(uri, options)
       .then((response: any) => naiveParseFetchResponse<any>(response))
       .then((response: SomeResult<any>) => {
-        console.log("response is", response);
         if (response.type === ResultType.ERROR) {
           return response;
         }
@@ -56,7 +55,10 @@ export default class PlaceApi {
             display_name: 'Adelaide, Ortega, Tolima, Colombia',
           }
         */
-        const places: PlaceResult[] = rawPlaces.map((r: any) => ({
+        const places: PlaceResult[] = rawPlaces
+        //filter out irrelevant places
+        .filter((r: any) => r.importance > 0.35)
+        .map((r: any) => ({
           type: SearchResultType.PlaceResult,
           name: r.display_name,
           coords: { latitude: parseFloat(r.lat), longitude: parseFloat(r.lon) },

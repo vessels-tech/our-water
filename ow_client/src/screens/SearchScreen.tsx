@@ -235,8 +235,6 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const partialResourceResults = mapAndDedupSearchResults<PartialResourceResult>(searchResults, SearchResultType.PartialResourceResult, (r) => r.id);
     const placeResults = mapAndDedupSearchResults<PlaceResult>(searchResults, SearchResultType.PlaceResult, (r) => r.name);
 
-    console.log("partialResourceResults are", partialResourceResults);
-
     return (
       <View>
         {partialResourceResults
