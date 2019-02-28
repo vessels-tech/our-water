@@ -15,7 +15,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, bgLightHighlight, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
@@ -27,7 +27,6 @@ import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
@@ -45,6 +44,7 @@ import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCar
 import QRCode from 'react-native-qrcode-svg';
 import { Icon } from 'react-native-elements';
 import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, secondary, secondaryDark } from '../utils/NewColors';
+import { ResourceType } from '../enums';
 const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -165,15 +165,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
   }
 
-
-  getDefaultTimeseries(): Array<ConfigTimeseries> {
+  getResourceType(): ResourceType {
     const { resource, pendingResource } = this.props;
 
     //TD: this is a hacky fix
-    let resourceType = 'well';
+    let resourceType: ResourceType = ResourceType.well;
     if (resource) {
       if (resource.type === OrgType.GGMN) {
-        resourceType = 'well';
+        resourceType = ResourceType.well;
       }
       if (resource.type === OrgType.MYWELL) {
         resourceType = resource.resourceType;
@@ -184,8 +183,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       resourceType = pendingResource.resourceType;
     }
 
-    return this.props.config.getDefaultTimeseries(resourceType);
+    return resourceType;
   }
+
+
+  getDefaultTimeseries(): Array<ConfigTimeseries> {
+    return this.props.config.getDefaultTimeseries(this.getResourceType());
+  }
+
 
   getHeadingBar() {
     const { resourceId, resource, pendingResource } = this.props;
@@ -306,8 +311,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
       const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.name === key);
+      let heading = "default"
       let unitOfMeasure = 'm';
       if (defaultTimeseries) {
+        heading = getHeadingForTimeseries(this.getResourceType(), defaultTimeseries.name);
         unitOfMeasure = defaultTimeseries.unitOfMeasure;
       }
 
@@ -321,7 +328,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         <TimeseriesSummaryText 
           key={key} 
-          heading={key} 
+          heading={heading} 
           subtitle={timeseries_name_title(key)}
           content={content}
           content_subtitle={contentSubtitle}
@@ -458,6 +465,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             resourceId={this.props.resourceId}
             timeseriesId={key}
             isPending={this.props.isPending}
+            resourceType={this.getResourceType()}
           />
         </View>
       )
@@ -479,7 +487,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         return;
       }
 
-      //TODO: Make this a graph thingo
       return (
         // @ts-ignore
         <View
@@ -495,6 +502,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             resourceId={this.props.resourceId}
             timeseriesId={key}
             isPending={this.props.isPending}
+            resourceType={this.getResourceType()}
           />
         </View>
       )

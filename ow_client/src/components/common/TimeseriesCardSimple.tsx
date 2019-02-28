@@ -18,7 +18,7 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey, filterAndSort } from '../../utils';
+import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries } from '../../utils';
 import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
@@ -31,6 +31,7 @@ import { surfaceLight } from '../../assets/ggmn/NewColors';
 import { surface, surfaceDark, surfaceText } from '../../utils/NewColors';
 import moment = require('moment');
 import { TranslationFile } from 'ow_translations';
+import { ResourceType } from '../../enums';
 
 export enum TimeseriesCardType {
   default = 'graph',
@@ -45,6 +46,7 @@ export interface OwnProps {
   timeseriesId: string, 
   isPending: boolean,
   cardType: TimeseriesCardType,
+  resourceType: ResourceType,
 }
 
 export interface StateProps {
@@ -221,7 +223,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
-    const { timeseries: { name } } = this.props;
+    const { resourceType, timeseries: { name } } = this.props;
 
     return (
       <View 
@@ -240,7 +242,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
             fontWeight: '600',
             alignSelf: 'center',
           }}>
-          {name}
+          {getHeadingForTimeseries(resourceType, name)}
         </Text>
         {this.getGraphView()}
         {this.getTableView()}

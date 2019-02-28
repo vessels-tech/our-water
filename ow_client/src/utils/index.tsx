@@ -910,3 +910,33 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
 export const get = (o: any, p: string[]) =>
   p.reduce((xs, x) =>
     (xs && xs[x]) ? xs[x] : null, o);
+
+
+/**
+* getHeadingForTimeseries
+* 
+* Convert the "default" string to sometime meaningful
+* 
+* TODO: move to a translation function
+*/
+export const getHeadingForTimeseries = (resourceType: ResourceType, name: string) => {
+
+  switch (resourceType) {
+    case ResourceType.raingauge: return "Rainfall";
+    case ResourceType.quality: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.custom: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.checkdam:
+    case ResourceType.well:
+    default: {
+      return "Groundwater"
+    }
+  }
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
