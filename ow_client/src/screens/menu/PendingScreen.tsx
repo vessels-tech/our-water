@@ -21,7 +21,7 @@ import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusTy
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId } from '../../utils';
-import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
+import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
@@ -30,6 +30,7 @@ import { ResultType, SomeResult } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
 import SaveButton from '../../components/common/SaveButton';
+import { secondaryText } from '../../utils/NewColors';
 
 export interface OwnProps {
   navigator: any,
@@ -170,10 +171,11 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
         { approved && 
           <SaveButton
             loading={syncing}
-            icon={syncing}
+            icon={syncing ? undefined : { name: 'cached', color: secondaryText.high }}
             disabled={false}
             title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
             onPress={this.startInternalSync}
+            height={50}
           />
         }
       </View>

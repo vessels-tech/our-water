@@ -35,6 +35,7 @@ export default function SaveButton(props: Props) {
       }}
       buttonStyle={{
         backgroundColor: backgroundColor || secondary,
+        minHeight: height,
       }}
       containerViewStyle={{
         marginVertical: 20,

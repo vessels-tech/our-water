@@ -23,6 +23,7 @@ import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } 
 import { Cursor } from "../screens/HomeMapScreen";
 import { ResourceType } from "../enums";
 import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
+import { any } from "react-native-joi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -1023,6 +1024,19 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
   }
 }
 
+/**
+ * Useful to mock out responses and load loading indicators
+ * 
+ * eg: 
+ * const result = await wait<SomeResult<ExternalSyncStatusComplete>>(makeError<ExternalSyncStatusComplete>("OH NO!"));
+ */
+function wait<T>(output: T): Promise<T> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      return resolve(output)
+    }, 300);
+  });
+}
 
 /**
  * startInternalSync
@@ -1034,8 +1048,7 @@ export function startInternalSync(api: BaseApi, userId: string): (dispatch: any)
   return async function (dispatch: any) {
    
     dispatch(internalSyncRequest());
-    const result = makeError<ExternalSyncStatusComplete>("Oh no");
-    // const result = await api.runInternalSync(userId);
+    const result = await api.runInternalSync(userId);
     dispatch(internalSyncResponse(result));
 
     return result;
