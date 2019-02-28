@@ -59,10 +59,6 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
 
-    console.log("onAddReadingPressed id", this.props.resourceId)
-    console.log("onAddReadingPressed type", this.props.resourceType)
-
-
     navigateToNewReadingScreen(this.props, resource_detail_new, {
       navigator: this.props.navigator,
       groundwaterStationId: null,

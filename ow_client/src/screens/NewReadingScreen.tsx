@@ -35,6 +35,8 @@ import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingReading } from '../typings/models/PendingReading';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
+import FloatingButtonWrapper from '../components/common/FloatingButtonWrapper';
+import SaveButton from '../components/common/SaveButton';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -457,6 +459,12 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           </Picker>
         </View>
         {this.getImageSection()}
+        {/* Transparent footer to make the scrollview balance */}
+        <View
+          style={{
+            height: 75,
+          }}
+        />
       </ScrollView>
     );
   }
@@ -477,25 +485,35 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props;
 
     return (
-      <Button
-        title={new_reading_save_button}
-        raised={true}
-        textStyle={{
-          color: secondaryText
-        }}
-        disabled={this.shouldDisableSubmitButton()}
-        icon={{ name: 'save', color: secondaryText }}
-        loading={loading}
-        buttonStyle={{
-          backgroundColor: secondary,
-          width: SCREEN_WIDTH - 20,
-        }}
-        containerViewStyle={{
-          marginTop: 10
-        }}
-        onPress={this.saveReading}
-        underlayColor="transparent"
-      />
+      <FloatingButtonWrapper>
+        <SaveButton
+          loading={loading}
+          disabled={this.shouldDisableSubmitButton()}
+          title={new_reading_save_button}
+          icon={{ name: 'save', color: secondaryText }}
+          height={50}
+          onPress={this.saveReading}
+        />
+      </FloatingButtonWrapper>
+      // <Button
+      //   title={new_reading_save_button}
+      //   raised={true}
+      //   textStyle={{
+      //     color: secondaryText
+      //   }}
+      //   disabled={this.shouldDisableSubmitButton()}
+      //   icon={{ name: 'save', color: secondaryText }}
+      //   loading={loading}
+      //   buttonStyle={{
+      //     backgroundColor: secondary,
+      //     width: SCREEN_WIDTH - 20,
+      //   }}
+      //   containerViewStyle={{
+      //     marginTop: 10
+      //   }}
+      //   onPress={this.saveReading}
+      //   underlayColor="transparent"
+      // />
     );
   }
 
@@ -512,9 +530,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
         }}
       >
         <View
-          style={{
-            height: this.state.formHeight - 90,
-          }}
+          style={{flex: 1}}
+          // style={{
+          //   height: this.state.formHeight - 90,
+          // }}
         >
           {this.getForm()}
           {this.getButton()}

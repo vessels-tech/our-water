@@ -770,9 +770,6 @@ class EditResourceScreen extends Component<Props> {
           backgroundColor: error1,
           minHeight: 50,
         }}
-        containerViewStyle={{
-          // marginVertical: 20,
-        }}
         textStyle={{
           color: secondaryText,
           fontWeight: '700',
