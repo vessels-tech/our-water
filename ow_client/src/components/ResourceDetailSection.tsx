@@ -1,15 +1,12 @@
 import * as React from 'react'; import { Component } from 'react';
 import {
   View,
-  ViewPagerAndroid,
   ToastAndroid,
-  Image,
   Dimensions,
 } from 'react-native';
 import { 
   Avatar,
   Button,
-  Card, 
   Text,
 } from 'react-native-elements';
 import * as moment from 'moment';

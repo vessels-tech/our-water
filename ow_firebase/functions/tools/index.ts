@@ -312,7 +312,7 @@ export async function getNewConfig(): Promise<any> {
       false, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
-      [true, true, false]
+      [true, true, true]
     ),
     favouriteResourceList_showGetStartedButtons: buildParameter(
       true, 
