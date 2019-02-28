@@ -539,7 +539,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                 >
                   <View style={{ 
                     backgroundColor: surfaceDark,
-                    flex: 1
+                    flex: 1,
                   }}>
                     <Icon
                       containerStyle={{
@@ -553,17 +553,20 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                       style={{
                         flex: 1,
                         textAlign: "center",
+                        fontSize: 11, 
+                        fontWeight: '500',
+                        paddingBottom: 10,
                       }}
                     >
                       {subtitle}
                     </Text>
+                    {/* <View style={{flex: 1}}/> */}
                   </View>
                 </TouchableNativeFeedback>
               );
             }}
           />
         )}>
-        //@ts-ignore
         <View
           key="0_summary" 
           style={{
@@ -574,14 +577,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         >
           {this.getSummaryCard()}
         </View>
-        {
-          //Readings in Graph form
-          this.getGraphChildren()
-        }
-        {
-          //Optional Table of Readings
-          this.getTableChildren()
-        }
+          {
+            //Readings in Graph form
+            this.getGraphChildren()
+          }
+          {
+            //Optional Table of Readings
+            this.getTableChildren()
+          }
       </ScrollableTabView>
     );
   }

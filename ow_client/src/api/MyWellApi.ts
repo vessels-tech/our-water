@@ -429,7 +429,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     ])
     .then(allResults => makeSuccess(allResults))
     .catch((err: Error) => {
-      console.log("saerch error", err);
+      console.log("search error", err);
       //This shouldn't happen.
       return makeError(err.message);
     });
