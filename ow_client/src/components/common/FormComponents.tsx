@@ -6,6 +6,7 @@ import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
 import PhoneNumberEntry, { CallingCountry } from './PhoneNumberEntry';
+import { rightPad } from 'ow_common/lib/utils';
 
 
 export enum InputParams {
@@ -148,19 +149,19 @@ export const DropdownInput = (params: DropdownInputParams) => {
 
   return (
     <View style={{
-      flex: 1,
+      width: '100%'
     }}>
       <FormLabel>{label}</FormLabel>
       <Picker
         selectedValue={handler().value || defaultValue}
         style={{
-          flex: 2,
           marginLeft: 10,
         }}
         mode={'dropdown'}
         onValueChange={(e: any) => handler().onChange(e)}
       >
-        {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key}/>)}
+        {/* TD: hacky add right padding to the label to make the buttons easier to click */}
+        {options.map(o => <Picker.Item key={o.key} label={rightPad(o.label, " ", 60)} value={o.key}/>)}
       </Picker>
       <FormValidationMessage>
         {hasError("required")
