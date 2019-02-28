@@ -745,7 +745,7 @@ class EditResourceScreen extends Component<Props> {
                 loading={loading}
                 disabled={invalid}
                 title={new_resource_submit_button}
-                height={fixedButtonHeight}
+                height={50}
                 onPress={this.handleSubmit}
               />
             </FloatingButtonWrapper>
