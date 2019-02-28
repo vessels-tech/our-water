@@ -3,6 +3,7 @@ import {
   View,
   ToastAndroid,
   Dimensions,
+  TouchableNativeFeedback,
 } from 'react-native';
 import { 
   Avatar,
@@ -16,7 +17,7 @@ import StatCard from './common/StatCard';
 import {
   getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
 } from '../utils';
-import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
+import { primary, bgMed, primaryLight, bgLight, bgLightHighlight, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -26,7 +27,7 @@ import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-import * as ScrollableTabView from 'react-native-scrollable-tab-view';
+// import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
@@ -42,9 +43,21 @@ import { Maybe } from '../typings/MaybeTypes';
 import { diff } from 'deep-object-diff';
 import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
 import QRCode from 'react-native-qrcode-svg';
+import { Icon } from 'react-native-elements';
+import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, secondary, secondaryDark } from '../utils/NewColors';
+const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+/**
+ * Lazily killing two birds here by
+ * adding in the icon names.
+ */
+enum TabType {
+  Summary="dashboard",
+  Graph="show-chart",
+  Table="view-list",
+}
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -217,13 +230,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '800' }}>{`${resource_detail_heading_label} ${getShortId(resourceId)}`}</Text>
+          <Text style={{ color: primaryText.high, fontSize: 17, fontWeight: '800' }}>{`${resource_detail_heading_label} ${getShortId(resourceId)}`}</Text>
           { showSubtitle ? 
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-              <Text style={{ color: primaryText, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label} ${title}`}</Text>
+              <Text style={{ color: primaryText.high, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label} ${title}`}</Text>
             </View>
             : null }
         </View>
@@ -421,10 +434,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { timeseriesList } = this.props;
     const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
-    console.log("Default timeseries is", defaultTimeseriesList);
-
     return Object.keys(timeseriesList).map((key, idx) => {
-      console.log("looking for timeseries with key", key);
 
       const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
       if (!timeseries) {
@@ -433,9 +443,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       }
 
       return (
+        //TODO: figure out proper tab labels?
         // @ts-ignore
         <View
-          tabLabel={`Graph: ${timeseries.name}`}
+          tabLabel={{type: TabType.Graph, name: timeseries.name}}
           key={`${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
@@ -472,7 +483,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         // @ts-ignore
         <View
-          tabLabel={`Table: ${timeseries.name}`}
+          tabLabel={{ type: TabType.Table, name: timeseries.name }}
           key={`graph_${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
@@ -510,31 +521,67 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           //TD: disable bold as sometimes it is wrong and doesn't get updated
           fontWeight: '500',
         }}
-        tabBarActiveTextColor={primaryText}
-        tabBarInactiveTextColor={primaryText}
+        tabBarActiveTextColor={primaryText.high}
+        tabBarInactiveTextColor={primaryText.high}
         renderTabBar={() => (
           <ScrollableTabView.DefaultTabBar
-            tabStyle={{ backgroundColor: primaryLight }}
+            renderTab={(name: {type: TabType, name: string}, page: number, isTabActive: boolean, onPressHandler: (page: number) => void) => {
+              /* hide the default or summary labels*/
+              let subtitle = name.name;
+              if (name.name === 'default' || name.name === 'summary') {
+                subtitle = ''
+              };
+
+              return (
+                <TouchableNativeFeedback
+                  key={`${name.name}_${page}`}
+                  onPress={() => onPressHandler(page)}
+                >
+                  <View style={{ 
+                    backgroundColor: surfaceDark,
+                    flex: 1
+                  }}>
+                    <Icon
+                      containerStyle={{
+                        paddingTop: 10,
+                        flex: 1,
+                      }}
+                      name={name.type}
+                      color={secondaryDark}
+                    />
+                    <Text
+                      style={{
+                        flex: 1,
+                        textAlign: "center",
+                      }}
+                    >
+                      {subtitle}
+                    </Text>
+                  </View>
+                </TouchableNativeFeedback>
+              );
+            }}
           />
         )}>
+        //@ts-ignore
         <View
           key="0_summary" 
           style={{
             backgroundColor: bgLight,
             flex: 1,
           }}
-          tabLabel={resource_detail_summary_tab}
-          >
+          tabLabel={{ type: TabType.Summary, name: 'summary' }}
+        >
           {this.getSummaryCard()}
         </View>
-          {
-            //Readings in Graph form
-            this.getGraphChildren()
-          }
-          {
-            //Optional Table of Readings
-            this.getTableChildren()
-          }
+        {
+          //Readings in Graph form
+          this.getGraphChildren()
+        }
+        {
+          //Optional Table of Readings
+          this.getTableChildren()
+        }
       </ScrollableTabView>
     );
   }
