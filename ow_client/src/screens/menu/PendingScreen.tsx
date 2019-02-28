@@ -29,6 +29,7 @@ import { PendingReading } from '../../typings/models/PendingReading';
 import { ResultType, SomeResult } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
+import SaveButton from '../../components/common/SaveButton';
 
 export interface OwnProps {
   navigator: any,
@@ -115,6 +116,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props.translation.templates;
 
     //if no login, just display a message saying 'login to sync'
+    //Don't think this is possible for MyWell
     if (user.type === UserType.NO_USER) {
       return (
         <Button
@@ -148,43 +150,32 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
+    let statusText = pending_status_approved;
     if (userStatus === UserStatus.Rejected) {
-      return (
-        <View>
-          <Text>{pending_status_rejected}</Text>
-        </View>
-      );
+      statusText = pending_status_rejected;
     }
 
     if (userStatus === UserStatus.Unapproved) {
-      return (
-        <View>
-          <Text>{pending_status_unapproved}</Text>
-        </View>
-      );
+      statusText = pending_status_unapproved;
     }
 
-
     const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
+    const approved: boolean = userStatus === UserStatus.Approved;
 
     return (
       <View>
-        <Text>{pending_status_approved}</Text>
-         <Button
-          containerViewStyle={{
-            paddingTop: 20,
-          }}
-          style={{
-            minHeight: 50,
-          }}
-          color={primaryText}
-          backgroundColor={primary}
-          borderRadius={15}
-          loading={syncing}
-          icon={syncing ? undefined : { name: 'cached', color: primaryText }}
-          title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-          onPress={this.startInternalSync}
-        />
+        <Text style={{ padding: 20 }}>
+          {statusText}
+        </Text>
+        { approved && 
+          <SaveButton
+            loading={syncing}
+            icon={syncing}
+            disabled={false}
+            title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+            onPress={this.startInternalSync}
+          />
+        }
       </View>
     );
   }

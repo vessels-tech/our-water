@@ -1034,14 +1034,13 @@ export function startInternalSync(api: BaseApi, userId: string): (dispatch: any)
   return async function (dispatch: any) {
    
     dispatch(internalSyncRequest());
-    const result = await api.runInternalSync(userId);
+    const result = makeError<ExternalSyncStatusComplete>("Oh no");
+    // const result = await api.runInternalSync(userId);
     dispatch(internalSyncResponse(result));
 
     return result;
   }
 }
-
-
 
 function internalSyncRequest(): StartInternalSyncActionRequest {
   return {
