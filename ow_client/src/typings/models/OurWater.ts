@@ -9,6 +9,7 @@ import { string } from "react-native-joi";
 import { AnyARecord } from "dns";
 import { UserStatus } from "../UserTypes";
 import UserType from "ow_common/lib/enums/UserType";
+import { CacheType } from "../../reducers";
 
 export type DeprecatedResource = {
   id: string, DeprecatedResource
@@ -135,6 +136,7 @@ export type OWUser = {
   nickname: string | null,
   status: UserStatus,
   type: UserType,
+  newResources: CacheType<string>,
 }
 
 export type TimeSeriesReading = {

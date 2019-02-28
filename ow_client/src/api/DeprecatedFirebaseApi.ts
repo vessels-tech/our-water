@@ -911,6 +911,7 @@ class FirebaseApi {
         nickname: null,
         status: UserStatus.Unapproved,
         type: UserType.User,
+        newResources: {},
       }
     }
 
@@ -970,6 +971,7 @@ class FirebaseApi {
       nickname: data.nickname || null,
       status: data.status || OWUserStatus.Unapproved,
       type: data.type || UserType.User,
+      newResources: data.newResources || {},
     }
   }
 

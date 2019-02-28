@@ -90,6 +90,7 @@ export type AppState = {
   userIdMeta: ActionMeta,
   userStatus: UserStatus,
   userType: UserAdminType,
+  newResources: CacheType<string>
 }
 
 export const initialState: AppState = {
@@ -153,6 +154,7 @@ export const initialState: AppState = {
   searchResultsV1: { resources: [], hasNextPage: false},
   searchResults: [],
   searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
+  newResources: {},
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -443,6 +445,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let nickname = state.nickname;
       let userStatus = state.userStatus;
       let userType = state.userType;
+      let newResources = state.newResources;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -457,6 +460,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
         userType = action.result.result.type;
+        newResources = action.result.result.newResources;
       }
       
       //TODO: error handling?
@@ -474,6 +478,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         nickname,
         userStatus,
         userType,
+        newResources,
       });
     }
     case ActionType.GOT_SHORT_IDS: {
