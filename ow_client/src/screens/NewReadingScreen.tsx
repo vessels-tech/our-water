@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, maybeLog, showModal, unwrapUserId } from '../utils';
+import { displayAlert, maybeLog, showModal, unwrapUserId, renderLog } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -37,6 +37,7 @@ import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
 import FloatingButtonWrapper from '../components/common/FloatingButtonWrapper';
 import SaveButton from '../components/common/SaveButton';
+import { diff } from 'deep-object-diff';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -120,6 +121,20 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
   }
 
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    renderLog("NewReadingScreen componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
+  }
+
+  shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    if (Object.keys(diff(this.state, nextState)).length > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * Listeners
    * //TD: these listeners aren't always removed properly
@@ -166,7 +181,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   async saveReading() {
-
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
@@ -484,40 +498,25 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       }}
     } = this.props;
 
+    console.log("loading is", loading);
+
     return (
       <FloatingButtonWrapper>
         <SaveButton
           loading={loading}
           disabled={this.shouldDisableSubmitButton()}
-          title={new_reading_save_button}
+          title={loading ? "loading" : new_reading_save_button}
           icon={{ name: 'save', color: secondaryText }}
           height={50}
           onPress={this.saveReading}
         />
       </FloatingButtonWrapper>
-      // <Button
-      //   title={new_reading_save_button}
-      //   raised={true}
-      //   textStyle={{
-      //     color: secondaryText
-      //   }}
-      //   disabled={this.shouldDisableSubmitButton()}
-      //   icon={{ name: 'save', color: secondaryText }}
-      //   loading={loading}
-      //   buttonStyle={{
-      //     backgroundColor: secondary,
-      //     width: SCREEN_WIDTH - 20,
-      //   }}
-      //   containerViewStyle={{
-      //     marginTop: 10
-      //   }}
-      //   onPress={this.saveReading}
-      //   underlayColor="transparent"
-      // />
     );
   }
 
   render() {
+    renderLog(`NewReadingScreen render()`);
+
     return (
       <TouchableWithoutFeedback 
         style={{

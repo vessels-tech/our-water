@@ -658,7 +658,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   render() {   
-    maybeLog(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
+    renderLog(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View style={{

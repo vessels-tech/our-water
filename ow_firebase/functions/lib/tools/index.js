@@ -206,6 +206,7 @@ function buildParameter(deflt, description, conditions, values) {
 function getNewConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         const { conditionKeys, conditions } = require('./remoteConfigConditions');
+        console.log('conditions are', conditionKeys);
         const mywellTranslationOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.mywell), null, 2);
         const mywellTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.mywell), ow_translations_1.functionReplacer, 2);
         const ggmnTranslationsOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.ggmn), null, 2);
@@ -225,7 +226,7 @@ function getNewConfig() {
             resourceDetail_showSubtitle: buildParameter(true, 'Should the resrouce detail section have a subtitle?', conditionKeys, [true, true, false]),
             resourceDetail_allowEditing: buildParameter(false, 'Are users allowed to edit resources?', conditionKeys, [true, true, false]),
             resourceDetail_allowDelete: buildParameter(false, 'Are users allowed to delete resources?', conditionKeys, [true, true, false]),
-            resourceDetail_editReadings: buildParameter(false, 'Are users allowed to edit readings?', conditionKeys, [true, true, false]),
+            resourceDetail_editReadings: buildParameter(false, 'Are users allowed to edit readings?', conditionKeys, [true, true, true]),
             favouriteResourceList_showGetStartedButtons: buildParameter(true, 'Should the favourite resource list have a get started hint if empty?', conditionKeys, [false, false, true]),
             editResource_hasResourceName: buildParameter(false, 'When creating a new resource, can the user edit the name?', conditionKeys, [true, true, false]),
             editResource_showOwerName: buildParameter(true, 'When creating a new resource, can the user set the owner name?', conditionKeys, [false, false, true]),
@@ -299,6 +300,19 @@ function getNewConfig() {
             showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
+            favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
+            availableGroupTypes: buildParameter(JSON.stringify({
+                pincode: { id: 'pincode', required: true, order: 1 },
+                country: { id: 'country', required: true, order: 0 },
+            }), "The Available group types. Required is currently ignored.", conditionKeys, [
+                JSON.stringify({}),
+                JSON.stringify({}),
+                JSON.stringify({
+                    pincode: { id: 'pincode', required: true, order: 1 },
+                    country: { id: 'country', required: true, order: 0 },
+                }),
+            ]),
+            shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
         };
         return Promise.resolve({
             conditions,

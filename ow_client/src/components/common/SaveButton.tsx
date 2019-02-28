@@ -26,6 +26,8 @@ export default function SaveButton(props: Props) {
     icon,
   } = props;
 
+  console.log("saveButton, loading", loading);
+
   return (
     <Button
       raised={true}

@@ -308,6 +308,7 @@ module.exports = (functions) => {
     app.post('/:orgId/:userId/sync', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
+        const resourceApi = new api_1.ResourceApi(FirebaseAdmin_1.firestore, orgId);
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
         const userResult = yield userApi.getUser(userApi.userRef(orgId, userId));
         if (userResult.type === AppProviderTypes_1.ResultType.ERROR) {
@@ -316,10 +317,14 @@ module.exports = (functions) => {
         if (userResult.result.status !== UserStatus_1.default.Approved) {
             return res.status(403).send("unauthorized");
         }
-        const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
-        if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
-            throw new Error(syncResult.message);
-        }
+        const resourceIds = AppProviderTypes_1.unsafeUnwrap(yield fbApi.syncPendingForUser(orgId, userId));
+        /* Get a list of resources */
+        const resources = AppProviderTypes_1.unsafeUnwrap(yield resourceApi.getResourcesForIds(resourceIds));
+        /* Add to the user's favourites */
+        AppProviderTypes_1.unsafeUnwrap(yield userApi.addFavouriteResources(userId, resources));
+        /* Add to the user's new resources */
+        //This is non critical - we don't care if it fails.
+        yield userApi.markAsNewResources(userId, resourceIds);
         return res.status(204).send("true");
     }));
     /* CORS Configuration */

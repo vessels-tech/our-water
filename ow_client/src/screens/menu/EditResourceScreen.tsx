@@ -601,6 +601,8 @@ class EditResourceScreen extends Component<Props> {
       pendingSavedResourcesMeta: { loading },
     } = this.props;
 
+    console.log("getForm, loading: ", loading);
+
     const fixedButtonHeight = 100;
 
     const { 
