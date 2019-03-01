@@ -9,7 +9,6 @@ import { ResultType } from '../../typings/AppProviderTypes';
 
 export interface Props { 
   onValueChange: (mobileText: string) => void;
-  onValueChange2: (countryCode: string, mobileText: string) => void;
   value?: string,
 }
 
