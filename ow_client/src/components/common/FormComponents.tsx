@@ -175,9 +175,12 @@ export const DropdownInput = (params: DropdownInputParams) => {
 export const MobileInput = (params: MobileInputParams) => {
   const { touched, type, handler, meta: { asyncErrorMessage, label, options }, errorMessage, hasError } = params;
 
+  console.log("mobile input handler is: ", handler());
+
   return (
     <View>
       <PhoneNumberEntry 
+        value={handler().value}
         onValueChange={(mobileText: string) => {
           return handler().onChange(mobileText);
         }}

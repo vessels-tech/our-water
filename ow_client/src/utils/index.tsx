@@ -666,6 +666,20 @@ export function unwrapUserId(user: MaybeUser) {
   return user.userId;
 }
 
+export function splitInternationalNumber(intNumber: string): SomeResult<{regionCode: string, prefix: string, mobile: string}> {
+  //@ts-ignore
+  const pn = new PhoneNumber(intNumber);
+  if (!pn.isValid()) {
+    return makeError<{ regionCode: string, prefix: string, mobile: string }>('Number is not valid');
+  }
+
+  return makeSuccess({
+    regionCode: pn.getRegionCode(),
+    prefix: `+${PhoneNumber.getCountryCodeForRegionCode(pn.getRegionCode())}`,
+    mobile: pn.getNumber('significant'),
+  });
+}
+
 
 /**
  * filterAndSort

@@ -65,6 +65,7 @@ export function addRecent(api: BaseApi, userId: string, resource: AnyResource): 
   return async function (dispatch: any) {
     dispatch(addRecentRequest(resource));
     const result = await api.addRecentResource(resource, userId);
+    await 
     dispatch(addRecentResponse(result));
   }
 }
