@@ -130,7 +130,6 @@ module.exports = (functions) => {
     }
 
     const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceIds, {limit: 100}));
-    console.log("Readings are", readings);
     if (readings.readings.length === 0) {
       const error = new Error(`No readings found for ids: ${resourceIds}`);
       return res.status(404).send(error);

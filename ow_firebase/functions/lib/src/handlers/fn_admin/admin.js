@@ -119,7 +119,6 @@ module.exports = (functions) => {
             throw new Error("Too many resourceIds. Max is 50");
         }
         const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
-        console.log("Readings are", readings);
         if (readings.readings.length === 0) {
             const error = new Error(`No readings found for ids: ${resourceIds}`);
             return res.status(404).send(error);
