@@ -229,8 +229,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         console.log(`Couldn't find reading to delete with pendingReadingId: ${action.pendingReadingId}`)
       }
 
-      // console.log(`DELETE_PENDING_READING_RESPONSE post readings has ${readings.length} items`);
-
       newTsReadings[action.resourceId] = readings;
       return Object.assign({}, state, { newTsReadings });
     }
@@ -372,13 +370,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
-
-      //Add new resources to cache
-      // console.log("resourcesCache is", resourcesCache.length);
-      // console.log("newResources is", newResources.length);
-
       if (!resourcesCache) {
-        console.log("No resources cache?");
         resourcesCache = [];
       }
       resourcesCache = resourcesCache.concat(newResources);

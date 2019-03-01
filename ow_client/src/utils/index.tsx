@@ -828,8 +828,6 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
   //Make a list of safe resources:
   const safeResources: AnyResource[] = [];
   array.forEach(r => {
-    // console.log("resource.coords is", r.id, r.coords);
-
     if (isInRegion(safeArea, r.coords)) {
       safeResources.push(r);
     }

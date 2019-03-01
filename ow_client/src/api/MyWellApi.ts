@@ -126,7 +126,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //Remove the resource
     const userApi = new CommonUserApi(fs, this.orgId);
     const newResourceResponse = await userApi.removeNewResource(userId, resource.id);
-    console.log("newResourceResponse is", newResourceResponse);
 
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }

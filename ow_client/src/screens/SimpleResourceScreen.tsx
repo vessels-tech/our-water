@@ -69,8 +69,6 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
       return;
     }
 
-
-    console.log("Adding recent", this.props.userId, resource.id);
     this.props.addRecent(this.appApi, this.props.userId, resource);
   }
 

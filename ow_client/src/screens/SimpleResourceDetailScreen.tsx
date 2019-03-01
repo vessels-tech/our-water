@@ -101,8 +101,6 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
       resource_detail_edit_readings,
     } = this.props.translation.templates;
 
-    //TODO: get resource type?
-    console.log("onEditReadingsPressed. ResourceType", this.props.resourceType);
     showModal(this.props, 'screen.EditReadingsScreen', resource_detail_edit_readings, {
       resourceId,
       config: this.props.config,

@@ -13,6 +13,7 @@ import {
   navigateTo,
   showModal,
   maybeLog,
+  renderLog,
 } from '../utils';
 import {
   MapStateOption,
@@ -148,11 +149,11 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
   
-  // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
-  //   console.log("HomeMapScreen componentWillUpdate():");
-  //   console.log("     - ", diff(this.props, nextProps));
-  //   console.log("     - ", diff(this.state, nextState));
-  // }
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
+    renderLog("HomeMapScreen componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
+  }
 
   componentWillMount() {
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBackPressed);

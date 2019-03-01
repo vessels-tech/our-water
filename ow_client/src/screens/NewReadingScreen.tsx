@@ -403,10 +403,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       // long_date_format
     } = this.props.translation.templates;
 
-
-    // console.log("Resource type is", resourceType);
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
-    // console.log("timeseriesList is", timeseriesList);
 
     return (
       <ScrollView style={{
@@ -422,9 +419,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
           onChangeText={(date: moment.Moment) => {
-            // console.log("onchange ")
-            // const date: moment.Moment = moment(dateStr);
-            console.log("setting date to: ", date);
             this.setState({date});
           }}
           fieldType={InputType.dateTimeInput}
@@ -497,8 +491,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
         new_reading_save_button
       }}
     } = this.props;
-
-    console.log("loading is", loading);
 
     return (
       <FloatingButtonWrapper>
