@@ -4,13 +4,14 @@ import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
 
 import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
-import { enableLogging } from '../../common/utils';
+import { enableLogging, writeFileAsync } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { firestore } from '../../common/apis/FirebaseAdmin';
-import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
-import { UserApi } from 'ow_common/lib/api';
+import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
+import { UserApi, ReadingApi, ExportApi, ExportFormat } from 'ow_common/lib/api';
 import UserType from 'ow_common/lib/enums/UserType';
 import UserStatus from 'ow_common/lib/enums/UserStatus';
+import * as moment from 'moment';
 
 
 const bodyParser = require('body-parser');
@@ -97,6 +98,39 @@ module.exports = (functions) => {
     }
 
     res.status(204).send("true");
+  });
+
+  /**
+   * Download Readings for Resources
+   * GET /:orgId/readings
+   * 
+   * Download a list of readings for a given resource. 
+   * resourceIds must be a comma separated list of resourceIds
+   */
+  const getReadingsValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    query: {
+      resourceIds: Joi.string().required(),
+    }
+  }
+  app.get('/:orgId/readings', validate(getReadingsValidation), async (req, res) => {
+    let { resourceIds } = req.query;
+    const { orgId } = req.params;
+    const readingApi = new ReadingApi (firestore, orgId);
+
+    resourceIds = resourceIds.split(',');
+    if (resourceIds.length > 50) {
+      throw new Error("Too many resourceIds. Max is 50");
+    }
+
+    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceIds, {limit: 100}));
+    const readingsData = ExportApi.readingsToExport(readings.readings, ExportFormat.CSV);
+    const file = `/tmp/${moment().toString()}.csv`;
+    await writeFileAsync(file, readingsData, 'utf-8');
+    
+    res.download(file);
   });
 
   /* CORS Configuration */

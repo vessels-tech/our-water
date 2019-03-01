@@ -20,6 +20,7 @@ const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const api_1 = require("ow_common/lib/api");
 const UserType_1 = require("ow_common/lib/enums/UserType");
 const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
+const moment = require("moment");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -90,6 +91,35 @@ module.exports = (functions) => {
             throw new Error(statusResult.message);
         }
         res.status(204).send("true");
+    }));
+    /**
+     * Download Readings for Resources
+     * GET /:orgId/readings
+     *
+     * Download a list of readings for a given resource.
+     * resourceIds must be a comma separated list of resourceIds
+     */
+    const getReadingsValidation = {
+        options: {
+            allowUnknownBody: false,
+        },
+        query: {
+            resourceIds: Joi.string().required(),
+        }
+    };
+    app.get('/:orgId/readings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+        let { resourceIds } = req.query;
+        const { orgId } = req.params;
+        const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
+        resourceIds = resourceIds.split(',');
+        if (resourceIds.length > 50) {
+            throw new Error("Too many resourceIds. Max is 50");
+        }
+        const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
+        const readingsData = api_1.ExportApi.readingsToExport(readings.readings, api_1.ExportFormat.CSV);
+        const file = `/tmp/${moment().toString()}.csv`;
+        yield utils_1.writeFileAsync(file, readingsData, 'utf-8');
+        res.download(file);
     }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
