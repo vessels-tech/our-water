@@ -86,47 +86,90 @@ describe('Admin integration tests', function () {
   });
 
   describe('Download Readings', function() {
+    this.timeout(20000);
     let authHeader;
     const readingApi = new ReadingApi(firestore, orgId);
 
-
     this.beforeAll(async () => {
       authHeader = await getAuthHeader(admin);
+      await userApi.userRef(orgId, "12345").set({
+        ...DefaultUser,
+        type: UserType.Admin
+      });
       
       //TODO: make some readings;
-      await readingApi.readingCol().doc("reading_001").set({ ...DefaultReading, resourceId: "00001", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_002").set({ ...DefaultReading, resourceId: "00001", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_003").set({ ...DefaultReading, resourceId: "00002", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_004").set({ ...DefaultReading, resourceId: "00002", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_005").set({ ...DefaultReading, resourceId: "00003", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_006").set({ ...DefaultReading, resourceId: "00003", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_007").set({ ...DefaultReading, datetime: '2017-01-01T01:11:01Z', value: 1, resourceId: "00004", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_008").set({ ...DefaultReading, datetime: '2017-01-02T01:11:01Z', value: 2, resourceId: "00004", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_009").set({ ...DefaultReading, datetime: '2017-01-03T01:11:01Z', value: 3, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_001").set({ ...DefaultReading, id: 'reading_001', resourceId: "00001", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_002").set({ ...DefaultReading, id: 'reading_002', resourceId: "00001", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_003").set({ ...DefaultReading, id: 'reading_003', resourceId: "00002", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_004").set({ ...DefaultReading, id: 'reading_004', resourceId: "00002", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_005").set({ ...DefaultReading, id: 'reading_005', resourceId: "00003", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_006").set({ ...DefaultReading, id: 'reading_006', resourceId: "00003", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_007").set({ ...DefaultReading, id: 'reading_007', datetime: '2017-01-01T01:11:01Z', value: 1, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_008").set({ ...DefaultReading, id: 'reading_008', datetime: '2017-01-02T01:11:01Z', value: 2, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_009").set({ ...DefaultReading, id: 'reading_009', datetime: '2017-01-03T01:11:01Z', value: 3, resourceId: "00004", timeseriesId: 'default' })
     });
 
-    it.only('downloads the readings for multiple resourceIds', async () => {
+    it('downloads the readings for multiple resourceIds', async () => {
       //Arrange
-      const resourceIds = '00001,00002,00003';
+      const resourceIds = encodeURIComponent('00001,00002,00003');
       const options = {
         method: 'GET',
-        uri: `${baseUrl}/admin/${orgId}/readings/${resourceIds}`,
+        uri: `${baseUrl}/admin/${orgId}/downloadReadings?resourceIds=${resourceIds}`,
+        json: true,
+        headers: {
+          ...authHeader,
+        }
+      };
+      
+      //Act
+      const response = await request(options);
+      
+      //Assert - we expect 6 readings, with one newline at end
+      assert.equal(response.split('\n').length, 7);
+    });
+
+    it('downloads the readings for just one resourceId', async () => {
+      //Arrange
+      const resourceIds = encodeURIComponent('00001');
+      const options = {
+        method: 'GET',
+        uri: `${baseUrl}/admin/${orgId}/downloadReadings?resourceIds=${resourceIds}`,
+        json: true,
+        headers: {
+          ...authHeader,
+        }
+      };
+
+      //Act
+      const response = await request(options);
+
+      //Assert - we expect 6 readings, with one newline at end
+      assert.equal(response.split('\n').length, 3);
+    });
+
+    it('Fails with a 404 if no readings could be found', async () => {
+      //Arrange
+      const resourceIds = encodeURIComponent('00010');
+      const options = {
+        method: 'GET',
+        uri: `${baseUrl}/admin/${orgId}/downloadReadings?resourceIds=${resourceIds}`,
         json: true,
         headers: {
           ...authHeader,
         }
       }
-      
+
       //Act
-      const response = await request(options);
-      console.log("Response is", response);
-      
+      let statusCode;
+      try {
+        const response = await request(options);
+      } catch (err) {
+        statusCode = err.statusCode;
+      }
+
       //Assert
+      assert.equal(statusCode, 404);
     });
-
-    it('downloads the readings for just one resourceId');
-
-    it('does not fail to donwload if there are no readings for the resourceId');
 
 
     this.afterAll(async () => {

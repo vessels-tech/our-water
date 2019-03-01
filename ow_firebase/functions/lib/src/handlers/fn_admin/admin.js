@@ -94,7 +94,9 @@ module.exports = (functions) => {
     }));
     /**
      * Download Readings for Resources
-     * GET /:orgId/readings
+     * GET /:orgId/downloadReadings
+     *
+     * eg: /test_12348/downloadReadings?resourceIds=00001%2C00002%2C00003
      *
      * Download a list of readings for a given resource.
      * resourceIds must be a comma separated list of resourceIds
@@ -107,8 +109,9 @@ module.exports = (functions) => {
             resourceIds: Joi.string().required(),
         }
     };
-    app.get('/:orgId/readings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         let { resourceIds } = req.query;
+        console.log("Getting readings:", resourceIds);
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
         resourceIds = resourceIds.split(',');
@@ -116,7 +119,13 @@ module.exports = (functions) => {
             throw new Error("Too many resourceIds. Max is 50");
         }
         const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
+        console.log("Readings are", readings);
+        if (readings.readings.length === 0) {
+            const error = new Error(`No readings found for ids: ${resourceIds}`);
+            return res.status(404).send(error);
+        }
         const readingsData = api_1.ExportApi.readingsToExport(readings.readings, api_1.ExportFormat.CSV);
+        console.log("readings data is", readingsData);
         const file = `/tmp/${moment().toString()}.csv`;
         yield utils_1.writeFileAsync(file, readingsData, 'utf-8');
         res.download(file);
