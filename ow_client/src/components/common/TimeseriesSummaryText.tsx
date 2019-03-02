@@ -68,7 +68,7 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
           <View
             key={'right_side'}
             style={{
-              flex: 1,
+              flex: 2,
               flexDirection: 'column',
               justifyContent: 'space-evenly',
             }}

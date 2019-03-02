@@ -82,8 +82,6 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       hasSelectedResource: false,
       initialRegion,
     };
-
-    //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
@@ -135,7 +133,7 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       //Don't add to recents if it's pending.
       return;
     }
-    
+  
     this.props.addRecent(this.appApi, this.props.userId, resource);
   }
 

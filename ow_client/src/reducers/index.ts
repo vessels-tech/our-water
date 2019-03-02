@@ -90,6 +90,7 @@ export type AppState = {
   userIdMeta: ActionMeta,
   userStatus: UserStatus,
   userType: UserAdminType,
+  newResources: CacheType<string>
 }
 
 export const initialState: AppState = {
@@ -153,6 +154,7 @@ export const initialState: AppState = {
   searchResultsV1: { resources: [], hasNextPage: false},
   searchResults: [],
   searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
+  newResources: {},
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -226,8 +228,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       } else {
         console.log(`Couldn't find reading to delete with pendingReadingId: ${action.pendingReadingId}`)
       }
-
-      // console.log(`DELETE_PENDING_READING_RESPONSE post readings has ${readings.length} items`);
 
       newTsReadings[action.resourceId] = readings;
       return Object.assign({}, state, { newTsReadings });
@@ -370,13 +370,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
-
-      //Add new resources to cache
-      // console.log("resourcesCache is", resourcesCache.length);
-      // console.log("newResources is", newResources.length);
-
       if (!resourcesCache) {
-        console.log("No resources cache?");
         resourcesCache = [];
       }
       resourcesCache = resourcesCache.concat(newResources);
@@ -443,6 +437,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let nickname = state.nickname;
       let userStatus = state.userStatus;
       let userType = state.userType;
+      let newResources = state.newResources;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -457,6 +452,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
         userType = action.result.result.type;
+        newResources = action.result.result.newResources;
       }
       
       //TODO: error handling?
@@ -474,6 +470,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         nickname,
         userStatus,
         userType,
+        newResources,
       });
     }
     case ActionType.GOT_SHORT_IDS: {

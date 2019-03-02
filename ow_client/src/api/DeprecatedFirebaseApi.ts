@@ -70,8 +70,6 @@ class FirebaseApi {
       return oldUserResult;
     }
 
-    // console.log("merging old user", oldUserResult.result);
-
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
     delete oldUser.email;
@@ -264,7 +262,6 @@ class FirebaseApi {
         return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
       }
 
-      // console.log("getResourceForId returned raw data", sn.data());
       const fbResource: FBResource = FBResource.deserialize(sn.data());
       const anyResource: AnyResource = fbResource.toAnyResource();
       return makeSuccess(anyResource);
@@ -358,7 +355,6 @@ class FirebaseApi {
    * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
-    // console.log("firebaseAPi getting readings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
@@ -911,6 +907,7 @@ class FirebaseApi {
         nickname: null,
         status: UserStatus.Unapproved,
         type: UserType.User,
+        newResources: {},
       }
     }
 
@@ -970,6 +967,7 @@ class FirebaseApi {
       nickname: data.nickname || null,
       status: data.status || OWUserStatus.Unapproved,
       type: data.type || UserType.User,
+      newResources: data.newResources || {},
     }
   }
 

@@ -17,7 +17,7 @@ import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
-import { UserType } from '../typings/UserTypes';
+import { UserType, User, MaybeUser } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
@@ -32,7 +32,8 @@ export interface StateProps {
   userId: string,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
-  translation: TranslationFile
+  translation: TranslationFile,
+  user: MaybeUser
 }
 
 export interface ActionProps {
@@ -280,25 +281,20 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     }
 
     const {
-      externalLoginDetails,
+      user, 
       externalLoginDetailsMeta: { loading },
       translation: {
         templates: {
           settings_connect_to_pending_title,
           settings_connect_to_connected_title,
-          settings_connect_to_subtitle_error,
         }
       }
     } = this.props;
 
     let title = settings_connect_to_pending_title;
     let subtitle;
-    if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
+    if (user.type === UserType.MOBILE_USER) {
       title = settings_connect_to_connected_title;
-    }
-
-    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
-      subtitle = settings_connect_to_subtitle_error;
     }
 
     //TODO: add the user status here
@@ -500,6 +496,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    user: state.user,
     userId,
     translation: state.translation,
   }

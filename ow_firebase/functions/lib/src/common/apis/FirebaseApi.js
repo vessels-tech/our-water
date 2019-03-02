@@ -30,18 +30,22 @@ class FirebaseApi {
     }
     batchSaveResources(docs) {
         if (docs.length === 0) {
-            console.warn('Tried to save a batch of resources, but readings was empty.');
+            console.log('WARN: Tried to save a batch of resources, but resources was empty.');
             return Promise.resolve([]);
         }
         const batch = this.firestore.batch();
         //Pass in the resourceId here - very low chance of colission
-        docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
+        // docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
+        docs.forEach(doc => {
+            console.log("creating in batch", doc.id);
+            doc.batchCreate(batch, this.firestore, doc.id);
+        });
         return batch.commit();
     }
     batchSaveReadings(docs) {
         return __awaiter(this, void 0, void 0, function* () {
             if (docs.length === 0) {
-                console.warn('Tried to save a batch of resources, but readings was empty.');
+                console.log('WARN: Tried to save a batch of readings, but readings was empty.');
                 return Promise.resolve([]);
             }
             const batch = this.firestore.batch();
@@ -334,6 +338,7 @@ class FirebaseApi {
      * syncPendingForUser
      *
      * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+     * returns an array of pending resources
      */
     syncPendingForUser(orgId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -408,7 +413,12 @@ class FirebaseApi {
                 console.log("Error: ", errorResults);
                 return Promise.resolve(AppProviderTypes_1.makeError(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
             }
-            return AppProviderTypes_1.makeSuccess(undefined);
+            //This will always be true, otherwise we would have errors
+            const savedResourceIds = [];
+            if (pendingResourceResult2.type === AppProviderTypes_1.ResultType.SUCCESS) {
+                pendingResourceResult2.result.forEach(r => savedResourceIds.push(r.id));
+            }
+            return AppProviderTypes_1.makeSuccess(savedResourceIds);
         });
     }
     //

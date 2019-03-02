@@ -1,9 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
-import NetworkStatusBanner from '../components/NetworkStatusBanner';
 import * as appActions from '../actions/index';
-import { UserType } from '../typings/UserTypes';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { PendingReading } from '../typings/models/PendingReading';
 import { SyncMeta } from '../typings/Reducer';
@@ -13,9 +11,7 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
-import { AnyResource } from '../typings/models/Resource';
-import { PendingResource } from '../typings/models/PendingResource';
-import { navigateTo, unwrapUserId } from '../utils';
+import {  unwrapUserId } from '../utils';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
@@ -62,6 +58,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
+
     navigateToNewReadingScreen(this.props, resource_detail_new, {
       navigator: this.props.navigator,
       groundwaterStationId: null,

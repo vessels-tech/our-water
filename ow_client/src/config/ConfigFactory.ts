@@ -58,6 +58,8 @@ export type RemoteConfig = {
   favouriteResource_showPendingResources: boolean,
   availableGroupTypes: CacheType<GroupSpecificationType>,
   shouldUseV1Search: boolean,
+  resourceDetail_allowDownload: boolean,
+  readingDownloadUrl: string
 }
 
 /**
@@ -325,6 +327,14 @@ export class ConfigFactory {
 
   getShouldUseV1Search(): boolean {
     return this.remoteConfig.shouldUseV1Search;
+  }
+
+  getDownloadReadingsUrl(resourceId: string): string {
+    return `${this.remoteConfig.readingDownloadUrl}?resourceIds=${resourceId}`;
+  }
+
+  getResourceDetailAllowDownload(): boolean {
+    return this.remoteConfig.resourceDetail_allowDownload;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

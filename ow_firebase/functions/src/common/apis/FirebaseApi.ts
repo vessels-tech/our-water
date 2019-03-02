@@ -17,8 +17,6 @@ export type ShortIdLock = {
   lock: boolean,
 }
 
-
-
 export type BoundingBox = {
   minLat: number, 
   minLng: number, 
@@ -54,19 +52,23 @@ export default class FirebaseApi {
 
   public batchSaveResources(docs: Resource[]): Promise<WriteResult[]> {
     if (docs.length === 0) {
-      console.warn('Tried to save a batch of resources, but readings was empty.');
+      console.log('WARN: Tried to save a batch of resources, but resources was empty.');
       return Promise.resolve([]);
     }
 
     const batch = this.firestore.batch();
     //Pass in the resourceId here - very low chance of colission
-    docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
+    // docs.forEach(doc => doc.batchCreate(batch, this.firestore, doc.id));
+    docs.forEach(doc => {
+      console.log("creating in batch", doc.id);
+      doc.batchCreate(batch, this.firestore, doc.id)
+    });
     return batch.commit();
   }
 
   public async batchSaveReadings(docs: Reading[]): Promise<WriteResult[]> {
     if (docs.length === 0) {
-      console.warn('Tried to save a batch of resources, but readings was empty.');
+      console.log('WARN: Tried to save a batch of readings, but readings was empty.');
       return Promise.resolve([]);
     }
 
@@ -387,8 +389,9 @@ export default class FirebaseApi {
    * syncPendingForUser
    * 
    * Save the user's pendingResources and pendingReadings and delete from their collection in user.
+   * returns an array of pending resources
    */
-  public async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<void>> {
+  public async syncPendingForUser(orgId: string, userId: string): Promise<SomeResult<Array<string>>> {
     const errorResults: ErrorResult[] = [];
 
     //Get the user's pending resources and readings
@@ -411,7 +414,7 @@ export default class FirebaseApi {
 
     if (errorResults.length > 0) {
       console.log("Error: ", errorResults);
-      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      return Promise.resolve(makeError<Array<string>>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //map them to the Firebase Domain (if needed)
@@ -435,7 +438,7 @@ export default class FirebaseApi {
 
     if (errorResults.length > 0) {
       console.log("Error: ", errorResults);
-      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      return Promise.resolve(makeError<Array<string>>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //Delete pending resources and readings
@@ -453,7 +456,7 @@ export default class FirebaseApi {
 
     if (errorResults.length > 0) {
       console.log("Error: ", errorResults);
-      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      return Promise.resolve(makeError<Array<string>>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
     //@ts-ignore
@@ -470,10 +473,16 @@ export default class FirebaseApi {
 
     if (errorResults.length > 0) {
       console.log("Error: ", errorResults);
-      return Promise.resolve(makeError<void>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
+      return Promise.resolve(makeError<Array<string>>(errorResults.reduce((acc, curr) => `${acc} ${curr.message},\n`, '')));
     }
 
-    return makeSuccess<void>(undefined);
+    //This will always be true, otherwise we would have errors
+    const savedResourceIds = [];
+    if (pendingResourceResult2.type === ResultType.SUCCESS) {
+      pendingResourceResult2.result.forEach(r => savedResourceIds.push(r.id));
+    }
+
+    return makeSuccess<Array<string>>(savedResourceIds);
   }
 
   //

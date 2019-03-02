@@ -35,6 +35,8 @@ import { isNullOrUndefined } from 'util';
 //@ts-ignore
 import { callingCountries } from 'country-data';
 import { validatePincode, regexHasNumbersOnly, regexForIsoCode } from '../../utils/Pincodes';
+import SaveButton from '../../components/common/SaveButton';
+import FloatingButtonWrapper from '../../components/common/FloatingButtonWrapper';
 
 
 export interface Props { 
@@ -599,6 +601,8 @@ class EditResourceScreen extends Component<Props> {
       pendingSavedResourcesMeta: { loading },
     } = this.props;
 
+    console.log("getForm, loading: ", loading);
+
     const fixedButtonHeight = 100;
 
     const { 
@@ -730,54 +734,23 @@ class EditResourceScreen extends Component<Props> {
                 }}
               /> : null }
               {this.getEditableGroupsFields()}
+
+              {/* Transparent footer to make the scrollview balance */}
               <View
                 style={{
                   height: fixedButtonHeight,
-                  // backgroundColor: 'green',
                 }}
               />
             </ScrollView>
-            <View
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'transparent'
-                // opacity: 0.5,
-                // backgroundColor: 'blue',
-                // shadowColor: '#000000',
-                // shadowOffset: {
-                //   width: 0,
-                //   height: -5
-                // },
-                // shadowRadius: 10,
-                // shadowOpacity: 1.0
-              }}
-            >
-              <Button
-                raised={true}
-                style={{
-                  paddingBottom: 20,
-                  height: fixedButtonHeight,
-                }}
-                buttonStyle={{
-                  backgroundColor: secondary,
-                }}
-                containerViewStyle={{
-                  marginVertical: 20,
-                  opacity: 1,
-                }}
-                textStyle={{
-                  color: secondaryText,
-                  fontWeight: '700',
-                }}
+            <FloatingButtonWrapper>
+              <SaveButton
                 loading={loading}
                 disabled={invalid}
-                title={loading ? '' : new_resource_submit_button}
+                title={new_resource_submit_button}
+                height={50}
                 onPress={this.handleSubmit}
               />
-            </View>
+            </FloatingButtonWrapper>
           </View>
         )}
       />
@@ -798,9 +771,6 @@ class EditResourceScreen extends Component<Props> {
         buttonStyle={{
           backgroundColor: error1,
           minHeight: 50,
-        }}
-        containerViewStyle={{
-          // marginVertical: 20,
         }}
         textStyle={{
           color: secondaryText,

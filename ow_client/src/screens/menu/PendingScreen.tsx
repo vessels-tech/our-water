@@ -21,7 +21,7 @@ import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusTy
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId } from '../../utils';
-import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
+import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
@@ -29,6 +29,8 @@ import { PendingReading } from '../../typings/models/PendingReading';
 import { ResultType, SomeResult } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
+import SaveButton from '../../components/common/SaveButton';
+import { secondaryText, surfaceText } from '../../utils/NewColors';
 
 export interface OwnProps {
   navigator: any,
@@ -115,6 +117,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props.translation.templates;
 
     //if no login, just display a message saying 'login to sync'
+    //Don't think this is possible for MyWell
     if (user.type === UserType.NO_USER) {
       return (
         <Button
@@ -148,43 +151,33 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
+    let statusText = pending_status_approved;
     if (userStatus === UserStatus.Rejected) {
-      return (
-        <View>
-          <Text>{pending_status_rejected}</Text>
-        </View>
-      );
+      statusText = pending_status_rejected;
     }
 
     if (userStatus === UserStatus.Unapproved) {
-      return (
-        <View>
-          <Text>{pending_status_unapproved}</Text>
-        </View>
-      );
+      statusText = pending_status_unapproved;
     }
 
-
     const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
+    const approved: boolean = userStatus === UserStatus.Approved;
 
     return (
       <View>
-        <Text>{pending_status_approved}</Text>
-         <Button
-          containerViewStyle={{
-            paddingTop: 20,
-          }}
-          style={{
-            minHeight: 50,
-          }}
-          color={primaryText}
-          backgroundColor={primary}
-          borderRadius={15}
-          loading={syncing}
-          icon={syncing ? undefined : { name: 'cached', color: primaryText }}
-          title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-          onPress={this.startInternalSync}
-        />
+        <Text style={{ padding: 20 }}>
+          {statusText}
+        </Text>
+        { approved && 
+          <SaveButton
+            loading={syncing}
+            icon={syncing ? undefined : { name: 'cached', color: secondaryText.high }}
+            disabled={false}
+            title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+            onPress={this.startInternalSync}
+            height={50}
+          />
+        }
       </View>
     );
   }
@@ -367,11 +360,11 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          paddingHorizontal: 35,
           height: '100%',
         }}>
-          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{sync_empty_heading}</Text>
-          <Text style={{ textAlign: "center" }}>{sync_empty_content}</Text>
+          <Text style={{ color: surfaceText.high, textAlign: "left", fontWeight: '800', fontSize: 22, paddingBottom: 10 }}>{sync_empty_heading}</Text>
+          <Text style={{ color: surfaceText.med, textAlign: "left", fontWeight: '400', fontSize: 15, paddingBottom: 10,  }}>{sync_empty_content}</Text>
         </View>
       );
     }

@@ -4,9 +4,12 @@ import { PureComponent } from "react";
 //@ts-ignore
 import { callingCountries } from 'country-data';
 import { View, TextInput, Picker } from 'react-native';
+import { splitInternationalNumber } from '../../utils';
+import { ResultType } from '../../typings/AppProviderTypes';
 
 export interface Props { 
   onValueChange: (mobileText: string) => void;
+  value?: string,
 }
 
 export interface State {
@@ -44,19 +47,42 @@ class PhoneNumberEntry extends PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      country: { emoji: '🇮🇳', countryCode: '+91', name: "India"},
-      countryCodeText: '+91',
-      mobileText: '',
-    };
+    this.state = this.getInitialState(props);
 
     /* binds */
     this.updatePickerValue = this.updatePickerValue.bind(this);
     this.updateCountryFromCode = this.updateCountryFromCode.bind(this);
-    this.updateMobile = this.updateMobile.bind(this);
+    this.updateMobile = this.updateMobile.bind(this);    
   }
 
+  getInitialState(props: Props): State {
+    let defaultState: State = {
+      country: { emoji: '🇮🇳', countryCode: '+91', name: "India" },
+      countryCodeText: '+91',
+      mobileText: '',
+    };
+
+    if (!props.value) {
+      return defaultState;
+    }
+    
+    const splitNumberResult = splitInternationalNumber(props.value);
+    if (splitNumberResult.type === ResultType.ERROR) {
+      return defaultState;
+    }
+
+    const { prefix, mobile } = splitNumberResult.result;
+    const country = countries.find(c => c.countryCode === prefix);
+    if (!country) {
+      return defaultState;
+    }
+
+    return {
+      country,
+      countryCodeText: prefix,
+      mobileText: mobile,
+    };
+  }
 
   getMobileText() {
     return `${this.state.country.countryCode}${this.state.mobileText}`

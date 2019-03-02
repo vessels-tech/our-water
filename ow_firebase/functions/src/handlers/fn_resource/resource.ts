@@ -21,9 +21,9 @@ import EmailApi from '../../common/apis/EmailApi';
 import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
-import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { enableLogging } from '../../common/utils';
-import { UserApi } from 'ow_common/lib/api';
+import { UserApi, ResourceApi } from 'ow_common/lib/api';
 import { User } from 'ow_common/lib/model/User';
 import UserStatus from 'ow_common/lib/enums/UserStatus';
 
@@ -353,6 +353,7 @@ module.exports = (functions) => {
   app.post('/:orgId/:userId/sync', async (req, res) => {
     const { orgId, userId } = req.params;
     const userApi = new UserApi(firestore, orgId);
+    const resourceApi = new ResourceApi(firestore, orgId);
     const fbApi = new FirebaseApi(firestore);
 
     const userResult = await userApi.getUser(userApi.userRef(orgId, userId));
@@ -363,10 +364,17 @@ module.exports = (functions) => {
       return res.status(403).send("unauthorized");
     }
 
-    const syncResult = await fbApi.syncPendingForUser(orgId, userId);
-    if (syncResult.type === ResultType.ERROR) {
-      throw new Error(syncResult.message);
-    }
+    const resourceIds = unsafeUnwrap(await fbApi.syncPendingForUser(orgId, userId));
+   
+    /* Get a list of resources */
+    const resources = unsafeUnwrap(await resourceApi.getResourcesForIds(resourceIds));
+   
+    /* Add to the user's favourites */
+    unsafeUnwrap(await userApi.addFavouriteResources(userId, resources));
+    
+    /* Add to the user's new resources */
+    //This is non critical - we don't care if it fails.
+    await userApi.markAsNewResources(userId, resourceIds);
 
     return res.status(204).send("true");
   });

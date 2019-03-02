@@ -312,7 +312,7 @@ export async function getNewConfig(): Promise<any> {
       false, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
-      [true, true, false]
+      [true, true, true]
     ),
     favouriteResourceList_showGetStartedButtons: buildParameter(
       true, 
@@ -468,6 +468,13 @@ export async function getNewConfig(): Promise<any> {
       ]
     ),
     shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
+    resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
+    readingDownloadUrl: buildParameter(
+      `${process.env.firebase_base_url}/public/mywell/downloadReadings`, 
+      "Download readings for resourceId url", 
+      conditionKeys, 
+      ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
+    ]),
   };
 
   return Promise.resolve({
