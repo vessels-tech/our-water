@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Linking, ToastAndroid } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
@@ -951,4 +951,27 @@ export const getHeadingForTimeseries = (resourceType: ResourceType, name: string
 
 export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+/**
+ * Attempt to open a url or display an error message
+ */
+export function openUrlOrToastError(url: string, errorMessage: string) {
+  Linking.canOpenURL(url)
+    .then(supported => {
+      if (!supported) {
+        return makeError<void>(errorMessage);
+      }
+      return makeSuccess<void>(undefined);
+    })
+    .catch(err => makeError<void>(errorMessage))
+    .then(result => {
+      if (result.type === ResultType.ERROR) {
+        ToastAndroid.show(result.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      Linking.openURL(url);
+    });
 }

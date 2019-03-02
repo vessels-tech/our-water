@@ -47,6 +47,7 @@ export interface OwnProps {
   isPending: boolean,
   cardType: TimeseriesCardType,
   resourceType: ResourceType,
+  children?: React.ReactChild,
 }
 
 export interface StateProps {
@@ -246,6 +247,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
         </Text>
         {this.getGraphView()}
         {this.getTableView()}
+        {this.props.children}
         {this.getBottomButtons()}
       </View>
     );

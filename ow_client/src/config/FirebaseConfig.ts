@@ -61,6 +61,8 @@ export class FirebaseConfig {
           favouriteResource_showPendingResources: obj.favouriteResource_showPendingResources.val(),
           availableGroupTypes: JSON.parse(obj.availableGroupTypes.val()),
           shouldUseV1Search: obj.shouldUseV1Search.val(),
+          resourceDetail_allowDownload: obj.resourceDetail_allowDownload.val(),
+          readingDownloadUrl: obj.readingDownloadUrl.val(),
         }
         return remoteConfig;
       });

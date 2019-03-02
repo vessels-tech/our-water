@@ -48,6 +48,10 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'shortId') {
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'sync') {
     exports.sync = require('./handlers/fn_sync/sync')(functions);
 }
+//Sync Api
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'public') {
+    exports.public = require('./handlers/fn_public/public')(functions);
+}
 /**
  * userAccountDefaults
  *

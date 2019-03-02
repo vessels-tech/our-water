@@ -4,6 +4,7 @@ import {
   ToastAndroid,
   Dimensions,
   TouchableNativeFeedback,
+  Linking,
 } from 'react-native';
 import { 
   Avatar,
@@ -15,7 +16,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries, openUrlOrToastError,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, bgLightHighlight, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
@@ -34,7 +35,7 @@ import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
-import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
 import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
@@ -375,10 +376,11 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
   getSummaryCard() {
     const { resource_detail_edit_resource, resource_detail_latest, resource_detail_new_reading_button, resource_detail_edit_readings } = this.props.translation.templates;
-    const { resourceId, pendingResource, isPending} = this.props;
+    const { resourceId, pendingResource, isPending, newTsReadings} = this.props;
 
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
+    const allowDownload = this.props.config.getResourceDetailAllowDownload();
 
     return (
         <View style={{
@@ -420,11 +422,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {!isPending && this.getFavouriteButton()}
+            {!isPending && allowDownload && newTsReadings.length > 0 && this.getDownloadButton()}
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
               />
-          {allowEditReadings   && <ResourceDetailBottomButton
+          {allowEditReadings  && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
               onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
             />}
@@ -638,10 +641,31 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           height: '100%',
         }}
         name={iconName}
-        // HERE
         onPress={() => this.toggleFavourites()}
         color={secondary}
         isLoading={favouriteResourcesMeta.loading}
+      />
+    );
+  }
+
+
+  getDownloadButton() {
+    //TODO: translate
+    const open_url_error = "Can' open url";
+    const url = this.props.config.getDownloadReadingsUrl(this.props.resourceId);
+
+    return (
+      <FlatIconButton
+        style={{
+          marginTop: 2,
+          height: '100%',
+        }}
+        name={'download'}
+        onPress={() => {
+          openUrlOrToastError(url, open_url_error);
+        }}
+        color={secondary}
+        isLoading={false}
       />
     );
   }
