@@ -30,7 +30,7 @@ import { ResultType, SomeResult } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
 import SaveButton from '../../components/common/SaveButton';
-import { secondaryText } from '../../utils/NewColors';
+import { secondaryText, surfaceText } from '../../utils/NewColors';
 
 export interface OwnProps {
   navigator: any,
@@ -360,11 +360,11 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          paddingHorizontal: 35,
           height: '100%',
         }}>
-          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{sync_empty_heading}</Text>
-          <Text style={{ textAlign: "center" }}>{sync_empty_content}</Text>
+          <Text style={{ color: surfaceText.high, textAlign: "left", fontWeight: '800', fontSize: 22, paddingBottom: 10 }}>{sync_empty_heading}</Text>
+          <Text style={{ color: surfaceText.med, textAlign: "left", fontWeight: '400', fontSize: 15, paddingBottom: 10,  }}>{sync_empty_content}</Text>
         </View>
       );
     }

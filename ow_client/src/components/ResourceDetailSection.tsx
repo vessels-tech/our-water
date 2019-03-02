@@ -422,7 +422,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {!isPending && this.getFavouriteButton()}
-            {!isPending && allowDownload && newTsReadings.length > 0 && this.getDownloadButton()}
+            {!isPending && allowDownload && this.getDownloadButton()}
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
@@ -639,6 +639,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           marginTop: 2,
           height: '100%',
+          paddingLeft: 10,
         }}
         name={iconName}
         onPress={() => this.toggleFavourites()}
@@ -659,6 +660,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           marginTop: 2,
           height: '100%',
+          paddingLeft: 10,
         }}
         name={'cloud-download'}
         onPress={() => {
