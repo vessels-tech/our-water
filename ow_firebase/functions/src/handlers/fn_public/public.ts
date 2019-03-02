@@ -87,7 +87,6 @@ module.exports = (functions) => {
   app.get('/:orgId/downloadReadings', validate(getReadingsValidation), async (req, res) => {
 
     let { resourceIds } = req.query;
-    console.log("Getting readings:", resourceIds);
     const { orgId } = req.params;
     const readingApi = new ReadingApi(firestore, orgId);
 
@@ -102,9 +101,8 @@ module.exports = (functions) => {
       return res.status(404).send(error);
     }
     const readingsData = ExportApi.readingsToExport(readings.readings, ExportFormat.CSV);
-    console.log("readings data is", readingsData);
 
-    const file = `/tmp/${moment.toString()}.csv`;
+    const file = `/tmp/${moment().toString()}.csv`;
     await writeFileAsync(file, readingsData, 'utf-8');
 
     res.download(file);

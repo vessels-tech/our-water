@@ -660,7 +660,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           marginTop: 2,
           height: '100%',
         }}
-        name={'download'}
+        name={'cloud-download'}
         onPress={() => {
           openUrlOrToastError(url, open_url_error);
         }}

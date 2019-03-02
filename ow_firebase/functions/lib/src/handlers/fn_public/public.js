@@ -93,8 +93,7 @@ module.exports = (functions) => {
             return res.status(404).send(error);
         }
         const readingsData = api_1.ExportApi.readingsToExport(readings.readings, api_1.ExportFormat.CSV);
-        console.log("readings data is", readingsData);
-        const file = `/tmp/${moment.toString()}.csv`;
+        const file = `/tmp/${moment().toString()}.csv`;
         yield utils_1.writeFileAsync(file, readingsData, 'utf-8');
         res.download(file);
     }));

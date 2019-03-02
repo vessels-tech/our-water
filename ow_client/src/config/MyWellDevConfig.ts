@@ -47,7 +47,7 @@ const MyWellDevConfig: RemoteConfig = {
     country: { id: 'country', required: true, order: 0 },
   },
   shouldUseV1Search: false,
-  resourceDetail_allowDownload: false,
+  resourceDetail_allowDownload: true,
   readingDownloadUrl: "https://us-central1-our-water-dev.cloudfunctions.net/public/mywell/downloadReadings",
 }
 
