@@ -1,6 +1,6 @@
 import * as React from 'react'; import { Component } from 'react';
 import { connect } from 'react-redux'
-import { AppState } from '../reducers';
+import { AppState, CacheType } from '../reducers';
 import * as appActions from '../actions/index';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { PendingReading } from '../typings/models/PendingReading';
@@ -11,7 +11,7 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
-import {  unwrapUserId } from '../utils';
+import {  unwrapUserId, getShortIdOrFallback } from '../utils';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
@@ -28,6 +28,8 @@ export interface StateProps {
   pendingReadings: PendingReading[],
   pendingReadingsMeta: SyncMeta,
   translation: TranslationFile,
+  shortIdCache: CacheType<string>,
+  
 }
 
 export interface ActionProps {
@@ -103,6 +105,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
             pendingReading={reading}
             sync_date_format={sync_date_format}
             unitSuffix=" m"
+            shortId={getShortIdOrFallback(reading.resourceId, this.props.shortIdCache)}
           />
         )}
       </View>
@@ -150,6 +153,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     pendingReadings,
     pendingReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 

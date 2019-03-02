@@ -16,11 +16,11 @@ import ExternalServiceApi, { MaybeExternalServiceApi } from "../../api/ExternalS
 import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback, Alert, ToastAndroid } from 'react-native';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
-import { AppState } from '../../reducers';
+import { AppState, CacheType } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError, ExternalSyncStatusComplete } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId, getShortIdOrFallback } from '../../utils';
 import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
@@ -46,6 +46,7 @@ export interface StateProps {
   pendingSavedResources: PendingResource[],
   translation: TranslationFile,
   syncing: boolean,
+  shortIdCache: CacheType<string>,
 }
 
 export interface ActionProps {
@@ -202,7 +203,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.id}
+        title={getShortIdOrFallback(r.id, this.props.shortIdCache)}
         avatar={getGroundwaterAvatar()}
         subtitle={errorMessage || `${r.coords.latitude.toFixed(3)}, ${r.coords.longitude.toFixed(3)}`}
         subtitleStyle={{ color: message ? error1 : primaryDark }}
@@ -248,6 +249,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
         message={message}
         errorMessage={errorMessage}
         unitSuffix=" m"
+        shortId={getShortIdOrFallback(r.resourceId, this.props.shortIdCache)}
       />
     )
   }
@@ -391,6 +393,7 @@ const mapStateToProps = (state: AppState) => {
     pendingSavedResources: state.pendingSavedResources,
     externalSyncStatus: state.externalSyncStatus,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 

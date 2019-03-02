@@ -309,7 +309,7 @@ export async function getNewConfig(): Promise<any> {
       [true, true, false]
     ),
     resourceDetail_editReadings: buildParameter(
-      false, 
+      true, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
       [true, true, true]
