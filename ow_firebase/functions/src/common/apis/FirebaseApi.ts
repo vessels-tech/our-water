@@ -1,15 +1,17 @@
 import { SomeResult, ResultType, makeSuccess, makeError, ErrorResult } from "ow_common/lib/utils/AppProviderTypes";
 
-
-// import {this. } from './FirebaseAdmin';
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
 import { BasicAuthSecurity } from "soap";
-import { pad, hashReadingId, resourceIdForResourceType } from "../utils";
+import { pad, resourceIdForResourceType } from "../utils";
 import { isNullOrUndefined } from "util";
 import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
+import * as moment from 'moment';
+import { DefaultReading, Reading as NewReading } from "ow_common/lib/model";
+import { ReadingApi } from "ow_common/lib/api";
+
 type WriteResult = admin.firestore.WriteResult;
 
 export type ShortIdLock = {
@@ -41,6 +43,11 @@ export function makePageResult<T>(startAfter: FirebaseFirestore.DocumentSnapshot
     hasNext,
     startAfter,
   }
+}
+
+export type BulkUploadValidationResult = {
+  warnings: Array<{raw: any, message: string}>,
+  validated: Array<NewReading>,
 }
 
 export default class FirebaseApi {
@@ -75,8 +82,7 @@ export default class FirebaseApi {
     const batch = this.firestore.batch();
     //Readings are unique by their timestamp + resourceId.
     docs.forEach(doc => {
-      // console.log("batchSaveReadings, doc", hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
-      doc.batchCreate(batch, this.firestore, hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime))
+      doc.batchCreate(batch, this.firestore, ReadingApi.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime))
     });
     return batch.commit();
   }
@@ -485,6 +491,139 @@ export default class FirebaseApi {
     return makeSuccess<Array<string>>(savedResourceIds);
   }
 
+  preProcessRawReading(raw: any): SomeResult<void> {
+    const dateStr = `${raw.date}T${raw.time}`;
+    const dateMoment = moment(dateStr, 'YYYY/MM/DDTHH:mm');
+    let value: number;
+
+    let message = ""
+    if (!dateMoment.isValid()) {
+      message += `Date and time format is invalid.`;
+    }
+
+    if (!raw.value || raw.value === "") {
+      message += `, value is empty`;
+    } else {
+      try {
+        value = parseFloat(raw.value);
+      } catch (err) {
+        message += `, value is invalid`;
+      }
+    }
+
+    if (!raw.timeseries) {
+      message += `, timeseries is empty`;
+    }
+
+    if (!raw.shortId && !raw.id && !(raw.legacyPincode && raw.legacyResourceId)) {
+      message += `, one of shortId, id, or legacyPincode AND legacyResourceId is required`
+    }
+
+    if (raw.shortId && raw.shortId.length < 9 || raw.shortId.indexOf("-") > -1) {
+      message += `, shortId is invalid, should be a 9 digit number.`
+    }
+
+    //return here if we have errors
+    if (message !== "") {
+      return makeError<void>(message);
+    }
+
+    return makeSuccess<void>(undefined);
+  }
+
+  async getIdForRawReading(orgId: string, raw: any): Promise<SomeResult<string>> {
+    if (raw.id) {
+      return Promise.resolve(makeSuccess(raw.id));
+    }
+
+    /* lookup shortId */
+    //TODO: handle nice formatting
+    if (raw.shortId) {
+      const shortIdResult = await this.shortIdCol(orgId).doc(raw.shortId).get()
+      .then(doc => {
+        const data = doc.data();
+        if (!data.longId) {
+          return makeError("No longId found for shortId");
+        }
+        return makeSuccess(data.longId);
+      })
+      .catch((err: Error) => makeError<string>(err.message));
+
+      if (shortIdResult.type === ResultType.SUCCESS) {
+        return shortIdResult;
+      }
+    }
+
+    if (raw.legacyPincode && raw.legacyResourceId) {
+      const legacyLookupResult = await this.resourceCol(orgId).where('externalIds.legacyMyWellId', "==", `${raw.legacyPincode}.${raw.legacyResourceId}`).get()
+      .then(sn => {
+        if(sn.empty) {
+          return makeError<string>(`No resource found for ${raw.legacyPincode}.${raw.legacyResourceId}`);
+        }
+
+        if (sn.size > 1) {
+          return makeError<string>(`Found duplicate resources for ${raw.legacyPincode}.${raw.legacyResourceId}`);
+        }
+
+        return makeSuccess<string>(sn.docs[0].id);
+      });
+
+      if (legacyLookupResult.type === ResultType.SUCCESS) {
+        return legacyLookupResult;
+      }
+    }
+
+    //If we got to this point, then an unknown error occoured
+    return makeError<string>("Unkown error occoured. Perhaps the incorrect fields were specified.");
+  }
+
+  /**
+   * validateBulkUploadReadings
+   * 
+   * Validate a dataset before performing a bulk upload. 
+   * Possible validation errors include:
+   * - wrong date format
+   * - no value, or invalid value
+   * - no timeseriesId
+   * - none of shortId, id, or legacyPincode + legacyResourceId
+   * - can't find id for short id or legacyPincode + legacyResourceId
+   * 
+   * 
+   * @param orgId 
+   * @param userId 
+   * @param rawReadings 
+   */
+  public async validateBulkUploadReadings(orgId: string, userId: string, rawReadings: any[]): Promise<SomeResult<BulkUploadValidationResult>> {
+    const warnings: Array<{ raw: any, message: string }> = [];
+    const validated: NewReading[] = [];
+
+    await rawReadings.reduce(async (acc: Promise<SomeResult<any>>, raw, idx) => {
+      const lastResult = await acc;
+      if (lastResult.type === ResultType.ERROR) {
+        const lastRaw = rawReadings[idx - 1];
+        warnings.push({raw: lastRaw, message: lastResult.message});
+      } 
+
+      if (lastResult.type === ResultType.SUCCESS && lastResult.result) {
+        const lastRaw = rawReadings[idx - 1];
+        validated.push({
+          ...DefaultReading,
+          //TODO: parse properly
+        });
+      }
+
+      const preprocessResult = this.preProcessRawReading(raw);
+      if (preprocessResult.type === ResultType.ERROR) {
+        return Promise.resolve(preprocessResult);
+      }
+
+      return this.getIdForRawReading(orgId, raw);
+    }, Promise.resolve(makeSuccess(undefined)));
+
+    return makeSuccess({ warnings, validated});
+  }
+
+
   //
   // COMMON - Can be refactored to combine with front end Firebase Api
   //------------------------------------------------------------------------
@@ -609,7 +748,7 @@ export default class FirebaseApi {
     return this.firestore.collection('org').doc(orgId).collection('reading');
   }
 
-  public shortIdCol(orgId: string): any {
+  public shortIdCol(orgId: string): FirebaseFirestore.CollectionReference {
     return this.firestore.collection('org').doc(orgId).collection('shortId');
   }
 

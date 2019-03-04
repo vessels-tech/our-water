@@ -7,8 +7,8 @@ import { validateFirebaseIdToken, validateUserIsAdmin } from '../../middleware';
 import { enableLogging } from '../../common/utils';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import { firestore } from '../../common/apis/FirebaseAdmin';
-import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
-import { UserApi } from 'ow_common/lib/api';
+import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
+import { UserApi, ReadingApi } from 'ow_common/lib/api';
 import UserType from 'ow_common/lib/enums/UserType';
 import UserStatus from 'ow_common/lib/enums/UserStatus';
 
@@ -97,6 +97,41 @@ module.exports = (functions) => {
     }
 
     res.status(204).send("true");
+  });
+
+
+  /**
+   * Bulk upload readings
+   */
+  const bulkUploadReadingsValidation = {
+    options: { allowUnknownBody: false },
+    query: { validateOnly: Joi.boolean().default(false) },
+    body: {
+      readings: Joi.object().required(),
+    }
+  }
+
+  app.post('/:orgId/:userId/bulk_upload_readings', validate(bulkUploadReadingsValidation), async (req, res) => {
+    const { orgId, userId } = req.params;
+    const { readings } = req.body;
+    const { validateOnly } = req.query;
+
+    const fbApi = new FirebaseApi(firestore);
+    const readingApi = new ReadingApi(firestore, orgId);
+
+
+    //TODO: strip off the first row
+
+    //Perform a reading validation, if validateOnly, then just return this result
+    const validateResult = unsafeUnwrap(await fbApi.validateBulkUploadReadings(orgId, userId, readings));
+    if (validateOnly) {
+      return validateResult;
+    }
+
+    //Bulk upload the validated readings
+    const bulkUploadResult = unsafeUnwrap(await readingApi.bulkUploadReadings(validateResult.validated, 250));
+
+    return bulkUploadResult;
   });
 
   /* CORS Configuration */

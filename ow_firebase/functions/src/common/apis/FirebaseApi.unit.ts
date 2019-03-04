@@ -8,7 +8,7 @@ import * as MockFirebase from 'mock-cloud-firestore';
 
 
 import ShortId from '../models/ShortId';
-import { pad, hashReadingId } from '../utils';
+import { pad } from '../utils';
 import { Reading } from '../models/Reading';
 import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from '../types/ResourceIdType';
@@ -19,6 +19,7 @@ import { pendingResourcesData, basicResource, basicReading } from '../test/Data'
 import { getAllReadings, getAllResources } from '../test/TestUtils';
 import { Resource } from '../models/Resource';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { ReadingApi } from 'ow_common/lib/api';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -43,7 +44,7 @@ describe('Firebase Api', function() {
       ];
 
       await fbApi.batchSaveReadings(newReadings);
-      newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
+      newReadings.forEach(r => readingIds.push(ReadingApi.hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
     it('Gets the readings within the bounding box', async () => {
@@ -311,4 +312,37 @@ describe('Firebase Api', function() {
       assert.equal(allReadings.length, 2);
     });
   })
+
+
+  describe.only('Reading Bulk Upload', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+
+    it('preprocessor does not allow readings with bad date', () => {
+      //Arrange
+      const raw: any = {
+
+      };
+      const contains = "Date and time format";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no value');
+    it('preprocessor does not allow readings with invalid value');
+    it('preprocessor does not allow readings with no timeseries');
+    it('preprocessor does not allow readings with missing id, shortId or legacyIds');
+    it('preprocessor does not allow readings if it cant find based on shortId');
+    it('preprocessor does not allow readings if it cant find based on legacyIDs');
+    it('validates a set of raw readings');
+  });
+  
 });

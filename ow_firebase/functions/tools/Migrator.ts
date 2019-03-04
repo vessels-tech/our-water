@@ -145,7 +145,6 @@ export default class Migrator {
         return;
       }
 
-       //TODO: check that Merge accurately merges nested fields
        const ref = firestore.collection('org').doc(orgId).collection('resource').doc(r.id);
        updateFieldsInBatch(batch, ref, { 
          groups: {

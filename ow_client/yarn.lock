@@ -1192,6 +1192,11 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
 
+"@types/btoa@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/btoa/-/btoa-1.2.2.tgz#cbd47d0d1bb5fa64a810e11eaa2c1c0fbbebb476"
+  integrity sha512-uPugUTgPrYH6jKs/mE58JpSLhLRC5i5QoxQBMuk8wBDvvH4cw+YQwMo8mhi8ORgmlAVaeLhFlBgfvvKRnl5/iQ==
+
 "@types/caseless@*":
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.1.tgz#9794c69c8385d0192acc471a540d1f8e0d16218a"
@@ -2473,6 +2478,11 @@ bser@^2.0.0:
   resolved "https://registry.yarnpkg.com/bser/-/bser-2.0.0.tgz#9ac78d3ed5d915804fd87acb158bc797147a1719"
   dependencies:
     node-int64 "^0.4.0"
+
+btoa@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/btoa/-/btoa-1.2.1.tgz#01a9909f8b2c93f6bf680ba26131eb30f7fa3d73"
+  integrity sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g==
 
 buffer-equal-constant-time@1.0.1:
   version "1.0.1"
@@ -6487,14 +6497,16 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@^0.1.26:
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.26.tgz#bbf44be12cb51b6e0b431a51415ea8698efa7852"
-  integrity sha512-jXpm05TTpGlt0gDxCAhRs4XHsUwuZKXmU5q9RukUvo3B4df3+gUt+Px6sajGhJLT0nnVRjxGtQuRs7Q3mojMcg==
+ow_common@^0.1.27:
+  version "0.1.27"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.27.tgz#7c691300fcddd6be99a398805764b6a5eac01281"
+  integrity sha512-XqwOHr4yVguKgB/wXb7ASZ8CtPykRCTC+BlAIMCQ7BcQHlzdBQIs0JQA5TFrFaUACCGzDqpEgkKOPHdE1O2WCw==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
+    "@types/btoa" "^1.2.2"
     "@types/mocha" "^5.2.5"
+    btoa "^1.2.1"
     firebase-admin "7.0.0"
     mocha "^5.2.0"
     mock-cloud-firestore "^0.9.2"

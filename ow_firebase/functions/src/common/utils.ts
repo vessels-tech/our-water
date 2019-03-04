@@ -9,7 +9,6 @@ import SyncRunResult from "./types/SyncRunResult";
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
-import * as btoa from 'btoa';
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 import { verboseLog } from "./env";
 
@@ -321,17 +320,6 @@ export const hashIdToIntegerString = (id: string, length: number): string => {
   return fullHash.substring(0, length);
 }
 
-/**
- * The Id for a reading is generated as a hash of the
- * reading's dateTime + ResourceId + timeseriesId.
- * 
- * For now, we can just encode it as a base64 string
- */
-export const hashReadingId = (resourceId: string, timeseriesId: string, dateTime: Date): string => {
-  const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
-  return btoa(input);
-}
-
 
 export const isNullOrEmpty = (stringOrNull: string): boolean => {
   if (!stringOrNull) {
@@ -402,6 +390,7 @@ export function writeFileAsync(filename: string, content: any, encoding: string)
 
 /**
  * Split an array up into an array of chuncks
+ * //TODO: replace with ow_common
  */
 export function chunkArray(array: any[], size: number): any[][] {
   const chunks = [];
