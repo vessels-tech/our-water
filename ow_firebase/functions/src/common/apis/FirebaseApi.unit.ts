@@ -19,7 +19,8 @@ import { pendingResourcesData, basicResource, basicReading } from '../test/Data'
 import { getAllReadings, getAllResources } from '../test/TestUtils';
 import { Resource } from '../models/Resource';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
-import { ReadingApi } from 'ow_common/lib/api';
+import { ReadingApi, ResourceApi } from 'ow_common/lib/api';
+import { DefaultShortId, DefaultResource, DefaultMyWellResource } from 'ow_common/lib/model';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -314,9 +315,10 @@ describe('Firebase Api', function() {
   })
 
 
-  describe.only('Reading Bulk Upload', function() {
+  describe('Reading Bulk Upload', function() {
     const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
     const fbApi = new FirebaseApi(mockFirestore);
+    const resourceApi = new ResourceApi(firestore, orgId);
     const baseRaw = {
       date: "2017/01/01",
       time: "00:00",
@@ -330,9 +332,24 @@ describe('Firebase Api', function() {
 
     this.beforeAll(async function() {
       //Save some valid shortIds
+      await fbApi.shortIdCol(orgId).doc('000100001').set({ ...DefaultShortId, id: '000100001', longId: "12345"})
+      await fbApi.shortIdCol(orgId).doc('000100002').set({ ...DefaultShortId, id: '000100002', longId: "12346"})
+      await fbApi.shortIdCol(orgId).doc('000100003').set({ ...DefaultShortId, id: '000100003', longId: "12347"})
 
       //Save some valid resources with legacyIds
-
+      const defaultExternalIds = {
+        hasLegacyMyWellId: true,
+        hasLegacyMyWellPincode: true,
+        hasLegacyMyWellResourceId: true,
+        hasLegacyMyWellVillageId: true,
+        legacyMyWellId: "313603.1112",
+        legacyMyWellPincode: "313603",
+        legacyMyWellResourceId: "1112",
+        legacyMyWellVillageId: "11"
+      };
+      await resourceApi.resourceRef("00005").set({ ...DefaultMyWellResource, id: "00005", externalIds: { ...defaultExternalIds, legacyMyWellResourceId: "1170", legacyMyWellPincode: '5063' } });
+      await resourceApi.resourceRef("00006").set({ ...DefaultMyWellResource, id: "00006", externalIds: { ...defaultExternalIds, legacyMyWellResourceId: "1171", legacyMyWellPincode: '5063' } });
+      await resourceApi.resourceRef("00007").set({ ...DefaultMyWellResource, id: "00007", externalIds: { ...defaultExternalIds, legacyMyWellResourceId: "1172", legacyMyWellPincode: '5063' } });
     });
 
     it('preprocessor does not allow readings with bad date', () => {
@@ -500,9 +517,24 @@ describe('Firebase Api', function() {
       assert.equal(result.message.indexOf(contains) > -1, true);
     });
 
-    it('validates a set of raw readings correctly');
+    it.only('validates a set of raw readings correctly', async () => {
+      //Arrange
+      const userId = "user_12345";
+      const rawReadings: any[] = [
+        { ...baseRaw },
+        { ...baseRaw },
+        { ...baseRaw },
+        { ...baseRaw },
+        { ...baseRaw },
+        { ...baseRaw },
+      ];
 
+      //Act
+      const validateResult = unsafeUnwrap(await fbApi.validateBulkUploadReadings(orgId, userId, rawReadings));
 
+      //Assert
+      console.log("ValidateResult is", validateResult);
+    });
   });
   
 });
