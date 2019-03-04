@@ -498,29 +498,32 @@ export default class FirebaseApi {
 
     let message = ""
     if (!dateMoment.isValid()) {
-      message += `Date and time format is invalid.`;
+      message += `Date and time format is invalid. `;
     }
 
     if (!raw.value || raw.value === "") {
-      message += `, value is empty`;
+      message += `Value is empty. `;
     } else {
       try {
         value = parseFloat(raw.value);
+        if (isNaN(NaN)) {
+          throw new Error("NaN error");
+        }
       } catch (err) {
-        message += `, value is invalid`;
+        message += `Value is invalid. `;
       }
     }
 
     if (!raw.timeseries) {
-      message += `, timeseries is empty`;
+      message += `Timeseries is empty. `;
     }
 
     if (!raw.shortId && !raw.id && !(raw.legacyPincode && raw.legacyResourceId)) {
-      message += `, one of shortId, id, or legacyPincode AND legacyResourceId is required`
+      message += `One of shortId, id, or legacyPincode AND legacyResourceId is required. `
     }
 
     if (raw.shortId && raw.shortId.length < 9 || raw.shortId.indexOf("-") > -1) {
-      message += `, shortId is invalid, should be a 9 digit number.`
+      message += `ShortId is invalid, should be a 9 digit number. `
     }
 
     //return here if we have errors
@@ -542,16 +545,14 @@ export default class FirebaseApi {
       const shortIdResult = await this.shortIdCol(orgId).doc(raw.shortId).get()
       .then(doc => {
         const data = doc.data();
-        if (!data.longId) {
+        if (!data || !data.longId) {
           return makeError("No longId found for shortId");
         }
         return makeSuccess(data.longId);
       })
       .catch((err: Error) => makeError<string>(err.message));
 
-      if (shortIdResult.type === ResultType.SUCCESS) {
-        return shortIdResult;
-      }
+      return shortIdResult;
     }
 
     if (raw.legacyPincode && raw.legacyResourceId) {
@@ -568,9 +569,7 @@ export default class FirebaseApi {
         return makeSuccess<string>(sn.docs[0].id);
       });
 
-      if (legacyLookupResult.type === ResultType.SUCCESS) {
-        return legacyLookupResult;
-      }
+      return legacyLookupResult;
     }
 
     //If we got to this point, then an unknown error occoured

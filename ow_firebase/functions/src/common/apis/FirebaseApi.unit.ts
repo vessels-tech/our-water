@@ -317,11 +317,30 @@ describe('Firebase Api', function() {
   describe.only('Reading Bulk Upload', function() {
     const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
     const fbApi = new FirebaseApi(mockFirestore);
+    const baseRaw = {
+      date: "2017/01/01",
+      time: "00:00",
+      timeseries: "default",
+      value: "12.32",
+      shortId: "",
+      id: "",
+      legacyPincode: "",
+      legacyResourceId: "",
+    };
+
+    this.beforeAll(async function() {
+      //Save some valid shortIds
+
+      //Save some valid resources with legacyIds
+
+    });
 
     it('preprocessor does not allow readings with bad date', () => {
       //Arrange
       const raw: any = {
-
+        ...baseRaw,
+        date: '12/19/01',
+        time: "00:00",
       };
       const contains = "Date and time format";
 
@@ -332,17 +351,158 @@ describe('Firebase Api', function() {
       }
 
       //Assert
-
       assert.equal(result.message.indexOf(contains) > -1, true);
     });
 
-    it('preprocessor does not allow readings with no value');
-    it('preprocessor does not allow readings with invalid value');
-    it('preprocessor does not allow readings with no timeseries');
-    it('preprocessor does not allow readings with missing id, shortId or legacyIds');
-    it('preprocessor does not allow readings if it cant find based on shortId');
-    it('preprocessor does not allow readings if it cant find based on legacyIDs');
-    it('validates a set of raw readings');
+    it('preprocessor does not allow readings with no value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: undefined,
+      };
+      const contains = "Value is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with invalid value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: "pancakes",
+      };
+      const contains = "Value is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no timeseries', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "Timeseries is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with missing id, shortId or legacyIds', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow string based shortId', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "100-001",
+      };
+      const contains = "ShortId is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor requires both legacy fields', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyResourceId: '1111',
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+
+    it('preprocessor does not allow readings if it cant find based on shortId', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "000100111",
+      };
+      const contains = "No longId found for shortId";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings if it cant find based on legacyIDs', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyPincode: '333333',
+        legacyResourceId: '1111',
+      };
+      const contains = "No resource found for";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.equal(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('validates a set of raw readings correctly');
+
+
   });
   
 });
