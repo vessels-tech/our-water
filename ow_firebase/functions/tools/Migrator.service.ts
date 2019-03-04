@@ -12,7 +12,7 @@ const {
 } = require('../src/test/testConfig.json');
 
 
-describe.only('Migrator Api', function () {
+describe('Migrator Api', function () {
   this.timeout(15000);
   this.slow(5000);
   const resourceApi = new ResourceApi(firestore, orgId);

@@ -59,6 +59,9 @@ get-remote-config:
 hacky_create_syncs:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp upload_readings_from_csv
 
+migrate:
+	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp run_migrations --migrationTag ${migrationTag}
+
 run-local:
 	@echo 'running local firebase'	
 	# cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json

@@ -41,6 +41,19 @@ const commitBatch = (batch: FirebaseFirestore.WriteBatch): Promise<SomeResult<Ar
 
 export default class Migrator {
 
+  public static runMigrationForTag(tag: MigrationTag, firestore, orgId, params: { maxQueryCount: number, limit: number, batchSize: number } ) {
+
+    console.log(`Running Migration for tag: ${tag}, on orgId ${orgId}`);
+
+    switch (tag) {
+      case MigrationTag.AA_ADD_LEGACY_TO_GROUPS: {
+        return this.migrateLegacyPincodesAndResourceIds(firestore, orgId, params);
+      }
+      default: {
+        console.warn(`No migration found for tag: ${tag}`);
+      }
+    }
+  }
 
   /**
    * migrateLegacyPincodesAndResourceIds
