@@ -6,6 +6,7 @@ const Maybe_1 = require("ow_common/lib/utils/Maybe");
 // const admin = require('firebase-admin');
 /* Not in git. Download from FB console*/
 const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
+console.log("service account key file", serviceAccountKeyFile);
 const serviceAccount = require(serviceAccountKeyFile);
 let firestore;
 exports.firestore = firestore;

@@ -226,7 +226,7 @@ function getNewConfig() {
             resourceDetail_showSubtitle: buildParameter(true, 'Should the resrouce detail section have a subtitle?', conditionKeys, [true, true, false]),
             resourceDetail_allowEditing: buildParameter(false, 'Are users allowed to edit resources?', conditionKeys, [true, true, false]),
             resourceDetail_allowDelete: buildParameter(false, 'Are users allowed to delete resources?', conditionKeys, [true, true, false]),
-            resourceDetail_editReadings: buildParameter(false, 'Are users allowed to edit readings?', conditionKeys, [true, true, true]),
+            resourceDetail_editReadings: buildParameter(true, 'Are users allowed to edit readings?', conditionKeys, [true, true, true]),
             favouriteResourceList_showGetStartedButtons: buildParameter(true, 'Should the favourite resource list have a get started hint if empty?', conditionKeys, [false, false, true]),
             editResource_hasResourceName: buildParameter(false, 'When creating a new resource, can the user edit the name?', conditionKeys, [true, true, false]),
             editResource_showOwerName: buildParameter(true, 'When creating a new resource, can the user set the owner name?', conditionKeys, [false, false, true]),

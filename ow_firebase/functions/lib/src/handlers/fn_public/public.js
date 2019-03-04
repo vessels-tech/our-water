@@ -80,7 +80,6 @@ module.exports = (functions) => {
     };
     app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         let { resourceIds } = req.query;
-        console.log("Getting readings:", resourceIds);
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
         resourceIds = resourceIds.split(',');
