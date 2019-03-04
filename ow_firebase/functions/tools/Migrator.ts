@@ -14,7 +14,7 @@ export enum MigrationTag {
 
 const getResourcesInBatch = (firestore: FirebaseFirestore.Firestore, orgId: string, startAfter?: QueryDocumentSnapshot, limit?: number): Promise<SomeResult<QuerySnapshot>> => {
   let query = firestore.collection('org').doc(orgId).collection('resource')
-  .where('externalIds.legacyMyWellPincode', '>', '0');
+  .where('externalIds.legacyMyWellPincode', '>=', '0');
 
   if (startAfter) {;
     query = query.startAfter(startAfter)
@@ -118,6 +118,8 @@ export default class Migrator {
     if (getResourcesResult.type === ResultType.ERROR) {
       return getResourcesResult;
     }
+
+    console.log("example resource is: ", resources[0]);
 
     /*
       Arrange into batches and save, using the merge property.

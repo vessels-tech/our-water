@@ -26,10 +26,9 @@ gulp.task('run_migrations', async () => {
 
   const params = {
     maxQueryCount: 100,
-    limit: 100,
+    limit: 100, //100 * 100 = 10,000 possible resources at most
     batchSize: 250,
   };
-
   await Migrator.runMigrationForTag(tag, firestore, orgId, params);
 });
 
