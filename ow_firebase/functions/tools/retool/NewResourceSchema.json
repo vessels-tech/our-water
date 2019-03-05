@@ -9,7 +9,6 @@
     "resourceType": {
       "type:": "string",
       "title": "Resource Type",
-      "description": "Warning: Editing this field can make past readings invalid",
       "enum": ["well", "checkdam", "raingauge", "custom", "quality"]
     },
     "coords": {

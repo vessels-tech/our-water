@@ -13,7 +13,7 @@ import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 import { verboseLog, projectId } from "./env";
 
 const filesystem = require("fs");
-import key from './.serviceAccountKey';
+import serviceAccountKey from './.serviceAccountKey';
 
 
 /**
@@ -453,7 +453,7 @@ export function enableLogging(app: any): void {
 export async function loadRemoteConfig(): Promise<SomeResult<any>> {
   let config;
   try {
-    const accessToken = await getAdminAccessToken(key)
+    const accessToken = await getAdminAccessToken(serviceAccountKey)
     const currentConfigResult = await getRemoteConfig(projectId, accessToken);
     config = JSON.parse(currentConfigResult[1]);
   } catch(err) {

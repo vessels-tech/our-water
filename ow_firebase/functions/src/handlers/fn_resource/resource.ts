@@ -38,7 +38,7 @@ module.exports = (functions) => {
   app.use(bodyParser.json());
   enableLogging(app);
 
-  app.use(validateFirebaseIdToken);
+  // app.use(validateFirebaseIdToken);
 
   const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
     return firestore.collection('org').doc(orgId)
@@ -131,7 +131,6 @@ module.exports = (functions) => {
   };
 
   app.post('/:orgId/', validate(createResourceValidation), async (req, res, next) => {
-    
     const orgId = req.params.orgId;
     const resourceApi = new ResourceApi(firestore, orgId);
 
@@ -145,14 +144,14 @@ module.exports = (functions) => {
     req.body.data.lastReadingDatetime = new Date(0);
     req.body.orgId = orgId;
 
-    //TODO: get the timeseries from the default, based on resourceType
-    const timeseries = getDefaultTimeseries(req.body.resourceType);
+    const timeseries = unsafeUnwrap(await getDefaultTimeseries(req.body.data.resourceType));
     const resource: MyWellResource = {
       ...DefaultMyWellResource,
-      ...req.body,
+      ...req.body.data,
       timeseries,
     };
 
+    let id;
     //Ensure the orgId exists
     const orgRef = firestore.collection('org').doc(orgId)
     return orgRef.get()
@@ -161,15 +160,12 @@ module.exports = (functions) => {
           throw new Error(`Org with id: ${orgId} not found`);
         }
       })
-      //TODO: standardize all these refs
-      // .then(() => firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-      .then(() => resourceApi.resourceRef().create(resource))
-      .then((result: any) => {
-        // console.log(JSON.stringify({resourceId: result.id}));
-        // return res.json({ resource: result.id })
-
-        return res.json({id: result.id})
+      .then(() => {
+        const ref = resourceApi.resourceRef();
+        id = ref.id;
+        return ref.create({...resource, id});
       })
+      .then(() => res.json({id}))
       .catch(err => next(err));
   });
 

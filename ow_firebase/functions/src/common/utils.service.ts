@@ -98,7 +98,7 @@ describe('Misc Tests', function() {
       //Arrange
 
       //Act
-      const result = JSON.parse(unsafeUnwrap(await loadRemoteConfig()));
+      const result = unsafeUnwrap(await loadRemoteConfig());
 
       //Assert
     });

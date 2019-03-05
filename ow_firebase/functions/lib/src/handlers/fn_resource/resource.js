@@ -25,7 +25,6 @@ const validation_1 = require("./validation");
 const EmailApi_1 = require("../../common/apis/EmailApi");
 const ow_types_1 = require("ow_types");
 const GGMNApi_1 = require("../../common/apis/GGMNApi");
-const middleware_1 = require("../../middleware");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const utils_1 = require("../../common/utils");
 const api_1 = require("ow_common/lib/api");
@@ -39,7 +38,7 @@ module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
     utils_1.enableLogging(app);
-    app.use(middleware_1.validateFirebaseIdToken);
+    // app.use(validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
             .collection('resource')
@@ -131,9 +130,9 @@ module.exports = (functions) => {
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
         req.body.orgId = orgId;
-        //TODO: get the timeseries from the default, based on resourceType
-        const timeseries = utils_1.getDefaultTimeseries(req.body.resourceType);
-        const resource = Object.assign({}, model_1.DefaultMyWellResource, req.body, { timeseries });
+        const timeseries = AppProviderTypes_1.unsafeUnwrap(yield utils_1.getDefaultTimeseries(req.body.data.resourceType));
+        const resource = Object.assign({}, model_1.DefaultMyWellResource, req.body.data, { timeseries });
+        let id;
         //Ensure the orgId exists
         const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
@@ -142,14 +141,12 @@ module.exports = (functions) => {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            //TODO: standardize all these refs
-            // .then(() => firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-            .then(() => resourceApi.resourceRef().create(resource))
-            .then((result) => {
-            // console.log(JSON.stringify({resourceId: result.id}));
-            // return res.json({ resource: result.id })
-            return res.json({ id: result.id });
+            .then(() => {
+            const ref = resourceApi.resourceRef();
+            id = ref.id;
+            return ref.create(Object.assign({}, resource, { id }));
         })
+            .then(() => res.json({ id }))
             .catch(err => next(err));
     }));
     /**

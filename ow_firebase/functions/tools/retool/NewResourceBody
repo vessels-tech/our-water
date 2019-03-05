@@ -1,20 +1,9 @@
 {
   "data": {
-    "coords": {
-      "latitude":
-      "longitude":
-    },
-    "groups": {
-      "legacyResourceId":
-      "pincode":
-      "country":
-    },
-    "owner": {
-      "name":
-      "createdByUserId":
-    },
-    "resourceType":,
-  
+    "coords": {{new_resource_form.data.coords}},
+    "groups": {{new_resource_form.data.groups}},
+    "owner": {{new_resource_form.data.owner}},
+    "resourceType": {{new_resource_form.data.resourceType}}
   }
 }
 
