@@ -327,10 +327,15 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
     const { initialRegion, resources, pendingResources } = this.props;
     maybeLog(`MapSection render(). Count: ${this.props.renderCounter}`);
 
+    let flex = 1;
+    if (!this.props.config.getMapScreenFullscreen()) {
+      flex = mapState === MapStateOption.small ? 0.75 : 2.2;
+    }
+
     return (
       <View style={{
         backgroundColor: bgMed,
-        flex: mapState === MapStateOption.small ? 0.75 : 2.2,
+        flex,
         maxHeight: mapHeight
       }}>
         <MapView
