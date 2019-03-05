@@ -1,11 +1,26 @@
 // Allow read/write access on all documents to any user signed in to the application
+
 service cloud.firestore {
+  function test(database) {
+     return get(/databases/$(database)/documents/org/mywell/resource/12345).data.owner.createdByUserId > 0;
+  }
+
+   function isAdmin() {
+      //TODO: check if user is admin
+      return false;
+    }
+
+    function isResourceOwner(resourceId) {
+      return get(/databases/$(database)/documents/org/mywell/resource/$(resourceId)).owner.createdByUserId == request.auth.uid;
+      //return exists(/org/mywell/resource/12345);
+    }
+  
   match /databases/{database}/documents {
 
     //TODO: remove - not sure why login page is writing to this
     match /org/{document=**} {
       allow read, update, delete: if true;
-      allow create: if true;
+      // allow create: if true;
     }
    
     match /org/{orgId}/resource/{document=**} {
@@ -13,9 +28,11 @@ service cloud.firestore {
       allow create: if request.auth.uid != null;
     }
 
-    match /org/{orgId}/reading/{document=**} {
-      allow read, update, delete: if request.auth.uid != null;
-      allow create: if request.auth.uid != null;
+ 		match /org/{orgId}/reading/{document=**} {
+      allow read: if request.auth.uid != null;
+      //allow create, update: if isAdmin() || isResourceOwner(request.data.resourceId);
+      // allow create, update: if get(/databases/$(database)/documents/org/mywell/resource/12345).owner.createdByUserId == request.auth.uid;
+      allow create, update: if test(database);
     }
 
     match /org/{orgId}/shortId/{document=**} {

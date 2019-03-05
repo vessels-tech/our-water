@@ -18,6 +18,16 @@ const orgId = process.env.REACT_APP_ORG_ID;
 const PROJECT_ID = process.env.PROJECT_ID;
 
 
+gulp.task('test_create_reading', async () => {
+
+  const result = await firestore.collection("org").doc("mywell").collection("reading").doc("12345").create({
+    resourceId: "45678"
+  });
+
+  console.log("result");
+
+});
+
 gulp.task('run_migrations', async () => {
   const tag: MigrationTag = arg.migrationTag;
   if (!tag) {
