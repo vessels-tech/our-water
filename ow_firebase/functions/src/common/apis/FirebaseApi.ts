@@ -4,13 +4,15 @@ import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
 import * as sleep from 'thread-sleep';
 import { BasicAuthSecurity } from "soap";
-import { pad, resourceIdForResourceType } from "../utils";
+import { pad, resourceIdForResourceType, resultWithError } from "../utils";
 import { isNullOrUndefined } from "util";
 import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
 import * as moment from 'moment';
-import { DefaultReading, Reading as NewReading } from "ow_common/lib/model";
-import { ReadingApi } from "ow_common/lib/api";
+import { DefaultReading, Reading as NewReading, ReadingType, Resource as NewResource, ResourceType } from "ow_common/lib/model";
+import { ReadingApi, ResourceApi } from "ow_common/lib/api";
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+import { safeGetNested } from "ow_common/lib/utils";
 
 type WriteResult = admin.firestore.WriteResult;
 
@@ -491,9 +493,9 @@ export default class FirebaseApi {
     return makeSuccess<Array<string>>(savedResourceIds);
   }
 
-  preProcessRawReading(raw: any): SomeResult<void> {
+  preProcessRawReading(raw: any): SomeResult<NewReading> {
     const dateStr = `${raw.date}T${raw.time}`;
-    const dateMoment = moment(dateStr, 'YYYY/MM/DDTHH:mm');
+    const dateMoment = moment.utc(dateStr, 'YYYY/MM/DDTHH:mm');
     let value: number;
 
     let message = ""
@@ -506,7 +508,7 @@ export default class FirebaseApi {
     } else {
       try {
         value = parseFloat(raw.value);
-        if (isNaN(NaN)) {
+        if (isNaN(value)) {
           throw new Error("NaN error");
         }
       } catch (err) {
@@ -528,10 +530,17 @@ export default class FirebaseApi {
 
     //return here if we have errors
     if (message !== "") {
-      return makeError<void>(message);
+      return makeError<NewReading>(message);
     }
 
-    return makeSuccess<void>(undefined);
+    return makeSuccess<NewReading>({
+      type: ReadingType.MyWell,
+      datetime: dateMoment.toISOString(),
+      resourceId: 'dunno',
+      resourceType: ResourceStationType.checkdam,
+      timeseriesId: raw.timeseries,
+      value,
+    });
   }
 
   async getIdForRawReading(orgId: string, raw: any): Promise<SomeResult<string>> {
@@ -577,6 +586,19 @@ export default class FirebaseApi {
   }
 
   /**
+   * getResourceMaybeCached
+   * 
+   * When saving bulk readings, we need to enrich the readings data from the original resource
+   * TODO: implement a cache so we don't keep on having to hit the db.
+   */
+  async getResourceMaybeCached(orgId: string, resourceId: string): Promise<SomeResult<NewResource>> {
+    const resourceApi = new ResourceApi(this.firestore, orgId);
+    //TODO: add temp cache layer
+
+    return resourceApi.getResource(resourceApi.resourceRef(resourceId));
+  }
+
+  /**
    * validateBulkUploadReadings
    * 
    * Validate a dataset before performing a bulk upload. 
@@ -596,27 +618,53 @@ export default class FirebaseApi {
     const warnings: Array<{ raw: any, message: string }> = [];
     const validated: NewReading[] = [];
 
+    //TODO: this leaves off the last value!
     await rawReadings.reduce(async (acc: Promise<SomeResult<any>>, raw, idx) => {
-      const lastResult = await acc;
-      if (lastResult.type === ResultType.ERROR) {
-        const lastRaw = rawReadings[idx - 1];
-        warnings.push({raw: lastRaw, message: lastResult.message});
-      } 
-
-      if (lastResult.type === ResultType.SUCCESS && lastResult.result) {
-        const lastRaw = rawReadings[idx - 1];
-        validated.push({
-          ...DefaultReading,
-          //TODO: parse properly
-        });
-      }
+      await acc;
 
       const preprocessResult = this.preProcessRawReading(raw);
       if (preprocessResult.type === ResultType.ERROR) {
+        warnings.push({ raw, message: preprocessResult.message });
         return Promise.resolve(preprocessResult);
       }
 
-      return this.getIdForRawReading(orgId, raw);
+      const getIdResult = await this.getIdForRawReading(orgId, raw);
+      if (getIdResult.type === ResultType.ERROR) {
+        warnings.push({ raw, message: getIdResult.message });
+        return Promise.resolve(getIdResult);
+      }
+
+      const getResourceResult = await this.getResourceMaybeCached(orgId, getIdResult.result);
+      if (getResourceResult.type === ResultType.ERROR) {
+        warnings.push({ raw, message: getResourceResult.message });
+        return Promise.resolve(getIdResult);
+      }
+
+      validated.push({
+        ...DefaultReading,
+        ...preprocessResult.result,
+        resourceId: getResourceResult.result.id,
+
+        //This is still less than ideal
+        resourceType: safeGetNested(getResourceResult.result, ['resourceType']),
+        type: ReadingType.MyWell,
+      });
+
+      // return this.getIdForRawReading(orgId, raw)
+      // .then(result => {
+      //   if (result.type === ResultType.ERROR) {
+      //     warnings.push({ raw, message: result.message });
+      //   }
+
+      //   if (result.type === ResultType.SUCCESS && result.result) {
+      //     validated.push({
+      //       ...DefaultReading,
+      //       //TODO: parse properly with raw
+      //       ...preprocessResult.result,
+      //       resourceId: result.result,
+      //     });
+      //   }
+      // })
     }, Promise.resolve(makeSuccess(undefined)));
 
     return makeSuccess({ warnings, validated});
