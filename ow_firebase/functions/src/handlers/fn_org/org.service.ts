@@ -14,7 +14,6 @@ describe('OrgApi', function () {
     };
 
     return request(options)
-      .then(response => console.log('res', response))
       .catch(err => {
         console.log('err', err);
         return Promise.reject(err);
@@ -22,7 +21,7 @@ describe('OrgApi', function () {
   });
 
   //Cleanup all created resources
-  after(function () {
-    console.log('cleanup');
-  });
+  // after(function () {
+
+  // });
 });

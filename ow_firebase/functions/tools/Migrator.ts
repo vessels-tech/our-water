@@ -119,8 +119,6 @@ export default class Migrator {
       return getResourcesResult;
     }
 
-    console.log("example resource is: ", resources[0]);
-
     /*
       Arrange into batches and save, using the merge property.
     */

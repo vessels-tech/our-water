@@ -9,13 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
-// import {this. } from './FirebaseAdmin';
 const Resource_1 = require("../models/Resource");
 const ShortId_1 = require("../models/ShortId");
 const utils_1 = require("../utils");
 const util_1 = require("util");
 const admin = require("firebase-admin");
 const Reading_1 = require("../models/Reading");
+const moment = require("moment");
+const model_1 = require("ow_common/lib/model");
+const api_1 = require("ow_common/lib/api");
+const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
+const utils_2 = require("ow_common/lib/utils");
 function makePageResult(startAfter, hasNext, result) {
     return {
         result,
@@ -51,8 +55,7 @@ class FirebaseApi {
             const batch = this.firestore.batch();
             //Readings are unique by their timestamp + resourceId.
             docs.forEach(doc => {
-                // console.log("batchSaveReadings, doc", hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
-                doc.batchCreate(batch, this.firestore, utils_1.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
+                doc.batchCreate(batch, this.firestore, api_1.ReadingApi.hashReadingId(doc.resourceId, doc.timeseriesId, doc.datetime));
             });
             return batch.commit();
         });
@@ -419,6 +422,158 @@ class FirebaseApi {
                 pendingResourceResult2.result.forEach(r => savedResourceIds.push(r.id));
             }
             return AppProviderTypes_1.makeSuccess(savedResourceIds);
+        });
+    }
+    preProcessRawReading(raw) {
+        const dateStr = `${raw.date}T${raw.time}`;
+        const dateMoment = moment.utc(dateStr, 'YYYY/MM/DDTHH:mm');
+        let value;
+        let message = "";
+        if (!dateMoment.isValid()) {
+            message += `Date and time format is invalid. `;
+        }
+        if (!raw.value || raw.value === "") {
+            message += `Value is empty. `;
+        }
+        else {
+            try {
+                value = parseFloat(raw.value);
+                if (isNaN(value)) {
+                    throw new Error("NaN error");
+                }
+            }
+            catch (err) {
+                message += `Value is invalid. `;
+            }
+        }
+        if (!raw.timeseries) {
+            message += `Timeseries is empty. `;
+        }
+        if (!raw.shortId && !raw.id && !(raw.legacyPincode && raw.legacyResourceId)) {
+            message += `One of shortId, id, or legacyPincode AND legacyResourceId is required. `;
+        }
+        if (raw.shortId && raw.shortId.length < 9 || raw.shortId.indexOf("-") > -1) {
+            message += `ShortId is invalid, should be a 9 digit number. `;
+        }
+        //return here if we have errors
+        if (message !== "") {
+            return AppProviderTypes_1.makeError(message);
+        }
+        return AppProviderTypes_1.makeSuccess({
+            type: model_1.ReadingType.MyWell,
+            datetime: dateMoment.toISOString(),
+            resourceId: 'dunno',
+            resourceType: ResourceStationType_1.default.checkdam,
+            timeseriesId: raw.timeseries,
+            value,
+        });
+    }
+    getIdForRawReading(orgId, raw) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (raw.id) {
+                return Promise.resolve(AppProviderTypes_1.makeSuccess(raw.id));
+            }
+            /* lookup shortId */
+            //TODO: handle nice formatting
+            if (raw.shortId) {
+                const shortIdResult = yield this.shortIdCol(orgId).doc(raw.shortId).get()
+                    .then(doc => {
+                    const data = doc.data();
+                    if (!data || !data.longId) {
+                        return AppProviderTypes_1.makeError("No longId found for shortId");
+                    }
+                    return AppProviderTypes_1.makeSuccess(data.longId);
+                })
+                    .catch((err) => AppProviderTypes_1.makeError(err.message));
+                return shortIdResult;
+            }
+            if (raw.legacyPincode && raw.legacyResourceId) {
+                const legacyLookupResult = yield this.resourceCol(orgId).where('externalIds.legacyMyWellId', "==", `${raw.legacyPincode}.${raw.legacyResourceId}`).get()
+                    .then(sn => {
+                    if (sn.empty) {
+                        return AppProviderTypes_1.makeError(`No resource found for ${raw.legacyPincode}.${raw.legacyResourceId}`);
+                    }
+                    if (sn.size > 1) {
+                        return AppProviderTypes_1.makeError(`Found duplicate resources for ${raw.legacyPincode}.${raw.legacyResourceId}`);
+                    }
+                    return AppProviderTypes_1.makeSuccess(sn.docs[0].id);
+                });
+                return legacyLookupResult;
+            }
+            //If we got to this point, then an unknown error occoured
+            return AppProviderTypes_1.makeError("Unkown error occoured. Perhaps the incorrect fields were specified.");
+        });
+    }
+    /**
+     * getResourceMaybeCached
+     *
+     * When saving bulk readings, we need to enrich the readings data from the original resource
+     * TODO: implement a cache so we don't keep on having to hit the db.
+     */
+    getResourceMaybeCached(orgId, resourceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const resourceApi = new api_1.ResourceApi(this.firestore, orgId);
+            //TODO: add temp cache layer
+            return resourceApi.getResource(resourceApi.resourceRef(resourceId));
+        });
+    }
+    /**
+     * validateBulkUploadReadings
+     *
+     * Validate a dataset before performing a bulk upload.
+     * Possible validation errors include:
+     * - wrong date format
+     * - no value, or invalid value
+     * - no timeseriesId
+     * - none of shortId, id, or legacyPincode + legacyResourceId
+     * - can't find id for short id or legacyPincode + legacyResourceId
+     *
+     *
+     * @param orgId
+     * @param userId
+     * @param rawReadings
+     */
+    validateBulkUploadReadings(orgId, userId, rawReadings) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const warnings = [];
+            const validated = [];
+            //TODO: this leaves off the last value!
+            yield rawReadings.reduce((acc, raw, idx) => __awaiter(this, void 0, void 0, function* () {
+                yield acc;
+                const preprocessResult = this.preProcessRawReading(raw);
+                if (preprocessResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                    warnings.push({ raw, message: preprocessResult.message });
+                    return Promise.resolve(preprocessResult);
+                }
+                const getIdResult = yield this.getIdForRawReading(orgId, raw);
+                if (getIdResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                    warnings.push({ raw, message: getIdResult.message });
+                    return Promise.resolve(getIdResult);
+                }
+                const getResourceResult = yield this.getResourceMaybeCached(orgId, getIdResult.result);
+                if (getResourceResult.type === AppProviderTypes_1.ResultType.ERROR) {
+                    warnings.push({ raw, message: getResourceResult.message });
+                    return Promise.resolve(getIdResult);
+                }
+                validated.push(Object.assign({}, model_1.DefaultReading, preprocessResult.result, { resourceId: getResourceResult.result.id, 
+                    //This is still less than ideal
+                    resourceType: utils_2.safeGetNested(getResourceResult.result, ['resourceType']), type: model_1.ReadingType.MyWell }));
+                // return this.getIdForRawReading(orgId, raw)
+                // .then(result => {
+                //   if (result.type === ResultType.ERROR) {
+                //     warnings.push({ raw, message: result.message });
+                //   }
+                //   if (result.type === ResultType.SUCCESS && result.result) {
+                //     validated.push({
+                //       ...DefaultReading,
+                //       //TODO: parse properly with raw
+                //       ...preprocessResult.result,
+                //       resourceId: result.result,
+                //     });
+                //   }
+                // })
+            }), Promise.resolve(AppProviderTypes_1.makeSuccess(undefined)));
+            return AppProviderTypes_1.makeSuccess({ warnings, validated });
         });
     }
     //

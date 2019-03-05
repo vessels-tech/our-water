@@ -24,7 +24,6 @@ class FirestoreDoc {
             this.id = ref.id;
         }
         else {
-            console.log("Batch create:", this.orgId, this.docName, id);
             ref = firestore.collection('org').doc(this.orgId).collection(this.docName).doc(id);
             this.id = id;
         }

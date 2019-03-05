@@ -6,7 +6,6 @@ const request = require("request-promise-native");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
 const ow_types_1 = require("ow_types");
-const btoa = require("btoa");
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const env_1 = require("./env");
 const filesystem = require("fs");
@@ -262,16 +261,6 @@ exports.hashIdToIntegerString = (id, length) => {
     const fullHash = `${exports.hashCode(id)}`;
     return fullHash.substring(0, length);
 };
-/**
- * The Id for a reading is generated as a hash of the
- * reading's dateTime + ResourceId + timeseriesId.
- *
- * For now, we can just encode it as a base64 string
- */
-exports.hashReadingId = (resourceId, timeseriesId, dateTime) => {
-    const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
-    return btoa(input);
-};
 exports.isNullOrEmpty = (stringOrNull) => {
     if (!stringOrNull) {
         return true;
@@ -332,6 +321,7 @@ function writeFileAsync(filename, content, encoding) {
 exports.writeFileAsync = writeFileAsync;
 /**
  * Split an array up into an array of chuncks
+ * //TODO: replace with ow_common
  */
 function chunkArray(array, size) {
     const chunks = [];

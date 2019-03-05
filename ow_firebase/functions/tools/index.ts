@@ -4,7 +4,8 @@ import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationO
 
 
 export const arg: any = (argList => {
-  let arg = {}, a, opt, thisOpt, curOpt;
+  const myArg = {}
+  let a, opt, thisOpt, curOpt;
   for (a = 0; a < argList.length; a++) {
 
     thisOpt = argList[a].trim();
@@ -12,16 +13,16 @@ export const arg: any = (argList => {
 
     if (opt === thisOpt) {
       // argument value
-      if (curOpt) arg[curOpt] = opt;
+      if (curOpt) myArg[curOpt] = opt;
       curOpt = null;
     }
     else {
       // argument name
       curOpt = opt;
-      arg[curOpt] = true;
+      myArg[curOpt] = true;
     }
   }
-  return arg;
+  return myArg;
 })(process.argv);
 
 export async function getToken(admin: any): Promise<string> {

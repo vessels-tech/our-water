@@ -32,7 +32,6 @@ describe('Misc Tests', function() {
       input.set('def', false);
 
       const result = serializeMap(input);
-      console.log(result);
 
       assert.deepEqual(result, {abc: true, def: false});
     });
@@ -77,7 +76,6 @@ describe('Misc Tests', function() {
 
     after(function() {
       this.timeout(5000);
-      console.log(`cleaning up ${groupIdsToCleanup.length} groups`);
       groupIdsToCleanup.forEach(id => firestore.collection('org').doc(orgId).collection('group').doc(id).delete());
 
     });

@@ -107,7 +107,7 @@ module.exports = (functions) => {
     options: { allowUnknownBody: false },
     query: { validateOnly: Joi.boolean().default(false) },
     body: {
-      readings: Joi.object().required(),
+      readings: Joi.array().min(1).required(),
     }
   }
 
@@ -119,19 +119,18 @@ module.exports = (functions) => {
     const fbApi = new FirebaseApi(firestore);
     const readingApi = new ReadingApi(firestore, orgId);
 
-
-    //TODO: strip off the first row
+    //Strip off the first row
+    readings.shift();
 
     //Perform a reading validation, if validateOnly, then just return this result
     const validateResult = unsafeUnwrap(await fbApi.validateBulkUploadReadings(orgId, userId, readings));
     if (validateOnly) {
-      return validateResult;
+      return res.json(validateResult);
     }
 
     //Bulk upload the validated readings
     const bulkUploadResult = unsafeUnwrap(await readingApi.bulkUploadReadings(validateResult.validated, 250));
-
-    return bulkUploadResult;
+    return res.json(bulkUploadResult);
   });
 
   /* CORS Configuration */
