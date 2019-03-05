@@ -174,8 +174,6 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     const { initialRegion } = this.state;
     const { userIdMeta: { loading } } = this.props;
-
-    console.log("rendering SimpleMapScreen");
     
     if (loading) {
       return (
