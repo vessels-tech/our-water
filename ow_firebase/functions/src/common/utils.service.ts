@@ -2,11 +2,13 @@ import * as mocha from 'mocha';
 import * as assert from 'assert';
 
 import { firestore } from '../test/TestFirebase';
-import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups } from './utils';
+import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, loadRemoteConfig, getDefaultTimeseries } from './utils';
 import ResourceIdType from './types/ResourceIdType';
 import { Group } from './models/Group';
 import { GroupType } from './enums/GroupType';
 import * as FbFirestore from 'firebase-admin';
+import { unsafeUnwrap } from 'ow_common/lib/utils';
+import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
 
 type GeoPoint = FbFirestore.firestore.GeoPoint;
 
@@ -86,5 +88,29 @@ describe('Misc Tests', function() {
       //Make sure there are only 2
       assert.equal(2, Object.keys(serializeMap(legacyGroups)).length);
     });
+  });
+
+  describe('remote config lookup', function () {
+    this.timeout(4500);
+    this.slow(3000);
+
+    it('Gets the remote config', async () => {
+      //Arrange
+
+      //Act
+      const result = JSON.parse(unsafeUnwrap(await loadRemoteConfig()));
+
+      //Assert
+    });
+
+    it('Gets the default timeseries', async () => {
+      //Arrange
+
+      //Act
+      const result = unsafeUnwrap(await getDefaultTimeseries(ResourceStationType.quality));
+
+      //Assert
+    });
+
   });
 });

@@ -10,10 +10,10 @@ import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
-import { verboseLog } from "./env";
+import { verboseLog, projectId } from "./env";
 
 const filesystem = require("fs");
-
+import key from './.serviceAccountKey';
 
 
 /**
@@ -436,6 +436,9 @@ export const get = (o: any, p: string[]) =>
 import * as morgan from 'morgan';
 //@ts-ignore
 import * as morganBody from 'morgan-body';
+import { getAdminAccessToken, getRemoteConfig } from "../../tools";
+import { SomeResult, ResultType, makeError, safeGetNested } from "ow_common/lib/utils";
+import { makeSuccess } from "./types/dep_AppProviderTypes";
 
 export function enableLogging(app: any): void {
   if (!verboseLog) {
@@ -445,4 +448,49 @@ export function enableLogging(app: any): void {
     console.log('Using verbose log');
     morganBody(app);
   }
+}
+
+export async function loadRemoteConfig(): Promise<SomeResult<any>> {
+  let config;
+  try {
+    const accessToken = await getAdminAccessToken(key)
+    const currentConfigResult = await getRemoteConfig(projectId, accessToken);
+    config = JSON.parse(currentConfigResult[1]);
+  } catch(err) {
+    return makeError(err.message);
+  }
+
+  if (!config) {
+    return makeError("Couldn't find config");
+  }
+
+  return makeSuccess(config);
+}
+
+export async function getDefaultTimeseries(resourceType: ResourceStationType): Promise<SomeResult<any>> {
+
+  const configResult = await this.loadRemoteConfig();
+  if (configResult.type === ResultType.ERROR) {
+    return configResult;
+  }
+
+  const timeseriesTypesStr = safeGetNested(configResult, ['result', 'parameters', 'editResource_defaultTypes', 'defaultValue', 'value']);
+
+  if (!timeseriesTypesStr) {
+    return makeError("Couldn't find default timeseries types");
+  }
+
+  let timeseries;
+  try {
+    const timeseriesTypes = JSON.parse(timeseriesTypesStr);
+    timeseries = timeseriesTypes[resourceType];
+  } catch(err) {
+    return makeError(`Error parsing timeseries`);
+  }
+
+  if (!timeseries) {
+    return makeError(`Couldn't find resourceType: ${resourceType}`);
+  }
+  
+  return makeSuccess(timeseries);
 }

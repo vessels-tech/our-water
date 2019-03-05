@@ -30,6 +30,7 @@ const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const utils_1 = require("../../common/utils");
 const api_1 = require("ow_common/lib/api");
 const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
+const model_1 = require("ow_common/lib/model");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -108,17 +109,20 @@ module.exports = (functions) => {
                 //TODO: make proper enums
                 owner: Joi.object().keys({
                     name: Joi.string().required(),
+                    createdByUserId: Joi.string().required(),
                 }),
-                groups: Joi.object().optional(),
-                imageUrl: Joi.string().optional(),
-                //We will create an index on this to make this backwards compatible with MyWell
-                legacyId: Joi.string().optional(),
-                type: Joi.valid('well', 'raingauge', 'checkdam').required()
+                groups: Joi.object().keys({
+                    legacyResourceId: Joi.string().optional(),
+                    pincode: Joi.string().optional(),
+                    country: Joi.string().optional(),
+                }),
+                resourceType: Joi.valid('well', 'raingauge', 'checkdam', 'quality', 'custom').required(),
             },
         }
     };
-    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
+    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         const orgId = req.params.orgId;
+        const resourceApi = new api_1.ResourceApi(FirebaseAdmin_1.firestore, orgId);
         //Ensure geopoints get added properly
         const oldCoords = req.body.data.coords;
         const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
@@ -126,6 +130,10 @@ module.exports = (functions) => {
         //Add default lastReading
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
+        req.body.orgId = orgId;
+        //TODO: get the timeseries from the default, based on resourceType
+        const timeseries = utils_1.getDefaultTimeseries(req.body.resourceType);
+        const resource = Object.assign({}, model_1.DefaultMyWellResource, req.body, { timeseries });
         //Ensure the orgId exists
         const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
@@ -135,15 +143,19 @@ module.exports = (functions) => {
             }
         })
             //TODO: standardize all these refs
-            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-            .then(result => {
-            console.log(JSON.stringify({ resourceId: result.id }));
-            return res.json({ resource: result.id });
+            // .then(() => firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
+            .then(() => resourceApi.resourceRef().create(resource))
+            .then((result) => {
+            // console.log(JSON.stringify({resourceId: result.id}));
+            // return res.json({ resource: result.id })
+            return res.json({ id: result.id });
         })
             .catch(err => next(err));
-    });
+    }));
     /**
      * updateResource
+     * TD: this is outdated, Don't use until it's fixed.
+     *
      * PUT /:orgId/:resourceId
      */
     const updateResourceValidation = {

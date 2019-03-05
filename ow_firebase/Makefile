@@ -22,6 +22,9 @@ switch:
 	firebase use ${stage}
 	@echo 'copying remoteConfigConditions.js across'
 	cp ${dir}/../env/remoteConfigConditions.${stage}.js ${dir}/functions/tools/remoteConfigConditions.js
+	@echo 'copying .serviceAccountKey.js across'
+	cp ${dir}/functions/src/common/.serviceAccountKey.${stage}.js ${dir}/functions/src/common/.serviceAccountKey.js
+
 
 switch-dev:
 	make switch stage="development"
