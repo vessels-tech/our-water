@@ -1,0 +1,16 @@
+{
+  "resourceType": {{get_resource.data[0].resourceType}},
+  "coords": {
+    "latitude": {{get_resource.data[0].coords._latitude}},
+    "longitude": {{get_resource.data[0].coords._longitude}}
+  },
+  "groups": {
+    "legacyResourceId": {{get_resource.data[0].groups.legacyResourceId}},
+    "pincode": {{get_resource.data[0].groups.pincode}},
+    "country": {{get_resource.data[0].groups.country}}
+  },
+  "owner": {
+    "name": {{get_resource.data[0].owner.name}},
+    "createdByUserId": {{get_resource.data[0].owner.createdByUserId}}
+  }
+}
