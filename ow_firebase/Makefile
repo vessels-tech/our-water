@@ -40,8 +40,8 @@ update-translations:
 	@echo 'pulling translations'
 	cd ${dir}/../ow_translations && make 
 
-	@make install_translations
-	@make update_remote_config
+	@make install-translations
+	@make update-remote-config
 
 install-translations:
 	@echo 'installing latest packages'
