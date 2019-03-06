@@ -4036,10 +4036,9 @@ ow_common@^0.1.29:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
+"ow_translations@git://github.com/vessels-tech/ow_translations":
   version "0.1.1"
-  uid a062a14490fbcfa186bf1c5703f2e616b14881c4
-  resolved "git://github.com/vessels-tech/ow_translations.git#a062a14490fbcfa186bf1c5703f2e616b14881c4"
+  resolved "git://github.com/vessels-tech/ow_translations#612d9234745c014aee6c1382f9c225e4a16e8f67"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -4050,9 +4049,10 @@ ow_common@^0.1.29:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"
 
-"ow_translations@https://github.com/vessels-tech/ow_translations#a062a14490fbcfa186bf1c5703f2e616b14881c4":
+"ow_translations@https://github.com/vessels-tech/ow_translations#612d9234745c014aee6c1382f9c225e4a16e8f67":
   version "0.1.1"
-  resolved "https://github.com/vessels-tech/ow_translations#a062a14490fbcfa186bf1c5703f2e616b14881c4"
+  uid "612d9234745c014aee6c1382f9c225e4a16e8f67"
+  resolved "https://github.com/vessels-tech/ow_translations#612d9234745c014aee6c1382f9c225e4a16e8f67"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
