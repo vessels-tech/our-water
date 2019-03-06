@@ -20,6 +20,11 @@ const PendingReadingSchema = {
   resourceId: Joi.string().required(),
   timeseriesId: Joi.string().required(),
   date: Joi.string().isoDate().required(),
+  
+  //Hacks while we wait to fix the type issue
+  datetime: Joi.string().isoDate().required(),
+  resourceType: Joi.string().required(),
+
   value: Joi.number().required(),
   image: Joi.allow([
     Joi.object().keys({
@@ -43,6 +48,7 @@ const PendingReadingSchema = {
     })
   ]).required(),
   groundwaterStationId: Joi.any(),
+  isResourcePending: Joi.boolean().required(),
 }
 
 
@@ -64,6 +70,8 @@ export function validateReading(orgType: OrgType, reading: any): SomeResult<Pend
  * Validate the resource from the form.
  * We use this method as joi lets us be more specific than Typescript
  * Plus it also converts values for us.
+ * 
+ * https://github.com/hapijs/joi/blob/v14.3.1/API.md
  */
 export function validateResource(resource: any): SomeResult<PendingResource> {
   const schema: Joi.SchemaLike = Joi.object().keys({
@@ -78,6 +86,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
     resourceType: Joi.valid(Object.keys(ResourceType)).required(),
     owner: Joi.object().keys({
       name: Joi.string().required(),
+      createdByUserId: Joi.string().optional(),
     }).required(),
     userId: Joi.string().required(),
     timeseries: Joi.array().items(Joi.object().keys({
@@ -88,6 +97,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       unitOfMeasure: Joi.string().allow('m', 'mm', 'ppm'),
     })).required(),
     waterColumnHeight: Joi.number(),
+    groups: Joi.object().required(),
   });
 
   const result = Joi.validate(resource, schema);

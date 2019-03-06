@@ -2,6 +2,13 @@
 
 The react native app for OurWater
 
+## Generate a new key (shouldn't need to to this too often)
+```bash
+keytool -genkey -v -keystore mywell_release.keystore -alias mywell -keyalg RSA -keysize 2048 -validity 10000
+
+```
+
+
 
 ## Getting SHA-1 Fingerprint:
 

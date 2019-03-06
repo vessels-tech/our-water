@@ -149,7 +149,7 @@ export default class ResourceIdType {
     return JSON.parse(JSON.stringify(this));
   }
 
-  public static deserialize(obj): ResourceIdType {
+  public static deserialize(obj = {}): ResourceIdType {
     let resourceIdType: ResourceIdType = new ResourceIdType();
     Object.keys(obj).forEach(key => {
       resourceIdType[key] = obj[key];

@@ -6,7 +6,8 @@ import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
 import PhoneNumberEntry, { CallingCountry } from './PhoneNumberEntry';
-import { FormGroup, FormControl } from 'react-reactive-form';
+import { rightPad } from 'ow_common/lib/utils';
+
 
 export enum InputParams {
   Text = 'Text',
@@ -22,6 +23,7 @@ export type TextInputParams = {
   meta: {
     label: string,
     errorMessage: string,
+    onFocus: () => void
   }
 }
 
@@ -34,6 +36,7 @@ export type TextIdInputParams = {
     label: string,
     errorMessage: string,
     asyncErrorMessage: string,
+    onFocus: () => void
   }
 }
 
@@ -44,6 +47,7 @@ export type DropdownInputParams = {
     label: string,
     //key is the actual value, label for translations
     options: {key: string, label: string}[],
+    defaultValue: string, //the default
   },
   hasError: (key: string) => boolean
   errorMessage: string,
@@ -64,15 +68,17 @@ export type MobileInputParams = {
 }
 
 export const TextInput = ({ meta, handler, hasError, touched }: any) => {
-  
+
   return (
     <View style={{
       flex: 1,
     }}>
       <FormLabel>{meta.label}</FormLabel>
       <FormInput
+        {...handler()}
         autoCapitalize={'none'} 
         keyboardType={meta.keyboardType}
+        onFocus={meta.onFocus}
         // placeholder={`${meta.label}`}
         secureTextEntry={meta.secureTextEntry} 
         editable={meta.editable}
@@ -81,7 +87,6 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
           borderBottomColor: bgLightHighlight,
           borderBottomWidth: 2,
         }}
-        {...handler()} 
       />
       <FormValidationMessage>
         {touched
@@ -90,6 +95,7 @@ export const TextInput = ({ meta, handler, hasError, touched }: any) => {
         {touched
           && hasError("email")
           && `${meta.label} ${meta.errorMessage}`}
+        {handler().value.length > 3 && hasError("invalid") && `${meta.asyncErrorMessage}`}
       </FormValidationMessage>
     </View>
   );
@@ -127,7 +133,7 @@ export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
           </Text>
         </View>
       }
-      <FormValidationMessage>
+      <FormValidationMessage style={{minHeight: 10}}>
         {touched
           && hasError("required")
           && `${meta.label} ${meta.errorMessage}`}
@@ -139,23 +145,23 @@ export const TextIdInput = ({ meta, handler, hasError, touched }: any) => {
 
 
 export const DropdownInput = (params: DropdownInputParams) => {
-  const { type, handler, meta: { label, options }, errorMessage, hasError } = params;
+  const { type, handler, meta: { label, options, defaultValue }, errorMessage, hasError } = params;
 
   return (
     <View style={{
-      flex: 1,
+      width: '100%'
     }}>
       <FormLabel>{label}</FormLabel>
       <Picker
-        selectedValue={handler().value}
+        selectedValue={handler().value || defaultValue}
         style={{
-          flex: 2,
           marginLeft: 10,
         }}
         mode={'dropdown'}
         onValueChange={(e: any) => handler().onChange(e)}
       >
-        {options.map(o => <Picker.Item key={o.key} label={o.label} value={o.key} />)}
+        {/* TD: hacky add right padding to the label to make the buttons easier to click */}
+        {options.map(o => <Picker.Item key={o.key} label={rightPad(o.label, " ", 60)} value={o.key}/>)}
       </Picker>
       <FormValidationMessage>
         {hasError("required")
@@ -172,6 +178,7 @@ export const MobileInput = (params: MobileInputParams) => {
   return (
     <View>
       <PhoneNumberEntry 
+        value={handler().value}
         onValueChange={(mobileText: string) => {
           return handler().onChange(mobileText);
         }}

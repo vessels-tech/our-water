@@ -1,7 +1,7 @@
 
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
-import { primaryText, primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
+import { primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
 import { defaultNavigatorStyle } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
@@ -17,6 +17,8 @@ import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
 import { HomeScreenType } from './enums';
+import { primaryText } from './utils/NewColors';
+
 
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
@@ -69,7 +71,7 @@ Promise.resolve(true)
       id: 'sideMenu',
       disabled: false,
       disableIconTint: true,
-      buttonColor: primaryText,
+      buttonColor: primaryText.high,
       buttonFontSize: 14,
       buttonFontWeight: '600'
     }],
@@ -86,7 +88,7 @@ Promise.resolve(true)
     left: {
       screen: 'screen.MenuScreen',
       disableOpenGesture: true,
-      fixedWidth: 800,
+      // fixedWidth: 800,
       passProps: {
         config
       }
@@ -110,54 +112,30 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
-      //@ts-ignore
-      Navigation.startTabBasedApp({
-        tabs: [
-          {
-            // label: 'Home', 
-            screen: 'screen.App',
-            icon: require('./assets/home.png'),
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          },
-          {
-            // label: 'Scan',
-            screen: 'screen.ScanScreen',
-            icon: require('./assets/scan.png'),
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          },
-          {
-            // label: 'Map',
-            screen: 'screen.SimpleMapScreen',
-            icon: require('./assets/map.png'),
-            title: config.getApplicationName(),
-            navigatorButtons,
-            navigatorStyle: defaultNavigatorStyle,
-          }
-        ],
-        tabsStyle: { 
-          tabBarButtonColor: primaryText,
-          tabBarSelectedButtonColor: primaryDark,
-          tabBarBackgroundColor: '#551A8B', // optional, change the background color of the tab bar
-          initialTabIndex: 1, // optional, the default selected bottom tab. Default: 0. On Android, add this to appStyle
+
+      Navigation.startSingleScreenApp({
+        screen: {
+          screen: 'screen.App',
+          title: config.getApplicationName(),
+          navigatorStyle: defaultNavigatorStyle,
+          navigatorButtons,
         },
+        drawer,
+        animationType: 'fade',
+        passProps: { config },
         appStyle: {
-          // Here for android
           tabBarButtonColor: bgMed,
           tabBarSelectedButtonColor: primaryDark,
           orientation: 'portrait',
           bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
           bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
         },
-        drawer,
-        passProps: {config},
-        animationType: 'fade'
       });
+      
     break;
     }
+    default: 
+      throw new Error(`Unknown home screen type: ${config.getHomeScreenType()}`);
   }
 })
 .catch((err: Error) => console.log('Error Launching App:', err));

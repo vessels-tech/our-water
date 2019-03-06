@@ -190,6 +190,7 @@ class LegacyMyWellDatasource {
      * ?filter=%7B%22where%22%3A%7B%22date%22%3A%7B%22gt%22%3A%20%222018-01-01T00%3A00%3A00.000Z%22%7D%7D%7D
      */
     getReadingsData(orgId, firestore) {
+        const fbApi = new FirebaseApi_1.default(firestore);
         const START_DATE = "2000-01-01T00:00:00.000Z";
         const END_DATE = "2012-01-01T00:00:00.000Z";
         const filter = { "where": { "and": [{ "date": { "gte": `${START_DATE}` } }, { "date": { "lte": `${END_DATE}` } }] } };
@@ -254,7 +255,7 @@ class LegacyMyWellDatasource {
             //Save one batch at a time
             return batches.reduce((arr, curr, idx) => __awaiter(this, void 0, void 0, function* () {
                 yield arr;
-                return FirebaseApi_1.default.batchSave(firestore, curr)
+                return fbApi.batchSaveReadings(curr)
                     .then(results => {
                     console.log(`SAVED BATCH ${idx} of ${batches.length}`);
                     batchSaveResults = batchSaveResults.concat(results);
@@ -272,6 +273,7 @@ class LegacyMyWellDatasource {
                 errors,
             };
         })
+            //Catch fatal errors here
             .catch(err => {
             console.log("getReadingsData error, ", err.message);
             return {
@@ -327,6 +329,7 @@ class LegacyMyWellDatasource {
         return firestore.collection('org').doc(orgId).collection('reading')
             .where('externalIds.hasLegacyMyWellResourceId', '==', true)
             .where('createdAt', '>=', filterAfterDate)
+            //TODO: we need to set a maximum on this, and paginate properly
             .limit(50)
             .get()
             .then((sn) => {

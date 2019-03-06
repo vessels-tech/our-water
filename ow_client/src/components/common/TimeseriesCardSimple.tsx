@@ -4,9 +4,10 @@ import {
   Button,
   Card,
   Text,
+  Divider,
 } from 'react-native-elements';
 import { OWTimeseries, Reading, TimeseriesRange, TimeseriesRangeReadings, TimeseriesReadings } from '../../typings/models/OurWater';
-import { View } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { primaryLight, primaryDark, bgLight, bgLightHighlight } from '../../utils/Colors';
 import LineChartExample from './DemoChart';
 import { SomeResult } from '../../typings/AppProviderTypes';
@@ -17,7 +18,7 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey, filterAndSort } from '../../utils';
+import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries } from '../../utils';
 import SimpleChart from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
@@ -26,6 +27,17 @@ import { OrgType } from '../../typings/models/OrgType';
 import { AnyReading } from '../../typings/models/Reading';
 import { ConfigTimeseries } from '../../typings/models/ConfigTimeseries';
 import { ActionMeta } from '../../typings/Reducer';
+import { surfaceLight } from '../../assets/ggmn/NewColors';
+import { surface, surfaceDark, surfaceText } from '../../utils/NewColors';
+import moment = require('moment');
+import { TranslationFile } from 'ow_translations';
+import { ResourceType } from '../../enums';
+
+export enum TimeseriesCardType {
+  default = 'graph',
+  graph = 'graph',
+  table = 'table',
+}
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -33,12 +45,16 @@ export interface OwnProps {
   resourceId: string,
   timeseriesId: string, 
   isPending: boolean,
+  cardType: TimeseriesCardType,
+  resourceType: ResourceType,
+  children?: React.ReactChild,
 }
 
 export interface StateProps {
   tsReadings: AnyOrPendingReading[],
   newTsReadingsMeta: ActionMeta,
   timeseries_card_not_enough: string,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -80,7 +96,10 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
 
   getGraphView() {
     const { currentRange } = this.state;
-    const { tsReadings, newTsReadingsMeta, timeseries: { name }, resourceId } = this.props;
+    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { name }, resourceId } = this.props;
+    if (cardType !== TimeseriesCardType.graph) {
+      return null;
+    }
 
     if (newTsReadingsMeta.loading) {
       return <Loading/>
@@ -101,6 +120,62 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
           pendingReadings={[]}
           readings={filteredReadings}
           timeseriesRange={currentRange} 
+        />
+      </View>
+    );
+  }
+
+  getTableView() {
+    const { currentRange } = this.state;
+    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure } } = this.props;
+    // const { default_datetime_format } = this.props.translation.templates;
+    //TODO: Translate!
+    const default_datetime_format = "HH:MM DD/MM/YY";
+    if (cardType !== TimeseriesCardType.table) {
+      return null;
+    }
+
+    if (newTsReadingsMeta.loading) {
+      return <Loading />
+    }
+
+    //Sort and filter the readings by the current range
+    const filteredReadings = filterAndSort(tsReadings, currentRange);
+    if (filteredReadings.length === 0) {
+      return this.getNotEnoughReadingsDialog();
+    }
+    //Reverse the array so that the recent readings appear on top
+    const reversed = filteredReadings.reverse();
+
+    return (
+      <View style={{
+        flex: 5,
+        justifyContent: 'center'
+      }}>
+        <FlatList
+          data={reversed}
+          keyExtractor={(item: AnyOrPendingReading) => `${item.date}+${item.value}`}
+          renderItem={({item, index}: {item: AnyOrPendingReading, index: number}) => {
+            return (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row', 
+                  paddingHorizontal: 10,
+                  paddingVertical: 10,
+                  justifyContent: 'space-around',
+                  backgroundColor: index % 2 === 0 ? surface : surfaceDark,
+                }}
+              >
+                <Text
+                  style={{ flex: 4 }}
+                >{moment(item.date).format(default_datetime_format)}</Text>
+                <Text
+                  style={{ flex: 1}}
+                >{`${item.value} ${unitOfMeasure}`}</Text>
+              </View> 
+            )
+          }}
         />
       </View>
     );
@@ -149,7 +224,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
-    const { timeseries: { name } } = this.props;
+    const { resourceType, timeseries: { name } } = this.props;
 
     return (
       <View 
@@ -168,9 +243,11 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
             fontWeight: '600',
             alignSelf: 'center',
           }}>
-          {name}
+          {getHeadingForTimeseries(resourceType, name)}
         </Text>
         {this.getGraphView()}
+        {this.getTableView()}
+        {this.props.children}
         {this.getBottomButtons()}
       </View>
     );
@@ -193,6 +270,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     tsReadings: tsReadings.filter(r => r.timeseriesId === ownProps.timeseriesId),
     newTsReadingsMeta,
     timeseries_card_not_enough: state.translation.templates.timeseries_card_not_enough,
+    translation: state.translation,
   }
 }
 

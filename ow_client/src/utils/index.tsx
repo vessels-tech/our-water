@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Linking, ToastAndroid } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
@@ -9,7 +9,7 @@ import { ResourceType } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
-import { EnableLogging } from './EnvConfig';
+import { EnableLogging, EnableRenderLogging } from './EnvConfig';
 import { AnyResource } from '../typings/models/Resource';
 import { AnyReading } from '../typings/models/Reading';
 import { PendingReading } from '../typings/models/PendingReading';
@@ -18,8 +18,12 @@ import { AbstractControl } from 'react-reactive-form';
 import * as PhoneNumber from 'awesome-phonenumber';
 import { MaybeUser, UserType } from '../typings/UserTypes';
 import { CacheType, AnyOrPendingReading } from '../reducers';
-import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor } from './NewColors';
-import { secondaryText } from '../assets/ggmn/Colors';
+import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, secondaryLight, primaryLight, statusBarTextColorScheme, statusBarColor, navBarTextColor, secondaryPallette } from './NewColors';
+//@ts-ignore
+import * as QRCode from 'qrcode';
+import { OrgType } from '../typings/models/OrgType';
+import { ConfigFactory } from '../config/ConfigFactory';
+
 
 
 /**
@@ -336,12 +340,14 @@ export const getShortId = (str: string): string => {
 
 export const defaultNavigatorStyle = {
   navBarHidden: false,
-  navBarTextColor: navBarTextColor,
+  navBarTextColor: primaryText.high,
   navBarBackgroundColor: primary,
+
   statusBarColor: statusBarColor,
   statusBarTextColorScheme: statusBarTextColorScheme,
+  
   screenBackgroundColor: surface,
-  navBarButtonColor: navBarTextColor,
+  navBarButtonColor: primaryText.high,
   drawUnderStatusBar: false,
 }
 
@@ -369,6 +375,20 @@ export function getReadingAvatar() {
       }}
       rounded={true}
       title="R"
+      activeOpacity={0.7}
+    />
+  );
+}
+
+export function getPlaceAvatar() {
+  return (
+    <Avatar
+      containerStyle={{
+        backgroundColor: primaryLight,
+        alignSelf: 'center',
+      }}
+      rounded={true}
+      title="P"
       activeOpacity={0.7}
     />
   );
@@ -493,7 +513,7 @@ export function throttled(delay: number, cb: any) {
 }
 
 // ES6
-export function debounced(delay: number, fn: any) {
+export function debounced(delay: number, fn: any): any {
   let timerId: any;
   return function (...args: any[]) {
     if (timerId) {
@@ -531,6 +551,16 @@ export function maybeLog(message: any, object?: any) {
   }
 }
 
+export function renderLog(message: any, object?: any) {
+  if (EnableRenderLogging) {
+    if (object) {
+      console.log(message, object);
+      return;
+    }
+    console.log(message);
+  }
+}
+
 
 
 export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingReading[], readings: AnyReading[]): { dateString: string, value: number }[] {
@@ -557,6 +587,10 @@ export function mergePendingAndSavedReadingsAndSort(pendingReadings: PendingRead
  * Format a 9 digit shortId to a 9 or dix digit version with dashes
  */
 export function formatShortId(shortId: string): SomeResult<string> {
+  if (!shortId) {
+    return makeError('ShortId is null or undefined');
+  }
+
   if (shortId.length !== 9) {
     return makeError('ShortId must be 9 digits long.');
   }
@@ -571,6 +605,27 @@ export function formatShortId(shortId: string): SomeResult<string> {
   }
 
   return makeSuccess(`${parts[0]}-${parts[1]}-${parts[2]}`);
+}
+
+export function formatShortIdOrElse(shortId: string, dflt: string): string {
+  if (!shortId) {
+    return dflt;
+  }
+
+  if (shortId.length !== 9) {
+    return dflt;
+  }
+
+  const parts = shortId.match(/.{1,3}/g);
+  if (!parts || parts.length !== 3) {
+    return dflt;
+  }
+
+  if (parts[0] === '000') {
+    return `${parts[1]}-${parts[2]}`;
+  }
+
+  return `${parts[0]}-${parts[1]}-${parts[2]}`;
 }
 
 
@@ -610,6 +665,20 @@ export function unwrapUserId(user: MaybeUser) {
   }
 
   return user.userId;
+}
+
+export function splitInternationalNumber(intNumber: string): SomeResult<{regionCode: string, prefix: string, mobile: string}> {
+  //@ts-ignore
+  const pn = new PhoneNumber(intNumber);
+  if (!pn.isValid()) {
+    return makeError<{ regionCode: string, prefix: string, mobile: string }>('Number is not valid');
+  }
+
+  return makeSuccess({
+    regionCode: pn.getRegionCode(),
+    prefix: `+${PhoneNumber.getCountryCodeForRegionCode(pn.getRegionCode())}`,
+    mobile: pn.getNumber('significant'),
+  });
 }
 
 
@@ -760,8 +829,6 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
   //Make a list of safe resources:
   const safeResources: AnyResource[] = [];
   array.forEach(r => {
-    // console.log("resource.coords is", r.id, r.coords);
-
     if (isInRegion(safeArea, r.coords)) {
       safeResources.push(r);
     }
@@ -811,6 +878,27 @@ export function getMarkerKey(resource: AnyResource | PendingResource) {
   return `any_${resource.id}`;
 }
 
+
+export function pinColorForOrgAndResource(resource: AnyResource) {
+  if (resource.type === OrgType.GGMN) {
+    return secondary;
+  }
+
+  switch(resource.resourceType) {
+    case ResourceType.checkdam:
+      return 'yellow';
+    case ResourceType.custom:
+    case ResourceType.quality:
+      return 'grey';
+    case ResourceType.raingauge:
+      return 'navy';
+    case ResourceType.well:
+    default:
+      return 'orange';
+
+  }
+}
+
 /**
  * safeAreaFromPoint
  * 
@@ -824,4 +912,93 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
     latitudeDelta: 15,
     longitudeDelta: 10,
   }
+}
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o);
+
+
+/**
+* getHeadingForTimeseries
+* 
+* Convert the "default" string to sometime meaningful
+* 
+* TODO: move to a translation function
+*/
+export const getHeadingForTimeseries = (resourceType: ResourceType, name: string) => {
+
+  switch (resourceType) {
+    case ResourceType.raingauge: return "Rainfall";
+    case ResourceType.quality: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.custom: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.checkdam:
+    case ResourceType.well:
+    default: {
+      return "Groundwater"
+    }
+  }
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+/**
+ * Attempt to open a url or display an error message
+ */
+export function openUrlOrToastError(url: string, errorMessage: string) {
+  Linking.canOpenURL(url)
+    .then(supported => {
+      if (!supported) {
+        return makeError<void>(errorMessage);
+      }
+      return makeSuccess<void>(undefined);
+    })
+    .catch(err => makeError<void>(errorMessage))
+    .then(result => {
+      if (result.type === ResultType.ERROR) {
+        ToastAndroid.show(result.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      Linking.openURL(url);
+    });
+}
+
+
+/**
+ * getUnitSuffixForPendingResource
+ * 
+ * For a pending resource, get the unit suffix.
+ * If anything goes wrong, defaults to 'm'
+ */
+export function getUnitSuffixForPendingResource(r: PendingReading, config: ConfigFactory) {
+
+  if (!r.timeseriesId || !r.resourceType) {
+    return "m";
+  }
+
+  const defaultTimeseriesList = config.getDefaultTimeseries(r.resourceType);
+  if (!defaultTimeseriesList) {
+    return "m";
+  }
+
+  const defaultTimeseries = defaultTimeseriesList.find(t => t.parameter === r.timeseriesId);
+  if (!defaultTimeseries) {
+    return 'm';
+  }
+
+  return defaultTimeseries.unitOfMeasure;
 }

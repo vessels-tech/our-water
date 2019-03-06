@@ -37,6 +37,7 @@ function dcp(node) {
         .ele('ows:DCP')
         .ele('ows:HTTP')
         .ele('ows:Get', { 'xlink:href': "http://gin.gw-info.net/GinService/sos/gw?" }).up()
+        // Are we supporting post?
         .ele('ows:Post', { 'xlink:href': "http://gin.gw-info.net/GinService/sos/gw?" }).up()
         .up()
         .up();

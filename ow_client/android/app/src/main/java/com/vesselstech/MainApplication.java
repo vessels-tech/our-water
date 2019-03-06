@@ -64,13 +64,45 @@ public class MainApplication extends NavigationApplication {
       );
   }
 
-    @Override
-    public List<ReactPackage> createAdditionalReactPackages() {
-        return getPackages();
-    }
+  @Override
+  public List<ReactPackage> createAdditionalReactPackages() {
+      return getPackages();
+  }
 
-    @Override
-    public String getJSMainModuleName() {
-        return "index";
-    }
+  @Override
+  public String getJSMainModuleName() {
+      return "index";
+  }
+
+  // @Override
+  // public ReactNativeHost getReactNativeHost() {
+  //   return mReactNativeHost;
+  // }
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    System.out.println("TooLarge MainApplication.onCreate()");
+    SoLoader.init(this, /* native exopackage */ false);
+    // Crashlytics.getInstance().crash(); // Force a crash
+  }
+
+  // private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+  //   @Override
+  //   public boolean getUseDeveloperSupport() {
+  //     return BuildConfig.DEBUG;
+  //   }
+
+  //   @Override
+  //   protected List<ReactPackage> getPackages() {
+  //     return Arrays.<ReactPackage>asList(
+  //         new MainReactPackage(),
+  //         new VectorIconsPackage(),
+  //         new ReactNativeConfigPackage(),
+  //         new MapsPackage(),
+  //         new RNFirebasePackage(),
+  //         new RNFirebaseFirestorePackage(),
+  //         new RNFirebaseAuthPackage()
+  //     );
+  //   }
 }

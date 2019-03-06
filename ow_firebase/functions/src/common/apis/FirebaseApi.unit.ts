@@ -2,17 +2,25 @@ import 'mocha';
 import * as assert from 'assert';
 
 import FirebaseApi, { BoundingBox, PageParams } from './FirebaseApi';
-import { ResultType, SomeResult } from '../types/AppProviderTypes';
+import { ResultType, SomeResult, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { firestore } from '../../test/TestFirebase';
+import * as MockFirebase from 'mock-cloud-firestore';
+
 
 import ShortId from '../models/ShortId';
-import { pad, hashReadingId } from '../utils';
+import { pad } from '../utils';
 import { Reading } from '../models/Reading';
-import { ResourceType, resourceTypeFromString } from "../enums/ResourceType";
+import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from '../types/ResourceIdType';
 import { OWGeoPoint } from 'ow_types';
 import FirestoreDoc from '../models/FirestoreDoc';
 import * as moment from 'moment';
+import { pendingResourcesData, basicResource, basicReading } from '../test/Data';
+import { getAllReadings, getAllResources } from '../test/TestUtils';
+import { Resource } from '../models/Resource';
+import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { ReadingApi, ResourceApi } from 'ow_common/lib/api';
+import { DefaultShortId, DefaultResource, DefaultMyWellResource } from 'ow_common/lib/model';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -23,20 +31,21 @@ describe('Firebase Api', function() {
   describe('Readings', function() {
     let newReadings;
     const readingIds = [];
+    const fbApi = new FirebaseApi(firestore);
 
     before(async () => {
       //TODO: create a bunch of readings
       newReadings = [
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
-        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
-        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
-        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
-        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-01').toDate(), 100, ResourceIdType.none()),
+        new Reading(orgId, 'resA', new OWGeoPoint(35.0123, 35.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 101, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 102, ResourceIdType.none()),
+        new Reading(orgId, 'resB', new OWGeoPoint(39.1234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 103, ResourceIdType.none()),
+        new Reading(orgId, 'resC', new OWGeoPoint(75.0123, 45.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 104, ResourceIdType.none()),
+        new Reading(orgId, 'resD', new OWGeoPoint(39.2234, 34.0123), ResourceStationType.well, {}, moment('2018-01-02').toDate(), 105, ResourceIdType.none()),
       ];
 
-      await FirebaseApi.batchSave(firestore, newReadings);
-      newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
+      await fbApi.batchSaveReadings(newReadings);
+      newReadings.forEach(r => readingIds.push(ReadingApi.hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
     it('Gets the readings within the bounding box', async () => {
@@ -47,21 +56,21 @@ describe('Firebase Api', function() {
         minLng: 34.0122,
         maxLng: 40,
       };
-      const pageParams: PageParams = { limit: 100, page: 0 };
+      const pageParams: PageParams = { limit: 100 };
       
       //Act
-      const readingsResult = await FirebaseApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
+      const readingsResult = await fbApi.readingsWithinBoundingBox(orgId, bbox, pageParams);
       if (readingsResult.type === ResultType.ERROR) {
         throw new Error(readingsResult.message);
       }
 
       //Assert
-      assert.equal(readingsResult.result.length, 3);
+      assert.strictEqual(readingsResult.result.length, 3);
     });
 
     after(async () => {
       //Clean up the readings;
-      // FirebaseApi.batchDelete(firestore, newReadings, readingIds);
+      fbApi.batchDelete(firestore, newReadings, readingIds);
     })
   });
 
@@ -69,11 +78,12 @@ describe('Firebase Api', function() {
   describe('ShortIds', function() {
     let shortId1;
     let shortId2; 
+    const fbApi = new FirebaseApi(firestore);
 
     before(async () => {
       //Create 2 new ids
-      const result1 = await FirebaseApi.createShortId(orgId, 'longId_1');
-      const result2 = await FirebaseApi.createShortId(orgId, 'longId_2');
+      const result1 = await fbApi.createShortId(orgId, 'longId_1');
+      const result2 = await fbApi.createShortId(orgId, 'longId_2');
       
       if (result1.type !== ResultType.SUCCESS && result2.type !== ResultType.SUCCESS ) {
         throw new Error(`couldn't create shortIds`);   
@@ -93,24 +103,23 @@ describe('Firebase Api', function() {
       //Arrange
       
       //Act
-      const result = await FirebaseApi.getLongId(orgId, '12345');
+      const result = await fbApi.getLongId(orgId, '12345');
 
       //Assert
-      assert.equal(result.type, ResultType.ERROR);
+      assert.strictEqual(result.type, ResultType.ERROR);
     });
 
     it('gets a long id for an existing shortId', async() => {
       //Arrange
       //Act
-      const result = await FirebaseApi.getLongId(orgId, shortId1);
+      const result = await fbApi.getLongId(orgId, shortId1);
 
-      console.log("result", result);
       if (result.type === ResultType.ERROR) {
         throw new Error(result.message);
       }
 
       //Assert
-      assert.equal(result.result, 'longId_1');
+      assert.strictEqual(result.result, 'longId_1');
     });
 
     it('does not allow creating multiple short ids with the same long id');
@@ -127,6 +136,7 @@ describe('Firebase Api', function() {
 
   describe('shortId stress tests', function() {
     this.timeout(20000);
+    const fbApi = new FirebaseApi(firestore);
 
     //It seems like it can handle about 5 simultaneous writes.
     //That's good enough for our purposes now.
@@ -135,7 +145,7 @@ describe('Firebase Api', function() {
     before(async () => {
       //Create 2 new ids
       const range = Array.from(Array(n).keys())
-      return Promise.all(range.map(i => FirebaseApi.createShortId(orgId, `longId_${i}`)))
+      return Promise.all(range.map(i => fbApi.createShortId(orgId, `longId_${i}`)))
       .then((results: SomeResult<ShortId>[]) => {
         results.forEach(result => {
           if (result.type === ResultType.ERROR) {
@@ -150,7 +160,7 @@ describe('Firebase Api', function() {
       //get the latest shortId, make sure its id is equal to  000100000 + n
       const doc = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get()
       const latest = doc.data();
-      assert.equal(latest.id, pad(100000 + n, 9));
+      assert.strictEqual(latest.id, pad(100000 + n, 9));
     });
 
     //TODO: cleanup
@@ -162,5 +172,402 @@ describe('Firebase Api', function() {
       ));
       await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').delete();
     })
+  });
+
+
+  describe('Creates Resources and Readings in batches', function() {
+    const mockFirestore = new MockFirebase({}).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('batchSaveResources()', async () => {
+      //Arrange
+      const resourcesToSave = [ basicResource(orgId) ];
+
+      //Act
+      const result = await fbApi.batchSaveResources(resourcesToSave);
+      const allResources = await getAllResources(fbApi);      
+
+      //Assert
+      assert.strictEqual(resourcesToSave.length, allResources.length);
+    });
+
+
+    it('batchSaveReadings()', async () => {
+      //Arrange
+      const readingsToSave = [basicReading(orgId)];
+
+      //Act
+      const result = await fbApi.batchSaveReadings(readingsToSave);
+      const allReadings = await getAllReadings(fbApi);
+
+      //Assert
+      assert.strictEqual(readingsToSave.length, allReadings.length);
+    });
+  });
+
+  describe('Deletes Resources and Readings in Batches', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('Deletes a batch of pendingResources succesfully', async () => {
+      //Arrange
+      const resourcesResult = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
+
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingResources(orgId, userId, resourcesResult.result);
+
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const resourcesResult2 = await fbApi.getPendingResources(orgId, userId);
+      if (resourcesResult2.type === ResultType.ERROR) {
+        throw new Error(resourcesResult2.message);
+      }
+
+      assert.strictEqual(resourcesResult2.result.length, 0);
+    });
+
+
+    it('Deletes a batch of pendingReadings succesfully', async () => {
+      //Arrange
+      const readingsResult = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      //Act
+      const deleteResult = await fbApi.batchDeletePendingReadings(orgId, userId, readingsResult.result);
+
+      //Assert
+      if (deleteResult.type === ResultType.ERROR) {
+        throw new Error(deleteResult.message);
+      }
+      const readingsResult2 = await fbApi.getPendingReadings(orgId, userId);
+      if (readingsResult2.type === ResultType.ERROR) {
+        throw new Error(readingsResult2.message);
+      }
+
+      assert.strictEqual(readingsResult2.result.length, 0);
+    });
+  })
+
+  describe('Pending Resources and Readings', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+
+    it('getPendingResources()', async () => {
+      //Arrange
+      //Act
+      const resourcesResult = await fbApi.getPendingResources(orgId, 'user_a');
+
+      //Assert
+      if (resourcesResult.type === ResultType.ERROR) {
+        throw new Error(resourcesResult.message);
+      }
+
+      assert.strictEqual(resourcesResult.result.length, 3);
+    });
+
+    it('getPendingReadings()', async () => {
+      //Arrange
+      //Act
+      const readingsResult = await fbApi.getPendingReadings(orgId, 'user_a');
+
+      //Assert
+      if (readingsResult.type === ResultType.ERROR) {
+        throw new Error(readingsResult.message);
+      }
+
+      assert.strictEqual(readingsResult.result.length, 2);
+    });
+  });
+
+  describe('syncPendingForUser()', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const userId = 'user_a';
+
+    it('Performs a full sync, and cleans up the pending resources', async () => {
+      //Arrange
+      //Act
+      const result = await fbApi.syncPendingForUser(orgId, userId);
+      if (result.type === ResultType.ERROR) {
+        throw new Error(result.message);
+      }
+
+      const pendingResources = unsafeUnwrap(await fbApi.getPendingResources(orgId, userId));
+      const pendingReadings = unsafeUnwrap(await fbApi.getPendingReadings(orgId, userId));
+      const allResources = await getAllResources(fbApi);
+      const allReadings = await getAllReadings(fbApi);
+
+      //Assert
+      assert.strictEqual(pendingResources.length, 0);
+      assert.strictEqual(pendingReadings.length, 0);
+      assert.strictEqual(allResources.length, 3);
+      assert.strictEqual(allReadings.length, 2);
+    });
+  })
+
+
+  describe('Reading Bulk Upload', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const resourceApi = new ResourceApi(mockFirestore, orgId);
+    const baseRaw = {
+      date: "2017/01/01",
+      time: "00:00",
+      timeseries: "default",
+      value: "12.32",
+      shortId: "",
+      id: "",
+      legacyPincode: "",
+      legacyResourceId: "",
+    };
+
+    this.beforeAll(async function() {
+      //Save some valid shortIds
+      await fbApi.shortIdCol(orgId).doc('000100001').set({ ...DefaultShortId, id: '000100001', longId: "12345"})
+      await fbApi.shortIdCol(orgId).doc('000100002').set({ ...DefaultShortId, id: '000100002', longId: "12346"})
+      await fbApi.shortIdCol(orgId).doc('000100003').set({ ...DefaultShortId, id: '000100003', longId: "12347"})
+      await fbApi.shortIdCol(orgId).doc('000100005').set({ ...DefaultShortId, id: '000100005', longId: "12348"})
+
+      //Save some valid resources with legacyIds
+      const defaultExternalIds = {
+        hasLegacyMyWellId: true,
+        hasLegacyMyWellPincode: true,
+        hasLegacyMyWellResourceId: true,
+        hasLegacyMyWellVillageId: true,
+        legacyMyWellId: "313603.1112",
+        legacyMyWellPincode: "313603",
+        legacyMyWellResourceId: "1112",
+        legacyMyWellVillageId: "11"
+      };
+      await resourceApi.resourceRef("00005").set({ ...DefaultMyWellResource, id: "00005", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1170" } });
+      await resourceApi.resourceRef("00006").set({ ...DefaultMyWellResource, id: "00006", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1171" } });
+      await resourceApi.resourceRef("00007").set({ ...DefaultMyWellResource, id: "00007", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1172" } });
+
+      await resourceApi.resourceRef("12345").set({ ...DefaultMyWellResource, id: "12345", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1173" } });
+      await resourceApi.resourceRef("12346").set({ ...DefaultMyWellResource, id: "12346", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1174" } });
+      await resourceApi.resourceRef("12347").set({ ...DefaultMyWellResource, id: "12347", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1175" } });
+    });
+
+    it('preprocessor does not allow readings with bad date', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        date: '12/19/01',
+        time: "00:00",
+      };
+      const contains = "Date and time format";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: undefined,
+      };
+      const contains = "Value is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with invalid value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: "pancakes",
+      };
+      const contains = "Value is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no timeseries', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "Timeseries is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with missing id, shortId or legacyIds', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow string based shortId', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "100-001",
+      };
+      const contains = "ShortId is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor requires both legacy fields', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyResourceId: '1111',
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+
+    it('preprocessor does not allow readings if it cant find based on shortId', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "000100111",
+      };
+      const contains = "No longId found for shortId";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings if it cant find based on legacyIDs', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyPincode: '333333',
+        legacyResourceId: '1111',
+      };
+      const contains = "No resource found for";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('validates a set of raw readings correctly', async () => {
+      //Arrange
+      const userId = "user_12345";
+      const rawReadings: any[] = [
+        { ...baseRaw, value: "1", id: "12345" },
+        { ...baseRaw, value: "2", shortId: "000100001" },
+        { ...baseRaw, value: "3", shortId: "000100002" },
+        { ...baseRaw, value: "4", shortId: "000100003" },
+        { ...baseRaw, value: "5", shortId: "000100004" }, //doesn't exist
+        { ...baseRaw, value: "6", shortId: "000100005" }, //exists, but no resource
+        { ...baseRaw, value: "7", legacyResourceId: "1170", legacyPincode: '5063'},
+        { ...baseRaw, value: "8", legacyResourceId: "1171", legacyPincode: '5063'},
+        { ...baseRaw, value: "9", legacyResourceId: "1172", legacyPincode: '5063'},
+        { ...baseRaw, value: "10", legacyResourceId: "1172", legacyPincode: '313603'}, //Doesn't exist
+        { ...baseRaw, value: "11", legacyResourceId: "1199", legacyPincode: '5063'}, //Doesn't exist
+      ];
+      const expected = [
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12345', resourceType: 'well', timeseriesId: 'default', value: 1 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12345', resourceType: 'well', timeseriesId: 'default', value: 2 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12346', resourceType: 'well', timeseriesId: 'default', value: 3 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12347', resourceType: 'well', timeseriesId: 'default', value: 4 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00005', resourceType: 'well', timeseriesId: 'default', value: 7 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00006', resourceType: 'well', timeseriesId: 'default', value: 8 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00007', resourceType: 'well', timeseriesId: 'default', value: 9 }
+      ];
+
+      //Act
+      const validateResult = unsafeUnwrap(await fbApi.validateBulkUploadReadings(orgId, userId, rawReadings));
+
+      //Assert
+      assert.strictEqual(validateResult.warnings.length, 4);
+      assert.deepStrictEqual(validateResult.validated, expected);
+    });
+
+    this.afterAll(async function() {
+      await fbApi.shortIdCol(orgId).doc('000100001').delete();
+      await fbApi.shortIdCol(orgId).doc('000100002').delete();
+      await fbApi.shortIdCol(orgId).doc('000100003').delete();
+      await fbApi.shortIdCol(orgId).doc('000100005').delete();
+
+      await resourceApi.resourceRef("00005").delete();
+      await resourceApi.resourceRef("00006").delete();
+      await resourceApi.resourceRef("00007").delete();
+      await resourceApi.resourceRef("12345").delete();
+      await resourceApi.resourceRef("12346").delete();
+      await resourceApi.resourceRef("12347").delete();
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { SomeResult, makeSuccess, makeError } from '../types/AppProviderTypes';
+import { SomeResult, makeSuccess, makeError } from 'ow_common/lib/utils/AppProviderTypes';
 import { writeFileAsync } from '../utils';
 import { zipGeoJson } from './Zip';
 import * as moment from 'moment'

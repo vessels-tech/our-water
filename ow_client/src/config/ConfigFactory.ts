@@ -2,19 +2,16 @@ import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../e
 import GGMNApi, { GGMNApiOptions } from '../api/GGMNApi';
 import MyWellApi from '../api/MyWellApi';
 import NetworkApi from "../api/NetworkApi";
-import ExternalServiceApi, { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
+import { MaybeExternalServiceApi, ExternalServiceApiType } from "../api/ExternalServiceApi";
 import BaseApi from "../api/BaseApi";
 import UserApi from "../api/UserApi";
-import { TranslationFiles, TranslationEnum, TranslationFile, TranslationOrg } from 'ow_translations'
+import { TranslationFiles, TranslationEnum } from 'ow_translations'
 import { maybeLog } from "../utils";
-import { SomeResult, ResultType } from "../typings/AppProviderTypes";
-import FavouriteResourceList from "../components/FavouriteResourceList";
 import { OrgType } from "../typings/models/OrgType";
-import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
-import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
+import { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/ExtendedResourceApi";
+import { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
-import { Moment } from "moment";
-import moment = require("moment");
+import { CacheType } from "../reducers";
 
 
 /**
@@ -54,6 +51,15 @@ export type RemoteConfig = {
   translationOptions: TranslationEnum[],
   ggmn_ignoreReading: {date: string, value: number},
   map_regionChangeReloadDebounceTimeMs: number,
+  //Should we display the map in the sidebar?
+  showMapInSidebar: boolean,
+  resourceDetail_shouldShowTable: boolean,
+  resourceDetail_shouldShowQRCode: boolean,
+  favouriteResource_showPendingResources: boolean,
+  availableGroupTypes: CacheType<GroupSpecificationType>,
+  shouldUseV1Search: boolean,
+  resourceDetail_allowDownload: boolean,
+  readingDownloadUrl: string
 }
 
 /**
@@ -62,6 +68,12 @@ export type RemoteConfig = {
 export type EnvConfig = {
   orgId: string,
 
+}
+
+export type GroupSpecificationType = {
+  id: string, 
+  required: boolean,
+  order: number,
 }
 
 /**
@@ -107,7 +119,7 @@ export class ConfigFactory {
 
     } else {
       //Default to MyWellApi
-      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId);
+      const mywellApi = new MyWellApi(this.networkApi, this.envConfig.orgId, this.remoteConfig.firebaseBaseUrl);
       //@ts-ignore
       this.appApi = mywellApi;
       //@ts-ignore
@@ -194,6 +206,14 @@ export class ConfigFactory {
     return this.remoteConfig.homeScreen;
   }
 
+  getMapScreenFullscreen(): boolean {
+    if (this.remoteConfig.homeScreen === HomeScreenType.Map) {
+      return false;
+    }
+
+    return true;
+  }
+
   getResourceDetailShouldShowSubtitle() {
     return this.remoteConfig.resourceDetail_showSubtitle;
   }
@@ -276,7 +296,56 @@ export class ConfigFactory {
     return this.remoteConfig.map_regionChangeReloadDebounceTimeMs;
   }
 
-  // getGGMNIgnoreReadingDate(): Moment {
+  getShowMapInSidebar(): boolean {
+    return this.remoteConfig.showMapInSidebar;
+  }
+
+  getResourceDetailShouldShowTable(): boolean {
+    return this.remoteConfig.resourceDetail_shouldShowTable;
+  }
+
+  getResourceDetailShouldShowQRCode(): boolean {
+    return this.remoteConfig.resourceDetail_shouldShowQRCode;
+  }
+
+  getFavouriteResourcesShouldShowPending(): boolean {
+    return this.remoteConfig.favouriteResource_showPendingResources;
+  }
+
+  getAvailableGroupTypes(): CacheType<GroupSpecificationType> {
+    return this.remoteConfig.availableGroupTypes;
+  }
+
+  getEditResourceHasPincode(): boolean {
+    return this.remoteConfig.availableGroupTypes['pincode'] ? true : false;
+  }
+
+  //If the resource validates pincode but not country, then we don't know what country to validate
+  getEditResourceValidatesPincode(): boolean {
+    if (this.getEditResourceHasCountry() && this.getEditResourceHasPincode()) {
+      return true;
+    }
+    
+    return false
+  }
+
+  getEditResourceHasCountry(): boolean { 
+    return this.remoteConfig.availableGroupTypes['country'] ? true : false;
+  }
+
+  getShouldUseV1Search(): boolean {
+    return this.remoteConfig.shouldUseV1Search;
+  }
+
+  getDownloadReadingsUrl(resourceId: string): string {
+    return `${this.remoteConfig.readingDownloadUrl}?resourceIds=${resourceId}`;
+  }
+
+  getResourceDetailAllowDownload(): boolean {
+    return this.remoteConfig.resourceDetail_allowDownload;
+  }
+
+    // getGGMNIgnoreReadingDate(): Moment {
   //   if (this.remoteConfig.ggmn_ignoreReading && this.remoteConfig.ggmn_ignoreReading.date) {
   //     return moment(this.remoteConfig.ggmn_ignoreReading.date);
   //   }

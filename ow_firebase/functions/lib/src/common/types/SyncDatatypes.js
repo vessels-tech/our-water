@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SyncDatatypes = {
-    reading: 'Reading',
-    resource: 'Resource',
-    group: 'Group',
+    reading: 'reading',
+    resource: 'resource',
+    group: 'group',
 };
 exports.SyncDatatypeList = Object.keys(exports.SyncDatatypes).map(key => exports.SyncDatatypes[key]);
 /**

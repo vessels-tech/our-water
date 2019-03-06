@@ -18,10 +18,12 @@ import FavouriteResourceList from '../components/FavouriteResourceList';
 import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux'
 import { AnyResource } from '../typings/models/Resource';
+import { PendingResource } from '../typings/models/PendingResource';
+import * as appActions from '../actions/index';
+import { UserType } from '../typings/UserTypes';
 
 
 export interface OwnProps {
-  userId: string,
   navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
@@ -29,32 +31,45 @@ export interface OwnProps {
 }
 
 export interface StateProps {
+  userId: string,
   shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface ActionProps {
-
+  addRecent: any,
 }
 
 
 
 class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps> {
+  appApi: BaseApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    this.appApi = props.config.getAppApi();
+
 
     /* binds */
     this.selectResource = this.selectResource.bind(this);
   }
 
-  selectResource(resource: AnyResource) {
+  selectResource(resource: AnyResource | PendingResource) {
     const title = getShortIdOrFallback(resource.id, this.props.shortIdCache);
     //Navigate to a standalone resource view
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', title, {
       resourceId: resource.id,
       config: this.props.config,
-      userId: this.props.userId
+      userId: this.props.userId,
+      isPending: resource.pending,
     });
+
+    if (resource.pending) {
+      //Don't add to recents if it's pending.
+      return;
+    }
+
+    this.props.addRecent(this.appApi, this.props.userId, resource);
   }
 
   render() {
@@ -82,13 +97,22 @@ class SimpleResourceScreen extends Component<OwnProps & StateProps & ActionProps
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  let userId = ''; //I don't know if this fixes the problem...
+  if (state.user.type !== UserType.NO_USER) {
+    userId = state.user.userId;
+  }
+
   return {
     shortIdCache: state.shortIdCache,
+    userId,
   };
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
+    addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
+      dispatch(appActions.addRecent(api, userId, resource))
+    },
   }
 }
 

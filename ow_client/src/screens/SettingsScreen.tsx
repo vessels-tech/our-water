@@ -7,7 +7,7 @@ import {
   ListItem,
 } from 'react-native-elements';
 import {
- showModal, showLighbox, maybeLog,
+ showModal, showLighbox, maybeLog, navigateTo,
 } from '../utils';
 import { error1, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -17,11 +17,10 @@ import Loading from '../components/common/Loading';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import * as appActions from '../actions/index';
-import { UserType } from '../typings/UserTypes';
+import { UserType, User, MaybeUser } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
-import { Navigation } from 'react-native-navigation';
 import { secondaryDark } from '../utils/NewColors';
 
 export interface OwnProps {
@@ -33,7 +32,8 @@ export interface StateProps {
   userId: string,
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
-  translation: TranslationFile
+  translation: TranslationFile,
+  user: MaybeUser
 }
 
 export interface ActionProps {
@@ -64,6 +64,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     this.showEditResourceScreen = this.showEditResourceScreen.bind(this);
     this.logoutPressed = this.logoutPressed.bind(this);
     this.showAboutScreen = this.showAboutScreen.bind(this);
+    this.pushMapScreen = this.pushMapScreen.bind(this);
   }
 
 
@@ -143,6 +144,20 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       {
         config: this.props.config,
         userId: this.props.userId,
+      }
+    );
+  }
+
+  pushMapScreen() {
+    //TODO: Translate
+    const settings_map = "Browse on Map"
+
+    navigateTo(
+      this.props,
+      'screen.SimpleMapScreen',
+      settings_map,
+      {
+        config: this.props.config,
       }
     );
   }
@@ -266,25 +281,20 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     }
 
     const {
-      externalLoginDetails,
+      user, 
       externalLoginDetailsMeta: { loading },
       translation: {
         templates: {
           settings_connect_to_pending_title,
           settings_connect_to_connected_title,
-          settings_connect_to_subtitle_error,
         }
       }
     } = this.props;
 
     let title = settings_connect_to_pending_title;
     let subtitle;
-    if (externalLoginDetails.status !== ConnectionStatus.NO_CREDENTIALS) {
+    if (user.type === UserType.MOBILE_USER) {
       title = settings_connect_to_connected_title;
-    }
-
-    if (externalLoginDetails.status === ConnectionStatus.SIGN_IN_ERROR) {
-      subtitle = settings_connect_to_subtitle_error;
     }
 
     //TODO: add the user status here
@@ -365,6 +375,28 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     );
   }
 
+  getMapButton() {
+    if (!this.props.config.getShowMapInSidebar()) {
+      return null;
+    }
+
+    //TODO: Translate
+    // const { settings_map } = this.props.translation.templates;
+    const settings_map = "Browse on Map"
+
+    return (
+      <ListItem
+        title={settings_map}
+        onPress={this.pushMapScreen}
+        leftIcon={{
+          name: 'map',
+          color: secondaryText,
+        }}
+        hideChevron={true}
+      />
+    );    
+  }
+
   getLanguageButton() {
     const { settings_language } = this.props.translation.templates;
     return (
@@ -437,6 +469,9 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           hideChevron={true}
         />
+        {/* For browsing resources on map */}
+        {this.getMapButton()}
+
         {this.getLanguageButton()}
         <View 
           style={{
@@ -461,6 +496,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
+    user: state.user,
     userId,
     translation: state.translation,
   }

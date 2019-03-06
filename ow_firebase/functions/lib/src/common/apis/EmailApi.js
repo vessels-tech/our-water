@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Email API is a utility for sending emails
  */
-const AppProviderTypes_1 = require("../types/AppProviderTypes");
+const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const env_1 = require("../env");
 const nodemailer = require('nodemailer');
 const mailTransport = nodemailer.createTransport({

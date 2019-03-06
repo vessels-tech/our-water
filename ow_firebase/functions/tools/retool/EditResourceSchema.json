@@ -1,0 +1,60 @@
+{
+  "title": "Edit Resource",
+  "description": "Edit some basic fields of a resource here.",
+  "type": "object",
+  "required": [
+    "resourceType"
+  ],
+  "properties": {
+    "resourceType": {
+      "type:": "string",
+      "title": "Resource Type",
+      "description": "Warning: Editing this field can make past readings invalid",
+      "enum": ["well", "checkdam", "raingauge", "custom", "quality"]
+    },
+    "coords": {
+      "title": "Coordinates",
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "groups": {
+      "title": "Groups",
+      "type": "object",
+      "properties": {
+        "legacyResourceId": {
+          "type": "string"
+        },
+        "pincode": {
+          "type": "string"
+        },
+        "country": {
+          "description": "Lowercase 2 digit country code",
+          "type": "string"
+        }
+      }
+    },
+    "owner": {
+      "title": "Owner",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "createdByUserId": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

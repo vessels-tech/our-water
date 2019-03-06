@@ -9,7 +9,7 @@ import { AppState } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, getUnitSuffixForPendingResource } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
@@ -251,6 +251,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   readingListItem(r: PendingReading, i: number, message?: string) {
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
+    const unitSuffix = getUnitSuffixForPendingResource(r, this.props.config);
 
     return (
       <ReadingListItem
@@ -260,8 +261,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
         sync_date_format={sync_date_format}
         message={message}
         errorMessage={errorMessage}
-        //TODO: change this for MyWell
-        unitSuffix=" m"
+        unitSuffix={unitSuffix}
       />
     )
   }

@@ -13,6 +13,7 @@ import {
   navigateTo,
   showModal,
   maybeLog,
+  renderLog,
 } from '../utils';
 import {
   MapStateOption,
@@ -43,6 +44,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { diff } from 'deep-object-diff';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 const initialLat: number = -20.4010;
 const initialLng: number = 32.3373;
@@ -147,11 +149,11 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
   
-  // componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
-  //   console.log("HomeMapScreen componentWillUpdate():");
-  //   console.log("     - ", diff(this.props, nextProps));
-  //   console.log("     - ", diff(this.state, nextState));
-  // }
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
+    renderLog("HomeMapScreen componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
+  }
 
   componentWillMount() {
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBackPressed);
@@ -276,7 +278,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         config: this.props.config,
         userId: this.props.userId,
         // TODO: AnyResource needs to be something else
-        onSearchResultPressed: (result: AnyResource) => this.onSearchResultPressedWithState(result),
+        onSearchResultPressedV1: (result: AnyResource) => this.onSearchResultPressedWithState(result),
       });
     }
   }
@@ -450,14 +452,24 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       groundwaterStationId = selectedResource.groundwaterStationId;
     }
 
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null,
       resourceId,
-      groundwaterStationId,
-      //TODO: fix
-      resourceType: 'well',
+      resourceType: 'well', //TD: GGMN only
+      // isResourcePending: false, //TD: Set to false as it's not important for MyWell
       config: this.props.config,
-      userId: this.props.userId
     });
+
+
+    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+    //   resourceId,
+    //   groundwaterStationId,
+    //   //TODO: fix
+    //   resourceType: 'well',
+    //   config: this.props.config,
+    //   userId: this.props.userId
+    // });
   }
 
   onEditReadingsPressed(resourceId: string) {
@@ -548,6 +560,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     const { initialRegion, mapState } = this.state;
     const { userIdMeta: { loading } } = this.props;
     maybeLog(`HomeMapScreen render(). Count: ${this.props.renderCounter}`);
+
 
     if (loading) {
       return (

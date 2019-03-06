@@ -1,6 +1,7 @@
 import { OrgType } from "./OrgType";
 import { MaybeReadingImage } from "./ReadingImage";
 import { MaybeReadingLocation } from "./ReadingLocation";
+import { ResourceType } from "../../enums";
 
 export type AnyReading = MyWellReading | GGMNReading;
 
@@ -17,6 +18,7 @@ export type MyWellReading = {
   userId: string,
   image: MaybeReadingImage,
   location: MaybeReadingLocation,
+  resourceType: ResourceType,
 }
 
 export type GGMNReading = {

@@ -28,7 +28,6 @@ export interface ActionProps {
 
 export function withTabWrapper(WrappedComponent: any) {
 
-
   return class extends React.Component<OwnProps & StateProps & ActionProps> {
     constructor(props: OwnProps & StateProps & ActionProps) {
       super(props);
@@ -36,8 +35,7 @@ export function withTabWrapper(WrappedComponent: any) {
       EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
     }
 
-    async onNavigatorEvent(event: any) {
-      
+    async onNavigatorEvent(event: any) {      
       //TODO: push only when this screen is visible
       const isVisible = await this.props.navigator.screenIsCurrentlyVisible();
       if (!isVisible) {
@@ -52,11 +50,16 @@ export function withTabWrapper(WrappedComponent: any) {
 
         });
       }
+      //TD: Co-opting this for the QR search for now.
+      // if (event === "SEARCH") {
+      //   navigateTo(this.props, 'screen.ScanScreen', 'Search', {
+      //     config: this.props.config,
+      //   });
+      // }
     }
 
     onSearchResultPressed(result: GGMNSearchEntity) {
       //TODO: make sure we are visible
-      console.log("TODO: search result pressed");
     }
 
     render() {

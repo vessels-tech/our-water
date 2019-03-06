@@ -25,12 +25,14 @@ import FileDatasourceOptions from '../../common/models/FileDatasourceOptions';
 import { createSyncValidation } from './validate';
 
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { enableLogging } from '../../common/utils';
 
 module.exports = (functions) => {
   const app = express();
 
   app.use(fileUpload());
   app.use(bodyParser.json());
+  enableLogging(app);
 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });

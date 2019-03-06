@@ -13,22 +13,24 @@ import * as React from 'react';
 import { Component } from "react";
 import { ConfigFactory } from "../../config/ConfigFactory";
 import ExternalServiceApi, { MaybeExternalServiceApi } from "../../api/ExternalServiceApi";
-import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback, Alert } from 'react-native';
+import { TouchableHighlight, View, ScrollView, TouchableNativeFeedback, Alert, ToastAndroid } from 'react-native';
 import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
-import { AppState } from '../../reducers';
-import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError } from '../../typings/api/ExternalServiceApi';
+import { AppState, CacheType } from '../../reducers';
+import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError, ExternalSyncStatusComplete } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId } from '../../utils';
-import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../../utils';
+import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
-import { ResultType } from '../../typings/AppProviderTypes';
+import { ResultType, SomeResult } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 import { MaybeUser, UserType, UserStatus } from '../../typings/UserTypes';
+import SaveButton from '../../components/common/SaveButton';
+import { secondaryText, surfaceText } from '../../utils/NewColors';
 
 export interface OwnProps {
   navigator: any,
@@ -43,12 +45,14 @@ export interface StateProps {
   pendingSavedReadings: PendingReading[],
   pendingSavedResources: PendingResource[],
   translation: TranslationFile,
+  syncing: boolean,
+  shortIdCache: CacheType<string>,
 }
 
 export interface ActionProps {
-  startExternalSync: (baseApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => any,
-  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) => any,
+  startInternalSync: (appApi: BaseApi, userId: string) => Promise<SomeResult<ExternalSyncStatusComplete>>,
   deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
+  deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) => any,
 }
 
 export interface State {
@@ -88,23 +92,33 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.props.deletePendingResource.bind(this);
     this.handleDeletePendingResource = this.handleDeletePendingResource.bind(this);
     this.displayDeleteResourceModal = this.displayDeleteResourceModal.bind(this);
+    this.startInternalSync = this.startInternalSync.bind(this);
 
     this.state = {};
   }
 
+  async startInternalSync() {
+    const result = await this.props.startInternalSync(this.appApi, this.props.userId);
+    if (result.type === ResultType.ERROR) {
+      //TODO: Translate
+      ToastAndroid.show(result.message, ToastAndroid.LONG);
+    }
+  }
+
   getSyncSection() {
-    const { user, userStatus,  pendingSavedResources, pendingSavedReadings } = this.props;
+    const { user, userStatus, externalSyncStatus, pendingSavedResources, pendingSavedReadings } = this.props;
     const {
-      settings_sync_heading,
       sync_login_message,
       sync_start_sync_button,
       sync_start_sync_button_loading,
-      sync_manual_text,
-      sync_manual_show_me_how,
-      settings_connect_to_pending_title
+      settings_connect_to_pending_title,
+      pending_status_rejected,
+      pending_status_unapproved,
+      pending_status_approved
     } = this.props.translation.templates;
 
     //if no login, just display a message saying 'login to sync'
+    //Don't think this is possible for MyWell
     if (user.type === UserType.NO_USER) {
       return (
         <Button
@@ -138,50 +152,35 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
+    let statusText = pending_status_approved;
     if (userStatus === UserStatus.Rejected) {
-      return (
-        <View>
-          <Text>Your account has been suspended. You won't be able to save anything until an administrator fixes your account.</Text>
-        </View>
-      );
+      statusText = pending_status_rejected;
     }
 
     if (userStatus === UserStatus.Unapproved) {
-      return (
-        <View>
-          <Text>Your account is still waiting for approval. If it's been too long, reach out to an administrator at ____ to rectify the problem.</Text>
-        </View>
-      );
+      statusText = pending_status_unapproved;
     }
+
+    const syncing: boolean = externalSyncStatus.status === ExternalSyncStatusType.RUNNING;
+    const approved: boolean = userStatus === UserStatus.Approved;
 
     return (
       <View>
-        <Text>Your account is approved! Your readings and resources will be synced shortly.</Text>
+        <Text style={{ padding: 20 }}>
+          {statusText}
+        </Text>
+        { approved && 
+          <SaveButton
+            loading={syncing}
+            icon={syncing ? undefined : { name: 'cached', color: secondaryText.high }}
+            disabled={false}
+            title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
+            onPress={this.startInternalSync}
+            height={50}
+          />
+        }
       </View>
     );
-
-    // //TODO: figure out how to determine if we are syncing
-    // const syncing = false;
-
-    // return (
-    //   <View>
-    //     <Button
-    //       containerViewStyle={{
-    //         paddingTop: 20,
-    //       }}
-    //       style={{
-    //         minHeight: 50,
-    //       }}
-    //       color={primaryText}
-    //       backgroundColor={primary}
-    //       borderRadius={15}
-    //       loading={syncing}
-    //       icon={syncing ? undefined : { name: 'cached', color: primaryText }}
-    //       title={syncing ? sync_start_sync_button_loading : sync_start_sync_button}
-    //       onPress={() => this.props.startExternalSync(this.appApi, this.externalApi, this.props.userId, pendingSavedResources, pendingSavedReadings)}
-    //     />
-    //   </View>
-    // )
   }
 
   resourceListItem(r: PendingResource, i: number, message?: string) {
@@ -204,7 +203,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
           </TouchableNativeFeedback>
         }
-        title={r.id}
+        title={getShortIdOrFallback(r.id, this.props.shortIdCache)}
         avatar={getGroundwaterAvatar()}
         subtitle={errorMessage || `${r.coords.latitude.toFixed(3)}, ${r.coords.longitude.toFixed(3)}`}
         subtitleStyle={{ color: message ? error1 : primaryDark }}
@@ -239,17 +238,18 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { deletePendingReading } = this.props;
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
-
+    const unitSuffix = getUnitSuffixForPendingResource(r, this.props.config);
 
     return (
       <ReadingListItem
         key={i}
-        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id)}
+        deletePendingReading={(id: string) => deletePendingReading(this.appApi, this.props.userId, id, r.resourceId)}
         pendingReading={r}
         sync_date_format={sync_date_format}
         message={message}
         errorMessage={errorMessage}
-        unitSuffix=" m"
+        unitSuffix={unitSuffix}
+        shortId={getShortIdOrFallback(r.resourceId, this.props.shortIdCache)}
       />
     )
   }
@@ -362,11 +362,11 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          paddingHorizontal: 35,
           height: '100%',
         }}>
-          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{sync_empty_heading}</Text>
-          <Text style={{ textAlign: "center" }}>{sync_empty_content}</Text>
+          <Text style={{ color: surfaceText.high, textAlign: "left", fontWeight: '800', fontSize: 22, paddingBottom: 10 }}>{sync_empty_heading}</Text>
+          <Text style={{ color: surfaceText.med, textAlign: "left", fontWeight: '400', fontSize: 15, paddingBottom: 10,  }}>{sync_empty_content}</Text>
         </View>
       );
     }
@@ -393,17 +393,18 @@ const mapStateToProps = (state: AppState) => {
     pendingSavedResources: state.pendingSavedResources,
     externalSyncStatus: state.externalSyncStatus,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    startExternalSync: (appApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) =>
-      dispatch(appActions.startExternalSync(appApi, api, userId, pendingResources, pendingReadings)),
+    startInternalSync: (appApi: BaseApi, userId: string) =>
+      dispatch(appActions.startInternalSync(appApi, userId)),
     deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) =>
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
-    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string) =>
-      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId))
+    deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
+      dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
   }
 }
 

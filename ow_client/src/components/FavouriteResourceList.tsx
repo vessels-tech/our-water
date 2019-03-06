@@ -8,9 +8,8 @@ import {
 import {  Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
-import FirebaseApi from '../api/FirebaseApi';
-import { randomPrettyColorForId, getShortId, maybeLog } from '../utils';
+import { randomPrettyColorForId, getShortId, maybeLog, renderLog } from '../utils';
+import FirebaseApi from '../api/DeprecatedFirebaseApi';
 
 import Config from 'react-native-config'
 import { bgLightHighlight, primaryText, secondaryText } from '../utils/Colors';
@@ -26,17 +25,24 @@ import ResourceCell from './common/ResourceCell';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import DownArrow from './common/DownArrow';
+import { Stats } from 'fs';
+import { PendingResource } from '../typings/models/PendingResource';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
-export interface Props {
+export interface OwnProps {
   userId: string,
   config: ConfigFactory,
   onResourceCellPressed: any,
   //If this exists, will filter the displayed resources to be only the given resource type
-  filterResourceType?: ResourceType,
+  filterResourceType?: ResourceType;
 
+
+}
+
+export interface StateProps {
+  pendingResources: PendingResource[],
   favouriteResourcesMeta: SyncMeta,
   favouriteResources: AnyResource[],
   recentResourcesMeta: SyncMeta,
@@ -44,6 +50,11 @@ export interface Props {
   translation: TranslationFile,
   renderCounter?: number,
 }
+
+export interface ActionProps {
+}
+
+
 
 export interface State {
   recents: any[],
@@ -54,11 +65,11 @@ export interface State {
  * resources.
  * 
  */
-class FavouriteResourceList extends React.PureComponent<Props> {
+class FavouriteResourceList extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   unsubscribe: any;
   state: State;
 
-  constructor(props: Props) {
+  constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     this.state = {
@@ -70,27 +81,46 @@ class FavouriteResourceList extends React.PureComponent<Props> {
     // this.props.onResourceCellPressed = this.props.onResourceCellPressed.bind(this)
   }
 
-  getFilteredResource(resources: AnyResource[], filterResourceType: ResourceType): AnyResource[] {
-    return resources.filter(r => {
-      if (!this.props.filterResourceType || r.type !== OrgType.MYWELL) {
-        return r;
-      }
 
-      return r.resourceType === filterResourceType;
-    })
+  getPendingSection() {
+    if (!this.props.config.getFavouriteResourcesShouldShowPending()) {
+      return null;
+    }
+
+    //TODO: translate
+    const pending_resource_heading = "Pending Resources";
+    const { pendingResources } = this.props;
+
+    if (pendingResources.length === 0) {
+      return null;
+    }
+
+    return (
+      <View>
+        <Text style={{marginLeft: 13}}>{pending_resource_heading}:</Text>
+        <View style={{
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+        }}
+        >
+          {pendingResources.map((r) => (
+            <ResourceCell
+              style={{ marginBottom: 15 }}
+              key={r.id}
+              config={this.props.config}
+              resource={r}
+              onResourceCellPressed={this.props.onResourceCellPressed}
+            />
+          ))
+          }
+        </View>
+      </View>
+    );
   }
 
   getFavouritesSection() {
-    const { 
-      favouriteResourcesMeta, 
-      filterResourceType, 
-      translation: { templates: { favourite_resource_hint_1, favourite_resource_hint_2 } } } = this.props;
-
-    let favouriteResources = this.props.favouriteResources;
-
-    if (filterResourceType) {
-      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
-    }
+    const { favourite_resource_hint_1, favourite_resource_hint_2 } = this.props.translation.templates;
+    const { favouriteResourcesMeta, favouriteResources } = this.props;
 
     if (favouriteResourcesMeta.loading) {
       return <Loading/>
@@ -109,9 +139,8 @@ class FavouriteResourceList extends React.PureComponent<Props> {
           color='yellow'
         />);
     
-      //TODO: change this hint to use translations
       return (
-        <Text style={{textAlign: 'center'}}>
+        <Text style={{textAlign: 'center', paddingVertical: 50}}>
           {favourite_resource_hint_1} {icon} {favourite_resource_hint_2}.
         </Text>
       );
@@ -161,13 +190,8 @@ class FavouriteResourceList extends React.PureComponent<Props> {
   }
 
   getRecentsSection() {
-    const { translation: { templates: { recent_resource_none } } } = this.props;
-    let recentResources = this.props.recentResources;
-    const { filterResourceType } = this.props;
-
-    if (filterResourceType) {
-      recentResources = this.getFilteredResource(recentResources, filterResourceType)
-    }
+    const { recent_resource_none } = this.props.translation.templates;
+    const { recentResources } = this.props;
 
     if (recentResources.length === 0) {
       return (
@@ -229,7 +253,6 @@ class FavouriteResourceList extends React.PureComponent<Props> {
 
   getStartedSection() {
     const { translation: { templates: { resource_detail_empty_heading, resource_detail_empty_hint}}} = this.props;
-
     const shouldShowButtons = this.props.config.getFavouriteResourceShouldShowGetStartedButtons();
 
     const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -261,12 +284,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
               marginLeft: 25,
               width: SCREEN_WIDTH - 50
             }}>
-              {/* Arrow icons pointing to menu buttons */}
-              <DownArrow />
-              <DownArrow />
-              <View style={{ 
-                flex: 1,
-              }}/>
+              {/* TODO: Add QR/Map buttons here. */}
             </View>
           </View>
         : null }
@@ -275,7 +293,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
   }
 
   getResourcesSection() {
-    const { translation: { templates: { favourite_resource_heading, recent_resource_heading}}} = this.props;
+    const { favourite_resource_heading, recent_resource_heading } = this.props.translation.templates;
 
     return (
       <View 
@@ -283,6 +301,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
           flex: 1,
         }}
       >
+        {this.getPendingSection()}
         <Text style={{
           marginLeft: 13,
         }}>
@@ -290,6 +309,7 @@ class FavouriteResourceList extends React.PureComponent<Props> {
         </Text>
         {this.getFavouritesSection()}
         <Text style={{
+          // marginTop: 100,
           marginLeft: 13,
         }}>
           {recent_resource_heading}:
@@ -300,19 +320,9 @@ class FavouriteResourceList extends React.PureComponent<Props> {
   }
 
   render() {
-    let recentResources = this.props.recentResources;
-    let favouriteResources = this.props.favouriteResources;
-    const { filterResourceType } = this.props;
+    const { pendingResources, recentResources, favouriteResources } = this.props;
 
-    maybeLog(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
-
-    if (filterResourceType) {
-      favouriteResources = this.getFilteredResource(favouriteResources, filterResourceType)
-    }
-
-    if (filterResourceType) {
-      recentResources = this.getFilteredResource(recentResources, filterResourceType)
-    }
+    renderLog(`FavouriteResourceList render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View 
@@ -321,24 +331,39 @@ class FavouriteResourceList extends React.PureComponent<Props> {
           flex: 1,
           paddingTop: 5,
         }}>
-        {favouriteResources.length + recentResources.length === 0 ? this.getStartedSection() : this.getResourcesSection()}
+        {pendingResources.length + favouriteResources.length + recentResources.length === 0 ? 
+          this.getStartedSection() : 
+          this.getResourcesSection()
+        }
       </View>
     );
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
+  let pendingResources = state.pendingSavedResources;
+  let favouriteResources = state.favouriteResources;
+  let recentResources = state.recentResources;
+
+  if (ownProps.filterResourceType) {
+    pendingResources = pendingResources.filter(r => r.resourceType === ownProps.filterResourceType);
+    
+    //A little clunky as resourceType doesn't exist on GGMNResource.
+    favouriteResources = favouriteResources.filter(r => r.type === OrgType.GGMN || r.resourceType === ownProps.filterResourceType);
+    recentResources = recentResources.filter(r => r.type === OrgType.GGMN || r.resourceType === ownProps.filterResourceType);
+  }
 
   return {
+    pendingResources,
     favouriteResourcesMeta: state.favouriteResourcesMeta,
-    favouriteResources: state.favouriteResources,
+    favouriteResources,
     recentResourcesMeta: state.recentResourcesMeta,
-    recentResources: state.recentResources,
+    recentResources,
     translation: state.translation,
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
    
   }

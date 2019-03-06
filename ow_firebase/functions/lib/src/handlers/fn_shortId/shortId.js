@@ -11,13 +11,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
-//@ts-ignore
-const morgan = require("morgan");
-//@ts-ignore
-const morganBody = require("morgan-body");
 const ErrorHandler_1 = require("../../common/ErrorHandler");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
-const AppProviderTypes_1 = require("../../common/types/AppProviderTypes");
+const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
+const utils_1 = require("../../common/utils");
 // import FirebaseApi from '../common/apis/FirebaseApi';
 require('express-async-errors');
 const bodyParser = require('body-parser');
@@ -25,25 +23,18 @@ const Joi = require('joi');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
-    if (process.env.VERBOSE_LOG === 'false') {
-        console.log('Using simple log');
-        app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-    }
-    else {
-        console.log('Using verbose log');
-        morganBody(app);
-    }
+    utils_1.enableLogging(app);
     /**
-   * createShortId
-   *
-   * @description
-   * Creates a shortId for a resource. If the shortId already exists,
-   * it returns the existing one.
-   *
-   *
-   * POST /:orgId/
-   * body: { resourceId: string }
-   */
+     * createShortId
+     *
+     * @description
+     * Creates a shortId for a resource. If the shortId already exists,
+     * it returns the existing one.
+     *
+     *
+     * POST /:orgId/
+     * body: { resourceId: string }
+     */
     const createShortIdValidation = {
         body: {
             resourceId: Joi.string().required()
@@ -53,7 +44,8 @@ module.exports = (functions) => {
     app.post('/:orgId', validate(createShortIdValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId } = req.params;
         const { resourceId } = req.body;
-        const result = yield FirebaseApi_1.default.createShortId(orgId, resourceId);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const result = yield fbApi.createShortId(orgId, resourceId);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(result.message);
         }

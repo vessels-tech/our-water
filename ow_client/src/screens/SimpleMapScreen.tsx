@@ -29,7 +29,7 @@ import { AnyResource } from '../typings/models/Resource';
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
-  appApi: BaseApi,
+  initialRegion?: MapRegion
 }
 
 export interface StateProps {
@@ -60,23 +60,28 @@ export interface State {
 
 class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   mapRef?: MapView;
-  state: State = {
-    mapState: MapStateOption.default,
-    hasSelectedResource: false,
-    initialRegion: {
-      latitude: this.props.location.coords.latitude,
-      longitude: this.props.location.coords.longitude,
-      latitudeDelta: 3.0,
-      longitudeDelta: 3.0,
-    },
-  };
+  state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+    
+    let initialRegion = props.initialRegion;
+    if (!initialRegion) {
+      initialRegion = {
+        latitude: this.props.location.coords.latitude,
+        longitude: this.props.location.coords.longitude,
+        latitudeDelta: 3.0,
+        longitudeDelta: 3.0,
+      };
+    }
 
-    //@ts-ignore
+    this.state = {
+      mapState: MapStateOption.default,
+      hasSelectedResource: false,
+      initialRegion,
+    };
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
@@ -124,6 +129,11 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
       selectedResource: resource,
     });
 
+    if (resource.pending) {
+      //Don't add to recents if it's pending.
+      return;
+    }
+  
     this.props.addRecent(this.appApi, this.props.userId, resource);
   }
 
@@ -152,7 +162,8 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: resource.id,
       config: this.props.config,
-      userId: this.props.userId
+      userId: this.props.userId,
+      isPending: resource.pending,
     });
   }
 
@@ -191,10 +202,9 @@ class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
         {this.getPassiveLoadingIndicator()}
         {isNullOrUndefined(initialRegion) ? null :
           <MapSection
+            config={this.props.config}
             mapRef={this.getMapRef}
             initialRegion={initialRegion}
-            resources={this.props.resources}
-            pendingResources={this.props.pendingResources}
             onMapRegionChange={this.onMapRegionChange}
             onResourceSelected={this.selectResource}
             onResourceDeselected={this.clearSelectedResource}
@@ -220,7 +230,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
   //Default location
   let location: Location = { type: LocationType.LOCATION, coords: { latitude: -20.4010, longitude: 32.3373 } };
-  if (state.user.type === UserType.USER) {
+  if (state.user.type !== UserType.NO_USER) {
     userId = state.user.userId;
   }
 

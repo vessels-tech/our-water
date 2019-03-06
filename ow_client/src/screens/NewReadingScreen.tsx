@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, maybeLog, showModal, unwrapUserId } from '../utils';
+import { displayAlert, maybeLog, showModal, unwrapUserId, renderLog } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -35,14 +35,23 @@ import { MaybeLocation, LocationType } from '../typings/Location';
 import { PendingReading } from '../typings/models/PendingReading';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
 import { Maybe } from '../typings/MaybeTypes';
+import FloatingButtonWrapper from '../components/common/FloatingButtonWrapper';
+import SaveButton from '../components/common/SaveButton';
+import { diff } from 'deep-object-diff';
+import { surfaceText } from '../utils/NewColors';
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+import { safeGetNested } from 'ow_common/lib/utils';
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface OwnProps {
+  navigator: any,
+
   groundwaterStationId: string | null,
   resourceId: string,
   resourceType: string,
-  navigator: any,
   config: ConfigFactory,
 }
 
@@ -53,6 +62,8 @@ export interface StateProps {
   location: MaybeLocation,
   resource: Maybe<AnyResource>,
   resourceMeta: ActionMeta
+  isResourcePending: boolean,
+  userType: UserAdminType,
 }
 
 export interface ActionProps {
@@ -67,6 +78,7 @@ export interface State {
   date: moment.Moment,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
+  formHeight: number,
 }
 
 class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
@@ -82,10 +94,6 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
 
-    // let resourceType = 'well';
-    // if (props.resource.pending || props.resource.type === OrgType.MYWELL) {
-    //   resourceType = props.resource.resourceType
-    // }
     const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(props.resourceType);
     this.state = {
       enableSubmitButton: false,
@@ -94,6 +102,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       shouldShowCamera: false,
       readingImage: { type: ReadingImageType.NONE },
       timeseries: timeseriesList[0],
+      formHeight: SCREEN_HEIGHT,
     };
 
     //Binds
@@ -102,10 +111,48 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.onTakePictureError = this.onTakePictureError.bind(this);
     this.clearReadingImage = this.clearReadingImage.bind(this);
     this.saveReading = this.saveReading.bind(this);
+
+    /* Listeners */
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
   }
 
   componentWillMount() {
     this.props.getGeolocation();
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    renderLog("NewReadingScreen componentWillUpdate():");
+    renderLog("     - ", diff(this.props, nextProps));
+    renderLog("     - ", diff(this.state, nextState));
+  }
+
+  shouldComponentUpdate(nextProps: OwnProps & StateProps & ActionProps, nextState: State, nextContext: any) {
+    if (Object.keys(diff(this.state, nextState)).length > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Listeners
+   * //TD: these listeners aren't always removed properly
+   */
+  keyboardDidShow(event: any): void {
+    const formHeight = SCREEN_HEIGHT - event.endCoordinates.height;
+    this.setState({ formHeight });
+  }
+
+  keyboardDidHide(event: any): void {
+    this.setState({
+      formHeight: SCREEN_HEIGHT,
+    });
   }
 
   showTakePictureScreen() {
@@ -139,12 +186,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   async saveReading() {
-
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
     const { 
-      pendingSavedReadingsMeta: {loading},
-
+      pendingSavedReadingsMeta: { loading },
+      isResourcePending,
       location, 
     } = this.props;
 
@@ -201,6 +247,11 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       image: readingImage,
       location: readingLocation,
       groundwaterStationId,
+
+      //TD: hacks while we wait for a fix on types
+      datetime: moment(date).utc().format(), //converts to iso string
+      resourceType: this.props.resourceType,
+      isResourcePending,
     };
 
     const validateResult = validateReading(this.props.config.orgType, readingRaw);
@@ -354,16 +405,16 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       new_reading_value_field,
       new_reading_value_field_invalid,
       new_reading_timeseries,
+      // long_date_format
     } = this.props.translation.templates;
 
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
 
     return (
-      <View style={{
+      <ScrollView style={{
         flex: 1,
         width: '100%',
-        paddingHorizontal: 20,
-        marginTop: 10,
+        paddingHorizontal: 10,
         flexDirection: 'column',
         paddingBottom: 10,
       }}>
@@ -372,8 +423,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
-          onChangeText={(dateStr: Date) => {
-            const date: moment.Moment = moment(dateStr);
+          onChangeText={(date: moment.Moment) => {
             this.setState({date});
           }}
           fieldType={InputType.dateTimeInput}
@@ -422,7 +472,13 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           </Picker>
         </View>
         {this.getImageSection()}
-      </View>
+        {/* Transparent footer to make the scrollview balance */}
+        <View
+          style={{
+            height: 75,
+          }}
+        />
+      </ScrollView>
     );
   }
 
@@ -442,51 +498,71 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props;
 
     return (
-      <Button
-        title={new_reading_save_button}
-        raised={true}
-        textStyle={{
-          color: secondaryText
-        }}
-        disabled={this.shouldDisableSubmitButton()}
-        icon={{ name: 'save', color: secondaryText }}
-        loading={loading}
-        buttonStyle={{
-          backgroundColor: secondary,
-          width: SCREEN_WIDTH - 20,
-        }}
-        onPress={this.saveReading}
-        underlayColor="transparent"
-      />
+      <FloatingButtonWrapper>
+        <SaveButton
+          loading={loading}
+          disabled={this.shouldDisableSubmitButton()}
+          title={loading ? "loading" : new_reading_save_button}
+          icon={{ name: 'save', color: secondaryText }}
+          height={50}
+          onPress={this.saveReading}
+        />
+      </FloatingButtonWrapper>
+    );
+  }
+
+  getPermissionOverlay() {
+    const save_reading_permission_heading = 'Can\'t Save Readings';
+    const save_reading_permission_text = "You don't have permission to save readings to this resource, because you don't own it.";
+
+    return (
+      <View style={{
+        flex: 1,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 35,
+        height: '100%',
+      }}>
+        <Text style={{ color: surfaceText.high, textAlign: "left", fontWeight: '800', fontSize: 22, paddingBottom: 10 }}>{save_reading_permission_heading}</Text>
+        <Text style={{ color: surfaceText.med, textAlign: "left", fontWeight: '400', fontSize: 15, paddingBottom: 10, }}>{save_reading_permission_text}</Text>
+      </View>
     );
   }
 
   render() {
+    renderLog(`NewReadingScreen render()`);
+
+    let hasWritePermission = false;
+    if (this.props.userType === UserAdminType.Admin) {
+      hasWritePermission = true;
+    }
+
+    const ownerId = safeGetNested(this.props, ['resource', 'owner', 'createdByUserId']);
+    //Publicly editable
+    if (!ownerId || ownerId === 'default') {
+      hasWritePermission = true;
+    } else if (ownerId === this.props.userId) {
+      hasWritePermission = true;
+    }
+
     return (
       <TouchableWithoutFeedback 
         style={{
           flex: 1,
           flexDirection: 'column',  
           width: '100%',
-          height: '100%'
         }}
         onPress={() => {
           return false;
         }}
       >
-        <ScrollView style={{
-          flex: 1,
-          flexDirection: 'column',
-          backgroundColor: bgLight,
-          width: '100%',
-          marginBottom: 40,
-          paddingHorizontal: 10,
-        }}
-          keyboardShouldPersistTaps={'always'}
+        <View
+          style={{flex: 1}}
         >
-          {this.getForm()}
-          {this.getButton()}
-        </ScrollView>
+          {hasWritePermission && this.getForm()}
+          {hasWritePermission &&  this.getButton()}
+          {hasWritePermission || this.getPermissionOverlay()}
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -501,6 +577,11 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resourceMeta = { loading: false, error: false, errorMessage: '' };
   }
 
+  //Look for the resource in pending resources. If it's there, then this reading must be for a pending resource
+  let isResourcePending = false;
+  if (state.pendingSavedResources.findIndex((r) => r.id === ownProps.resourceId) >= -1) {
+    isResourcePending = true;
+  }
 
   return {
     pendingSavedReadingsMeta: state.pendingSavedReadingsMeta,
@@ -509,6 +590,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     userId: unwrapUserId(state.user),
     resource,
     resourceMeta,
+    isResourcePending,
+    userType: state.userType,
   }
 }
 

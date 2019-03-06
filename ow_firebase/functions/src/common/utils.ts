@@ -5,15 +5,15 @@ import { Resource } from "./models/Resource";
 import LegacyReading from "./types/LegacyReading";
 import * as Papa from 'papaparse';
 import * as request from 'request-promise-native';
-import { ResourceType } from "./enums/ResourceType";
 import SyncRunResult from "./types/SyncRunResult";
-import FirestoreDoc from './models/FirestoreDoc';
 import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
-import * as btoa from 'btoa';
-var filesystem = require("fs");
+import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
+import { verboseLog, projectId } from "./env";
 
+const filesystem = require("fs");
+import serviceAccountKey from './.serviceAccountKey';
 
 
 /**
@@ -260,26 +260,26 @@ export const downloadAndParseCSV = (url) => {
   });
 }
 
-export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceType => {
+export const resourceTypeForLegacyResourceId = (legacyResourceId: string): ResourceStationType => {
 
   if (legacyResourceId.startsWith('117')) {
-    return ResourceType.Raingauge;
+    return ResourceStationType.raingauge;
   }
 
   if (legacyResourceId.startsWith('118')) {
-    return ResourceType.Checkdam;
+    return ResourceStationType.checkdam;
   }
 
-  return ResourceType.Well;
+  return ResourceStationType.well;
 }
 
-export const resourceIdForResourceType = (resourceType: ResourceType): string => {
+export const resourceIdForResourceType = (resourceType: ResourceStationType): string => {
   switch (resourceType) {
-    case ResourceType.Well:
+    case ResourceStationType.well:
       return '10';
-    case ResourceType.Raingauge:
+    case ResourceStationType.raingauge:
       return '70';
-    case ResourceType.Checkdam:
+    case ResourceStationType.checkdam:
       return '80'
   }
 }
@@ -318,17 +318,6 @@ export const hashIdToIntegerString = (id: string, length: number): string => {
 
   const fullHash = `${hashCode(id)}`;
   return fullHash.substring(0, length);
-}
-
-/**
- * The Id for a reading is generated as a hash of the
- * reading's dateTime + ResourceId + timeseriesId.
- * 
- * For now, we can just encode it as a base64 string
- */
-export const hashReadingId = (resourceId: string, timeseriesId: string, dateTime: Date): string => {
-  const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
-  return btoa(input);
 }
 
 
@@ -401,6 +390,7 @@ export function writeFileAsync(filename: string, content: any, encoding: string)
 
 /**
  * Split an array up into an array of chuncks
+ * //TODO: replace with ow_common
  */
 export function chunkArray(array: any[], size: number): any[][] {
   const chunks = [];
@@ -412,4 +402,95 @@ export function chunkArray(array: any[], size: number): any[][] {
   }
 
   return chunks;
+}
+
+
+/**
+ * Express middleware has no access to the req.params, but 
+ * sometimes we still need the orgId in the middleware.
+ * 
+ * Pass in req.originalUrl, and we will try to get the OrgId
+ * 
+ */
+export function unsafelyGetOrgId(originalUrl: string): string {
+  const params = originalUrl.split('/');
+  if (params.length === 0) {
+    return null;
+  }
+  
+  return params[1];
+}
+
+/**
+ * Saftely get things and check if null
+ * 
+ * @example:
+ *   const userId = get(req, ['user', 'uid']);
+ */
+export const get = (o: any, p: string[]) =>
+  p.reduce((xs, x) =>
+    (xs && xs[x]) ? xs[x] : null, o)
+
+
+//@ts-ignore
+import * as morgan from 'morgan';
+//@ts-ignore
+import * as morganBody from 'morgan-body';
+import { getAdminAccessToken, getRemoteConfig } from "../../tools";
+import { SomeResult, ResultType, makeError, safeGetNested } from "ow_common/lib/utils";
+import { makeSuccess } from "./types/dep_AppProviderTypes";
+
+export function enableLogging(app: any): void {
+  if (!verboseLog) {
+    console.log('Using simple log');
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+  } else {
+    console.log('Using verbose log');
+    morganBody(app);
+  }
+}
+
+export async function loadRemoteConfig(): Promise<SomeResult<any>> {
+  let config;
+  try {
+    const accessToken = await getAdminAccessToken(serviceAccountKey)
+    const currentConfigResult = await getRemoteConfig(projectId, accessToken);
+    config = JSON.parse(currentConfigResult[1]);
+  } catch(err) {
+    return makeError(err.message);
+  }
+
+  if (!config) {
+    return makeError("Couldn't find config");
+  }
+
+  return makeSuccess(config);
+}
+
+export async function getDefaultTimeseries(resourceType: ResourceStationType): Promise<SomeResult<any>> {
+
+  const configResult = await this.loadRemoteConfig();
+  if (configResult.type === ResultType.ERROR) {
+    return configResult;
+  }
+
+  const timeseriesTypesStr = safeGetNested(configResult, ['result', 'parameters', 'editResource_defaultTypes', 'defaultValue', 'value']);
+
+  if (!timeseriesTypesStr) {
+    return makeError("Couldn't find default timeseries types");
+  }
+
+  let timeseries;
+  try {
+    const timeseriesTypes = JSON.parse(timeseriesTypesStr);
+    timeseries = timeseriesTypes[resourceType];
+  } catch(err) {
+    return makeError(`Error parsing timeseries`);
+  }
+
+  if (!timeseries) {
+    return makeError(`Couldn't find resourceType: ${resourceType}`);
+  }
+  
+  return makeSuccess(timeseries);
 }

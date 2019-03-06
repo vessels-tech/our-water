@@ -26,7 +26,7 @@ const GGMNDevConfig: RemoteConfig = {
   editResource_hasResourceName: true,
   editResource_showOwerName: false,
   editResource_availableTypes: '["well"]',
-  editResource_defaultTypes: '{"well":[{"name":"GWmMSL","parameter":"GWmMSL","readings":[]},{"name":"GWmBGS","parameter":"GWmBGS","readings":[]}]}',
+  editResource_defaultTypes: '{"well":[{"name":"GWmMSL","parameter":"GWmMSL","readings":[],"unitOfMeasure":"m"},{"name":"GWmBGS","parameter":"GWmBGS","readings":[],"unitOfMeasure":"m"}]}',
   editResource_allowCustomId: true,
   editResource_hasWaterColumnHeight: true,
   favouriteResource_scrollDirection: ScrollDirection.Horizontal,
@@ -36,7 +36,14 @@ const GGMNDevConfig: RemoteConfig = {
   translationOptions: possibleTranslationsForOrg(orgId),
   ggmn_ignoreReading: { date: "2017-01-01T00:00:00.000Z", value: 0 },
   map_regionChangeReloadDebounceTimeMs: 1000,
-
+  showMapInSidebar: false,
+  resourceDetail_shouldShowTable: false,
+  resourceDetail_shouldShowQRCode: false,
+  favouriteResource_showPendingResources: false,
+  availableGroupTypes: {},
+  shouldUseV1Search: true,
+  resourceDetail_allowDownload: false,
+  readingDownloadUrl: "",
 }
 
 export default GGMNDevConfig;

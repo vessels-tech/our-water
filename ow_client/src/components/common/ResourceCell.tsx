@@ -1,8 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
-import { randomPrettyColorForId, formatShortId, getShortIdOrFallback } from '../../utils';
-import { DeprecatedResource } from '../../typings/models/OurWater';
+import { randomPrettyColorForId, formatShortId } from '../../utils';
 import { View, Dimensions } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, Badge } from 'react-native-elements';
 import { secondaryText } from '../../utils/Colors';
 import { ActionMeta } from '../../typings/Reducer';
 import { connect } from 'react-redux'
@@ -14,12 +13,14 @@ import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
 import { primaryText } from '../../assets/ggmn/Colors';
+import { PendingResource } from '../../typings/models/PendingResource';
+import { isNullOrUndefined } from 'util';
 
 
 export interface OwnProps {
   config: ConfigFactory,
-  resource: AnyResource,
-  onResourceCellPressed: (resource: AnyResource) => void,
+  resource: AnyResource | PendingResource,
+  onResourceCellPressed: (resource: AnyResource | PendingResource) => void,
   style: any,
 
 }
@@ -27,6 +28,7 @@ export interface OwnProps {
 export interface StateProps {
   shortIdMeta?: ActionMeta,
   shortId?: string,
+  isNew: boolean,
 }
 
 export interface ActionProps {
@@ -57,19 +59,19 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     if (!shortIdMeta || shortIdMeta.loading === true || !shortId) {
-      return ' . . . ';
+      return '. . . - . . .';
     } 
     
     const titleResult = formatShortId(shortId);
     if (titleResult.type === ResultType.ERROR) {
-      return ' . . . '
+      return '. . . - . . .';
     }
 
     return titleResult.result;
   }
 
   render() {
-    const { resource, shortId, shortIdMeta } = this.props;
+    const { resource, isNew } = this.props;
 
     const backgroundColor = randomPrettyColorForId(resource.id);
 
@@ -81,22 +83,39 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
       }}
         key={resource.id}
       >
-        <Button
-          borderRadius={5}
-          raised={true}
-          key={resource.id}
-          title={this.getTitle()}
-          color={secondaryText}
-          buttonStyle={{
-            backgroundColor,
+        <View
+          style={{
+            height: 50,
+            zIndex: 1,
           }}
-          textStyle={{
-            color: secondaryText,
-            fontWeight: '600'
-          }}
-          onPress={() => this.props.onResourceCellPressed(this.props.resource)}
-          underlayColor="transparent"
-        />
+        >
+          <Button
+            borderRadius={5}
+            raised={true}
+            key={resource.id}
+            title={this.getTitle()}
+            color={secondaryText}
+            buttonStyle={{
+              backgroundColor,
+            }}
+            textStyle={{
+              color: secondaryText,
+              fontWeight: '600'
+            }}
+            onPress={() => this.props.onResourceCellPressed(this.props.resource)}
+            underlayColor="transparent"
+          />
+        
+        </View>
+        {
+          isNew &&
+          <Badge
+            containerStyle={{ marginBottom: 20, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 20, right: 0 }}
+            value={"New!"}
+            textStyle={{ fontSize: 8, fontWeight: '300' }}
+          />
+        }
+        
       </View>
     );
   }
@@ -106,10 +125,12 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 const mapStateToProps = (state: AppState, props: OwnProps) => {
   let shortIdMeta = state.shortIdMeta[props.resource.id];
   let shortId = state.shortIdCache[props.resource.id];
+  let isNew = !isNullOrUndefined(state.newResources[props.resource.id]);
 
   return {
     shortIdMeta,
-    shortId
+    shortId,
+    isNew,
   }
 }
 

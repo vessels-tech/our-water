@@ -2,6 +2,7 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import OWGeoPoint from '../../common/models/OWGeoPoint';
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { enableLogging } from '../../common/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -10,6 +11,8 @@ const Joi = require('joi');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
+  enableLogging(app);
+
 
 
   // const defaultErrorHandler = require('../common/defaultErrorHandler');

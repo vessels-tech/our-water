@@ -1,6 +1,7 @@
 import { OrgType } from "./OrgType";
 import { MaybeReadingImage } from "./ReadingImage";
 import { MaybeReadingLocation } from "./ReadingLocation";
+import { ResourceType } from "../../enums";
 
 /**
  * Pending Reading models a resource which hasn't been saved
@@ -18,9 +19,11 @@ export type PendingReading = {
 
   value: number
   date: string, //ISO formatted
+  resourceType?: ResourceType,
 
   userId: string,
   image: MaybeReadingImage,
   location: MaybeReadingLocation,
   groundwaterStationId: string, //GGMN only. TODO: Refactor
+  isResourcePending: boolean,
 }

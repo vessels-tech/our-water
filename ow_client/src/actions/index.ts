@@ -1,7 +1,7 @@
-import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
+import { OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult as SearchResultV1 } from "../typings/models/OurWater";
 import { SomeResult, ResultType, makeSuccess, makeError } from "../typings/AppProviderTypes";
-import BaseApi from "../api/BaseApi";
-import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, GetResourcesPaginatedActionRequest, GetResourcesPaginatedActionResponse } from "./AnyAction";
+import BaseApi, { GenericSearchResult } from "../api/BaseApi";
+import { SilentLoginActionRequest, SilentLoginActionResponse, GetLocationActionRequest, GetLocationActionResponse, GetResourcesActionRequest, AddFavouriteActionRequest, AddFavouriteActionResponse, AddRecentActionRequest, AddRecentActionResponse, ConnectToExternalServiceActionRequest, ConnectToExternalServiceActionResponse, DisconnectFromExternalServiceActionRequest, DisconnectFromExternalServiceActionResponse, GetExternalLoginDetailsActionResponse, GetExternalLoginDetailsActionRequest, GetReadingsActionRequest, GetReadingsActionResponse, GetResourcesActionResponse, RemoveFavouriteActionRequest, RemoveFavouriteActionResponse, SaveReadingActionRequest, SaveReadingActionResponse, SaveResourceActionResponse, SaveResourceActionRequest, GetUserActionRequest, GetUserActionResponse, GetPendingReadingsResponse, GetPendingResourcesResponse, StartExternalSyncActionRequest, StartExternalSyncActionResponse, PerformSearchActionRequest, PerformSearchActionResponse, DeletePendingReadingActionRequest, DeletePendingResourceActionResponse, DeletePendingReadingActionResponse, DeletePendingResourceActionRequest, GetExternalOrgsActionRequest, GetExternalOrgsActionResponse, ChangeTranslationActionRequest, ChangeTranslationActionResponse, GetResourceActionRequest, GetResourceActionResponse, GetShortIdActionRequest, GetShortIdActionResponse, SendResourceEmailActionRequest, SendResourceEmailActionResponse, GotShortIdsAction, SendVerifyCodeActionRequest, SendVerifyCodeActionResponse, VerifyCodeAndLoginActionRequest, VerifyCodeAndLoginActionResponse, LogoutActionRequest, LogoutActionResponse, UpdatedTranslationAction, RefreshReadings, GetResourcesPaginatedActionRequest, GetResourcesPaginatedActionResponse, StartInternalSyncActionRequest, StartInternalSyncActionResponse, PerformSearchActionResponseV2 } from "./AnyAction";
 import { ActionType } from "./ActionType";
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location, MaybeLocation } from "../typings/Location";
@@ -22,6 +22,8 @@ import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
 import { Cursor } from "../screens/HomeMapScreen";
 import { ResourceType } from "../enums";
+import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
+import { any } from "react-native-joi";
 
 
 //Shorthand for messy dispatch response method signatures
@@ -63,13 +65,8 @@ export function addRecent(api: BaseApi, userId: string, resource: AnyResource): 
   return async function (dispatch: any) {
     dispatch(addRecentRequest(resource));
     const result = await api.addRecentResource(resource, userId);
-
-    //TODO: make this result void
-    let voidResult: SomeResult<void> = {
-      type: ResultType.SUCCESS,
-      result: undefined
-    }
-    dispatch(addRecentResponse(voidResult));
+    await 
+    dispatch(addRecentResponse(result));
   }
 }
 
@@ -80,7 +77,7 @@ function addRecentRequest(resource: AnyResource): AddRecentActionRequest {
   }
 }
 
-function addRecentResponse(result: SomeResult<void>): AddRecentActionResponse {
+function addRecentResponse(result: SomeResult<any>): AddRecentActionResponse {
   return {
     type: ActionType.ADD_RECENT_RESPONSE,
     result
@@ -265,7 +262,7 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
 export function getExternalLoginDetails(externalServiceApi: MaybeExternalServiceApi): any {
   return async function (dispatch: any) {
     if (externalServiceApi.externalServiceApiType === ExternalServiceApiType.None) {
-      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found");
+      maybeLog("Tried to connect to external service, but no ExternalServiceApi was found 3");
       return;
     }
 
@@ -653,20 +650,42 @@ export function passOnUserSubscription(unsubscribe: () => void): any {
 
 /**
  * Async search for resources
+ * 
+ * TD: Code smell, boolean switches are bad
  */
-export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number): any {
+export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean): any {
   return async (dispatch: any) => {
     dispatch(performSearchRequest(page, searchQuery));
 
-    const searchResult = await api.performSearch(searchQuery, page);
-
-    dispatch(performSearchResponse(searchResult))
-
-    if (searchResult.type !== ResultType.ERROR) {
-        if (searchResult.result.resources.length > 0) {
+    if (!v1) {
+      //TODO: figure out pagination
+      const searchResult = await api.performSearchV2(searchQuery);
+      dispatch(performSearchResponseV2(searchResult))
+      
+      if (searchResult.type !== ResultType.ERROR) {
+        const allResultsCount = searchResult.result.reduce((acc, curr) => {
+          if (curr.type === ResultType.ERROR) {
+            return acc;
+          }
+          
+          return acc + curr.result.results.length;
+        }, 0);
+        if (allResultsCount > 0) {
           await api.saveRecentSearch(userId, searchQuery);
         }
       }
+      return searchResult;
+
+    }
+
+    const searchResult = await api.performSearch(searchQuery, page);
+    dispatch(performSearchResponse(searchResult));
+
+    if (searchResult.type !== ResultType.ERROR) {
+      if (searchResult.result.resources.length > 0) {
+        await api.saveRecentSearch(userId, searchQuery);
+      }
+    }
     return searchResult;
   }
 }
@@ -679,9 +698,17 @@ function performSearchRequest(page: number, searchQuery: string): PerformSearchA
   }
 }
 
-function performSearchResponse(result: SomeResult<SearchResult>): PerformSearchActionResponse {
+function performSearchResponse(result: SomeResult<SearchResultV1>): PerformSearchActionResponse {
   return {
     type: ActionType.PERFORM_SEARCH_RESPONSE,
+    result,
+  }
+}
+
+// performSearchV2(searchQuery: string): Promise<SomeResult<SearchResult<Array<PartialResourceResult | PlaceResult>>>>;
+function performSearchResponseV2(result: GenericSearchResult): PerformSearchActionResponseV2 {
+  return {
+    type: ActionType.PERFORM_SEARCH_RESPONSE_V2,
     result,
   }
 }
@@ -981,9 +1008,7 @@ export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi
     }
 
     //TODO: update the favourites as well.
-
     dispatch(externalSyncResponse(result));
-
   }
 }
 
@@ -999,6 +1024,52 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
     result,
   }
 }
+
+/**
+ * Useful to mock out responses and load loading indicators
+ * 
+ * eg: 
+ * const result = await wait<SomeResult<ExternalSyncStatusComplete>>(makeError<ExternalSyncStatusComplete>("OH NO!"));
+ */
+function wait<T>(output: T): Promise<T> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      return resolve(output)
+    }, 300);
+  });
+}
+
+/**
+ * startInternalSync
+ * 
+ * Run a sync where we save Resources and Readings from the user's private collections to
+ * the public
+ */
+export function startInternalSync(api: BaseApi, userId: string): (dispatch: any) => Promise<SomeResult<ExternalSyncStatusComplete>> {
+  return async function (dispatch: any) {
+   
+    dispatch(internalSyncRequest());
+    const result = await api.runInternalSync(userId);
+    dispatch(internalSyncResponse(result));
+
+    return result;
+  }
+}
+
+function internalSyncRequest(): StartInternalSyncActionRequest {
+  return {
+    type: ActionType.START_INTERNAL_SYNC_REQUEST
+  }
+}
+
+function internalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): StartInternalSyncActionResponse {
+  return {
+    type: ActionType.START_INTERNAL_SYNC_RESPONSE,
+    result,
+  }
+}
+
+
 
 export function updatedTranslation(translationFiles: TranslationFiles, translationOptions: TranslationEnum[]): UpdatedTranslationAction {
   return {

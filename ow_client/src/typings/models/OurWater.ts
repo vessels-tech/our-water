@@ -8,9 +8,11 @@ import { AnyReading } from "./Reading";
 import { string } from "react-native-joi";
 import { AnyARecord } from "dns";
 import { UserStatus } from "../UserTypes";
+import UserType from "ow_common/lib/enums/UserType";
+import { CacheType } from "../../reducers";
 
 export type DeprecatedResource = {
-  id: string,
+  id: string, DeprecatedResource
   //TODO: remove this, it no longer applies
   legacyId: string,
   // externalIds: ResourceIdType
@@ -48,6 +50,7 @@ export function toBasicCoords(from: OWGeoPoint): BasicCoords {
 
 export type ResourceOwnerType = {
   name: string,
+  createdByUserId: string | 'default' | null,
 }
 
 
@@ -133,6 +136,8 @@ export type OWUser = {
   name: string | null,
   nickname: string | null,
   status: UserStatus,
+  type: UserType,
+  newResources: CacheType<string>,
 }
 
 export type TimeSeriesReading = {

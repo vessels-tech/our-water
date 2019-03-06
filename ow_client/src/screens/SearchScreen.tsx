@@ -9,11 +9,11 @@ import {
   SearchBar,
   Text,
 } from 'react-native-elements';
-import { SearchResult } from '../typings/models/OurWater';
+import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar } from '../utils';
+import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse } from '../utils';
 import { AppState } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
@@ -22,9 +22,12 @@ import * as appActions from '../actions';
 import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
+import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
+import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
 
 export interface OwnProps {
-  onSearchResultPressed: (result: AnyResource) => void,
+  onSearchResultPressedV1: (result: AnyResource) => void,
+  onSearchResultPressed: (result: PartialResourceResult | PlaceResult) => void,
   navigator: any;
   userId: string,
   config: ConfigFactory,
@@ -33,13 +36,14 @@ export interface OwnProps {
 export interface StateProps {
   isConnected: boolean,
   recentSearches: string[],
-  searchResults: SearchResult, //This may be more than just resources in the future
+  searchResultsV1: SearchResultV1, //This may be more than just resources in the future
+  searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
 }
 
 export interface ActionProps { 
-  performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => SomeResult<void>
+  performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => SomeResult<void>
 }
 
 export interface State {
@@ -47,6 +51,7 @@ export interface State {
   hasSearched: boolean,
   page: number,
 }
+
 
 class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State;
@@ -101,7 +106,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       this.setState({page: pageOverride});
     }
     this.setState({hasSearched: true});
-    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page);
+    const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page, this.props.config.getShouldUseV1Search());
        
     if (result.type === ResultType.ERROR) {
       ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
@@ -123,7 +128,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
-  onSearchResultPressed(r: AnyResource){
+  onSearchResultPressedV1(r: AnyResource){
+    this.props.navigator.pop();
+    this.props.onSearchResultPressedV1(r)
+  }
+
+  onSearchResultPressed(r: PartialResourceResult | PlaceResult){
     this.props.navigator.pop();
     this.props.onSearchResultPressed(r)
   }
@@ -136,9 +146,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    * Display the search results, in a series of cards and grids
    * similar to google maps.
    */
-  getSearchResults() {
+  getSearchResultsV1() {
     const { 
-      searchResults, 
+      searchResultsV1, 
       searchResultsMeta: { loading }, 
       translation: { templates: { search_more } },
     } = this.props;
@@ -156,14 +166,14 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       );
     }
 
-    if (searchResults.resources.length === 0) {
+    if (searchResultsV1.resources.length === 0) {
       return null;
     }
 
     return (
       <View>
         {
-          searchResults.resources.map((r: AnyResource, i) => {
+          searchResultsV1.resources.map((r: AnyResource, i) => {
             return (
               <ListItem
                 containerStyle={{
@@ -171,7 +181,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 }}
                 hideChevron={true}
                 key={i}
-                onPress={this.onSearchResultPressed.bind(this, r)}
+                onPress={this.onSearchResultPressedV1.bind(this, r)}
                 roundAvatar={true}
                 title={r.type === OrgType.GGMN ? r.title : r.id}
                 avatar={getGroundwaterAvatar()}
@@ -181,7 +191,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         }
         {/* TODO: only display if we have 25 results, 
             we need to pass through the page size in the meta field */}
-        {searchResults.hasNextPage ?
+        {searchResultsV1.hasNextPage ?
           <ListItem
             containerStyle={{
               paddingLeft: 10,
@@ -197,10 +207,75 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
+  /**
+   * getSearchResults
+   * 
+   * Display the search results, divided by category
+   * Currently only resource and place
+   */
+  getSearchResults() {
+    const {
+      searchResults,
+      searchResultsMeta: { loading },
+    } = this.props;
+    const { page } = this.state;
+
+    if (loading) {
+      return (
+        <View style={{
+          justifyContent: 'center',
+          height: 350,
+        }}>
+          <Loading />
+        </View>
+      );
+    }
+
+    //Rearrange search results and deduplicate
+    const partialResourceResults = mapAndDedupSearchResults<PartialResourceResult>(searchResults, SearchResultType.PartialResourceResult, (r) => r.id);
+    const placeResults = mapAndDedupSearchResults<PlaceResult>(searchResults, SearchResultType.PlaceResult, (r) => r.name);
+
+    return (
+      <View>
+        {partialResourceResults
+        .map(r => {
+          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, r.id), r.id);
+
+          return (
+            <ListItem
+              containerStyle={{
+                paddingLeft: 10,
+              }}
+              hideChevron={true}
+              key={r.id}
+              onPress={this.onSearchResultPressed.bind(this, r)}
+              roundAvatar={true}
+              title={shortIdFormatted}
+              avatar={getGroundwaterAvatar()}
+            />
+        )})}
+        {placeResults.map(r => (
+          <ListItem
+            containerStyle={{
+              paddingLeft: 10,
+            }}
+            hideChevron={true}
+            key={r.name}
+            onPress={this.onSearchResultPressed.bind(this, r)}
+            roundAvatar={true}
+            title={r.name}
+            avatar={getPlaceAvatar()}
+          />
+        ))}
+      </View>
+    );
+  }
+
   getNoResultsFoundText() {
     const { hasSearched } = this.state;
     const { 
-      searchResults, 
+      searchResultsV1,
+      searchResults,
       searchResultsMeta: { loading },
       translation: { templates: { search_no_results } },
     } = this.props;
@@ -209,7 +284,11 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.resources.length > 0) {
+    if (searchResultsV1.resources.length > 0) {
+      return null;
+    }
+
+    if (getInnerSearchResultCount(searchResults) > 0) {
       return null;
     }
 
@@ -238,7 +317,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { searchQuery } = this.state;
     const { 
       recentSearches, 
-      searchResults,
+      searchResultsV1,
       searchResultsMeta: { loading },
       translation: { templates: { search_hint } },
     } = this.props;
@@ -249,7 +328,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: SearchResults is somehow undefined here
 
-    if (recentSearches.length === 0 && searchQuery.length === 0 && searchResults.resources.length === 0) {
+    if (recentSearches.length === 0 && searchQuery.length === 0 && searchResultsV1.resources.length === 0) {
       return (
         <View style={{
           flex: 1,
@@ -271,6 +350,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { 
       recentSearches, 
       searchResultsMeta: {loading}, 
+      searchResultsV1,
       searchResults,
       translation: { templates: { search_recent_searches } },
     } = this.props;
@@ -279,7 +359,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
-    if (searchResults.resources.length > 0) {
+    if (searchResultsV1.resources.length > 0) {
+      return null;
+    }
+
+    //TODO: this won't work, we need to look at each of the arrays in the searchResults
+    if (getInnerSearchResultCount(searchResults) > 0) {
       return null;
     }
 
@@ -348,7 +433,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps={'always'}
         >
-          {this.getSearchResults()}
+          {this.props.config.getShouldUseV1Search() ? this.getSearchResultsV1() : this.getSearchResults()}
           {this.getNoResultsFoundText()}
           {this.getSearchHint()}
           {this.getRecentSearches()}
@@ -365,6 +450,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return { 
     isConnected: state.isConnected,
     recentSearches: state.recentSearches,
+    searchResultsV1: state.searchResultsV1,
     searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
@@ -373,9 +459,43 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number) => 
-      dispatch(appActions.performSearch(api, userId, searchQuery, page))
+    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => 
+      dispatch(appActions.performSearch(api, userId, searchQuery, page, v1))
   }
 } 
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
+
+
+
+/**
+ * Given search results, map and deduplicate by category
+ */
+function mapAndDedupSearchResults<T>(
+  results: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
+  type: SearchResultType,
+  dedupFunction: (item: T) => string): Array<T> 
+{
+  const resultsDup: Array<T> = results
+    .filter(sr => sr.type === type)
+    .reduce((acc: Array<T>, curr) => {
+      curr.results.forEach(r => {
+        //TODO: Add types here
+        if (r.type === type) {
+          acc.push(r);
+        }
+      });
+
+      return acc;
+    }, []);
+
+  return dedupArray(resultsDup, dedupFunction);
+}
+
+function getInnerSearchResultCount(searchResults: SearchResult<(PartialResourceResult | PlaceResult)[]>[]): number {
+  let count = 0;
+  searchResults.forEach(r => {
+    r.results.forEach(() => count += 1);
+  });
+  return count;
+}

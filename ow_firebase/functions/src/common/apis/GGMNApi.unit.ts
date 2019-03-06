@@ -9,7 +9,7 @@ import {
   ReadingImageType,
   ReadingLocationType,
  } from 'ow_types';
-import { ResultType } from '../types/AppProviderTypes';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 
 
 describe('GGMNApi', function () {

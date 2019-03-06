@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ResourceType_1 = require("../../common/enums/ResourceType");
+const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const Joi = require('joi');
 const pendingResourceValidation = Joi.object().keys({
     id: Joi.string(),
@@ -10,7 +10,7 @@ const pendingResourceValidation = Joi.object().keys({
         longitude: Joi.number(),
     }).required(),
     //TODO: make one of ResourceType
-    resourceType: Joi.valid(Object.keys(ResourceType_1.ResourceType)).required(),
+    resourceType: Joi.valid(Object.keys(ResourceStationType_1.default)).required(),
     owner: Joi.object().keys({
         name: Joi.string().required(),
     }).required(),

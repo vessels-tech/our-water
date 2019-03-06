@@ -1,9 +1,11 @@
-
 import * as functions from 'firebase-functions';
-const request = require('request-promise-native');
-
-import backupKey from './.backupServiceAccountKey';
 import { getBackupAccessToken } from '../../../tools';
+import CronUtils from './CronUtils';
+import { backupServiceAccountKeyFilename } from '../../common/env';
+
+//For some reason, we can't import these at runtime, so need to import all of them here.
+import prodBackupKey from './.backupServiceAccountKey';
+import devBackupKey from './.backupServiceAccountKey.development';
 
 const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
   console.log("This job is ran every hour!");
@@ -18,23 +20,31 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 
 const daily_job = functions.pubsub.topic('daily-tick').onPublish(async (event) => {
-  console.log("This job is ran every day!")
+  let backupKey = prodBackupKey;
+  if (backupServiceAccountKeyFilename.indexOf('development') > -1) {
+    backupKey = devBackupKey;
+  }
 
-  console.log("Performing Cloud Firestore Backup");
   const accessToken = await getBackupAccessToken(backupKey);
-  // reference: https://firebase.google.com/docs/firestore/manage-data/export-import
-  const url = `https://firestore.googleapis.com/v1beta1/projects/our-water/databases/(default):exportDocuments`
-  const options = {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    },
-    json: true,
-    body: {
-      outputUriPrefix: `gs://our-water-backup`,
-    }
-  };
 
-  return request.post(url, options);
+  //TODO: figure out an expiry date
+  const expiryDate = "!234";
+
+  //TODO: figure out how to separate these into different functions?
+  return Promise.all([
+    CronUtils.backupDatabase(accessToken)
+      .catch((err: Error) => console.warn("Error backing up db", err)),
+
+    // CronUtils.getBackupsToExpire(admin.storage(), accessToken, expiryDate)
+    // .then((result) => {
+    //   if (result.type === ResultType.ERROR) {
+    //     console.warn(result.message);
+    //     return;
+    //   }
+    //   return Promise.all(result.result.map((path) => CronUtils.deleteBackup(path)));
+    // })
+    // .catch((err: Error) => console.warn("Error deleting backups", err))
+  ]);  
 });
 
 const weekly_job = functions.pubsub.topic('weekly-tick').onPublish((event) => {

@@ -1,3 +1,5 @@
+import FirebaseApi from "../apis/FirebaseApi";
+
 const request = require('request-promise-native');
 
 const baseUrl = process.env.BASE_URL;
@@ -46,3 +48,32 @@ export const getSyncRun = (_orgId: string, fs: any, syncRunId: string) => {
     .then(sn => sn.data());
 }
 
+
+
+/**
+ * Get all of the resources.
+ * 
+ * Shouldn't be used in production as it is wildly inefficent 
+ */
+export async function getAllResources(fbApi: FirebaseApi) {
+  return fbApi.resourceCol(orgId).get()
+    .then(sn => {
+      const resources = [];
+      sn.forEach(doc => resources.push(doc.data()));
+      return resources;
+    });
+}
+
+/**
+ * Get all of the readings.
+ * 
+ * Shouldn't be used in production as it is wildly inefficent 
+ */
+export async function getAllReadings(fbApi: FirebaseApi) {
+  return fbApi.readingCol(orgId).get()
+    .then(sn => {
+      const readings = [];
+      sn.forEach(doc => readings.push(doc.data()));
+      return readings;
+    });
+}

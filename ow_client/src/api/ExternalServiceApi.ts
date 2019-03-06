@@ -3,7 +3,7 @@ import { SomeResult } from "../typings/AppProviderTypes";
 import { GGMNOrganisation, KeychainLoginDetails } from "../typings/models/GGMN";
 import { PendingResource } from "../typings/models/PendingResource";
 import { PendingReading } from "../typings/models/PendingReading";
-import { SendResourceEmailOptions } from "./FirebaseApi";
+import { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
 
 export enum ExternalServiceApiType {
   None='None',

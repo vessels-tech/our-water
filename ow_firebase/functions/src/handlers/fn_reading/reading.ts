@@ -1,7 +1,7 @@
 import * as validate from 'express-validation';
 import * as express from 'express';
 import * as moment from 'moment';
-import { snapshotToResourceList } from '../../common/utils';
+import { snapshotToResourceList, enableLogging } from '../../common/utils';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 
 const bodyParser = require('body-parser');
@@ -12,6 +12,7 @@ const Joi = require('joi');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
+  enableLogging(app);
 
 
   //TODO: fix this error handler

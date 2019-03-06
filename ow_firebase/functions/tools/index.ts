@@ -3,27 +3,48 @@ import { BaseApiType, ResourceType } from "ow_types";
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
 
 
+export const arg: any = (argList => {
+  const myArg = {}
+  let a, opt, thisOpt, curOpt;
+  for (a = 0; a < argList.length; a++) {
+
+    thisOpt = argList[a].trim();
+    opt = thisOpt.replace(/^\-+/, '');
+
+    if (opt === thisOpt) {
+      // argument value
+      if (curOpt) myArg[curOpt] = opt;
+      curOpt = null;
+    }
+    else {
+      // argument name
+      curOpt = opt;
+      myArg[curOpt] = true;
+    }
+  }
+  return myArg;
+})(process.argv);
+
 export async function getToken(admin: any): Promise<string> {
   return admin.auth().createCustomToken('12345')
-  .then(function (customToken) {
-
+  .then((token: string) => {
+    
     const options = {
       json: true,
       url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.WEB_API_KEY}`,
       method: 'POST',
       body: {
-        token: customToken,
+        token,
         returnSecureToken: true
       },
     };
     return request(options)
   })
-  .then(response => {
-    return response.idToken;
-  })
-  .catch(function (error) {
-    console.log("Error creating custom token:", error);
-  });
+  .then(response => response.idToken)
+  // .catch((error: Error) => {
+  //   console.log("Error creating custom token:", error.message);
+  //   return Promise.reject(error);
+  // });
 }
 
 export async function getAuthHeader(admin: any): Promise<{Authorization: string}> {
@@ -35,8 +56,7 @@ export async function getAuthHeader(admin: any): Promise<{Authorization: string}
 }
 
 const { JWT } = require('google-auth-library');
-const key = require('../src/test/.serviceAccountKey.json');
-// TODO: make the user specify the key
+//TODO: make the user specify the key
 // const key = {
 //   client_email: '12345',
 //   private_key: '12345',
@@ -47,7 +67,7 @@ const key = require('../src/test/.serviceAccountKey.json');
  * 
  * Gets the admin access token for using firebase admin tools.
  */
-export async function getAdminAccessToken(): Promise<string> {
+export async function getAdminAccessToken(key: any): Promise<string> {
   const client = new JWT(
     key.client_email,
     null,
@@ -215,30 +235,16 @@ function buildParameter(deflt: any, description: string, conditions: string[], v
  * Build and return the new remote config
  */
 export async function getNewConfig(): Promise<any> {
-  const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+  const { conditionKeys, conditions } = require('./remoteConfigConditions');
+
+  console.log('conditions are', conditionKeys);
 
   const mywellTranslationOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.mywell), null, 2);
   const mywellTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.mywell), functionReplacer, 2);
   const ggmnTranslationsOptionsJSON = JSON.stringify(possibleTranslationsForOrg(TranslationOrg.ggmn), null, 2);
   const ggmnTranslationsJSON = JSON.stringify(translationsForTranslationOrg(TranslationOrg.ggmn), functionReplacer, 2);
 
-  const conditions = [
-    {
-      "name": "ggmn_android",
-      "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
-      "tagColor": "BLUE"
-    },
-    {
-      "name": "ggmn_dev_android",
-      "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
-      "tagColor": "BROWN"
-    },
-    {
-      "name": "mywell_android",
-      "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
-      "tagColor": "GREEN"
-    }
-  ];
+  
   const parameters = {
     applicationName: buildParameter(
       'MyWell', 
@@ -253,10 +259,10 @@ export async function getNewConfig(): Promise<any> {
       ['GGMNApi', 'GGMNApi', 'MyWellApi']
     ),
     firebaseBaseUrl: buildParameter(
-      'localhost:5000', 
-      '', 
+      `${process.env.firebase_base_url}`, 
+      'The base url', 
       conditionKeys, 
-      ['GGMN', 'GGMN', 'localhost:5000']
+      ['GGMN', 'GGMN', `${process.env.firebase_base_url}`]
     ),
     ggmnBaseUrl: buildParameter(
       'https://ggmn.lizard.net', 
@@ -325,10 +331,10 @@ export async function getNewConfig(): Promise<any> {
       [true, true, false]
     ),
     resourceDetail_editReadings: buildParameter(
-      false, 
+      true, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
-      [true, true, false]
+      [true, true, true]
     ),
     favouriteResourceList_showGetStartedButtons: buildParameter(
       true, 
@@ -389,14 +395,15 @@ export async function getNewConfig(): Promise<any> {
         }, 
         //MyWell
         {
-          well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
-          raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'mm' }],
+          //TODO: I'm not sure what the parameter should be - default?
+          well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
+          raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
           quality: [
             { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
             { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
             { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
           ],
-          checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
+          checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
         }
       ]),
     editResource_allowCustomId: buildParameter(
@@ -463,6 +470,33 @@ export async function getNewConfig(): Promise<any> {
         '1000',
       ]
     ),
+    showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+    resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
+    resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
+    favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
+    availableGroupTypes: buildParameter(
+      JSON.stringify({
+        pincode: { id: 'pincode', required: true, order: 1 },
+        country: { id: 'country', required: true, order: 0 },
+      }), 
+      "The Available group types. Required is currently ignored.",
+      conditionKeys, [
+        JSON.stringify({}),
+        JSON.stringify({}),
+        JSON.stringify({
+          pincode: { id: 'pincode', required: true, order: 1 },
+          country: { id: 'country', required: true, order: 0 },
+        }),
+      ]
+    ),
+    shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
+    resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
+    readingDownloadUrl: buildParameter(
+      `${process.env.firebase_base_url}/public/mywell/downloadReadings`, 
+      "Download readings for resourceId url", 
+      conditionKeys, 
+      ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
+    ]),
   };
 
   return Promise.resolve({

@@ -9,7 +9,6 @@ import { isNullOrUndefined } from 'util';
 import ResourceIdType from '../../common/types/ResourceIdType';
 import { resourceTypeFromString } from '../../common/enums/ResourceType';
 import FirebaseApi from '../../common/apis/FirebaseApi';
-import { ResultType } from '../../common/types/AppProviderTypes';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 import ErrorHandler from '../../common/ErrorHandler';
 
@@ -19,9 +18,15 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../../common/apis/EmailApi';
-import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
+import { PendingResource, OWGeoPoint, PendingReading, MyWellResource } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
+import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
+import { enableLogging, getDefaultTimeseries } from '../../common/utils';
+import { UserApi, ResourceApi } from 'ow_common/lib/api';
+import { User } from 'ow_common/lib/model/User';
+import UserStatus from 'ow_common/lib/enums/UserStatus';
+import { DefaultMyWellResource } from 'ow_common/lib/model';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -31,14 +36,7 @@ require('express-async-errors');
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
-
-  if (process.env.VERBOSE_LOG === 'false') {
-    console.log('Using simple log');
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-  } else {
-    console.log('Using verbose log');
-    morganBody(app);
-  }
+  enableLogging(app);
 
   app.use(validateFirebaseIdToken);
 
@@ -120,31 +118,40 @@ module.exports = (functions) => {
         //TODO: make proper enums
         owner: Joi.object().keys({
           name: Joi.string().required(),
+          createdByUserId: Joi.string().required(),
         }),
-        groups: Joi.object().optional(),
-        imageUrl: Joi.string().optional(),
-        //We will create an index on this to make this backwards compatible with MyWell
-        legacyId: Joi.string().optional(),
-        type: Joi.valid('well', 'raingauge', 'checkdam').required()
+        groups: Joi.object().keys({
+          legacyResourceId: Joi.string().optional(),
+          pincode: Joi.string().optional(),
+          country: Joi.string().optional(),
+        }),
+        resourceType: Joi.valid('well', 'raingauge', 'checkdam', 'quality', 'custom').required(),
       },
-      //TODO: add custom fields based on type
     }
   };
 
-  app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
-
+  app.post('/:orgId/', validate(createResourceValidation), async (req, res, next) => {
     const orgId = req.params.orgId;
+    const resourceApi = new ResourceApi(firestore, orgId);
 
     //Ensure geopoints get added properly
     const oldCoords = req.body.data.coords;
     const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
     req.body.data.coords = newCoords;
 
-
     //Add default lastReading
     req.body.data.lastValue = 0;
     req.body.data.lastReadingDatetime = new Date(0);
+    req.body.orgId = orgId;
 
+    const timeseries = unsafeUnwrap(await getDefaultTimeseries(req.body.data.resourceType));
+    const resource: MyWellResource = {
+      ...DefaultMyWellResource,
+      ...req.body.data,
+      timeseries,
+    };
+
+    let id;
     //Ensure the orgId exists
     const orgRef = firestore.collection('org').doc(orgId)
     return orgRef.get()
@@ -153,17 +160,19 @@ module.exports = (functions) => {
           throw new Error(`Org with id: ${orgId} not found`);
         }
       })
-      //TODO: standardize all these refs
-      .then(() => firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-      .then(result => {
-        console.log(JSON.stringify({resourceId: result.id}));
-        return res.json({ resource: result.id })
+      .then(() => {
+        const ref = resourceApi.resourceRef();
+        id = ref.id;
+        return ref.create({...resource, id});
       })
+      .then(() => res.json({id}))
       .catch(err => next(err));
   });
 
   /**
    * updateResource
+   * TD: this is outdated, Don't use until it's fixed.
+   * 
    * PUT /:orgId/:resourceId
    */
   const updateResourceValidation = {
@@ -334,15 +343,52 @@ module.exports = (functions) => {
   app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), async (req, res, next) => {
     const { latitude, longitude, distance } = req.query;
     const { orgId } = req.params;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await FirebaseApi.resourcesNearLocation(orgId, latitude,longitude, distance);
+    const result = await fbApi.resourcesNearLocation(orgId, latitude,longitude, distance);
     if (result.type === ResultType.ERROR) {
       next(result.message);
       return;
     }
 
     res.json(result.result);
-  
+  });
+
+  /**
+   * SyncUserData
+   * POST /:orgId/:userId/sync
+   * 
+   * Synchronises the user's pendingResources and pendingReadings, and cleans them up
+   * The user MUST be approved before calling this method. 
+   *
+   */
+  app.post('/:orgId/:userId/sync', async (req, res) => {
+    const { orgId, userId } = req.params;
+    const userApi = new UserApi(firestore, orgId);
+    const resourceApi = new ResourceApi(firestore, orgId);
+    const fbApi = new FirebaseApi(firestore);
+
+    const userResult = await userApi.getUser(userApi.userRef(orgId, userId));
+    if (userResult.type === ResultType.ERROR) {
+      return res.status(400).send(`Couldn't find user with orgId: ${orgId}, userId: ${userId}`);
+    }
+    if (userResult.result.status !== UserStatus.Approved) {
+      return res.status(403).send("unauthorized");
+    }
+
+    const resourceIds = unsafeUnwrap(await fbApi.syncPendingForUser(orgId, userId));
+   
+    /* Get a list of resources */
+    const resources = unsafeUnwrap(await resourceApi.getResourcesForIds(resourceIds));
+   
+    /* Add to the user's favourites */
+    unsafeUnwrap(await userApi.addFavouriteResources(userId, resources));
+    
+    /* Add to the user's new resources */
+    //This is non critical - we don't care if it fails.
+    await userApi.markAsNewResources(userId, resourceIds);
+
+    return res.status(204).send("true");
   });
 
   /* CORS Configuration */

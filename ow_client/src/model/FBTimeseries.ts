@@ -1,5 +1,6 @@
 import { AnyTimeseries, GGMNTimeseries, MyWellTimeseries } from "../typings/models/Timeseries";
 import { OrgType } from "../typings/models/OrgType";
+import { maybeLog } from "../utils";
 
 /**
  * FBTimeseries isn't a full class implementation, just a bunch of types
@@ -41,20 +42,33 @@ export function toAnyTimeseries(fbTimeseries: FBTimeseries): AnyTimeseries {
       }
       return ts;
     }
-    case OrgType.MYWELL: 
-    default: {
+    case OrgType.MYWELL: {
       const ts: MyWellTimeseries = {
         type: OrgType.MYWELL,
 
         /* Common values*/
-        id: fbTimeseries.id,
-        name: fbTimeseries.id,
+        //TD: WTF???
+        //Must've been drunk when writing this originally
+        //Once again, this calls for a types overhaul
+        id: fbTimeseries.name,
+        name: fbTimeseries.name,
         readings: [],
-        parameter: 'parameter',
+        parameter: fbTimeseries.parameter,
       }
       return ts;
     }
-    // default:
-    //   throw new Error(`Couldn't map timeseries for orgType: ${fbTimeseries.type}`);
+    default:
+      maybeLog("WARNING: Found old timeseries type. This a lurking bug.");
+      //TD: this is lazy implicit handling
+      //Handle the old timeseries type
+      const ts: MyWellTimeseries = {
+        type: OrgType.MYWELL,
+        id: 'default',
+        name: 'default',
+        readings: [],
+        parameter: 'default',
+      };
+      return ts;
+      // throw new Error(`Couldn't map timeseries for orgType: ${fbTimeseries.type}`);
   }
 }

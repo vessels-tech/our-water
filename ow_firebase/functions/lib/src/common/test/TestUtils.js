@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require('request-promise-native');
 const baseUrl = process.env.BASE_URL;
@@ -40,4 +48,36 @@ exports.getSyncRun = (_orgId, fs, syncRunId) => {
     return fs.collection('org').doc(_orgId).collection('syncRun').doc(syncRunId).get()
         .then(sn => sn.data());
 };
+/**
+ * Get all of the resources.
+ *
+ * Shouldn't be used in production as it is wildly inefficent
+ */
+function getAllResources(fbApi) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return fbApi.resourceCol(orgId).get()
+            .then(sn => {
+            const resources = [];
+            sn.forEach(doc => resources.push(doc.data()));
+            return resources;
+        });
+    });
+}
+exports.getAllResources = getAllResources;
+/**
+ * Get all of the readings.
+ *
+ * Shouldn't be used in production as it is wildly inefficent
+ */
+function getAllReadings(fbApi) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return fbApi.readingCol(orgId).get()
+            .then(sn => {
+            const readings = [];
+            sn.forEach(doc => readings.push(doc.data()));
+            return readings;
+        });
+    });
+}
+exports.getAllReadings = getAllReadings;
 //# sourceMappingURL=TestUtils.js.map

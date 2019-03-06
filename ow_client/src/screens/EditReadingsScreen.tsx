@@ -1,9 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import { connect } from 'react-redux'
-import { AppState } from '../reducers';
-import NetworkStatusBanner from '../components/NetworkStatusBanner';
+import { AppState, CacheType } from '../reducers';
 import * as appActions from '../actions/index';
-import { UserType } from '../typings/UserTypes';
 import { ConfigFactory } from '../config/ConfigFactory';
 import { PendingReading } from '../typings/models/PendingReading';
 import { SyncMeta } from '../typings/Reducer';
@@ -13,9 +11,8 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
-import { AnyResource } from '../typings/models/Resource';
-import { PendingResource } from '../typings/models/PendingResource';
-import { navigateTo, unwrapUserId } from '../utils';
+import {  unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../utils';
+import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
 export interface OwnProps {
@@ -23,6 +20,7 @@ export interface OwnProps {
   config: ConfigFactory,
   resourceId: string,
   resourceType: string,
+  isResourcePending: boolean,
 }
 
 export interface StateProps {
@@ -30,6 +28,8 @@ export interface StateProps {
   pendingReadings: PendingReading[],
   pendingReadingsMeta: SyncMeta,
   translation: TranslationFile,
+  shortIdCache: CacheType<string>,
+  
 }
 
 export interface ActionProps {
@@ -39,6 +39,7 @@ export interface ActionProps {
 export interface State {
 
 }
+
 
 class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -59,12 +60,14 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
-    
-    navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
+
+    navigateToNewReadingScreen(this.props, resource_detail_new, {
+      navigator: this.props.navigator,
+      groundwaterStationId: null,
       resourceId: this.props.resourceId,
       resourceType: this.props.resourceType,
+      // isResourcePending: this.props.isResourcePending,
       config: this.props.config,
-      userId: this.props.userId
     });
   }
   
@@ -101,7 +104,8 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
             deletePendingReading={this.deletePendingReading}
             pendingReading={reading}
             sync_date_format={sync_date_format}
-            unitSuffix=" m"
+            unitSuffix={getUnitSuffixForPendingResource(reading, this.props.config)}
+            shortId={getShortIdOrFallback(reading.resourceId, this.props.shortIdCache)}
           />
         )}
       </View>
@@ -111,17 +115,21 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   render() {
     const { pendingReadings } = this.props;
 
+    //TODO: Translate
+    const edit_readings_no_readings = "No Pending Readings for this Station";
+    const edit_readings_new_reading = "New Reading";
+
     if (pendingReadings.length === 0) {
       return (
         <View style={{
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          width: '70%',
           height: '100%',
         }}>
-          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{'No Readings for this Station'}</Text>
-          <Button onPress={this.onAddReadingPressed} title="New Reading"/>
+          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{edit_readings_no_readings}</Text>
+          <Button onPress={this.onAddReadingPressed} title={edit_readings_new_reading}/>
         </View>
       );
     }
@@ -149,6 +157,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     pendingReadings,
     pendingReadingsMeta: state.pendingSavedReadingsMeta,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 
@@ -156,12 +165,6 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
     deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
       dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))
-
-    // addRecent: (api: BaseApi, userId: string, resource: AnyResource) => {
-    //   dispatch(appActions.addRecent(api, userId, resource))
-    // },
-    // loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) =>
-    //   dispatch(appActions.getResources(api, userId, region)),
   }
 }
 

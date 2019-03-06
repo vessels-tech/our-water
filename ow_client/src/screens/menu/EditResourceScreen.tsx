@@ -1,19 +1,19 @@
 import * as React from 'react';
 import { Component } from 'react';
 import {
-  View, Keyboard, ToastAndroid, ScrollView, Alert,
+  View, Keyboard, ToastAndroid, ScrollView, Alert, KeyboardAvoidingView, Dimensions, ShadowPropTypesIOS, Group,
 } from 'react-native';
 import {
-  Button
+  Button, Text
 } from 'react-native-elements';
 import { ResourceType } from '../../enums';
-import { ConfigFactory } from '../../config/ConfigFactory';
+import { ConfigFactory, GroupSpecificationType } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
 import { SaveResourceResult } from '../../typings/models/OurWater';
 import * as appActions from '../../actions';
-import { AppState } from '../../reducers';
+import { AppState, CacheType } from '../../reducers';
 import { connect } from 'react-redux'
-import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl } from 'react-reactive-form';
+import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl, ValidationErrors, FormGroup } from 'react-reactive-form';
 import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
 import { TextInput, DropdownInput, TextIdInput } from '../../components/common/FormComponents';
 import { validateResource } from '../../api/ValidationApi';
@@ -30,8 +30,14 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } f
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
-import { unwrapUserId, displayAlert } from '../../utils';
+import { unwrapUserId, displayAlert, debounced, maybeLog } from '../../utils';
 import { isNullOrUndefined } from 'util';
+//@ts-ignore
+import { callingCountries } from 'country-data';
+import { validatePincode, regexHasNumbersOnly, regexForIsoCode } from '../../utils/Pincodes';
+import SaveButton from '../../components/common/SaveButton';
+import FloatingButtonWrapper from '../../components/common/FloatingButtonWrapper';
+
 
 export interface Props { 
   resourceId: string,
@@ -53,7 +59,8 @@ export interface Props {
 }
 
 export interface State {
-
+  formHeight: number,
+  scrollOffset: number,
 }
 
 export type EditResourceFormBuilder = {
@@ -72,6 +79,9 @@ class EditResourceScreen extends Component<Props> {
   externalApi: MaybeExternalServiceApi;
   extendedResourceApi: MaybeExtendedResourceApi
   editResourceForm: any;
+  countryList: Array<{label: string, key: string, name: string}>;
+  scrollView?: any;
+  scrollTo: number = 0;
 
   constructor(props: Props) {
     super(props);
@@ -80,15 +90,62 @@ class EditResourceScreen extends Component<Props> {
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
     this.extendedResourceApi = this.props.config.getExtendedResourceApi();
+    //Key is a ISO 3166-2
+    this.countryList = callingCountries.all
+      .filter((c: any) => c.emoji ? true : false)
+      .map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2.toLowerCase(), name: c.name}));
+    this.countryList.sort((a, b) => {
+      if (a.name > b.name) return 1;
+      if (a.name < b.name) return -1;
+      return 0;
+    });
     
-    this.state = {};
+    this.state = {
+      formHeight: Dimensions.get('window').height, 
+      scrollOffset: 0,
+    };
 
     /* Binds */
     this.asyncIdValidator = this.asyncIdValidator.bind(this);
+    this.pincodeValidator = this.pincodeValidator.bind(this);
+    this.simplePincodeValidator = this.simplePincodeValidator.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.displayDeleteModal = this.displayDeleteModal.bind(this);
+    this.handleSubmit = debounced(1000, this.handleSubmit);
+    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props), this.getGroupValidators());
 
-    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props));
+    /* Listeners */
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  /**
+   * Listeners
+   * //TD: these listeners aren't always removed properly
+   */
+
+  keyboardDidShow(event: any): void {
+    //This is a hacky fix for the rn scrolling
+    //We need to wait until the resize finished, otherwise scrollTo doesn't work.
+    if (this.scrollView) {
+      const scrollFunction = () => {
+        maybeLog("scrolling to", this.scrollTo);
+        this.scrollView.scrollTo({ x: 0, y: this.scrollTo, animated: true });
+      };
+      
+      setTimeout(scrollFunction, 500);
+    }
+  }
+
+  keyboardDidHide(event: any): void {
+    // this.setState({
+    //   formHeight: Dimensions.get('window').height,
+    // });
   }
 
   /**
@@ -180,6 +237,7 @@ class EditResourceScreen extends Component<Props> {
       ownerName = this.props.name;
     }
 
+    /* Optional Validators, depending on config*/
     if (this.props.config.getEditResourceHasResourceName()) {
       formBuilderGroup['name'] = [''];
     }
@@ -201,7 +259,52 @@ class EditResourceScreen extends Component<Props> {
       formBuilderGroup['waterColumnHeight'] = [''];
     }
 
+    //Should we add pincode to the group?
+    if (this.props.config.getEditResourceHasPincode()) {
+      const pincodeGroupSpec = this.props.config.getAvailableGroupTypes()['pincode']; 
+      const validators: any[] = [''];
+
+      if (pincodeGroupSpec.required) {
+        validators.push(Validators.required);
+      }
+
+      formBuilderGroup['pincode'] = validators;
+      
+      //We are adding pincode do group, but should we validate the pincode per country?
+
+      //moved to getGroupValidators
+      // if (this.props.config.getEditResourceValidatesPincode()) {
+      //   validators.push(this.pincodeValidator);
+      // } else {
+      //   validators.push(this.simplePincodeValidator);
+      // }
+    }
+
+    if (this.props.config.getEditResourceHasCountry()) {
+      //Default to india.
+      const validators: any[] = ['in'];
+      const countrySpec = this.props.config.getAvailableGroupTypes()['country']; 
+      if (countrySpec.required) {
+        validators.push(Validators.required);
+      }
+
+      formBuilderGroup['country'] = validators;
+    }
+  
     return formBuilderGroup;
+  }
+
+  /**
+   * Group validators are required for validating multiple fields together
+   */
+  getGroupValidators(): any {
+    if (!this.props.config.getEditResourceValidatesPincode()) {
+      return {};
+    }
+
+    return {
+      validators: this.pincodeValidator('pincode', 'country'),
+    }
   }
 
 
@@ -221,7 +324,7 @@ class EditResourceScreen extends Component<Props> {
     const result = await this.extendedResourceApi.checkNewId(control.value);
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.SHORT);
+      ToastAndroid.show(new_resource_id_check_error, ToastAndroid.LONG);
 
       throw { invalidId: true };
     }
@@ -230,6 +333,39 @@ class EditResourceScreen extends Component<Props> {
       throw { invalidId: true };
     }
 
+    return null;
+  }
+
+  pincodeValidator(pincodeId: string, countryId: string) {
+    return (group: FormGroup): ValidationErrors | null => {
+      const pincodeInput = group.controls[pincodeId];
+      const countryInput = group.controls[countryId];
+
+      const validateResult = validatePincode(countryInput.value, pincodeInput.value);
+      if (validateResult.type === ResultType.ERROR) {
+        pincodeInput.setErrors({invalid: true});
+        // throw { invalid: true };
+      } else {
+        pincodeInput.setErrors(null);
+      }
+
+      return null;
+    }
+
+    // //It's safe to access country here:
+    // const pincode = control.value;
+    // const country = this.editResourceForm.get('country').value;
+
+    // const validateResult = validatePincode(country, pincode);
+    // if (validateResult.type === ResultType.ERROR) {
+    //   throw { invalid: true };
+    // }
+
+    // return null;
+  }
+
+  async simplePincodeValidator(control: AbstractControl) {
+    //TODO: validate the pincode
     return null;
   }
 
@@ -270,7 +406,8 @@ class EditResourceScreen extends Component<Props> {
       },
       resourceType: this.editResourceForm.value.asset,
       owner: {
-        name: ownerName
+        name: ownerName,
+        createdByUserId: this.props.userId,
       },
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
@@ -290,6 +427,12 @@ class EditResourceScreen extends Component<Props> {
     } else {
       unvalidatedResource.name = this.editResourceForm.value.name;
     }
+
+    /* Groups */
+    const groups: CacheType<string> = {};
+    const groupTypes = this.props.config.getAvailableGroupTypes();
+    Object.keys(groupTypes).forEach(k => groups[k] = this.editResourceForm.value[k]);
+    unvalidatedResource.groups = groups;
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
@@ -340,15 +483,130 @@ class EditResourceScreen extends Component<Props> {
     this.props.navigator.dismissModal();
   }
 
+
+  /**
+   * getEditableGroupField
+   * 
+   * 
+   * renders special-case group fields depending on the id
+   */
+  getEditableGroupField(spec: GroupSpecificationType) {
+    const {
+      general_is_required_error,
+    } = this.props.translation.templates;
+
+    //TODO: translate
+    const country_label = "Country";
+    const pincode_invalid_message = "Pincode is not valid."
+    const labelForEditableField = (id: string) => {
+      switch(id) {
+        case 'pincode': {
+          return "Pincode";
+        }
+        default:
+          return id;
+      }
+    }
+
+    //Change the keyboard type based on the country
+    let pincodeKeyboardType = 'default';
+    //TODO: this doesn't get updated when it should be. Keep this to implement
+    //dynamic keyboard switching later on.
+    // if (this.editResourceForm.value && this.editResourceForm.value.country) {
+    //   if (regexHasNumbersOnly(regexForIsoCode(this.editResourceForm.value.country))) {
+    //     pincodeKeyboardType = 'numeric';
+    //   }
+    // }
+
+    //TODO: change the country code for 
+    switch(spec.id) {
+      case 'country': {
+        return (
+          <FieldControl
+            key={spec.id}
+            name={spec.id}
+            // @ts-ignore
+            render={DropdownInput}
+            meta={{
+              options: this.countryList,
+              editable: false,
+              label: country_label,
+              secureTextEntry: false,
+              keyboardType: 'default',
+              defaultValue: 'IN'
+            }}
+          />
+        )
+      }
+      case 'pincode': {
+        return (
+          <FieldControl
+            key={spec.id}
+            name={spec.id}
+            render={TextInput}
+            meta={{
+              // onFocus: (event: any) => { this.scrollView && this.scrollView.scrollToEnd({ animated: false})},
+              onFocus: (event: any) => { this.scrollTo = 380 },
+              editable: true,
+              label: labelForEditableField(spec.id),
+              secureTextEntry: false,
+              //It would be cool to change this depending on the selected country.
+              //if the country only allows numbers, then open the number pad
+              keyboardType: pincodeKeyboardType,
+              errorMessage: general_is_required_error,
+              asyncErrorMessage: pincode_invalid_message,
+            }}
+          />
+        );
+      }
+      default: {
+        return (
+          <FieldControl
+            key={spec.id}
+            name={spec.id}
+            render={TextInput}
+            meta={{
+              editable: true,
+              label: labelForEditableField(spec.id),
+              secureTextEntry: false,
+              errorMessage: general_is_required_error,
+              keyboardType: 'default',
+            }}
+          />
+        );
+      }
+    }
+  }
+
+  /**
+   * getEditableGroupsFields
+   * 
+   * Loads a list of the editable groups that can be configured in the 
+   * remote config
+   */
+  getEditableGroupsFields() {
+
+    if (Object.keys(this.props.config.getAvailableGroupTypes()).length  === 0) {
+      return null;
+    }
+
+    const groupList: GroupSpecificationType[] = Object.keys(this.props.config.getAvailableGroupTypes())
+      .map(key => this.props.config.getAvailableGroupTypes()[key])
+      .sort((a, b) => a.order - b.order);
+
+    return groupList.map(g => this.getEditableGroupField(g));
+  }
+
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
     } = this.props;
 
+    const fixedButtonHeight = 100;
+
     const { 
       new_resource_id,
       new_resource_id_check_taken,
-      resource_name,
       new_resource_lat, 
       new_resource_lng, 
       new_resource_owner_name_label, 
@@ -359,48 +617,68 @@ class EditResourceScreen extends Component<Props> {
       new_resource_water_column_height,
     } = this.props.translation.templates;
 
-    const localizedResourceTypes = this.props.config.getAvailableResourceTypes().map((t: ResourceType) => {
-      return {
+    const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
+      .map((t: ResourceType) => ({
         key: t,
         //TODO: translate based on language settings
         label: t,
-      }
-    });
+      }));
 
     return (
       <FieldGroup
         strict={false}
         control={this.editResourceForm}
         render={({get, invalid}) => (
-          <View>
-            {this.props.config.getEditResourceAllowCustomId() ?
-              <FieldControl
-                name="id"
-                render={TextIdInput}
-                meta={{ 
-                  //Don't allow user to edit existing resource ids
-                  editable: this.props.resource ? false : true, 
-                  label: new_resource_id, 
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                  errorMessage: general_is_required_error,
-                  asyncErrorMessage: new_resource_id_check_taken,
-                }}
-              /> : null}
-            {this.props.config.getEditResourceHasResourceName() ?
-              <FieldControl
-                name="name"
-                render={TextInput}
-                meta={{ 
-                  editable: true, 
-                  label: new_resource_name, 
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                }}
-              /> : null}
-            <View style={{
-              flexDirection: 'row',
-            }}>
+          <View
+            style={{
+              flex: 1,
+              // height: this.state.formHeight - 70,
+              // backgroundColor: 'purple',
+            }}
+          >
+            <ScrollView
+              ref={(sv) => this.scrollView = sv}
+              onScroll={(event: any) => maybeLog("scroll offset", event.nativeEvent.contentOffset.y)}
+              // style={{flex: 1, height: 200}}
+              style={{ 
+                height: '100%',
+                paddingBottom: fixedButtonHeight,
+                // backgroundColor: 'purple',
+              }}
+              contentOffset={{x: 0, y: this.state.scrollOffset}}
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps={'always'}
+            >
+              {this.props.config.getEditResourceAllowCustomId() ?
+                <FieldControl
+                  name="id"
+                  render={TextIdInput}
+                  meta={{ 
+                    //Don't allow user to edit existing resource ids
+                    onFocus: (event: any) => { this.scrollTo = 0 },
+                    editable: this.props.resource ? false : true, 
+                    label: new_resource_id, 
+                    secureTextEntry: false, 
+                    keyboardType: 'default',
+                    errorMessage: general_is_required_error,
+                    asyncErrorMessage: new_resource_id_check_taken,
+                  }}
+                /> : null}
+              {this.props.config.getEditResourceHasResourceName() ?
+                <FieldControl
+                  name="name"
+                  render={TextInput}
+                  meta={{ 
+                    editable: true, 
+                    onFocus: (event: any) => { this.scrollTo = 0 },
+                    label: new_resource_name, 
+                    secureTextEntry: false, 
+                    keyboardType: 'default',
+                  }}
+                /> : null}
+              <View style={{
+                flexDirection: 'row',
+              }}>
               <LoadLocationButton 
                 style={{
                   alignSelf: 'center',
@@ -425,43 +703,53 @@ class EditResourceScreen extends Component<Props> {
                 editable: false,
                 label: new_resource_asset_type_label,
                 secureTextEntry: false,
-                keyboardType: 'default' 
+                keyboardType: 'default',
+                errorMessage: general_is_required_error,
               }}
             />
-            { this.props.config.getEditResourceHasWaterColumnHeight() ?
+              {this.props.config.getEditResourceHasWaterColumnHeight() ?
               <FieldControl
                 name="waterColumnHeight"
                 render={TextInput}
-                meta={{ editable: true, label: new_resource_water_column_height, secureTextEntry: false, keyboardType: 'numeric' }}
+                meta={{ 
+                  editable: true,
+                  label: new_resource_water_column_height, 
+                  secureTextEntry: false, 
+                  keyboardType: 'numeric',
+                  errorMessage: general_is_required_error
+                }}
               /> : null}
-
-            { this.props.config.getEditResourceShouldShowOwnerName() ?
+              {this.props.config.getEditResourceShouldShowOwnerName() ?
               <FieldControl
                 name="ownerName"
                 render={TextInput}
-                meta={{ editable: true, label: new_resource_owner_name_label, secureTextEntry: false, keyboardType: 'default' }}
+                meta={{
+                  onFocus: (event: any) => { this.scrollTo = 187 },
+                  editable: true,
+                  label: new_resource_owner_name_label, 
+                  secureTextEntry: false, 
+                  keyboardType: 'default',
+                  errorMessage: general_is_required_error,
+                }}
               /> : null }
-            <Button
-              style={{
-                paddingBottom: 20,
-                minHeight: 50,
-              }}
-              buttonStyle={{
-                backgroundColor: secondary,
-                minHeight: 50,
-              }}
-              containerViewStyle={{
-                marginVertical: 20,
-              }}
-              textStyle={{
-                color: secondaryText,
-                fontWeight: '700',
-              }}
-              loading={loading}
-              disabled={invalid}
-              title={loading ? '' : new_resource_submit_button}
-              onPress={() => this.handleSubmit()}
-            />
+              {this.getEditableGroupsFields()}
+
+              {/* Transparent footer to make the scrollview balance */}
+              <View
+                style={{
+                  height: fixedButtonHeight,
+                }}
+              />
+            </ScrollView>
+            <FloatingButtonWrapper>
+              <SaveButton
+                loading={loading}
+                disabled={invalid}
+                title={new_resource_submit_button}
+                height={50}
+                onPress={this.handleSubmit}
+              />
+            </FloatingButtonWrapper>
           </View>
         )}
       />
@@ -483,9 +771,6 @@ class EditResourceScreen extends Component<Props> {
           backgroundColor: error1,
           minHeight: 50,
         }}
-        containerViewStyle={{
-          // marginVertical: 20,
-        }}
         textStyle={{
           color: secondaryText,
           fontWeight: '700',
@@ -498,16 +783,15 @@ class EditResourceScreen extends Component<Props> {
 
   render() {
     return (
-      <ScrollView
+      <View
         style={{
           flexDirection: 'column',
+          flex: 1,
         }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps={'always'}
       >
         {this.getForm()}
         {this.props.resource && this.getDeleteButton()}
-      </ScrollView>
+      </View>
     );
   }
 }

@@ -10,27 +10,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require('request-promise-native');
 const ow_translations_1 = require("ow_translations");
+exports.arg = (argList => {
+    const myArg = {};
+    let a, opt, thisOpt, curOpt;
+    for (a = 0; a < argList.length; a++) {
+        thisOpt = argList[a].trim();
+        opt = thisOpt.replace(/^\-+/, '');
+        if (opt === thisOpt) {
+            // argument value
+            if (curOpt)
+                myArg[curOpt] = opt;
+            curOpt = null;
+        }
+        else {
+            // argument name
+            curOpt = opt;
+            myArg[curOpt] = true;
+        }
+    }
+    return myArg;
+})(process.argv);
 function getToken(admin) {
     return __awaiter(this, void 0, void 0, function* () {
         return admin.auth().createCustomToken('12345')
-            .then(function (customToken) {
+            .then((token) => {
             const options = {
                 json: true,
                 url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.WEB_API_KEY}`,
                 method: 'POST',
                 body: {
-                    token: customToken,
+                    token,
                     returnSecureToken: true
                 },
             };
             return request(options);
         })
-            .then(response => {
-            return response.idToken;
-        })
-            .catch(function (error) {
-            console.log("Error creating custom token:", error);
-        });
+            .then(response => response.idToken);
+        // .catch((error: Error) => {
+        //   console.log("Error creating custom token:", error.message);
+        //   return Promise.reject(error);
+        // });
     });
 }
 exports.getToken = getToken;
@@ -44,18 +63,17 @@ function getAuthHeader(admin) {
 }
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
-// const key = require('../src/test/.serviceAccountKey.json');
-// TODO: make the user specify the key
-const key = {
-    client_email: '12345',
-    private_key: '12345',
-};
+//TODO: make the user specify the key
+// const key = {
+//   client_email: '12345',
+//   private_key: '12345',
+// };
 /**
  * getAdminAccessToken
  *
  * Gets the admin access token for using firebase admin tools.
  */
-function getAdminAccessToken() {
+function getAdminAccessToken(key) {
     return __awaiter(this, void 0, void 0, function* () {
         const client = new JWT(key.client_email, null, key.private_key, ['https://www.googleapis.com/auth/firebase.remoteconfig'], null);
         try {
@@ -207,32 +225,16 @@ function buildParameter(deflt, description, conditions, values) {
  */
 function getNewConfig() {
     return __awaiter(this, void 0, void 0, function* () {
-        const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
+        const { conditionKeys, conditions } = require('./remoteConfigConditions');
+        console.log('conditions are', conditionKeys);
         const mywellTranslationOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.mywell), null, 2);
         const mywellTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.mywell), ow_translations_1.functionReplacer, 2);
         const ggmnTranslationsOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.ggmn), null, 2);
         const ggmnTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.ggmn), ow_translations_1.functionReplacer, 2);
-        const conditions = [
-            {
-                "name": "ggmn_android",
-                "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
-                "tagColor": "BLUE"
-            },
-            {
-                "name": "ggmn_dev_android",
-                "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
-                "tagColor": "BROWN"
-            },
-            {
-                "name": "mywell_android",
-                "expression": "app.id == '1:276292750755:android:e99123f734af0faa' && device.os == 'android'",
-                "tagColor": "GREEN"
-            }
-        ];
         const parameters = {
             applicationName: buildParameter('MyWell', 'the application name', conditionKeys, ['GGMN', 'GGMN DEV', 'MyWell']),
             baseApiType: buildParameter('MyWellApi', '', conditionKeys, ['GGMNApi', 'GGMNApi', 'MyWellApi']),
-            firebaseBaseUrl: buildParameter('localhost:5000', '', conditionKeys, ['GGMN', 'GGMN', 'localhost:5000']),
+            firebaseBaseUrl: buildParameter(`${process.env.firebase_base_url}`, 'The base url', conditionKeys, ['GGMN', 'GGMN', `${process.env.firebase_base_url}`]),
             ggmnBaseUrl: buildParameter('https://ggmn.lizard.net', '', conditionKeys, ['https://ggmn.lizard.net', 'https://ggmn.lizard.net', '']),
             showConnectToButton: buildParameter('false', 'should should the connect to button?', conditionKeys, ['true', 'true', 'false']),
             showSyncButton: buildParameter('false', 'should should the sync to button?', conditionKeys, ['true', 'true', 'false']),
@@ -244,7 +246,7 @@ function getNewConfig() {
             resourceDetail_showSubtitle: buildParameter(true, 'Should the resrouce detail section have a subtitle?', conditionKeys, [true, true, false]),
             resourceDetail_allowEditing: buildParameter(false, 'Are users allowed to edit resources?', conditionKeys, [true, true, false]),
             resourceDetail_allowDelete: buildParameter(false, 'Are users allowed to delete resources?', conditionKeys, [true, true, false]),
-            resourceDetail_editReadings: buildParameter(false, 'Are users allowed to edit readings?', conditionKeys, [true, true, false]),
+            resourceDetail_editReadings: buildParameter(true, 'Are users allowed to edit readings?', conditionKeys, [true, true, true]),
             favouriteResourceList_showGetStartedButtons: buildParameter(true, 'Should the favourite resource list have a get started hint if empty?', conditionKeys, [false, false, true]),
             editResource_hasResourceName: buildParameter(false, 'When creating a new resource, can the user edit the name?', conditionKeys, [true, true, false]),
             editResource_showOwerName: buildParameter(true, 'When creating a new resource, can the user set the owner name?', conditionKeys, [false, false, true]),
@@ -279,14 +281,15 @@ function getNewConfig() {
                 },
                 //MyWell
                 {
-                    well: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
-                    raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'mm' }],
+                    //TODO: I'm not sure what the parameter should be - default?
+                    well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
+                    raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
                     quality: [
                         { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
                         { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
                         { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
                     ],
-                    checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [], unitOfMeasure: 'm' }],
+                    checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
                 }
             ]),
             editResource_allowCustomId: buildParameter(false, 'When creating a resource, is the user allowed to enter a custom id?', conditionKeys, [true, true, false]),
@@ -308,7 +311,31 @@ function getNewConfig() {
                 JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
                 JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
                 JSON.stringify({ date: "2017-01-01T01:11:01Z", value: 0 }, null, 2),
-            ])
+            ]),
+            map_regionChangeReloadDebounceTimeMs: buildParameter('1000', 'MS wait time after user has dragged map, but before reloading resources', conditionKeys, [
+                '500',
+                '500',
+                '1000',
+            ]),
+            showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+            resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
+            resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
+            favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
+            availableGroupTypes: buildParameter(JSON.stringify({
+                pincode: { id: 'pincode', required: true, order: 1 },
+                country: { id: 'country', required: true, order: 0 },
+            }), "The Available group types. Required is currently ignored.", conditionKeys, [
+                JSON.stringify({}),
+                JSON.stringify({}),
+                JSON.stringify({
+                    pincode: { id: 'pincode', required: true, order: 1 },
+                    country: { id: 'country', required: true, order: 0 },
+                }),
+            ]),
+            shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
+            resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
+            readingDownloadUrl: buildParameter(`${process.env.firebase_base_url}/public/mywell/downloadReadings`, "Download readings for resourceId url", conditionKeys, ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
+            ]),
         };
         return Promise.resolve({
             conditions,

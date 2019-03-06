@@ -1,5 +1,5 @@
 
-import {  TimeseriesReadings, TimeSeriesReading, SearchResult } from "../typings/models/OurWater";
+import {  TimeseriesReadings, TimeSeriesReading, SearchResult as SearchResultV1 } from "../typings/models/OurWater";
 import { SyncStatus } from "../typings/enums";
 import { LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, ExternalSyncStatusRunning, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { ResultType, SomeResult, resultsHasError } from "../typings/AppProviderTypes";
@@ -19,6 +19,9 @@ import { PendingResource } from "../typings/models/PendingResource";
 import { AnyReading } from "../typings/models/Reading";
 import { isNullOrUndefined } from "util";
 import { Region } from "ow_translations/src/Types";
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
+
 
 const orgId = EnvConfig.OrgId;
 const RESOURCE_CACHE_MAX_SIZE = EnvConfig.ResourceCacheMaxSize;
@@ -56,7 +59,6 @@ export type AppState = {
   resources: AnyResource[],
   resourcesMeta: ActionMeta,
   resourceMeta: CacheType<ActionMeta>, //resourceId => ActionMeta, for loading individual resources on request
-  // resourcesCache: CacheType<[AnyResource, number]>, //Store the cache type with the timestamp it was loaded into the cache
   resourcesCache: AnyResource[],
   externalSyncStatus: AnyExternalSyncStatus,
   externalOrgs: GGMNOrganisation[], //A list of external org ids the user can select from
@@ -81,11 +83,14 @@ export type AppState = {
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
   syncStatus: SyncStatus,
-  searchResults: SearchResult,
+  searchResultsV1: SearchResultV1,
+  searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   user: MaybeUser,
   userIdMeta: ActionMeta,
   userStatus: UserStatus,
+  userType: UserAdminType,
+  newResources: CacheType<string>
 }
 
 export const initialState: AppState = {
@@ -135,6 +140,7 @@ export const initialState: AppState = {
   userIdMeta: { loading: false, error: false, errorMessage: '' },
   userStatus: UserStatus.Unapproved,
   syncStatus: SyncStatus.none,
+  userType: UserAdminType.User,
   favouriteResources: [],
   favouriteResourcesMeta: { loading: false, error: false, errorMessage: '' },
   recentResources: [],
@@ -145,8 +151,10 @@ export const initialState: AppState = {
   pendingSavedResources: [],
   pendingSavedResourcesMeta: { loading: false },
 
-  searchResults: { resources: [], hasNextPage: false},
+  searchResultsV1: { resources: [], hasNextPage: false},
+  searchResults: [],
   searchResultsMeta: { loading: false, error: false, errorMessage: '', searchQuery: '' },
+  newResources: {},
 };
 
 export default function OWApp(state: AppState | undefined, action: AnyAction): AppState {
@@ -220,8 +228,6 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       } else {
         console.log(`Couldn't find reading to delete with pendingReadingId: ${action.pendingReadingId}`)
       }
-
-      // console.log(`DELETE_PENDING_READING_RESPONSE post readings has ${readings.length} items`);
 
       newTsReadings[action.resourceId] = readings;
       return Object.assign({}, state, { newTsReadings });
@@ -353,7 +359,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.GET_RESOURCES_RESPONSE: {
       let resourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
       let resources: AnyResource[] = state.resources;
-      let resourcesCache = state.resourcesCache;
+      let resourcesCache: AnyResource[] = state.resourcesCache;
       let pendingSavedResources = state.pendingSavedResources;
 
       if (action.result.type === ResultType.ERROR) {
@@ -364,8 +370,9 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
-
-      //Add new resources to cache
+      if (!resourcesCache) {
+        resourcesCache = [];
+      }
       resourcesCache = resourcesCache.concat(newResources);
 
       //Deuplicate the cache
@@ -429,6 +436,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let name = state.name;
       let nickname = state.nickname;
       let userStatus = state.userStatus;
+      let userType = state.userType;
+      let newResources = state.newResources;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -442,6 +451,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name = action.result.result.name && action.result.result.name;
         nickname = action.result.result.nickname && action.result.result.nickname;
         userStatus = action.result.result.status;
+        userType = action.result.result.type;
+        newResources = action.result.result.newResources;
       }
       
       //TODO: error handling?
@@ -458,6 +469,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         name,
         nickname,
         userStatus,
+        userType,
+        newResources,
       });
     }
     case ActionType.GOT_SHORT_IDS: {
@@ -500,21 +513,21 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.PERFORM_SEARCH_REQUEST: {
-      const searchResultsMeta: SearchResultsMeta ={ loading: true, error: false, errorMessage: '', searchQuery: '' };
-      let searchResults = state.searchResults;
+      const searchResultsMeta: SearchResultsMeta = { loading: true, error: false, errorMessage: '', searchQuery: '' };
+      let searchResultsV1 = state.searchResultsV1;
       searchResultsMeta.searchQuery = action.searchQuery;
 
       //We are on the first page, clear out old results
       if (action.page === 1) {
-        searchResults = {resources: [], hasNextPage: false};
+        searchResultsV1 = {resources: [], hasNextPage: false};
       }
 
-      return Object.assign({}, state, { searchResultsMeta, searchResults })
+      return Object.assign({}, state, { searchResultsMeta, searchResultsV1 })
     }
     case ActionType.PERFORM_SEARCH_RESPONSE: {
       let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
       let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery};
-      let searchResults = state.searchResults;
+      let searchResultsV1 = state.searchResultsV1;
       
       const result = action.result;
       if (result.type === ResultType.ERROR) {
@@ -522,10 +535,31 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         return Object.assign({}, state, { searchResultsMeta });
       }
 
-      const resources: AnyResource[] = searchResults.resources.concat(result.result.resources);
-      searchResults = { resources, hasNextPage: result.result.hasNextPage };
+      const resources: AnyResource[] = searchResultsV1.resources.concat(result.result.resources);
+      searchResultsV1 = { resources, hasNextPage: result.result.hasNextPage };
       
-      return Object.assign({}, state, {searchResults, searchResultsMeta});
+      return Object.assign({}, state, { searchResultsV1, searchResultsMeta});
+    }
+    case ActionType.PERFORM_SEARCH_RESPONSE_V2: {
+      let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
+      let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery };
+      let searchResults = state.searchResults;
+
+      const result = action.result;
+      if (result.type === ResultType.ERROR) {
+        searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.', searchQuery: lastSearchResultsMeta.searchQuery };
+        return Object.assign({}, state, { searchResultsMeta });
+      }
+
+      //TODO: implement pagination for search later
+      searchResults = [];
+      result.result.forEach(r => {
+        if (r.type !== ResultType.ERROR) {
+          searchResults.push(r.result)
+        }
+      });
+    
+      return Object.assign({}, state, { searchResultsMeta, searchResults });
     }
     case ActionType.REFRESH_READINGS: {
       const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;
@@ -554,30 +588,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         });
         newTsReadings[id] = dedup;
       });
-
-
-
-      // const newTsReadings = state.newTsReadings;
-      // const newTsReadingsMeta = state.newTsReadingsMeta;
-      // let meta: ActionMeta = { loading: false, error: false, errorMessage: '' };
-
-      // const pendingReadings: AnyOrPendingReading[] = state.pendingSavedReadings
-      //   .filter(r => r.resourceId === action.resourceId);
-
-      // const duplicateArray = currentReadings.concat(pendingReadings).filter(r => !isNullOrUndefined(r));
-      // const dedup = dedupArray(duplicateArray, (r) => {
-      //   if (!r) {
-      //     console.warn("undefined resource in array!", r);
-      //     return '1';
-      //   }
-      //   return `${r.date}+${r.resourceId}+${r.timeseriesId}`
-      // });
-
-      // //Update the values
-      // newTsReadings[action.resourceId] = dedup;
-      // newTsReadingsMeta[action.resourceId] = meta;
-
-      // return Object.assign({}, state, { newTsReadings, newTsReadingsMeta });
+      
       return Object.assign({}, state, { newTsReadings });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
@@ -610,7 +621,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };      
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };  
+
+      if (action.result.type === ResultType.ERROR) {
+        console.log("ADD_RECENT_RESPONSE error", action.result);
+      }
+
       return Object.assign({}, state, { recentResourcesMeta })
     }
     case ActionType.SAVE_READING_REQUEST: {
@@ -664,6 +680,30 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     }
 
     case ActionType.START_EXTERNAL_SYNC_RESPONSE: {      
+      //If this errored out, then something serious went wrong
+      if (action.result.type === ResultType.ERROR) {
+        const externalSyncStatus: ExternalSyncStatusComplete = { 
+          status: ExternalSyncStatusType.COMPLETE,  
+          pendingResourcesResults: {},
+          pendingReadingsResults: {},
+          newResources: [],
+        };
+
+        return Object.assign({}, state, { externalSyncStatus })
+      }
+
+      const externalSyncStatus: ExternalSyncStatusComplete = action.result.result;
+      return Object.assign({}, state, { externalSyncStatus })
+    }
+    case ActionType.START_INTERNAL_SYNC_REQUEST: {
+      //TD: this is hacky, I just don't want to make an InternalSyncStatus
+      const externalSyncStatus: ExternalSyncStatusRunning = { status: ExternalSyncStatusType.RUNNING };
+
+      //TODO: handle login error case here?
+      return Object.assign({}, state, { externalSyncStatus })
+    }
+
+    case ActionType.START_INTERNAL_SYNC_RESPONSE: {      
       //If this errored out, then something serious went wrong
       if (action.result.type === ResultType.ERROR) {
         const externalSyncStatus: ExternalSyncStatusComplete = { 

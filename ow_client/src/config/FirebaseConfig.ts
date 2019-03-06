@@ -55,6 +55,14 @@ export class FirebaseConfig {
           translationOptions: JSON.parse(obj.translationOptions.val()),
           ggmn_ignoreReading: JSON.parse(obj.ggmn_ignoreReading.val()),
           map_regionChangeReloadDebounceTimeMs: parseInt(obj.map_regionChangeReloadDebounceTimeMs.val()),
+          showMapInSidebar: obj.showMapInSidebar.val(),
+          resourceDetail_shouldShowTable: obj.resourceDetail_shouldShowTable.val(),
+          resourceDetail_shouldShowQRCode: obj.resourceDetail_shouldShowQRCode.val(),
+          favouriteResource_showPendingResources: obj.favouriteResource_showPendingResources.val(),
+          availableGroupTypes: JSON.parse(obj.availableGroupTypes.val()),
+          shouldUseV1Search: obj.shouldUseV1Search.val(),
+          resourceDetail_allowDownload: obj.resourceDetail_allowDownload.val(),
+          readingDownloadUrl: obj.readingDownloadUrl.val(),
         }
         return remoteConfig;
       });

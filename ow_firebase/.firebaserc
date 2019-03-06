@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "our-water"
+    "development": "our-water-dev",
+    "production": "our-water"
   }
 }

@@ -1,5 +1,5 @@
 import FirestoreDoc, { FirestoreDocTypes } from "./FirestoreDoc";
-import { SomeResult } from "../types/AppProviderTypes";
+import { SomeResult } from "../types/dep_AppProviderTypes";
 import { runInThisContext } from "vm";
 
 

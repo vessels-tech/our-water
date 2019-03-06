@@ -1,6 +1,6 @@
 import { ActionType } from "./ActionType";
 import { SomeResult } from "../typings/AppProviderTypes";
-import {  Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult } from "../typings/models/OurWater";
+import { Reading, OWUser, SaveReadingResult, SaveResourceResult, TimeseriesRange, SearchResult as SearchResultV1} from "../typings/models/OurWater";
 import { AnyLoginDetails, ExternalSyncStatusComplete } from "../typings/api/ExternalServiceApi";
 import { Location, MaybeLocation } from "../typings/Location";
 import { Region } from "react-native-maps";
@@ -16,6 +16,8 @@ import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { RNFirebase } from "react-native-firebase";
 import { MobileUser } from "../typings/UserTypes";
 import { Cursor } from "../screens/HomeMapScreen";
+import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
+import { GenericSearchResult } from "../api/BaseApi";
 
 /* Step 3: Add the new action type to the AnyAction Type*/
 export type AnyAction =
@@ -62,6 +64,7 @@ export type AnyAction =
   PassOnUserSubscriptionAction |
   PerformSearchActionRequest |
   PerformSearchActionResponse |
+  PerformSearchActionResponseV2 |
   RefreshReadings |
   RemoveFavouriteActionRequest |
   RemoveFavouriteActionResponse |
@@ -79,6 +82,8 @@ export type AnyAction =
   SilentLoginActionResponse |
   StartExternalSyncActionRequest |
   StartExternalSyncActionResponse |
+  StartInternalSyncActionRequest |
+  StartInternalSyncActionResponse |
   UpdatedTranslationAction |
   VerifyCodeAndLoginActionRequest |
   VerifyCodeAndLoginActionResponse
@@ -116,7 +121,7 @@ export type GetReadingsActionResponse = { type: ActionType.GET_READINGS_RESPONSE
 export type GetResourceActionRequest = { type: ActionType.GET_RESOURCE_REQUEST, resourceId: string };
 export type GetResourceActionResponse = { type: ActionType.GET_RESOURCE_RESPONSE, resourceId: string, result: SomeResult<AnyResource>}
 export type GetResourcesActionRequest = { type: ActionType.GET_RESOURCES_REQUEST };
-export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<AnyResource[]>, safeArea?: Region };
+export type GetResourcesActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE, result: SomeResult<AnyResource[]>, safeArea: Region };
 export type GetResourcesPaginatedActionRequest = { type: ActionType.GET_RESOURCES_REQUEST_PAGINATED};
 export type GetResourcesPaginatedActionResponse = { type: ActionType.GET_RESOURCES_RESPONSE_PAGINATED, result: SomeResult<[AnyResource[], Cursor]>, safeArea: Region };
 export type GetShortIdActionRequest = { type: ActionType.GET_SHORT_ID_REQUEST, resourceId: string};
@@ -129,7 +134,8 @@ export type LogoutActionRequest = { type: ActionType.LOGOUT_REQUEST };
 export type LogoutActionResponse = { type: ActionType.LOGOUT_RESPONSE };
 export type PassOnUserSubscriptionAction = { type: ActionType.PASS_ON_USER_SUBSCRIPTION, unsubscribe: () => any};
 export type PerformSearchActionRequest = { type: ActionType.PERFORM_SEARCH_REQUEST, page: number, searchQuery: string}; //If page is 1, we should empty the searches
-export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResult>}
+export type PerformSearchActionResponse = { type: ActionType.PERFORM_SEARCH_RESPONSE, result: SomeResult<SearchResultV1>};
+export type PerformSearchActionResponseV2 = { type: ActionType.PERFORM_SEARCH_RESPONSE_V2, result: GenericSearchResult};
 export type RefreshReadings = { type: ActionType.REFRESH_READINGS, resourceIds: string[], forceRefresh: boolean };
 export type RemoveFavouriteActionRequest = { type: ActionType.REMOVE_FAVOURITE_REQUEST};
 export type RemoveFavouriteActionResponse = { type: ActionType.REMOVE_FAVOURITE_RESPONSE, result: SomeResult<void> };
@@ -147,6 +153,12 @@ export type SendVerifyCodeActionRequest = {type: ActionType.SEND_VERIFY_CODE_REQ
 export type SendVerifyCodeActionResponse = { type: ActionType.SEND_VERIFY_CODE_RESPONSE, result: SomeResult<RNFirebase.ConfirmationResult>};
 export type StartExternalSyncActionRequest = { type: ActionType.START_EXTERNAL_SYNC_REQUEST};
 export type StartExternalSyncActionResponse = { type: ActionType.START_EXTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+
+//Internal sync is like external sync, but uses AppApi, and is just moving things from user's pending collections to the public collections
+export type StartInternalSyncActionRequest = { type: ActionType.START_INTERNAL_SYNC_REQUEST};
+//TD: Change from ExternalSyncStatusComplete
+export type StartInternalSyncActionResponse = { type: ActionType.START_INTERNAL_SYNC_RESPONSE, result: SomeResult<ExternalSyncStatusComplete>};
+
 export type UpdatedTranslationAction = { type: ActionType.UPDATED_TRANSLATION, translationFiles: TranslationFiles, translationOptions: TranslationEnum[]};
 export type VerifyCodeAndLoginActionRequest = {type: ActionType.VERIFY_CODE_AND_LOGIN_REQUEST }
 export type VerifyCodeAndLoginActionResponse = {type: ActionType.VERIFY_CODE_AND_LOGIN_RESPONSE, result: SomeResult<FullUser>};

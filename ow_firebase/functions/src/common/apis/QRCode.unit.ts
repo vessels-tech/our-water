@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as mocha from 'mocha';
 
 import { generateQRCode } from './QRCode';
-import { ResultType } from '../types/AppProviderTypes';
+import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 
 describe('QRCode', function () {
 
