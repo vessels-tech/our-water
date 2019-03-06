@@ -11,7 +11,7 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
-import {  unwrapUserId, getShortIdOrFallback } from '../utils';
+import {  unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../utils';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
@@ -104,7 +104,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
             deletePendingReading={this.deletePendingReading}
             pendingReading={reading}
             sync_date_format={sync_date_format}
-            unitSuffix=" m"
+            unitSuffix={getUnitSuffixForPendingResource(reading, this.props.config)}
             shortId={getShortIdOrFallback(reading.resourceId, this.props.shortIdCache)}
           />
         )}
@@ -115,17 +115,21 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   render() {
     const { pendingReadings } = this.props;
 
+    //TODO: Translate
+    const edit_readings_no_readings = "No Pending Readings for this Station";
+    const edit_readings_new_reading = "New Reading";
+
     if (pendingReadings.length === 0) {
       return (
         <View style={{
           flex: 1,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '50%',
+          width: '70%',
           height: '100%',
         }}>
-          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{'No Readings for this Station'}</Text>
-          <Button onPress={this.onAddReadingPressed} title="New Reading"/>
+          <Text style={{ textAlign: "center", fontWeight: 'bold', paddingBottom: 10, }}>{edit_readings_no_readings}</Text>
+          <Button onPress={this.onAddReadingPressed} title={edit_readings_new_reading}/>
         </View>
       );
     }

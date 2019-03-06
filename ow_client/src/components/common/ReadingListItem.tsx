@@ -44,7 +44,7 @@ export default function ReadingListItem(props: Props) {
           />
         </TouchableNativeFeedback>
       }
-      title={`${moment(date).format(props.sync_date_format)}: ${value}${unitSuffix ? unitSuffix : ''}`}
+      title={`${moment(date).format(props.sync_date_format)}: ${value}${unitSuffix ? ` ${unitSuffix}` : ''}`}
       avatar={getReadingAvatar()}
       subtitle={props.errorMessage || `${shortId || resourceId}, ${timeseriesId}`}
       subtitleStyle={{ color: props.message ? error1 : primaryDark }}

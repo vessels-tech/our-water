@@ -22,6 +22,7 @@ import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, se
 //@ts-ignore
 import * as QRCode from 'qrcode';
 import { OrgType } from '../typings/models/OrgType';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 
 
@@ -977,4 +978,27 @@ export function openUrlOrToastError(url: string, errorMessage: string) {
 }
 
 
-// export const canUserSaveReadings(user: Use)
+/**
+ * getUnitSuffixForPendingResource
+ * 
+ * For a pending resource, get the unit suffix.
+ * If anything goes wrong, defaults to 'm'
+ */
+export function getUnitSuffixForPendingResource(r: PendingReading, config: ConfigFactory) {
+
+  if (!r.timeseriesId || !r.resourceType) {
+    return "m";
+  }
+
+  const defaultTimeseriesList = config.getDefaultTimeseries(r.resourceType);
+  if (!defaultTimeseriesList) {
+    return "m";
+  }
+
+  const defaultTimeseries = defaultTimeseriesList.find(t => t.parameter === r.timeseriesId);
+  if (!defaultTimeseries) {
+    return 'm';
+  }
+
+  return defaultTimeseries.unitOfMeasure;
+}

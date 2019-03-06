@@ -20,7 +20,7 @@ import { AppState, CacheType } from '../../reducers';
 import { LoginDetails, EmptyLoginDetails, ConnectionStatus, ExternalSyncStatusType, AnyLoginDetails, AnyExternalSyncStatus, SyncError, ExternalSyncStatusComplete } from '../../typings/api/ExternalServiceApi';
 import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
-import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId, getShortIdOrFallback } from '../../utils';
+import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../../utils';
 import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
 import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
@@ -238,7 +238,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { deletePendingReading } = this.props;
     const { sync_date_format } = this.props.translation.templates;
     const errorMessage = message && getErrorMessageForSyncError(message, this.props.translation);
-
+    const unitSuffix = getUnitSuffixForPendingResource(r, this.props.config);
 
     return (
       <ReadingListItem
@@ -248,7 +248,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
         sync_date_format={sync_date_format}
         message={message}
         errorMessage={errorMessage}
-        unitSuffix=" m"
+        unitSuffix={unitSuffix}
         shortId={getShortIdOrFallback(r.resourceId, this.props.shortIdCache)}
       />
     )
