@@ -4049,10 +4049,9 @@ ow_common@^0.1.29:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"
 
-"ow_translations@https://github.com/vessels-tech/ow_translations#612d9234745c014aee6c1382f9c225e4a16e8f67":
+"ow_translations@https://github.com/vessels-tech/ow_translations#5aaa184de69d6a4890f9af5c57228c8c8aeaebf8":
   version "0.1.1"
-  uid "612d9234745c014aee6c1382f9c225e4a16e8f67"
-  resolved "https://github.com/vessels-tech/ow_translations#612d9234745c014aee6c1382f9c225e4a16e8f67"
+  resolved "https://github.com/vessels-tech/ow_translations#5aaa184de69d6a4890f9af5c57228c8c8aeaebf8"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
