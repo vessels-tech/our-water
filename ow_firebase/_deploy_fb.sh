@@ -25,7 +25,8 @@ firebase functions:config:set \
   config.backup_bucket_name=$backup_bucket_name \
   config.temporary_admin_access_token=$temporary_admin_access_token \
   config.temporary_admin_user_id=$temporary_admin_user_id \
-  config.verbose_log=$verbose_log 
+  config.verbose_log=$verbose_log \
+  config.project_id=$PROJECT_ID
 
 
 # deploy

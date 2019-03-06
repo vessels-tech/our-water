@@ -2398,9 +2398,9 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@^0.1.18:
-  version "0.1.18"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.18.tgz#759873a2c4d1db046a571699d7b915dee89786ac"
+ow_common@^0.1.20:
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.20.tgz#0df2863a30d825fd2fd9c29237ec7918997451c7"
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"

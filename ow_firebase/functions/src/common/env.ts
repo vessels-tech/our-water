@@ -32,3 +32,4 @@ export const backupBucketName = envConfig.config.backup_bucket_name
 export const temporaryAdminAccessToken = envConfig.config.temporary_admin_access_token;
 export const temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 export const verboseLog = getBoolean(envConfig.config.verbose_log);
+export const projectId = envConfig.config.project_id;

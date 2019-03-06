@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
@@ -6,10 +14,10 @@ const request = require("request-promise-native");
 const Sync_1 = require("./models/Sync");
 const SyncRun_1 = require("./models/SyncRun");
 const ow_types_1 = require("ow_types");
-const btoa = require("btoa");
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const env_1 = require("./env");
 const filesystem = require("fs");
+const _serviceAccountKey_1 = require("./.serviceAccountKey");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
  * iterate through and return a list of resources
@@ -262,16 +270,6 @@ exports.hashIdToIntegerString = (id, length) => {
     const fullHash = `${exports.hashCode(id)}`;
     return fullHash.substring(0, length);
 };
-/**
- * The Id for a reading is generated as a hash of the
- * reading's dateTime + ResourceId + timeseriesId.
- *
- * For now, we can just encode it as a base64 string
- */
-exports.hashReadingId = (resourceId, timeseriesId, dateTime) => {
-    const input = `${resourceId}_${timeseriesId}_${dateTime.valueOf()}`;
-    return btoa(input);
-};
 exports.isNullOrEmpty = (stringOrNull) => {
     if (!stringOrNull) {
         return true;
@@ -332,6 +330,7 @@ function writeFileAsync(filename, content, encoding) {
 exports.writeFileAsync = writeFileAsync;
 /**
  * Split an array up into an array of chuncks
+ * //TODO: replace with ow_common
  */
 function chunkArray(array, size) {
     const chunks = [];
@@ -369,6 +368,9 @@ exports.get = (o, p) => p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o);
 const morgan = require("morgan");
 //@ts-ignore
 const morganBody = require("morgan-body");
+const tools_1 = require("../../tools");
+const utils_1 = require("ow_common/lib/utils");
+const dep_AppProviderTypes_1 = require("./types/dep_AppProviderTypes");
 function enableLogging(app) {
     if (!env_1.verboseLog) {
         console.log('Using simple log');
@@ -380,4 +382,47 @@ function enableLogging(app) {
     }
 }
 exports.enableLogging = enableLogging;
+function loadRemoteConfig() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let config;
+        try {
+            const accessToken = yield tools_1.getAdminAccessToken(_serviceAccountKey_1.default);
+            const currentConfigResult = yield tools_1.getRemoteConfig(env_1.projectId, accessToken);
+            config = JSON.parse(currentConfigResult[1]);
+        }
+        catch (err) {
+            return utils_1.makeError(err.message);
+        }
+        if (!config) {
+            return utils_1.makeError("Couldn't find config");
+        }
+        return dep_AppProviderTypes_1.makeSuccess(config);
+    });
+}
+exports.loadRemoteConfig = loadRemoteConfig;
+function getDefaultTimeseries(resourceType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const configResult = yield this.loadRemoteConfig();
+        if (configResult.type === utils_1.ResultType.ERROR) {
+            return configResult;
+        }
+        const timeseriesTypesStr = utils_1.safeGetNested(configResult, ['result', 'parameters', 'editResource_defaultTypes', 'defaultValue', 'value']);
+        if (!timeseriesTypesStr) {
+            return utils_1.makeError("Couldn't find default timeseries types");
+        }
+        let timeseries;
+        try {
+            const timeseriesTypes = JSON.parse(timeseriesTypesStr);
+            timeseries = timeseriesTypes[resourceType];
+        }
+        catch (err) {
+            return utils_1.makeError(`Error parsing timeseries`);
+        }
+        if (!timeseries) {
+            return utils_1.makeError(`Couldn't find resourceType: ${resourceType}`);
+        }
+        return dep_AppProviderTypes_1.makeSuccess(timeseries);
+    });
+}
+exports.getDefaultTimeseries = getDefaultTimeseries;
 //# sourceMappingURL=utils.js.map

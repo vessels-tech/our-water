@@ -818,6 +818,10 @@
     "@types/connect" "*"
     "@types/node" "*"
 
+"@types/btoa@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/btoa/-/btoa-1.2.2.tgz#cbd47d0d1bb5fa64a810e11eaa2c1c0fbbebb476"
+
 "@types/caseless@*":
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.1.tgz#9794c69c8385d0192acc471a540d1f8e0d16218a"
@@ -4017,22 +4021,25 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.9.tgz#ec5d99e396376ad9f789cfe4706da5b118804f16"
+ow_common@^0.1.29:
+  version "0.1.29"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.29.tgz#ee58212c297a889beb02d8812fe0c21d6537f163"
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
+    "@types/btoa" "^1.2.2"
     "@types/mocha" "^5.2.5"
+    btoa "^1.2.1"
     firebase-admin "7.0.0"
     mocha "^5.2.0"
     mock-cloud-firestore "^0.9.2"
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations":
+"ow_translations@git://github.com/vessels-tech/ow_translations.git":
   version "0.1.1"
-  resolved "git://github.com/vessels-tech/ow_translations#a062a14490fbcfa186bf1c5703f2e616b14881c4"
+  uid a062a14490fbcfa186bf1c5703f2e616b14881c4
+  resolved "git://github.com/vessels-tech/ow_translations.git#a062a14490fbcfa186bf1c5703f2e616b14881c4"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -4045,7 +4052,6 @@ ow_common@0.1.9:
 
 "ow_translations@https://github.com/vessels-tech/ow_translations#a062a14490fbcfa186bf1c5703f2e616b14881c4":
   version "0.1.1"
-  uid a062a14490fbcfa186bf1c5703f2e616b14881c4
   resolved "https://github.com/vessels-tech/ow_translations#a062a14490fbcfa186bf1c5703f2e616b14881c4"
   dependencies:
     "@babel/cli" "^7.0.0"

@@ -1,15 +1,14 @@
 import * as React from 'react'; import { Component } from 'react';
 import {
   View,
-  ViewPagerAndroid,
   ToastAndroid,
-  Image,
   Dimensions,
+  TouchableNativeFeedback,
+  Linking,
 } from 'react-native';
 import { 
   Avatar,
   Button,
-  Card, 
   Text,
 } from 'react-native-elements';
 import * as moment from 'moment';
@@ -17,9 +16,9 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries, openUrlOrToastError,
 } from '../utils';
-import { primary, bgMed, primaryLight, bgLight, primaryText, bgLightHighlight, secondary, } from '../utils/Colors';
+import { primary, bgMed, primaryLight, bgLight, bgLightHighlight, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -29,7 +28,6 @@ import { AppState, CacheType, AnyOrPendingReading } from '../reducers';
 import * as appActions from '../actions/index';
 import { connect } from 'react-redux'
 import { SyncMeta, ActionMeta } from '../typings/Reducer';
-import * as ScrollableTabView from 'react-native-scrollable-tab-view';
 import { TranslationFile } from 'ow_translations';
 import { AnyReading } from '../typings/models/Reading';
 import { AnyResource } from '../typings/models/Resource';
@@ -37,7 +35,7 @@ import { AnyTimeseries } from '../typings/models/Timeseries';
 import { OrgType } from '../typings/models/OrgType';
 import TimeseriesSummaryText from './common/TimeseriesSummaryText';
 import { UserType } from '../typings/UserTypes';
-import { SomeResult, ResultType } from '../typings/AppProviderTypes';
+import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { ResourceDetailBottomButton } from './common/ResourceDetailBottomButtom';
 import { PendingResource } from '../typings/models/PendingResource';
 import { ConfigTimeseries } from '../typings/models/ConfigTimeseries';
@@ -45,9 +43,24 @@ import { Maybe } from '../typings/MaybeTypes';
 import { diff } from 'deep-object-diff';
 import TimeseriesCardSimple, { TimeseriesCardType } from './common/TimeseriesCardSimple';
 import QRCode from 'react-native-qrcode-svg';
+import { Icon } from 'react-native-elements';
+import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, secondary, secondaryDark } from '../utils/NewColors';
+import { ResourceType } from '../enums';
+import { safeGetNested } from 'ow_common/lib/utils';
+import HeadingText from './common/HeadingText';
+const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+/**
+ * Lazily killing two birds here by
+ * adding in the icon names.
+ */
+enum TabType {
+  Summary="dashboard",
+  Graph="show-chart",
+  Table="view-list",
+}
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -88,6 +101,37 @@ export interface State {
   //We use this to force the viewpager to do a complete re-render, because of a bug the underlying ViewPagerAndroid
   hackViewPager: number,
 }
+
+function HeadingSection(props: {title: string}) {
+  return (
+    <View style={{
+      flexDirection: 'column',
+      flex: 1,
+    }}>
+      <Text style={{
+        paddingVertical: 10,
+        fontSize: 15,
+        fontWeight: '600',
+        alignSelf: 'center',
+      }}>
+        {props.title}
+      </Text>
+    </View>
+  );
+}
+
+function ContentSection(props: {children: any}) {
+  return (
+    <View style={{
+      flexDirection: 'column',
+      flex: 3,
+      justifyContent: 'center',
+    }}>
+      {props.children}
+    </View>
+  );
+}
+
 
 class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -155,15 +199,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     }
   }
 
-
-  getDefaultTimeseries(): Array<ConfigTimeseries> {
+  getResourceType(): ResourceType {
     const { resource, pendingResource } = this.props;
 
     //TD: this is a hacky fix
-    let resourceType = 'well';
+    let resourceType: ResourceType = ResourceType.well;
     if (resource) {
       if (resource.type === OrgType.GGMN) {
-        resourceType = 'well';
+        resourceType = ResourceType.well;
       }
       if (resource.type === OrgType.MYWELL) {
         resourceType = resource.resourceType;
@@ -174,8 +217,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       resourceType = pendingResource.resourceType;
     }
 
-    return this.props.config.getDefaultTimeseries(resourceType);
+    return resourceType;
   }
+
+
+  getDefaultTimeseries(): Array<ConfigTimeseries> {
+    return this.props.config.getDefaultTimeseries(this.getResourceType());
+  }
+
 
   getHeadingBar() {
     const { resourceId, resource, pendingResource } = this.props;
@@ -220,13 +269,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           paddingLeft: 15,
           alignSelf: 'center',
         }}>
-          <Text style={{ color: primaryText, fontSize: 17, fontWeight: '800' }}>{`${resource_detail_heading_label} ${getShortId(resourceId)}`}</Text>
+          <Text style={{ color: primaryText.high, fontSize: 17, fontWeight: '800' }}>{`${resource_detail_heading_label} ${getShortId(resourceId)}`}</Text>
           { showSubtitle ? 
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-              <Text style={{ color: primaryText, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label} ${title}`}</Text>
+              <Text style={{ color: primaryText.high, fontSize: 13, fontWeight: '100' }}>{`${resource_detail_name_label} ${title}`}</Text>
             </View>
             : null }
         </View>
@@ -296,8 +345,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
       const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.name === key);
+      let heading = "default"
       let unitOfMeasure = 'm';
       if (defaultTimeseries) {
+        heading = getHeadingForTimeseries(this.getResourceType(), defaultTimeseries.name);
         unitOfMeasure = defaultTimeseries.unitOfMeasure;
       }
 
@@ -311,7 +362,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         <TimeseriesSummaryText 
           key={key} 
-          heading={key} 
+          heading={heading} 
           subtitle={timeseries_name_title(key)}
           content={content}
           content_subtitle={contentSubtitle}
@@ -344,7 +395,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return (
       <View
         style={{
-          flex: 5,
+          flex: 2,
           alignSelf: 'center',
         }}
       >
@@ -356,12 +407,33 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     )
   }
 
+  getOwnerSection() {
+    const ownerName = safeGetNested(this.props, ['resource', 'owner', 'name']);
+    if (!ownerName) {
+      return null;
+    }
+
+    //TD: translate
+    const resource_detail_owner_section = "About:";
+    const resource_detail_owner_name = "Owner Name";
+    
+    return (
+      <View style={{ flex: 1, paddingVertical: 20 }}>
+        <HeadingSection title={resource_detail_owner_section} />
+        <ContentSection>
+          <HeadingText heading={resource_detail_owner_name} content={ownerName || ''} />
+        </ContentSection>
+      </View>
+    );
+  }
+
   getSummaryCard() {
     const { resource_detail_edit_resource, resource_detail_latest, resource_detail_new_reading_button, resource_detail_edit_readings } = this.props.translation.templates;
-    const { resourceId, pendingResource, isPending} = this.props;
+    const { resourceId, pendingResource, isPending, newTsReadings} = this.props;
 
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
+    const allowDownload = this.props.config.getResourceDetailAllowDownload();
 
     return (
         <View style={{
@@ -370,27 +442,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           padding: 20,
           flex: 1,
         }}>
-          <View style={{
-            flexDirection: 'column',
-            flex: 1,
-          }}>
-            <Text style={{
-              paddingVertical: 10,
-              fontSize: 15,
-              fontWeight: '600',
-              alignSelf: 'center',
-            }}>
-              {resource_detail_latest}
-            </Text>
+          {this.getOwnerSection()}
+          <View style={{ flex: 1, paddingVertical: 20 }}>
+            <HeadingSection title={resource_detail_latest}/>
+            <ContentSection>
+              {this.getLatestReadingsForTimeseries()}
+            </ContentSection>
           </View>
 
-          <View style={{
-            flexDirection: 'column',
-            flex: 3,
-            justifyContent: 'center',
-          }}>
-            {this.getLatestReadingsForTimeseries()}
-          </View>
           {this.getQRCode()}
           {/* Bottom Buttons */}
           <View style={{
@@ -403,11 +462,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {!isPending && this.getFavouriteButton()}
+            {!isPending && allowDownload && this.getDownloadButton()}
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
               />
-          {allowEditReadings   && <ResourceDetailBottomButton
+          {allowEditReadings  && <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
               onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
             />}
@@ -424,10 +484,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const { timeseriesList } = this.props;
     const defaultTimeseriesList: Array<ConfigTimeseries> = this.getDefaultTimeseries();
 
-    console.log("Default timeseries is", defaultTimeseriesList);
-
     return Object.keys(timeseriesList).map((key, idx) => {
-      console.log("looking for timeseries with key", key);
 
       const timeseries = defaultTimeseriesList.filter(ts => ts.parameter === key)[0];
       if (!timeseries) {
@@ -436,9 +493,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       }
 
       return (
+        //TODO: figure out proper tab labels?
         // @ts-ignore
         <View
-          tabLabel={`Graph: ${timeseries.name}`}
+          tabLabel={{type: TabType.Graph, name: timeseries.name}}
           key={`${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
@@ -450,6 +508,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             resourceId={this.props.resourceId}
             timeseriesId={key}
             isPending={this.props.isPending}
+            resourceType={this.getResourceType()}
           />
         </View>
       )
@@ -471,11 +530,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         return;
       }
 
-      //TODO: Make this a graph thingo
       return (
         // @ts-ignore
         <View
-          tabLabel={`Table: ${timeseries.name}`}
+          tabLabel={{ type: TabType.Table, name: timeseries.name }}
           key={`graph_${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
@@ -487,6 +545,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             resourceId={this.props.resourceId}
             timeseriesId={key}
             isPending={this.props.isPending}
+            resourceType={this.getResourceType()}
           />
         </View>
       )
@@ -513,11 +572,50 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           //TD: disable bold as sometimes it is wrong and doesn't get updated
           fontWeight: '500',
         }}
-        tabBarActiveTextColor={primaryText}
-        tabBarInactiveTextColor={primaryText}
+        tabBarActiveTextColor={primaryText.high}
+        tabBarInactiveTextColor={primaryText.high}
         renderTabBar={() => (
           <ScrollableTabView.DefaultTabBar
-            tabStyle={{ backgroundColor: primaryLight }}
+            renderTab={(name: {type: TabType, name: string}, page: number, isTabActive: boolean, onPressHandler: (page: number) => void) => {
+              /* hide the default or summary labels*/
+              let subtitle = name.name;
+              if (name.name === 'default' || name.name === 'summary') {
+                subtitle = ''
+              };
+
+              return (
+                <TouchableNativeFeedback
+                  key={`${name.name}_${page}`}
+                  onPress={() => onPressHandler(page)}
+                >
+                  <View style={{ 
+                    backgroundColor: surfaceDark,
+                    flex: 1,
+                  }}>
+                    <Icon
+                      containerStyle={{
+                        paddingTop: 10,
+                        flex: 1,
+                      }}
+                      name={name.type}
+                      color={secondaryDark}
+                    />
+                    <Text
+                      style={{
+                        flex: 1,
+                        textAlign: "center",
+                        fontSize: 11, 
+                        fontWeight: '500',
+                        paddingBottom: 10,
+                      }}
+                    >
+                      {subtitle}
+                    </Text>
+                    {/* <View style={{flex: 1}}/> */}
+                  </View>
+                </TouchableNativeFeedback>
+              );
+            }}
           />
         )}>
         <View
@@ -526,8 +624,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             backgroundColor: bgLight,
             flex: 1,
           }}
-          tabLabel={resource_detail_summary_tab}
-          >
+          tabLabel={{ type: TabType.Summary, name: 'summary' }}
+        >
           {this.getSummaryCard()}
         </View>
           {
@@ -581,12 +679,35 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           marginTop: 2,
           height: '100%',
+          paddingLeft: 10,
         }}
         name={iconName}
-        // HERE
         onPress={() => this.toggleFavourites()}
         color={secondary}
         isLoading={favouriteResourcesMeta.loading}
+      />
+    );
+  }
+
+
+  getDownloadButton() {
+    //TODO: translate
+    const open_url_error = "Can' open url";
+    const url = this.props.config.getDownloadReadingsUrl(this.props.resourceId);
+
+    return (
+      <FlatIconButton
+        style={{
+          marginTop: 2,
+          height: '100%',
+          paddingLeft: 10,
+        }}
+        name={'cloud-download'}
+        onPress={() => {
+          openUrlOrToastError(url, open_url_error);
+        }}
+        color={secondary}
+        isLoading={false}
       />
     );
   }
@@ -603,7 +724,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   render() {   
-    maybeLog(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
+    renderLog(`ResourceDetailSection render(). Count: ${this.props.renderCounter}`);
 
     return (
       <View style={{

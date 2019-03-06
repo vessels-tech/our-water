@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Linking, ToastAndroid } from 'react-native';
 import * as React from 'react';
 import * as moment from 'moment';
 import { stringify } from 'query-string';
@@ -22,6 +22,7 @@ import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, se
 //@ts-ignore
 import * as QRCode from 'qrcode';
 import { OrgType } from '../typings/models/OrgType';
+import { ConfigFactory } from '../config/ConfigFactory';
 
 
 
@@ -666,6 +667,20 @@ export function unwrapUserId(user: MaybeUser) {
   return user.userId;
 }
 
+export function splitInternationalNumber(intNumber: string): SomeResult<{regionCode: string, prefix: string, mobile: string}> {
+  //@ts-ignore
+  const pn = new PhoneNumber(intNumber);
+  if (!pn.isValid()) {
+    return makeError<{ regionCode: string, prefix: string, mobile: string }>('Number is not valid');
+  }
+
+  return makeSuccess({
+    regionCode: pn.getRegionCode(),
+    prefix: `+${PhoneNumber.getCountryCodeForRegionCode(pn.getRegionCode())}`,
+    mobile: pn.getNumber('significant'),
+  });
+}
+
 
 /**
  * filterAndSort
@@ -814,8 +829,6 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
   //Make a list of safe resources:
   const safeResources: AnyResource[] = [];
   array.forEach(r => {
-    // console.log("resource.coords is", r.id, r.coords);
-
     if (isInRegion(safeArea, r.coords)) {
       safeResources.push(r);
     }
@@ -910,3 +923,82 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
 export const get = (o: any, p: string[]) =>
   p.reduce((xs, x) =>
     (xs && xs[x]) ? xs[x] : null, o);
+
+
+/**
+* getHeadingForTimeseries
+* 
+* Convert the "default" string to sometime meaningful
+* 
+* TODO: move to a translation function
+*/
+export const getHeadingForTimeseries = (resourceType: ResourceType, name: string) => {
+
+  switch (resourceType) {
+    case ResourceType.raingauge: return "Rainfall";
+    case ResourceType.quality: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.custom: {
+      return capitalizeFirstLetter(name);
+    }
+    case ResourceType.checkdam:
+    case ResourceType.well:
+    default: {
+      return "Groundwater"
+    }
+  }
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+/**
+ * Attempt to open a url or display an error message
+ */
+export function openUrlOrToastError(url: string, errorMessage: string) {
+  Linking.canOpenURL(url)
+    .then(supported => {
+      if (!supported) {
+        return makeError<void>(errorMessage);
+      }
+      return makeSuccess<void>(undefined);
+    })
+    .catch(err => makeError<void>(errorMessage))
+    .then(result => {
+      if (result.type === ResultType.ERROR) {
+        ToastAndroid.show(result.message, ToastAndroid.SHORT);
+        return;
+      }
+
+      Linking.openURL(url);
+    });
+}
+
+
+/**
+ * getUnitSuffixForPendingResource
+ * 
+ * For a pending resource, get the unit suffix.
+ * If anything goes wrong, defaults to 'm'
+ */
+export function getUnitSuffixForPendingResource(r: PendingReading, config: ConfigFactory) {
+
+  if (!r.timeseriesId || !r.resourceType) {
+    return "m";
+  }
+
+  const defaultTimeseriesList = config.getDefaultTimeseries(r.resourceType);
+  if (!defaultTimeseriesList) {
+    return "m";
+  }
+
+  const defaultTimeseries = defaultTimeseriesList.find(t => t.parameter === r.timeseriesId);
+  if (!defaultTimeseries) {
+    return 'm';
+  }
+
+  return defaultTimeseries.unitOfMeasure;
+}

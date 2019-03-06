@@ -24,6 +24,7 @@ import firebase from 'react-native-firebase';
 const fs = firebase.firestore();
 
 import {SearchApi, SearchResult, PartialResourceResult, PlaceResult} from 'ow_common/lib/api/SearchApi';
+import {UserApi as CommonUserApi} from 'ow_common/lib/api/UserApi';
 
 import { Cursor } from '../screens/HomeMapScreen';
 import FirebaseUserApi from './FirebaseUserApi';
@@ -117,9 +118,15 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
   //----------------------------------------------------------------------
 
   /**
-   * Add a resource to the recently viewed list
+   * Add a resource to the recently viewed list. 
+   * Also removes from new resource if its in the list
    */
-  addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
+  async addRecentResource(resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
+
+    //Remove the resource
+    const userApi = new CommonUserApi(fs, this.orgId);
+    const newResourceResponse = await userApi.removeNewResource(userId, resource.id);
+
     return FirebaseApi.addRecentResource(this.orgId, resource, userId);
   }
 
@@ -429,7 +436,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     ])
     .then(allResults => makeSuccess(allResults))
     .catch((err: Error) => {
-      console.log("saerch error", err);
+      console.log("search error", err);
       //This shouldn't happen.
       return makeError(err.message);
     });

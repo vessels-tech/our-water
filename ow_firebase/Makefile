@@ -22,6 +22,9 @@ switch:
 	firebase use ${stage}
 	@echo 'copying remoteConfigConditions.js across'
 	cp ${dir}/../env/remoteConfigConditions.${stage}.js ${dir}/functions/tools/remoteConfigConditions.js
+	@echo 'copying .serviceAccountKey.js across'
+	cp ${dir}/functions/src/common/.serviceAccountKey.${stage}.js ${dir}/functions/src/common/.serviceAccountKey.js
+
 
 switch-dev:
 	make switch stage="development"
@@ -58,6 +61,12 @@ get-remote-config:
 
 hacky_create_syncs:
 	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp upload_readings_from_csv
+
+test_create_reading:
+	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp test_create_reading
+
+migrate:
+	@cd ${dir}/../env/ && source .env.development.sh && cd ${dir}/functions/tools/ && gulp run_migrations --migrationTag ${migrationTag}
 
 run-local:
 	@echo 'running local firebase'	

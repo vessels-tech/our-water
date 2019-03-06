@@ -68,6 +68,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
     //Binds
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
+    this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
   }
 
@@ -93,6 +94,18 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     if (!this.props.shortId && nextProps.shortId) {
         this.props.navigator.setTitle({ title: nextProps.shortId });
     }
+  }
+
+  onEditReadingsPressed(resourceId: string) {
+    const {
+      resource_detail_edit_readings,
+    } = this.props.translation.templates;
+
+    showModal(this.props, 'screen.EditReadingsScreen', resource_detail_edit_readings, {
+      resourceId,
+      config: this.props.config,
+      resourceType: this.props.resourceType
+    })
   }
 
   onAddReadingPressed(resourceId: string) { 
@@ -133,45 +146,8 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
       // resource_detail_sync_required,
     } = this.props.translation.templates;
 
-    //TODO: TD: Issues with TransactionTooLargeException crash when updating translations
+    //TODO: Translate
     const resource_detail_sync_required = "Location needs to be synced before you can save any readings."; 
-
-    // if (isPending) {
-    //   return (
-    //     <View
-    //       style={{
-    //         flex: 1,
-    //         alignSelf: 'center',
-    //         justifyContent: 'center',
-    //         paddingVertical: 100,
-    //       }}
-    //     >
-    //       <Text
-    //         style={{
-    //           flex: 1,
-    //           paddingHorizontal: 30,
-    //         }}
-    //       >
-    //         {resource_detail_sync_required}
-    //       </Text>
-    //       <Button
-    //         color={secondaryText.high}
-    //         buttonStyle={{
-    //           backgroundColor: secondary,
-    //           borderRadius: 5,
-    //           // height: '100%',
-    //         }}
-    //         containerViewStyle={{
-    //           flex: 1,
-    //           alignSelf: 'center',
-    //           justifyContent: 'center',
-    //         }}
-    //         title={settings_pending_heading}
-    //         onPress={this.onSyncButtonPressed}
-    //       />
-    //     </View>
-    //   );
-    // }
 
     return (
       <ResourceDetailSection
@@ -179,6 +155,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
         hideTopBar={true}
         isPending={isPending}
         onAddReadingPressed={this.onAddReadingPressed}
+        onEditReadingsPressed={this.onEditReadingsPressed}
         resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
       />

@@ -1,5 +1,5 @@
 import * as gulp from 'gulp';
-import { getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig } from '.';
+import { arg, getAdminAccessToken, getRemoteConfig, getNewConfig, saveNewConfig } from '.';
 import { admin, firestore } from '../src/test/TestFirebase';
 const request = require('request-promise-native');
 import { TranslationOrg, translationsForTranslationOrg, possibleTranslationsForOrg, functionReplacer, translationFromJSON} from 'ow_translations';
@@ -7,6 +7,7 @@ import FirebaseApi, { BoundingBox, PageParams } from '../src/common/apis/Firebas
 import { Reading } from '../src/common/models/Reading';
 import { readingToCSV, readingHeading } from './csv';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
+import Migrator, { MigrationTag } from './Migrator';
 
 const fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
@@ -15,6 +16,31 @@ const key = require(serviceAccountKeyFile);
 const baseUrl = process.env.REACT_APP_BASE_URL;
 const orgId = process.env.REACT_APP_ORG_ID;
 const PROJECT_ID = process.env.PROJECT_ID;
+
+
+gulp.task('test_create_reading', async () => {
+
+  const result = await firestore.collection("org").doc("mywell").collection("reading").doc("12345").create({
+    resourceId: "45678"
+  });
+
+  console.log("result");
+
+});
+
+gulp.task('run_migrations', async () => {
+  const tag: MigrationTag = arg.migrationTag;
+  if (!tag) {
+    throw new Error(`No Migration tag found. usage: gulp run_migrations --migrationTag <tag>`);
+  }
+
+  const params = {
+    maxQueryCount: 100,
+    limit: 100, //100 * 100 = 10,000 possible resources at most
+    batchSize: 250,
+  };
+  await Migrator.runMigrationForTag(tag, firestore, orgId, params);
+});
 
 
 gulp.task('test_translation_parsing', async () => {

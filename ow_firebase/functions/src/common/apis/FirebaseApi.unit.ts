@@ -8,7 +8,7 @@ import * as MockFirebase from 'mock-cloud-firestore';
 
 
 import ShortId from '../models/ShortId';
-import { pad, hashReadingId } from '../utils';
+import { pad } from '../utils';
 import { Reading } from '../models/Reading';
 import { resourceTypeFromString } from "../enums/ResourceType";
 import ResourceIdType from '../types/ResourceIdType';
@@ -19,6 +19,8 @@ import { pendingResourcesData, basicResource, basicReading } from '../test/Data'
 import { getAllReadings, getAllResources } from '../test/TestUtils';
 import { Resource } from '../models/Resource';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { ReadingApi, ResourceApi } from 'ow_common/lib/api';
+import { DefaultShortId, DefaultResource, DefaultMyWellResource } from 'ow_common/lib/model';
 
 const orgId = process.env.ORG_ID;
 const baseUrl = process.env.BASE_URL;
@@ -43,7 +45,7 @@ describe('Firebase Api', function() {
       ];
 
       await fbApi.batchSaveReadings(newReadings);
-      newReadings.forEach(r => readingIds.push(hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
+      newReadings.forEach(r => readingIds.push(ReadingApi.hashReadingId(r.resourceId, r.timeseriesId, r.datetime)));
     });
 
     it('Gets the readings within the bounding box', async () => {
@@ -63,7 +65,7 @@ describe('Firebase Api', function() {
       }
 
       //Assert
-      assert.equal(readingsResult.result.length, 3);
+      assert.strictEqual(readingsResult.result.length, 3);
     });
 
     after(async () => {
@@ -104,7 +106,7 @@ describe('Firebase Api', function() {
       const result = await fbApi.getLongId(orgId, '12345');
 
       //Assert
-      assert.equal(result.type, ResultType.ERROR);
+      assert.strictEqual(result.type, ResultType.ERROR);
     });
 
     it('gets a long id for an existing shortId', async() => {
@@ -117,7 +119,7 @@ describe('Firebase Api', function() {
       }
 
       //Assert
-      assert.equal(result.result, 'longId_1');
+      assert.strictEqual(result.result, 'longId_1');
     });
 
     it('does not allow creating multiple short ids with the same long id');
@@ -158,7 +160,7 @@ describe('Firebase Api', function() {
       //get the latest shortId, make sure its id is equal to  000100000 + n
       const doc = await firestore.collection('org').doc(orgId).collection(ShortId.docName).doc('latest').get()
       const latest = doc.data();
-      assert.equal(latest.id, pad(100000 + n, 9));
+      assert.strictEqual(latest.id, pad(100000 + n, 9));
     });
 
     //TODO: cleanup
@@ -187,7 +189,7 @@ describe('Firebase Api', function() {
       const allResources = await getAllResources(fbApi);      
 
       //Assert
-      assert.equal(resourcesToSave.length, allResources.length);
+      assert.strictEqual(resourcesToSave.length, allResources.length);
     });
 
 
@@ -200,7 +202,7 @@ describe('Firebase Api', function() {
       const allReadings = await getAllReadings(fbApi);
 
       //Assert
-      assert.equal(readingsToSave.length, allReadings.length);
+      assert.strictEqual(readingsToSave.length, allReadings.length);
     });
   });
 
@@ -228,7 +230,7 @@ describe('Firebase Api', function() {
         throw new Error(resourcesResult2.message);
       }
 
-      assert.equal(resourcesResult2.result.length, 0);
+      assert.strictEqual(resourcesResult2.result.length, 0);
     });
 
 
@@ -251,7 +253,7 @@ describe('Firebase Api', function() {
         throw new Error(readingsResult2.message);
       }
 
-      assert.equal(readingsResult2.result.length, 0);
+      assert.strictEqual(readingsResult2.result.length, 0);
     });
   })
 
@@ -269,7 +271,7 @@ describe('Firebase Api', function() {
         throw new Error(resourcesResult.message);
       }
 
-      assert.equal(resourcesResult.result.length, 3);
+      assert.strictEqual(resourcesResult.result.length, 3);
     });
 
     it('getPendingReadings()', async () => {
@@ -282,7 +284,7 @@ describe('Firebase Api', function() {
         throw new Error(readingsResult.message);
       }
 
-      assert.equal(readingsResult.result.length, 2);
+      assert.strictEqual(readingsResult.result.length, 2);
     });
   });
 
@@ -305,10 +307,267 @@ describe('Firebase Api', function() {
       const allReadings = await getAllReadings(fbApi);
 
       //Assert
-      assert.equal(pendingResources.length, 0);
-      assert.equal(pendingReadings.length, 0);
-      assert.equal(allResources.length, 3);
-      assert.equal(allReadings.length, 2);
+      assert.strictEqual(pendingResources.length, 0);
+      assert.strictEqual(pendingReadings.length, 0);
+      assert.strictEqual(allResources.length, 3);
+      assert.strictEqual(allReadings.length, 2);
     });
   })
+
+
+  describe('Reading Bulk Upload', function() {
+    const mockFirestore = new MockFirebase(pendingResourcesData(orgId)).firestore();
+    const fbApi = new FirebaseApi(mockFirestore);
+    const resourceApi = new ResourceApi(mockFirestore, orgId);
+    const baseRaw = {
+      date: "2017/01/01",
+      time: "00:00",
+      timeseries: "default",
+      value: "12.32",
+      shortId: "",
+      id: "",
+      legacyPincode: "",
+      legacyResourceId: "",
+    };
+
+    this.beforeAll(async function() {
+      //Save some valid shortIds
+      await fbApi.shortIdCol(orgId).doc('000100001').set({ ...DefaultShortId, id: '000100001', longId: "12345"})
+      await fbApi.shortIdCol(orgId).doc('000100002').set({ ...DefaultShortId, id: '000100002', longId: "12346"})
+      await fbApi.shortIdCol(orgId).doc('000100003').set({ ...DefaultShortId, id: '000100003', longId: "12347"})
+      await fbApi.shortIdCol(orgId).doc('000100005').set({ ...DefaultShortId, id: '000100005', longId: "12348"})
+
+      //Save some valid resources with legacyIds
+      const defaultExternalIds = {
+        hasLegacyMyWellId: true,
+        hasLegacyMyWellPincode: true,
+        hasLegacyMyWellResourceId: true,
+        hasLegacyMyWellVillageId: true,
+        legacyMyWellId: "313603.1112",
+        legacyMyWellPincode: "313603",
+        legacyMyWellResourceId: "1112",
+        legacyMyWellVillageId: "11"
+      };
+      await resourceApi.resourceRef("00005").set({ ...DefaultMyWellResource, id: "00005", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1170" } });
+      await resourceApi.resourceRef("00006").set({ ...DefaultMyWellResource, id: "00006", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1171" } });
+      await resourceApi.resourceRef("00007").set({ ...DefaultMyWellResource, id: "00007", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1172" } });
+
+      await resourceApi.resourceRef("12345").set({ ...DefaultMyWellResource, id: "12345", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1173" } });
+      await resourceApi.resourceRef("12346").set({ ...DefaultMyWellResource, id: "12346", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1174" } });
+      await resourceApi.resourceRef("12347").set({ ...DefaultMyWellResource, id: "12347", externalIds: { ...defaultExternalIds, legacyMyWellId: "5063.1175" } });
+    });
+
+    it('preprocessor does not allow readings with bad date', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        date: '12/19/01',
+        time: "00:00",
+      };
+      const contains = "Date and time format";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: undefined,
+      };
+      const contains = "Value is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with invalid value', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        value: "pancakes",
+      };
+      const contains = "Value is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with no timeseries', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "Timeseries is empty";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings with missing id, shortId or legacyIds', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        timeseries: undefined,
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow string based shortId', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "100-001",
+      };
+      const contains = "ShortId is invalid";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor requires both legacy fields', () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyResourceId: '1111',
+      };
+      const contains = "One of shortId, id, or legacyPincod";
+
+      //Act
+      const result = fbApi.preProcessRawReading(raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+
+    it('preprocessor does not allow readings if it cant find based on shortId', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        shortId: "000100111",
+      };
+      const contains = "No longId found for shortId";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('preprocessor does not allow readings if it cant find based on legacyIDs', async () => {
+      //Arrange
+      const raw: any = {
+        ...baseRaw,
+        legacyPincode: '333333',
+        legacyResourceId: '1111',
+      };
+      const contains = "No resource found for";
+
+      //Act
+      const result = await fbApi.getIdForRawReading(orgId, raw);
+      if (result.type === ResultType.SUCCESS) {
+        throw new Error('this should have died');
+      }
+
+      //Assert
+      assert.strictEqual(result.message.indexOf(contains) > -1, true);
+    });
+
+    it('validates a set of raw readings correctly', async () => {
+      //Arrange
+      const userId = "user_12345";
+      const rawReadings: any[] = [
+        { ...baseRaw, value: "1", id: "12345" },
+        { ...baseRaw, value: "2", shortId: "000100001" },
+        { ...baseRaw, value: "3", shortId: "000100002" },
+        { ...baseRaw, value: "4", shortId: "000100003" },
+        { ...baseRaw, value: "5", shortId: "000100004" }, //doesn't exist
+        { ...baseRaw, value: "6", shortId: "000100005" }, //exists, but no resource
+        { ...baseRaw, value: "7", legacyResourceId: "1170", legacyPincode: '5063'},
+        { ...baseRaw, value: "8", legacyResourceId: "1171", legacyPincode: '5063'},
+        { ...baseRaw, value: "9", legacyResourceId: "1172", legacyPincode: '5063'},
+        { ...baseRaw, value: "10", legacyResourceId: "1172", legacyPincode: '313603'}, //Doesn't exist
+        { ...baseRaw, value: "11", legacyResourceId: "1199", legacyPincode: '5063'}, //Doesn't exist
+      ];
+      const expected = [
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12345', resourceType: 'well', timeseriesId: 'default', value: 1 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12345', resourceType: 'well', timeseriesId: 'default', value: 2 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12346', resourceType: 'well', timeseriesId: 'default', value: 3 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '12347', resourceType: 'well', timeseriesId: 'default', value: 4 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00005', resourceType: 'well', timeseriesId: 'default', value: 7 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00006', resourceType: 'well', timeseriesId: 'default', value: 8 },
+        { type: 'MyWell', datetime: '2017-01-01T00:00:00.000Z', resourceId: '00007', resourceType: 'well', timeseriesId: 'default', value: 9 }
+      ];
+
+      //Act
+      const validateResult = unsafeUnwrap(await fbApi.validateBulkUploadReadings(orgId, userId, rawReadings));
+
+      //Assert
+      assert.strictEqual(validateResult.warnings.length, 4);
+      assert.deepStrictEqual(validateResult.validated, expected);
+    });
+
+    this.afterAll(async function() {
+      await fbApi.shortIdCol(orgId).doc('000100001').delete();
+      await fbApi.shortIdCol(orgId).doc('000100002').delete();
+      await fbApi.shortIdCol(orgId).doc('000100003').delete();
+      await fbApi.shortIdCol(orgId).doc('000100005').delete();
+
+      await resourceApi.resourceRef("00005").delete();
+      await resourceApi.resourceRef("00006").delete();
+      await resourceApi.resourceRef("00007").delete();
+      await resourceApi.resourceRef("12345").delete();
+      await resourceApi.resourceRef("12346").delete();
+      await resourceApi.resourceRef("12347").delete();
+    });
+  });
 });

@@ -10,6 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require('request-promise-native');
 const ow_translations_1 = require("ow_translations");
+exports.arg = (argList => {
+    const myArg = {};
+    let a, opt, thisOpt, curOpt;
+    for (a = 0; a < argList.length; a++) {
+        thisOpt = argList[a].trim();
+        opt = thisOpt.replace(/^\-+/, '');
+        if (opt === thisOpt) {
+            // argument value
+            if (curOpt)
+                myArg[curOpt] = opt;
+            curOpt = null;
+        }
+        else {
+            // argument name
+            curOpt = opt;
+            myArg[curOpt] = true;
+        }
+    }
+    return myArg;
+})(process.argv);
 function getToken(admin) {
     return __awaiter(this, void 0, void 0, function* () {
         return admin.auth().createCustomToken('12345')
@@ -206,6 +226,7 @@ function buildParameter(deflt, description, conditions, values) {
 function getNewConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         const { conditionKeys, conditions } = require('./remoteConfigConditions');
+        console.log('conditions are', conditionKeys);
         const mywellTranslationOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.mywell), null, 2);
         const mywellTranslationsJSON = JSON.stringify(ow_translations_1.translationsForTranslationOrg(ow_translations_1.TranslationOrg.mywell), ow_translations_1.functionReplacer, 2);
         const ggmnTranslationsOptionsJSON = JSON.stringify(ow_translations_1.possibleTranslationsForOrg(ow_translations_1.TranslationOrg.ggmn), null, 2);
@@ -225,7 +246,7 @@ function getNewConfig() {
             resourceDetail_showSubtitle: buildParameter(true, 'Should the resrouce detail section have a subtitle?', conditionKeys, [true, true, false]),
             resourceDetail_allowEditing: buildParameter(false, 'Are users allowed to edit resources?', conditionKeys, [true, true, false]),
             resourceDetail_allowDelete: buildParameter(false, 'Are users allowed to delete resources?', conditionKeys, [true, true, false]),
-            resourceDetail_editReadings: buildParameter(false, 'Are users allowed to edit readings?', conditionKeys, [true, true, false]),
+            resourceDetail_editReadings: buildParameter(true, 'Are users allowed to edit readings?', conditionKeys, [true, true, true]),
             favouriteResourceList_showGetStartedButtons: buildParameter(true, 'Should the favourite resource list have a get started hint if empty?', conditionKeys, [false, false, true]),
             editResource_hasResourceName: buildParameter(false, 'When creating a new resource, can the user edit the name?', conditionKeys, [true, true, false]),
             editResource_showOwerName: buildParameter(true, 'When creating a new resource, can the user set the owner name?', conditionKeys, [false, false, true]),
@@ -299,6 +320,22 @@ function getNewConfig() {
             showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
+            favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
+            availableGroupTypes: buildParameter(JSON.stringify({
+                pincode: { id: 'pincode', required: true, order: 1 },
+                country: { id: 'country', required: true, order: 0 },
+            }), "The Available group types. Required is currently ignored.", conditionKeys, [
+                JSON.stringify({}),
+                JSON.stringify({}),
+                JSON.stringify({
+                    pincode: { id: 'pincode', required: true, order: 1 },
+                    country: { id: 'country', required: true, order: 0 },
+                }),
+            ]),
+            shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
+            resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
+            readingDownloadUrl: buildParameter(`${process.env.firebase_base_url}/public/mywell/downloadReadings`, "Download readings for resourceId url", conditionKeys, ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
+            ]),
         };
         return Promise.resolve({
             conditions,

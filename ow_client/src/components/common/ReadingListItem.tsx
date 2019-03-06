@@ -14,10 +14,11 @@ export interface Props {
   errorMessage?: string,
   message?: string,
   unitSuffix?: string,
+  shortId?: string,
 }
 
 export default function ReadingListItem(props: Props) {
-  const { unitSuffix } = props;
+  const { unitSuffix, shortId } = props;
 
   const {
     resourceId,
@@ -43,9 +44,9 @@ export default function ReadingListItem(props: Props) {
           />
         </TouchableNativeFeedback>
       }
-      title={`${moment(date).format(props.sync_date_format)}: ${value}${unitSuffix ? unitSuffix : ''}`}
+      title={`${moment(date).format(props.sync_date_format)}: ${value}${unitSuffix ? ` ${unitSuffix}` : ''}`}
       avatar={getReadingAvatar()}
-      subtitle={props.errorMessage || `${resourceId}, ${timeseriesId}`}
+      subtitle={props.errorMessage || `${shortId || resourceId}, ${timeseriesId}`}
       subtitleStyle={{ color: props.message ? error1 : primaryDark }}
     />
   );

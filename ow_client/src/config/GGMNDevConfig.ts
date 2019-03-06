@@ -42,6 +42,8 @@ const GGMNDevConfig: RemoteConfig = {
   favouriteResource_showPendingResources: false,
   availableGroupTypes: {},
   shouldUseV1Search: true,
+  resourceDetail_allowDownload: false,
+  readingDownloadUrl: "",
 }
 
 export default GGMNDevConfig;

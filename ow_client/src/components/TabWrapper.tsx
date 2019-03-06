@@ -35,9 +35,7 @@ export function withTabWrapper(WrappedComponent: any) {
       EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
     }
 
-    async onNavigatorEvent(event: any) {
-      console.log("onNavigatorEvent");
-      
+    async onNavigatorEvent(event: any) {      
       //TODO: push only when this screen is visible
       const isVisible = await this.props.navigator.screenIsCurrentlyVisible();
       if (!isVisible) {

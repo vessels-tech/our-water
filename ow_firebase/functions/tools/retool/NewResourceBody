@@ -1,0 +1,24 @@
+{
+  "data": {
+    "coords": {{new_resource_form.data.coords}},
+    "groups": {{new_resource_form.data.groups}},
+    "owner": {{new_resource_form.data.owner}},
+    "resourceType": {{new_resource_form.data.resourceType}}
+  }
+}
+
+data: {
+        coords: Joi.object().keys({
+          latitude: Joi.number().required(),
+          longitude: Joi.number().required(),
+        }).required(),
+        //TODO: make proper enums
+        owner: Joi.object().keys({
+          name: Joi.string().required(),
+        }),
+        groups: Joi.object().optional(),
+        imageUrl: Joi.string().optional(),
+        //We will create an index on this to make this backwards compatible with MyWell
+        legacyId: Joi.string().optional(),
+        type: Joi.valid('well', 'raingauge', 'checkdam', 'quality', 'custom').required()
+      },

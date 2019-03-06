@@ -70,8 +70,6 @@ class FirebaseApi {
       return oldUserResult;
     }
 
-    // console.log("merging old user", oldUserResult.result);
-
     const oldUser = oldUserResult.result;
     delete oldUser.userId;
     delete oldUser.email;
@@ -120,16 +118,17 @@ class FirebaseApi {
 
   static getFavouriteResources(orgId: string, userId: string) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
-      .then(sn => {
-        //@ts-ignore
-        if (!sn || !sn.data() || !sn.data().favouriteResources) {
-          return {};
-        }
-        //@ts-ignore
-        return sn.data().favouriteResources;
-      })
-  }
+    .then(sn => {
+      //@ts-ignore
+      if (!sn || !sn.data() || !sn.data().favouriteResources) {
+        return {};
+      }
 
+      
+      //@ts-ignore
+      return sn.data().favouriteResources;
+    })
+  }
 
   static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
@@ -264,7 +263,6 @@ class FirebaseApi {
         return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
       }
 
-      // console.log("getResourceForId returned raw data", sn.data());
       const fbResource: FBResource = FBResource.deserialize(sn.data());
       const anyResource: AnyResource = fbResource.toAnyResource();
       return makeSuccess(anyResource);
@@ -358,7 +356,6 @@ class FirebaseApi {
    * Range is currently ignored
    */
   static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
-    // console.log("firebaseAPi getting readings", orgId, resourceId, timeseriesId);
     return this.readingCol(orgId)
       .where('resourceId', '==', resourceId)
       .where('timeseriesId', '==', timeseriesId)
@@ -579,25 +576,6 @@ class FirebaseApi {
         maybeLog("error: " + err);
       }
     });
-  }
-
-  /**
-   * Do a basic search, where we filter by resourceId
-   * This is suboptimal, as we have to load all resources first. 
-   * 
-   * Searching is a little tricky, we need to figure out by which fields that
-   * the user is likely to search by first (eg. groupName, )
-   */
-  static async performBasicSearch(orgId: string, text: string): Promise<SearchResult> {
-    const resources = await this.getResourcesForOrg(orgId);
-    const filteredResources = resources.filter(r => {
-      return r.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
-    });
-
-    return {
-      hasNextPage: false,
-      resources,
-    };
   }
 
 
@@ -911,6 +889,7 @@ class FirebaseApi {
         nickname: null,
         status: UserStatus.Unapproved,
         type: UserType.User,
+        newResources: {},
       }
     }
 
@@ -927,7 +906,6 @@ class FirebaseApi {
     if (!data) {
       throw new Error("Data from snapshot was undefined or null");
     }
-  
 
     let favouriteResources: AnyResource[] = [];
     const favouriteResourcesDict: CacheType<AnyResource> = data.favouriteResources;
@@ -970,6 +948,7 @@ class FirebaseApi {
       nickname: data.nickname || null,
       status: data.status || OWUserStatus.Unapproved,
       type: data.type || UserType.User,
+      newResources: data.newResources || {},
     }
   }
 

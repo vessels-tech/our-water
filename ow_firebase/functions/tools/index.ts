@@ -3,6 +3,28 @@ import { BaseApiType, ResourceType } from "ow_types";
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
 
 
+export const arg: any = (argList => {
+  const myArg = {}
+  let a, opt, thisOpt, curOpt;
+  for (a = 0; a < argList.length; a++) {
+
+    thisOpt = argList[a].trim();
+    opt = thisOpt.replace(/^\-+/, '');
+
+    if (opt === thisOpt) {
+      // argument value
+      if (curOpt) myArg[curOpt] = opt;
+      curOpt = null;
+    }
+    else {
+      // argument name
+      curOpt = opt;
+      myArg[curOpt] = true;
+    }
+  }
+  return myArg;
+})(process.argv);
+
 export async function getToken(admin: any): Promise<string> {
   return admin.auth().createCustomToken('12345')
   .then((token: string) => {
@@ -309,10 +331,10 @@ export async function getNewConfig(): Promise<any> {
       [true, true, false]
     ),
     resourceDetail_editReadings: buildParameter(
-      false, 
+      true, 
       'Are users allowed to edit readings?', 
       conditionKeys, 
-      [true, true, false]
+      [true, true, true]
     ),
     favouriteResourceList_showGetStartedButtons: buildParameter(
       true, 
@@ -468,6 +490,13 @@ export async function getNewConfig(): Promise<any> {
       ]
     ),
     shouldUseV1Search: buildParameter(false, 'Use V1 Search?', conditionKeys, [true, true, false]),
+    resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
+    readingDownloadUrl: buildParameter(
+      `${process.env.firebase_base_url}/public/mywell/downloadReadings`, 
+      "Download readings for resourceId url", 
+      conditionKeys, 
+      ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
+    ]),
   };
 
   return Promise.resolve({
