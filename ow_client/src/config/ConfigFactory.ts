@@ -206,6 +206,14 @@ export class ConfigFactory {
     return this.remoteConfig.homeScreen;
   }
 
+  getMapScreenFullscreen(): boolean {
+    if (this.remoteConfig.homeScreen === HomeScreenType.Map) {
+      return false;
+    }
+
+    return true;
+  }
+
   getResourceDetailShouldShowSubtitle() {
     return this.remoteConfig.resourceDetail_showSubtitle;
   }

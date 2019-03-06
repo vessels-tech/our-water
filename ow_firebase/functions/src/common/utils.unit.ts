@@ -4,7 +4,8 @@ import * as crypto from 'crypto';
 // import * as mocha from 'mocha';
 
 // import fs from './apis/Firestore';
-import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty, hashReadingId } from './utils';
+import { downloadAndParseCSV, serializeMap, anyToMap, getLegacyMyWellGroups, hashIdToIntegerString, isNullOrEmpty } from './utils';
+import { ReadingApi } from 'ow_common/lib/api';
 // import ResourceIdType from './types/ResourceIdType';
 // import OWGeoPoint from '../common/models/OWGeoPoint';
 
@@ -17,7 +18,7 @@ describe('Utils Tests', () => {
     it('hashes the reading correctly', () => {
       //Arrange
       //Act
-      const hashed = hashReadingId('00dWeFA9bCIM9QiUVhvV', 'default', new Date());
+      const hashed = ReadingApi.hashReadingId('00dWeFA9bCIM9QiUVhvV', 'default', new Date());
       console.log(hashed);
       
       //Assert

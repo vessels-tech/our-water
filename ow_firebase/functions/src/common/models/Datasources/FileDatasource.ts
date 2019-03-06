@@ -4,7 +4,7 @@ import SyncRunResult from "../../types/SyncRunResult";
 import { DataType, FileFormat } from "../../enums/FileDatasourceTypes";
 import FileDatasourceOptions from "../FileDatasourceOptions";
 import * as Papa from 'papaparse';
-import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId, isNullOrEmpty, chunkArray, hashReadingId, getLegacyMyWellResources } from "../../utils";
+import { downloadAndParseCSV, findResourceMembershipsForResource, resourceTypeForLegacyResourceId, isNullOrEmpty, chunkArray, getLegacyMyWellResources } from "../../utils";
 import FirestoreDoc from "../FirestoreDoc";
 import { Reading } from "../Reading";
 import * as moment from 'moment';

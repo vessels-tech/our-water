@@ -86,6 +86,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
     resourceType: Joi.valid(Object.keys(ResourceType)).required(),
     owner: Joi.object().keys({
       name: Joi.string().required(),
+      createdByUserId: Joi.string().optional(),
     }).required(),
     userId: Joi.string().required(),
     timeseries: Joi.array().items(Joi.object().keys({

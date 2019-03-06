@@ -25,11 +25,11 @@ const validation_1 = require("./validation");
 const EmailApi_1 = require("../../common/apis/EmailApi");
 const ow_types_1 = require("ow_types");
 const GGMNApi_1 = require("../../common/apis/GGMNApi");
-const middleware_1 = require("../../middleware");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const utils_1 = require("../../common/utils");
 const api_1 = require("ow_common/lib/api");
 const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
+const model_1 = require("ow_common/lib/model");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fb = require('firebase-admin');
@@ -38,7 +38,7 @@ module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
     utils_1.enableLogging(app);
-    app.use(middleware_1.validateFirebaseIdToken);
+    // app.use(validateFirebaseIdToken);
     const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
         return FirebaseAdmin_1.firestore.collection('org').doc(orgId)
             .collection('resource')
@@ -108,17 +108,20 @@ module.exports = (functions) => {
                 //TODO: make proper enums
                 owner: Joi.object().keys({
                     name: Joi.string().required(),
+                    createdByUserId: Joi.string().required(),
                 }),
-                groups: Joi.object().optional(),
-                imageUrl: Joi.string().optional(),
-                //We will create an index on this to make this backwards compatible with MyWell
-                legacyId: Joi.string().optional(),
-                type: Joi.valid('well', 'raingauge', 'checkdam').required()
+                groups: Joi.object().keys({
+                    legacyResourceId: Joi.string().optional(),
+                    pincode: Joi.string().optional(),
+                    country: Joi.string().optional(),
+                }),
+                resourceType: Joi.valid('well', 'raingauge', 'checkdam', 'quality', 'custom').required(),
             },
         }
     };
-    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
+    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         const orgId = req.params.orgId;
+        const resourceApi = new api_1.ResourceApi(FirebaseAdmin_1.firestore, orgId);
         //Ensure geopoints get added properly
         const oldCoords = req.body.data.coords;
         const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
@@ -126,6 +129,10 @@ module.exports = (functions) => {
         //Add default lastReading
         req.body.data.lastValue = 0;
         req.body.data.lastReadingDatetime = new Date(0);
+        req.body.orgId = orgId;
+        const timeseries = AppProviderTypes_1.unsafeUnwrap(yield utils_1.getDefaultTimeseries(req.body.data.resourceType));
+        const resource = Object.assign({}, model_1.DefaultMyWellResource, req.body.data, { timeseries });
+        let id;
         //Ensure the orgId exists
         const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
         return orgRef.get()
@@ -134,16 +141,18 @@ module.exports = (functions) => {
                 throw new Error(`Org with id: ${orgId} not found`);
             }
         })
-            //TODO: standardize all these refs
-            .then(() => FirebaseAdmin_1.firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-            .then(result => {
-            console.log(JSON.stringify({ resourceId: result.id }));
-            return res.json({ resource: result.id });
+            .then(() => {
+            const ref = resourceApi.resourceRef();
+            id = ref.id;
+            return ref.create(Object.assign({}, resource, { id }));
         })
+            .then(() => res.json({ id }))
             .catch(err => next(err));
-    });
+    }));
     /**
      * updateResource
+     * TD: this is outdated, Don't use until it's fixed.
+     *
      * PUT /:orgId/:resourceId
      */
     const updateResourceValidation = {

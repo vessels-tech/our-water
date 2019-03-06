@@ -18,14 +18,15 @@ import * as morgan from 'morgan';
 import * as morganBody from 'morgan-body';
 import { ggmnResourceEmailValidation } from './validation';
 import EmailApi from '../../common/apis/EmailApi';
-import { PendingResource, OWGeoPoint, PendingReading } from 'ow_types';
+import { PendingResource, OWGeoPoint, PendingReading, MyWellResource } from 'ow_types';
 import GGMNApi from '../../common/apis/GGMNApi';
 import { validateFirebaseIdToken } from '../../middleware';
 import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
-import { enableLogging } from '../../common/utils';
+import { enableLogging, getDefaultTimeseries } from '../../common/utils';
 import { UserApi, ResourceApi } from 'ow_common/lib/api';
 import { User } from 'ow_common/lib/model/User';
 import UserStatus from 'ow_common/lib/enums/UserStatus';
+import { DefaultMyWellResource } from 'ow_common/lib/model';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -37,7 +38,7 @@ module.exports = (functions) => {
   app.use(bodyParser.json());
   enableLogging(app);
 
-  app.use(validateFirebaseIdToken);
+  // app.use(validateFirebaseIdToken);
 
   const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
     return firestore.collection('org').doc(orgId)
@@ -117,31 +118,40 @@ module.exports = (functions) => {
         //TODO: make proper enums
         owner: Joi.object().keys({
           name: Joi.string().required(),
+          createdByUserId: Joi.string().required(),
         }),
-        groups: Joi.object().optional(),
-        imageUrl: Joi.string().optional(),
-        //We will create an index on this to make this backwards compatible with MyWell
-        legacyId: Joi.string().optional(),
-        type: Joi.valid('well', 'raingauge', 'checkdam').required()
+        groups: Joi.object().keys({
+          legacyResourceId: Joi.string().optional(),
+          pincode: Joi.string().optional(),
+          country: Joi.string().optional(),
+        }),
+        resourceType: Joi.valid('well', 'raingauge', 'checkdam', 'quality', 'custom').required(),
       },
-      //TODO: add custom fields based on type
     }
   };
 
-  app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => {
-
+  app.post('/:orgId/', validate(createResourceValidation), async (req, res, next) => {
     const orgId = req.params.orgId;
+    const resourceApi = new ResourceApi(firestore, orgId);
 
     //Ensure geopoints get added properly
     const oldCoords = req.body.data.coords;
     const newCoords = new fb.firestore.GeoPoint(oldCoords.latitude, oldCoords.longitude);
     req.body.data.coords = newCoords;
 
-
     //Add default lastReading
     req.body.data.lastValue = 0;
     req.body.data.lastReadingDatetime = new Date(0);
+    req.body.orgId = orgId;
 
+    const timeseries = unsafeUnwrap(await getDefaultTimeseries(req.body.data.resourceType));
+    const resource: MyWellResource = {
+      ...DefaultMyWellResource,
+      ...req.body.data,
+      timeseries,
+    };
+
+    let id;
     //Ensure the orgId exists
     const orgRef = firestore.collection('org').doc(orgId)
     return orgRef.get()
@@ -150,17 +160,19 @@ module.exports = (functions) => {
           throw new Error(`Org with id: ${orgId} not found`);
         }
       })
-      //TODO: standardize all these refs
-      .then(() => firestore.collection(`/org/${orgId}/resource`).add(req.body.data))
-      .then(result => {
-        console.log(JSON.stringify({resourceId: result.id}));
-        return res.json({ resource: result.id })
+      .then(() => {
+        const ref = resourceApi.resourceRef();
+        id = ref.id;
+        return ref.create({...resource, id});
       })
+      .then(() => res.json({id}))
       .catch(err => next(err));
   });
 
   /**
    * updateResource
+   * TD: this is outdated, Don't use until it's fixed.
+   * 
    * PUT /:orgId/:resourceId
    */
   const updateResourceValidation = {

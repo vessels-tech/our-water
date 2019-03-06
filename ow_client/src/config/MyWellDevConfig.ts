@@ -22,7 +22,7 @@ const MyWellDevConfig: RemoteConfig = {
   resourceDetail_showSubtitle: true,
   resourceDetail_allowEditing: false,
   resourceDetail_allowDelete: false,
-  resourceDetail_editReadings: false,
+  resourceDetail_editReadings: true,
   favouriteResourceList_showGetStartedButtons: true,
   editResource_hasResourceName: false,
   editResource_showOwerName: true,

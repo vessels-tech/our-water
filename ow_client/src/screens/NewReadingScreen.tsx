@@ -38,6 +38,10 @@ import { Maybe } from '../typings/MaybeTypes';
 import FloatingButtonWrapper from '../components/common/FloatingButtonWrapper';
 import SaveButton from '../components/common/SaveButton';
 import { diff } from 'deep-object-diff';
+import { surfaceText } from '../utils/NewColors';
+import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
+import { safeGetNested } from 'ow_common/lib/utils';
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -59,6 +63,7 @@ export interface StateProps {
   resource: Maybe<AnyResource>,
   resourceMeta: ActionMeta
   isResourcePending: boolean,
+  userType: UserAdminType,
 }
 
 export interface ActionProps {
@@ -506,8 +511,39 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     );
   }
 
+  getPermissionOverlay() {
+    const save_reading_permission_heading = 'Can\'t Save Readings';
+    const save_reading_permission_text = "You don't have permission to save readings to this resource, because you don't own it.";
+
+    return (
+      <View style={{
+        flex: 1,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 35,
+        height: '100%',
+      }}>
+        <Text style={{ color: surfaceText.high, textAlign: "left", fontWeight: '800', fontSize: 22, paddingBottom: 10 }}>{save_reading_permission_heading}</Text>
+        <Text style={{ color: surfaceText.med, textAlign: "left", fontWeight: '400', fontSize: 15, paddingBottom: 10, }}>{save_reading_permission_text}</Text>
+      </View>
+    );
+  }
+
   render() {
     renderLog(`NewReadingScreen render()`);
+
+    let hasWritePermission = false;
+    if (this.props.userType === UserAdminType.Admin) {
+      hasWritePermission = true;
+    }
+
+    const ownerId = safeGetNested(this.props, ['resource', 'owner', 'createdByUserId']);
+    //Publicly editable
+    if (!ownerId || ownerId === 'default') {
+      hasWritePermission = true;
+    } else if (ownerId === this.props.userId) {
+      hasWritePermission = true;
+    }
 
     return (
       <TouchableWithoutFeedback 
@@ -522,12 +558,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       >
         <View
           style={{flex: 1}}
-          // style={{
-          //   height: this.state.formHeight - 90,
-          // }}
         >
-          {this.getForm()}
-          {this.getButton()}
+          {hasWritePermission && this.getForm()}
+          {hasWritePermission &&  this.getButton()}
+          {hasWritePermission || this.getPermissionOverlay()}
         </View>
       </TouchableWithoutFeedback>
     );
@@ -557,6 +591,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     resource,
     resourceMeta,
     isResourcePending,
+    userType: state.userType,
   }
 }
 

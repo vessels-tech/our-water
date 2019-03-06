@@ -7,6 +7,7 @@ type Firestore = admin.firestore.Firestore;
 
 /* Not in git. Download from FB console*/
 const serviceAccountKeyFile = `./${process.env.service_account_key_filename}`;
+console.log("service account key file", serviceAccountKeyFile)
 const serviceAccount = require(serviceAccountKeyFile);
 
 let firestore: Firestore

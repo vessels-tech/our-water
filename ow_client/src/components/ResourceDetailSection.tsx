@@ -46,6 +46,8 @@ import QRCode from 'react-native-qrcode-svg';
 import { Icon } from 'react-native-elements';
 import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, secondary, secondaryDark } from '../utils/NewColors';
 import { ResourceType } from '../enums';
+import { safeGetNested } from 'ow_common/lib/utils';
+import HeadingText from './common/HeadingText';
 const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -99,6 +101,37 @@ export interface State {
   //We use this to force the viewpager to do a complete re-render, because of a bug the underlying ViewPagerAndroid
   hackViewPager: number,
 }
+
+function HeadingSection(props: {title: string}) {
+  return (
+    <View style={{
+      flexDirection: 'column',
+      flex: 1,
+    }}>
+      <Text style={{
+        paddingVertical: 10,
+        fontSize: 15,
+        fontWeight: '600',
+        alignSelf: 'center',
+      }}>
+        {props.title}
+      </Text>
+    </View>
+  );
+}
+
+function ContentSection(props: {children: any}) {
+  return (
+    <View style={{
+      flexDirection: 'column',
+      flex: 3,
+      justifyContent: 'center',
+    }}>
+      {props.children}
+    </View>
+  );
+}
+
 
 class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
@@ -362,7 +395,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return (
       <View
         style={{
-          flex: 5,
+          flex: 2,
           alignSelf: 'center',
         }}
       >
@@ -372,6 +405,26 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         />
       </View>
     )
+  }
+
+  getOwnerSection() {
+    const ownerName = safeGetNested(this.props, ['resource', 'owner', 'name']);
+    if (!ownerName) {
+      return null;
+    }
+
+    //TD: translate
+    const resource_detail_owner_section = "About:";
+    const resource_detail_owner_name = "Owner Name";
+    
+    return (
+      <View style={{ flex: 1, paddingVertical: 20 }}>
+        <HeadingSection title={resource_detail_owner_section} />
+        <ContentSection>
+          <HeadingText heading={resource_detail_owner_name} content={ownerName || ''} />
+        </ContentSection>
+      </View>
+    );
   }
 
   getSummaryCard() {
@@ -389,27 +442,14 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           padding: 20,
           flex: 1,
         }}>
-          <View style={{
-            flexDirection: 'column',
-            flex: 1,
-          }}>
-            <Text style={{
-              paddingVertical: 10,
-              fontSize: 15,
-              fontWeight: '600',
-              alignSelf: 'center',
-            }}>
-              {resource_detail_latest}
-            </Text>
+          {this.getOwnerSection()}
+          <View style={{ flex: 1, paddingVertical: 20 }}>
+            <HeadingSection title={resource_detail_latest}/>
+            <ContentSection>
+              {this.getLatestReadingsForTimeseries()}
+            </ContentSection>
           </View>
 
-          <View style={{
-            flexDirection: 'column',
-            flex: 3,
-            justifyContent: 'center',
-          }}>
-            {this.getLatestReadingsForTimeseries()}
-          </View>
           {this.getQRCode()}
           {/* Bottom Buttons */}
           <View style={{

@@ -17,7 +17,6 @@ if (!firestore) {
   firestore = admin.firestore();
 }
 
-
 export {
   admin,
   auth,

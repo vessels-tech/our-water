@@ -29,4 +29,5 @@ exports.backupBucketName = envConfig.config.backup_bucket_name;
 exports.temporaryAdminAccessToken = envConfig.config.temporary_admin_access_token;
 exports.temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 exports.verboseLog = getBoolean(envConfig.config.verbose_log);
+exports.projectId = envConfig.config.project_id;
 //# sourceMappingURL=env.js.map

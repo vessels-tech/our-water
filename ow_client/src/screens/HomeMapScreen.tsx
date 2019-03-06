@@ -561,6 +561,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     const { userIdMeta: { loading } } = this.props;
     maybeLog(`HomeMapScreen render(). Count: ${this.props.renderCounter}`);
 
+
     if (loading) {
       return (
         <View style={{
