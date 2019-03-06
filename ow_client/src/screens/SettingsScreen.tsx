@@ -404,8 +404,13 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
-    const { translation: { templates: { settings_new_resource }}} = this.props;
+    const { 
+      settings_new_resource,
+      powered_by_html,
+    } = this.props.translation.templates;
 
+    //TODO: translate
+    // const powered_by_html = "<p>Powered by <a href='http://www.marvi.org.in/'>MyWell</a></p>";
     return (
       <KeyboardAvoidingView style={{
         flexDirection: 'column',
@@ -414,7 +419,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         height: '100%',
         width: '100%'
       }}>
-        {Logo(this.props.config.getApplicationName())}
+        <Logo 
+          text={this.props.config.getApplicationName()} 
+          aboutHtml={powered_by_html}
+        />
         {/* 
           TD we need to put a dummy button in here as for some reason the
           first button is clickable from other views.
