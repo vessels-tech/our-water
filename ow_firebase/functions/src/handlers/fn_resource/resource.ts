@@ -38,7 +38,7 @@ module.exports = (functions) => {
   app.use(bodyParser.json());
   enableLogging(app);
 
-  // app.use(validateFirebaseIdToken);
+  app.use(validateFirebaseIdToken);
 
   const getOrgs = (orgId, last_createdAt = moment().valueOf(), limit = 25) => {
     return firestore.collection('org').doc(orgId)
