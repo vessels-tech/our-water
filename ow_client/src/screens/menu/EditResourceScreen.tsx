@@ -406,7 +406,8 @@ class EditResourceScreen extends Component<Props> {
       },
       resourceType: this.editResourceForm.value.asset,
       owner: {
-        name: ownerName
+        name: ownerName,
+        createdByUserId: this.props.userId,
       },
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
@@ -600,8 +601,6 @@ class EditResourceScreen extends Component<Props> {
     const {
       pendingSavedResourcesMeta: { loading },
     } = this.props;
-
-    console.log("getForm, loading: ", loading);
 
     const fixedButtonHeight = 100;
 

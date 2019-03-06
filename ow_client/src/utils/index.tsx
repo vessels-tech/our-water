@@ -975,3 +975,6 @@ export function openUrlOrToastError(url: string, errorMessage: string) {
       Linking.openURL(url);
     });
 }
+
+
+// export const canUserSaveReadings(user: Use)

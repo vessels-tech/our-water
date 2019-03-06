@@ -118,16 +118,17 @@ class FirebaseApi {
 
   static getFavouriteResources(orgId: string, userId: string) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
-      .then(sn => {
-        //@ts-ignore
-        if (!sn || !sn.data() || !sn.data().favouriteResources) {
-          return {};
-        }
-        //@ts-ignore
-        return sn.data().favouriteResources;
-      })
-  }
+    .then(sn => {
+      //@ts-ignore
+      if (!sn || !sn.data() || !sn.data().favouriteResources) {
+        return {};
+      }
 
+      
+      //@ts-ignore
+      return sn.data().favouriteResources;
+    })
+  }
 
   static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
     return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
@@ -577,25 +578,6 @@ class FirebaseApi {
     });
   }
 
-  /**
-   * Do a basic search, where we filter by resourceId
-   * This is suboptimal, as we have to load all resources first. 
-   * 
-   * Searching is a little tricky, we need to figure out by which fields that
-   * the user is likely to search by first (eg. groupName, )
-   */
-  static async performBasicSearch(orgId: string, text: string): Promise<SearchResult> {
-    const resources = await this.getResourcesForOrg(orgId);
-    const filteredResources = resources.filter(r => {
-      return r.id.toLowerCase().indexOf(text.toLowerCase()) >= 0;
-    });
-
-    return {
-      hasNextPage: false,
-      resources,
-    };
-  }
-
 
   /**
    * Get the n most recent searches the user made
@@ -924,7 +906,6 @@ class FirebaseApi {
     if (!data) {
       throw new Error("Data from snapshot was undefined or null");
     }
-  
 
     let favouriteResources: AnyResource[] = [];
     const favouriteResourcesDict: CacheType<AnyResource> = data.favouriteResources;
