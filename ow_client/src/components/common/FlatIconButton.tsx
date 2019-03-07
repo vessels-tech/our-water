@@ -6,6 +6,9 @@ import { Icon } from 'react-native-elements';
 import { getLocation } from '../../utils';
 import Loading from './Loading';
 
+import withPreventDoubleClick from './withPreventDoubleClick';
+const IconEx = withPreventDoubleClick(Icon);
+
 export interface Props {
   onComplete?: any,
   onPress: any,
@@ -41,7 +44,7 @@ export default class FlatIconButton extends Component<Props> {
             animating={true}
           />
           :
-          <Icon
+          <IconEx
             size={25}
             name={this.props.name}
             onPress={() => this.props.onPress()}

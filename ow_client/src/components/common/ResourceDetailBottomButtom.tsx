@@ -2,6 +2,9 @@ import * as React from 'react'; import { Component } from 'react';
 import { secondary, bgLight } from "../../utils/Colors";
 import { Button } from "react-native-elements";
 
+import withPreventDoubleClick from './withPreventDoubleClick';
+const ButtonEx = withPreventDoubleClick(Button);
+
 
 export interface Props {
   title: string,
@@ -11,7 +14,7 @@ export interface Props {
 
 export function ResourceDetailBottomButton(props: Props) {
   return (
-    <Button
+    <ButtonEx
       color={secondary}
       containerViewStyle={{
         marginLeft: 0,

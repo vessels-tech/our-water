@@ -23,6 +23,9 @@ import { AnyResource } from '../typings/models/Resource';
 import { PlaceResult, PartialResourceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
 import { getOrElse } from 'ow_common/lib/utils';
 
+import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+const IconButtonEx = withPreventDoubleClick(IconButton);
+const MenuButtonEx = withPreventDoubleClick(MenuButton);
 
 export interface OwnProps {
   navigator: any;
@@ -148,7 +151,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           style={{flex: 2}}
           config={this.props.config}
         >
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'map'}
@@ -168,7 +171,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             bottomText={menu_browse_text}
             size={25}
           />
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'crop-free'}
@@ -180,7 +183,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             bottomText={menu_scan_text}
             size={25}
           />
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'create'}
@@ -208,12 +211,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             flexDirection: 'row',
             flex: 1,
           }}>
-            <MenuButton 
+            <MenuButtonEx 
               color={menuColors[0]}
               name={menu_well}
               onPress={() => presentResourceScreen('Wells', ResourceType.well)}
             />
-            <MenuButton 
+            <MenuButtonEx 
               color={menuColors[1]}
               name={menu_rainfall}
               onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
@@ -223,12 +226,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             flexDirection: 'row',
             flex: 1,
           }}>
-            <MenuButton
+            <MenuButtonEx
               color={menuColors[2]}
               name={menu_water_quality}
               onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
             />
-            <MenuButton
+            <MenuButtonEx
               color={menuColors[3]}
               name={menu_checkdam}
               onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}

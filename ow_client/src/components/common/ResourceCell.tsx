@@ -16,6 +16,8 @@ import { primaryText } from '../../assets/ggmn/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { isNullOrUndefined } from 'util';
 
+import withPreventDoubleClick from './withPreventDoubleClick';
+const ButtonEx = withPreventDoubleClick(Button);
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -89,7 +91,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
             zIndex: 1,
           }}
         >
-          <Button
+          <ButtonEx
             borderRadius={5}
             raised={true}
             key={resource.id}
