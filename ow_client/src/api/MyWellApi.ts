@@ -430,6 +430,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       searchApi.searchByShortId(searchQuery, {limit: 10}),
       searchApi.searchForResourceInGroup(searchQuery, 'pincode', {limit: 10}),
       searchApi.searchForResourceInGroup(searchQuery, 'country', {limit: 10}),
+      searchApi.searchForResourceInGroup(searchQuery, 'legacyResourceId', {limit: 10}),
       PlaceApi.searchForPlaceName(searchQuery, { limit: 10}),
 
       //TODO: add other searches here.
