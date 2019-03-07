@@ -13,8 +13,8 @@ import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse } from '../utils';
-import { AppState } from '../reducers';
+import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse, getShortIdOrFallback } from '../utils';
+import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
@@ -24,6 +24,7 @@ import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
 import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
+import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
 export interface OwnProps {
   onSearchResultPressedV1: (result: AnyResource) => void,
@@ -40,6 +41,7 @@ export interface StateProps {
   searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
+  shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface ActionProps { 
@@ -239,7 +241,20 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         {partialResourceResults
         .map(r => {
-          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, r.id), r.id);
+          const shortIdFromCache = () => getShortIdOrFallback(r.id, this.props.shortIdCache, r.id);
+          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, shortIdFromCache()), shortIdFromCache());
+          let groupsFormatted = '';
+          if (r.groups) {
+            const actualGroups: CacheType<string> = getOrElse(r.groups, {});
+            groupsFormatted = Object.keys(actualGroups).reduce((acc: string, curr: string, idx) => {
+              const value = actualGroups[curr];
+              let sep = ' | ';
+              if (idx === Object.keys(actualGroups).length - 1) {
+                sep = "";
+              }
+              return acc + `${curr}:${value}${sep}`;
+            }, "");
+          }
 
           return (
             <ListItem
@@ -251,6 +266,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
               onPress={this.onSearchResultPressed.bind(this, r)}
               roundAvatar={true}
               title={shortIdFormatted}
+              subtitle={groupsFormatted}
               avatar={getGroundwaterAvatar()}
             />
         )})}
@@ -454,6 +470,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 
