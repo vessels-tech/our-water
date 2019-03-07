@@ -1195,7 +1195,6 @@
 "@types/btoa@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@types/btoa/-/btoa-1.2.2.tgz#cbd47d0d1bb5fa64a810e11eaa2c1c0fbbebb476"
-  integrity sha512-uPugUTgPrYH6jKs/mE58JpSLhLRC5i5QoxQBMuk8wBDvvH4cw+YQwMo8mhi8ORgmlAVaeLhFlBgfvvKRnl5/iQ==
 
 "@types/caseless@*":
   version "0.12.1"
@@ -2482,7 +2481,6 @@ bser@^2.0.0:
 btoa@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/btoa/-/btoa-1.2.1.tgz#01a9909f8b2c93f6bf680ba26131eb30f7fa3d73"
-  integrity sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g==
 
 buffer-equal-constant-time@1.0.1:
   version "1.0.1"
@@ -6500,7 +6498,6 @@ output-file-sync@^2.0.0:
 ow_common@^0.1.29:
   version "0.1.29"
   resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.29.tgz#ee58212c297a889beb02d8812fe0c21d6537f163"
-  integrity sha512-b9Mv0fDBKQk5nXzIuB5s+tqT+5B+oods1akDJaQjevTDz4d48QrQf2K+prryV7CJWbw18NXjcOgCNQdMwzXzyQ==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -6513,22 +6510,9 @@ ow_common@^0.1.29:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations#04e4fcf4903bf1195b8513af99605159f90e27d0":
+"ow_translations@git://github.com/vessels-tech/ow_translations", "ow_translations@git://github.com/vessels-tech/ow_translations#5aaa184de69d6a4890f9af5c57228c8c8aeaebf8":
   version "0.1.1"
-  resolved "git://github.com/vessels-tech/ow_translations#04e4fcf4903bf1195b8513af99605159f90e27d0"
-  dependencies:
-    "@babel/cli" "^7.0.0"
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-proposal-class-properties" "^7.0.0"
-    "@babel/plugin-proposal-object-rest-spread" "^7.0.0"
-    "@babel/preset-env" "^7.0.0"
-    "@babel/preset-typescript" "^7.0.0"
-    "@types/request-promise-native" "^1.0.15"
-    request-promise "^4.2.2"
-
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
-  version "0.1.1"
-  resolved "git://github.com/vessels-tech/ow_translations.git#a062a14490fbcfa186bf1c5703f2e616b14881c4"
+  resolved "git://github.com/vessels-tech/ow_translations#5aaa184de69d6a4890f9af5c57228c8c8aeaebf8"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

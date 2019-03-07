@@ -8,11 +8,13 @@ import HTMLView from 'react-native-htmlview';
 
 export interface Props {
   text: string,
-  aboutHtml?: string,
+  aboutHtml: string,
 }
 
 const Logo = (props: Props) => {
   const { text, aboutHtml } = props;
+
+  console.log("AboutHTML is", aboutHtml);
 
   const styles = StyleSheet.create({
     p: {
@@ -24,7 +26,6 @@ const Logo = (props: Props) => {
     },
   });
 
-
   return (
     <View style={{
       // width: '100%',
@@ -34,8 +35,7 @@ const Logo = (props: Props) => {
       alignContent: 'center',
     }}>
       <Text style={{fontSize: 35, fontWeight: '700', textAlign: 'center', paddingTop: 20}}>{text}</Text>
-      {aboutHtml && <HTMLView stylesheet={styles} value={aboutHtml} />
-      }
+      {<HTMLView stylesheet={styles} value={aboutHtml} />}
     </View>
   );
 }

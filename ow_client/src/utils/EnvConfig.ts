@@ -43,3 +43,4 @@ export const RemoteConfigDeveloperMode = getBoolean(Config.REMOTE_CONFIG_DEVELOP
 export const EnableCaching = getBoolean(Config.ENABLE_CACHE);
 export const ResourceCacheMaxSize = Config.RESOURCE_CACHE_MAX_SIZE;
 export const PlaceApiBaseUrl = Config.PLACE_API_BASE_URL;
+export const BuildNumber = Config.buildNumber;

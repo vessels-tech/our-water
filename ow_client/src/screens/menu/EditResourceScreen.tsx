@@ -501,7 +501,7 @@ class EditResourceScreen extends Component<Props> {
     const labelForEditableField = (id: string) => {
       switch(id) {
         case 'pincode': {
-          return "Pincode";
+          return "Pincode *";
         }
         default:
           return id;

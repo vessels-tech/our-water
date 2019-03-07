@@ -29,4 +29,4 @@ export KEYSTORE_ALIAS="androiddebugkey"
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.development.json"
 
 
-export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
+# export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, Button,
+  View, KeyboardAvoidingView, Button, Text,
 } from 'react-native';
 import {Button as RNEButton} from 'react-native-elements'
 import {
@@ -21,7 +21,8 @@ import { UserType, User, MaybeUser } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
-import { secondaryDark } from '../utils/NewColors';
+import { secondaryDark, surfaceText } from '../utils/NewColors';
+import { BuildNumber } from '../utils/EnvConfig';
 
 export interface OwnProps {
   navigator: any,
@@ -441,8 +442,6 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       powered_by_html,
     } = this.props.translation.templates;
 
-    //TODO: translate
-    // const powered_by_html = "<p>Powered by <a href='http://www.marvi.org.in/'>MyWell</a></p>";
     return (
       <KeyboardAvoidingView style={{
         flexDirection: 'column',
@@ -488,6 +487,8 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           >
           {this.getAboutButton()}
+          <Text style={{textAlign: 'center', fontSize: 10, fontWeight: '200', color: surfaceText.disabled}}>{`Build: ${BuildNumber}`}</Text>
+          {/* <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{BuildNumber}</Text> */}
         </View>
       </KeyboardAvoidingView>
     );

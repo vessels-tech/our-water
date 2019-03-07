@@ -7,12 +7,14 @@ PROJECT = "OW_CLIENT"
 include .ow_config
 include /tmp/ow_env 
 dir = $(shell pwd)
+devBuildNumber = $(shell date +%s)
+buildNumber= $(shell cat ${dir}/../env/buildnumber)
+
 
 all: env server
 
 install:
 	yarn
-
 
 
 #
@@ -21,6 +23,14 @@ install:
 
 env:
 	cat ../env/.env.${orgId}.${stage}.sh ../env/env.${orgId}.${stage}.sh > /tmp/ow_env
+
+
+#update the buildNumber in the env file for RN
+update-env-dev:
+	echo "\nexport buildNumber=${devBuildNumber}\n" >> /tmp/ow_env
+
+update-env-prod:
+	echo "\nexport buildNumber=${buildNumber}\n" >> /tmp/ow_env
 
 #
 # eg. make switch orgId="ggmn" stage="development"
@@ -35,7 +45,6 @@ switch:
 	@cp -R ${dir}/src/assets/${orgId}/NewColors.ts ${dir}/src/utils/NewColors.ts
 	@echo 'Copying google-services.json across'
 	@cp ${dir}/../env/google-services.${stage}.json ${dir}/android/app/google-services.json
-
 
 
 switch-ggmn-dev:
@@ -69,6 +78,7 @@ server:
 #
 android:
 	@make env
+	@make update-env-dev
 	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
 android-log:
@@ -101,6 +111,7 @@ reset-gradle-cache:
 
 bundle:
 	@make env
+	@make update-env-prod
 	@echo 'Bundling react native'
 	source /tmp/ow_env &&  ENVFILE=/tmp/ow_env react-native bundle \
 		--platform android \
@@ -117,13 +128,15 @@ bundle:
 	rm -f ${dir}/android/app/src/main/res/drawable-mdpi/node*
 
 build:
-	@make env
-	@echo 'Building debug only'
 	../env/increment_build.sh
+	@make env
+	@make update-env-dev
+	@echo 'Building debug only'
 	source ../env/.env.deployment.sh && source /tmp/ow_env  && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug --stacktrace
 
 build-production:
 	@make env
+	@make update-env-prod
 	@echo 'Building production only'
 	../env/increment_build.sh
 	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
