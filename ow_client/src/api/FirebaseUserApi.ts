@@ -78,7 +78,7 @@ class FirebaseUserApi {
     let user: RNFirebase.User;
     let mobile: string;
 
-    //@ts-ignore
+    //@ts-ignore - common firestore
     const commonUserApi = new UserApi(fs, orgId);
 
     return confirmResult.confirm(code)

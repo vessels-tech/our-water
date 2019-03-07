@@ -13,9 +13,6 @@ export interface Props {
 
 const Logo = (props: Props) => {
   const { text, aboutHtml } = props;
-
-  console.log("AboutHTML is", aboutHtml);
-
   const styles = StyleSheet.create({
     p: {
       textAlign: 'center',

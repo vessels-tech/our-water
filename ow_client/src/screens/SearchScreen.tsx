@@ -23,7 +23,7 @@ import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
-import { isDefined, isUndefined, getOrElse, safeGetNested } from 'ow_common/lib/utils';
+import { isDefined, isUndefined, getOrElse, safeGetNested, safeGetNestedDefault } from 'ow_common/lib/utils';
 import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
 export interface OwnProps {
@@ -243,7 +243,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         .map(r => {
           const shortIdFromCache = () => getShortIdOrFallback(r.id, this.props.shortIdCache, r.id);
           const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, shortIdFromCache()), shortIdFromCache());
-          const ownerName = safeGetNested(r, ['owner', 'name']);
+          const ownerName = safeGetNestedDefault(r, ['owner', 'name'], '');
 
           const title = `${shortIdFormatted} - ${ownerName}`;
           let subtitle = '';
