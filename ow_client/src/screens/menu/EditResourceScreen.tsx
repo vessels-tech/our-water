@@ -116,12 +116,10 @@ class EditResourceScreen extends Component<Props> {
 
     /* Listeners */
     Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
-    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
   }
 
   componentWillUnmount() {
     Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
-    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
   }
 
   /**
@@ -142,10 +140,15 @@ class EditResourceScreen extends Component<Props> {
     }
   }
 
-  keyboardDidHide(event: any): void {
-    // this.setState({
-    //   formHeight: Dimensions.get('window').height,
-    // });
+  /**
+   * Finished loading the location after the location button pressed
+   * Update the form to reflect the lat and lng
+   */
+  loadLocationComplete(): void {
+    if (this.props.location.type === LocationType.LOCATION) {
+      this.editResourceForm.get('lat').setValue(`${this.props.location.coords.latitude.toFixed(4)}`);
+      this.editResourceForm.get('lng').setValue(`${this.props.location.coords.longitude.toFixed(4)}`);
+    }
   }
 
   /**
@@ -682,7 +685,9 @@ class EditResourceScreen extends Component<Props> {
               <LoadLocationButton 
                 style={{
                   alignSelf: 'center',
-                }}/>
+                }}
+                onComplete={() => this.loadLocationComplete()}
+              />
               <FieldControl
                 name="lat"
                 render={TextInput}
