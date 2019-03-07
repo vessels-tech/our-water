@@ -84,6 +84,7 @@ watch:
 	@cd ${dir}/functions && yarn run watch
 
 run-lt:
+	# @lt --subdomain ourwater --port 5000
 	@lt --subdomain ourwater --port 5000
 
 get-token:

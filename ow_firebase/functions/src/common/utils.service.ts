@@ -90,7 +90,7 @@ describe('Misc Tests', function() {
     });
   });
 
-  describe('remote config lookup', function () {
+  describe.only('remote config lookup', function () {
     this.timeout(4500);
     this.slow(3000);
 
@@ -103,13 +103,29 @@ describe('Misc Tests', function() {
       //Assert
     });
 
-    it('Gets the default timeseries', async () => {
+    it('Gets the default quality timeseries', async () => {
       //Arrange
+      const expected = [
+        { name: 'salinity', parameter: 'salinity', readings: [] },
+        { name: 'ph', parameter: 'ph', readings: [] },
+        { name: 'nitrogen', parameter: 'nitrogen', readings: [] }
+      ];
 
       //Act
       const result = unsafeUnwrap(await getDefaultTimeseries(ResourceStationType.quality));
 
       //Assert
+      assert.deepStrictEqual(result, expected);
+    });
+
+    it('Gets the default checkdam timeseries', async () => {
+      //Arrange
+      const expected = [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }];
+      //Act
+      const result = unsafeUnwrap(await getDefaultTimeseries(ResourceStationType.checkdam));
+
+      //Assert
+      assert.deepStrictEqual(result, expected);
     });
 
   });

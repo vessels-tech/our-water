@@ -256,14 +256,14 @@ function getNewConfig() {
                 ['well', 'raingauge', 'quality', 'checkdam'],
             ]),
             editResource_defaultTypes: buildParameter({
-                well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-                raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+                well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
+                raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
                 quality: [
                     { name: 'salinity', parameter: 'salinity', readings: [] },
                     { name: 'ph', parameter: 'ph', readings: [] },
                     { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
                 ],
-                checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
+                checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
             }, 'The default resource timeseries types', conditionKeys, [
                 //GGMN
                 {
