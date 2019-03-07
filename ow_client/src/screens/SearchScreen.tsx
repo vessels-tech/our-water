@@ -23,7 +23,7 @@ import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
-import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
+import { isDefined, isUndefined, getOrElse, safeGetNested } from 'ow_common/lib/utils';
 import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
 export interface OwnProps {
@@ -243,19 +243,37 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         .map(r => {
           const shortIdFromCache = () => getShortIdOrFallback(r.id, this.props.shortIdCache, r.id);
           const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, shortIdFromCache()), shortIdFromCache());
-          let groupsFormatted = '';
+          const ownerName = safeGetNested(r, ['owner', 'name']);
+
+          const title = `${shortIdFormatted} - ${ownerName}`;
+          let subtitle = '';
+          //TODO: Translate
+          const formatSubtitlekey = (key: string): string => {
+            switch(key) {
+              case 'legacyResourceId': {
+                return "OldId"
+              }
+              case 'pincode': {
+                return 'Pincode'
+              }
+              case 'country': {
+                return 'Country';
+              }
+            }
+            return key;
+          }
           if (r.groups) {
             const actualGroups: CacheType<string> = getOrElse(r.groups, {});
-            groupsFormatted = Object.keys(actualGroups).reduce((acc: string, curr: string, idx) => {
+            subtitle = Object.keys(actualGroups).reduce((acc: string, curr: string, idx) => {
               const value = actualGroups[curr];
               let sep = ' | ';
               if (idx === Object.keys(actualGroups).length - 1) {
                 sep = "";
               }
-              return acc + `${curr}:${value}${sep}`;
+              return acc + `${formatSubtitlekey(curr)}:${value}${sep}`;
             }, "");
-          }
-
+          };
+  
           return (
             <ListItem
               containerStyle={{
@@ -265,8 +283,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
               key={r.id}
               onPress={this.onSearchResultPressed.bind(this, r)}
               roundAvatar={true}
-              title={shortIdFormatted}
-              subtitle={groupsFormatted}
+              title={title}
+              subtitle={subtitle}
               avatar={getGroundwaterAvatar()}
             />
         )})}
