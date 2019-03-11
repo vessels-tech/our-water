@@ -355,7 +355,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       let content = 'N/A';
       let contentSubtitle;
     
-      const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => r.date);
+      //I don't think it's date here that we want
+      const latestReading = arrayHighest<AnyOrPendingReading>(readings, (r) => moment(r.date).toISOString());
       content = `${latestReading.value.toFixed(2)} ${unitOfMeasure}`;
       contentSubtitle = moment(latestReading.date).format(timeseries_date_format);
 
@@ -370,7 +371,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       )
     });
   }
-
 
   /**
    * a QR code that can be used to share wells with other users.
@@ -390,7 +390,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       id: this.props.resourceId,
       assetType: 'resource',
     };
-    
 
     return (
       <View
@@ -400,7 +399,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}
       >
         <QRCode
-          size={SCREEN_WIDTH - 200}
+          size={SCREEN_WIDTH - 250}
           value={JSON.stringify(data)}
         />
       </View>
@@ -418,13 +417,28 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const resource_detail_owner_name = "Owner Name";
     
     return (
-      <View style={{ flex: 1, paddingVertical: 20 }}>
+      <View style={{ flex: 1, paddingVertical: 15 }}>
         <HeadingSection title={resource_detail_owner_section} />
         <ContentSection>
           <HeadingText heading={resource_detail_owner_name} content={ownerName || ''} />
         </ContentSection>
       </View>
     );
+  }
+
+  getSummarySection() {
+    const {
+      resource_detail_latest
+    } = this.props.translation.templates;
+
+    return (
+      <View style={{ flex: 1, paddingVertical: 15 }}>
+        <HeadingSection title={resource_detail_latest} />
+        <ContentSection>
+          {this.getLatestReadingsForTimeseries()}
+        </ContentSection>
+      </View>
+    )
   }
 
   getSummaryCard() {
@@ -443,14 +457,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           flex: 1,
         }}>
           {this.getOwnerSection()}
-          <View style={{ flex: 1, paddingVertical: 20 }}>
-            <HeadingSection title={resource_detail_latest}/>
-            <ContentSection>
-              {this.getLatestReadingsForTimeseries()}
-            </ContentSection>
-          </View>
-
+          {this.getSummarySection()}
           {this.getQRCode()}
+
           {/* Bottom Buttons */}
           <View style={{
             flex: 0.5,
@@ -611,7 +620,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
                     >
                       {subtitle}
                     </Text>
-                    {/* <View style={{flex: 1}}/> */}
                   </View>
                 </TouchableNativeFeedback>
               );
