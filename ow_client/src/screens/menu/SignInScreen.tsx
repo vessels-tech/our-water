@@ -404,14 +404,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getProfileForm() {
-    const { connect_to_service_submit_button } = this.props.translation.templates;
-
-    //TODO: translate
-    const connect_to_edit_heading = 'Tell Us More About Yourself';
-    const connect_to_name_label = 'Full Name';
-    const connect_to_nickname_label = 'Short Name';
-    const connect_to_email_label = 'Email';
-    const connect_to_invalid_message = 'is not valid.';
+    const {
+      connect_to_edit_heading,
+      connect_to_name_label,
+      connect_to_nickname_label,
+      connect_to_email_label,
+      connect_to_invalid_message,
+      connect_to_service_submit_button
+    } = this.props.translation.templates;
 
     return (
       <View 
@@ -483,15 +483,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       connect_to_nickname_label,
       connect_to_email_label,
       connect_to_profile_mobile,
+      unapproved,
+      approved,
+      rejected,
+      unapproved_description,
+      approved_description,
+      rejected_description,
     } = this.props.translation.templates;
 
-    //TODO: Translate 
-    const unapproved = "unapproved";
-    const approved = "approved";
-    const rejected = "rejected";
-    const unapproved_description = "We're still waiting for an admin to verify your account.";
-    const approved_description = "Your account is approved! Feel free to sync measurements and locations now.";
-    const rejected_description = "Your account has been rejected. Reach out to ___@___ to learn more.";
 
     let statusText = unapproved;
     let statusDescription = unapproved_description;

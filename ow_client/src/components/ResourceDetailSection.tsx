@@ -412,9 +412,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return null;
     }
 
-    //TD: translate
-    const resource_detail_owner_section = "About:";
-    const resource_detail_owner_name = "Owner Name";
+    const {
+      resource_detail_owner_section,
+      resource_detail_owner_name,
+    } = this.props.translation.templates;
     
     return (
       <View style={{ flex: 1, paddingVertical: 15 }}>
@@ -699,8 +700,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
 
   getDownloadButton() {
-    //TODO: translate
-    const open_url_error = "Can' open url";
+    const { open_url_error } = this.props.translation.templates;
     const url = this.props.config.getDownloadReadingsUrl(this.props.resourceId);
 
     return (

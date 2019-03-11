@@ -496,11 +496,10 @@ class EditResourceScreen extends Component<Props> {
   getEditableGroupField(spec: GroupSpecificationType) {
     const {
       general_is_required_error,
+      country_label,
+      pincode_invalid_message,
     } = this.props.translation.templates;
-
-    //TODO: translate
-    const country_label = "Country";
-    const pincode_invalid_message = "Pincode is not valid."
+    
     const labelForEditableField = (id: string) => {
       switch(id) {
         case 'pincode': {

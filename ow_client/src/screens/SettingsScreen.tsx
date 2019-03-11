@@ -150,8 +150,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   pushMapScreen() {
-    //TODO: Translate
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     navigateTo(
       this.props,
@@ -381,9 +380,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       return null;
     }
 
-    //TODO: Translate
-    // const { settings_map } = this.props.translation.templates;
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     return (
       <ListItem

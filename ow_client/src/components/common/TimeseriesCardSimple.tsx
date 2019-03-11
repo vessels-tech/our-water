@@ -128,9 +128,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   getTableView() {
     const { currentRange } = this.state;
     const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure } } = this.props;
-    // const { default_datetime_format } = this.props.translation.templates;
-    //TODO: Translate!
-    const default_datetime_format = "HH:MM DD/MM/YY";
+    const { default_datetime_format } = this.props.translation.templates;
     if (cardType !== TimeseriesCardType.table) {
       return null;
     }

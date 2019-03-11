@@ -80,6 +80,10 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * 
    */
   async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
+    const {
+      settings_map
+    } = this.props.translation.templates;
+
     switch(r.type) {
       case SearchResultType.PartialResourceResult: {
         navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, ". . ."), {
@@ -90,11 +94,6 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         break;
       }
       case SearchResultType.PlaceResult: {
-        //TODO: also drop a marker?
-
-        //TODO: Translate
-        const settings_map = "Browse on Map"
-
         navigateTo(
           this.props,
           'screen.SimpleMapScreen',
@@ -125,12 +124,13 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getMenuButtons() {
     const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props;
-
-    //TODO: Translate
-    const menu_browse_text = "Browse";
-    const menu_scan_text = "Scan";
-    const menu_search_text = "Search";
-    const menu_new_text = "New";
+    const {
+      menu_browse_text,
+      menu_scan_text,
+      menu_search_text,
+      menu_new_text,
+      settings_map,
+    } = this.props.translation.templates;
     
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
@@ -154,8 +154,6 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             color={primaryLight}
             name={'map'}
             onPress={() => {
-              //TODO: Translate
-              const settings_map = "Browse on Map"
 
               navigateTo(
                 this.props,

@@ -223,6 +223,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       searchResults,
       searchResultsMeta: { loading },
     } = this.props;
+    const { formatSubtitlekey } = this.props.translation.templates;
     const { page } = this.state;
 
     if (loading) {
@@ -250,21 +251,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
           const title = `${shortIdFormatted} - ${ownerName}`;
           let subtitle = '';
-          //TODO: Translate
-          const formatSubtitlekey = (key: string): string => {
-            switch(key) {
-              case 'legacyResourceId': {
-                return "OldId"
-              }
-              case 'pincode': {
-                return 'Pincode'
-              }
-              case 'country': {
-                return 'Country';
-              }
-            }
-            return key;
-          }
+
           if (r.groups) {
             const actualGroups: CacheType<string> = getOrElse(r.groups, {});
             subtitle = Object.keys(actualGroups).reduce((acc: string, curr: string, idx) => {

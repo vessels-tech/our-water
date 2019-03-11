@@ -114,10 +114,10 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   render() {
     const { pendingReadings } = this.props;
-
-    //TODO: Translate
-    const edit_readings_no_readings = "No Pending Readings for this Station";
-    const edit_readings_new_reading = "New Reading";
+    const { 
+      edit_readings_no_readings
+      edit_readings_new_reading
+    } = this.props.translation.templates;
 
     if (pendingReadings.length === 0) {
       return (

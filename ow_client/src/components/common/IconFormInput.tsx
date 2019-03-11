@@ -110,9 +110,8 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
     const {
       calendar_input_confirm,
       calendar_input_cancel,
+      long_date_format
     } = this.props.translation.templates;
-    //TODO: translate
-    const long_date_format = "DD-MM-YYYY h:mm a"
     const { minDate, maxDate } = getMinAndMaxReadingDates(long_date_format);
 
     return (
