@@ -63,10 +63,6 @@ export default class MapCallout extends React.PureComponent<Props, State> {
           <Icon
             size={20}
             name={'chevron-right'}
-            // color={secondaryText}
-            // iconStyle={{
-              // color: secondaryText,
-            // }}
           />
         </View>
       </CalloutEx>
