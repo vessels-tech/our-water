@@ -82,9 +82,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
   async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
     switch(r.type) {
       case SearchResultType.PartialResourceResult: {
-        //TODO: load the resource type
-        //TODO: translate loading
-        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, "Loading..."), {
+        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, ". . ."), {
           resourceId: r.id,
           config: this.props.config,
           userId: this.props.userId
