@@ -18,6 +18,9 @@ import MapCallout from './common/MapCallout';
 import { diff } from "deep-object-diff";
 import { ConfigFactory } from '../config/ConfigFactory';
 
+import withPreventDoubleClick from './common/withPreventDoubleClick';
+const IconButtonEx = withPreventDoubleClick(IconButton);
+
 export type MapRegion = {
   latitude: number,
   longitude: number,
@@ -254,7 +257,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
           onComplete={(l: Location) => this.props.onGetUserLocation(l)}
         />
         {this.props.shouldDisplayFullSceenButton ? 
-          <IconButton
+          <IconButtonEx
             textColor={primaryText}
             color={primaryLight}
             name={fullscreenIcon}
@@ -283,7 +286,7 @@ class MapSection extends Component<OwnProps & StateProps & ActionProps & DebugPr
         flexDirection: 'row',
         justifyContent: 'space-around',
       }}>
-        <IconButton
+        <IconButtonEx
           textColor={primaryText}
           color={primaryLight}
           name="clear"

@@ -10,6 +10,9 @@ import { ResourceType } from '../../enums';
 import { OrgType } from '../../typings/models/OrgType';
 import { CacheType } from '../../reducers';
 
+import withPreventDoubleClick from './withPreventDoubleClick';
+const CalloutEx = withPreventDoubleClick(Callout);
+
 export interface Props {
   resource: AnyResource | PendingResource, 
   onCalloutPressed: (resource: AnyResource | PendingResource) => any,
@@ -32,7 +35,7 @@ export default class MapCallout extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Callout
+      <CalloutEx
         onPress={() => onCalloutPressed(resource)}
         tooltip={true}
       >
@@ -66,7 +69,7 @@ export default class MapCallout extends React.PureComponent<Props, State> {
             // }}
           />
         </View>
-      </Callout>
+      </CalloutEx>
     )
   }
 }

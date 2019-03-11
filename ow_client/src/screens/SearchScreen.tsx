@@ -26,6 +26,9 @@ import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } fr
 import { isDefined, isUndefined, getOrElse, safeGetNested, safeGetNestedDefault } from 'ow_common/lib/utils';
 import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
+import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+const ListItemEx = withPreventDoubleClick(ListItem);
+
 export interface OwnProps {
   onSearchResultPressedV1: (result: AnyResource) => void,
   onSearchResultPressed: (result: PartialResourceResult | PlaceResult) => void,
@@ -177,7 +180,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         {
           searchResultsV1.resources.map((r: AnyResource, i) => {
             return (
-              <ListItem
+              <ListItemEx
                 containerStyle={{
                   paddingLeft: 10,
                 }}
@@ -194,7 +197,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         {/* TODO: only display if we have 25 results, 
             we need to pass through the page size in the meta field */}
         {searchResultsV1.hasNextPage ?
-          <ListItem
+          <ListItemEx
             containerStyle={{
               paddingLeft: 10,
             }}
@@ -275,7 +278,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           };
   
           return (
-            <ListItem
+            <ListItemEx
               containerStyle={{
                 paddingLeft: 10,
               }}
@@ -289,7 +292,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
             />
         )})}
         {placeResults.map(r => (
-          <ListItem
+          <ListItemEx
             containerStyle={{
               paddingLeft: 10,
             }}
@@ -412,7 +415,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           {
             recentSearches.map((r, i) => {
               return (
-                <ListItem
+                <ListItemEx
                   containerStyle={{
                     paddingLeft: 0,
                     marginLeft: 0,
