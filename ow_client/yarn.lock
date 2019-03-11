@@ -6511,10 +6511,10 @@ ow_common@^0.1.34:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.3.tgz#80209150b2f81bd7904d0cf062a854932696a43a"
-  integrity sha512-UL0LLTIXYzJhjpKh/RH2AoYhHfbfFAVP4D11AG7Uzk1q3wuUp/x3rTUVfUbUFq+OblXXGXibcsvksbfUqWCdmA==
+ow_translations@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.4.tgz#8ff6dde4df88149ccd5ed2999690dedf9195195c"
+  integrity sha512-9a22ze9maslmFwrwcSA2Kaz1IXc3F9TC4+Opt9yimEN7UZ12eEJgvQ8/CG0FOF6hi2ygLzG3fuyOqd9gD5SbOQ==
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
