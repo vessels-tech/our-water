@@ -24,6 +24,8 @@ switch:
 	cp ${dir}/../env/remoteConfigConditions.${stage}.js ${dir}/functions/tools/remoteConfigConditions.js
 	@echo 'copying .serviceAccountKey.js across'
 	cp ${dir}/functions/src/common/.serviceAccountKey.${stage}.js ${dir}/functions/src/common/.serviceAccountKey.js
+	@echo 'Getting remote .runtimeconfig.json'
+	firebase functions:config:get > ${dir}/functions/.runtimeconfig.json
 
 
 switch-dev:

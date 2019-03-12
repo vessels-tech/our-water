@@ -121,9 +121,7 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
                 return;
             }
             const resourceObj = Resource_1.Resource.deserialize(res);
-            // mappedResources[res.externalIds.legacyMyWellId] = res;
             const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
-            // console.log('Key is', key);
             mappedResources.set(key, resourceObj);
         });
         console.log(`found ${mappedResources.size} getLegacyMyWellResources:`);
@@ -386,6 +384,7 @@ function loadRemoteConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         let config;
         try {
+            console.log("projectId is", env_1.projectId);
             const accessToken = yield tools_1.getAdminAccessToken(_serviceAccountKey_1.default);
             const currentConfigResult = yield tools_1.getRemoteConfig(env_1.projectId, accessToken);
             config = JSON.parse(currentConfigResult[1]);

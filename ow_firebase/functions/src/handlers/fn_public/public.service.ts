@@ -8,6 +8,7 @@ import { UserApi, ReadingApi } from 'ow_common/lib/api';
 import { DefaultUser } from 'ow_common/lib/model/User';
 import UserType from 'ow_common/lib/enums/UserType';
 import { DefaultReading } from 'ow_common/lib/model';
+import * as moment from 'moment';
 type Firestore = admin.firestore.Firestore;
 
 
@@ -37,9 +38,9 @@ describe('Public endpoint integration tests', function () {
       await readingApi.readingCol().doc("reading_004").set({ ...DefaultReading, id: 'reading_004', resourceId: "00002", timeseriesId: 'default' })
       await readingApi.readingCol().doc("reading_005").set({ ...DefaultReading, id: 'reading_005', resourceId: "00003", timeseriesId: 'default' })
       await readingApi.readingCol().doc("reading_006").set({ ...DefaultReading, id: 'reading_006', resourceId: "00003", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_007").set({ ...DefaultReading, id: 'reading_007', datetime: '2017-01-01T01:11:01Z', value: 1, resourceId: "00004", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_008").set({ ...DefaultReading, id: 'reading_008', datetime: '2017-01-02T01:11:01Z', value: 2, resourceId: "00004", timeseriesId: 'default' })
-      await readingApi.readingCol().doc("reading_009").set({ ...DefaultReading, id: 'reading_009', datetime: '2017-01-03T01:11:01Z', value: 3, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_007").set({ ...DefaultReading, id: 'reading_007', datetime: moment('2017-01-01T01:11:01Z').toDate(), value: 1, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_008").set({ ...DefaultReading, id: 'reading_008', datetime: moment('2017-01-01T01:11:01Z').toDate(), value: 2, resourceId: "00004", timeseriesId: 'default' })
+      await readingApi.readingCol().doc("reading_009").set({ ...DefaultReading, id: 'reading_009', datetime: moment('2017-01-01T01:11:01Z').toDate(), value: 3, resourceId: "00004", timeseriesId: 'default' })
     });
 
     it('downloads the readings for multiple resourceIds', async () => {

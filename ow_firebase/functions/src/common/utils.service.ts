@@ -90,8 +90,8 @@ describe('Misc Tests', function() {
     });
   });
 
-  describe.only('remote config lookup', function () {
-    this.timeout(4500);
+  describe('remote config lookup', function () {
+    this.timeout(6500);
     this.slow(3000);
 
     it('Gets the remote config', async () => {

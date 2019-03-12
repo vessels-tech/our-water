@@ -56,11 +56,6 @@ export async function getAuthHeader(admin: any): Promise<{Authorization: string}
 }
 
 const { JWT } = require('google-auth-library');
-//TODO: make the user specify the key
-// const key = {
-//   client_email: '12345',
-//   private_key: '12345',
-// };
 
 /**
  * getAdminAccessToken

@@ -143,9 +143,7 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
 
       const resourceObj = Resource.deserialize(res);
       
-      // mappedResources[res.externalIds.legacyMyWellId] = res;
       const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
-      // console.log('Key is', key);
       mappedResources.set(key, resourceObj);
     });
 
@@ -453,6 +451,7 @@ export function enableLogging(app: any): void {
 export async function loadRemoteConfig(): Promise<SomeResult<any>> {
   let config;
   try {
+    console.log("projectId is", projectId);
     const accessToken = await getAdminAccessToken(serviceAccountKey)
     const currentConfigResult = await getRemoteConfig(projectId, accessToken);
     config = JSON.parse(currentConfigResult[1]);
