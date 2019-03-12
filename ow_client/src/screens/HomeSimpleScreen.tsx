@@ -165,7 +165,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               )
             }}
             bottomText={menu_browse_text}
-            size={25}
+            size={17}
           />
           <IconButtonEx
             textColor={primaryText.high}
@@ -177,7 +177,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               });
             }}
             bottomText={menu_scan_text}
-            size={25}
+            size={17}
           />
           <IconButtonEx
             textColor={primaryText.high}
@@ -191,7 +191,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               })
             }}
             bottomText={menu_new_text}
-            size={25}
+            size={17}
           />
         </Toolbar>
         
