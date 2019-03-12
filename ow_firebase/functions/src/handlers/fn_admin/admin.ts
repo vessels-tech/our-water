@@ -140,5 +140,10 @@ module.exports = (functions) => {
   /*Error Handling - must be at bottom!*/
   app.use(ErrorHandler);
 
-  return functions.https.onRequest(app);
+  return functions .runWith({
+      timeoutSeconds: 150,
+      memory: '256MB',
+    })
+    .https
+    .onRequest(app);
 };

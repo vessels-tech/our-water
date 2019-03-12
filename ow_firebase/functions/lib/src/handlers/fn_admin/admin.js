@@ -123,6 +123,11 @@ module.exports = (functions) => {
     app.use(openCors);
     /*Error Handling - must be at bottom!*/
     app.use(ErrorHandler_1.default);
-    return functions.https.onRequest(app);
+    return functions.runWith({
+        timeoutSeconds: 150,
+        memory: '256MB',
+    })
+        .https
+        .onRequest(app);
 };
 //# sourceMappingURL=admin.js.map

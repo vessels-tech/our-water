@@ -211,6 +211,11 @@ module.exports = (functions) => {
             return;
         });
     });
-    return functions.https.onRequest(app);
+    return functions.runWith({
+        timeoutSeconds: 540,
+        memory: '256MB',
+    })
+        .https
+        .onRequest(app);
 };
 //# sourceMappingURL=sync.js.map
