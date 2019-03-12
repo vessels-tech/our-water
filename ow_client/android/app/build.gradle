@@ -130,7 +130,7 @@ android {
         //Ref: https://github.com/luggit/react-native-config#advanced-android-setup
         resValue "string", "build_config_package", "com.vesselstech"
 
-        missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
         abi {

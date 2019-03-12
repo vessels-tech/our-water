@@ -16,7 +16,7 @@ import { secondaryText } from '../utils/NewColors';
 import { isNullOrUndefined } from 'util';
 
 export interface Props {
-  onTakePicture: (dataUri: string) => void,
+  onTakePicture: (dataUri: string, fileUrl: string) => void,
   onTakePictureError: (message: string) => void,
 }
 
@@ -42,8 +42,6 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    console.log("rendering TakePictureScreen");
-
     return (
       <View style={{
         flex: 1,
@@ -65,7 +63,6 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
-          
         /> 
         <TouchableNativeFeedback
           onPress={this.takePicture}
@@ -93,23 +90,22 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
   }
 
   takePicture = async function () {
-    if (this.state.loading) {
+    if (this.state.loading || !this.camera) {
       return;
     }
-
-    this.camera.pausePreview();
 
     this.setState({loading: true}, async () => {
       if (this.camera) {
         const options = { 
-          quality: 0.5, 
+          quality: 0.1, 
           base64: true,
           fixOrientation: true,
         };
         try {
-          const data = await this.camera.takePictureAsync(options)
+          const data = await this.camera.takePictureAsync(options);
+          this.camera.pausePreview(); //must be after takePictureAsync
           this.setState({image: data.base64});
-          return this.props.onTakePicture(data.base64);
+          return this.props.onTakePicture(data.base64, data.uri);
         } catch (err) {
           return this.props.onTakePictureError(err);
         }

@@ -163,13 +163,13 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
-  onTakePicture(dataUri: string) {
+  onTakePicture(dataUri: string, fileUrl: string) {
     this.props.navigator.dismissModal();
-    console.log("onTakePicture", dataUri)
     this.setState({
       readingImage: {
         type: ReadingImageType.IMAGE,
-        url: dataUri
+        url: dataUri,
+        fileUrl,
       }
     });
   }
@@ -393,7 +393,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
                 width: '100%',
                 height: 300,
               }}
-              source={{ uri: `data:image/png;base64,${readingImage.url}`}}
+              source={{ uri: readingImage.fileUrl }}
             /> 
           </View> : null
         }
