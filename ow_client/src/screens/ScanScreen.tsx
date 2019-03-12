@@ -121,8 +121,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (resourceResult.type === ResultType.ERROR) {
       return this.handleResourceLookupError();
     }
-    console.log("adding recent", this.props.userId);
-    console.log("resourceResult.result", resourceResult.result);
+
     this.props.addRecent(this.appApi, this.props.userId, resourceResult.result);
     const shortId = getShortIdOrFallback(resourceResult.result.id, this.props.shortIdCache);
 
@@ -147,6 +146,9 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
       }}>
         {this.state.isScreenFocussed ? 
         <QRCodeScanner
+          cameraProps={{
+            captureAudio: false,
+          }}
           reactivate={true}
           showMarker={true}
           reactivateTimeout={1000 * 10}
