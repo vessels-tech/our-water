@@ -440,12 +440,14 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     } = this.props.translation.templates;
 
     return (
-      <KeyboardAvoidingView style={{
+      <View style={{
         flexDirection: 'column',
         // justifyContent: 'space-around',
         backgroundColor: bgLight,
-        height: '100%',
-        width: '100%'
+        flex: 1,
+        // height: '100%',
+        // width: '100%'
+        // minWidth: '100'
       }}>
         <Logo 
           text={this.props.config.getApplicationName()} 
@@ -487,7 +489,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           <Text style={{textAlign: 'center', fontSize: 10, fontWeight: '200', color: surfaceText.disabled}}>{`Build: ${BuildNumber}`}</Text>
           {/* <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{BuildNumber}</Text> */}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 }

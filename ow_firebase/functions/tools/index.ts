@@ -465,7 +465,7 @@ export async function getNewConfig(): Promise<any> {
         '1000',
       ]
     ),
-    showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+    showMapInSidebar: buildParameter(false, 'Should we display the map in the sidebar?', conditionKeys, [false, false, false]),
     resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
     resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
     favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),

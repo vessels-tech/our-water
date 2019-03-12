@@ -19,7 +19,6 @@ public class MainActivity extends SplashActivity {
     public View createSplashLayout() {
         System.out.println("ggmn  MainActivity createSplashLayout() called.");
         View view = new View(this);
-        view.setBackgroundColor(Color.BLUE);
         return view;
     }
 
