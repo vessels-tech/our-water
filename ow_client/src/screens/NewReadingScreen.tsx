@@ -418,13 +418,16 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
 
     return (
-      <ScrollView style={{
-        flex: 1,
-        width: '100%',
-        paddingHorizontal: 10,
-        flexDirection: 'column',
-        paddingBottom: 10,
-      }}>
+      <ScrollView 
+        keyboardShouldPersistTaps='handled'
+        style={{
+          flex: 1,
+          width: '100%',
+          paddingHorizontal: 10,
+          flexDirection: 'column',
+          paddingBottom: 10,
+        }}
+      >
         <IconFormInput
           iconName='calendar'
           iconColor={primaryDark}
@@ -553,24 +556,22 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     return (
-      <TouchableWithoutFeedback 
-        style={{
-          flex: 1,
-          flexDirection: 'column',  
-          width: '100%',
-        }}
-        onPress={() => {
-          return false;
-        }}
-      >
-        <View
-          style={{flex: 1}}
-        >
+      // <TouchableWithoutFeedback 
+      //   style={{
+      //     flex: 1,
+      //     flexDirection: 'column',  
+      //     width: '100%',
+      //   }}
+      //   onPress={() => {
+      //     return false;
+      //   }}
+      // >
+        <View style={{flex: 1}} >
           {hasWritePermission && this.getForm()}
           {hasWritePermission &&  this.getButton()}
           {hasWritePermission || this.getPermissionOverlay()}
         </View>
-      </TouchableWithoutFeedback>
+      // </TouchableWithoutFeedback>
     );
   }
 }
