@@ -129,6 +129,8 @@ android {
         //Required to get react-native-config to work with different package names
         //Ref: https://github.com/luggit/react-native-config#advanced-android-setup
         resValue "string", "build_config_package", "com.vesselstech"
+
+        missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
     }
     splits {
         abi {
@@ -213,7 +215,7 @@ dependencies {
         // exclude module: 'support-v4'
     }
 
-    // implementation (project(':react-native-camera')) {
+    implementation project(':react-native-camera')
     //     exclude group: "com.android.support"
     // }
     // implementation "com.android.support:exifinterface:+"
@@ -221,13 +223,13 @@ dependencies {
     // implementation "com.android.support:support-v4:+"
 
     //react-native-camera
-    compile (project(':react-native-camera')) {
-       exclude group: "com.google.android.gms"
-        compile 'com.android.support:exifinterface:27.+'
-        compile ('com.google.android.gms:play-services-vision:15.0.1') {
-            force = true
-        }
-    }
+    // compile (project(':react-native-camera')) {
+    //    exclude group: "com.google.android.gms"
+    //     compile 'com.android.support:exifinterface:27.+'
+    //     compile ('com.google.android.gms:play-services-vision:15.0.1') {
+    //         force = true
+    //     }
+    // }
 }
 
 // Run this once to be able to run the application with BUCK

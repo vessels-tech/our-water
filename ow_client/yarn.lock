@@ -6498,7 +6498,6 @@ output-file-sync@^2.0.0:
 ow_common@^0.1.35:
   version "0.1.35"
   resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.35.tgz#70e1d4021f48e879dada307e3785c3e3883f37c8"
-  integrity sha512-aNJkj/bsle8JL94OGCBXN87HYssuLaFQ1ZjGZ8Ed5YrjMRfjV82yvG4u2bFaqUvvHr/LwEGX4murkFV64oGgdg==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -6511,23 +6510,9 @@ ow_common@^0.1.35:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.6:
+ow_translations@^0.1.6, "ow_translations@git://github.com/vessels-tech/ow_translations":
   version "0.1.6"
-  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.6.tgz#ea321561a65a9f9c9736172084eaa20150346346"
-  integrity sha512-B8pN8+Jvl2DF9GbTxZCA6+ExWrEF4uVcAJSXQzVneQnbzGdvO09ZItPpuz9JPWwNVOnndEuGpRzntf/nsc6UrA==
-  dependencies:
-    "@babel/cli" "^7.0.0"
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-proposal-class-properties" "^7.0.0"
-    "@babel/plugin-proposal-object-rest-spread" "^7.0.0"
-    "@babel/preset-env" "^7.0.0"
-    "@babel/preset-typescript" "^7.0.0"
-    "@types/request-promise-native" "^1.0.15"
-    request-promise "^4.2.2"
-
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
-  version "0.1.6"
-  resolved "git://github.com/vessels-tech/ow_translations.git#8641d33766572a62c38a00ca6a171439bf2b9633"
+  resolved "git://github.com/vessels-tech/ow_translations#8641d33766572a62c38a00ca6a171439bf2b9633"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -6968,11 +6953,10 @@ react-is@^16.3.1:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.3.2.tgz#f4d3d0e2f5fbb6ac46450641eb2e25bf05d36b22"
 
-react-native-camera@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-1.3.0.tgz#b4d8bea052ab4bd43f58576dac03def7a5ea416e"
+react-native-camera@^1.13.1:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-1.13.1.tgz#19277ccae0a49dbf1b96049da5b95c847ea7aff2"
   dependencies:
-    lodash "^4.17.10"
     prop-types "^15.6.2"
 
 react-native-config@^0.11.5:

@@ -4,11 +4,16 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  Image
 } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { RNCamera } from 'react-native-camera';
 import { bgLight } from '../utils/Colors';
 import Loading from '../components/common/Loading';
+import { renderLog } from '../utils';
+import { secondaryText } from '../utils/NewColors';
+import { isNullOrUndefined } from 'util';
 
 export interface Props {
   onTakePicture: (dataUri: string) => void,
@@ -16,7 +21,8 @@ export interface Props {
 }
 
 export interface State {
-  loading: boolean
+  loading: boolean,
+  imageBase64: null | string,
 }
 
 export default class TakePictureScreen extends React.PureComponent<Props> {
@@ -28,6 +34,7 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
 
     this.state = {
       loading: false,
+      imageBase64: null,
     }
 
     //Binds
@@ -35,6 +42,8 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
   }
 
   render() {
+    console.log("rendering TakePictureScreen");
+
     return (
       <View style={{
         flex: 1,
@@ -51,30 +60,32 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
             justifyContent: 'flex-end',
             alignItems: 'center'
           }}
+          captureAudio={false}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
-        />
+          
+        /> 
         <TouchableNativeFeedback
           onPress={this.takePicture}
-          style={{
-            flex: 1,
-          }}
+          style={{ flex: 1, }}
         >
           <View style={{
             justifyContent: 'center',
             flex: 1,
            }}>   
-            { this.state.loading ?  
-              <Loading/> :
-              <Text style={{
-                alignSelf: 'center',
-                textAlign: "center",
-                fontSize: 22,
-                fontWeight: '700' 
-              }}> SNAP </Text>
-            }
+            <Icon
+              containerStyle={{
+                flex: 1,
+              }}
+              size={40}
+              name={'camera'}
+              color={secondaryText.high}
+              iconStyle={{
+                color: secondaryText.high,
+              }}
+            />
           </View>
         </TouchableNativeFeedback>
       </View>
@@ -86,15 +97,18 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
       return;
     }
 
+    this.camera.pausePreview();
+
     this.setState({loading: true}, async () => {
       if (this.camera) {
         const options = { 
-          quality: 0.1, 
+          quality: 0.5, 
           base64: true,
           fixOrientation: true,
         };
         try {
           const data = await this.camera.takePictureAsync(options)
+          this.setState({image: data.base64});
           return this.props.onTakePicture(data.base64);
         } catch (err) {
           return this.props.onTakePictureError(err);

@@ -7,6 +7,7 @@ import {
   Picker,
   Keyboard,
   Image,
+  ToastAndroid,
 } from 'react-native';
 import { 
   Button, Text 
@@ -164,6 +165,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   onTakePicture(dataUri: string) {
     this.props.navigator.dismissModal();
+    console.log("onTakePicture", dataUri)
     this.setState({
       readingImage: {
         type: ReadingImageType.IMAGE,
@@ -173,6 +175,9 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onTakePictureError(message: string) {
+    //TODO: translate
+    const take_picture_error_message = 'There was a problem taking the picture. Make sure you have enabled photo permissions and try again';
+    ToastAndroid.show(take_picture_error_message, ToastAndroid.LONG);
     maybeLog('Error taking picture', message);
     this.props.navigator.dismissModal();
   }
@@ -340,6 +345,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       return null;
     }
 
+    //TODO: Translate
+    const add_image_text = "Add an Image";
     return (
       <View style={{
         height: 300,
@@ -349,7 +356,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       }}>
         { readingImage.type === ReadingImageType.NONE ? 
           <Button
-            title="Add an Image"
+            title={add_image_text}
             raised={true}
             icon={{ name: 'camera' }}
             buttonStyle={{
