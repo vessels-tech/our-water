@@ -407,7 +407,7 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       [true, true, false]
     ),
-    editResource_hasWaterColumnHeight: buildParameter(false, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, false]),
+    editResource_hasWaterColumnHeight: buildParameter(true, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, true, true]),
     favouriteResource_scrollDirection: buildParameter(
       'Vertical', 
       'What direction does the favourite resource section scroll in?', 
