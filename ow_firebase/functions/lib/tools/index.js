@@ -288,7 +288,7 @@ function getNewConfig() {
                 }
             ]),
             editResource_allowCustomId: buildParameter(false, 'When creating a resource, is the user allowed to enter a custom id?', conditionKeys, [true, true, false]),
-            editResource_hasWaterColumnHeight: buildParameter(false, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, false]),
+            editResource_hasWaterColumnHeight: buildParameter(true, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, true, true]),
             favouriteResource_scrollDirection: buildParameter('Vertical', 'What direction does the favourite resource section scroll in?', conditionKeys, ['Horizontal', 'Horizontal', 'Vertical']),
             usesShortId: buildParameter(true, 'the application name', conditionKeys, ['GGMN', 'GGMN', 'MyWell']),
             allowsUserRegistration: buildParameter(true, 'Should we allow users to sign up?', conditionKeys, [false, false, true]),

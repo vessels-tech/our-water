@@ -18,9 +18,10 @@ const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const api_1 = require("ow_common/lib/api");
 const moment = require("moment");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin');
+const fs = require('fs');
 require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
@@ -43,22 +44,19 @@ module.exports = (functions) => {
     app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
-        const result = yield QRCode_1.generateQRCode(orgId, id);
-        if (result.type === AppProviderTypes_1.ResultType.ERROR) {
-            throw new Error(result.message);
-        }
-        res.json(result.result);
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const shortId = AppProviderTypes_1.unsafeUnwrap(yield fbApi.createShortId(orgId, id));
+        const buffer = AppProviderTypes_1.unsafeUnwrap(yield QRCode_1.getWholeQR(orgId, shortId.shortId, id));
+        res.json(buffer.toString('base64'));
     }));
     app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
-        const qrResult = yield QRCode_1.generateQRCode(orgId, id);
-        if (qrResult.type === AppProviderTypes_1.ResultType.ERROR) {
-            throw new Error(qrResult.message);
-        }
-        const base64Data = qrResult.result.replace(/^data:image\/png;base64,/, "");
+        const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        const shortId = AppProviderTypes_1.unsafeUnwrap(yield fbApi.createShortId(orgId, id));
+        const buffer = AppProviderTypes_1.unsafeUnwrap(yield QRCode_1.getWholeQR(orgId, shortId.shortId, id));
         const file = `/tmp/qr_${id}.png`;
-        yield utils_1.writeFileAsync(file, base64Data, 'base64');
+        fs.writeFileSync(file, buffer);
         res.download(file);
     }));
     /**

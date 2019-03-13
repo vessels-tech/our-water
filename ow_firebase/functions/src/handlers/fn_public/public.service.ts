@@ -19,6 +19,26 @@ describe('Public endpoint integration tests', function () {
   const baseUrl = process.env.BASE_URL;
   const userApi = new UserApi(firestore, orgId);
 
+  describe('Download QR', function() {
+    this.timeout(20000);
+
+    it('downloads the qr code', async () => {
+      //Arrange
+
+      //Act
+      const options = {
+        method: 'GET',
+        uri: `${baseUrl}/public/${orgId}/downloadQrCode?id="12345"`,
+        json: true,
+      };
+
+      //Act
+      const response = await request(options);
+
+      //Assert
+    });
+  });
+
   describe('Download Readings', function () {
     this.timeout(20000);
     let authHeader;

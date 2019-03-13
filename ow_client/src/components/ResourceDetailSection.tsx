@@ -393,7 +393,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       >
         <QRCode
           logo={qrLogo}
-          logoSize={50}
+          logoSize={25}
           size={SCREEN_WIDTH - 250}
           value={JSON.stringify(data)}
         />

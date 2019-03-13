@@ -2,19 +2,17 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
-import { generateQRCode } from '../../common/apis/QRCode';
+import { generateQRCode, getWholeQR } from '../../common/apis/QRCode';
 import { writeFileAsync, enableLogging } from '../../common/utils';
 import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { ReadingApi, ExportApi, ExportFormat } from 'ow_common/lib/api';
 import * as moment from 'moment';
 import { firestore } from '../../common/apis/FirebaseAdmin';
-
-
-
+import FirebaseApi from '../../common/apis/FirebaseApi';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin')
+const fs = require('fs');
 require('express-async-errors');
 
 module.exports = (functions) => {
@@ -41,13 +39,12 @@ module.exports = (functions) => {
   app.get('/:orgId/qrCode', validate(generateQRCodeValidation), async (req, res) => {
     const { id } = req.query;
     const { orgId } = req.params;
+    const fbApi = new FirebaseApi(firestore);
 
-    const result = await generateQRCode(orgId, id);
-    if (result.type === ResultType.ERROR) {
-      throw new Error(result.message);
-    }
+    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, id));
+    const buffer = unsafeUnwrap(await getWholeQR(orgId, shortId.shortId, id));
 
-    res.json(result.result);
+    res.json(buffer.toString('base64'));
   });
 
 
@@ -55,14 +52,12 @@ module.exports = (functions) => {
     const { id } = req.query;
     const { orgId } = req.params;
 
-    const qrResult = await generateQRCode(orgId, id);
-    if (qrResult.type === ResultType.ERROR) {
-      throw new Error(qrResult.message);
-    }
+    const fbApi = new FirebaseApi(firestore);
 
-    const base64Data = qrResult.result.replace(/^data:image\/png;base64,/, "");
+    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, id));
+    const buffer = unsafeUnwrap(await getWholeQR(orgId, shortId.shortId, id));
     const file = `/tmp/qr_${id}.png`;
-    await writeFileAsync(file, base64Data, 'base64');
+    fs.writeFileSync(file, buffer);
 
     res.download(file);
   });
