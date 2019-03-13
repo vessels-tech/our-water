@@ -48,19 +48,12 @@ import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, sec
 import { ResourceType } from '../enums';
 import { safeGetNested } from 'ow_common/lib/utils';
 import HeadingText from './common/HeadingText';
+import TabView, { TabType } from './common/TabView';
 const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const qrLogo = require('../assets/logo.png');
 
-/**
- * Lazily killing two birds here by
- * adding in the icon names.
- */
-enum TabType {
-  Summary="dashboard",
-  Graph="show-chart",
-  Table="view-list",
-}
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -399,6 +392,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}
       >
         <QRCode
+          logo={qrLogo}
+          logoSize={50}
           size={SCREEN_WIDTH - 250}
           value={JSON.stringify(data)}
         />
@@ -503,9 +498,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       }
 
       return (
-        //TODO: figure out proper tab labels?
-        // @ts-ignore
-        <View
+        <TabView
           tabLabel={{type: TabType.Graph, name: timeseries.name}}
           key={`${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
@@ -520,7 +513,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             isPending={this.props.isPending}
             resourceType={this.getResourceType()}
           />
-        </View>
+        </TabView>
       )
     });
   }
@@ -541,8 +534,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       }
 
       return (
-        // @ts-ignore
-        <View
+        <TabView
           tabLabel={{ type: TabType.Table, name: timeseries.name }}
           key={`graph_${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
@@ -557,7 +549,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             isPending={this.props.isPending}
             resourceType={this.getResourceType()}
           />
-        </View>
+        </TabView>
       )
     });
   }
@@ -579,7 +571,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           height: 20,
         }}
         tabBarTextStyle={{
-          //TD: disable bold as sometimes it is wrong and doesn't get updated
           fontWeight: '500',
         }}
         tabBarActiveTextColor={primaryText.high}
@@ -627,7 +618,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             }}
           />
         )}>
-        <View
+        <TabView
           key="0_summary" 
           style={{
             backgroundColor: bgLight,
@@ -636,7 +627,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           tabLabel={{ type: TabType.Summary, name: 'summary' }}
         >
           {this.getSummaryCard()}
-        </View>
+        </TabView>
           {
             //Readings in Graph form
             this.getGraphChildren()
