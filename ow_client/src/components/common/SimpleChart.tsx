@@ -14,6 +14,7 @@ import * as scale from 'd3-scale';
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import { arrayLowest } from '../../utils';
 import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
+import { Decorator, ShortGridLabels, ShortGrid } from './ChartHelpers';
 
 export type Props = {
   readings: AnyOrPendingReading[],
@@ -21,66 +22,30 @@ export type Props = {
   timeseriesRange: TimeseriesRange,
 }
 
-const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
-  return data.map((value: AnyOrPendingReading, index: number) => (
-    <Circle
-      key={index}
-      cx={x(moment(value.date).toDate())}
-      cy={y(value.value)}
-      r={4}
-      stroke={primaryLight}
-      fill={'white'}
-    />)
-  );
+export type ContentInsetType = {
+  top: number,
+  bottom: number,
+  left: number,
+  right: number,
 }
 
-const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
-  const dates = data.map((item) => moment(item.date).toDate());
-  // const xAxisData = scale.scaleTime().domain([dates[0], dates[dates.length - 1]]).ticks(3);
-  const xAxisData = [dates[0], dates[dates.length -1]];
-  const minValue = arrayLowest(data, (r) => r.value);
-  const cy = y(minValue.value);
+const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType}) => (
+  <YAxis
+    style={{
+      width: width,
+    }}
+    data={data}
+    contentInset={contentInset}
+    svg={{
+      fill: primaryDark,
+      fontSize: 10,
+    }}
+    numberOfTicks={5}
+    formatLabel={(value: number) => `${value}m`}
+    yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
+  />
+);
 
-  return xAxisData.map((value: Date, index: number) => (
-      <Rect
-        key={`${value}${index}`}
-        x={x(moment(value).toDate())}
-        y={cy}
-        width={1}
-        height={5}
-        fill={primaryDark}
-        strokeWidth={0}
-        stroke="rgb(0,0,0)"
-      />
-    )
-  );
-}
-
-const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[]}) => {
-  const dates = data.map((item) => moment(item.date).toDate());
-  const xAxisData = [dates[0], dates[dates.length - 1]];
-
-  const minValue = arrayLowest(data, (r) => r.value);
-  
-  const cy = y(minValue.value) + 15
-
-  return xAxisData.map((value: Date, index: number) => {
-    const cx = x(moment(value).toDate());
-    let textAnchor: 'middle' | 'start' | 'end' = 'middle';
-
-    return (
-      <Text
-        fontSize="8"
-        key={`${cx}${value}${index}`}
-        x={cx}
-        y={cy}
-        textAnchor={textAnchor}>
-        {moment(value).format('DD MMM YY')}
-      </Text>
-    );
-    }
-  );
-}
 
 class SimpleChart extends React.PureComponent<Props> {
 
@@ -98,19 +63,10 @@ class SimpleChart extends React.PureComponent<Props> {
           flexDirection: 'row',
           flex: 1,
         }}>
-          <YAxis 
-            style={{
-              width: yAxisWidth,
-            }}
+          <SimpleYAxis
             data={readings}
+            width={yAxisWidth}
             contentInset={contentInset}
-            svg={{
-              fill: primaryDark,
-              fontSize: 10,
-            }}
-            numberOfTicks={5}
-            formatLabel={(value: number) => `${value}m`}
-            yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
           />
           {/* Main Readings */}
           <LineChart
