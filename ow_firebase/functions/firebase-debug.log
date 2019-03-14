@@ -1,0 +1,218 @@
+[debug] [2019-03-14T02:06:57.816Z] ----------------------------------------------------------------------
+[debug] [2019-03-14T02:06:57.818Z] Command:       /Users/ldaly/.nvm/versions/node/v8.11.1/bin/node /Users/ldaly/.nvm/versions/node/v8.11.1/bin/firebase deploy --only functions
+[debug] [2019-03-14T02:06:57.818Z] CLI Version:   6.1.0
+[debug] [2019-03-14T02:06:57.818Z] Platform:      darwin
+[debug] [2019-03-14T02:06:57.818Z] Node Version:  v8.11.1
+[debug] [2019-03-14T02:06:57.819Z] Time:          Thu Mar 14 2019 10:06:57 GMT+0800 (PST)
+[debug] [2019-03-14T02:06:57.819Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-03-14T02:06:57.828Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-03-14T02:06:57.828Z] > authorizing via signed-in user
+[debug] [2019-03-14T02:06:57.828Z] [iam] checking project our-water for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2019-03-14T02:06:57.830Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water:testIamPermissions  
+
+[debug] [2019-03-14T02:06:59.024Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'our-water'...
+[info] 
+[info] i  deploying functions
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script.
+[debug] [2019-03-14T02:07:10.494Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc",
+    "babel": "babel ./src --out-dir lib --extensions '.ts,.tsx'",
+    "watch": "tsc --watch",
+    "serve": "npm run build && firebase serve --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "find_unit": "find . -name '*.unit.ts'",
+    "unit": "find . -name '*.unit.ts' | xargs ts-mocha -R spec",
+    "service_old": "mocha ./**/*.service.ts",
+    "service": "find . -name '*.service.ts' | xargs ts-mocha -R spec"
+  },
+  "main": "lib/src/index.js",
+  "dependencies": {
+    "@babel/polyfill": "^7.2.5",
+    "@babel/register": "^7.0.0",
+    "@firebase/app-types": "0.x",
+    "@google-cloud/storage": "^1.7.0",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.0",
+    "@types/request-promise-native": "^1.0.14",
+    "@types/xmlbuilder": "^0.0.34",
+    "body-parser": "^1.18.2",
+    "btoa": "^1.2.1",
+    "cors": "^2.8.4",
+    "dbf": "0.1.4",
+    "express": "^4.16.3",
+    "express-async-errors": "^3.1.1",
+    "express-fileupload": "^0.4.0",
+    "express-validation": "^1.0.2",
+    "firebase-admin": "^7.0.0",
+    "firebase-app": "^0.0.1",
+    "firebase-functions": "^2.2.0",
+    "google-auth-library": "^2.0.1",
+    "gulp": "^3.9.1",
+    "handlebars": "^4.0.12",
+    "joi": "^13.2.0",
+    "jsx-to-html": "^1.1.0",
+    "jsx-xml": "^0.1.1",
+    "jszip": "2.5.0",
+    "mocha": "^5.1.1",
+    "mock-cloud-firestore": "^0.9.2",
+    "moment": "^2.22.1",
+    "morgan": "^1.9.1",
+    "morgan-body": "^2.4.5",
+    "nodemailer": "^4.6.8",
+    "ow_common": "^0.1.35",
+    "ow_translations": "^0.1.6",
+    "ow_types": "https://github.com/vessels-tech/ow_types#76011ba54cece194083eaf06fd90ba73ce9323db",
+    "papaparse": "^4.4.0",
+    "qrcode": "^1.3.2",
+    "request": "^2.85.0",
+    "request-promise": "^4.2.2",
+    "request-promise-native": "^1.0.5",
+    "shp-write": "^0.3.2",
+    "soap": "^0.25.0",
+    "thread-sleep": "^2.1.0",
+    "ts-mocha": "^2.0.0",
+    "typescript": "3.3.3",
+    "xmlbuilder": "^10.1.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "assert": "^1.4.1",
+    "chai": "^4.1.2",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.8.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[debug] [2019-03-14T02:07:10.495Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+ 
+[debug] [2019-03-14T02:07:10.496Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/our-water?view=CONSUMER_VIEW  
+ 
+[debug] [2019-03-14T02:07:12.534Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:12.568Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: all necessary APIs are enabled
+[debug] [2019-03-14T02:07:12.570Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/our-water  
+ 
+[debug] [2019-03-14T02:07:13.751Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:13.752Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/276292750755:getServerAppConfig  
+ 
+[debug] [2019-03-14T02:07:14.318Z] <<< HTTP RESPONSE 200
+[info] i  functions: preparing functions directory for uploading...
+[debug] [2019-03-14T02:07:14.321Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs  
+ 
+[debug] [2019-03-14T02:07:14.752Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:14.754Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables  
+ 
+[debug] [2019-03-14T02:07:14.754Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables  
+ 
+[debug] [2019-03-14T02:07:15.141Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.143Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables/one  
+ 
+[debug] [2019-03-14T02:07:15.143Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/test/variables/somevar  
+ 
+[debug] [2019-03-14T02:07:15.161Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.162Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/backup_bucket_name  
+ 
+[debug] [2019-03-14T02:07:15.162Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/temporary_admin_user_id  
+ 
+[debug] [2019-03-14T02:07:15.162Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_password  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/should_send_emails  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/temporary_admin_access_token  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/backup_service_account_key_filename  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/test_email_whitelist  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/mywell_legacy_access_token  
+ 
+[debug] [2019-03-14T02:07:15.163Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/project_id  
+ 
+[debug] [2019-03-14T02:07:15.165Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/verbose_log  
+ 
+[debug] [2019-03-14T02:07:15.165Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/our-water/configs/config/variables/outbound_email_address  
+ 
+[debug] [2019-03-14T02:07:15.516Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.517Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.520Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.521Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.532Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.532Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.541Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.545Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.548Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.550Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.554Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.569Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:15.570Z] <<< HTTP RESPONSE 200
+[info] i  functions: packaged functions (514.55 KB) for uploading
+[debug] [2019-03-14T02:07:16.813Z] >>> HTTP REQUEST POST https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions:generateUploadUrl  
+ 
+[debug] [2019-03-14T02:07:17.601Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-14T02:07:17.602Z] >>> HTTP REQUEST PUT https://storage.googleapis.com/gcf-upload-us-central1-b8f45dcd-e319-4346-b693-e8057e8718d9/067a2a16-c561-4363-a595-696f8a989ab6.zip?GoogleAccessId=service-276292750755@gcf-admin-robot.iam.gserviceaccount.com&Expires=1552531037&Signature=lFxNwIkRH1%2Fpt3x0EQEt5WVzRWklvbT9KY8eIkmtvj2zozGF1ysLLvSZal13VE%2FVx9210AVjRqGKykTOhZKdwke7CR11LhZV94ab58lb9hWDqjRJhSIXvNeGsg7DbNCCLqT9Fg2OOrvqxF%2F8UePyhebpouAUcKIO3iDb%2BnnmT6Q02itx9Z%2BiroVEvh4sbbD%2B2id2pGwkQ8nqO7SAQbePrt3g%2BlvxTw0D4%2BN1oOCKJa2CmU3M7RDSybr%2FzfJ33s0tib1mzmigl9QroJPesBTAyFDYCQjuAwtbMVc0JCAUolkLWRhT22YntB9I35HAGEqtslMBxeWillc2UlguC8ebmA%3D%3D  
+
+[debug] [2019-03-14T02:07:18.864Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: functions folder uploaded successfully
+[debug] [2019-03-14T02:07:18.867Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/-/functions  
+ 
+[debug] [2019-03-14T02:07:19.615Z] <<< HTTP RESPONSE 200
+[info] i  functions: updating Node.js 6 function admin(us-central1)...
+[debug] [2019-03-14T02:07:19.618Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function hourly_job(us-central1)...
+[debug] [2019-03-14T02:07:19.619Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/hourly-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 6 function daily_job(us-central1)...
+[debug] [2019-03-14T02:07:19.619Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/daily-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 6 function weekly_job(us-central1)...
+[debug] [2019-03-14T02:07:19.619Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/topics/weekly-tick","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 6 function group(us-central1)...
+[debug] [2019-03-14T02:07:19.620Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function org(us-central1)...
+[debug] [2019-03-14T02:07:19.620Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function reading(us-central1)...
+[debug] [2019-03-14T02:07:19.620Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function resource(us-central1)...
+[debug] [2019-03-14T02:07:19.620Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function shortId(us-central1)...
+[debug] [2019-03-14T02:07:19.621Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function sync(us-central1)...
+[debug] [2019-03-14T02:07:19.621Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function public(us-central1)...
+[debug] [2019-03-14T02:07:19.621Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 6 function userAccountDefaults(us-central1)...
+[debug] [2019-03-14T02:07:19.622Z] Trigger is:  {"eventTrigger":{"resource":"projects/our-water/databases/(default)/documents/org/mywell/user/{userId}","eventType":"providers/cloud.firestore/eventTypes/document.create","service":"firestore.googleapis.com"}}
+[debug] [2019-03-14T02:07:19.624Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/admin {"updateMask":"sourceUploadUrl,name,labels,availableMemoryMb,timeout,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.626Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/hourly_job {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+
+[debug] [2019-03-14T02:07:19.626Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/daily_job {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+
+[debug] [2019-03-14T02:07:19.627Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/weekly_job {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+
+[debug] [2019-03-14T02:07:19.627Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/group {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.628Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/org {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.628Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/reading {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.628Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/resource {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.628Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/shortId {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.629Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/sync {"updateMask":"sourceUploadUrl,name,labels,availableMemoryMb,timeout,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.629Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/public {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+
+[debug] [2019-03-14T02:07:19.631Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/our-water/locations/us-central1/functions/userAccountDefaults {"updateMask":"sourceUploadUrl,name,labels,eventTrigger.resource,eventTrigger.eventType,eventTrigger.service"} 
+
