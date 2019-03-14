@@ -19,7 +19,7 @@ import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
 import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries } from '../../utils';
-import SimpleChart from './SimpleChart';
+import SimpleChart, { SpecificChart } from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
 import { PendingReading } from '../../typings/models/PendingReading';
@@ -71,12 +71,17 @@ export interface State {
  */
 class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
-  state: State = {
-    currentRange: TimeseriesRange.EXTENT,
-  }
+  state: State;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
+
+    /* Set the default buttons */
+    const buttons = props.config.getResourceDetailGraphButtons();
+    const currentRange = buttons[0].value
+    this.state = {
+      currentRange,
+    }
 
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
@@ -116,9 +121,9 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
         flex: 5,
         justifyContent: 'center'
       }}>
-        <SimpleChart
-          pendingReadings={[]}
+        <SpecificChart
           readings={filteredReadings}
+          resourceType={this.props.resourceType}
           timeseriesRange={currentRange} 
         />
       </View>
@@ -180,12 +185,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   }
 
   getBottomButtons() {
-    const buttons: { text: string, value: TimeseriesRange }[] = [
-      { text: '1Y', value: TimeseriesRange.ONE_YEAR},
-      { text: '3M', value: TimeseriesRange.THREE_MONTHS},
-      { text: '2W', value: TimeseriesRange.TWO_WEEKS},
-      { text: 'EXTENT', value: TimeseriesRange.EXTENT},
-    ];
+    const buttons = this.props.config.getResourceDetailGraphButtons();
 
     return (
       <View style={{

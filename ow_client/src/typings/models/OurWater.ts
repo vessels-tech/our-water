@@ -112,6 +112,7 @@ export enum TimeseriesRange {
   THREE_MONTHS = 'THREE_MONTHS',
   TWO_WEEKS = 'TWO_WEEKS',
   EXTENT = 'EXTENT',
+  THREE_YEARS = 'THREE_YEARS',
 }
 
 export enum OWUserStatus {

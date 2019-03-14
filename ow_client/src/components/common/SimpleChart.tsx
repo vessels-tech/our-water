@@ -14,44 +14,85 @@ import * as scale from 'd3-scale';
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import { arrayLowest } from '../../utils';
 import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
-import { Decorator, ShortGridLabels, ShortGrid } from './ChartHelpers';
+import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels } from './ChartHelpers';
+import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { ResourceType } from '../../enums';
+
+export enum ChartDateOption {
+  NoDate = 'NoDate', //Doesn't display any dates
+  FirstAndLast = 'FirstAndLast', //displays only first and last dates
+  Optimal = 'Optimal', //displays first and last dates, as well as any in between.
+}
+
+export type ChartOptions = {
+  hasDots: boolean,
+  //Just an idea: a function to split the intial data into an arra of arrays for overlaying
+  overlays: (initial: Array<AnyOrPendingReading>) => Array<Array<AnyOrPendingReading>>,
+  dateOption: ChartDateOption
+}
+
+export interface SpecificChartProps {
+  readings: AnyOrPendingReading[], 
+  resourceType: ResourceType, 
+  timeseriesRange: TimeseriesRange
+}
+
+//Given the input params, set up the chart options and return a configured chart
+export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
+  const {
+    readings,
+    resourceType,
+    timeseriesRange,
+  } = props;
+
+
+  //For now, ignore the resourceType
+
+  //Split the readings to overlay them
+  //Default to THREE_MONTHS
+  let hasDots = true;
+  let dateOption = ChartDateOption.Optimal;
+  let overlays = (initial: AnyOrPendingReading[]) => [initial];
+
+  if (timeseriesRange !== TimeseriesRange.THREE_MONTHS) {
+    hasDots = false;
+  }
+
+  if (timeseriesRange === TimeseriesRange.THREE_YEARS) {
+    //TODO: implement array splitting based on dates
+    overlays = (initial: AnyOrPendingReading[]) => [initial];
+    dateOption = ChartDateOption.NoDate; //Basant asked for no dates, but I think first and last is better.
+  }
+
+  const options: ChartOptions = {
+    hasDots,
+    overlays,
+    dateOption,
+  };
+
+  return (
+    <SimpleChart
+      readings={readings}
+      pendingReadings={[]}
+      timeseriesRange={timeseriesRange}
+      options={options}
+    />
+  );
+}
 
 export type Props = {
   readings: AnyOrPendingReading[],
   pendingReadings: PendingReading[],
   timeseriesRange: TimeseriesRange,
+  options: ChartOptions,
 }
-
-export type ContentInsetType = {
-  top: number,
-  bottom: number,
-  left: number,
-  right: number,
-}
-
-const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType}) => (
-  <YAxis
-    style={{
-      width: width,
-    }}
-    data={data}
-    contentInset={contentInset}
-    svg={{
-      fill: primaryDark,
-      fontSize: 10,
-    }}
-    numberOfTicks={5}
-    formatLabel={(value: number) => `${value}m`}
-    yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
-  />
-);
 
 
 class SimpleChart extends React.PureComponent<Props> {
 
   render() {
-    const { readings } = this.props;    
-    const contentInset = { top: 5, bottom: 20, left: 20, right: 20 };
+    const { readings, options: { hasDots, overlays, dateOption } } = this.props;    
+    const contentInset: ContentInsetType = { top: 5, bottom: 20, left: 20, right: 20 };
     const yAxisWidth = 40;
 
     return (
@@ -86,9 +127,9 @@ class SimpleChart extends React.PureComponent<Props> {
             xScale={scale.scaleTime}
           >
             <Grid/>
-            <Decorator/>
-            <ShortGrid/>
-            <ShortGridLabels/>
+            {hasDots && <ChartDots/>}
+            <DateTicks dateOption={dateOption}/>
+            <DateLabels dateOption={dateOption}/>
           </LineChart>
         </View>
       </View>

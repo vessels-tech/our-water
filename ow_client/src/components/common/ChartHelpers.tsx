@@ -3,11 +3,22 @@ import * as React from 'react'
 import { AnyOrPendingReading } from "../../reducers";
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import * as moment from 'moment';
-import { primaryLight, primaryDark } from '../../utils/NewColors';
+import { primaryLight, primaryDark, surfaceText } from '../../utils/NewColors';
 import { arrayLowest } from '../../utils';
+//@ts-ignore
+import { LineChart, Grid, XAxis, YAxis } from 'react-native-svg-charts'
+import { ChartDateOption } from './SimpleChart';
 
 
-export const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[] }) => {
+
+export type ContentInsetType = {
+  top: number,
+  bottom: number,
+  left: number,
+  right: number,
+}
+
+export const ChartDots = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[] }) => {
   return data.map((value: AnyOrPendingReading, index: number) => (
     <Circle
       key={index}
@@ -20,7 +31,11 @@ export const Decorator = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRe
   );
 }
 
-export const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[] }) => {
+export const DateTicks = ({ dateOption, x, y, data }: { dateOption: ChartDateOption, x: any, y: any, data: AnyOrPendingReading[] }) => {
+  if (dateOption === ChartDateOption.NoDate) {
+    return null;
+  }
+
   const dates = data.map((item) => moment(item.date).toDate());
   const xAxisData = [dates[0], dates[dates.length - 1]];
   const minValue = arrayLowest(data, (r) => r.value);
@@ -41,7 +56,11 @@ export const ShortGrid = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingRe
   );
 }
 
-export const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPendingReading[] }) => {
+export const DateLabels = ({ dateOption,  x, y, data }: {dateOption: ChartDateOption, x: any, y: any, data: AnyOrPendingReading[] }) => {
+  if (dateOption === ChartDateOption.NoDate) {
+    return null;
+  }
+
   const dates = data.map((item) => moment(item.date).toDate());
   const xAxisData = [dates[0], dates[dates.length - 1]];
 
@@ -66,3 +85,20 @@ export const ShortGridLabels = ({ x, y, data }: { x: any, y: any, data: AnyOrPen
   }
   );
 }
+
+export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => (
+  <YAxis
+    style={{
+      width: width,
+    }}
+    data={data}
+    contentInset={contentInset}
+    svg={{
+      fill: surfaceText.high,
+      fontSize: 10,
+    }}
+    numberOfTicks={5}
+    formatLabel={(value: number) => `${value}m`}
+    yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
+  />
+);

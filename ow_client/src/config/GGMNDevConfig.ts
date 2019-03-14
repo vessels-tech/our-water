@@ -2,6 +2,7 @@ import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
 import { translationsForTranslationOrg, possibleTranslationsForOrg } from "ow_translations";
 import * as EnvConfig from '../utils/EnvConfig';
+import { TimeseriesRange } from "../typings/models/OurWater";
 const orgId = EnvConfig.OrgId;
 
 
@@ -44,6 +45,12 @@ const GGMNDevConfig: RemoteConfig = {
   shouldUseV1Search: true,
   resourceDetail_allowDownload: false,
   readingDownloadUrl: "",
+  resorceDetail_graphButtons: [
+    { text: '1Y', value: TimeseriesRange.ONE_YEAR },
+    { text: '3M', value: TimeseriesRange.THREE_MONTHS },
+    { text: '2W', value: TimeseriesRange.TWO_WEEKS },
+    { text: 'EXTENT', value: TimeseriesRange.EXTENT },
+  ],
 }
 
 export default GGMNDevConfig;
