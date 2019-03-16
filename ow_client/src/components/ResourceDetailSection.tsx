@@ -627,9 +627,10 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         >
           {this.getSummaryCard()}
         </TabView>
+          {/* //TD: proper configuration for hiding water quality tables */}
           {
             //Readings in Graph form
-            this.getGraphChildren()
+            (this.getResourceType() !== ResourceType.quality) && this.getGraphChildren()
           }
           {
             //Optional Table of Readings
