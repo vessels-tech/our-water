@@ -51,6 +51,7 @@ const GGMNDevConfig: RemoteConfig = {
     { text: '2W', value: TimeseriesRange.TWO_WEEKS },
     { text: 'EXTENT', value: TimeseriesRange.EXTENT },
   ],
+  resourceDetail_graphUsesStrictDate: false,
 }
 
 export default GGMNDevConfig;

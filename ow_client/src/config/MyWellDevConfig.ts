@@ -53,8 +53,9 @@ const MyWellDevConfig: RemoteConfig = {
   resorceDetail_graphButtons: [
     { text: '3Y', value: TimeseriesRange.THREE_YEARS },
     { text: '1Y', value: TimeseriesRange.ONE_YEAR },
-    { text: '2W', value: TimeseriesRange.THREE_MONTHS },
+    { text: '3M', value: TimeseriesRange.THREE_MONTHS },
   ],
+  resourceDetail_graphUsesStrictDate: true,
 }
 
 export default MyWellDevConfig;``

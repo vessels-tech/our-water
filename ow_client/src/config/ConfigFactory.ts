@@ -62,6 +62,7 @@ export type RemoteConfig = {
   resourceDetail_allowDownload: boolean,
   readingDownloadUrl: string
   resorceDetail_graphButtons: Array<{text: string, value: TimeseriesRange}>
+  resourceDetail_graphUsesStrictDate: boolean,
 }
 
 /**
@@ -349,6 +350,10 @@ export class ConfigFactory {
 
   getResourceDetailGraphButtons(): Array<{ text: string, value: TimeseriesRange }> {
     return this.remoteConfig.resorceDetail_graphButtons;
+  }
+
+  getResourceDetailGraphUsesStrictDate(): boolean {
+    return this.remoteConfig.resourceDetail_graphUsesStrictDate;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

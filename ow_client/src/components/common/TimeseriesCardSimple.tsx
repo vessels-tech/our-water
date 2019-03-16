@@ -32,6 +32,7 @@ import { surface, surfaceDark, surfaceText } from '../../utils/NewColors';
 import moment = require('moment');
 import { TranslationFile } from 'ow_translations';
 import { ResourceType } from '../../enums';
+import { calculateOneYearChunkedReadings } from './ChartHelpers';
 
 export enum TimeseriesCardType {
   default = 'graph',
@@ -72,19 +73,29 @@ export interface State {
 class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   state: State;
+  chunkedReadings: Array<Array<AnyOrPendingReading>> = [[]];
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
     /* Set the default buttons */
     const buttons = props.config.getResourceDetailGraphButtons();
-    const currentRange = buttons[0].value
+    const currentRange = buttons[buttons.length - 1].value;
     this.state = {
       currentRange,
     }
 
+    /* calcualte the chunked readings */
+    this.chunkedReadings = calculateOneYearChunkedReadings(filterAndSort(props.tsReadings, TimeseriesRange.THREE_YEARS));
+
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
+  }
+
+  componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps, nextContext: any) {
+    if (this.props.tsReadings.length !== nextProps.tsReadings.length) {
+      this.chunkedReadings = calculateOneYearChunkedReadings(filterAndSort(nextProps.tsReadings, TimeseriesRange.THREE_YEARS));
+    }
   }
 
   getNotEnoughReadingsDialog() {
@@ -115,16 +126,24 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
     if (filteredReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
     }
+
+    //TODO: Perform the reading chunking here!
+
+    const strictDateMode = this.props.config.getResourceDetailGraphUsesStrictDate();
     
     return (
       <View style={{
         flex: 5,
         justifyContent: 'center'
       }}>
+        {/* SpecificChart is a wrapper around SimpleChart that does some nice configration */}
         <SpecificChart
           readings={filteredReadings}
+          //An array of readings to be used for multi-range graphs
+          chunkedReadings={this.chunkedReadings}
           resourceType={this.props.resourceType}
           timeseriesRange={currentRange} 
+          strictDateMode={strictDateMode}
         />
       </View>
     );

@@ -64,6 +64,7 @@ export class FirebaseConfig {
           resourceDetail_allowDownload: obj.resourceDetail_allowDownload.val(),
           readingDownloadUrl: obj.readingDownloadUrl.val(),
           resorceDetail_graphButtons: JSON.parse(obj.resorceDetail_graphButtons.val()),
+          resourceDetail_graphUsesStrictDate: obj.resourceDetail_graphUsesStrictDate.val(),
         }
         return remoteConfig;
       });
