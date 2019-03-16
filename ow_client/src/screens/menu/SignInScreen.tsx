@@ -23,7 +23,7 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { SyncMeta, ActionMeta } from '../../typings/Reducer';
-import { TextInput, MobileInput } from '../../components/common/FormComponents';
+import { TextInput, MobileInput, TickHtmlInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations';
 import { phoneNumberValidator, unwrapUserId } from '../../utils';
@@ -135,10 +135,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       profileStatus,
     };
 
-
-    //TODO: update form to respect this value
     this.loginForm = FormBuilder.group({
       mobile: [mobile, Validators.required, phoneNumberValidator],
+      acceptsConditions: [false, Validators.requiredTrue ],
     });
 
     this.profileForm = FormBuilder.group({
@@ -292,6 +291,10 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       } },
     } = this.props;
 
+    //TODO: translate
+    const connect_to_must_accept_conditions = "You must accept the conditions to continue.";
+    const connect_to_service_conditions = "<p>I agree to and accept the </br><a href=''>MyWell Data conditions</a>.</p>";
+
     return (
       <View 
         key="loginForm"
@@ -320,6 +323,15 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                   secureTextEntry: false,
                   errorMessage: connect_to_service_username_invalid,
                   keyboardType: 'phone-pad',
+                }}
+              />
+              <FieldControl
+                name="acceptsConditions"
+                //@ts-ignore
+                render={TickHtmlInput}
+                meta={{
+                  errorMessage: connect_to_must_accept_conditions,
+                  label: connect_to_service_conditions,
                 }}
               />
               <Button

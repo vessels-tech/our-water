@@ -492,6 +492,34 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
     ]),
+    resourceDetail_graphButtons: buildParameter(
+        JSON.stringify([
+          { text: '3Y', value: 'THREE_YEARS' },
+          { text: '1Y', value: 'ONE_YEAR' },
+          { text: '3M', value: 'THREE_MONTHS' },
+        ]),
+        'the graph and table buttons',
+        conditionKeys, [
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '3Y', value: 'THREE_YEARS' },
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+          ]),
+        ]
+    ),
+    resourceDetail_graphUsesStrictDate: buildParameter(true, "Does the graph only display strict dates?", conditionKeys, [false, false, true]),
   };
 
   return Promise.resolve({

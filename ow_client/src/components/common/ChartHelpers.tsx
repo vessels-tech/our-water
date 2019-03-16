@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { AnyOrPendingReading } from "../../reducers";
-import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
+import Svg, { Circle, Line, Rect, Text, G } from 'react-native-svg'
 import * as moment from 'moment';
 import { primaryLight, primaryDark, surfaceText, secondaryDark, secondaryPallette } from '../../utils/NewColors';
 import { arrayLowest } from '../../utils';
@@ -118,6 +118,12 @@ export const getDatesForDataAndDistribution = (
   return finalDates;
 }
 
+export const getValuesForDataAndDistribution = (data: AnyOrPendingReading[], ticks: number): number[] => {
+
+  //TODO: implement
+  return [0, 5, 10, 15, 20, 25];
+}
+
 
 export const ChartDots = (props: { x: any, y: any, data: AnyOrPendingReading[] }) => {
   const { x, y, data } = props;
@@ -196,22 +202,74 @@ export const DateLabels = (props: GenericProps & DateLabelProps) => {
   );
 }
 
-export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => (
-  <YAxis
-    style={{
-      width: width,
-    }}
-    data={data}
-    contentInset={contentInset}
-    svg={{
-      fill: surfaceText.high,
-      fontSize: 10,
-    }}
-    numberOfTicks={5}
-    formatLabel={(value: number) => `${value}m`}
-    yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
-  />
-);
+/**
+ * Custom y axis labels object
+ */
+export const YAxisLabels = (props: GenericProps) => {
+  const { x, y, data } = props;
+  const yAxisData = getValuesForDataAndDistribution(data, 5);
+  const unit = 'm'
+
+  return (
+    <G>
+      {
+        yAxisData.map((value, idx) => {
+          let textAnchor: 'middle' | 'start' | 'end' = 'start';
+
+          console.log("yAxis mapping, ", value, y(value));
+
+          return (
+            <Text
+              fontSize="8"
+              key={`${value}${idx}`}
+              x={0}
+              y={y(value)}
+              textAnchor={textAnchor}>
+              {value} {unit}
+            </Text>
+          );
+        })
+      }
+    </G>
+  );
+
+  return yAxisData.map((value, idx) => {
+    let textAnchor: 'middle' | 'start' | 'end' = 'start';
+
+    return (
+      <Text 
+        fontSize="8"
+        key={`${value}${idx}`}
+        x={'0%'}
+        y={y(value)}
+        textAnchor={textAnchor}>
+        {value} {unit}
+      </Text>
+    );
+  });
+}
+
+export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => {
+  const testData = [0, 5, 10, 15, 20, 25];
+
+  return (
+    <YAxis
+      style={{
+        width: width,
+      }}
+      data={testData}
+      contentInset={contentInset}
+      svg={{
+        fill: surfaceText.high,
+        fontSize: 10,
+      }}
+      numberOfTicks={5}
+      formatLabel={(value: number) => `${value}`}
+      // yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value}
+      yAccessor={(val: number) => val}
+    />
+  )
+};
 
 
 export const LineChart = () => {

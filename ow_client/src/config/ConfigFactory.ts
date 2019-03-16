@@ -61,7 +61,7 @@ export type RemoteConfig = {
   shouldUseV1Search: boolean,
   resourceDetail_allowDownload: boolean,
   readingDownloadUrl: string
-  resorceDetail_graphButtons: Array<{text: string, value: TimeseriesRange}>
+  resourceDetail_graphButtons: Array<{text: string, value: TimeseriesRange}>
   resourceDetail_graphUsesStrictDate: boolean,
 }
 
@@ -349,7 +349,7 @@ export class ConfigFactory {
   }
 
   getResourceDetailGraphButtons(): Array<{ text: string, value: TimeseriesRange }> {
-    return this.remoteConfig.resorceDetail_graphButtons;
+    return this.remoteConfig.resourceDetail_graphButtons;
   }
 
   getResourceDetailGraphUsesStrictDate(): boolean {

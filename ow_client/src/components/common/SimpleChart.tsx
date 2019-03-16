@@ -14,7 +14,7 @@ import * as scale from 'd3-scale';
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
 import { arrayLowest } from '../../utils';
 import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
-import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution } from './ChartHelpers';
+import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels } from './ChartHelpers';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
 import { ResourceType } from '../../enums';
 import { secondaryDark, secondaryPallette, prettyColors } from '../../utils/NewColors';
@@ -149,10 +149,7 @@ class SimpleChart extends React.PureComponent<Props> {
             // data={overlays === ChartOverlayOption.None ? readings : chunkedReadings[0]}
             // data={chunkedReadings[0]}
             data={readings}
-            yAccessor={({ item }: { item: AnyOrPendingReading }) => {
-              console.log("y accessor, value is", item.value);
-              return Math.floor(item.value);
-            }}
+            yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value }
             xAccessor={({ item }: { item: AnyOrPendingReading }) => moment(item.date).toDate()}
             svg={{
               //Ref: https://github.com/react-native-community/react-native-svg#common-props
@@ -163,14 +160,15 @@ class SimpleChart extends React.PureComponent<Props> {
             }}
             contentInset={contentInset}
             xScale={scale.scaleTime}
-            yScale={scale.scaleLinear}
+            // yScale={scale.scaleLinear}
             // TODO: make configurable with "strict setting"
             xMin={dates[0]}
             xMax={dates[dates.length - 1]}
+            //Need these for custom horizonal grid to work
             yMin={0}
             yMax={30}
           >
-            <Grid/>
+            {/* <Grid/> */}
             {hasDots && <ChartDots/>}
             {!hasVerticalGrid && 
               <DateTicks 
@@ -185,13 +183,14 @@ class SimpleChart extends React.PureComponent<Props> {
                 timeseriesRange={timeseriesRange}
                 strictMode={strictDateMode}
               />}
+            <YAxisLabels />
             <DateLabels 
               dateOption={dateOption}
               timeseriesRange={timeseriesRange}
               strictMode={strictDateMode}
             />
           </LineChart>
-          {/* {
+          {
             //The other line charts:
             chunkedReadings.map((readings, idx) => {
               //Skip the first one, it was rendered above
@@ -220,7 +219,7 @@ class SimpleChart extends React.PureComponent<Props> {
                 />
               );
             })
-          } */}
+          }
         </View>
       </View>
     )

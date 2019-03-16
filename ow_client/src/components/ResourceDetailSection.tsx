@@ -79,8 +79,7 @@ export interface StateProps {
   newTsReadings: Array<AnyOrPendingReading>,
   newTsReadingsMeta: ActionMeta,
   timeseriesList: CacheType<Array<AnyOrPendingReading>>,
-  // shortId?: string,
-  // shortIdMeta: ActionMeta
+  isLoggedIn: boolean,
 }
 
 export interface ActionProps {
@@ -394,7 +393,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         <QRCode
           logo={qrLogo}
           logoSize={25}
-          size={SCREEN_WIDTH - 250}
+          size={175}
           value={JSON.stringify(data)}
         />
       </View>
@@ -438,8 +437,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getSummaryCard() {
-    const { resource_detail_edit_resource, resource_detail_latest, resource_detail_new_reading_button, resource_detail_edit_readings } = this.props.translation.templates;
-    const { resourceId, pendingResource, isPending, newTsReadings} = this.props;
+    const { resource_detail_edit_resource, resource_detail_new_reading_button, resource_detail_edit_readings } = this.props.translation.templates;
+    const { resourceId, pendingResource, isPending, isLoggedIn} = this.props;
 
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
@@ -467,7 +466,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             maxHeight: 40,
           }}>
             {!isPending && this.getFavouriteButton()}
-            {!isPending && allowDownload && this.getDownloadButton()}
+            {!isPending && allowDownload && isLoggedIn && this.getDownloadButton()}
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
@@ -798,6 +797,8 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps =>  {
     favourite,
     translation: state.translation,
     userId: state.user.type === UserType.NO_USER ? '' : state.user.userId,
+    //TD: This will break if we change login types
+    isLoggedIn: state.user.type === UserType.MOBILE_USER,
     resource,
     pendingResource,
     resourceMeta,
