@@ -63,7 +63,7 @@ export class FirebaseConfig {
           shouldUseV1Search: obj.shouldUseV1Search.val(),
           resourceDetail_allowDownload: obj.resourceDetail_allowDownload.val(),
           readingDownloadUrl: obj.readingDownloadUrl.val(),
-          resourceDetail_graphButtons: JSON.parse(obj.resorceDetail_graphButtons.val()),
+          resourceDetail_graphButtons: JSON.parse(obj.resourceDetail_graphButtons.val()),
           resourceDetail_graphUsesStrictDate: obj.resourceDetail_graphUsesStrictDate.val(),
         }
         return remoteConfig;

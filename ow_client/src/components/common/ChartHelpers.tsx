@@ -216,7 +216,7 @@ export const YAxisLabels = (props: GenericProps) => {
         yAxisData.map((value, idx) => {
           let textAnchor: 'middle' | 'start' | 'end' = 'start';
 
-          console.log("yAxis mapping, ", value, y(value));
+          // console.log("yAxis mapping, ", value, y(value));
 
           return (
             <Text

@@ -94,7 +94,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       parameter: Joi.string().required(),
       //This may change in the future if we allow users to create resources with readings already
       readings: Joi.array().empty().required(),
-      unitOfMeasure: Joi.string().allow('m', 'mm', 'ppm'),
+      unitOfMeasure: Joi.string().required(),
     })).required(),
     waterColumnHeight: Joi.number(),
     groups: Joi.object().required(),

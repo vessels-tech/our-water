@@ -1,6 +1,7 @@
 const request = require('request-promise-native');
 import { BaseApiType, ResourceType } from "ow_types";
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
+import { MyWellResourceTypes } from './mywellConfig';
 
 
 export const arg: any = (argList => {
@@ -360,17 +361,7 @@ export async function getNewConfig(): Promise<any> {
       ]
     ),
     editResource_defaultTypes: buildParameter(
-      {
-        well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-        raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-        quality: [
-          { name: 'salinity', parameter: 'salinity', readings: [] },
-          { name: 'ph', parameter: 'ph', readings: [] },
-          { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
-        ],
-        checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-      }
-      , 
+      MyWellResourceTypes,
       'The default resource timeseries types', 
       conditionKeys, 
       [
@@ -389,17 +380,7 @@ export async function getNewConfig(): Promise<any> {
           ]
         }, 
         //MyWell
-        {
-          //TODO: I'm not sure what the parameter should be - default?
-          well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-          raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-          quality: [
-            { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
-          ],
-          checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-        }
+        MyWellResourceTypes
       ]),
     editResource_allowCustomId: buildParameter(
       false, 

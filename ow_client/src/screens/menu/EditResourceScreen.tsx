@@ -413,9 +413,10 @@ class EditResourceScreen extends Component<Props> {
         createdByUserId: this.props.userId,
       },
       userId: this.props.userId,
-      //TODO: load from default configs for each org + resource type
       timeseries: this.props.config.getDefaultTimeseries(this.editResourceForm.value.asset),
     };
+
+
 
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;
