@@ -12,9 +12,9 @@ import { AnyOrPendingReading } from '../../reducers';
 //@ts-ignore
 import * as scale from 'd3-scale';
 import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
-import { arrayLowest } from '../../utils';
+import { arrayLowest, getMinAndMaxReadingDates } from '../../utils';
 import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
-import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels } from './ChartHelpers';
+import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid } from './ChartHelpers';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
 import { ResourceType } from '../../enums';
 import { secondaryDark, secondaryPallette, prettyColors } from '../../utils/NewColors';
@@ -117,13 +117,13 @@ const strokeForIndex = (idx: number): string => {
 class SimpleChart extends React.PureComponent<Props> {
 
 
-  
   render() {
     const { readings, chunkedReadings, timeseriesRange, options: { hasDots, overlays, dateOption, hasVerticalGrid, strictDateMode } } = this.props;    
     const contentInset: ContentInsetType = { top: 5, bottom: 20, left: 20, right: 20 };
     const yAxisWidth = 40;
 
     const dates = getDatesForDataAndDistribution(readings, dateOption, timeseriesRange, strictDateMode);
+    const { min, max } = getMinAndMaxValues(readings);
 
 
     return (
@@ -165,8 +165,8 @@ class SimpleChart extends React.PureComponent<Props> {
             xMin={dates[0]}
             xMax={dates[dates.length - 1]}
             //Need these for custom horizonal grid to work
-            yMin={0}
-            yMax={30}
+            yMin={min}
+            yMax={max}
           >
             {/* <Grid/> */}
             {hasDots && <ChartDots/>}
@@ -183,7 +183,10 @@ class SimpleChart extends React.PureComponent<Props> {
                 timeseriesRange={timeseriesRange}
                 strictMode={strictDateMode}
               />}
-            <YAxisLabels />
+            <YAxisLabels 
+              unitOfMeasure={'m'}
+            />
+            <HorizontalGrid />
             <DateLabels 
               dateOption={dateOption}
               timeseriesRange={timeseriesRange}

@@ -29,6 +29,10 @@ export interface GenericProps {
   strictMode: boolean,
 }
 
+export interface YAxisProps {
+  unitOfMeasure: string,
+}
+
 export interface DateTicksProps {
   dateOption: ChartDateOption, 
 }
@@ -65,6 +69,33 @@ export const calculateOneYearChunkedReadings = (readings: AnyOrPendingReading[])
   return chunks;
 }
 
+/**
+ * getMinAndMaxValues
+ * 
+ * Get the minimum and maximum values for the set of readings.
+ */
+export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: number, max: number} => {
+  let min = Number.MAX_SAFE_INTEGER;
+  let max = 0;
+
+  readings.forEach(r => {
+    // console.log("r.value is", r.value);
+    // console.log("min, max", min, max);
+    if (r.value > max) {
+      max = r.value;
+    }
+
+    if (r.value < min) {
+      min = r.value;
+    }
+  });
+
+
+  return { 
+    min, 
+    max
+  };
+}
 
 
 /**
@@ -119,9 +150,19 @@ export const getDatesForDataAndDistribution = (
 }
 
 export const getValuesForDataAndDistribution = (data: AnyOrPendingReading[], ticks: number): number[] => {
+  if (ticks === 0) {
+    throw new Error("ticks must be above 0");
+  }
+  const { min, max } = getMinAndMaxValues(data);
+  const diff = max - min;
+  const step = Math.floor(diff/ticks);
+  const values = [];
 
-  //TODO: implement
-  return [0, 5, 10, 15, 20, 25];
+  for (let i = min; i <= max; i+= step) {
+    values.push(i);
+  }
+
+  return values
 }
 
 
@@ -205,49 +246,60 @@ export const DateLabels = (props: GenericProps & DateLabelProps) => {
 /**
  * Custom y axis labels object
  */
-export const YAxisLabels = (props: GenericProps) => {
-  const { x, y, data } = props;
+export const YAxisLabels = (props: GenericProps & YAxisProps) => {
+  const { x, y, data, unitOfMeasure } = props;
   const yAxisData = getValuesForDataAndDistribution(data, 5);
-  const unit = 'm'
 
   return (
     <G>
       {
         yAxisData.map((value, idx) => {
           let textAnchor: 'middle' | 'start' | 'end' = 'start';
-
-          // console.log("yAxis mapping, ", value, y(value));
-
           return (
             <Text
               fontSize="8"
               key={`${value}${idx}`}
               x={0}
               y={y(value)}
-              textAnchor={textAnchor}>
-              {value} {unit}
+              textAnchor={'start'}>
+              {value} {unitOfMeasure}
             </Text>
           );
         })
       }
     </G>
   );
-
-  return yAxisData.map((value, idx) => {
-    let textAnchor: 'middle' | 'start' | 'end' = 'start';
-
-    return (
-      <Text 
-        fontSize="8"
-        key={`${value}${idx}`}
-        x={'0%'}
-        y={y(value)}
-        textAnchor={textAnchor}>
-        {value} {unit}
-      </Text>
-    );
-  });
 }
+
+/**
+ * Custom horizontal grid 
+ */
+export const HorizontalGrid = (props: GenericProps) => {
+  const { y, data } = props;
+  const yAxisData = getValuesForDataAndDistribution(data, 5);
+
+  return (
+    <G>
+      {
+        yAxisData.map((value, idx) => {
+          return (
+            <Line
+              key={`${value}${idx}`}
+              x1={'0%'}
+              x2={'94%'}
+              y1={y(value)}
+              y2={y(value)}
+              strokeWidth={1}
+              stroke={'rgba(0,0,0,0.2)'}
+            />
+          );
+        })
+      }
+    </G>
+  );
+}
+
+
 
 export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => {
   const testData = [0, 5, 10, 15, 20, 25];
@@ -272,6 +324,6 @@ export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingR
 };
 
 
-export const LineChart = () => {
+// export const LineChart = () => {
   
-}
+// }
