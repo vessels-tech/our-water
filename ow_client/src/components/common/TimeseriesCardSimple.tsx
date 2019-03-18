@@ -112,7 +112,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
 
   getGraphView() {
     const { currentRange } = this.state;
-    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { name }, resourceId } = this.props;
+    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure }} = this.props;
     if (cardType !== TimeseriesCardType.graph) {
       return null;
     }
@@ -142,6 +142,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
           timeseriesRange={currentRange} 
           strictDateMode={strictDateMode}
           translation={this.props.translation}
+          unitOfMeasure={unitOfMeasure}
         />
       </View>
     );

@@ -46,6 +46,7 @@ export interface SpecificChartProps {
   timeseriesRange: TimeseriesRange,
   strictDateMode: boolean,
   translation: TranslationFile,
+  unitOfMeasure: string,
 }
 
 //Given the input params, set up the chart options and return a configured chart
@@ -56,6 +57,7 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
     resourceType,
     timeseriesRange,
     translation,
+    unitOfMeasure,
   } = props;
 
   //For now, ignore the resourceType
@@ -102,6 +104,7 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
       timeseriesRange={timeseriesRange}
       options={options}
       translation={translation}
+      unitOfMeasure={unitOfMeasure}
     />
   );
 }
@@ -113,6 +116,7 @@ export type Props = {
   timeseriesRange: TimeseriesRange,
   options: ChartOptions,
   translation: TranslationFile,
+  unitOfMeasure: string,
 }
 
 
@@ -199,13 +203,13 @@ class SimpleChart extends React.PureComponent<Props> {
       readings, 
       chunkedReadings, 
       timeseriesRange, 
+      unitOfMeasure,
       options: { 
         hasDots, 
         overlays, 
         dateOption, 
         hasVerticalGrid, 
         strictDateMode,
-        shouldShowLegend,
       } 
     } = this.props;
 
@@ -265,7 +269,7 @@ class SimpleChart extends React.PureComponent<Props> {
                 strictMode={strictDateMode}
               />}
             <YAxisLabels 
-              unitOfMeasure={'m'}
+              unitOfMeasure={unitOfMeasure}
             />
             <HorizontalGrid />
             <DateLabels 
