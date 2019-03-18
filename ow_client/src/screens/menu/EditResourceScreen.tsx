@@ -258,7 +258,6 @@ class EditResourceScreen extends Component<Props> {
     }
 
     if (this.props.config.getEditResourceHasWaterColumnHeight()) {
-      //TODO: Not sure if this should be a required field
       formBuilderGroup['waterColumnHeight'] = [''];
     }
 
@@ -600,6 +599,18 @@ class EditResourceScreen extends Component<Props> {
     return groupList.map(g => this.getEditableGroupField(g));
   }
 
+  shouldShowWaterColumnHeight(assetType: ResourceType): boolean {
+    if (!this.props.config.getEditResourceHasWaterColumnHeight()) {
+      return false;
+    }
+
+    if (assetType === ResourceType.checkdam ||  assetType === ResourceType.well) {
+      return true;
+    }
+
+    return false;
+  }
+
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading },
@@ -712,7 +723,7 @@ class EditResourceScreen extends Component<Props> {
                 errorMessage: general_is_required_error,
               }}
             />
-              {this.props.config.getEditResourceHasWaterColumnHeight() ?
+              {this.shouldShowWaterColumnHeight(get('asset').value) ?
               <FieldControl
                 name="waterColumnHeight"
                 render={TextInput}
