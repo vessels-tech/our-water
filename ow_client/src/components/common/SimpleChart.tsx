@@ -4,20 +4,18 @@ import * as React from 'react'
 import { LineChart, Grid, XAxis, YAxis } from 'react-native-svg-charts'
 // import * as shape from 'd3-shape'
 import { TimeseriesRange } from '../../typings/models/OurWater';
-import { primary, primaryDark, secondary, primaryLight } from '../../utils/Colors';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, TextStyle } from 'react-native';
 import * as moment from 'moment'
 import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
 //@ts-ignore
 import * as scale from 'd3-scale';
-import Svg, { Circle, Line, Rect, Text } from 'react-native-svg'
-import { arrayLowest, getMinAndMaxReadingDates } from '../../utils';
-import { RemoteConfigDeveloperMode } from '../../utils/EnvConfig';
-import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid } from './ChartHelpers';
-import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid, strokeForIndex } from './ChartHelpers';
 import { ResourceType } from '../../enums';
-import { secondaryDark, secondaryPallette, prettyColors } from '../../utils/NewColors';
+import { Text } from 'react-native-elements';
+import { ConfigFactory } from '../../config/ConfigFactory';
+import { TranslationFile } from 'ow_translations';
+import HeadingSubtitleText from './HeadingSubtitleText';
 
 export enum ChartDateOption {
   NoDate = 'NoDate', //Doesn't display any dates
@@ -37,6 +35,8 @@ export type ChartOptions = {
   dateOption: ChartDateOption,
   hasVerticalGrid: boolean,
   strictDateMode: boolean,
+  shouldShowLegend: boolean,
+  shouldShowTotal: boolean, //currently used for 3-month groundwater only
 }
 
 export interface SpecificChartProps {
@@ -45,6 +45,7 @@ export interface SpecificChartProps {
   resourceType: ResourceType, 
   timeseriesRange: TimeseriesRange,
   strictDateMode: boolean,
+  translation: TranslationFile,
 }
 
 //Given the input params, set up the chart options and return a configured chart
@@ -54,8 +55,8 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
     chunkedReadings,
     resourceType,
     timeseriesRange,
+    translation,
   } = props;
-
 
   //For now, ignore the resourceType
 
@@ -65,15 +66,22 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
   let dateOption = ChartDateOption.Optimal;
   let overlays = ChartOverlayOption.None
   let hasVerticalGrid = true;
+  let shouldShowLegend = false;
+  let shouldShowTotal = false;
 
   if (timeseriesRange !== TimeseriesRange.THREE_MONTHS) {
     hasDots = false;
+  }
+
+  if (timeseriesRange === TimeseriesRange.THREE_MONTHS && resourceType === ResourceType.raingauge) {
+    shouldShowTotal = true;
   }
 
   if (timeseriesRange === TimeseriesRange.THREE_YEARS) {
     overlays = ChartOverlayOption.OneYear;
     dateOption = ChartDateOption.NoDate;
     hasVerticalGrid = false;
+    shouldShowLegend = true;
   }
 
   const options: ChartOptions = {
@@ -82,6 +90,8 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
     dateOption,
     hasVerticalGrid,
     strictDateMode: props.strictDateMode,
+    shouldShowLegend,
+    shouldShowTotal,
   };
 
   return (
@@ -91,6 +101,7 @@ export const SpecificChart = (props: SpecificChartProps): JSX.Element => {
       pendingReadings={[]}
       timeseriesRange={timeseriesRange}
       options={options}
+      translation={translation}
     />
   );
 }
@@ -101,30 +112,108 @@ export type Props = {
   pendingReadings: PendingReading[],
   timeseriesRange: TimeseriesRange,
   options: ChartOptions,
+  translation: TranslationFile,
 }
 
-
-const strokeForIndex = (idx: number): string => {
-  const colors = [
-    secondaryDark,
-    "#735D9B",
-    "#77B79F",
-  ];
-  const remainder = idx % colors.length;
-  return colors[remainder];
-}
 
 class SimpleChart extends React.PureComponent<Props> {
 
+  getTotalSummary() {
+    const { readings, options: { shouldShowTotal } } = this.props;
+    if (!shouldShowTotal) {
+      return null;
+    }
+
+    //TODO: Translate
+    const rainfall_total_heading = 'Rainfall in mm ';
+    const rainfall_total_subtitle = 'Last 3 months';
+    const rainfall_total_content_subtitle = 'total';
+    // const {
+    //   rainfall_total_heading,
+    //   rainfall_total_subtitle,
+    //   rainfall_total_content_subtitle,
+    // } = this.props.translation.templates;
+
+    const total = readings.reduce((acc, curr) => acc + curr.value, 0);
+
+    return (
+      <View style={{
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        height: '100%',
+        paddingHorizontal: 20,
+        paddingTop: 5,
+      }}>
+        <HeadingSubtitleText 
+          heading={rainfall_total_heading} 
+          subtitle={rainfall_total_subtitle}
+          content={`${total.toFixed(2)}`} 
+          content_subtitle={rainfall_total_content_subtitle}
+        />
+      </View>
+    );
+  }
+
+  getLegend() {
+    const { options: { shouldShowLegend } } = this.props;
+    if (!shouldShowLegend) {
+      return null;
+    }
+
+    //TODO: Translate
+    const legend_text_year_one = '1 Year Ago:';
+    const legend_text_year_two = '2 Years Ago:';
+    const legend_text_year_three = '3 Years Ago:';
+    // const {
+    //   legend_text_year_one
+    //   legend_text_year_two
+    //   legend_text_year_three
+    // } = this.props.translation.templates;
+    
+    const legendBoxDefaultStyle = { height: 20, width: 20 };
+    const textDefaultStyle: StyleProp<TextStyle> = { fontWeight: '500' };
+
+    return (
+      <View style={{
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        maxHeight: 30,
+        paddingHorizontal: 20,
+        paddingTop: 5,
+        paddingBottom: 5,
+      }}>
+        <Text style={{...textDefaultStyle}}>{legend_text_year_one}</Text>
+        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(0) }} />
+        <Text style={{ ...textDefaultStyle }}>{legend_text_year_two}</Text>
+        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(1) }} />
+        <Text style={{ ...textDefaultStyle }}>{legend_text_year_three}</Text>
+        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(2) }} />
+      </View>
+    )
+  }
 
   render() {
-    const { readings, chunkedReadings, timeseriesRange, options: { hasDots, overlays, dateOption, hasVerticalGrid, strictDateMode } } = this.props;    
+    const { 
+      readings, 
+      chunkedReadings, 
+      timeseriesRange, 
+      options: { 
+        hasDots, 
+        overlays, 
+        dateOption, 
+        hasVerticalGrid, 
+        strictDateMode,
+        shouldShowLegend,
+      } 
+    } = this.props;
+
+
     const contentInset: ContentInsetType = { top: 5, bottom: 20, left: 20, right: 20 };
     const yAxisWidth = 40;
-
     const dates = getDatesForDataAndDistribution(readings, dateOption, timeseriesRange, strictDateMode);
     const { min, max } = getMinAndMaxValues(readings);
-
 
     return (
       <View style={{
@@ -133,21 +222,17 @@ class SimpleChart extends React.PureComponent<Props> {
       }}>
         <View style={{
           flexDirection: 'row',
-          flex: 1,
+          flex: 5,
+          marginLeft: 15,
         }}>
           <SimpleYAxis
             data={readings}
             width={yAxisWidth}
             contentInset={contentInset}
           />
-          {/* Main Readings */}
+          {/* Main Readings - hidden when chunked readings are shown*/}
           <LineChart
-            style={{
-              flex: 1,
-              paddingHorizontal: 2,
-            }}
-            // data={overlays === ChartOverlayOption.None ? readings : chunkedReadings[0]}
-            // data={chunkedReadings[0]}
+            style={StyleSheet.absoluteFill}
             data={readings}
             yAccessor={({ item }: { item: AnyOrPendingReading }) => item.value }
             xAccessor={({ item }: { item: AnyOrPendingReading }) => moment(item.date).toDate()}
@@ -160,15 +245,11 @@ class SimpleChart extends React.PureComponent<Props> {
             }}
             contentInset={contentInset}
             xScale={scale.scaleTime}
-            // yScale={scale.scaleLinear}
-            // TODO: make configurable with "strict setting"
             xMin={dates[0]}
             xMax={dates[dates.length - 1]}
-            //Need these for custom horizonal grid to work
             yMin={min}
             yMax={max}
           >
-            {/* <Grid/> */}
             {hasDots && <ChartDots/>}
             {!hasVerticalGrid && 
               <DateTicks 
@@ -216,7 +297,6 @@ class SimpleChart extends React.PureComponent<Props> {
                   }}
                   contentInset={contentInset}
                   xScale={scale.scaleTime}
-                  // TODO: make configurable with "strict setting"
                   xMin={dates[0]}
                   xMax={dates[dates.length - 1]}
                 />
@@ -224,6 +304,8 @@ class SimpleChart extends React.PureComponent<Props> {
             })
           }
         </View>
+        {this.getTotalSummary()}
+        {this.getLegend()}
       </View>
     )
   }

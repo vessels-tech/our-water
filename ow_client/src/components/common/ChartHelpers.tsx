@@ -78,9 +78,23 @@ export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: numbe
   let min = Number.MAX_SAFE_INTEGER;
   let max = 0;
 
+  //If readings only has one reading, add some decent padding
+  if (readings.length === 0) {
+    return {
+      min: 0,
+      max: 100,
+    }
+  }
+
+  if (readings.length === 1) {
+    const r = readings[0];
+    return {
+      min: 0,
+      max: r.value + 15,
+    }
+  }
+
   readings.forEach(r => {
-    // console.log("r.value is", r.value);
-    // console.log("min, max", min, max);
     if (r.value > max) {
       max = r.value;
     }
@@ -185,8 +199,8 @@ export const DateTicks = (props: GenericProps & DateTicksProps) => {
   const { dateOption, x, y, data } = props;
 
   let height = 5;
-  const minValue = arrayLowest(data, (r) => r.value);
-  let cy = y(minValue.value);
+  const { min } = getMinAndMaxValues(data);
+  let cy = y(min);
 
   const xAxisData = getDatesForDataAndDistribution(data, dateOption, props.timeseriesRange, props.strictMode);
   return xAxisData.map((value: Date, index: number) => (
@@ -206,11 +220,13 @@ export const DateTicks = (props: GenericProps & DateTicksProps) => {
 export const VerticalGrid = (props: GenericProps & VerticalGridProps) => {
   const { dateOption, x, y, data } = props;
   const xAxisData = getDatesForDataAndDistribution(data, dateOption, props.timeseriesRange, props.strictMode);
+  const { min, max } = getMinAndMaxValues(data);
+
   return xAxisData.map((value: Date, index: number) => (
     <Line
       key={`${value}${index}`}
-      y1={'0%'}
-      y2={'94%'}
+      y1={y(max)}
+      y2={y(min)}
       x1={x(moment(value).toDate())}
       x2={x(moment(value).toDate())}
       strokeWidth={1}
@@ -222,8 +238,8 @@ export const VerticalGrid = (props: GenericProps & VerticalGridProps) => {
 export const DateLabels = (props: GenericProps & DateLabelProps) => {
   const { dateOption, x, y, data } = props;
   const xAxisData = getDatesForDataAndDistribution(data, dateOption, props.timeseriesRange, props.strictMode);
-  const minValue = arrayLowest(data, (r) => r.value);
-  const cy = y(minValue.value) + 15
+  const { min } = getMinAndMaxValues(data);
+  let cy = y(min) + 15;
 
   return xAxisData.map((value: Date, index: number) => {
     const cx = x(moment(value).toDate());
@@ -285,8 +301,8 @@ export const HorizontalGrid = (props: GenericProps) => {
           return (
             <Line
               key={`${value}${idx}`}
-              x1={'0%'}
-              x2={'94%'}
+              x1={'5%'}
+              x2={'95%'}
               y1={y(value)}
               y2={y(value)}
               strokeWidth={1}
@@ -298,7 +314,6 @@ export const HorizontalGrid = (props: GenericProps) => {
     </G>
   );
 }
-
 
 
 export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => {
@@ -323,7 +338,12 @@ export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingR
   )
 };
 
-
-// export const LineChart = () => {
-  
-// }
+export const strokeForIndex = (idx: number): string => {
+  const colors = [
+    secondaryDark,
+    "#735D9B",
+    "#77B79F",
+  ];
+  const remainder = idx % colors.length;
+  return colors[remainder];
+}

@@ -116,6 +116,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
     if (cardType !== TimeseriesCardType.graph) {
       return null;
     }
+    const strictDateMode = this.props.config.getResourceDetailGraphUsesStrictDate();
 
     if (newTsReadingsMeta.loading) {
       return <Loading/>
@@ -127,10 +128,6 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
       return this.getNotEnoughReadingsDialog();
     }
 
-    //TODO: Perform the reading chunking here!
-
-    const strictDateMode = this.props.config.getResourceDetailGraphUsesStrictDate();
-    
     return (
       <View style={{
         flex: 5,
@@ -144,6 +141,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
           resourceType={this.props.resourceType}
           timeseriesRange={currentRange} 
           strictDateMode={strictDateMode}
+          translation={this.props.translation}
         />
       </View>
     );
