@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import BaseApi from '../../api/BaseApi';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { connect } from 'react-redux'
 import { AppState } from '../../reducers';
 import { UserType } from '../../typings/UserTypes';
 import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
 import HTMLView from 'react-native-htmlview';
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export interface OwnProps {
@@ -28,8 +29,11 @@ export interface ActionProps {
 const styles = StyleSheet.create({
   a: {
     fontWeight: '300',
-    color: '#FF3366', // make links coloured pink
+    // color: '#FF3366', // make links coloured pink
   },
+  // img: {
+  //   width: `${SCREEN_WIDTH}px`,
+  // }
 });
 
 class AboutScreen extends React.PureComponent<OwnProps & StateProps & ActionProps> {
@@ -50,7 +54,7 @@ class AboutScreen extends React.PureComponent<OwnProps & StateProps & ActionProp
             paddingTop: 20,
           }}
         >
-        <HTMLView value={about_html} />
+          <HTMLView value={about_html} />
         </View>
       </ScrollView>
     );
