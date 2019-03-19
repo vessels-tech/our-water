@@ -1,7 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import { randomPrettyColorForId, formatShortId } from '../../utils';
-import { View, Dimensions } from 'react-native';
-import { Button, Badge } from 'react-native-elements';
+import { View, TouchableNativeFeedback } from 'react-native';
+import { Button, Badge, Text } from 'react-native-elements';
 import { secondaryText } from '../../utils/Colors';
 import { ActionMeta } from '../../typings/Reducer';
 import { connect } from 'react-redux'
@@ -12,12 +12,13 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
-import { primaryText } from '../../assets/ggmn/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { isNullOrUndefined } from 'util';
+import * as Animatable from 'react-native-animatable';
 
 import withPreventDoubleClick from './withPreventDoubleClick';
-const ButtonEx = withPreventDoubleClick(Button);
+import { surfaceText } from '../../utils/NewColors';
+const TouchableNativeFeedbackEx = withPreventDoubleClick(TouchableNativeFeedback);
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -72,6 +73,42 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     return titleResult.result;
   }
 
+  getTitleOrAnimation() {
+    if (!this.props.config.getUsesShortId() || (this.props.shortIdMeta && !this.props.shortIdMeta.loading)) {
+      return (
+        <Text
+          style={{
+            fontSize: 17,
+            fontWeight: 'bold',
+            color: surfaceText.high
+          }}
+        >
+          {this.getTitle()}
+        </Text>
+      );
+    }
+
+    return (
+      <Animatable.View 
+        animation="flash" 
+        iterationCount="infinite" 
+        easing='linear' 
+        direction="reverse"
+        duration={2500}
+      >
+        <View style={{
+          backgroundColor: 'black',
+          opacity: 0.5,
+          marginVertical: 5,
+          marginHorizontal: 12,
+          width: 60,
+          height: 20,
+        }}
+        />
+      </Animatable.View>
+    )
+  }
+
   render() {
     const { resource, isNew } = this.props;
 
@@ -80,7 +117,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     return (
       <View style={{
         marginVertical: 10,
-        // margin: 0,
+        marginHorizontal: 10,
         ...this.props.style,
       }}
         key={resource.id}
@@ -91,23 +128,22 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
             zIndex: 1,
           }}
         >
-          <ButtonEx
-            borderRadius={5}
-            raised={true}
-            key={resource.id}
-            title={this.getTitle()}
-            color={secondaryText}
-            buttonStyle={{
-              backgroundColor,
-            }}
-            textStyle={{
-              color: secondaryText,
-              fontWeight: '600'
-            }}
+          <TouchableNativeFeedbackEx
             onPress={() => this.props.onResourceCellPressed(this.props.resource)}
-            underlayColor="transparent"
-          />
-        
+          >
+            <View
+              style={{
+                borderRadius: 5,
+                height: 50,
+                width: 88,
+                backgroundColor,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+            {this.getTitleOrAnimation()}
+          </View>
+          </TouchableNativeFeedbackEx>
         </View>
         {
           isNew &&

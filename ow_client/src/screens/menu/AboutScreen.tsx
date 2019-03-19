@@ -31,9 +31,6 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     // color: '#FF3366', // make links coloured pink
   },
-  // img: {
-  //   width: `${SCREEN_WIDTH}px`,
-  // }
 });
 
 class AboutScreen extends React.PureComponent<OwnProps & StateProps & ActionProps> {
