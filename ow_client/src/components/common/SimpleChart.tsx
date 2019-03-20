@@ -10,12 +10,13 @@ import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
 //@ts-ignore
 import * as scale from 'd3-scale';
-import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid, strokeForIndex } from './ChartHelpers';
+import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid, strokeForIndex, strokeOpacityForIndex } from './ChartHelpers';
 import { ResourceType } from '../../enums';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { TranslationFile } from 'ow_translations';
 import HeadingSubtitleText from './HeadingSubtitleText';
+import LegendEntry from './LegendEntry';
 
 export enum ChartDateOption {
   NoDate = 'NoDate', //Doesn't display any dates
@@ -159,6 +160,7 @@ class SimpleChart extends React.PureComponent<Props> {
     );
   }
 
+
   getLegend() {
     const { options: { shouldShowLegend } } = this.props;
     if (!shouldShowLegend) {
@@ -188,12 +190,21 @@ class SimpleChart extends React.PureComponent<Props> {
         paddingTop: 5,
         paddingBottom: 5,
       }}>
-        <Text style={{...textDefaultStyle}}>{legend_text_year_one}</Text>
-        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(0) }} />
-        <Text style={{ ...textDefaultStyle }}>{legend_text_year_two}</Text>
-        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(1) }} />
-        <Text style={{ ...textDefaultStyle }}>{legend_text_year_three}</Text>
-        <View style={{ ...legendBoxDefaultStyle, backgroundColor: strokeForIndex(2) }} />
+        <LegendEntry
+          title={legend_text_year_one}
+          color={strokeForIndex(0)}
+          opacity={strokeOpacityForIndex(0, 3)}
+        />
+        <LegendEntry
+          title={legend_text_year_two}
+          color={strokeForIndex(1)}
+          opacity={strokeOpacityForIndex(1, 3)}
+        />
+        <LegendEntry
+          title={legend_text_year_three}
+          color={strokeForIndex(2)}
+          opacity={strokeOpacityForIndex(2, 3)}
+        />
       </View>
     )
   }
@@ -301,7 +312,7 @@ class SimpleChart extends React.PureComponent<Props> {
                   svg={{
                     //Ref: https://github.com/react-native-community/react-native-svg#common-props
                     stroke: strokeForIndex(idx),
-                    strokeOpacity: 1,
+                    strokeOpacity: strokeOpacityForIndex(idx, chunkedReadings.length),
                     strokeWidth: 3
                   }}
                   contentInset={contentInset}

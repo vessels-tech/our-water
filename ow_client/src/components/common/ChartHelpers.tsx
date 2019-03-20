@@ -347,3 +347,17 @@ export const strokeForIndex = (idx: number): string => {
   const remainder = idx % colors.length;
   return colors[remainder];
 }
+
+export const strokeOpacityForIndex = (idx: number, total: number): number => {
+  if (total === 0) {
+    total = 1;
+  }
+
+  const max = 1;
+  const min = 0;
+  const diff = (max - min)/total;
+
+  const opacity = max - (idx * diff);
+  console.log("opacity is:", opacity);
+  return opacity;
+}
