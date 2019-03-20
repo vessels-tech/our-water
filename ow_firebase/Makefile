@@ -115,5 +115,9 @@ deploy:
 	@echo 'Deploying Firebase'
 	@./_deploy_fb.sh
 
+deploy-public:
+	@echo 'Deploying Hosting only'
+	@firebase deploy --only hosting
+
 
 deploy-with-tests: test-unit test-service deploy
