@@ -17,13 +17,11 @@ function errorHandler(error: Error, isFatal: boolean) {
   console.log('Caught Exception', error);
 
   if (error instanceof Error) {
-    console.log("is error");
     crashlytics.log(`${error.stack}`);
     crashlytics.log(`${error.message}`);
     crashlytics.setStringValue('stack', `${error.stack}`)
     crashlytics.recordError(0, `RN Fatal: ${error.message}`)
   } else {
-    console.log("is unknown error");
     crashlytics.recordError(0, `RN Fatal: ${error}`)
     crashlytics.log(`${error}`);
   }

@@ -358,6 +358,5 @@ export const strokeOpacityForIndex = (idx: number, total: number): number => {
   const diff = (max - min)/total;
 
   const opacity = max - (idx * diff);
-  console.log("opacity is:", opacity);
   return opacity;
 }
