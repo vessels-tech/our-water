@@ -213,11 +213,16 @@ class SimpleChart extends React.PureComponent<Props> {
       } 
     } = this.props;
 
-
     const contentInset: ContentInsetType = { top: 5, bottom: 20, left: 20, right: 20 };
     const yAxisWidth = 40;
     const dates = getDatesForDataAndDistribution(readings, dateOption, timeseriesRange, strictDateMode);
     const { min, max } = getMinAndMaxValues(readings);
+
+    console.log("min and max are", min, max);
+    console.log("min and max dates are", dates[0], dates[dates.length - 1]);
+    console.log("Readings.length is", readings.length);
+    console.log("chunked readings are", chunkedReadings.reduce((a, c) => a + ',' + c.length, ''));
+
 
     return (
       <View style={{

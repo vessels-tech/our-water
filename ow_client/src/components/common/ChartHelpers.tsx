@@ -169,13 +169,13 @@ export const getValuesForDataAndDistribution = (data: AnyOrPendingReading[], tic
   }
   const { min, max } = getMinAndMaxValues(data);
   const diff = max - min;
-  const step = Math.floor(diff/ticks);
+  const step = Math.ceil(diff/ticks);
   const values = [];
 
   for (let i = min; i <= max; i+= step) {
     values.push(i);
   }
-
+  
   return values
 }
 
@@ -316,16 +316,15 @@ export const HorizontalGrid = (props: GenericProps) => {
   );
 }
 
-
 export const SimpleYAxis = ({ data, width, contentInset }: { data: AnyOrPendingReading[], width: number, contentInset: ContentInsetType }) => {
-  const testData = [0, 5, 10, 15, 20, 25];
+  // const testData = [0, 5, 10, 15, 20, 25];
 
   return (
     <YAxis
       style={{
         width: width,
       }}
-      data={testData}
+      data={data}
       contentInset={contentInset}
       svg={{
         fill: surfaceText.high,
