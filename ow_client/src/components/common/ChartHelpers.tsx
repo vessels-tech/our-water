@@ -270,13 +270,14 @@ export const YAxisLabels = (props: GenericProps & YAxisProps) => {
     <G>
       {
         yAxisData.map((value, idx) => {
-          let textAnchor: 'middle' | 'start' | 'end' = 'start';
+          const yVal = y(value) + 2
+
           return (
             <Text
               fontSize="8"
-              key={`${value}${idx}`}
+              key={`${value}${idx}${yVal}`}
               x={0}
-              y={y(value)}
+              y={yVal}
               textAnchor={'start'}>
               {value} {unitOfMeasure}
             </Text>
