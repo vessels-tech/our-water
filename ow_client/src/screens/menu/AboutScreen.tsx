@@ -71,8 +71,6 @@ class AboutScreen extends React.PureComponent<OwnProps & StateProps & ActionProp
             return response.text();
           })
           .then((html: string) => {
-
-            console.log("got text", html)
             this.setState({
               loading: false,
               html,
