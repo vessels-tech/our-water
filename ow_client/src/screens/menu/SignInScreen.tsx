@@ -293,7 +293,7 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
 
     //TODO: translate
     const connect_to_must_accept_conditions = "You must accept the conditions to continue.";
-    const connect_to_service_conditions = "<p>I agree to and accept the </br><a href=''>MyWell Data conditions</a>.</p>";
+    const connect_to_service_conditions = "<p>I agree to and accept the </br><a href='https://our-water-dev.firebaseapp.com/about_mywell_en.html'>MyWell Data conditions</a>.</p>";
 
     return (
       <View 

@@ -116,15 +116,18 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <View style={{
-        marginVertical: 10,
-        marginHorizontal: 10,
-        ...this.props.style,
+        // marginVertical: 10,
+        // marginHorizontal: 10,
+        // shadowOffset: { width: 10, height: 10, },
+        // shadowColor: 'red',
+        // shadowOpacity: 1.0,
+        // ...this.props.style,
+        
       }}
         key={resource.id}
       >
         <View
           style={{
-            height: 50,
             zIndex: 1,
           }}
         >
@@ -134,11 +137,14 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
             <View
               style={{
                 borderRadius: 5,
+                padding: 10,
+                margin: 10,
                 height: 50,
                 width: 88,
                 backgroundColor,
                 alignItems: 'center',
                 justifyContent: 'center',
+                elevation: 3,
               }}
             >
             {this.getTitleOrAnimation()}
@@ -148,7 +154,8 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
         {
           isNew &&
           <Badge
-            containerStyle={{ marginBottom: 20, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 20, right: 0 }}
+            containerStyle={{ marginBottom: 25, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 25, right: 0 }}
+            //TODO: translate
             value={"New!"}
             textStyle={{ fontSize: 8, fontWeight: '300' }}
           />
