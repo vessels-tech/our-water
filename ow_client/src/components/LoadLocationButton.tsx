@@ -2,6 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import {
   ActivityIndicator,
   View,
+  ToastAndroid,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -39,16 +40,20 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
   }
 
   async updateGeoLocation() {
     const result = await this.props.getGeoLocation();
+    
+    //TODO: translate
+    const load_location_error_message = `Couldn't get your location. Please enable location services and try again`;
 
-    //TODO: this is less than ideal
-    if (result.type === ResultType.SUCCESS) {
-      this.props.onComplete && this.props.onComplete(result.result);
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show(load_location_error_message, ToastAndroid.LONG);
+      return;
     }
+    
+    this.props.onComplete && this.props.onComplete(result.result);
   }
 
   render() {
