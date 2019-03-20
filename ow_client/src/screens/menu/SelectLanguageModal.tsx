@@ -12,6 +12,7 @@ import { View, Picker, ToastAndroid } from 'react-native';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { bgLight } from '../../utils/Colors';
+import { crashlyticsLog } from '../../utils';
 
 
 export interface OwnProps {
@@ -86,6 +87,8 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
           mode={'dropdown'}
           onValueChange={async (translation: TranslationEnum) => {
             await this.props.changeTranslation(this.userApi, this.props.userId, translation);
+            crashlyticsLog(`Changed Language to: ${this.getTranslationLabel(translation)}`);
+            //TODO: translate
             ToastAndroid.show(`Changed Language to: ${this.getTranslationLabel(translation)}`, ToastAndroid.SHORT);
             this.props.navigator.dismissLightBox();
           }}

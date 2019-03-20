@@ -23,6 +23,8 @@ import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, se
 import * as QRCode from 'qrcode';
 import { OrgType } from '../typings/models/OrgType';
 import { ConfigFactory } from '../config/ConfigFactory';
+import firebase from 'react-native-firebase'
+
 
 
 
@@ -1001,4 +1003,9 @@ export function getUnitSuffixForPendingResource(r: PendingReading, config: Confi
   }
 
   return defaultTimeseries.unitOfMeasure;
+}
+
+
+export function crashlyticsLog(message: string) {
+  firebase.crashlytics().log(message);
 }

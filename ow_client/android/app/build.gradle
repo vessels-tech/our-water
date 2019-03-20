@@ -146,6 +146,8 @@ dependencies {
     }
 
     implementation project(':react-native-camera')
+
+    implementation project(':react-native-exception-handler')
     //     exclude group: "com.android.support"
     // }
     // implementation "com.android.support:exifinterface:+"

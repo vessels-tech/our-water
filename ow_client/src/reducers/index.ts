@@ -7,7 +7,7 @@ import { MaybeUser, UserType, MobileUser, UserStatus } from "../typings/UserType
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { getTimeseriesReadingKey, maybeLog, dedupArray, arrayExpire, arrayExpireRegionAware, dedupArrayPreserveOrder } from "../utils";
+import { getTimeseriesReadingKey, maybeLog, dedupArray, arrayExpire, arrayExpireRegionAware, dedupArrayPreserveOrder, crashlyticsLog } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
@@ -453,6 +453,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userStatus = action.result.result.status;
         userType = action.result.result.type;
         newResources = action.result.result.newResources;
+
+        crashlyticsLog(`redux GET_USER_RESPONSE, language is: ${language}`);
       }
       
       //TODO: error handling?
@@ -493,6 +495,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
         return Object.assign({}, state, { userIdMeta });
       }
+
+      crashlyticsLog(`redux LOGIN_CALLBACK, userId is: ${result.result.userId}`);
 
       return Object.assign({}, state, {
         user: result.result,

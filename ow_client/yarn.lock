@@ -7010,6 +7010,10 @@ react-native-eventemitter@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/react-native-eventemitter/-/react-native-eventemitter-0.0.1.tgz#c9250a1ae2c61a44fe731ffe1463f506294b80be"
 
+react-native-exception-handler@^2.10.7:
+  version "2.10.7"
+  resolved "https://registry.yarnpkg.com/react-native-exception-handler/-/react-native-exception-handler-2.10.7.tgz#3ce2f10d6a8add35fdc036af62c2859c4b7f505c"
+
 react-native-fetch-polyfill@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/react-native-fetch-polyfill/-/react-native-fetch-polyfill-1.1.2.tgz#256b5a0abd78cc4992f7a7cf82543da2f2124a73"

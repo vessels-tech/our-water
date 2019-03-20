@@ -17,6 +17,10 @@ import { NoLocation, Location, LocationType } from '../typings/Location';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { SyncMeta } from '../typings/Reducer';
 
+import firebase from 'react-native-firebase'
+const crashlytics = firebase.crashlytics()
+
+
 export interface OwnProps {
   style?: any,
   onComplete?: (thing: any) => void,
@@ -50,6 +54,9 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(load_location_error_message, ToastAndroid.LONG);
+      
+      crashlytics.crash();
+    
       return;
     }
     

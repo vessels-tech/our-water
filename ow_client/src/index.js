@@ -22,7 +22,8 @@ import { primaryText } from './utils/NewColors';
 
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
-require('core-js/es6/array')
+require('core-js/es6/array');
+
 
 let config: ConfigFactory;
 const orgId = EnvironmentConfig.OrgId;
