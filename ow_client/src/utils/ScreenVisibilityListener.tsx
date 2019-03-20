@@ -9,7 +9,6 @@ export class ScreenVisibilityListener {
   constructor() {
     this.listener = new RNNScreenVisibilityListener({
       didAppear: ({screen, startTime, endTime, commandType}: any) => {
-        // console.log('screenVisibility', `Screen ${screen} displayed in ${endTime - startTime} millis after [${commandType}]`);
         crashlyticsLog(`screenVisibility: Screen ${screen} displayed in ${endTime - startTime} millis after [${commandType}]`);
       }
     });

@@ -26,8 +26,6 @@ import { ConfigFactory } from '../config/ConfigFactory';
 import firebase from 'react-native-firebase'
 
 
-
-
 /**
  * Convert a region to a bounding box
  * 

@@ -20,7 +20,6 @@ import HomeSimpleScreen from './screens/HomeSimpleScreen';
 
 //Logging and crash helpers
 import './utils/Crashlytics';
-import './utils/ScreenVisibilityListener';
 import { ScreenVisibilityListener } from './utils/ScreenVisibilityListener';
 
 export interface OwnProps {
