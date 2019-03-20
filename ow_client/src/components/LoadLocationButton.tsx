@@ -51,12 +51,8 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
     
     //TODO: translate
     const load_location_error_message = `Couldn't get your location. Please enable location services and try again`;
-
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(load_location_error_message, ToastAndroid.LONG);
-      
-      crashlytics.crash();
-    
       return;
     }
     
