@@ -14,8 +14,7 @@ import ExtendedResourceApi, { MaybeExtendedResourceApi, ExtendedResourceApiType 
 import InternalAccountApi, { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
 import { Moment } from "moment";
-import moment = require("moment");
-
+const moment = require('moment');
 
 /**
  * Things that are configureable remotely
