@@ -102,7 +102,7 @@ def enableProguardInReleaseBuilds = false
 def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     //TODO: remove this - just trying to get firebase to work
     lintOptions {
@@ -118,7 +118,7 @@ android {
         versionName System.getenv('versionName')
         versionCode appVersionCode
         minSdkVersion 16
-        targetSdkVersion 26 // This needs to be 26... but breaks a whole bunch of other stuff
+        targetSdkVersion 28
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -184,8 +184,8 @@ dependencies {
 
     //not sure which we want?
     // implementation "com.android.support:appcompat-v7:23.0.1"
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
     

@@ -21,10 +21,10 @@
     <!-- TODO:  debuggable: true-->
     <application
       android:name=".MainApplication"
-      android:label="@string/APP_NAME"
       android:icon="@mipmap/ic_launcher"
-      android:allowBackup="true"
       android:theme="@style/AppTheme"
+      android:allowBackup="true"
+      android:label="@string/APP_NAME"
       tools:replace="android:allowBackup,android:label"
     >
      <!-- Metadata, injected by react-native-config! -->

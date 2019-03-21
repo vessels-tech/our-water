@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GGMN</string>
+    <string name="APP_COMPONENT_FACTORY">unknown</string>
 </resources>
