@@ -72,18 +72,21 @@ class ConnectToServiceScreen extends Component<OwnProps & StateProps & ActionPro
     this.appApi = this.props.config.getAppApi();
     this.externalApi = this.props.config.getExternalServiceApi();
     
-    let username = '';
+    // let username = '';
+    let username = 'lewis_daly';
     if (this.props.externalLoginDetails.type === LoginDetailsType.FULL) {
       username = this.props.externalLoginDetails.username;
     }
+
+    console.log("Setting default password to Pássword2@");
     this.state = {
       username,
-      password: '',
+      password: 'Pássword2@',
     };
     
     this.loginForm = FormBuilder.group({
       username: [username, Validators.required],
-      password: ["", Validators.required],
+      password: ["Pássword2@", Validators.required],
     });
   }
 

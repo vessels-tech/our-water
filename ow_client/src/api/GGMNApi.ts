@@ -121,13 +121,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       resolvedExternalOrg = externalOrg;
     }
 
+    console.log("Username is", username);
+    console.log("password is", password);
+
     const options = {
       timeout,
       method: 'GET',
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        username,
-        password,
+        username: username,
+        password: password,
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
@@ -374,8 +378,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     }
 
     const headers: OptionalAuthHeaders = {
-      username: credentialsResult.result.user.username,
-      password: credentialsResult.result.password,
+      username: encodeURIComponent(credentialsResult.result.user.username),
+      password: encodeURIComponent(credentialsResult.result.password),
     } 
 
     return {
