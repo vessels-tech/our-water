@@ -49,7 +49,7 @@ switch-mywell-dev:
 server: 
 	@make env
 	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot ./src
-	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot /Users/ldaly/developer/vessels/our-water/ow_client/src
+	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot /Users/ldaly/developer/vessels/our-water/ow_client/src -- -- reset-cache
 
 #
 # runs on an android device.

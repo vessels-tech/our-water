@@ -1,5 +1,5 @@
 
-import * as Joi from 'react-native-joi';
+const Joi = require('react-native-joi');
 import { Reading, ResourceScanResult } from '../typings/models/OurWater';
 import { SomeResult, ResultType, ErrorResult, SuccessResult, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
@@ -14,7 +14,7 @@ import { PendingReading } from '../typings/models/PendingReading';
 import { join } from 'path';
 
 
-const PendingReadingSchema = {
+const PendingReadingSchema = () => ({
   id: Joi.string(), //Id will probably be undefined
   pending: Joi.boolean().required(),
   resourceId: Joi.string().required(),
@@ -43,7 +43,7 @@ const PendingReadingSchema = {
     })
   ]).required(),
   groundwaterStationId: Joi.any(),
-}
+})
 
 
 export function validateReading(orgType: OrgType, reading: any): SomeResult<PendingReading> {

@@ -60,6 +60,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   
   render() {
     //TODO: check the settings
+    console.log("render App.tsx.");
 
     switch(this.props.config.getHomeScreenType()) {
       case (HomeScreenType.Map): {

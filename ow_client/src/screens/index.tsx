@@ -201,7 +201,7 @@ export async function registerScreens(config: ConfigFactory) {
     store.dispatch(appActions.getExternalLoginDetails(config.externalServiceApi));
   }
 
-  console.log("GGMN Registering screens")
+  console.log("Registering screens")
   Navigation.registerComponent('screen.App', () => App, store, Provider);
   Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
   Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);

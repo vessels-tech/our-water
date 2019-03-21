@@ -93,6 +93,8 @@ Promise.resolve(true)
     }
   };
 
+  console.log("Starting app?");
+
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
       Navigation.startSingleScreenApp({
@@ -100,9 +102,9 @@ Promise.resolve(true)
           screen: 'screen.App',
           title: config.getApplicationName(),
           navigatorStyle: defaultNavigatorStyle,
-          navigatorButtons,
+          // navigatorButtons,
         },
-        drawer,
+        // drawer,
         animationType: 'fade',
         passProps: { config },
       });
