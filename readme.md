@@ -82,7 +82,7 @@ Broadly, Unit tests will test one specific function and mock out any dependencie
 - fork react-native-camera and remove lodash, which is only used once, or at least make it a peer dependency
 
 
-## URLS
-https://us-central1-our-water.cloudfunctions.net/{api}/{orgId}/{method}
-http://localhost:5000/our-water/us-central1/{api}/{orgId}/{method}
-https://ourwater.localtunnel.me/our-water/us-central1/{api}/{orgId}/{method}
+## OurWater Firebase Endpoints
+- https://us-central1-our-water.cloudfunctions.net/{api}/{orgId}/{method}  
+- http://localhost:5000/our-water/us-central1/{api}/{orgId}/{method}  
+- https://ourwater.localtunnel.me/our-water/us-central1/{api}/{orgId}/{method}  
