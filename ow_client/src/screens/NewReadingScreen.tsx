@@ -452,35 +452,39 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           fieldType={InputType.fieldInput}
           value={measurementString}
         />
-        <View style={{
-          flexDirection: "row",
-          borderBottomColor: primaryText,
-          borderBottomWidth: 1,
-        }}>
-          <Text 
-          style={{
-            alignSelf:'center',
-            paddingRight: 10,
-            fontSize: 15,
-            fontWeight: '600', 
-            flex: 1,
+        {
+          //Only show the timeseries selector if there is more than one to pick from
+          timeseriesList.length > 1 &&
+          <View style={{
+            flexDirection: "row",
+            borderBottomColor: primaryText,
+            borderBottomWidth: 1,
           }}>
-            {`${new_reading_timeseries}:`}
-          </Text>
-          <Picker
-            selectedValue={this.state.timeseries.parameter}
+            <Text 
             style={{
-              flex: 2
-            }}
-            mode={'dropdown'}
-            onValueChange={(_, idx) => {
-              const ts = timeseriesList[idx];
-              this.setState({ timeseries: ts });
-            }}
-          >
-            {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
-          </Picker>
-        </View>
+              alignSelf:'center',
+              paddingRight: 10,
+              fontSize: 15,
+              fontWeight: '600', 
+              flex: 1,
+            }}>
+              {`${new_reading_timeseries}:`}
+            </Text>
+              <Picker
+                selectedValue={this.state.timeseries.parameter}
+                style={{
+                  flex: 2
+                }}
+                mode={'dropdown'}
+                onValueChange={(_, idx) => {
+                  const ts = timeseriesList[idx];
+                  this.setState({ timeseries: ts });
+                }}
+              >
+                {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
+              </Picker>
+          </View>
+          }
         {this.getImageSection()}
         {/* Transparent footer to make the scrollview balance */}
         <View
