@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require('request-promise-native');
 const ow_translations_1 = require("ow_translations");
+const mywellConfig_1 = require("./mywellConfig");
 exports.arg = (argList => {
     const myArg = {};
     let a, opt, thisOpt, curOpt;
@@ -250,16 +251,7 @@ function getNewConfig() {
                 ['well'],
                 ['well', 'raingauge', 'quality', 'checkdam'],
             ]),
-            editResource_defaultTypes: buildParameter({
-                well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-                raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-                quality: [
-                    { name: 'salinity', parameter: 'salinity', readings: [] },
-                    { name: 'ph', parameter: 'ph', readings: [] },
-                    { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
-                ],
-                checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-            }, 'The default resource timeseries types', conditionKeys, [
+            editResource_defaultTypes: buildParameter(mywellConfig_1.MyWellResourceTypes, 'The default resource timeseries types', conditionKeys, [
                 //GGMN
                 {
                     well: [
@@ -275,17 +267,7 @@ function getNewConfig() {
                     ]
                 },
                 //MyWell
-                {
-                    //TODO: I'm not sure what the parameter should be - default?
-                    well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-                    raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-                    quality: [
-                        { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
-                        { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
-                        { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
-                    ],
-                    checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-                }
+                mywellConfig_1.MyWellResourceTypes
             ]),
             editResource_allowCustomId: buildParameter(false, 'When creating a resource, is the user allowed to enter a custom id?', conditionKeys, [true, true, false]),
             editResource_hasWaterColumnHeight: buildParameter(true, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, true, true]),
@@ -331,6 +313,30 @@ function getNewConfig() {
             resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
             readingDownloadUrl: buildParameter(`${process.env.firebase_base_url}/public/mywell/downloadReadings`, "Download readings for resourceId url", conditionKeys, ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
             ]),
+            resourceDetail_graphButtons: buildParameter(JSON.stringify([
+                { text: '3Y', value: 'THREE_YEARS' },
+                { text: '1Y', value: 'ONE_YEAR' },
+                { text: '3M', value: 'THREE_MONTHS' },
+            ]), 'the graph and table buttons', conditionKeys, [
+                JSON.stringify([
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                    { text: '2W', value: 'TWO_WEEKS' },
+                    { text: 'EXTENT', value: 'EXTENT' },
+                ]),
+                JSON.stringify([
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                    { text: '2W', value: 'TWO_WEEKS' },
+                    { text: 'EXTENT', value: 'EXTENT' },
+                ]),
+                JSON.stringify([
+                    { text: '3Y', value: 'THREE_YEARS' },
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                ]),
+            ]),
+            resourceDetail_graphUsesStrictDate: buildParameter(true, "Does the graph only display strict dates?", conditionKeys, [false, false, true]),
         };
         return Promise.resolve({
             conditions,

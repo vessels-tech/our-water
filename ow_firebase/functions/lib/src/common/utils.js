@@ -17,6 +17,7 @@ const ow_types_1 = require("ow_types");
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const env_1 = require("./env");
 const filesystem = require("fs");
+const zipFolder = require('zip-folder');
 const _serviceAccountKey_1 = require("./.serviceAccountKey");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
@@ -424,4 +425,19 @@ function getDefaultTimeseries(resourceType) {
     });
 }
 exports.getDefaultTimeseries = getDefaultTimeseries;
+function zipFolderAsync(folderPath, archivePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, _) => {
+            zipFolder(folderPath, archivePath, function (err) {
+                if (err) {
+                    resolve(utils_1.makeError(err.message));
+                }
+                else {
+                    resolve(dep_AppProviderTypes_1.makeSuccess(archivePath));
+                }
+            });
+        });
+    });
+}
+exports.zipFolderAsync = zipFolderAsync;
 //# sourceMappingURL=utils.js.map

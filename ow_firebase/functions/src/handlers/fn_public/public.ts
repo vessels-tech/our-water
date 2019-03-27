@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
 import { generateQRCode, getWholeQR } from '../../common/apis/QRCode';
-import { writeFileAsync, enableLogging } from '../../common/utils';
+import { writeFileAsync, enableLogging, zipFolderAsync } from '../../common/utils';
 import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { ReadingApi, ExportApi, ExportFormat } from 'ow_common/lib/api';
 import * as moment from 'moment';
@@ -97,10 +97,79 @@ module.exports = (functions) => {
     }
     const readingsData = ExportApi.readingsToExport(readings.readings, ExportFormat.CSV);
 
-    const file = `/tmp/${moment().toString()}.csv`;
+    const file = `/tmp/${moment().toISOString()}.csv`;
     await writeFileAsync(file, readingsData, 'utf-8');
 
     res.download(file);
+  });
+
+
+  /**
+   * Download Readings images for a single resource
+   * GET /:orgId/downloadReadingImages
+   * 
+   * eg: /test_12348/downloadReadings?resourceIds=00001
+   * 
+   * Download a list of readings for a given resource. 
+   * resourceIds must be a comma separated list of resourceIds
+   */
+  const getReadingImagesValidation = {
+    options: {
+      allowUnknownBody: false,
+    },
+    query: {
+      resourceId: Joi.string().required(),
+    }
+  }
+
+  app.get('/:orgId/downloadReadingImages', validate(getReadingImagesValidation), async (req, res) => {
+    let { resourceId } = req.query;
+    const { orgId } = req.params;
+    const readingApi = new ReadingApi(firestore, orgId);
+
+    resourceId = resourceId.split(',');
+    if (resourceId.length > 1) {
+      const error = new Error("Can only download reading images for one resource at a time");
+      return res.status(400).send(error);
+    }
+
+    const momentUnix = moment().unix();
+    const dirName = `/tmp/${resourceId[0]}_${momentUnix}`;
+    const archiveName = `/tmp/${resourceId[0]}_${momentUnix}.zip`;
+
+    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceId, { limit: 200 }));
+    if (readings.readings.length === 0) {
+      const error = new Error(`No readings found for ids: ${resourceId}`);
+      return res.status(404).send(error);
+    }
+
+    //TODO: get a zip file containing all images 
+    const readingImagesBase64: Array<{id: string, base64: string}> = ExportApi.exportReadingImages(readings.readings);
+    if (readingImagesBase64.length === 0) {
+      const error = new Error(`No images found for readings for resourceId: ${resourceId}`);
+      return res.status(404).send(error);
+    }
+
+    //Create the dir
+    if (!fs.existsSync(dirName)) {
+      fs.mkdirSync(dirName);
+    }
+
+    //Write each image to a file
+    await readingImagesBase64.reduce(async (acc, curr) => {
+      await acc;
+
+      const file = `${dirName}/${curr.id}.png`;
+      //TODO: figure out how to save a png
+
+      return writeFileAsync(file, curr.base64, 'base64');
+
+    }, Promise.resolve({}));
+
+    //Archive the folder
+    await zipFolderAsync(dirName, archiveName);
+
+    res.download(archiveName);
   });
 
 

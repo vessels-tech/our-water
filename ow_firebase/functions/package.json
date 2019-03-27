@@ -50,7 +50,7 @@
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",
     "nodemailer": "^4.6.8",
-    "ow_common": "^0.1.35",
+    "ow_common": "^0.1.36",
     "ow_translations": "^0.1.13",
     "ow_types": "https://github.com/vessels-tech/ow_types#76011ba54cece194083eaf06fd90ba73ce9323db",
     "papaparse": "^4.4.0",
@@ -64,7 +64,8 @@
     "thread-sleep": "^2.1.0",
     "ts-mocha": "^2.0.0",
     "typescript": "3.3.3",
-    "xmlbuilder": "^10.1.1"
+    "xmlbuilder": "^10.1.1",
+    "zip-folder": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
