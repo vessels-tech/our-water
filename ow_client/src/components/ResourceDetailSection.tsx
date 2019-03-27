@@ -389,7 +389,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           flex: 2,
           alignSelf: 'center',
-          marginBottom: 500,
         }}
       >
         <QRCode
@@ -500,6 +499,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           alignContent: 'center',
           minHeight: 30,
           maxHeight: 40,
+          marginTop: 5,
+          marginBottom: 17,
+          marginHorizontal: 15,
         }}>
           {!isPending && this.getFavouriteButton()}
           {!isPending && allowDownload && isLoggedIn && this.getDownloadButton()}
