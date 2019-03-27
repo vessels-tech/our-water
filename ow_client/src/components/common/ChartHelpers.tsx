@@ -263,7 +263,7 @@ export const DateLabels = (props: GenericProps & DateLabelProps) => {
  * Custom y axis labels object
  */
 export const YAxisLabels = (props: GenericProps & YAxisProps) => {
-  const { x, y, data, unitOfMeasure } = props;
+  const { y, data, unitOfMeasure } = props;
   const yAxisData = getValuesForDataAndDistribution(data, 5);
 
   return (
@@ -271,6 +271,7 @@ export const YAxisLabels = (props: GenericProps & YAxisProps) => {
       {
         yAxisData.map((value, idx) => {
           const yVal = y(value) + 2
+          const yText = `${value.toFixed(2)} ${unitOfMeasure}`;
 
           return (
             <Text
@@ -279,7 +280,7 @@ export const YAxisLabels = (props: GenericProps & YAxisProps) => {
               x={0}
               y={yVal}
               textAnchor={'start'}>
-              {value} {unitOfMeasure}
+              {yText}
             </Text>
           );
         })
