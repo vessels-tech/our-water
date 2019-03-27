@@ -1,13 +1,70 @@
 # Our Water
-## The OpenSource, Configrable MyWell
 
------
+OurWater is an open source, whitelabeled version of MyWell. 
+
+
+## Getting Started
+
+### Env Files
+
+To cater to all the different build environments, we have many env files which get compiled into one in the `make switch` tasks.
+
+For each `env.<org>.<stage>.sh` file, there should also be a `.env.<org>.<stage>.sh`.  
+Refer to `example.env.deployment.sh` and `example.env.org.stage.sh` for the .env files for ow_client, and  
+`example.env.firebase.stage.sh` for the .env files for ow_firebase.
+
+
 
 ## Installing
 
+OurWater is comprised of several sub-projects, which are maintained in this repo.
+
+
+```
+.
+├── docs                   
+├── env                    # Shared Env variables for all sub projects
+├── ow_admin               # [DEPRECATED] Admin Tools and Site
+├── ow_client              # React Native OurWater Project
+├── ow_common              # Common tools shared between ow_client and ow_firebase
+├── ow_firebase            # MyWell Firebase Project
+├── ow_test                # [DEPRECATED] Automated test tools. This has been delegated to each project.
+├── ow_translations        # Shared translations
+├── ow_types               # [DEPRECATED] Shared Type definitions. Use ow_common instead,
+├── LICENSE
+└── README.md
+
+```
+
+### ow_client
+
+```
+touch /tmp/ow_client            #set the environment variables
+make switch-<org>-<environment> #eg. make switch-mywell-dev
+
+make server                     #run in separate shell
+make android                    #run development mode on Android device or emulator
+```
+
+
+### ow_firebase
+
+```
+touch /tmp/ow_firebase_env
+make switch-<environment>      #eg. make switch-dev
+make install
+
+make run-local                 #run the local firebase server
+```
+
 ## Documentation
 
+The OurWater documentation is still a work in progress. We plan on releasing a gitbook and printable user reference, but until then, refer to the [docs here](./docs)
+
+
 ## Testing
+
+Each subproject maintains its own testing environment, which adheres to the following 
 
 We use 3 types of tests:
 1. Unit tests, defined in `*.unit.ts` files
@@ -18,319 +75,6 @@ Broadly, Unit tests will test one specific function and mock out any dependencie
 
 
 
-
-## Firebase Cloudstore
-
-We are using Firebase Cloudstore NoSQL database for our database needs.
-
-Proposed data structure:
-
-
-org
-  |- name
-  |-
-  |---- location (collection)
-         |- type
-         |- shapefile?
-  |
-  |
-  |
-  |
-  |
-  |---- resource (collection)
-          |- type
-          |- latlng
-
-
-
-const locationTypes: {
-  village
-  pincode
-
-}
-
-const resourceTypes: {
-  well
-  checkdam
-  raingauge
-  custom
-}
-
-
-const resourceMetadata: {
-  well
-}
-
-
-
-
-## Cloud Firestore evaluation:
-
-
-good:
-- easy to use
-- visual console
-- database triggers, for really serverless architecture
-- no need for a
-- cheap
-- realtime
-
-
-bad:
-- no geo queries
-- no multiple filters/composite queries
-
-
-
-Can we get around geo queries?
-- add a location id to each resource and reading?
-- only search by boxes?
-  - we can do geo queries with just squares.
-
-
-```js
-resource: {
-  id: string
-  readings: collection,
-  lastReading:
-  location: {
-    latitude:
-    longitude:
-  },
-  type: {
-    well: true,
-    checkdam: false,
-    raingauge: false
-  }
-}
-
-reading: {
-  id:
-  date:
-  value:
-  type: {
-    well: true,
-    checkdam: false,
-    raingauge: false
-  }
-  location: {
-    latitude:
-    longitude:
-  }
-}
-
-```
-
-
-This seems like a better way to structure our data.
-```js
-{
-  org: {
-    groups: {
-      village1: {
-        type: village
-
-      },
-      india: {
-        type: country
-      },
-      pincode123456: {
-        type: pincode
-      }
-    },
-    resource: {
-      one: {
-        lastReading:
-        latLng:
-        name:
-        owner:
-        average:
-        type:
-        // This is an index?
-        groups: {
-          village1: true,
-          india: true,
-        }
-      }
-    },
-    reading: {
-      r1: {
-        resourceId: one
-        value: 12.4,
-        datetime: 2018-01-01...
-        latLng:
-        groups: {
-          village1: true
-        }
-      }
-    }
-  }
-}
-
-//Maybe instead of nesting:
-org/orgId/reading/resourceId/value/readingId, we should have a resourceId field on reading...
-
-
-
-```
-
-challenges with this approach:
-
-- we need to make sure that update fields properly
-
-
-
-
-
-## Android react-native setup
-
-```
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-```
-
-remote debugger
-https://stackoverflow.com/questions/40898934/unable-to-connect-with-remote-debugger
-
-
-
-`I solved it doing adb reverse tcp:8081 tcp:8081 and then reload on my phone.`
-
-point to our react-native-maps
-"react-native-maps": "https://github.com/lewisdaly/react-native-maps.git#7142cc618bd8fcc5df24221cb2c1fb64d5880750",
-
-
-## handy
-```bash
-#allow tunnel
-adb reverse tcp:8081 tcp:8081
-
-#present devtools menu
-adb shell input keyevent 82
-```
-
-## launch avd from command line
-
-```bash
-cd ~/Library/Android/sdk/tools/bin/
-./avdmanager list avd
-
-#look for name: Nexus_5X_API_P
-
-cd ../../emulator
-./emulator -avd Nexus_5X_API_P
-
-```
-
-https://medium.com/@drorbiran/the-full-react-native-layout-cheat-sheet-a4147802405c
-
-
-## TODO:
-
-### ow_client
-
-#### Functionality
-
-- display groups on the map
-  - display conditionally based on the zoom level
-- remove the "drop pin", load/show resources based on the map location
-- add a loading indicator and refresh button to map
-- add and remove favourites not working
-- take image from new reading page, and upload in background
-- implement resource detail graphs
-- add metadata to a resource, and inform the reading 
-- edit and create new resource page
-
-
-#### Other:
-
-- implement search with new top bar
-- translations
-- fix glitchy maps, drag end event
-- improve search to use more than just ids
-
-
-### ow_firebase
-
-- sync readings with MyWell
-- sync resources with MyWell
-
-
-- endpoints for group based queries
-  
-  getReadingsForGroup(group) [done]
-  getReadingsForResource() [done]
-  getResourcesForGroup() []
-
-  queries for graph data?
-  - getAverageForGroup(group, resourceType, startTime, endTime) []
-  - others?
-
-
-- getResourcesNearLocation(lat, lng, distance) [done]
-
-- write down proper type definitions and figure out typescript
-- start working on fast static group/resource detail page?
-- investigate legacy id compatability
-
-
-- secure the endpoints
-- when registering a new resource, allow user to select from a number of groups
-- when registering a new resource, add extra fields for each resource type. Eg. Well.maxDepth
-- ow_admin: list resources by groups
-
-
-Authentication example:
-https://github.com/firebase/functions-samples/tree/master/authorized-https-endpoint
-
-Simple example for multiple sites on single firebase hosting
-https://medium.com/@michael.warneke/hosting-multiple-angular-apps-on-firebase-fb15e2a9dda9
-
-
-
-
-
-### GGMN
-- hide/show ggmn settings per build
-- Add login/settings screen 
-- add new reading sync indicator
-- firebase config 
-- register a new resource
-
-
-
-## Material design guide:
-
-https://material.io/tools/color/#!/?view.left=0&view.right=0&primary.color=BBDEFB&primary.text.color=212121
-
-
-## Samples:
-
-
-### Good button with icon
-```jsx
- <Button
-  buttonStyle={{
-    flex: 1,
-    backgroundColor: bgLight,
-    height: 50,
-    width: '100%'
-  }}
-  large
-  icon={{
-    name: 'cached',
-    color: textDark,
-  }}
-  color={textDark}
-  underlayColor={bgLightHighlight}
-  titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
-  title='Language'
-  onPress={() => console.log("language pressed")}
-/>
-```
-
-
 ## Packages to remove:
 
 - fast-deep-equal (only used once)
@@ -338,7 +82,7 @@ https://material.io/tools/color/#!/?view.left=0&view.right=0&primary.color=BBDEF
 - fork react-native-camera and remove lodash, which is only used once, or at least make it a peer dependency
 
 
-## URLS
-https://us-central1-our-water.cloudfunctions.net/{api}/{orgId}/{method}
-http://localhost:5000/our-water/us-central1/{api}/{orgId}/{method}
-https://ourwater.localtunnel.me/our-water/us-central1/{api}/{orgId}/{method}
+## OurWater Firebase Endpoints
+- https://us-central1-our-water.cloudfunctions.net/{api}/{orgId}/{method}  
+- http://localhost:5000/our-water/us-central1/{api}/{orgId}/{method}  
+- https://ourwater.localtunnel.me/our-water/us-central1/{api}/{orgId}/{method}  
