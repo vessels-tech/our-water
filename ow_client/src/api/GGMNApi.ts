@@ -26,15 +26,13 @@ import ExtendedResourceApi, { ExtendedResourceApiType, CheckNewIdResult } from "
 import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
-import { GGMNTimeseries, AnyTimeseries } from "../typings/models/Timeseries";
+import { GGMNTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
-import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
-import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
 import FirebaseUserApi from "./FirebaseUserApi";
 import { SearchResult as SearchResultV2, PartialResourceResult, PlaceResult } from 'ow_common/lib/api/SearchApi';
-
+import Base64 from '../utils/Base64';
 
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
@@ -52,6 +50,11 @@ export interface GGMNApiOptions {
   // remoteConfig: RemoteConfig,
 }
 
+
+const buildAuthHeader = (username: string, password: string): string => {
+  const encoded = Base64.btoa(`${username}:${password}`);
+  return `Basic ${encoded}`;
+}
 
 /**
  * The GGMN Api.
@@ -128,9 +131,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       timeout,
       method: 'GET',
       headers: {
+        Authorization: buildAuthHeader(username, password),
         'Content-Type': 'application/json',
-        username,
-        password,
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
@@ -139,12 +141,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       .then((response: any) => naiveParseFetchResponse<GGMNOrganisationResponse>(response))
       .then((r: SomeResult<GGMNOrganisationResponse>) => {
         if (r.type === ResultType.ERROR) {
+          console.log("login error", r.message);
+
           return {
-            type: LoginDetailsType.FULL,
             status: ConnectionStatus.SIGN_IN_ERROR,
+            type: LoginDetailsType.FULL,
             username,
           }
         }
+
+        console.log("result", r.result);
 
         if (r.result.results.length === 0) {
           throw new Error('Logged in user, but no organisations found.');
@@ -184,6 +190,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       })
       .then(() => signInResponse)
       .catch((err: Error) => {
+        console.log("Err", err);
         maybeLog("connectToService caught error: " + err.message);
 
         return {
@@ -256,9 +263,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       timeout,
       method: 'GET',
       headers: {
+        Authorization: buildAuthHeader(username, password),
         'Content-Type': 'application/json',
-        username,
-        password,
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
@@ -376,14 +382,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return credentialsResult;
     }
 
+    const authHeader = buildAuthHeader(credentialsResult.result.user.username, credentialsResult.result.password);
+
     const headers: OptionalAuthHeaders = {
-      username: credentialsResult.result.user.username,
-      password: credentialsResult.result.password,
+      // username: credentialsResult.result.user.username,
+      // password: credentialsResult.result.password,
+      Authorization: authHeader,
     } 
 
     return {
-      type: ResultType.SUCCESS,
       result: headers,
+      type: ResultType.SUCCESS,
     }
   }
 
