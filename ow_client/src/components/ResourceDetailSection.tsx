@@ -49,6 +49,7 @@ import { ResourceType } from '../enums';
 import { safeGetNested } from 'ow_common/lib/utils';
 import HeadingText from './common/HeadingText';
 import TabView, { TabType } from './common/TabView';
+import { surfaceText } from '../assets/ggmn/NewColors';
 const ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -102,11 +103,11 @@ function HeadingSection(props: {title: string}) {
     }}>
       <Text style={{
         paddingVertical: 10,
-        fontSize: 15,
-        fontWeight: '600',
-        alignSelf: 'center',
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: surfaceText.disabled,
       }}>
-        {props.title}
+        {props.title.toLocaleUpperCase()}
       </Text>
     </View>
   );
@@ -459,6 +460,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           <View style={{
             flex: 0.5,
             borderColor: bgLightHighlight,
+            backgroundColor: surfaceLight,
             borderTopWidth: 1,
             flexDirection: 'row-reverse',
             alignContent: 'center',
@@ -470,15 +472,22 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             <ResourceDetailBottomButton
               title={resource_detail_new_reading_button}
               onPress={() => this.props.onAddReadingPressed(resourceId)}
+              iconName={'add-box'}
               />
-          {allowEditReadings  && <ResourceDetailBottomButton
+          {allowEditReadings  &&
+            <ResourceDetailBottomButton
               title={resource_detail_edit_readings}
               onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
-            />}
-           {allowEdit && pendingResource && <ResourceDetailBottomButton
-              title={resource_detail_edit_resource}
-              onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
-            />}
+              iconName={'list'}
+            />
+          }
+           {allowEdit && pendingResource && 
+            <ResourceDetailBottomButton
+                title={resource_detail_edit_resource}
+                onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
+                iconName={'edit'}
+              />
+            }
           </View>
         </View>
     );
@@ -679,12 +688,13 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           marginTop: 2,
           height: '100%',
-          paddingLeft: 10,
+          paddingLeft: 25,
         }}
         name={iconName}
         onPress={() => this.toggleFavourites()}
         color={secondary}
         isLoading={favouriteResourcesMeta.loading}
+        size={32}
       />
     );
   }
@@ -699,7 +709,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           marginTop: 2,
           height: '100%',
-          paddingLeft: 10,
+          paddingLeft: 25,
         }}
         name={'cloud-download'}
         onPress={() => {
@@ -707,6 +717,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         }}
         color={secondary}
         isLoading={false}
+        size={32}
       />
     );
   }
