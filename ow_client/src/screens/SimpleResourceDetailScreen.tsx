@@ -29,6 +29,7 @@ import { secondary, primary, secondaryText } from '../utils/NewColors';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
+import { safeGetNestedDefault } from 'ow_common/lib/utils';
 
 
 export interface OwnProps {
@@ -68,6 +69,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
     this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
+    this.showProfilePictureModal = this.showProfilePictureModal.bind(this);
   }
 
   componentDidMount() {
@@ -131,6 +133,13 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     );
   }
 
+  showProfilePictureModal(imageUrl: string) {
+
+    showModal(this.props, 'ModalImageScreen', "", {
+      imageUrl,
+    });
+  }
+
   getResourceDetailSection() {
     const { isPending } = this.props;
     const { 
@@ -147,6 +156,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
         onEditReadingsPressed={this.onEditReadingsPressed}
         resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
+        showProfilePictureModal={this.showProfilePictureModal}
       />
     );
   }

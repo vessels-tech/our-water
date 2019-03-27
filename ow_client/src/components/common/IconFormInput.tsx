@@ -20,9 +20,6 @@ import { primaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations';
 import * as moment from 'moment';
 
-// const SCREEN_WIDTH = Dimensions.get('window').width;
-// const SCREEN_HEIGHT = Dimensions.get('window').height;
-
 export enum InputType {
   fieldInput,
   dateTimeInput,

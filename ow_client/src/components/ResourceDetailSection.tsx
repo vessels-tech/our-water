@@ -17,7 +17,7 @@ import * as moment from 'moment';
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';
 import {
-  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries, openUrlOrToastError,
+  getShortId, isFavourite, groupArray, arrayHighest, maybeLog, renderLog, getHeadingForTimeseries, openUrlOrToastError, showModal,
 } from '../utils';
 import { primary, bgMed, primaryLight, bgLight, bgLightHighlight, } from '../utils/Colors';
 import { Reading, OWTimeseries, TimeseriesRange } from '../typings/models/OurWater';
@@ -68,6 +68,7 @@ export interface OwnProps {
   //This is a hack to fix the issues with ids in GGMN
   temporaryGroundwaterStationId: string | null,
   renderCounter?: number,
+  showProfilePictureModal: (imageUrl: string) => any,
 }
 
 export interface StateProps {
@@ -214,11 +215,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return resourceType;
   }
 
-
   getDefaultTimeseries(): Array<ConfigTimeseries> {
     return this.props.config.getDefaultTimeseries(this.getResourceType());
   }
-
 
   getHeadingBar() {
     const { resourceId, resource, pendingResource } = this.props;
@@ -420,7 +419,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const uri = safeGetNestedDefault(this.props, ['resource', 'owner', 'profileUrl'], resource_detail_placeholder_url);
 
     return (
-
       <View
         style={{ flex: 1, flexDirection: 'row'}}
       >
@@ -428,8 +426,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           large={true}
           rounded={true}
           source={{ uri }}
-          // TODO: present a dialog
-          onPress={() => console.log("Works!")}
+          onPress={() => this.props.showProfilePictureModal(uri)}
           containerStyle={{
             elevation: 3,
           }}
