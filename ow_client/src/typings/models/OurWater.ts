@@ -51,6 +51,7 @@ export function toBasicCoords(from: OWGeoPoint): BasicCoords {
 export type ResourceOwnerType = {
   name: string,
   createdByUserId: string | 'default' | null,
+  profileUrl: string | null,
 }
 
 

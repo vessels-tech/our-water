@@ -5,6 +5,7 @@ import {
   Dimensions,
   TouchableNativeFeedback,
   Linking,
+  ScrollView,
 } from 'react-native';
 import { 
   Avatar,
@@ -46,7 +47,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { Icon } from 'react-native-elements';
 import { primaryText, secondaryText, surfaceLight, surfaceDark, primaryDark, secondary, secondaryDark } from '../utils/NewColors';
 import { ResourceType } from '../enums';
-import { safeGetNested } from 'ow_common/lib/utils';
+import { safeGetNested, safeGetNestedDefault } from 'ow_common/lib/utils';
 import HeadingText from './common/HeadingText';
 import TabView, { TabType } from './common/TabView';
 import { surfaceText } from '../assets/ggmn/NewColors';
@@ -389,6 +390,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
         style={{
           flex: 2,
           alignSelf: 'center',
+          marginBottom: 500,
         }}
       >
         <QRCode
@@ -406,18 +408,41 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     if (!ownerName) {
       return null;
     }
-
+    
     const {
       resource_detail_owner_section,
       resource_detail_owner_name,
+      // resource_detail_placeholder_url,
     } = this.props.translation.templates;
     
+    //TODO: translate
+    const resource_detail_placeholder_url = 'https://our-water-dev.firebaseapp.com/placeholder_placeholder.png';
+    const uri = safeGetNestedDefault(this.props, ['resource', 'owner', 'profileUrl'], resource_detail_placeholder_url);
+
     return (
-      <View style={{ flex: 1, paddingVertical: 15 }}>
-        <HeadingSection title={resource_detail_owner_section} />
-        <ContentSection>
-          <HeadingText heading={resource_detail_owner_name} content={ownerName || ''} />
-        </ContentSection>
+
+      <View
+        style={{ flex: 1, flexDirection: 'row'}}
+      >
+        <Avatar
+          large={true}
+          rounded={true}
+          source={{ uri }}
+          // TODO: present a dialog
+          onPress={() => console.log("Works!")}
+          containerStyle={{
+            elevation: 3,
+          }}
+        />
+        <View style={{ 
+          flex: 1, 
+          paddingLeft: 10,
+        }}>
+          <HeadingSection title={resource_detail_owner_section} />
+          <ContentSection>
+            <HeadingText heading={resource_detail_owner_name} content={ownerName || ''} />
+          </ContentSection>
+        </View>
       </View>
     );
   }
@@ -446,50 +471,62 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const allowDownload = this.props.config.getResourceDetailAllowDownload();
 
     return (
-        <View style={{
-          flexDirection: 'column',
-          height: '100%',
-          padding: 20,
+      <View
+        style={{
           flex: 1,
-        }}>
+        }}
+      >
+        <ScrollView 
+          style={{
+            // flexDirection: 'column',
+            // height: '100%',
+            padding: 20,
+            // flex: 1,
+            // height: 10000,
+
+          }}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+        
           {this.getOwnerSection()}
           {this.getSummarySection()}
           {this.getQRCode()}
+        </ScrollView>
 
-          {/* Bottom Buttons */}
-          <View style={{
-            flex: 0.5,
-            borderColor: bgLightHighlight,
-            backgroundColor: surfaceLight,
-            borderTopWidth: 1,
-            flexDirection: 'row-reverse',
-            alignContent: 'center',
-            minHeight: 30,
-            maxHeight: 40,
-          }}>
-            {!isPending && this.getFavouriteButton()}
-            {!isPending && allowDownload && isLoggedIn && this.getDownloadButton()}
-            <ResourceDetailBottomButton
-              title={resource_detail_new_reading_button}
-              onPress={() => this.props.onAddReadingPressed(resourceId)}
-              iconName={'add-box'}
-              />
-          {allowEditReadings  &&
-            <ResourceDetailBottomButton
-              title={resource_detail_edit_readings}
-              onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
-              iconName={'list'}
+        {/* Bottom Buttons */}
+        <View style={{
+          flex: 0.5,
+          borderColor: bgLightHighlight,
+          backgroundColor: surfaceLight,
+          borderTopWidth: 1,
+          flexDirection: 'row-reverse',
+          alignContent: 'center',
+          minHeight: 30,
+          maxHeight: 40,
+        }}>
+          {!isPending && this.getFavouriteButton()}
+          {!isPending && allowDownload && isLoggedIn && this.getDownloadButton()}
+          <ResourceDetailBottomButton
+            title={resource_detail_new_reading_button}
+            onPress={() => this.props.onAddReadingPressed(resourceId)}
+            iconName={'add-box'}
+            />
+        {allowEditReadings  &&
+          <ResourceDetailBottomButton
+            title={resource_detail_edit_readings}
+            onPress={() => this.props.onEditReadingsPressed && this.props.onEditReadingsPressed(resourceId)}
+            iconName={'list'}
+          />
+        }
+          {allowEdit && pendingResource && 
+          <ResourceDetailBottomButton
+              title={resource_detail_edit_resource}
+              onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
+              iconName={'edit'}
             />
           }
-           {allowEdit && pendingResource && 
-            <ResourceDetailBottomButton
-                title={resource_detail_edit_resource}
-                onPress={() => this.props.onEditResourcePressed && this.props.onEditResourcePressed(pendingResource)}
-                iconName={'edit'}
-              />
-            }
-          </View>
         </View>
+      </View>
     );
   }
 
