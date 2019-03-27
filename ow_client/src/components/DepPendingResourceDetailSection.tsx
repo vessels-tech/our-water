@@ -138,6 +138,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
     let loading = false;
     const readingsMap: CacheType<PendingReading[]> = {};
 
+    //TODO: Check if this timeseries name mapping works with capitalization
     pendingResource.timeseries.forEach(ts => {
       readingsMap[ts.name] = pendingReadings.filter(r => r.timeseriesId === ts.name);
     });
@@ -300,6 +301,7 @@ class PendingResourceDetailSection extends Component<OwnProps & StateProps & Act
               <View tabLabel={`${ts.name}`} key={idx} style={{ alignItems: 'center' }}>
                 <PendingTimeseriesCard
                   config={this.props.config}
+                  //TODO: Check if this timeseries name mapping works with capitalization
                   pendingReadings={this.props.pendingReadings.filter(r => r.timeseriesId === ts.name)}
                   resourceId={this.props.pendingResource.id}
                   timeseries={ts}
