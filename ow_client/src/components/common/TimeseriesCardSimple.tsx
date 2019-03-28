@@ -18,7 +18,7 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries, getHashForReading } from '../../utils';
+import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries, hashReadingId } from '../../utils';
 import SimpleChart, { SpecificChart } from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
@@ -35,7 +35,10 @@ import { ResourceType } from '../../enums';
 import { calculateOneYearChunkedReadings } from './ChartHelpers';
 import { ReadingImageType } from '../../typings/models/ReadingImage';
 import { safeGetNestedDefault, safeGetNested } from 'ow_common/lib/utils';
+import { ReadingApi } from 'ow_common/lib/api';
 import FlatIconButton from './FlatIconButton';
+import { goToURL } from './Link';
+
 
 export enum TimeseriesCardType {
   default = 'graph',
@@ -76,18 +79,25 @@ export enum ViewImageButtonType {
   Remote='Remote',
 }
 
-export const ViewImageButton = ({ reading, openLocalReadingImage }: { reading: AnyOrPendingReading, openLocalReadingImage: (fileUrl: string) => void}) => {
+export const ViewImageButton = ({ 
+  reading, 
+  openLocalReadingImage, 
+  readingImageUrlBuilder 
+}: { reading: AnyOrPendingReading, openLocalReadingImage: (fileUrl: string) => void, readingImageUrlBuilder: (id: string) => string}) => {
   let buttonType: ViewImageButtonType = ViewImageButtonType.None;
 
   const fileUrl = safeGetNestedDefault(reading, ['image', 'fileUrl'], null);
   if (fileUrl) {
-    buttonType = ViewImageButtonType.Local;
-  }
+    if (safeGetNested(reading, ['isResourcePending'])) {
+      buttonType = ViewImageButtonType.Local;
+   } else {
+     //This will have fileUrl, but we have no guarantees about it
+     buttonType = ViewImageButtonType.Remote;
+   }
+  } 
 
-  // const base64Image = safeGetNestedDefault(reading, ['image', 'url'], null);
-
-
-  const readingId = getHashForReading(reading);
+  const readingId = hashReadingId(reading.resourceId, reading.timeseriesId, reading.date);
+  const openUrl = readingImageUrlBuilder(readingId);
   const buttonStyle = {};
 
   return (
@@ -102,7 +112,7 @@ export const ViewImageButton = ({ reading, openLocalReadingImage }: { reading: A
             ...buttonStyle,
           }}
           name={'open-in-new'}
-          onPress={() => console.log('TODO: Load image in browser')}
+          onPress={() => goToURL(openUrl)}
           color={secondary}
           isLoading={false}
           // size={32}
@@ -209,7 +219,14 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   getTableView() {
     const { currentRange } = this.state;
     const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure } } = this.props;
-    const { default_datetime_format } = this.props.translation.templates;
+    const { 
+      default_datetime_format,
+      // reading_image_url_builder
+    } = this.props.translation.templates;
+
+    //TODO: translate:
+    const reading_image_url_builder = (id: string) => `https://us-central1-our-water-dev.cloudfunctions.net/public/mywell/image/${id}`;
+
     if (cardType !== TimeseriesCardType.table) {
       return null;
     }
@@ -255,6 +272,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
                 <ViewImageButton 
                   reading={item}
                   openLocalReadingImage={(fileUrl: string) => this.props.openLocalReadingImage(fileUrl)}
+                  readingImageUrlBuilder={reading_image_url_builder}
                 />
               </View> 
             )

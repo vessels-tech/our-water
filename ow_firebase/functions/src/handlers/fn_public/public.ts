@@ -179,13 +179,13 @@ module.exports = (functions) => {
    * View a reading image for a given readingId. Returns a simple webpage
    * 
    */
-  app.get(':orgId/:readingId/image', async (req, res) => {
+  app.get('/:orgId/image/:readingId', async (req, res) => {
     const { orgId, readingId } = req.params;
     const readingApi = new ReadingApi(firestore, orgId);
 
     const readingImage = unsafeUnwrap(await readingApi.getReadingImage(readingId));
 
-    res.send(`<img src="data:image/png;base64, ${readingImage}"/>`);
+    res.send(`<img width="300" src="data:image/png;base64, ${readingImage}"/>`);
   });
 
 

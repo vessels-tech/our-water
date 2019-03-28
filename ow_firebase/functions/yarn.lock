@@ -4319,9 +4319,9 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@^0.1.37:
-  version "0.1.37"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.37.tgz#dc6690b1a2e4d90548a2c2a082af7fcfb9375e38"
+ow_common@^0.1.38:
+  version "0.1.38"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.38.tgz#0848b65f1e31a3bcdc3773063deec00706ce70cd"
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -4334,9 +4334,23 @@ ow_common@^0.1.37:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.13, "ow_translations@git://github.com/vessels-tech/ow_translations":
+ow_translations@^0.1.13:
   version "0.1.13"
   resolved "git://github.com/vessels-tech/ow_translations#e13e16f58882dae95af6b259c450b1ae423ef397"
+  dependencies:
+    "@babel/cli" "^7.0.0"
+    "@babel/core" "^7.0.0"
+    "@babel/plugin-proposal-class-properties" "^7.0.0"
+    "@babel/plugin-proposal-object-rest-spread" "^7.0.0"
+    "@babel/preset-env" "^7.0.0"
+    "@babel/preset-typescript" "^7.0.0"
+    "@types/request-promise-native" "^1.0.15"
+    request-promise "^4.2.2"
+
+"ow_translations@git://github.com/vessels-tech/ow_translations.git":
+  version "0.1.13"
+  uid e13e16f58882dae95af6b259c450b1ae423ef397
+  resolved "git://github.com/vessels-tech/ow_translations.git#e13e16f58882dae95af6b259c450b1ae423ef397"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
