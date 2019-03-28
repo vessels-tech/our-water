@@ -149,6 +149,18 @@ module.exports = (functions) => {
         yield utils_1.zipFolderAsync(dirName, archiveName);
         res.download(archiveName);
     }));
+    /**
+     * getReadingImage
+     *
+     * View a reading image for a given readingId. Returns a simple webpage
+     *
+     */
+    app.get(':orgId/:readingId/image', (req, res) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, readingId } = req.params;
+        const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
+        const readingImage = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingImage(readingId));
+        res.send(`<img src="data:image/png;base64, ${readingImage}"/>`);
+    }));
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
     app.use(openCors);

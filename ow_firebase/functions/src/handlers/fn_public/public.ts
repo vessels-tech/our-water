@@ -173,6 +173,22 @@ module.exports = (functions) => {
   });
 
 
+  /**
+   * getReadingImage
+   * 
+   * View a reading image for a given readingId. Returns a simple webpage
+   * 
+   */
+  app.get(':orgId/:readingId/image', async (req, res) => {
+    const { orgId, readingId } = req.params;
+    const readingApi = new ReadingApi(firestore, orgId);
+
+    const readingImage = unsafeUnwrap(await readingApi.getReadingImage(readingId));
+
+    res.send(`<img src="data:image/png;base64, ${readingImage}"/>`);
+  });
+
+
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);
