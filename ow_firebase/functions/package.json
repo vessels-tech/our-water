@@ -60,7 +60,7 @@
     "request-promise-native": "^1.0.5",
     "shp-write": "^0.3.2",
     "soap": "^0.25.0",
-    "svg2img": "^0.6.0",
+    "svg2img": "https://github.com/vessels-tech/node-svg2img#1abe20ae958d2baa1f14b62df486038a7b9d9b90",
     "thread-sleep": "^2.1.0",
     "ts-mocha": "^2.0.0",
     "typescript": "3.3.3",
