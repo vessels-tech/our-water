@@ -69,6 +69,7 @@ export interface OwnProps {
   temporaryGroundwaterStationId: string | null,
   renderCounter?: number,
   showProfilePictureModal: (imageUrl: string) => any,
+  openLocalReadingImage: (fileUrl: string) => void,
 }
 
 export interface StateProps {
@@ -575,6 +576,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             timeseriesId={key}
             isPending={this.props.isPending}
             resourceType={this.getResourceType()}
+            openLocalReadingImage={(fileUrl: string) => this.props.openLocalReadingImage(fileUrl)}
           />
         </TabView>
       )
@@ -611,6 +613,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
             timeseriesId={key}
             isPending={this.props.isPending}
             resourceType={this.getResourceType()}
+            openLocalReadingImage={(fileUrl: string) => this.props.openLocalReadingImage(fileUrl)}
           />
         </TabView>
       )

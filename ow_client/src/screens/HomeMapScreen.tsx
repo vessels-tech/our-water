@@ -145,6 +145,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
     this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onEditResourcePressed = this.onEditResourcePressed.bind(this);
+    this.openLocalReadingImage = this.openLocalReadingImage.bind(this);
 
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
@@ -291,6 +292,10 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
   onMapRegionChange(region: Region) {
     this.resourceRequestId += 1;
     this.loadResourcesPaginated(region, startCursor, this.resourceRequestId);
+  }
+
+  openLocalReadingImage(fileUrl: string) {
+    //do nothing
   }
 
   /**
@@ -553,6 +558,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         onAddReadingPressed={this.onAddReadingPressed}
         onEditReadingsPressed={this.onEditReadingsPressed}
         onEditResourcePressed={this.onEditResourcePressed}
+        openLocalReadingImage={this.openLocalReadingImage}
       />
     );
   }

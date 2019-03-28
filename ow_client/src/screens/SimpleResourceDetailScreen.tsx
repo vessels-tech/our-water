@@ -70,6 +70,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
     this.showProfilePictureModal = this.showProfilePictureModal.bind(this);
+    this.openLocalReadingImage = this.openLocalReadingImage.bind(this);
   }
 
   componentDidMount() {
@@ -140,6 +141,13 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     });
   }
 
+  openLocalReadingImage(fileUrl: string) {
+    //do nothing
+    showModal(this.props, 'ModalImageScreen', "", {
+      imageUrl: fileUrl,
+    });
+  }
+
   getResourceDetailSection() {
     const { isPending } = this.props;
     const { 
@@ -157,6 +165,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
         resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
         showProfilePictureModal={this.showProfilePictureModal}
+        openLocalReadingImage={this.openLocalReadingImage}
       />
     );
   }

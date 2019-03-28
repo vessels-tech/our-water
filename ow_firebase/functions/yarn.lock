@@ -1438,7 +1438,7 @@ caniuse-lite@^1.0.30000899:
   version "1.0.30000909"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000909.tgz#697e8f447ca5f758e7c6cef39ec429ce18b908d3"
 
-canvas@^2.0.0-alpha.13:
+canvas@2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/canvas/-/canvas-2.3.1.tgz#da0c8a916505aa34f9365d6b77d28b969241bfd0"
   dependencies:
@@ -4334,22 +4334,9 @@ ow_common@^0.1.37:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.13:
+ow_translations@^0.1.13, "ow_translations@git://github.com/vessels-tech/ow_translations":
   version "0.1.13"
-  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.13.tgz#5f7970984a4033eaae22ac9a83822c3c1430435b"
-  dependencies:
-    "@babel/cli" "^7.0.0"
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-proposal-class-properties" "^7.0.0"
-    "@babel/plugin-proposal-object-rest-spread" "^7.0.0"
-    "@babel/preset-env" "^7.0.0"
-    "@babel/preset-typescript" "^7.0.0"
-    "@types/request-promise-native" "^1.0.15"
-    request-promise "^4.2.2"
-
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
-  version "0.1.13"
-  resolved "git://github.com/vessels-tech/ow_translations.git#e13e16f58882dae95af6b259c450b1ae423ef397"
+  resolved "git://github.com/vessels-tech/ow_translations#e13e16f58882dae95af6b259c450b1ae423ef397"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -5397,13 +5384,13 @@ svg-tags@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/svg-tags/-/svg-tags-1.0.0.tgz#58f71cee3bd519b59d4b2a843b6c7de64ac04764"
 
-svg2img@^0.6.0:
+"svg2img@https://github.com/vessels-tech/node-svg2img#1abe20ae958d2baa1f14b62df486038a7b9d9b90":
   version "0.6.0"
-  resolved "https://registry.yarnpkg.com/svg2img/-/svg2img-0.6.0.tgz#0c11b3dcb99ce5f9d59e0393856634ff7da63909"
+  resolved "https://github.com/vessels-tech/node-svg2img#1abe20ae958d2baa1f14b62df486038a7b9d9b90"
   dependencies:
     atob "^2.0.0"
     btoa "^1.1.2"
-    canvas "^2.0.0-alpha.13"
+    canvas "2.3.1"
     canvg "^1.5.3"
 
 "symbol-tree@>= 3.1.0 < 4.0.0", symbol-tree@^3.2.2:

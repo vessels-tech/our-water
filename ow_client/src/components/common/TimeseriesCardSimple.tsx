@@ -18,7 +18,7 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries } from '../../utils';
+import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries, getHashForReading } from '../../utils';
 import SimpleChart, { SpecificChart } from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
@@ -28,11 +28,14 @@ import { AnyReading } from '../../typings/models/Reading';
 import { ConfigTimeseries } from '../../typings/models/ConfigTimeseries';
 import { ActionMeta } from '../../typings/Reducer';
 import { surfaceLight } from '../../assets/ggmn/NewColors';
-import { surface, surfaceDark, surfaceText } from '../../utils/NewColors';
+import { surface, surfaceDark, surfaceText, secondary } from '../../utils/NewColors';
 import moment = require('moment');
 import { TranslationFile } from 'ow_translations';
 import { ResourceType } from '../../enums';
 import { calculateOneYearChunkedReadings } from './ChartHelpers';
+import { ReadingImageType } from '../../typings/models/ReadingImage';
+import { safeGetNestedDefault, safeGetNested } from 'ow_common/lib/utils';
+import FlatIconButton from './FlatIconButton';
 
 export enum TimeseriesCardType {
   default = 'graph',
@@ -49,6 +52,7 @@ export interface OwnProps {
   cardType: TimeseriesCardType,
   resourceType: ResourceType,
   children?: React.ReactChild,
+  openLocalReadingImage: (fileUrl: string) => void,
 }
 
 export interface StateProps {
@@ -64,6 +68,60 @@ export interface ActionProps {
 
 export interface State {
   currentRange: TimeseriesRange,
+}
+
+export enum ViewImageButtonType {
+  None='None',
+  Local='Local',
+  Remote='Remote',
+}
+
+export const ViewImageButton = ({ reading, openLocalReadingImage }: { reading: AnyOrPendingReading, openLocalReadingImage: (fileUrl: string) => void}) => {
+  let buttonType: ViewImageButtonType = ViewImageButtonType.None;
+
+  const fileUrl = safeGetNestedDefault(reading, ['image', 'fileUrl'], null);
+  if (fileUrl) {
+    buttonType = ViewImageButtonType.Local;
+  }
+
+  // const base64Image = safeGetNestedDefault(reading, ['image', 'url'], null);
+
+
+  const readingId = getHashForReading(reading);
+  const buttonStyle = {};
+
+  return (
+    <View
+      style={{
+        width: 25,
+      }}
+    >
+      {buttonType === ViewImageButtonType.Remote && 
+        <FlatIconButton 
+          style={{
+            ...buttonStyle,
+          }}
+          name={'open-in-new'}
+          onPress={() => console.log('TODO: Load image in browser')}
+          color={secondary}
+          isLoading={false}
+          // size={32}
+        />
+      }
+      {buttonType === ViewImageButtonType.Local && 
+        <FlatIconButton 
+          style={{
+           ...buttonStyle,
+          }}
+          name={'open-in-new'}
+          onPress={() => openLocalReadingImage(fileUrl)}
+          color={secondary}
+          isLoading={false}
+          // size={32}
+        />
+      }
+    </View>
+  );
 }
 
 /**
@@ -194,6 +252,10 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
                 <Text
                   style={{ flex: 1}}
                 >{`${item.value} ${unitOfMeasure}`}</Text>
+                <ViewImageButton 
+                  reading={item}
+                  openLocalReadingImage={(fileUrl: string) => this.props.openLocalReadingImage(fileUrl)}
+                />
               </View> 
             )
           }}
