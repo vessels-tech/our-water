@@ -6495,10 +6495,10 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@^0.1.36:
-  version "0.1.36"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.36.tgz#5e777a60efbf45c509f722cb8105f6d9200f70bf"
-  integrity sha512-BamSjK1UuCulbj8k+3bR0UxG3lbbY85RWx7RxBrMMFSdvFFH8p9Ittnvrx50UjGCgJN498OPnn5kDAK4fSv8bw==
+ow_common@^0.1.37:
+  version "0.1.37"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.37.tgz#dc6690b1a2e4d90548a2c2a082af7fcfb9375e38"
+  integrity sha512-9ZLSmnASwdfQKXQkT2r14hrSB6b0PJkxiZokrUX8MrbMrxv5iep7G4YTzj/b0ojdN/WYNN/LZzebPVkdKy4fHg==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"

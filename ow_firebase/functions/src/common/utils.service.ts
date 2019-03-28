@@ -9,6 +9,7 @@ import { GroupType } from './enums/GroupType';
 import * as FbFirestore from 'firebase-admin';
 import { unsafeUnwrap } from 'ow_common/lib/utils';
 import ResourceStationType from 'ow_common/lib/enums/ResourceStationType';
+import { MyWellResourceTypes } from '../../tools/mywellConfig';
 
 type GeoPoint = FbFirestore.firestore.GeoPoint;
 
@@ -91,7 +92,7 @@ describe('Misc Tests', function() {
   });
 
   describe('remote config lookup', function () {
-    this.timeout(6500);
+    this.timeout(7000);
     this.slow(3000);
 
     it('Gets the remote config', async () => {
@@ -104,12 +105,7 @@ describe('Misc Tests', function() {
     });
 
     it('Gets the default quality timeseries', async () => {
-      //Arrange
-      const expected = [
-        { name: 'salinity', parameter: 'salinity', readings: [] },
-        { name: 'ph', parameter: 'ph', readings: [] },
-        { name: 'nitrogen', parameter: 'nitrogen', readings: [] }
-      ];
+      const expected = MyWellResourceTypes.quality;
 
       //Act
       const result = unsafeUnwrap(await getDefaultTimeseries(ResourceStationType.quality));

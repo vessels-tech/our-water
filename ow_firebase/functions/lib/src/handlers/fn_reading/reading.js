@@ -1,10 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const validate = require("express-validation");
 const express = require("express");
 const moment = require("moment");
 const utils_1 = require("../../common/utils");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
+const api_1 = require("ow_common/lib/api");
+const utils_2 = require("ow_common/lib/utils");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 module.exports = (functions) => {
@@ -117,6 +127,18 @@ module.exports = (functions) => {
             .then(result => res.json({ reading: result.id }))
             .catch(err => next(err));
     });
+    /**
+     * getReadingImage
+     *
+     * View a reading image for a given readingId. Returns a simple webpage
+     *
+     */
+    app.get(':orgId/:readingId/image', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        const { orgId, readingId } = req.params;
+        const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
+        const readingImage = utils_2.unsafeUnwrap(yield readingApi.getReadingImage(readingId));
+        res.send(`<img src="data:image/png;base64, ${readingImage}"/>`);
+    }));
     return functions.https.onRequest(app);
 };
 //# sourceMappingURL=reading.js.map

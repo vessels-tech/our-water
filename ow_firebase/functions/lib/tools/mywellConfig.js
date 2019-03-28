@@ -5,7 +5,7 @@ const MyWellResourceTypes = {
     raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
     quality: [
         { name: 'pH', parameter: 'ph', readings: [], unitOfMeasure: 'pH' },
-        { name: 'EC', parameter: 'EC', readings: [], unitOfMeasure: 'µS/cm' },
+        { name: 'EC', parameter: 'ec', readings: [], unitOfMeasure: 'µS/cm' },
         { name: 'Salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'PPM' },
         { name: 'Turbidity', parameter: 'turbidity', readings: [], unitOfMeasure: 'NTU' },
         { name: 'DO', parameter: 'do', readings: [], unitOfMeasure: 'mg/L' },

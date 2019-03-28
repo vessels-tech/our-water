@@ -3,6 +3,9 @@ import * as express from 'express';
 import * as moment from 'moment';
 import { snapshotToResourceList, enableLogging } from '../../common/utils';
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ReadingApi } from 'ow_common/lib/api';
+import { makeError, makeSuccess } from '../../common/types/dep_AppProviderTypes';
+import { safeGetNested, unsafeUnwrap } from 'ow_common/lib/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -143,6 +146,22 @@ module.exports = (functions) => {
       })
       .then(result => res.json({ reading: result.id }))
       .catch(err => next(err));
+  });
+
+
+  /**
+   * getReadingImage
+   * 
+   * View a reading image for a given readingId. Returns a simple webpage
+   * 
+   */
+  app.get(':orgId/:readingId/image', async (req, res, next) => {
+    const { orgId, readingId } = req.params;
+    const readingApi = new ReadingApi(firestore, orgId);
+
+    const readingImage = unsafeUnwrap(await readingApi.getReadingImage(readingId));
+
+    res.send(`<img src="data:image/png;base64, ${readingImage}"/>`);
   });
 
   return functions.https.onRequest(app);

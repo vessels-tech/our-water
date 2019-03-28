@@ -43,11 +43,13 @@ module.exports = (functions) => {
         },
         body: {
             status: Joi.string().valid(UserStatus_1.default.Approved, UserStatus_1.default.Rejected),
+            shouldSync: Joi.boolean(),
         },
     };
     app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const { status } = req.body;
+        const shouldSync = req.body.shouldSync || false;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
         const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
         //TODO: how to make sure only Admin can call this endpoint? 
@@ -56,7 +58,7 @@ module.exports = (functions) => {
         if (statusResult.type === AppProviderTypes_1.ResultType.ERROR) {
             throw new Error(statusResult.message);
         }
-        if (status === "Approved") {
+        if (status === "Approved" && shouldSync) {
             const syncResult = yield fbApi.syncPendingForUser(orgId, userId);
             if (syncResult.type === AppProviderTypes_1.ResultType.ERROR) {
                 throw new Error(syncResult.message);

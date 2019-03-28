@@ -111,6 +111,9 @@ install:
 # Deployment
 # ------------
 
+test-and-deploy:
+	make test-unit test-service deploy
+
 deploy:
 	@echo 'Deploying Firebase'
 	@./_deploy_fb.sh
