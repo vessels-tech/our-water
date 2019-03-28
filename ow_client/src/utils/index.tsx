@@ -309,7 +309,6 @@ export const boundingBoxForCoords = (latitude: number, longitude: number , dista
   };
 }
 
-
 export const randomPrettyColorForId = (resourceId: string) => {
   const idNumber = Math.abs(hashCode(resourceId))
   const index = (idNumber % prettyColors.length);

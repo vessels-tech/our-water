@@ -157,8 +157,6 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   async reloadResourceAndReadings() {
-   
-
     const DEFAULT_RANGE = TimeseriesRange.EXTENT;
     const {
       resource_loading_error,
@@ -182,9 +180,28 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return;
     }
 
+    //TODO: make this a configurable switch
+    const loadResourceTimeseriesFromDefault = true;
+
     if (result.type === ResultType.SUCCESS) {
-      //TODO: ts.name or ts.parameter??
-      result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.parameter, ts.id, DEFAULT_RANGE)
+
+      //GGMN approach, we need the timeseriesId
+      if (!loadResourceTimeseriesFromDefault) {
+        result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
+          .then(result => {
+            //This needs to be a different number maybe?
+            this.setState({ hackViewPager: 2 });
+            if (result.type === ResultType.ERROR) {
+              ToastAndroid.show(`${timeseries_loading_error}`, ToastAndroid.LONG);
+            }
+          }));
+
+        return;
+      }
+
+      //MyWell Approach, we don't care about the timeseriesId
+      const defaultTimeseries = this.getDefaultTimeseries();
+      defaultTimeseries.forEach((ts: ConfigTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.parameter, ts.parameter, DEFAULT_RANGE)
         .then(result => {
           //This needs to be a different number maybe?
           this.setState({ hackViewPager: 2 });
@@ -297,7 +314,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
   }
 
   getLatestReadingsForTimeseries() {
-    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList, resource } = this.props;
+    const { newTsReadings, newTsReadingsMeta, resourceMeta, timeseriesList } = this.props;
     const { 
       timeseries_name_title, 
       timeseries_date_format, 

@@ -3,15 +3,12 @@ import * as React from 'react'
 import { AnyOrPendingReading } from "../../reducers";
 import Svg, { Circle, Line, Rect, Text, G } from 'react-native-svg'
 import * as moment from 'moment';
-import { primaryLight, primaryDark, surfaceText, secondaryDark, secondaryPallette } from '../../utils/NewColors';
-import { arrayLowest } from '../../utils';
+import { surfaceText, secondaryDark, secondaryPallette } from '../../utils/NewColors';
 //@ts-ignore
-import { LineChart, Grid, XAxis, YAxis } from 'react-native-svg-charts'
+import { YAxis } from 'react-native-svg-charts'
 import { ChartDateOption } from './SimpleChart';
-import { date } from 'react-native-joi';
 import { TimeseriesRange } from '../../typings/models/OurWater';
-import TimeseriesSummaryText from './TimeseriesSummaryText';
-
+import { dedupArray } from '../../utils';
 
 
 export type ContentInsetType = {
@@ -78,15 +75,18 @@ export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: numbe
   let min = Number.MAX_SAFE_INTEGER;
   let max = 0;
 
+  //Deduplicate the readings - otherwise we will get a crash when all readings have the same value
+  const dedupedReadings = dedupArray(readings, r => `${r.value}`);
+
   //If readings only has one reading, add some decent padding
-  if (readings.length === 0) {
+  if (dedupedReadings.length === 0) {
     return {
       min: 0,
       max: 100,
     }
   }
 
-  if (readings.length === 1) {
+  if (dedupedReadings.length === 1) {
     const r = readings[0];
     return {
       min: 0,
@@ -94,7 +94,7 @@ export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: numbe
     }
   }
 
-  readings.forEach(r => {
+  dedupedReadings.forEach(r => {
     if (r.value > max) {
       max = r.value;
     }
@@ -155,6 +155,10 @@ export const getDatesForDataAndDistribution = (
   const datesCount = 4
   const step = diff / datesCount;
   const finalDates = [];
+
+  if (step === 0) {
+    throw new Error('getDatesForDataAndDistribution, Cannot build values when step is 0');
+  }
   for (let i = firstUnix; i <= lastUnix; i += step ) {
     const tweenDate = new Date(i);
     finalDates.push(tweenDate);
@@ -169,10 +173,13 @@ export const getValuesForDataAndDistribution = (data: AnyOrPendingReading[], tic
   }
   const { min, max } = getMinAndMaxValues(data);
   const diff = max - min;
-  const step = Math.ceil(diff/ticks);
+  let step = Math.ceil(diff/ticks);
+  if (step === 0) {
+    throw new Error('getValuesForDataAndDistribution, Cannot build values when step is 0');
+  }
   const values = [];
 
-  for (let i = min; i <= max; i+= step) {
+  for (let i = min; i <= max; i += step) {
     values.push(i);
   }
   
