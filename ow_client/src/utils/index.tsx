@@ -936,9 +936,7 @@ export const getHeadingForTimeseries = (resourceType: ResourceType, name: string
 
   switch (resourceType) {
     case ResourceType.raingauge: return "Rainfall";
-    case ResourceType.quality: {
-      return capitalizeFirstLetter(name);
-    }
+    case ResourceType.quality: return name;
     case ResourceType.custom: {
       return capitalizeFirstLetter(name);
     }

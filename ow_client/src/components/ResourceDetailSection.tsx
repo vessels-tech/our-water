@@ -184,7 +184,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
 
     if (result.type === ResultType.SUCCESS) {
       //TODO: ts.name or ts.parameter??
-      result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.name, ts.id, DEFAULT_RANGE)
+      result.result.timeseries.forEach((ts: AnyTimeseries) => this.props.getReadings(this.appApi, this.props.resourceId, ts.parameter, ts.id, DEFAULT_RANGE)
         .then(result => {
           //This needs to be a different number maybe?
           this.setState({ hackViewPager: 2 });
@@ -339,7 +339,7 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     return Object.keys(timeseriesList).map((key: string) => {
       const readings: Array<AnyOrPendingReading> = timeseriesList[key];
       //TODO: ts.name or ts.parameter??
-      const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.name === key);
+      const defaultTimeseries = defaultTimeseriesList.find((ts) => ts.parameter === key);
       let heading = "default"
       let unitOfMeasure = 'm';
       if (defaultTimeseries) {
