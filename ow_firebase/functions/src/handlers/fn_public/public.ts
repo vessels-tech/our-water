@@ -2,24 +2,45 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
 import ErrorHandler from '../../common/ErrorHandler';
-import { generateQRCode, getWholeQR } from '../../common/apis/QRCode';
-import { writeFileAsync, enableLogging, zipFolderAsync } from '../../common/utils';
-import { ResultType, unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
+import { getWholeQR } from '../../common/apis/QRCode';
+import { writeFileAsync, enableLogging, zipFolderAsync, getPublicDownloadUrl } from '../../common/utils';
+import { unsafeUnwrap } from 'ow_common/lib/utils/AppProviderTypes';
 import { ReadingApi, ExportApi, ExportFormat } from 'ow_common/lib/api';
 import * as moment from 'moment';
-import { firestore } from '../../common/apis/FirebaseAdmin';
+import { firestore, storage as fbStorage } from '../../common/apis/FirebaseAdmin';
 import FirebaseApi from '../../common/apis/FirebaseApi';
+import { storageBucket, firebaseToken } from '../../common/env';
+
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fs = require('fs');
+// const fileUpload = require('express-fileupload');
+const fileMiddleware = require('express-multipart-file-parser')
+
+// const multer = require('multer')
+// const upload = multer({ dest: 'tmp/' })
+// const storage = multer.diskStorage({
+//   destination: '/tmp/uploads',
+//   // filename: function (req, file, cb) {
+//   //   cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//   // }
+// });
+
+// const upload = multer({
+//   storage: storage,
+//   limits: {
+//     fileSize: 100000000
+//   }
+// });
+
 require('express-async-errors');
 
 module.exports = (functions) => {
   const app = express();
   app.use(bodyParser.json());
+  app.use(fileMiddleware)
   enableLogging(app);
-
 
   /**
    * GenerateQRCode
@@ -188,7 +209,48 @@ module.exports = (functions) => {
     res.send(`<img width="300" src="data:image/png;base64, ${readingImage}"/>`);
   });
 
+  /**
+ * Upload profile image, and save to firebase
+ * 
+ * image should be called `image`
+ */
+  app.post('/:orgId/uploadImage', async function (req, res) {
+    //@ts-ignore
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
 
+    //@ts-ignore
+    if (Object.keys(req.files).length > 1) {
+      return res.status(400).send('Can only upload 1 file at a time');
+    }
+
+    // @ts-ignore
+    const fileBuffer = req.files[0].buffer;
+
+    const filename = `${moment().valueOf()}`;
+    const localFile = `/tmp/${filename}`;
+    const filePath = `resource_profiles/${filename}.png`;
+    await fs.writeFileSync(localFile, fileBuffer);
+    const bucket = fbStorage.bucket();
+
+    await bucket.upload(localFile, {
+      gzip: true,
+      destination: filePath,
+      public: true,
+      metadata: {
+        metadata: {
+          firebaseStorageDownloadTokens: firebaseToken
+        }
+      }
+    });
+
+    const publicDownloadUrl = getPublicDownloadUrl(filePath);
+    res.send({ url: publicDownloadUrl });
+  });
+
+
+ 
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);

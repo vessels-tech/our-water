@@ -19,13 +19,31 @@ const api_1 = require("ow_common/lib/api");
 const moment = require("moment");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const FirebaseApi_1 = require("../../common/apis/FirebaseApi");
+const env_1 = require("../../common/env");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const fs = require('fs');
+// const fileUpload = require('express-fileupload');
+const fileMiddleware = require('express-multipart-file-parser');
+// const multer = require('multer')
+// const upload = multer({ dest: 'tmp/' })
+// const storage = multer.diskStorage({
+//   destination: '/tmp/uploads',
+//   // filename: function (req, file, cb) {
+//   //   cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//   // }
+// });
+// const upload = multer({
+//   storage: storage,
+//   limits: {
+//     fileSize: 100000000
+//   }
+// });
 require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
     app.use(bodyParser.json());
+    app.use(fileMiddleware);
     utils_1.enableLogging(app);
     /**
      * GenerateQRCode
@@ -161,6 +179,42 @@ module.exports = (functions) => {
         const readingImage = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingImage(readingId));
         res.send(`<img width="300" src="data:image/png;base64, ${readingImage}"/>`);
     }));
+    /**
+   * Upload profile image, and save to firebase
+   *
+   * image should be called `image`
+   */
+    app.post('/:orgId/uploadImage', function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //@ts-ignore
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).send('No files were uploaded.');
+            }
+            //@ts-ignore
+            if (Object.keys(req.files).length > 1) {
+                return res.status(400).send('Can only upload 1 file at a time');
+            }
+            // @ts-ignore
+            const fileBuffer = req.files[0].buffer;
+            const filename = `${moment().valueOf()}`;
+            const localFile = `/tmp/${filename}`;
+            const filePath = `resource_profiles/${filename}.png`;
+            yield fs.writeFileSync(localFile, fileBuffer);
+            const bucket = FirebaseAdmin_1.storage.bucket();
+            yield bucket.upload(localFile, {
+                gzip: true,
+                destination: filePath,
+                public: true,
+                metadata: {
+                    metadata: {
+                        firebaseStorageDownloadTokens: env_1.firebaseToken
+                    }
+                }
+            });
+            const publicDownloadUrl = utils_1.getPublicDownloadUrl(filePath);
+            res.send({ url: publicDownloadUrl });
+        });
+    });
     /* CORS Configuration */
     const openCors = cors({ origin: '*' });
     app.use(openCors);

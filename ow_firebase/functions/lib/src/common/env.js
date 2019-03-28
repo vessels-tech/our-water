@@ -30,4 +30,6 @@ exports.temporaryAdminAccessToken = envConfig.config.temporary_admin_access_toke
 exports.temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 exports.verboseLog = getBoolean(envConfig.config.verbose_log);
 exports.projectId = envConfig.config.project_id;
+exports.storageBucket = `${exports.projectId}.appspot.com`;
+exports.firebaseToken = '15367152749123896'; //This isn't too precious, our files are public anyway
 //# sourceMappingURL=env.js.map

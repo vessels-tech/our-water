@@ -33,3 +33,5 @@ export const temporaryAdminAccessToken = envConfig.config.temporary_admin_access
 export const temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 export const verboseLog = getBoolean(envConfig.config.verbose_log);
 export const projectId = envConfig.config.project_id;
+export const storageBucket = `${projectId}.appspot.com`;
+export const firebaseToken = '15367152749123896'; //This isn't too precious, our files are public anyway

@@ -440,4 +440,10 @@ function zipFolderAsync(folderPath, archivePath) {
     });
 }
 exports.zipFolderAsync = zipFolderAsync;
+function getPublicDownloadUrl(storagePath) {
+    const urlPrefix = `https://www.googleapis.com/download/storage/v1/b/${env_1.storageBucket}/o/`;
+    //eg: https://www.googleapis.com/download/storage/v1/b/tz-phone-book.appspot.com/o/tz_audio%2F015a_Voicebook_Swahili.mp3?alt=media&token=1536715274666696
+    return `${urlPrefix}${encodeURIComponent(storagePath)}?alt=media&token=${env_1.firebaseToken}`;
+}
+exports.getPublicDownloadUrl = getPublicDownloadUrl;
 //# sourceMappingURL=utils.js.map
