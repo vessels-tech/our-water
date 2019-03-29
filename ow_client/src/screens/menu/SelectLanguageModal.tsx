@@ -59,7 +59,11 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
-    const { selectedTranslation, translation: { templates: { select_language_heading }} } = this.props;
+    const { selectedTranslation } = this.props;
+    const {
+      select_language_heading,
+      select_language_popup,
+    } = this.props.translation.templates
 
     return (
       <View 
@@ -88,8 +92,7 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
           onValueChange={async (translation: TranslationEnum) => {
             await this.props.changeTranslation(this.userApi, this.props.userId, translation);
             crashlyticsLog(`Changed Language to: ${this.getTranslationLabel(translation)}`);
-            //TODO: translate
-            ToastAndroid.show(`Changed Language to: ${this.getTranslationLabel(translation)}`, ToastAndroid.SHORT);
+            ToastAndroid.show(select_language_popup(this.getTranslationLabel(translation)), ToastAndroid.SHORT);
             this.props.navigator.dismissLightBox();
           }}
         >

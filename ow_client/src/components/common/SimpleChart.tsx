@@ -10,7 +10,7 @@ import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
 //@ts-ignore
 import * as scale from 'd3-scale';
-import { ChartDots, ShortGridLabels, ShortGrid, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid, strokeForIndex, strokeOpacityForIndex } from './ChartHelpers';
+import { ChartDots, SimpleYAxis, ContentInsetType, DateTicks, DateLabels, VerticalGrid, getDatesForDataAndDistribution, YAxisLabels, getMinAndMaxValues, HorizontalGrid, strokeForIndex, strokeOpacityForIndex } from './ChartHelpers';
 import { ResourceType } from '../../enums';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../../config/ConfigFactory';
@@ -129,15 +129,11 @@ class SimpleChart extends React.PureComponent<Props> {
       return null;
     }
 
-    //TODO: Translate
-    const rainfall_total_heading = 'Rainfall in mm ';
-    const rainfall_total_subtitle = 'Last 3 months';
-    const rainfall_total_content_subtitle = 'total';
-    // const {
-    //   rainfall_total_heading,
-    //   rainfall_total_subtitle,
-    //   rainfall_total_content_subtitle,
-    // } = this.props.translation.templates;
+    const {
+      rainfall_total_heading,
+      rainfall_total_subtitle,
+      rainfall_total_content_subtitle,
+    } = this.props.translation.templates;
 
     const total = readings.reduce((acc, curr) => acc + curr.value, 0);
 
@@ -166,16 +162,12 @@ class SimpleChart extends React.PureComponent<Props> {
     if (!shouldShowLegend) {
       return null;
     }
-
-    //TODO: Translate
-    const legend_text_year_one = '1 Year Ago:';
-    const legend_text_year_two = '2 Years Ago:';
-    const legend_text_year_three = '3 Years Ago:';
-    // const {
-    //   legend_text_year_one
-    //   legend_text_year_two
-    //   legend_text_year_three
-    // } = this.props.translation.templates;
+    
+    const {
+      legend_text_year_one
+      legend_text_year_two
+      legend_text_year_three
+    } = this.props.translation.templates;
     
     const legendBoxDefaultStyle = { height: 20, width: 20 };
     const textDefaultStyle: StyleProp<TextStyle> = { fontWeight: '500' };

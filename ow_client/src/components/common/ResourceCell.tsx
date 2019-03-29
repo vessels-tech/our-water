@@ -18,6 +18,7 @@ import * as Animatable from 'react-native-animatable';
 
 import withPreventDoubleClick from './withPreventDoubleClick';
 import { surfaceText } from '../../utils/NewColors';
+import { TranslationFile } from 'ow_translations/src/Types';
 const TouchableNativeFeedbackEx = withPreventDoubleClick(TouchableNativeFeedback);
 
 export interface OwnProps {
@@ -32,6 +33,7 @@ export interface StateProps {
   shortIdMeta?: ActionMeta,
   shortId?: string,
   isNew: boolean,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -111,18 +113,13 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
 
   render() {
     const { resource, isNew } = this.props;
-
+    const {
+      new_label
+    } = this.props.translation.templates;
     const backgroundColor = randomPrettyColorForId(resource.id);
 
     return (
       <View style={{
-        // marginVertical: 10,
-        // marginHorizontal: 10,
-        // shadowOffset: { width: 10, height: 10, },
-        // shadowColor: 'red',
-        // shadowOpacity: 1.0,
-        // ...this.props.style,
-        
       }}
         key={resource.id}
       >
@@ -155,8 +152,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
           isNew &&
           <Badge
             containerStyle={{ marginBottom: 25, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 25, right: 0 }}
-            //TODO: translate
-            value={"New!"}
+            value={new_label}
             textStyle={{ fontSize: 8, fontWeight: '300' }}
           />
         }
@@ -176,6 +172,7 @@ const mapStateToProps = (state: AppState, props: OwnProps) => {
     shortIdMeta,
     shortId,
     isNew,
+    translatio: state.translation,
   }
 }
 

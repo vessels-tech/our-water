@@ -282,18 +282,18 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   getForm() {
     const {
       userIdMeta: { loading },
-      translation: { templates: {
-        connect_to_service_username_field,
-        connect_to_service_username_invalid,
-        connect_to_service_submit_button,
-        connect_to_service_description,
-        connect_to_invalid_phone_number,
-      } },
     } = this.props;
 
-    //TODO: translate
-    const connect_to_must_accept_conditions = "You must accept the conditions to continue.";
-    const connect_to_service_conditions = "<p>I agree to and accept the </br><a href='https://our-water-dev.firebaseapp.com/about_mywell_en.html'>MyWell Data conditions</a>.</p>";
+    const { 
+      connect_to_service_username_field,
+      connect_to_service_username_invalid,
+      connect_to_service_submit_button,
+      connect_to_service_description,
+      connect_to_invalid_phone_number,
+      connect_to_must_accept_conditions,
+      connect_to_service_conditions,
+    } = this.props.translation.templates;
+    
 
     return (
       <View 

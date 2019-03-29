@@ -18,6 +18,7 @@ import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { SyncMeta } from '../typings/Reducer';
 
 import firebase from 'react-native-firebase'
+import { TranslationFile } from 'ow_translations';
 const crashlytics = firebase.crashlytics()
 
 
@@ -31,6 +32,7 @@ export interface OwnProps {
 export interface StateProps {
   location: Location | NoLocation,
   locationMeta: SyncMeta,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -48,9 +50,10 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
   async updateGeoLocation() {
     const result = await this.props.getGeoLocation();
+    const {
+      load_location_error_message
+    } = this.props.translation;
     
-    //TODO: translate
-    const load_location_error_message = `Couldn't get your location. Please enable location services and try again`;
     if (result.type === ResultType.ERROR) {
       ToastAndroid.show(load_location_error_message, ToastAndroid.LONG);
       return;
@@ -110,6 +113,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     location: state.location,
     locationMeta: state.locationMeta,
+    translation: state.translation,
   }
 }
 

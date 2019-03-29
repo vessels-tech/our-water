@@ -6511,10 +6511,10 @@ ow_common@^0.1.38:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.13.tgz#5f7970984a4033eaae22ac9a83822c3c1430435b"
-  integrity sha512-w17iFDrszCgR74ZHe0hMQiOj8TRQovcUfcxYDUTIdmIuDJHuhcwX6Z0k2k7X013vEyS+cVm2FAK7BmsV/OHGCw==
+ow_translations@^0.1.14:
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.14.tgz#a61762e402b45db91a215dade4a48e1c830aeded"
+  integrity sha512-t3UE6rHbzUBoXoB8OtVetBYFsC1nZdP/lh3aZ6vbnMgqyz8MDYxtUPW6N0ZcoXiOLyg2v4mS25XK/6um2u6Kqw==
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -6525,9 +6525,9 @@ ow_translations@^0.1.13:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
-  version "0.1.13"
-  resolved "git://github.com/vessels-tech/ow_translations.git#e13e16f58882dae95af6b259c450b1ae423ef397"
+"ow_translations@git://github.com/vessels-tech/ow_translations":
+  version "0.1.14"
+  resolved "git://github.com/vessels-tech/ow_translations#46e7c63a9d1c5593acecf3c900cbe9f20050aeec"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

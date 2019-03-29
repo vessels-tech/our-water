@@ -98,10 +98,13 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   async startInternalSync() {
+    const { 
+      sync_error_message
+    } = this.props.translation;
+
     const result = await this.props.startInternalSync(this.appApi, this.props.userId);
     if (result.type === ResultType.ERROR) {
-      //TODO: Translate
-      ToastAndroid.show(result.message, ToastAndroid.LONG);
+      ToastAndroid.show(sync_error_message, ToastAndroid.LONG);
     }
   }
 

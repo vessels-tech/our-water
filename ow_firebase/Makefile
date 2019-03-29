@@ -37,17 +37,6 @@ switch-prod:
 #
 #	Remote Config
 # ------------
-
-update-translations:
-	@echo 'pulling translations'
-	cd ${dir}/../ow_translations && make 
-
-	@make install-translations
-	@make update-remote-config
-
-install-translations:
-	@echo 'installing latest packages'
-	cd ${dir}/functions && npm install
 	
 update-remote-config:
 	@echo 'deploying remote config'

@@ -175,8 +175,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onTakePictureError(message: string) {
-    //TODO: translate
-    const take_picture_error_message = 'There was a problem taking the picture. Make sure you have enabled photo permissions and try again';
+    const { 
+      take_picture_error_message
+    } = this.props.translation.templates
+
     ToastAndroid.show(take_picture_error_message, ToastAndroid.LONG);
     maybeLog('Error taking picture', message);
     this.props.navigator.dismissModal();
@@ -341,12 +343,14 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   getImageSection() {
     const { readingImage } = this.state;
 
+    const {
+      add_image_text
+    } = this.props.translation.templates;
+
     if (!this.props.config.getNewReadingShouldShowImageUpload()) {
       return null;
     }
 
-    //TODO: Translate
-    const add_image_text = "Add an Image";
     return (
       <View style={{
         height: 300,

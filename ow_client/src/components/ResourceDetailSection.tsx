@@ -430,11 +430,9 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const {
       resource_detail_owner_section,
       resource_detail_owner_name,
-      // resource_detail_placeholder_url,
+      resource_detail_placeholder_url,
     } = this.props.translation.templates;
     
-    //TODO: translate
-    const resource_detail_placeholder_url = 'https://our-water-dev.firebaseapp.com/placeholder_placeholder.png';
     const uri = safeGetNestedDefault(this.props, ['resource', 'owner', 'profileUrl'], resource_detail_placeholder_url);
 
     return (

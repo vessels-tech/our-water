@@ -221,11 +221,8 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
     const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure } } = this.props;
     const { 
       default_datetime_format,
-      // reading_image_url_builder
+      reading_image_url_builder
     } = this.props.translation.templates;
-
-    //TODO: translate:
-    const reading_image_url_builder = (id: string) => `https://us-central1-our-water-dev.cloudfunctions.net/public/mywell/image/${id}`;
 
     if (cardType !== TimeseriesCardType.table) {
       return null;
