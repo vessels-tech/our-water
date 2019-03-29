@@ -6495,10 +6495,10 @@ output-file-sync@^2.0.0:
     is-plain-obj "^1.1.0"
     mkdirp "^0.5.1"
 
-ow_common@^0.1.38:
-  version "0.1.38"
-  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.38.tgz#0848b65f1e31a3bcdc3773063deec00706ce70cd"
-  integrity sha512-ZN/BFGaiA+1RG3HpfI3+y9sIFAdTDCoiqDAjfj2KYUmreZKoOPmBzsIceqqQrdj6Fv6kxc/OjdhTkcJuE88KJA==
+ow_common@^0.1.39:
+  version "0.1.39"
+  resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.39.tgz#e47e130ba89b6a6158118670d632e7d64540ca05"
+  integrity sha512-s92QlAOSgXgV2Ntn9p98CVlzdMGuDcYzl2bTOfd2BabXA61VuRi0qoDKhsJDZVilTwBB85iJ+ouTYci/7a3WJg==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -6525,9 +6525,9 @@ ow_translations@^0.1.14:
     "@types/request-promise-native" "^1.0.15"
     request-promise "^4.2.2"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations":
+"ow_translations@git://github.com/vessels-tech/ow_translations.git":
   version "0.1.14"
-  resolved "git://github.com/vessels-tech/ow_translations#46e7c63a9d1c5593acecf3c900cbe9f20050aeec"
+  resolved "git://github.com/vessels-tech/ow_translations.git#46e7c63a9d1c5593acecf3c900cbe9f20050aeec"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

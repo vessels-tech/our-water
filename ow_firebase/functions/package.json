@@ -52,7 +52,7 @@
     "morgan-body": "^2.4.5",
     "multer": "^1.4.1",
     "nodemailer": "^4.6.8",
-    "ow_common": "^0.1.38",
+    "ow_common": "^0.1.39",
     "ow_translations": "^0.1.14",
     "ow_types": "https://github.com/vessels-tech/ow_types#76011ba54cece194083eaf06fd90ba73ce9323db",
     "papaparse": "^4.4.0",

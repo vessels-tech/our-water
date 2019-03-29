@@ -505,6 +505,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           {this.getOwnerSection()}
           {this.getSummarySection()}
           {this.getQRCode()}
+          {/* Dummy view to make scroll to bottom possible  */}
+          <View
+            style={{
+              height: 40,
+            }}
+          />
         </ScrollView>
 
         {/* Bottom Buttons */}
@@ -599,12 +605,12 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
       return (
         <TabView
           tabLabel={{ type: TabType.Table, name: timeseries.name }}
-          key={`graph_${idx + 1}_${timeseries.name}`}
+          key={`graph_${this.props.resourceId}_${idx + 1}_${timeseries.name}`}
           style={{ alignItems: 'center' }}
         >
           <TimeseriesCardSimple
             cardType={TimeseriesCardType.table}
-            key={`${idx + 1}_${timeseries.name}`}
+            key={`graph_${this.props.resourceId}_${idx + 1}_${timeseries.name}`}
             config={this.props.config}
             timeseries={timeseries}
             resourceId={this.props.resourceId}

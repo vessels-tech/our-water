@@ -114,7 +114,7 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
   render() {
     const { resource, isNew } = this.props;
     const {
-      new_label
+      new_label,
     } = this.props.translation.templates;
     const backgroundColor = randomPrettyColorForId(resource.id);
 
@@ -172,7 +172,7 @@ const mapStateToProps = (state: AppState, props: OwnProps) => {
     shortIdMeta,
     shortId,
     isNew,
-    translatio: state.translation,
+    translation: state.translation,
   }
 }
 

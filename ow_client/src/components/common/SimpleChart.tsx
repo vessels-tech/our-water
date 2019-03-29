@@ -164,9 +164,9 @@ class SimpleChart extends React.PureComponent<Props> {
     }
     
     const {
-      legend_text_year_one
-      legend_text_year_two
-      legend_text_year_three
+      legend_text_year_one,
+      legend_text_year_two,
+      legend_text_year_three,
     } = this.props.translation.templates;
     
     const legendBoxDefaultStyle = { height: 20, width: 20 };

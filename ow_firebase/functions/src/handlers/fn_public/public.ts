@@ -158,13 +158,16 @@ module.exports = (functions) => {
     const dirName = `/tmp/${resourceId[0]}_${momentUnix}`;
     const archiveName = `/tmp/${resourceId[0]}_${momentUnix}.zip`;
 
+    console.log("resourceId is", resourceId);
+
+
     const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceId, { limit: 200 }));
     if (readings.readings.length === 0) {
       const error = new Error(`No readings found for ids: ${resourceId}`);
       return res.status(404).send(error);
     }
 
-    //TODO: get a zip file containing all images 
+    //Get a zip file containing all images 
     const readingImagesBase64: Array<{id: string, base64: string}> = ExportApi.exportReadingImages(readings.readings);
     if (readingImagesBase64.length === 0) {
       const error = new Error(`No images found for readings for resourceId: ${resourceId}`);

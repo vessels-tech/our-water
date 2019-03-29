@@ -115,7 +115,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   render() {
     const { pendingReadings } = this.props;
     const { 
-      edit_readings_no_readings
+      edit_readings_no_readings,
       edit_readings_new_reading
     } = this.props.translation.templates;
 

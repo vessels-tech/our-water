@@ -141,12 +141,13 @@ module.exports = (functions) => {
         const momentUnix = moment().unix();
         const dirName = `/tmp/${resourceId[0]}_${momentUnix}`;
         const archiveName = `/tmp/${resourceId[0]}_${momentUnix}.zip`;
+        console.log("resourceId is", resourceId);
         const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceId, { limit: 200 }));
         if (readings.readings.length === 0) {
             const error = new Error(`No readings found for ids: ${resourceId}`);
             return res.status(404).send(error);
         }
-        //TODO: get a zip file containing all images 
+        //Get a zip file containing all images 
         const readingImagesBase64 = api_1.ExportApi.exportReadingImages(readings.readings);
         if (readingImagesBase64.length === 0) {
             const error = new Error(`No images found for readings for resourceId: ${resourceId}`);
