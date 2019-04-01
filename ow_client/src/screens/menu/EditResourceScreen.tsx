@@ -631,11 +631,21 @@ class EditResourceScreen extends Component<Props> {
       new_resource_water_column_height,
     } = this.props.translation.templates;
 
+    //TODO: Translate
+    const translate_resource_type = (type: ResourceType) => {
+      switch (type) {
+        case ResourceType.checkdam: return 'Check Dam';
+        case ResourceType.well: return 'Well';
+        case ResourceType.custom: return 'Custom';
+        case ResourceType.quality: return 'Quality';
+        case ResourceType.raingauge: return 'Raingauge';
+      }
+    }
+
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
       .map((t: ResourceType) => ({
         key: t,
-        //TODO: translate based on language settings
-        label: t,
+        label: translate_resource_type(t),
       }));
 
     return (
@@ -653,11 +663,9 @@ class EditResourceScreen extends Component<Props> {
             <ScrollView
               ref={(sv) => this.scrollView = sv}
               onScroll={(event: any) => maybeLog("scroll offset", event.nativeEvent.contentOffset.y)}
-              // style={{flex: 1, height: 200}}
               style={{ 
                 height: '100%',
                 paddingBottom: fixedButtonHeight,
-                // backgroundColor: 'purple',
               }}
               contentOffset={{x: 0, y: this.state.scrollOffset}}
               contentContainerStyle={{ flexGrow: 1 }}

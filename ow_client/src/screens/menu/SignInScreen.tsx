@@ -294,7 +294,6 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       connect_to_service_conditions,
     } = this.props.translation.templates;
     
-
     return (
       <View 
         key="loginForm"

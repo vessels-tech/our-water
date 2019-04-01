@@ -22,6 +22,7 @@ export default class HeadingText extends React.PureComponent<Props> {
           flexDirection: 'row',
           justifyContent: 'space-between',
           paddingVertical: 5,
+          flexGrow: 1,
         }}>
           <Text style={{
             fontSize: 17,
@@ -29,10 +30,12 @@ export default class HeadingText extends React.PureComponent<Props> {
             color: surfaceText.high,
           }}>{heading}</Text>
           <Text style={{
+            flex: 1,
             fontSize: 17,
             fontWeight: '100',
             paddingLeft: 50,
             color: surfaceText.high,
+            flexWrap: 'wrap',
           }}>{content}</Text>
         </View>
       </TouchableNativeFeedback>
