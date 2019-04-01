@@ -35,7 +35,7 @@ import io.invertase.firebase.perf.RNFirebasePerformancePackage;
 import com.masteratul.exceptionhandler.ReactNativeExceptionHandlerPackage;
 
 //react-native-webview
-import com.reactnativecommunity.webview.RNCWebViewPackage;
+// import com.reactnativecommunity.webview.RNCWebViewPackage;
 
 
 import java.util.Arrays;
@@ -68,8 +68,8 @@ public class MainApplication extends NavigationApplication {
             new RNFirebaseCrashlyticsPackage(),
             new RNFirebasePerformancePackage(),
             new RNCameraPackage(),
-            new ReactNativeExceptionHandlerPackage(),
-            new RNCWebViewPackage()
+            new ReactNativeExceptionHandlerPackage()
+            // new RNCWebViewPackage()
       );
   }
 

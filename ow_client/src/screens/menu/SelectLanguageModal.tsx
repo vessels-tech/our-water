@@ -55,7 +55,12 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
     if (!translation) {
       return '';
     }
-    return `${translation.metadata.language} (${translation.metadata.region})`
+    let subtitle = "";
+    if (translation.metadata.region !== "") {
+      subtitle = `(${translation.metadata.region})`;
+    }
+
+    return `${translation.metadata.language} ${subtitle}`
   }
 
   render() {
