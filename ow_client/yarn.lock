@@ -4551,7 +4551,7 @@ inquirer@^3.0.6:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
-invariant@^2.0.0, invariant@^2.2.2:
+invariant@2.2.4, invariant@^2.0.0, invariant@^2.2.2:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   dependencies:
@@ -6498,7 +6498,6 @@ output-file-sync@^2.0.0:
 ow_common@^0.1.39:
   version "0.1.39"
   resolved "https://registry.yarnpkg.com/ow_common/-/ow_common-0.1.39.tgz#e47e130ba89b6a6158118670d632e7d64540ca05"
-  integrity sha512-s92QlAOSgXgV2Ntn9p98CVlzdMGuDcYzl2bTOfd2BabXA61VuRi0qoDKhsJDZVilTwBB85iJ+ouTYci/7a3WJg==
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -6514,7 +6513,6 @@ ow_common@^0.1.39:
 ow_translations@^0.1.16:
   version "0.1.16"
   resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.16.tgz#b7a3c08e397e946ede15f0bbea3af0558ea29857"
-  integrity sha512-IsURXoiYW/niW39VuxBiYDRy2T3U8RocdkrPZwZM7ZgjJ5n2k525wSY/1ijwGjJMhTDzGy4aSJA8JJaV+1AD4Q==
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -7183,6 +7181,13 @@ react-native-vector-icons@6.1.0:
     lodash "^4.0.0"
     prop-types "^15.6.2"
     yargs "^8.0.2"
+
+react-native-webview@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-5.5.0.tgz#fd2f2999d3c1628d9d22a018189e943718410e82"
+  dependencies:
+    escape-string-regexp "1.0.5"
+    invariant "2.2.4"
 
 react-native@0.55.3:
   version "0.55.3"

@@ -154,6 +154,10 @@ dependencies {
     // implementation "com.android.support:support-annotations:+"
     // implementation "com.android.support:support-v4:+"
 
+    //react-native-webview
+    implementation project(':react-native-webview')
+
+
     //react-native-camera
     // compile (project(':react-native-camera')) {
     //    exclude group: "com.google.android.gms"
