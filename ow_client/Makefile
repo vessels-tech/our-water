@@ -158,6 +158,11 @@ build-and-install-production:
 	@make bundle build-production install-android-production
 
 
+get-sha1:
+	@echo "alias: ${KEYSTORE_ALIAS} path: ${KEYSTORE_PATH}"
+	@keytool -exportcert -list -v -alias ${KEYSTORE_ALIAS} -keystore ${KEYSTORE_PATH} -storepass ${KEYSTORE_PASSWORD}
+
+
 #
 #	Deployment
 # ------------
