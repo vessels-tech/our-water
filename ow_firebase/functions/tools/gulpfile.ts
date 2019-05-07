@@ -9,6 +9,9 @@ import { readingToCSV, readingHeading } from './csv';
 import { ResultType } from 'ow_common/lib/utils/AppProviderTypes';
 import Migrator, { MigrationTag } from './Migrator';
 
+
+const moment = require('moment');
+
 const fs = require('fs');
 const fbApi = new FirebaseApi(firestore);
 const serviceAccountKeyFile = `../src/test/${process.env.service_account_key_filename}`;
@@ -218,5 +221,111 @@ gulp.task('upload_readings_from_csv', async () => {
   ));
 
   console.log("syncRuns", syncRuns);
+
+});
+
+export type LegacyCSVReading = {
+  date: string, //date in yyyy/mm/dd
+  time: string, //00:00 format
+  timeseries: 'default',
+  value: number,
+  shortId: "",
+  id: '',
+  legacyPincode: number,
+  legacyResourceId: number,
+}
+
+export type RawReading = {
+  date: string,
+  value: number,
+  postcode: number
+  resourceId: number,
+}
+
+
+const getLegacyReadings = async (postcode: number, resourceId: number): Promise<Array<LegacyCSVReading>> => {
+  const legacyAccessToken = "5yXZbG75dfAqCc4BF92gnYEak3AwXTzvxGkSoOyCAfVvIrsphsKFulkG2CzKzLdz";
+
+  const options = {
+    method: 'GET',
+    uri: `https://mywell-server.vessels.tech/api/readings?filter=%7B%22where%22%3A%7B%22and%22%3A%5B%7B%22postcode%22%3A%22${postcode}%22%7D%2C%7B%22resourceId%22%3A%22${resourceId}%22%7D%5D%7D%7D&access_token=${legacyAccessToken}`,
+    json: true
+  };
+
+  return request(options)
+  .then((rawReadings: Array<RawReading>) => {
+    const readings: LegacyCSVReading[] = [];
+    rawReadings.forEach(r => {
+      const readingMoment = moment.utc(r.date);
+
+      const newReading: LegacyCSVReading = {
+        date: readingMoment.format("YYYY/MM/DD"), //date in yyyy/mm/dd
+        time: readingMoment.format("mm:HH"), //00:00 format
+        timeseries: 'default',
+        value: r.value,
+        shortId: "",
+        id: '',
+        legacyPincode: postcode,
+        legacyResourceId: resourceId,
+      };
+      readings.push(newReading);
+    });
+
+    return readings;
+  });
+}
+
+const formatReadingCSV = (reading: LegacyCSVReading): string => {
+  return `${reading.date}\t${reading.time}\t${reading.timeseries}\t${reading.value}\t${reading.shortId}\t${reading.id}\t${reading.legacyPincode}\t${reading.legacyResourceId}`;
+}
+
+/**
+ * Download legacy readings in csv format
+ */
+gulp.task('download_legacy_readings', async () => {
+
+  const resources: Array<{postcode: number, resourceId: number}> = [
+    {postcode:12345, resourceId:1110},
+    {postcode:12345, resourceId:1111},
+    {postcode:12345, resourceId:1112},
+    {postcode:12345, resourceId:1113},
+    {postcode:12346, resourceId:1110},
+    {postcode:1120, resourceId:1110},
+    {postcode:1121, resourceId:1110},
+    {postcode:1123, resourceId:1110},
+    {postcode:1124, resourceId:1110},
+    {postcode:1125, resourceId:1110},
+    {postcode:1126, resourceId:1110},
+    {postcode:1127, resourceId:1110},
+    {postcode:1128, resourceId:1110},
+    {postcode:1129, resourceId:1110},
+    {postcode:1130, resourceId:1110},
+    {postcode:1131, resourceId:1110},
+    {postcode:1132, resourceId:1110},
+    {postcode:1133, resourceId:1110},
+  ];
+
+  let readings: Array<LegacyCSVReading> = [];
+  await resources.reduce(async (acc, curr) => {
+    return acc
+    .then(() => getLegacyReadings(curr.postcode, curr.resourceId))
+    .then(newReadings => {
+      console.log(`Fetched ${newReadings.length} new readings.`);
+      readings = readings.concat(newReadings);
+      return Promise.resolve([]);
+    })
+    .catch(err => {
+      console.log(err);
+      return Promise.reject(err);
+    })
+  }, Promise.resolve([]));
+
+  console.log(`Fetched a total of ${readings.length} readings`);
+
+  //TODO: Save into csv files
+  readings.forEach(r => {
+    console.log(formatReadingCSV(r));
+  });
+  
 
 });
