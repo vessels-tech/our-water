@@ -33,3 +33,4 @@ export const temporaryAdminAccessToken = envConfig.config.temporary_admin_access
 export const temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 export const verboseLog = getBoolean(envConfig.config.verbose_log);
 export const projectId = envConfig.config.project_id;
+export const digestEmailDestination = asList(envConfig.config.digest_email_destination)

@@ -4036,20 +4036,7 @@ ow_common@^0.1.29:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@^0.1.22:
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/ow_translations/-/ow_translations-0.1.22.tgz#0c435a2a4964121db07b6ae4c750590f28951289"
-  dependencies:
-    "@babel/cli" "^7.0.0"
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-proposal-class-properties" "^7.0.0"
-    "@babel/plugin-proposal-object-rest-spread" "^7.0.0"
-    "@babel/preset-env" "^7.0.0"
-    "@babel/preset-typescript" "^7.0.0"
-    "@types/request-promise-native" "^1.0.15"
-    request-promise "^4.2.2"
-
-"ow_translations@git://github.com/vessels-tech/ow_translations":
+ow_translations@^0.1.22, "ow_translations@git://github.com/vessels-tech/ow_translations":
   version "0.1.22"
   resolved "git://github.com/vessels-tech/ow_translations#818e142d58bd295586e461df3b02268e2d3f3529"
   dependencies:
