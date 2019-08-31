@@ -19,6 +19,7 @@ export default class CronUtils {
    * @description Sends a daily digest email to an admin's email address
    *   For now, this is just a list of the new sign ups from yesterday
    */
+  // TODO: Integration test!
   public static async sendDailyEmail(fs: Firestore, orgId: string) {
 
     /* Lookup org/mywell metadata.lastSignUps for a list of user ids*/
