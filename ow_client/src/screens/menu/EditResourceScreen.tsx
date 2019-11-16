@@ -31,7 +31,7 @@ import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
 import Config from 'react-native-config';
 import { unwrapUserId, displayAlert, debounced, maybeLog } from '../../utils';
-import { isNullOrUndefined } from 'util';
+import { isNullOrUndefined, debug } from 'util';
 //@ts-ignore
 import { callingCountries } from 'country-data';
 import { validatePincode, regexHasNumbersOnly, regexForIsoCode } from '../../utils/Pincodes';
@@ -71,6 +71,7 @@ export type EditResourceFormBuilder = {
   asset: any,
   ownerName?: any,
   waterColumnHeight?: any,
+  locationName?: any
 }
 
 class EditResourceScreen extends Component<Props> {
@@ -168,6 +169,7 @@ class EditResourceScreen extends Component<Props> {
     let name;
     let ownerName;
     let waterColumnHeight;
+    let locationName;
     id = [resource.id, Validators.required, this.asyncIdValidator];
 
     if (resource.pending) {
@@ -177,6 +179,7 @@ class EditResourceScreen extends Component<Props> {
       ownerName = resource.owner && [resource.owner, Validators.required];
       name = resource.name && [resource.name, Validators.required];
       waterColumnHeight = resource.waterColumnHeight && [`${resource.waterColumnHeight}`];
+      locationName =  [resource.locationName || '', Validators.required]
 
       return {
         id,
@@ -186,6 +189,7 @@ class EditResourceScreen extends Component<Props> {
         asset,
         ownerName,
         waterColumnHeight,
+        locationName
       }
     } 
 
@@ -202,6 +206,7 @@ class EditResourceScreen extends Component<Props> {
       lng = [`${resource.coords._longitude}`, Validators.required];
       asset = [resource.type, Validators.required];
       ownerName = [resource.owner.name, Validators.required];
+      locationName = [resource.locationName, Validators.required]
     }
 
     return {
@@ -211,7 +216,8 @@ class EditResourceScreen extends Component<Props> {
       lng,
       asset,
       ownerName,
-      waterColumnHeight
+      waterColumnHeight,
+      locationName
     }
   }
 
@@ -230,6 +236,7 @@ class EditResourceScreen extends Component<Props> {
       lat: [lat, Validators.required],
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
+      wellName:['kevin', Validators.required]
     };
 
     let ownerName = '';
@@ -290,7 +297,7 @@ class EditResourceScreen extends Component<Props> {
 
       formBuilderGroup['country'] = validators;
     }
-  
+  console.log(formBuilderGroup)
     return formBuilderGroup;
   }
 
@@ -615,6 +622,7 @@ class EditResourceScreen extends Component<Props> {
       general_is_required_error,
       new_resource_name,
       new_resource_water_column_height,
+      new_resource_location_name_label
     } = this.props.translation.templates;
 
     const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
@@ -721,10 +729,23 @@ class EditResourceScreen extends Component<Props> {
               /> : null}
               {this.props.config.getEditResourceShouldShowOwnerName() ?
               <FieldControl
-                name="ownerName"
+                name="locationName"
                 render={TextInput}
                 meta={{
                   onFocus: (event: any) => { this.scrollTo = 187 },
+                  editable: true,
+                  label: new_resource_location_name_label,
+                  secureTextEntry: false, 
+                  keyboardType: 'default',
+                  errorMessage: general_is_required_error,
+                }}
+              /> : null }
+              {this.props.config.getEditResourceShouldShowOwnerName() ?
+              <FieldControl
+                name="ownerName"
+                render={TextInput}
+                meta={{
+                  onFocus: (event: any) => { this.scrollTo = 195 },
                   editable: true,
                   label: new_resource_owner_name_label, 
                   secureTextEntry: false, 

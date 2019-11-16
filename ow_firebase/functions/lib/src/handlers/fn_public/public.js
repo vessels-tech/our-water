@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -40,7 +41,7 @@ module.exports = (functions) => {
             id: Joi.string().required(),
         }
     };
-    app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
         const result = yield QRCode_1.generateQRCode(orgId, id);
@@ -49,7 +50,7 @@ module.exports = (functions) => {
         }
         res.json(result.result);
     }));
-    app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
         const qrResult = yield QRCode_1.generateQRCode(orgId, id);
@@ -78,7 +79,7 @@ module.exports = (functions) => {
             resourceIds: Joi.string().required(),
         }
     };
-    app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let { resourceIds } = req.query;
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);

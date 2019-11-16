@@ -1,0 +1,14 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ExternalIdsType = void 0;
+var ExternalIdsType;
+exports.ExternalIdsType = ExternalIdsType;
+
+(function (ExternalIdsType) {
+  ExternalIdsType["Any"] = "Any";
+  ExternalIdsType["MyWell"] = "MyWell";
+})(ExternalIdsType || (exports.ExternalIdsType = ExternalIdsType = {}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9tb2RlbC9FeHRlcm5hbElkcy50cyJdLCJuYW1lcyI6WyJFeHRlcm5hbElkc1R5cGUiXSwibWFwcGluZ3MiOiI7Ozs7OztJQUVZQSxlOzs7V0FBQUEsZTtBQUFBQSxFQUFBQSxlO0FBQUFBLEVBQUFBLGU7R0FBQUEsZSwrQkFBQUEsZSIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IE1heWJlIH0gZnJvbSBcIi4uL3V0aWxzL01heWJlXCI7XG5cbmV4cG9ydCBlbnVtIEV4dGVybmFsSWRzVHlwZSB7XG4gIEFueSA9ICdBbnknLFxuICBNeVdlbGwgPSAnTXlXZWxsJyxcbn1cblxuZXhwb3J0IHR5cGUgRXh0ZXJuYWxJZHMgPSBNeVdlbGxFeHRlcm5hbElkcztcblxuZXhwb3J0IHR5cGUgTXlXZWxsRXh0ZXJuYWxJZHMgPSB7XG4gIHR5cGU6IEV4dGVybmFsSWRzVHlwZS5NeVdlbGxcbiAgbGVnYWN5TXlXZWxsSWQ6IE1heWJlPHN0cmluZz5cbiAgbGVnYWN5TXlXZWxsUGluY29kZTogTWF5YmU8c3RyaW5nPlxuICBsZWdhY3lNeVdlbGxSZXNvdXJjZUlkOiBNYXliZTxzdHJpbmc+XG4gIGxlZ2FjeU15V2VsbFZpbGxhZ2VJZDogTWF5YmU8c3RyaW5nPlxufSJdfQ==

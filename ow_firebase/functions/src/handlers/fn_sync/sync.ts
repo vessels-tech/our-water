@@ -2,13 +2,12 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
 import * as moment from 'moment';
-import * as firebase from 'firebase-admin';
+import { Storage } from '@google-cloud/storage'
 
 const keyFilename = "./my-private-api-key-file.json"; //replace this with api key file
 const projectId = "our-water"
 const bucketName = `${projectId}.appspot.com`;
-
-const gcs = require('@google-cloud/storage')({ projectId });
+const gcs = new Storage({ projectId });
 const bucket = gcs.bucket(bucketName);
 
 const bodyParser = require('body-parser');

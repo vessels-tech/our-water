@@ -1,0 +1,47 @@
+{
+  "name": "ow_common",
+  "version": "0.1.37",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "files": [
+    "lib/*"
+  ],
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "unit": "ts-mocha ./**/*.unit.ts",
+    "service": "ts-mocha ./**/*.service.ts"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-typescript": "^7.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "request-promise-native": "^1.0.7",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-regenerator": "^7.0.0",
+    "@babel/polyfill": "^7.2.5",
+    "@google-cloud/firestore": "^2.5.0",
+    "@google-cloud/storage": "^4.0.0",
+    "@types/btoa": "^1.2.2",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^12.11.7",
+    "btoa": "^1.2.1",
+    "firebase-admin": "^8.6.1",
+    "mocha": "^5.2.0",
+    "mock-cloud-firestore": "^0.9.2",
+    "ow_translations": "git://github.com/vessels-tech/ow_translations",
+    "ts-mocha": "^2.0.0"
+  }
+}

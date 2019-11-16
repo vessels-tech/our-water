@@ -102,12 +102,12 @@ def enableProguardInReleaseBuilds = false
 def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     //TODO: remove this - just trying to get firebase to work
     lintOptions {
-          abortOnError true
-      }
+        abortOnError true
+    }
 
     defaultConfig {
         /* look in env/env.<project>.<stage>.sh */
@@ -118,9 +118,9 @@ android {
         versionName System.getenv('versionName')
         versionCode appVersionCode
         minSdkVersion 16
-        targetSdkVersion 26 // This needs to be 26... but breaks a whole bunch of other stuff
+        targetSdkVersion 28 // Previously 26 - Google now requires 28
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
         }
         // use this when code gets too big
         // ref: https://github.com/wix/react-native-navigation/issues/1925
@@ -135,7 +135,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
+            include "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
         }
     }
     buildTypes {
@@ -155,7 +155,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def versionCodes = ["armeabi-v7a":1, "x86":2, "x86_64":3, "arm64-v8a":4]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =

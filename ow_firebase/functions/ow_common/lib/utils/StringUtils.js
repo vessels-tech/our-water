@@ -1,0 +1,24 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.leftPad = leftPad;
+exports.rightPad = rightPad;
+
+function leftPad(base, padString, length) {
+  while (base.length < length) {
+    base = padString + base;
+  }
+
+  return base;
+}
+
+function rightPad(base, padString, length) {
+  while (base.length < length) {
+    base = base + padString;
+  }
+
+  return base;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy91dGlscy9TdHJpbmdVdGlscy50cyJdLCJuYW1lcyI6WyJsZWZ0UGFkIiwiYmFzZSIsInBhZFN0cmluZyIsImxlbmd0aCIsInJpZ2h0UGFkIl0sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQUNPLFNBQVNBLE9BQVQsQ0FBaUJDLElBQWpCLEVBQStCQyxTQUEvQixFQUFrREMsTUFBbEQsRUFBa0U7QUFDdkUsU0FBT0YsSUFBSSxDQUFDRSxNQUFMLEdBQWNBLE1BQXJCO0FBQ0VGLElBQUFBLElBQUksR0FBR0MsU0FBUyxHQUFHRCxJQUFuQjtBQURGOztBQUVBLFNBQU9BLElBQVA7QUFDRDs7QUFFTSxTQUFTRyxRQUFULENBQWtCSCxJQUFsQixFQUFnQ0MsU0FBaEMsRUFBbURDLE1BQW5ELEVBQW1FO0FBQ3hFLFNBQU9GLElBQUksQ0FBQ0UsTUFBTCxHQUFjQSxNQUFyQjtBQUNFRixJQUFBQSxJQUFJLEdBQUdBLElBQUksR0FBR0MsU0FBZDtBQURGOztBQUVBLFNBQU9ELElBQVA7QUFDRCIsInNvdXJjZXNDb250ZW50IjpbIlxuZXhwb3J0IGZ1bmN0aW9uIGxlZnRQYWQoYmFzZTogc3RyaW5nLCBwYWRTdHJpbmc6IHN0cmluZywgbGVuZ3RoOiBudW1iZXIpIHtcbiAgd2hpbGUgKGJhc2UubGVuZ3RoIDwgbGVuZ3RoKVxuICAgIGJhc2UgPSBwYWRTdHJpbmcgKyBiYXNlO1xuICByZXR1cm4gYmFzZTtcbn1cblxuZXhwb3J0IGZ1bmN0aW9uIHJpZ2h0UGFkKGJhc2U6IHN0cmluZywgcGFkU3RyaW5nOiBzdHJpbmcsIGxlbmd0aDogbnVtYmVyKSB7XG4gIHdoaWxlIChiYXNlLmxlbmd0aCA8IGxlbmd0aClcbiAgICBiYXNlID0gYmFzZSArIHBhZFN0cmluZztcbiAgcmV0dXJuIGJhc2U7XG59Il19

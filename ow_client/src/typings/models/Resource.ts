@@ -15,13 +15,14 @@ export type MyWellResource = {
   coords: OWGeoPoint,
   timeseries: AnyTimeseries[],
   groups: CacheType<string>,
-
+  
   /* Platform Specific */
   legacyId: string,
   owner: ResourceOwnerType
   resourceType: ResourceType,
   lastValue: number,
   lastReadingDatetime: Date,
+  locationName: string;
 }
 
 export type GGMNResource = {

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "project_id": "our-water-dev",
+    "backup_bucket_name": "our-water-dev-backup",
+    "backup_service_account_key_filename": ".backupServiceAccountKey.development.js",
+    "test_email_whitelist": "lewisdaly@me.com,lewis@vesselstech.com,nienke.ansems@un-igrac.org,claudia.ruz-vargas@un-igrac.org,info@un-igrac.org",
+    "should_send_emails": "false",
+    "outbound_email_address": "admin@vessels.tech",
+    "outbound_email_password": "+g*r[~v=L\\`9(%_.lgayR+_r{",
+    "mywell_legacy_access_token": "xeaZl09eJxChaj0klA2ED8Lgb27WIu3tHEC1h8mSxiMgUHPUhV6NLvQZqNOurRnt",
+    "temporary_admin_user_id": "12345",
+    "verbose_log": "true",
+    "temporary_admin_access_token": "dSwj6luPV7uTjTlRSNNCWR9sj"
+  }
+}

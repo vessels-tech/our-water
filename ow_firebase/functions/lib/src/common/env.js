@@ -30,4 +30,5 @@ exports.temporaryAdminAccessToken = envConfig.config.temporary_admin_access_toke
 exports.temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 exports.verboseLog = getBoolean(envConfig.config.verbose_log);
 exports.projectId = envConfig.config.project_id;
+exports.digestEmailDestination = asList(envConfig.config.digest_email_destination);
 //# sourceMappingURL=env.js.map

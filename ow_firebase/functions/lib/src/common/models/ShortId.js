@@ -15,7 +15,7 @@ class ShortId extends FirestoreDoc_1.default {
     }
     //createdAt, updatedAt, orgId from FirestoreDoc
     static fromShortId(orgId, props) {
-        return new ShortId(Object.assign({}, props, { id: props.shortId, docName: ShortId.docName, orgId, createdAt: new Date(), updatedAt: new Date() }));
+        return new ShortId(Object.assign(Object.assign({}, props), { id: props.shortId, docName: ShortId.docName, orgId, createdAt: new Date(), updatedAt: new Date() }));
     }
     serialize() {
         return {
@@ -33,6 +33,6 @@ class ShortId extends FirestoreDoc_1.default {
         return new ShortId(data);
     }
 }
-ShortId.docName = 'shortId';
 exports.default = ShortId;
+ShortId.docName = 'shortId';
 //# sourceMappingURL=ShortId.js.map

@@ -80,6 +80,51 @@ ${users.map(user => `  - ${user.id}`)}
     return html
   }
 
+  /**
+   * @function sendUserDigestEmail
+   * 
+   * @description Send a "New users/user activity" email
+   * 
+   * @param email - email address to send to
+   * @param subject - The subject line of the email
+   * @param user - A list of the users who signed up since the last time this email was sent. Note: the email
+   *     will still be sent if the users array is empty
+   */
+  // TODO: Integration test!
+  public static async sendUserSignupEmail(email, user: User): Promise<SomeResult<void>> {
+    const date = (new Date()).toString();
+    const subject = `MyWell user digest for: ${date}`
+
+    const mailOptions: any = {
+      from: `${APP_NAME} <admin@vessels.tech>`,
+      to: email,
+      subject,
+      html: this.getUserSignupTemplate(user)
+    };
+
+    if (!shouldSendEmails && testEmailWhitelist.indexOf(email) === -1) {
+      console.log(`Not sending emails as shouldSendEmails is false, and ${email} is not in the whitelist.`);
+
+      return Promise.resolve(makeSuccess(undefined));
+    }
+    console.log(`Sending email to ${email}`);
+
+    return mailTransport.sendMail(mailOptions)
+      .then(() => makeSuccess(undefined))
+      .catch((err: Error) => makeError(err.message));
+  }
+
+  // TODO: unit test
+  public static getUserSignupTemplate(user: User): string {
+
+    const html = `A new user has signed up for MyWell:
+    Name: ${user.name || 'n/a'}
+    Mobile: ${user.mobile || 'n/a'}
+    Email: ${user.email || 'n/a'}`
+
+    return html
+  }
+
 
   public static sendResourceEmail(email, subject, message, attachments): Promise<SomeResult<void>> {
     const mailOptions: any = {

@@ -19,10 +19,13 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "@babel/register": "^7.0.0",
-    "@firebase/app-types": "0.x",
-    "@google-cloud/storage": "^1.7.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@google-cloud/firestore": "^2.5.0",
+    "@google-cloud/storage": "^4.0.0",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.0",
+    "@types/node": "^12.11.7",
     "@types/request-promise-native": "^1.0.14",
     "@types/xmlbuilder": "^0.0.34",
     "body-parser": "^1.18.2",
@@ -33,9 +36,9 @@
     "express-async-errors": "^3.1.1",
     "express-fileupload": "^0.4.0",
     "express-validation": "^1.0.2",
-    "firebase-admin": "^7.0.0",
+    "firebase-admin": "^8.6.1",
     "firebase-app": "^0.0.1",
-    "firebase-functions": "^2.2.0",
+    "firebase-functions": "^3.3.0",
     "google-auth-library": "^2.0.1",
     "gulp": "^3.9.1",
     "handlebars": "^4.0.12",
@@ -49,7 +52,7 @@
     "morgan": "^1.9.1",
     "morgan-body": "^2.4.5",
     "nodemailer": "^4.6.8",
-    "ow_common": "^0.1.29",
+    "ow_common": "file:ow_common",
     "ow_translations": "^0.1.22",
     "ow_types": "https://github.com/vessels-tech/ow_types#76011ba54cece194083eaf06fd90ba73ce9323db",
     "papaparse": "^4.4.0",
@@ -61,7 +64,7 @@
     "soap": "^0.25.0",
     "thread-sleep": "^2.1.0",
     "ts-mocha": "^2.0.0",
-    "typescript": "3.3.3",
+    "typescript": "^3.6.4",
     "xmlbuilder": "^10.1.1"
   },
   "devDependencies": {
@@ -70,6 +73,9 @@
     "chai": "^4.1.2",
     "ts-node": "^7.0.0",
     "tslint": "^5.8.0"
+  },
+  "engines": {
+    "node": "8"
   },
   "private": true
 }
