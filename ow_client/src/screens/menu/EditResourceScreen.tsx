@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Component } from 'react';
 import {
-  View, Keyboard, ToastAndroid, ScrollView, Alert, KeyboardAvoidingView, Dimensions, ShadowPropTypesIOS, Group,
+  View, Keyboard, ToastAndroid, ScrollView, Alert, Dimensions
 } from 'react-native';
 import {
-  Button, Text
+  Button
 } from 'react-native-elements';
 import { ResourceType } from '../../enums';
 import { ConfigFactory, GroupSpecificationType } from '../../config/ConfigFactory';
@@ -19,22 +19,21 @@ import { TextInput, DropdownInput, TextIdInput } from '../../components/common/F
 import { validateResource } from '../../api/ValidationApi';
 import { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
 import { SyncMeta } from '../../typings/Reducer';
-import { AnyLoginDetails, LoginDetailsType } from '../../typings/api/ExternalServiceApi';
+import { AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
 import LoadLocationButton from '../../components/LoadLocationButton';
 import { NoLocation, Location, LocationType } from '../../typings/Location';
 import * as equal from 'fast-deep-equal';
-import { secondary, secondaryText, error1 } from '../../utils/Colors';
+import { secondaryText, error1 } from '../../utils/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { OrgType } from '../../typings/models/OrgType';
 import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } from '../../api/ExtendedResourceApi';
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../../typings/models/Resource';
-import Config from 'react-native-config';
-import { unwrapUserId, displayAlert, debounced, maybeLog } from '../../utils';
-import { isNullOrUndefined, debug } from 'util';
+import { unwrapUserId, debounced, maybeLog } from '../../utils';
+import { isNullOrUndefined } from 'util';
 //@ts-ignore
 import { callingCountries } from 'country-data';
-import { validatePincode, regexHasNumbersOnly, regexForIsoCode } from '../../utils/Pincodes';
+import { validatePincode } from '../../utils/Pincodes';
 import SaveButton from '../../components/common/SaveButton';
 import FloatingButtonWrapper from '../../components/common/FloatingButtonWrapper';
 
@@ -416,6 +415,7 @@ class EditResourceScreen extends Component<Props> {
         name: ownerName,
         createdByUserId: this.props.userId,
       },
+      locationName: this.editResourceForm.value.locationName,
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
       timeseries: this.props.config.getDefaultTimeseries(this.editResourceForm.value.asset),
@@ -446,7 +446,7 @@ class EditResourceScreen extends Component<Props> {
       ToastAndroid.show(`Error saving Resource: ${validationResult.message}`, ToastAndroid.SHORT);
       return;
     }
-
+console.log(validationResult.result)
     const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.externalApi, this.props.userId, validationResult.result);
 
     if (result.type === ResultType.ERROR) {
@@ -727,7 +727,7 @@ class EditResourceScreen extends Component<Props> {
                   errorMessage: general_is_required_error
                 }}
               /> : null}
-              {this.props.config.getEditResourceShouldShowOwnerName() ?
+
               <FieldControl
                 name="locationName"
                 render={TextInput}
@@ -739,7 +739,7 @@ class EditResourceScreen extends Component<Props> {
                   keyboardType: 'default',
                   errorMessage: general_is_required_error,
                 }}
-              /> : null }
+              /> 
               {this.props.config.getEditResourceShouldShowOwnerName() ?
               <FieldControl
                 name="ownerName"

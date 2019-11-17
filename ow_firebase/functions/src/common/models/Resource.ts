@@ -30,6 +30,7 @@ export type ResourceBuilder = {
   //Perhaps we need a groups field, as well as a groupMembership field that gets auto created?
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
+  locationName?: string;
 }
 
 export class Resource extends FirestoreDoc {
@@ -42,13 +43,14 @@ export class Resource extends FirestoreDoc {
   owner: ResourceOwnerType
   groups: Map<string, boolean> //simple dict with key of GroupId, value of true
   timeseries: FBTimeseriesMap
+  locationName: string;
 
   lastValue: number = 0
   lastReadingDatetime: Date = new Date(0);
 
   constructor(orgId: string, externalIds: ResourceIdType, coords: OWGeoPoint,
     resourceType: ResourceStationType, owner: ResourceOwnerType, groups: Map<string, boolean>,
-    timeseries: FBTimeseriesMap) {
+    timeseries: FBTimeseriesMap, locationName?: string) {
     super();
     
     this.orgId = orgId;
@@ -58,6 +60,7 @@ export class Resource extends FirestoreDoc {
     this.owner = owner;
     this.groups = groups;
     this.timeseries = timeseries;
+    this.locationName = locationName;
   }
 
   static build(builder: ResourceBuilder): Resource {
@@ -69,6 +72,7 @@ export class Resource extends FirestoreDoc {
       builder.owner, 
       builder.groups,
       builder.timeseries,
+      builder.locationName
     );
   }
 
@@ -86,13 +90,14 @@ export class Resource extends FirestoreDoc {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       timeseries: this.timeseries,
+      locationName: this.locationName
     };
   }
 
   /**
    * Deserialize from a json object
    */
-  public static deserialize(data, deserId?: string): Resource {
+  public static deserialize(data: any, deserId?: string): Resource {
     const {
       id,
       orgId,
@@ -106,12 +111,13 @@ export class Resource extends FirestoreDoc {
       createdAt, 
       updatedAt,
       timeseries,
+      locationName
     } = data;
 
     //Deserialize objects
     const resourceTypeObj: ResourceStationType = resourceTypeFromString(resourceType);
     const externalIdsObj = ResourceIdType.deserialize(externalIds);
-    const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
+    const des: Resource = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries, locationName);
 
     //private vars
     des.id = id || deserId;

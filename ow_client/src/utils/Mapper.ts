@@ -47,16 +47,17 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
       resourceType: fromCommonResourceTypeToFBResourceType(resource.resourceType),
       lastValue: resource.lastValue,
       lastReadingDatetime: resource.lastReadingDatetime,
+      locationName: resource.locationName
     }
   }
-
+  
   if (resource.type === OrgType.GGMN) {
     options = {
       description: resource.description,
       title: resource.title
     }
   }
-
+console.log('fromCommonResourceToFBResoureBuilder')
   return {
     orgId,
     type: resource.type,

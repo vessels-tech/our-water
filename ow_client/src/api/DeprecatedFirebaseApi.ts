@@ -319,18 +319,22 @@ class FirebaseApi {
    * @param resource 
    */
   static async saveResource(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<any>> {
+    console.log('save resource')
     const builder = fromCommonResourceToFBResoureBuilder(orgId, resource);
     const fbResource = new FBResource(builder);
     
     return fbResource.save(fs);
   }
-
+  
   static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {
     /* we don't want to wait for this to resolve */
+    console.log(resource)
     if (resource.id) {
+      console.log('save resource with id')
       this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
       return makeSuccess(null);
     }
+    console.log('save resource without id')
 
     this.userDoc(orgId, userId).collection('pendingResources').add(resource);
     return makeSuccess(null);

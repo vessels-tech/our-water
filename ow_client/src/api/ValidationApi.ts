@@ -98,6 +98,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
     })).required(),
     waterColumnHeight: Joi.number(),
     groups: Joi.object().required(),
+    locationName: Joi.string().required()
   });
 
   const result = Joi.validate(resource, schema);

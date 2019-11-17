@@ -289,6 +289,9 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //@ts-ignore
     resource.docName = 'resource';
 
+    console.log('save resource to user')
+    console.log(resource)
+
     // if (userResult.result.status !== OWUserStatus.Approved) {
     const saveResult = await FirebaseApi.saveResourceToUser(
       this.orgId,

@@ -28,7 +28,7 @@
     "firebase-admin": "^6.2.0",
     "moment": "^2.22.1",
     "ow_common": "git://github.com/kevindoveton/ow_common#feature/email",
-    "ow_translations": "git://github.com/kevindoveton/ow_translations#feature/location",
+    "ow_translations": "/Users/kevindoveton/dev/vessels-tech/our-water/ow_translations",
     "prop-types": "^15.6.0",
     "qrcode": "^1.3.2",
     "query-string": "^6.2.0",
