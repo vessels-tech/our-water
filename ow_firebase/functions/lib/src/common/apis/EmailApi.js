@@ -14,17 +14,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const env_1 = require("../env");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const mailTransport = nodemailer.createTransport({
-    host: 'smtp.zoho.com',
+    host: "smtp.zoho.com",
     port: 465,
     secure: true,
     auth: {
         user: env_1.outboundEmailAddress,
-        pass: env_1.outboundEmailPassword,
-    },
+        pass: env_1.outboundEmailPassword
+    }
 });
-const APP_NAME = 'GGMN';
+const APP_NAME = "GGMN";
 class EmailApi {
     /**
      * @function sendUserDigestEmail
@@ -39,7 +39,7 @@ class EmailApi {
     // TODO: Integration test!
     static sendUserDigestEmail(email, users) {
         return __awaiter(this, void 0, void 0, function* () {
-            const date = (new Date()).toString();
+            const date = new Date().toString();
             const subject = `MyWell user digest for: ${date}`;
             const mailOptions = {
                 from: `${APP_NAME} <admin@vessels.tech>`,
@@ -52,64 +52,28 @@ class EmailApi {
                 return Promise.resolve(AppProviderTypes_1.makeSuccess(undefined));
             }
             console.log(`Sending email to ${email}`);
-            return mailTransport.sendMail(mailOptions)
+            return mailTransport
+                .sendMail(mailOptions)
                 .then(() => AppProviderTypes_1.makeSuccess(undefined))
                 .catch((err) => AppProviderTypes_1.makeError(err.message));
         });
     }
     // TODO: unit test
     static getUserDigestTemplate(users) {
-        const date = (new Date()).toString();
+        const date = new Date().toString();
         if (users.length === 0) {
             return `No new user signups for ${date}`;
         }
         const signInCount = users.length; //todo figure out filters etc.
         //TODO: change the html if there are no users
-        const html = `Here's your MyWell User digest for: ${date}
-
-A total of ${signInCount} users signed up for the first time:
-${users.map(user => `  - ${user.id}`)}
-
-    `;
-        return html;
-    }
-    /**
-     * @function sendUserDigestEmail
-     *
-     * @description Send a "New users/user activity" email
-     *
-     * @param email - email address to send to
-     * @param subject - The subject line of the email
-     * @param user - A list of the users who signed up since the last time this email was sent. Note: the email
-     *     will still be sent if the users array is empty
-     */
-    // TODO: Integration test!
-    static sendUserSignupEmail(email, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const date = (new Date()).toString();
-            const subject = `MyWell user digest for: ${date}`;
-            const mailOptions = {
-                from: `${APP_NAME} <admin@vessels.tech>`,
-                to: email,
-                subject,
-                html: this.getUserSignupTemplate(user)
-            };
-            if (!env_1.shouldSendEmails && env_1.testEmailWhitelist.indexOf(email) === -1) {
-                console.log(`Not sending emails as shouldSendEmails is false, and ${email} is not in the whitelist.`);
-                return Promise.resolve(AppProviderTypes_1.makeSuccess(undefined));
-            }
-            console.log(`Sending email to ${email}`);
-            return mailTransport.sendMail(mailOptions)
-                .then(() => AppProviderTypes_1.makeSuccess(undefined))
-                .catch((err) => AppProviderTypes_1.makeError(err.message));
-        });
-    }
-    // TODO: unit test
-    static getUserSignupTemplate(user) {
-        const html = `A new user has signed up for MyWell:
-    Name: ${user.name || 'n/a'}
-    Mobile: ${user.mobile || 'n/a'}
-    Email: ${user.email || 'n/a'}`;
+        const html = `<p>Here's your MyWell User digest for: ${date}</p>
+                  <p>A total of ${signInCount} users signed up for the first time:</p>
+                  ${users.map(user => `<p>Name: ${user.name}<br />
+                                          Email: ${user.email}<br />
+                                          Phone: ${user.mobile}
+                                       </p>`)}
+                  </p>
+                 `;
         return html;
     }
     static sendResourceEmail(email, subject, message, attachments) {
@@ -118,7 +82,7 @@ ${users.map(user => `  - ${user.id}`)}
             to: email,
             subject,
             html: message,
-            attachments,
+            attachments
         };
         // The user subscribed to the newsletter.
         // mailOptions.subject = `Welcome to ${APP_NAME}!`;
@@ -128,7 +92,8 @@ ${users.map(user => `  - ${user.id}`)}
             return Promise.resolve(AppProviderTypes_1.makeSuccess(undefined));
         }
         console.log(`Sending email to ${email}`);
-        return mailTransport.sendMail(mailOptions)
+        return mailTransport
+            .sendMail(mailOptions)
             .then(() => {
             return AppProviderTypes_1.makeSuccess(undefined);
         })
