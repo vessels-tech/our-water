@@ -54,6 +54,7 @@ export type AppState = {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  image: string | null,
 
   //Api
   resources: AnyResource[],
@@ -113,6 +114,7 @@ export const initialState: AppState = {
   email: null,
   name: null,
   nickname: null,
+  image: null,
 
   //Api
   resources: [],
@@ -438,6 +440,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let userStatus = state.userStatus;
       let userType = state.userType;
       let newResources = state.newResources;
+      let image = state.image;
       
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
@@ -453,6 +456,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userStatus = action.result.result.status;
         userType = action.result.result.type;
         newResources = action.result.result.newResources;
+        image = action.result.result.image;
       }
       
       //TODO: error handling?
@@ -471,6 +475,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userStatus,
         userType,
         newResources,
+        image
       });
     }
     case ActionType.GOT_SHORT_IDS: {

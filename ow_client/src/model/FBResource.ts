@@ -38,6 +38,7 @@ export type FBResourceBuilder = {
   coords: BasicCoords;
   timeseries: FBTimeseriesMap;
   groups: CacheType<string>;
+  image?: string;
 
   /* MyWell Optionals */
   legacyId?: string; //TODO: change to exernal ids // TODO: add groups?
@@ -63,6 +64,7 @@ export default class FBResource extends FirestoreDoc {
   coords: BasicCoords;
   timeseries: FBTimeseriesMap;
   groups: CacheType<string>;
+  image?: string;
 
   /* MyWell Optionals */
   legacyId?: string;
@@ -94,6 +96,7 @@ export default class FBResource extends FirestoreDoc {
     this.title = builder.title;
     this.groups = builder.groups;
     this.locationName = builder.locationName;
+    this.image = builder.image;
   }
 
   public serialize(): any {
@@ -116,6 +119,7 @@ export default class FBResource extends FirestoreDoc {
       title: this.title,
       groups: this.groups,
       locationName: this.locationName,
+      image: this.image,
       ...super.serialize()
     };
   }
@@ -140,6 +144,7 @@ export default class FBResource extends FirestoreDoc {
       description,
       title,
       locationName,
+      image,
 
       // extra fields
       createdAt,
@@ -161,7 +166,8 @@ export default class FBResource extends FirestoreDoc {
       description,
       title,
       locationName,
-      groups: data.groups ? data.groups : {}
+      groups: data.groups ? data.groups : {},
+      image
     };
     const des: FBResource = new FBResource(builder);
 
@@ -221,7 +227,8 @@ export default class FBResource extends FirestoreDoc {
           //@ts-ignore
           description: this.description,
           //@ts-ignore
-          title: this.title
+          title: this.title,
+          image: this.image
         };
         return resource;
       }
@@ -246,6 +253,7 @@ export default class FBResource extends FirestoreDoc {
           },
           groups: this.groups,
           timeseries: toAnyTimeseriesList(this.timeseries),
+          image: this.image,
 
           /* Platform Specific */
           //@ts-ignore

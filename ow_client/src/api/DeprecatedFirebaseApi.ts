@@ -1,37 +1,58 @@
-import { NetInfo } from 'react-native';
-import firebase from 'react-native-firebase';
+import { NetInfo } from "react-native";
+import firebase from "react-native-firebase";
 //@ts-ignore
-import { default as ftch } from 'react-native-fetch-polyfill';
-import Config from 'react-native-config';
+import { default as ftch } from "react-native-fetch-polyfill";
+import Config from "react-native-config";
 
-import { 
-  appendUrlParameters, 
-  rejectRequestWithError, 
+import {
+  appendUrlParameters,
+  rejectRequestWithError,
   maybeLog
-} from '../utils';
-import { DeprecatedResource, SearchResult, Reading, OWUser, TimeseriesRange, OWUserStatus} from '../typings/models/OurWater';
-import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
-import { TranslationEnum } from 'ow_translations';
-import { Region } from 'react-native-maps';
-import { AnyResource } from '../typings/models/Resource';
-import { ShortId } from '../typings/models/ShortId';
-import { isNullOrUndefined } from 'util';
-import { AnyReading, MyWellReading } from '../typings/models/Reading';
-import { PendingReading } from '../typings/models/PendingReading';
-import { PendingResource } from '../typings/models/PendingResource';
-import { SyncError } from '../typings/api/ExternalServiceApi';
-import { fromCommonResourceToFBResoureBuilder, fromCommonReadingToFBReadingBuilder } from '../utils/Mapper';
-import FBResource from '../model/FBResource';
-import FBReading from '../model/FBReading';
-import { SaveUserDetailsType } from './internalAccountApi';
-import { OrgType } from '../typings/models/OrgType';
-import { ReadingImageType, NoReadingImage } from '../typings/models/ReadingImage';
-import { NoReadingLocation, ReadingLocationType } from '../typings/models/ReadingLocation';
-import { UserStatus } from '../typings/UserTypes';
-import FirebaseUserApi from './FirebaseUserApi';
-import UserType from 'ow_common/lib/enums/UserType';
-import { ResourceType } from '../enums';
-import { CacheType } from '../reducers';
+} from "../utils";
+import {
+  DeprecatedResource,
+  SearchResult,
+  Reading,
+  OWUser,
+  TimeseriesRange,
+  OWUserStatus
+} from "../typings/models/OurWater";
+import {
+  SomeResult,
+  ResultType,
+  makeSuccess,
+  makeError
+} from "../typings/AppProviderTypes";
+import { TranslationEnum } from "ow_translations";
+import { Region } from "react-native-maps";
+import { AnyResource } from "../typings/models/Resource";
+import { ShortId } from "../typings/models/ShortId";
+import { isNullOrUndefined } from "util";
+import { AnyReading, MyWellReading } from "../typings/models/Reading";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
+import { SyncError } from "../typings/api/ExternalServiceApi";
+import {
+  fromCommonResourceToFBResoureBuilder,
+  fromCommonReadingToFBReadingBuilder
+} from "../utils/Mapper";
+import FBResource from "../model/FBResource";
+import FBReading from "../model/FBReading";
+import { SaveUserDetailsType } from "./internalAccountApi";
+import { OrgType } from "../typings/models/OrgType";
+import {
+  ReadingImageType,
+  NoReadingImage
+} from "../typings/models/ReadingImage";
+import {
+  NoReadingLocation,
+  ReadingLocationType
+} from "../typings/models/ReadingLocation";
+import { UserStatus } from "../typings/UserTypes";
+import FirebaseUserApi from "./FirebaseUserApi";
+import UserType from "ow_common/lib/enums/UserType";
+import { ResourceType } from "../enums";
+import { CacheType } from "../reducers";
 
 const fs = firebase.firestore();
 const auth = firebase.auth();
@@ -40,31 +61,35 @@ const baseUrl = Config.REACT_APP_BASE_URL;
 const timeout = 1000 * 10;
 
 export type SendResourceEmailOptions = {
-  email: string,
-  subject: string,
-  message: string,
-}
-
+  email: string;
+  subject: string;
+  message: string;
+};
 
 class FirebaseApi {
-
-  static saveUserDetails(orgId: string, userId: string, userDetails: SaveUserDetailsType): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).set({...userDetails}, {merge: true})
-    .then(() => makeSuccess<void>(undefined))
-    .catch((err: Error) => makeError<void>(err.message));
+  static saveUserDetails(
+    orgId: string,
+    userId: string,
+    userDetails: SaveUserDetailsType
+  ): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId)
+      .set({ ...userDetails }, { merge: true })
+      .then(() => makeSuccess<void>(undefined))
+      .catch((err: Error) => makeError<void>(err.message));
   }
-
 
   /**
    * When a user changes, merge the old user's data into the new one
-   * 
+   *
    * This doesn't handle subcollections
-   * 
+   *
    * //TODO: move across
    */
-  static async mergeUsers(orgId: string, oldUserId: string, userId: string): Promise<SomeResult<any>> {
-
-
+  static async mergeUsers(
+    orgId: string,
+    oldUserId: string,
+    userId: string
+  ): Promise<SomeResult<any>> {
     const oldUserResult = await this.getUser(orgId, oldUserId);
     if (oldUserResult.type === ResultType.ERROR) {
       return oldUserResult;
@@ -76,66 +101,110 @@ class FirebaseApi {
     delete oldUser.name;
     delete oldUser.nickname;
     delete oldUser.mobile;
-    if (oldUser.favouriteResources.length === 0 ) {
+    if (oldUser.favouriteResources.length === 0) {
       delete oldUser.favouriteResources;
     }
-    if (oldUser.recentResources.length === 0 ) {
+    if (oldUser.recentResources.length === 0) {
       delete oldUser.recentResources;
     }
-    if (oldUser.recentSearches.length === 0 ) {
+    if (oldUser.recentSearches.length === 0) {
       delete oldUser.recentSearches;
     }
-    
-    return this.userDoc(orgId, userId).set({...oldUser}, {merge: true})
-    .then(() => makeSuccess<void>(undefined))
-    .catch((err: Error) => makeError<void>(err.message));
+
+    return this.userDoc(orgId, userId)
+      .set({ ...oldUser }, { merge: true })
+      .then(() => makeSuccess<void>(undefined))
+      .catch((err: Error) => makeError<void>(err.message));
   }
 
   static addFavouriteResource(orgId: string, resource: any, userId: string) {
-    return this.getFavouriteResources(orgId, userId)
-    .then(favouriteResources => {
-      favouriteResources[resource.id] = resource;
+    return this.getFavouriteResources(orgId, userId).then(
+      favouriteResources => {
+        favouriteResources[resource.id] = resource;
 
-      return this.updateFavouriteResources(orgId, userId, favouriteResources);
-    });
+        return this.updateFavouriteResources(orgId, userId, favouriteResources);
+      }
+    );
   }
 
-  static removeFavouriteResource(orgId: string, resourceId: string, userId: string) {
-    return this.getFavouriteResources(orgId, userId)
-    .then(favouriteResources => {
-      favouriteResources[resourceId] = null;
+  static removeFavouriteResource(
+    orgId: string,
+    resourceId: string,
+    userId: string
+  ) {
+    return this.getFavouriteResources(orgId, userId).then(
+      favouriteResources => {
+        favouriteResources[resourceId] = null;
 
-      return this.updateFavouriteResources(orgId, userId, favouriteResources);
-    });  
+        return this.updateFavouriteResources(orgId, userId, favouriteResources);
+      }
+    );
   }
 
-  static updateFavouriteResources(orgId: string, userId: string, favouriteResources: any) {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ favouriteResources }, {merge: true})
-    .catch(err => {
-      maybeLog(err.message);
-    })
+  static updateFavouriteResources(
+    orgId: string,
+    userId: string,
+    favouriteResources: any
+  ) {
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .set({ favouriteResources }, { merge: true })
+      .catch(err => {
+        maybeLog(err.message);
+      });
+  }
+
+  static updateUserDefaultImage(
+    orgId: string,
+    userId: string,
+    newImage: string
+  ) {
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .set({ image: newImage }, { merge: true })
+      .catch(err => {
+        maybeLog(err.message);
+      });
   }
 
   static getFavouriteResources(orgId: string, userId: string) {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
-    .then(sn => {
-      //@ts-ignore
-      if (!sn || !sn.data() || !sn.data().favouriteResources) {
-        return {};
-      }
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .get()
+      .then(sn => {
+        //@ts-ignore
+        if (!sn || !sn.data() || !sn.data().favouriteResources) {
+          return {};
+        }
 
-      
-      //@ts-ignore
-      return sn.data().favouriteResources;
-    })
+        //@ts-ignore
+        return sn.data().favouriteResources;
+      });
   }
 
-  static getRecentResources(orgId: string, userId: string): Promise<SomeResult<AnyResource[]>> {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
+  static getRecentResources(
+    orgId: string,
+    userId: string
+  ): Promise<SomeResult<AnyResource[]>> {
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .get()
       .then(sn => {
         const response: SomeResult<AnyResource[]> = {
           type: ResultType.SUCCESS,
-          result: [],
+          result: []
         };
 
         //@ts-ignore
@@ -147,10 +216,14 @@ class FirebaseApi {
         response.result = sn.data().recentResources;
         return response;
       })
-      .catch((err: Error) => makeError<AnyResource[]>(err.message))
+      .catch((err: Error) => makeError<AnyResource[]>(err.message));
   }
 
-  static async addRecentResource(orgId: string, resource: AnyResource, userId: string): Promise<SomeResult<AnyResource[]>> {
+  static async addRecentResource(
+    orgId: string,
+    resource: AnyResource,
+    userId: string
+  ): Promise<SomeResult<AnyResource[]>> {
     //The issue with this implementation is that it doesn't preserve order
     const r = await this.getRecentResources(orgId, userId);
     if (r.type === ResultType.ERROR) {
@@ -159,7 +232,7 @@ class FirebaseApi {
 
     const recentResources = r.result;
     //Remove from array this resource already is present
-    const filtered = recentResources.filter(r => r.id !== resource.id)
+    const filtered = recentResources.filter(r => r.id !== resource.id);
     //Add latest to the start
     filtered.unshift(resource);
 
@@ -167,21 +240,24 @@ class FirebaseApi {
     while (filtered.length > 10) {
       filtered.pop();
     }
-    const result = await fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentResources: filtered }, {merge: true});
+    const result = await fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .set({ recentResources: filtered }, { merge: true });
     return await this.getRecentResources(orgId, userId);
   }
-
-
 
   /////////refactor up to here.
 
   // /**
   //  * Local implementation of getResourceNearLocation
-  //  * 
-  //  * 
+  //  *
+  //  *
   //  * deprecated. Use getResourcesWithinRegion instead
   //  * We use this instead of the get request, as it will default to the cache if we're offline
-  //  * @param {*} param0 
+  //  * @param {*} param0
   //  */
   // static getResourceNearLocation(networkApi: NetworkApi, orgId: string, latitude: number, longitude: number, distance: number): Promise<Array<any>> {
   //   const { minLat, minLng, maxLat, maxLng } = boundingBoxForCoords(latitude, longitude, distance);
@@ -214,63 +290,83 @@ class FirebaseApi {
   /**
    * getResourcesWithinRegion
    */
-  static async getResourcesWithinRegion(orgId: string, region: Region): Promise<SomeResult<AnyResource[]>>{
+  static async getResourcesWithinRegion(
+    orgId: string,
+    region: Region
+  ): Promise<SomeResult<AnyResource[]>> {
     //from region, lat and lng are in centre, delta is the full width (I think)
     const halfLatDelta = region.latitudeDelta / 2;
     const halfLngDelta = region.longitudeDelta / 2;
     const minLat = region.latitude - halfLatDelta;
     const minLng = region.longitude - halfLngDelta;
     const maxLat = region.latitude + halfLatDelta;
-    const maxLng = region.longitude +  halfLngDelta;
+    const maxLng = region.longitude + halfLngDelta;
 
-    return fs.collection('org').doc(orgId).collection('resource')
-      .where('coords', '>=', new firebase.firestore.GeoPoint(minLat, minLng))
-      .where('coords', '<=', new firebase.firestore.GeoPoint(maxLat, maxLng))
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("resource")
+      .where("coords", ">=", new firebase.firestore.GeoPoint(minLat, minLng))
+      .where("coords", "<=", new firebase.firestore.GeoPoint(maxLat, maxLng))
       .limit(100)
-    .get()
-    .then(snapshot => {
-      const fbResources: FBResource[] = []
-      snapshot.forEach(doc => {
-        const fbResource: FBResource = FBResource.deserialize(doc.data());
+      .get()
+      .then(snapshot => {
+        const fbResources: FBResource[] = [];
+        snapshot.forEach(doc => {
+          const fbResource: FBResource = FBResource.deserialize(doc.data());
 
-        // Filter based on longitude. TODO: remove this once google fixes the above query
-        //@ts-ignore
-        if (fbResource.coords.longitude < minLng || fbResource.coords.longitude > maxLng) {
-          return;
-        }
+          // Filter based on longitude. TODO: remove this once google fixes the above query
+          //@ts-ignore
+          if (
+            fbResource.coords.longitude < minLng ||
+            fbResource.coords.longitude > maxLng
+          ) {
+            return;
+          }
 
-        fbResources.push(fbResource);
+          fbResources.push(fbResource);
+        });
+
+        return fbResources;
+      })
+      .then((fbResources: FBResource[]) =>
+        fbResources.map(r => r.toAnyResource())
+      )
+      .then(result => makeSuccess<AnyResource[]>(result))
+      .catch(err => {
+        maybeLog("error", err);
+        return makeError<AnyResource[]>(err.message);
       });
-
-      return fbResources;
-    })
-    .then((fbResources: FBResource[]) => fbResources.map(r => r.toAnyResource()))
-    .then(result => makeSuccess<AnyResource[]>(result))
-    .catch(err => {
-      maybeLog("error", err);
-      return makeError<AnyResource[]>(err.message);
-    });
   }
 
   /**
    * getResourceForId
    */
-  static getResourceForId(orgId: string, resourceId: string): Promise<SomeResult<AnyResource>> {
-    return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
-    .then(sn => {
-      //@ts-ignore
-      if (!sn || !sn.data()) {
-        return makeError<AnyResource>(`Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`);
-      }
-
-      const fbResource: FBResource = FBResource.deserialize(sn.data());
-      const anyResource: AnyResource = fbResource.toAnyResource();
-      return makeSuccess(anyResource);
-    })
-    .catch(err => {
-      maybeLog("getResourceForId error:", err);
-      return makeError<AnyResource>(err.message);
-    });
+  static getResourceForId(
+    orgId: string,
+    resourceId: string
+  ): Promise<SomeResult<AnyResource>> {
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("resource")
+      .doc(resourceId)
+      .get()
+      .then(sn => {
+        //@ts-ignore
+        if (!sn || !sn.data()) {
+          return makeError<AnyResource>(
+            `Couldn't find resource for orgId: ${orgId} and resourceId: ${resourceId}`
+          );
+        }
+        const fbResource: FBResource = FBResource.deserialize(sn.data());
+        const anyResource: AnyResource = fbResource.toAnyResource();
+        return makeSuccess(anyResource);
+      })
+      .catch(err => {
+        maybeLog("getResourceForId error:", err);
+        return makeError<AnyResource>(err.message);
+      });
   }
 
   static createNewResource(orgId: string, resourceData: any) {
@@ -282,22 +378,25 @@ class FirebaseApi {
     //   .then(() => {
     //     // Read result of the Cloud Function.
     //   })
-  };
-
+  }
 
   /**
    * saveReadingPossiblyOffineToUser
-   * 
+   *
    * Returns immediately, as long as there was no firebase error.
-   * 
+   *
    * Like saveReadingPossiblyOffline, but saves to a 'pendingReadings' object on the
    * user model, instead of the actual reading. Use this for integration with external
    * services where OurWater doesn't need to contain all of the data.
-   * 
+   *
    * Promise resolves when the reading appears in local cache,
    * and not actually commited to the server
    */
-  static async saveReadingPossiblyOffineToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<void>> {
+  static async saveReadingPossiblyOffineToUser(
+    orgId: string,
+    userId: string,
+    reading: AnyReading | PendingReading
+  ): Promise<SomeResult<void>> {
     /* we don't want to wait for this to resolve */
     this.saveReadingToUser(orgId, userId, reading);
 
@@ -309,80 +408,109 @@ class FirebaseApi {
 
   /**
    * SaveResource
-   * 
-   * Save the resource publicly  
-   * 
+   *
+   * Save the resource publicly
+   *
    * //TODO: check login status and stuff, maybe we can do that on the backend
    * //TODO: flags: deleted, pending etc
-   * @param orgId 
-   * @param userId 
-   * @param resource 
+   * @param orgId
+   * @param userId
+   * @param resource
    */
-  static async saveResource(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<any>> {
-    console.log('save resource')
+  static async saveResource(
+    orgId: string,
+    userId: string,
+    resource: AnyResource | PendingResource
+  ): Promise<SomeResult<any>> {
+    console.log("save resource");
     const builder = fromCommonResourceToFBResoureBuilder(orgId, resource);
     const fbResource = new FBResource(builder);
-    
+
     return fbResource.save(fs);
   }
-  
-  static async saveResourceToUser(orgId: string, userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<null>> {
+
+  static async saveResourceToUser(
+    orgId: string,
+    userId: string,
+    resource: AnyResource | PendingResource
+  ): Promise<SomeResult<null>> {
     /* we don't want to wait for this to resolve */
-    console.log(resource)
+    console.log(resource);
     if (resource.id) {
-      console.log('save resource with id')
-      this.userDoc(orgId, userId).collection('pendingResources').doc(resource.id).set(resource);
+      console.log("save resource with id");
+      this.userDoc(orgId, userId)
+        .collection("pendingResources")
+        .doc(resource.id)
+        .set(resource);
       return makeSuccess(null);
     }
-    console.log('save resource without id')
+    console.log("save resource without id");
 
-    this.userDoc(orgId, userId).collection('pendingResources').add(resource);
+    this.userDoc(orgId, userId)
+      .collection("pendingResources")
+      .add(resource);
     return makeSuccess(null);
   }
 
-
   /**
    * deletePendingResource
-   * 
+   *
    * Delete a pending resource from the user's pending resource list
    */
-  static async deletePendingResourceFromUser(orgId: string, userId: string, resourceId: string): Promise<SomeResult<void>> {
-    return await this.userDoc(orgId, userId).collection('pendingResources').doc(resourceId).delete()
-    .then(() => makeSuccess(undefined))
-    .catch((err: Error) => makeError(err.message));
+  static async deletePendingResourceFromUser(
+    orgId: string,
+    userId: string,
+    resourceId: string
+  ): Promise<SomeResult<void>> {
+    return await this.userDoc(orgId, userId)
+      .collection("pendingResources")
+      .doc(resourceId)
+      .delete()
+      .then(() => makeSuccess(undefined))
+      .catch((err: Error) => makeError(err.message));
   }
 
   /**
    * getReadings
-   * 
+   *
    * Get readings from the readings collection
-   * 
+   *
    * Range is currently ignored
    */
-  static async getReadings(orgId: string, resourceId: string, timeseriesId: string, range: TimeseriesRange): Promise<SomeResult<AnyReading[]>> {
+  static async getReadings(
+    orgId: string,
+    resourceId: string,
+    timeseriesId: string,
+    range: TimeseriesRange
+  ): Promise<SomeResult<AnyReading[]>> {
     return this.readingCol(orgId)
-      .where('resourceId', '==', resourceId)
-      .where('timeseriesId', '==', timeseriesId)
+      .where("resourceId", "==", resourceId)
+      .where("timeseriesId", "==", timeseriesId)
       .limit(300)
       .get()
-    .then((sn: any) => {
-      const parsedReadings = this.snapshotToReadings(sn);
-      return parsedReadings;
-    })
-    .then((readings: AnyReading[]) => makeSuccess(readings))
-    .catch((err: Error) => {
-      maybeLog("error: ", err.message);
-      makeError<AnyReading[]>(err.message)
-    })
+      .then((sn: any) => {
+        const parsedReadings = this.snapshotToReadings(sn);
+        return parsedReadings;
+      })
+      .then((readings: AnyReading[]) => makeSuccess(readings))
+      .catch((err: Error) => {
+        maybeLog("error: ", err.message);
+        makeError<AnyReading[]>(err.message);
+      });
   }
 
   /**
    * Get the pending readings saved to the user's `pendingReadings` collection
-   * 
+   *
    * TODO: update to just the user object, not the pendingReadings collection
    */
-  static getPendingReadingsFromUser(orgId: string, userId: string): Promise<Reading[]> {
-    return this.userDoc(orgId, userId).collection('pendingReadings').get()
+  static getPendingReadingsFromUser(
+    orgId: string,
+    userId: string
+  ): Promise<Reading[]> {
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .get()
       .then((sn: any) => {
         const readings: Reading[] = [];
         sn.forEach((doc: any) => {
@@ -403,9 +531,14 @@ class FirebaseApi {
    *    * TODO: update to just the user object, not the pendingReadings collection
 
    */
-  static getPendingReadingsForUserAndResourceId(orgId: string, userId: string, resourceId: string): Promise<Reading[]> {
-    return this.userDoc(orgId, userId).collection('pendingReadings')
-      .where('resourceId', '==', resourceId)
+  static getPendingReadingsForUserAndResourceId(
+    orgId: string,
+    userId: string,
+    resourceId: string
+  ): Promise<Reading[]> {
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .where("resourceId", "==", resourceId)
       .limit(100)
       .get()
       .then((sn: any) => {
@@ -421,12 +554,16 @@ class FirebaseApi {
         return readings;
       });
   }
-  
+
   /**
    * saveReading
    * submits a new reading for a given resource
    */
-  static async saveReading(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
+  static async saveReading(
+    orgId: string,
+    userId: string,
+    reading: AnyReading | PendingReading
+  ): Promise<SomeResult<AnyReading>> {
     const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
     const fbReading = new FBReading(builder);
 
@@ -441,19 +578,25 @@ class FirebaseApi {
 
   /**
    * saveReadingToUser
-   * 
+   *
    * Submits a new reading to the user's pendingReadings collection
    */
-  static async saveReadingToUser(orgId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<AnyReading>> {
+  static async saveReadingToUser(
+    orgId: string,
+    userId: string,
+    reading: AnyReading | PendingReading
+  ): Promise<SomeResult<AnyReading>> {
     const builder = fromCommonReadingToFBReadingBuilder(orgId, userId, reading);
     const fbReading = new FBReading(builder);
 
     //TODO: should this hash the resourceId + tsId + date to get the unique reading id?
-    return this.userDoc(orgId, userId).collection('pendingReadings').add(fbReading.serialize())
-    .then(() => makeSuccess(fbReading.toAnyReading()))
-    .catch((err: Error) => {
-      return makeError<AnyReading>(err.message);
-    })
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .add(fbReading.serialize())
+      .then(() => makeSuccess(fbReading.toAnyReading()))
+      .catch((err: Error) => {
+        return makeError<AnyReading>(err.message);
+      });
   }
 
   static listenForPendingWrites(collection: any) {
@@ -464,25 +607,32 @@ class FirebaseApi {
           if (sn.docChanges.length > 0) {
             return resolve(sn);
           }
-          reject(new Error('recieved snapshot with no changes'))
+          reject(new Error("recieved snapshot with no changes"));
         },
         //TODO: this needs to be fixed
         //onError
         (error: Error) => {
-          maybeLog("error: " +  error);
+          maybeLog("error: " + error);
           return reject(error);
-        },
+        }
       );
     });
   }
 
   /**
-  * deletePendingReadingFromUser
-  * 
-  * Delete a pending reading from the user's pending reading list
-  */
-  static async deletePendingReadingFromUser(orgId: string, userId: string, id: string): Promise<SomeResult<void>> {
-    return await this.userDoc(orgId, userId).collection('pendingReadings').doc(id).delete()
+   * deletePendingReadingFromUser
+   *
+   * Delete a pending reading from the user's pending reading list
+   */
+  static async deletePendingReadingFromUser(
+    orgId: string,
+    userId: string,
+    id: string
+  ): Promise<SomeResult<void>> {
+    return await this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .doc(id)
+      .delete()
       .then(() => makeSuccess(undefined))
       .catch((err: Error) => {
         maybeLog(`deletePendingReadingFromUser error: ${err}`);
@@ -500,7 +650,7 @@ class FirebaseApi {
    */
   static pendingReadingsListenerForUser(orgId: string, userId: string) {
     return this.listenForPendingWrites(
-      this.userDoc(orgId, userId).collection('pendingReadings')
+      this.userDoc(orgId, userId).collection("pendingReadings")
     );
   }
 
@@ -509,29 +659,36 @@ class FirebaseApi {
    * Don't use for GGMN, use listenForPendingReadingsToUser instead
    */
   static listenForPendingReadings(orgId: string, callback: any) {
-    fs.collection('org').doc(orgId).collection('reading')
+    fs.collection("org")
+      .doc(orgId)
+      .collection("reading")
       .onSnapshot(
         {
-          includeMetadataChanges: true,
+          includeMetadataChanges: true
         },
         //optionsOrObserverOrOnNext
-        (sn) => {
+        sn => {
           //TODO: map snapshot to readings
           callback(sn);
         },
         //onError
-        (error) => {
+        error => {
           maybeLog("error: " + error);
           return Promise.reject(error);
         }
       );
   }
 
-  static listenForPendingReadingsToUser(orgId: string, userId: string, callback: (readings: PendingReading[]) => void): () => void {
-    return this.userDoc(orgId, userId).collection('pendingReadings')
-    .onSnapshot(
-      {
-          includeMetadataChanges: true,
+  static listenForPendingReadingsToUser(
+    orgId: string,
+    userId: string,
+    callback: (readings: PendingReading[]) => void
+  ): () => void {
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .onSnapshot(
+        {
+          includeMetadataChanges: true
         },
         //optionsOrObserverOrOnNext
         (sn: any) => {
@@ -546,11 +703,16 @@ class FirebaseApi {
       );
   }
 
-  static listenForPendingResourcesToUser(orgId: string, userId: string, callback: (readings: PendingResource[]) => void): () => void {
-    return this.userDoc(orgId, userId).collection('pendingResources')
-    .onSnapshot(
-      {
-          includeMetadataChanges: true,
+  static listenForPendingResourcesToUser(
+    orgId: string,
+    userId: string,
+    callback: (readings: PendingResource[]) => void
+  ): () => void {
+    return this.userDoc(orgId, userId)
+      .collection("pendingResources")
+      .onSnapshot(
+        {
+          includeMetadataChanges: true
         },
         //optionsOrObserverOrOnNext
         (sn: any) => {
@@ -562,13 +724,17 @@ class FirebaseApi {
           maybeLog("error: " + error);
           return Promise.reject(error);
         }
-    );
+      );
   }
 
   /**
    * @returns unsubscribe function
    */
-  static listenForUpdatedUser(orgId: string, userId: string, cb: any): () => void {
+  static listenForUpdatedUser(
+    orgId: string,
+    userId: string,
+    cb: any
+  ): () => void {
     const options = {
       includeMetadataChanges: true
     };
@@ -582,12 +748,16 @@ class FirebaseApi {
     });
   }
 
-
   /**
    * Get the n most recent searches the user made
    */
   static getRecentSearches(orgId: string, userId: string): Promise<string[]> {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).get()
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .get()
       .then(sn => {
         //@ts-ignore
         if (!sn || !sn.data() || !sn.data().recentSearches) {
@@ -602,7 +772,11 @@ class FirebaseApi {
   /**
    * Save this search to the user's recent searches
    */
-  static async saveRecentSearch(orgId: string, userId: string, searchQuery: string): Promise<any> {
+  static async saveRecentSearch(
+    orgId: string,
+    userId: string,
+    searchQuery: string
+  ): Promise<any> {
     const maxRecentSearches = 5;
     const recentSearches = await this.getRecentSearches(orgId, userId);
     //Make sure we don't re-add an existing query. Add it to the start of the array
@@ -616,81 +790,120 @@ class FirebaseApi {
       recentSearches.pop();
     }
 
-    return fs.collection('org').doc(orgId).collection('user').doc(userId).set({ recentSearches }, { merge: true })
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId)
+      .set({ recentSearches }, { merge: true });
   }
 
   private static userDoc(orgId: string, userId: string): any {
-    return fs.collection('org').doc(orgId).collection('user').doc(userId)
-  } 
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("user")
+      .doc(userId);
+  }
 
   private static readingCol(orgId: string): any {
-    return fs.collection('org').doc(orgId).collection('reading');
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("reading");
   }
 
   private static shortIdCol(orgId: string): any {
-    return fs.collection('org').doc(orgId).collection('shortId');
+    return fs
+      .collection("org")
+      .doc(orgId)
+      .collection("shortId");
   }
 
   /**
    * getUser
-   * 
+   *
    * Gets the entire user object from firebase
    */
-  static async getUser(orgId: string, userId: string): Promise<SomeResult<OWUser>> {
-    return this.userDoc(orgId, userId).get()
-    .then((sn: any) => this.snapshotToUser(userId, sn))
-    .then((user: OWUser) => makeSuccess<OWUser>(user))
-    .catch((err: any) => {
-      maybeLog("error getting user: " + err);
-      return makeError<OWUser>(`Could not get user for orgId: ${orgId}, userId: ${userId}`);
-    });
+  static async getUser(
+    orgId: string,
+    userId: string
+  ): Promise<SomeResult<OWUser>> {
+    return this.userDoc(orgId, userId)
+      .get()
+      .then((sn: any) => this.snapshotToUser(userId, sn))
+      .then((user: OWUser) => makeSuccess<OWUser>(user))
+      .catch((err: any) => {
+        maybeLog("error getting user: " + err);
+        return makeError<OWUser>(
+          `Could not get user for orgId: ${orgId}, userId: ${userId}`
+        );
+      });
   }
 
   /**
    * changeUserLanguage
-   * 
-   * Change the language for the given user. 
+   *
+   * Change the language for the given user.
    * Triggers a user changed callback
    */
-  static async changeUserTranslation(orgId: string, userId: string, translation: TranslationEnum): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).set({ translation }, { merge: true })
-    .then(() => {
-      return {
-        type: ResultType.SUCCESS,
-        result: undefined
-      }
-    })
-    .catch((err: Error) => {
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
-    });
+  static async changeUserTranslation(
+    orgId: string,
+    userId: string,
+    translation: TranslationEnum
+  ): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId)
+      .set({ translation }, { merge: true })
+      .then(() => {
+        return {
+          type: ResultType.SUCCESS,
+          result: undefined
+        };
+      })
+      .catch((err: Error) => {
+        return {
+          type: ResultType.ERROR,
+          message: err.message
+        };
+      });
   }
 
   /**
    * Delete a pending resource
    */
-  static async deletePendingResource(orgId: string, userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).collection('pendingResources').doc(pendingResourceId).delete()
-    .then(() => {
-      return {
-        type: ResultType.SUCCESS,
-      };
-    })
-    .catch(() => {
-      return {
-        type: ResultType.ERROR,
-        message: 'Could not delete pending resource'
-      };
-    })
+  static async deletePendingResource(
+    orgId: string,
+    userId: string,
+    pendingResourceId: string
+  ): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId)
+      .collection("pendingResources")
+      .doc(pendingResourceId)
+      .delete()
+      .then(() => {
+        return {
+          type: ResultType.SUCCESS
+        };
+      })
+      .catch(() => {
+        return {
+          type: ResultType.ERROR,
+          message: "Could not delete pending resource"
+        };
+      });
   }
 
   /**
    * Delete the pending readings from a pending resource
    */
-  static async deletePendingReadingsForResource(orgId: string, userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
-    return this.userDoc(orgId, userId).collection('pendingReadings').get()
+  static async deletePendingReadingsForResource(
+    orgId: string,
+    userId: string,
+    pendingResourceId: string
+  ): Promise<SomeResult<void>> {
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .get()
       .then((sn: any) => {
         const readings: PendingReading[] = [];
         sn.forEach((doc: any) => {
@@ -704,121 +917,148 @@ class FirebaseApi {
         return readings;
       })
       .then((pendingReadings: PendingReading[]) => {
-      return Promise.all(pendingReadings
-        .filter(r => r.resourceId === pendingResourceId)
-        .map(r => this.deletePendingReading(orgId, userId, r.id))
-      )
-    })
-    .then(() => makeSuccess<void>(undefined))
-    .catch((err: Error) => makeError<void>(err.message))
+        return Promise.all(
+          pendingReadings
+            .filter(r => r.resourceId === pendingResourceId)
+            .map(r => this.deletePendingReading(orgId, userId, r.id))
+        );
+      })
+      .then(() => makeSuccess<void>(undefined))
+      .catch((err: Error) => makeError<void>(err.message));
   }
 
   /**
    * Delete a pending reading
    */
-  static async deletePendingReading(orgId: string, userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
+  static async deletePendingReading(
+    orgId: string,
+    userId: string,
+    pendingReadingId: string
+  ): Promise<SomeResult<void>> {
     //This needs to work offline, don't wait for feedback
-    return this.userDoc(orgId, userId).collection('pendingReadings').doc(pendingReadingId).delete()
+    return this.userDoc(orgId, userId)
+      .collection("pendingReadings")
+      .doc(pendingReadingId)
+      .delete()
       .then(() => {
         return {
-          type: ResultType.SUCCESS,
+          type: ResultType.SUCCESS
         };
       })
       .catch(() => {
         return {
           type: ResultType.ERROR,
-          message: 'Could not delete pending resource'
+          message: "Could not delete pending resource"
         };
       });
   }
 
   /**
    * getShortId
-   * 
+   *
    * Get the shortId for the given long Id.
    * Uses firestore, not Rest API
    */
-  public static async getShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
+  public static async getShortId(
+    orgId: string,
+    longId: string
+  ): Promise<SomeResult<string>> {
     const col = this.shortIdCol(orgId);
-    return col.where('longId', '==', longId).get()
-    .then((sn: any) => this.snapshotToShortIds(sn))
-    .then((shortIds: ShortId[]) => {
-      if (shortIds.length > 1) {
-        maybeLog(`Found more than 1 short Id for longId: ${longId}. Returning the first.`);
-      }
+    return col
+      .where("longId", "==", longId)
+      .get()
+      .then((sn: any) => this.snapshotToShortIds(sn))
+      .then((shortIds: ShortId[]) => {
+        if (shortIds.length > 1) {
+          maybeLog(
+            `Found more than 1 short Id for longId: ${longId}. Returning the first.`
+          );
+        }
 
-      if (shortIds.length === 0 || isNullOrUndefined(shortIds[0])) {
-        throw new Error(`ShortId not found for longId: ${longId}`);
-      }
+        if (shortIds.length === 0 || isNullOrUndefined(shortIds[0])) {
+          throw new Error(`ShortId not found for longId: ${longId}`);
+        }
 
-      return {
-        type: ResultType.SUCCESS,
-        result: shortIds[0].id,
-      };
-    })
-    .catch((err: Error) => {
-      return {
-        type: ResultType.ERROR,
-        message: err.message,
-      }
-    });
+        return {
+          type: ResultType.SUCCESS,
+          result: shortIds[0].id
+        };
+      })
+      .catch((err: Error) => {
+        return {
+          type: ResultType.ERROR,
+          message: err.message
+        };
+      });
   }
 
   /**
    * createShortId
-   * 
+   *
    * Creates a short id for the given long id. Uses the REST Api instead
    * of the firestore Api. This limits the offline usability of shortIds,
    * but is a necessary compromise for now
    */
-  public static async createShortId(orgId: string, longId: string): Promise<SomeResult<string>> {
+  public static async createShortId(
+    orgId: string,
+    longId: string
+  ): Promise<SomeResult<string>> {
     const shortIdUrl = `${baseUrl}/shortId/${orgId}`;
     const url = appendUrlParameters(shortIdUrl, {});
 
     const options = {
       timeout,
-      method: 'POST',
+      method: "POST",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({resourceId: longId})
+      body: JSON.stringify({ resourceId: longId })
     };
 
     return ftch(url, options)
-    .then((response: any) => {
-      if (!response.ok) {
-        return rejectRequestWithError(response.status);
-      }
+      .then((response: any) => {
+        if (!response.ok) {
+          return rejectRequestWithError(response.status);
+        }
 
-      return response.json();
-    })
-    .then((shortId: ShortId) => {
-      return {
-        type: ResultType.SUCCESS,
-        result: shortId.shortId,
-      }
-    })
-    .catch((err: Error) => {
-      maybeLog(`CreateShortId Error: ${err}`);
-      return {
-        type: ResultType.ERROR,
-        message: err.message
-      };
-    });
+        return response.json();
+      })
+      .then((shortId: ShortId) => {
+        return {
+          type: ResultType.SUCCESS,
+          result: shortId.shortId
+        };
+      })
+      .catch((err: Error) => {
+        maybeLog(`CreateShortId Error: ${err}`);
+        return {
+          type: ResultType.ERROR,
+          message: err.message
+        };
+      });
   }
 
   /**
    * SendResourceEmail
-   * 
+   *
    * //TODO: this doesn't belong in the FirebaseApi
-   * 
+   *
    * http://localhost:5000/our-water/us-central1/resource/ggmn/ggmnResourceEmail
-   * 
+   *
    * Trigger the Firebase Api to send an email containing shapefiles for the given resources
    */
-  static async sendResourceEmail(orgId: string, unusedToken: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], sendOptions: SendResourceEmailOptions): Promise<SomeResult<void>> {
-    const url = appendUrlParameters(`${baseUrl}/resource/${orgId}/ggmnResourceEmail`, {});
+  static async sendResourceEmail(
+    orgId: string,
+    unusedToken: string,
+    pendingResources: PendingResource[],
+    pendingReadings: PendingReading[],
+    sendOptions: SendResourceEmailOptions
+  ): Promise<SomeResult<void>> {
+    const url = appendUrlParameters(
+      `${baseUrl}/resource/${orgId}/ggmnResourceEmail`,
+      {}
+    );
 
     //TD: Need a better way to get the token
     const userResult = await FirebaseUserApi.signIn();
@@ -830,18 +1070,18 @@ class FirebaseApi {
     const body = {
       pendingResources,
       pendingReadings,
-      ...sendOptions,
+      ...sendOptions
     };
 
     const options = {
       timeout,
-      method: 'POST',
+      method: "POST",
       headers: {
-        Accept: 'application/json',
+        Accept: "application/json",
         authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     };
 
     maybeLog("SendResourceEmail url: ", url);
@@ -862,16 +1102,14 @@ class FirebaseApi {
       });
   }
 
-
   //
   //Utils
   //------------------------------------------------------------------------------
 
-
   /**
    * Map a fb snapshot to a proper OWUser object
    * If the snapshot is null, returns an empty user object
-   * 
+   *
    * //TODO: remove the need for this with proper object modelling
    */
   static snapshotToUser(userId: string, sn: any): OWUser {
@@ -882,8 +1120,8 @@ class FirebaseApi {
         userId,
         recentResources: [],
         favouriteResources: [],
-        pendingSavedReadings:  [],
-        pendingSavedResources:[],
+        pendingSavedReadings: [],
+        pendingSavedResources: [],
         recentSearches: [],
         //TODO: default translation can be overriden here
         translation: TranslationEnum.en_AU,
@@ -894,12 +1132,12 @@ class FirebaseApi {
         status: UserStatus.Unapproved,
         type: UserType.User,
         newResources: {},
-      }
+        image: ''
+      };
     }
 
     return this.oldSnapshotToUser(sn);
   }
-
 
   /**
    * Map a fb snapshot to a proper OWUser object
@@ -912,20 +1150,19 @@ class FirebaseApi {
     }
 
     let favouriteResources: AnyResource[] = [];
-    const favouriteResourcesDict: CacheType<AnyResource> = data.favouriteResources;
+    const favouriteResourcesDict: CacheType<AnyResource> =
+      data.favouriteResources;
     if (favouriteResourcesDict) {
-      favouriteResources = Object
-        .keys(favouriteResourcesDict)
+      favouriteResources = Object.keys(favouriteResourcesDict)
         .map(k => favouriteResourcesDict[k])
         .filter(v => v !== null)
         .map(r => ({
           //Fill in default/missing values here
           groups: {},
           ...r
-        }))
+        }));
     }
 
-    
     let recentResources: AnyResource[] = data.recentResources;
     if (recentResources) {
       recentResources = recentResources.map(r => ({
@@ -945,7 +1182,7 @@ class FirebaseApi {
       pendingSavedResources: data.pendingSavedResources || [],
       recentSearches: data.recentSearches || [],
       //TODO: default translation can be overriden here
-      translation: data.translation || 'en_AU', 
+      translation: data.translation || "en_AU",
       mobile: data.mobile || null,
       email: data.email || null,
       name: data.name || null,
@@ -953,7 +1190,8 @@ class FirebaseApi {
       status: data.status || OWUserStatus.Unapproved,
       type: data.type || UserType.User,
       newResources: data.newResources || {},
-    }
+      image: data.image || null
+    };
   }
 
   /**
@@ -981,10 +1219,10 @@ class FirebaseApi {
         timeseriesId: data.timeseriesId,
         date: data.datetime || data.date,
         value: data.value,
-        userId: data.userId || 'unknown',
+        userId: data.userId || "unknown",
         image,
         location,
-        resourceType: data.resourceType ? data.resourceType : ResourceType.well,
+        resourceType: data.resourceType ? data.resourceType : ResourceType.well
       };
 
       readings.push(reading);
@@ -1049,8 +1287,6 @@ class FirebaseApi {
 
     return shortIds;
   }
-
-
 }
 
 export default FirebaseApi;

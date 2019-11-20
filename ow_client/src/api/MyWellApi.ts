@@ -1,6 +1,6 @@
-import BaseApi, { GenericSearchResult } from './BaseApi';
-import NetworkApi from './NetworkApi';
-import FirebaseApi from './DeprecatedFirebaseApi';
+import BaseApi, { GenericSearchResult } from "./BaseApi";
+import NetworkApi from "./NetworkApi";
+import FirebaseApi from "./DeprecatedFirebaseApi";
 import {
   DeprecatedResource,
   SearchResult as SearchResultV1,
@@ -10,41 +10,41 @@ import {
   SaveResourceResult,
   TimeseriesRange,
   OWUserStatus
-} from '../typings/models/OurWater';
-import UserApi from './UserApi';
+} from "../typings/models/OurWater";
+import UserApi from "./UserApi";
 import {
   SomeResult,
   ResultType,
   resultsHasError,
   makeError,
   makeSuccess
-} from '../typings/AppProviderTypes';
-import { TranslationEnum } from 'ow_translations';
-import { RNFirebase, Firebase } from 'react-native-firebase';
-import { Region } from 'react-native-maps';
-import { AnyResource } from '../typings/models/Resource';
-import { AnyReading } from '../typings/models/Reading';
-import { PendingReading } from '../typings/models/PendingReading';
-import { PendingResource } from '../typings/models/PendingResource';
-import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
+} from "../typings/AppProviderTypes";
+import { TranslationEnum } from "ow_translations";
+import { RNFirebase, Firebase } from "react-native-firebase";
+import { Region } from "react-native-maps";
+import { AnyResource } from "../typings/models/Resource";
+import { AnyReading } from "../typings/models/Reading";
+import { PendingReading } from "../typings/models/PendingReading";
+import { PendingResource } from "../typings/models/PendingResource";
+import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import {
   maybeLog,
   convertRangeToDates,
   naiveParseFetchResponse,
   get
-} from '../utils';
-import { OrgType } from '../typings/models/OrgType';
+} from "../utils";
+import { OrgType } from "../typings/models/OrgType";
 import InternalAccountApi, {
   InternalAccountApiType,
   SaveUserDetailsType
-} from './InternalAccountApi';
+} from "./InternalAccountApi";
 //@ts-ignore
-import { default as ftch } from '../utils/Fetch';
+import { default as ftch } from "../utils/Fetch";
 import {
   ExternalSyncStatusComplete,
   ExternalSyncStatusType
-} from '../typings/api/ExternalServiceApi';
-import firebase from 'react-native-firebase';
+} from "../typings/api/ExternalServiceApi";
+import firebase from "react-native-firebase";
 
 const fs = firebase.firestore();
 
@@ -53,12 +53,12 @@ import {
   SearchResult,
   PartialResourceResult,
   PlaceResult
-} from 'ow_common/lib/api/SearchApi';
-import { UserApi as CommonUserApi } from 'ow_common/lib/api/UserApi';
+} from "ow_common/lib/api/SearchApi";
+import { UserApi as CommonUserApi } from "ow_common/lib/api/UserApi";
 
-import { Cursor } from '../screens/HomeMapScreen';
-import FirebaseUserApi from './FirebaseUserApi';
-import PlaceApi from './PlaceApi';
+import { Cursor } from "../screens/HomeMapScreen";
+import FirebaseUserApi from "./FirebaseUserApi";
+import PlaceApi from "./PlaceApi";
 
 type Snapshot = RNFirebase.firestore.QuerySnapshot;
 
@@ -238,7 +238,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     cursor: Cursor
   ): Promise<SomeResult<[AnyResource[], Cursor]>> {
     maybeLog(
-      'WARNING: getResourcesWithinRegionPaginated() not implemented for MyWellApi. Defaulting to getResourcesWithinRegion'
+      "WARNING: getResourcesWithinRegionPaginated() not implemented for MyWellApi. Defaulting to getResourcesWithinRegion"
     );
     const result = await this.getResourcesWithinRegion(region);
 
@@ -287,10 +287,10 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     //@ts-ignore
     resource.orgId = this.orgId;
     //@ts-ignore
-    resource.docName = 'resource';
+    resource.docName = "resource";
 
-    console.log('save resource to user')
-    console.log(resource)
+    console.log("save resource to user");
+    console.log(resource);
 
     // if (userResult.result.status !== OWUserStatus.Approved) {
     const saveResult = await FirebaseApi.saveResourceToUser(
@@ -298,6 +298,15 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       userId,
       resource
     );
+
+    if (typeof resource.image !== "undefined") {
+      await FirebaseApi.updateUserDefaultImage(
+        this.orgId,
+        userId,
+        resource.image
+      );
+    }
+
     if (saveResult.type === ResultType.ERROR) {
       maybeLog(saveResult.message);
       return makeError(saveResult.message);
@@ -376,7 +385,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     );
     const hasError = resultsHasError(getShortIdResults);
     if (hasError) {
-      return makeError('Error loading shortIds');
+      return makeError("Error loading shortIds");
     }
 
     //@ts-ignore - we already checked for failure cases above
@@ -410,15 +419,15 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     const syncUrl = `${this.baseUrl}/resource/${this.orgId}/${userId}/sync`;
     const options = {
       timeout,
-      method: 'POST',
+      method: "POST",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       }
     };
 
-    console.log('syncURL is', syncUrl);
+    console.log("syncURL is", syncUrl);
 
     return (
       ftch(syncUrl, options)
@@ -427,7 +436,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
           if (!response.ok) {
             return {
               type: ResultType.ERROR,
-              message: 'Network request failed'
+              message: "Network request failed"
             };
           }
           return makeSuccess<any>(undefined);
@@ -520,7 +529,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
    * Get the most recent resources, courtesy of the firebase api
    */
   getRecentSearches(userId: string): Promise<string[]> {
-    return Promise.resolve(['1', '2']);
+    return Promise.resolve(["1", "2"]);
     // return FirebaseApi.getRecentSearches(this.orgId, userId);
   }
 
@@ -535,7 +544,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     searchQuery: string,
     page: number
   ): Promise<SomeResult<SearchResultV1>> {
-    throw new Error('V1 search not implented');
+    throw new Error("V1 search not implented");
   } //TODO: update the type of result we get back
 
   /**
@@ -546,10 +555,10 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     const searchApi = new SearchApi(<any>fs, this.orgId);
 
     //Search multiple things at once:
-     const allSearchResults: GenericSearchResult = await Promise.all([
+    const allSearchResults: GenericSearchResult = await Promise.all([
       searchApi.searchByShortId(searchQuery, { limit: 10 }),
-      searchApi.searchForResourceInGroup(searchQuery, 'pincode', { limit: 10 }),
-      searchApi.searchForResourceInGroup(searchQuery, 'country', { limit: 10 }),
+      searchApi.searchForResourceInGroup(searchQuery, "pincode", { limit: 10 }),
+      searchApi.searchForResourceInGroup(searchQuery, "country", { limit: 10 }),
       searchApi.searchByLocationName(searchQuery, { limit: 10 }),
       searchApi.searchByOwnerName(searchQuery, { limit: 10 }),
       PlaceApi.searchForPlaceName(searchQuery, { limit: 10 })
@@ -558,7 +567,7 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
     ])
       .then(allResults => makeSuccess(allResults))
       .catch((err: Error) => {
-        console.log('search error', err);
+        console.log("search error", err);
         //This shouldn't happen.
         return makeError(err.message);
       });

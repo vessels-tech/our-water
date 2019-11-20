@@ -38,7 +38,7 @@ export interface StateProps {
   menu_checkdam: string,
   settings_new_resource: string,
   translation: TranslationFile,
-
+  image: string | null
 }
 
 export interface ActionProps {
@@ -189,6 +189,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               showModal(this.props, 'screen.menu.EditResourceScreen', settings_new_resource, {
                 config: this.props.config,
                 userId: this.props.userId,
+                image: this.props.image
               })
             }}
             bottomText={menu_new_text}
@@ -275,6 +276,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     menu_checkdam: state.translation.templates.menu_checkdam,
     settings_new_resource: state.translation.templates.settings_new_resource,
     translation: state.translation,
+    image: state.image
   }
 }
 

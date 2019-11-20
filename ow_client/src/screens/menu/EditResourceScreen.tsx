@@ -1,85 +1,120 @@
-import * as React from 'react';
-import { Component } from 'react';
+import * as React from "react";
+import { Component } from "react";
 import {
-  View, Keyboard, ToastAndroid, ScrollView, Alert, Dimensions
-} from 'react-native';
+  View,
+  Keyboard,
+  ToastAndroid,
+  ScrollView,
+  Alert,
+  Dimensions
+} from "react-native";
+import { Button } from "react-native-elements";
+import { ResourceType } from "../../enums";
 import {
-  Button
-} from 'react-native-elements';
-import { ResourceType } from '../../enums';
-import { ConfigFactory, GroupSpecificationType } from '../../config/ConfigFactory';
-import BaseApi from '../../api/BaseApi';
-import { SaveResourceResult } from '../../typings/models/OurWater';
-import * as appActions from '../../actions';
-import { AppState, CacheType } from '../../reducers';
-import { connect } from 'react-redux'
-import { FormBuilder, Validators, FieldGroup, FieldControl, AbstractControl, ValidationErrors, FormGroup } from 'react-reactive-form';
-import { SomeResult, ResultType } from '../../typings/AppProviderTypes';
-import { TextInput, DropdownInput, TextIdInput } from '../../components/common/FormComponents';
-import { validateResource } from '../../api/ValidationApi';
-import { MaybeExternalServiceApi } from '../../api/ExternalServiceApi';
-import { SyncMeta } from '../../typings/Reducer';
-import { AnyLoginDetails } from '../../typings/api/ExternalServiceApi';
-import LoadLocationButton from '../../components/LoadLocationButton';
-import { NoLocation, Location, LocationType } from '../../typings/Location';
-import * as equal from 'fast-deep-equal';
-import { secondaryText, error1 } from '../../utils/Colors';
-import { PendingResource } from '../../typings/models/PendingResource';
-import { OrgType } from '../../typings/models/OrgType';
-import { MaybeExtendedResourceApi, ExtendedResourceApiType, CheckNewIdResult } from '../../api/ExtendedResourceApi';
-import { TranslationFile } from 'ow_translations/src/Types';
-import { AnyResource } from '../../typings/models/Resource';
-import { unwrapUserId, debounced, maybeLog } from '../../utils';
-import { isNullOrUndefined } from 'util';
+  ConfigFactory,
+  GroupSpecificationType
+} from "../../config/ConfigFactory";
+import BaseApi from "../../api/BaseApi";
+import { SaveResourceResult } from "../../typings/models/OurWater";
+import * as appActions from "../../actions";
+import { AppState, CacheType } from "../../reducers";
+import { connect } from "react-redux";
+import {
+  FormBuilder,
+  Validators,
+  FieldGroup,
+  FieldControl,
+  AbstractControl,
+  ValidationErrors,
+  FormGroup
+} from "react-reactive-form";
+import { SomeResult, ResultType } from "../../typings/AppProviderTypes";
+import {
+  TextInput,
+  DropdownInput,
+  TextIdInput
+} from "../../components/common/FormComponents";
+import { validateResource } from "../../api/ValidationApi";
+import { MaybeExternalServiceApi } from "../../api/ExternalServiceApi";
+import { SyncMeta } from "../../typings/Reducer";
+import { AnyLoginDetails } from "../../typings/api/ExternalServiceApi";
+import LoadLocationButton from "../../components/LoadLocationButton";
+import { NoLocation, Location, LocationType } from "../../typings/Location";
+import * as equal from "fast-deep-equal";
+import { secondaryText, error1 } from "../../utils/Colors";
+import { PendingResource } from "../../typings/models/PendingResource";
+import { OrgType } from "../../typings/models/OrgType";
+import {
+  MaybeExtendedResourceApi,
+  ExtendedResourceApiType,
+  CheckNewIdResult
+} from "../../api/ExtendedResourceApi";
+import { TranslationFile } from "ow_translations/src/Types";
+import { AnyResource } from "../../typings/models/Resource";
+import { unwrapUserId, debounced, maybeLog } from "../../utils";
+import { isNullOrUndefined } from "util";
 //@ts-ignore
-import { callingCountries } from 'country-data';
-import { validatePincode } from '../../utils/Pincodes';
-import SaveButton from '../../components/common/SaveButton';
-import FloatingButtonWrapper from '../../components/common/FloatingButtonWrapper';
-import ImageComponent, { ImageType, IImage } from '../../components/ImageComponent';
+import { callingCountries } from "country-data";
+import { validatePincode } from "../../utils/Pincodes";
+import SaveButton from "../../components/common/SaveButton";
+import FloatingButtonWrapper from "../../components/common/FloatingButtonWrapper";
+import ImageComponent, {
+  ImageType,
+  IImage
+} from "../../components/ImageComponent";
 
-export interface Props { 
-  resourceId: string,
-  navigator: any,
-  config: ConfigFactory,
-  appApi: BaseApi,
-  resource?: AnyResource | PendingResource,
-  
+export interface Props {
+  resourceId: string;
+  navigator: any;
+  config: ConfigFactory;
+  appApi: BaseApi;
+  resource?: AnyResource | PendingResource;
+
   //Injected by Consumer
-  userId: string,
-  pendingSavedResourcesMeta: SyncMeta, 
-  externalLoginDetails: AnyLoginDetails,
-  externalLoginDetailsMeta: SyncMeta,
-  location: Location | NoLocation,
-  translation: TranslationFile,
-  name: string | null,
-  saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) => any,
-  deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => any,
+  userId: string;
+  pendingSavedResourcesMeta: SyncMeta;
+  externalLoginDetails: AnyLoginDetails;
+  externalLoginDetailsMeta: SyncMeta;
+  location: Location | NoLocation;
+  translation: TranslationFile;
+  name: string | null;
+  image: string | null;
+  saveResource: (
+    api: BaseApi,
+    externalApi: MaybeExternalServiceApi,
+    userId: string,
+    resource: AnyResource | PendingResource
+  ) => any;
+  deletePendingResource: (
+    api: BaseApi,
+    userId: string,
+    pendingResourceId: string
+  ) => any;
 }
 
 export interface State {
-  formHeight: number,
-  scrollOffset: number,
+  formHeight: number;
+  scrollOffset: number;
 }
 
 export type EditResourceFormBuilder = {
-  id: any,
-  name: any,
-  lat: any,
-  lng: any,
-  asset: any,
-  ownerName?: any,
-  waterColumnHeight?: any,
-  locationName?: any
-}
+  id: any;
+  name: any;
+  lat: any;
+  lng: any;
+  asset: any;
+  ownerName?: any;
+  waterColumnHeight?: any;
+  locationName?: any;
+};
 
 class EditResourceScreen extends Component<Props> {
   state: State;
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
-  extendedResourceApi: MaybeExtendedResourceApi
+  extendedResourceApi: MaybeExtendedResourceApi;
   editResourceForm: any;
-  countryList: Array<{label: string, key: string, name: string}>;
+  countryList: Array<{ label: string; key: string; name: string }>;
   scrollView?: any;
   scrollTo: number = 0;
   image: IImage = { type: ImageType.NONE, url: "" };
@@ -93,17 +128,21 @@ class EditResourceScreen extends Component<Props> {
     this.extendedResourceApi = this.props.config.getExtendedResourceApi();
     //Key is a ISO 3166-2
     this.countryList = callingCountries.all
-      .filter((c: any) => c.emoji ? true : false)
-      .map((c: any) => ({ label: `${c.emoji} ${c.name}`, key: c.alpha2.toLowerCase(), name: c.name}));
+      .filter((c: any) => (c.emoji ? true : false))
+      .map((c: any) => ({
+        label: `${c.emoji} ${c.name}`,
+        key: c.alpha2.toLowerCase(),
+        name: c.name
+      }));
     this.countryList.sort((a, b) => {
       if (a.name > b.name) return 1;
       if (a.name < b.name) return -1;
       return 0;
     });
-    
+
     this.state = {
-      formHeight: Dimensions.get('window').height, 
-      scrollOffset: 0,
+      formHeight: Dimensions.get("window").height,
+      scrollOffset: 0
     };
 
     /* Binds */
@@ -113,16 +152,26 @@ class EditResourceScreen extends Component<Props> {
     this.handleDelete = this.handleDelete.bind(this);
     this.displayDeleteModal = this.displayDeleteModal.bind(this);
     this.handleSubmit = debounced(1000, this.handleSubmit);
-    this.editResourceForm = FormBuilder.group(this.getFormBuilder(this.props), this.getGroupValidators());
+    this.editResourceForm = FormBuilder.group(
+      this.getFormBuilder(this.props),
+      this.getGroupValidators()
+    );
 
     /* Listeners */
-    Keyboard.addListener('keyboardDidShow', this.keyboardDidShow.bind(this));
-    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide.bind(this));
+    Keyboard.addListener("keyboardDidShow", this.keyboardDidShow.bind(this));
+    Keyboard.addListener("keyboardDidHide", this.keyboardDidHide.bind(this));
+
+    if (this.props.image) {
+      this.image = {
+        type: ImageType.IMAGE,
+        url: this.props.image
+      };
+    }
   }
 
   componentWillUnmount() {
-    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShow);
-    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+    Keyboard.removeListener("keyboardDidShow", this.keyboardDidShow);
+    Keyboard.removeListener("keyboardDidHide", this.keyboardDidHide);
   }
 
   /**
@@ -138,7 +187,7 @@ class EditResourceScreen extends Component<Props> {
         maybeLog("scrolling to", this.scrollTo);
         this.scrollView.scrollTo({ x: 0, y: this.scrollTo, animated: true });
       };
-      
+
       setTimeout(scrollFunction, 500);
     }
   }
@@ -155,13 +204,15 @@ class EditResourceScreen extends Component<Props> {
   getFormBuilder(props: Props): EditResourceFormBuilder {
     if (props.resource) {
       const builder = this.getEditFormBuilder(props.resource);
-      return builder
+      return builder;
     }
 
     return this.getNewFormBuilder(props);
   }
 
-  getEditFormBuilder(resource: AnyResource | PendingResource): EditResourceFormBuilder {
+  getEditFormBuilder(
+    resource: AnyResource | PendingResource
+  ): EditResourceFormBuilder {
     let id;
     let lat;
     let lng;
@@ -178,8 +229,10 @@ class EditResourceScreen extends Component<Props> {
       asset = [resource.resourceType, Validators.required];
       ownerName = resource.owner && [resource.owner, Validators.required];
       name = resource.name && [resource.name, Validators.required];
-      waterColumnHeight = resource.waterColumnHeight && [`${resource.waterColumnHeight}`];
-      locationName =  [resource.locationName || '', Validators.required]
+      waterColumnHeight = resource.waterColumnHeight && [
+        `${resource.waterColumnHeight}`
+      ];
+      locationName = [resource.locationName || "", Validators.required];
 
       return {
         id,
@@ -190,8 +243,8 @@ class EditResourceScreen extends Component<Props> {
         ownerName,
         waterColumnHeight,
         locationName
-      }
-    } 
+      };
+    }
 
     if (resource.type === OrgType.GGMN) {
       lat = [`${resource.coords._latitude}`, Validators.required];
@@ -206,7 +259,7 @@ class EditResourceScreen extends Component<Props> {
       lng = [`${resource.coords._longitude}`, Validators.required];
       asset = [resource.type, Validators.required];
       ownerName = [resource.owner.name, Validators.required];
-      locationName = [resource.locationName, Validators.required]
+      locationName = [resource.locationName, Validators.required];
     }
 
     return {
@@ -218,13 +271,13 @@ class EditResourceScreen extends Component<Props> {
       ownerName,
       waterColumnHeight,
       locationName
-    }
+    };
   }
 
   getNewFormBuilder(props: Props): EditResourceFormBuilder {
     /* Set up the form */
-    let lat = '';
-    let lng = '';
+    let lat = "";
+    let lng = "";
     if (props.location.type === LocationType.LOCATION) {
       lat = `${props.location.coords.latitude.toFixed(4)}`;
       lng = `${props.location.coords.longitude.toFixed(4)}`;
@@ -236,47 +289,47 @@ class EditResourceScreen extends Component<Props> {
       lat: [lat, Validators.required],
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
-      wellName:['kevin', Validators.required]
+      wellName: ["", Validators.required]
     };
 
-    let ownerName = '';
+    let ownerName = "";
     if (this.props.name) {
       ownerName = this.props.name;
     }
 
     /* Optional Validators, depending on config*/
     if (this.props.config.getEditResourceHasResourceName()) {
-      formBuilderGroup['name'] = [''];
+      formBuilderGroup["name"] = [""];
     }
 
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
-      formBuilderGroup['ownerName'] = [ownerName, Validators.required];
+      formBuilderGroup["ownerName"] = [ownerName, Validators.required];
     }
 
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
-      formBuilderGroup['ownerName'] = [ownerName, Validators.required];
+      formBuilderGroup["ownerName"] = [ownerName, Validators.required];
     }
 
     if (this.props.config.getEditResourceAllowCustomId()) {
-      formBuilderGroup['id'] = ['', Validators.required, this.asyncIdValidator];
+      formBuilderGroup["id"] = ["", Validators.required, this.asyncIdValidator];
     }
 
     if (this.props.config.getEditResourceHasWaterColumnHeight()) {
       //TODO: Not sure if this should be a required field
-      formBuilderGroup['waterColumnHeight'] = [''];
+      formBuilderGroup["waterColumnHeight"] = [""];
     }
 
     //Should we add pincode to the group?
     if (this.props.config.getEditResourceHasPincode()) {
-      const pincodeGroupSpec = this.props.config.getAvailableGroupTypes()['pincode']; 
-      const validators: any[] = [''];
+      const pincodeGroupSpec = this.props.config.getAvailableGroupTypes().pincode;
+      const validators: any[] = [""];
 
       if (pincodeGroupSpec.required) {
         validators.push(Validators.required);
       }
 
-      formBuilderGroup['pincode'] = validators;
-      
+      formBuilderGroup["pincode"] = validators;
+
       //We are adding pincode do group, but should we validate the pincode per country?
 
       //moved to getGroupValidators
@@ -289,15 +342,15 @@ class EditResourceScreen extends Component<Props> {
 
     if (this.props.config.getEditResourceHasCountry()) {
       //Default to india.
-      const validators: any[] = ['in'];
-      const countrySpec = this.props.config.getAvailableGroupTypes()['country']; 
+      const validators: any[] = ["in"];
+      const countrySpec = this.props.config.getAvailableGroupTypes()["country"];
       if (countrySpec.required) {
         validators.push(Validators.required);
       }
 
-      formBuilderGroup['country'] = validators;
+      formBuilderGroup["country"] = validators;
     }
-  console.log(formBuilderGroup)
+    console.log(formBuilderGroup);
     return formBuilderGroup;
   }
 
@@ -310,10 +363,9 @@ class EditResourceScreen extends Component<Props> {
     }
 
     return {
-      validators: this.pincodeValidator('pincode', 'country'),
-    }
+      validators: this.pincodeValidator("pincode", "country")
+    };
   }
-
 
   async asyncIdValidator(control: AbstractControl) {
     const { new_resource_id_check_error } = this.props.translation.templates;
@@ -323,7 +375,10 @@ class EditResourceScreen extends Component<Props> {
       throw { invalidId: true };
     }
 
-    if (this.extendedResourceApi.extendedResourceApiType === ExtendedResourceApiType.None) {
+    if (
+      this.extendedResourceApi.extendedResourceApiType ===
+      ExtendedResourceApiType.None
+    ) {
       //Tried to check, but this call is invalid.
       return Promise.resolve(null);
     }
@@ -348,16 +403,19 @@ class EditResourceScreen extends Component<Props> {
       const pincodeInput = group.controls[pincodeId];
       const countryInput = group.controls[countryId];
 
-      const validateResult = validatePincode(countryInput.value, pincodeInput.value);
+      const validateResult = validatePincode(
+        countryInput.value,
+        pincodeInput.value
+      );
       if (validateResult.type === ResultType.ERROR) {
-        pincodeInput.setErrors({invalid: true});
+        pincodeInput.setErrors({ invalid: true });
         // throw { invalid: true };
       } else {
         pincodeInput.setErrors(null);
       }
 
       return null;
-    }
+    };
 
     // //It's safe to access country here:
     // const pincode = control.value;
@@ -381,20 +439,34 @@ class EditResourceScreen extends Component<Props> {
 
     if (!equal(location, newProps.location)) {
       if (newProps.location.type === LocationType.LOCATION) {
-        this.editResourceForm.get('lat').setValue(`${newProps.location.coords.latitude.toFixed(4)}`);
-        this.editResourceForm.get('lng').setValue(`${newProps.location.coords.longitude.toFixed(4)}`);
+        this.editResourceForm
+          .get("lat")
+          .setValue(`${newProps.location.coords.latitude.toFixed(4)}`);
+        this.editResourceForm
+          .get("lng")
+          .setValue(`${newProps.location.coords.longitude.toFixed(4)}`);
       }
     }
   }
 
   handleSubmit = async () => {
-    const { translation: { templates: {new_resource_saved_dialog, new_resource_saved_dialog_warning}}} = this.props;
+    const {
+      translation: {
+        templates: {
+          new_resource_saved_dialog,
+          new_resource_saved_dialog_warning
+        }
+      }
+    } = this.props;
 
     Keyboard.dismiss();
 
     let ownerName;
     if (this.props.config.getEditResourceShouldShowOwnerName()) {
-      if (!isNullOrUndefined(this.editResourceForm.value.ownerName) && this.editResourceForm.value.ownerName !== '') {
+      if (
+        !isNullOrUndefined(this.editResourceForm.value.ownerName) &&
+        this.editResourceForm.value.ownerName !== ""
+      ) {
         ownerName = this.editResourceForm.value.ownerName;
       } else {
         ownerName = this.editResourceForm.value.id;
@@ -402,31 +474,36 @@ class EditResourceScreen extends Component<Props> {
     } else {
       ownerName = this.editResourceForm.value.id;
     }
-    
+
     //TODO: make more type safe
     const unvalidatedResource: any = {
       //TODO: load the id?
       pending: true,
       coords: {
         latitude: this.editResourceForm.value.lat,
-        longitude: this.editResourceForm.value.lng,
+        longitude: this.editResourceForm.value.lng
       },
       resourceType: this.editResourceForm.value.asset,
       owner: {
         name: ownerName,
-        createdByUserId: this.props.userId,
+        createdByUserId: this.props.userId
       },
       locationName: this.editResourceForm.value.locationName,
       userId: this.props.userId,
       //TODO: load from default configs for each org + resource type
-      timeseries: this.props.config.getDefaultTimeseries(this.editResourceForm.value.asset),
+      timeseries: this.props.config.getDefaultTimeseries(
+        this.editResourceForm.value.asset
+      )
     };
 
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;
     }
 
-    if (this.props.config.getEditResourceHasWaterColumnHeight() && this.editResourceForm.value.waterColumnHeight) {
+    if (
+      this.props.config.getEditResourceHasWaterColumnHeight() &&
+      this.editResourceForm.value.waterColumnHeight
+    ) {
       unvalidatedResource.waterColumnHeight = this.editResourceForm.value.waterColumnHeight;
     }
 
@@ -439,46 +516,61 @@ class EditResourceScreen extends Component<Props> {
     /* Groups */
     const groups: CacheType<string> = {};
     const groupTypes = this.props.config.getAvailableGroupTypes();
-    Object.keys(groupTypes).forEach(k => groups[k] = this.editResourceForm.value[k]);
+    Object.keys(groupTypes).forEach(
+      k => (groups[k] = this.editResourceForm.value[k])
+    );
     unvalidatedResource.groups = groups;
 
     /* Image */
-    unvalidatedResource.image = this.image.url || '';
-    
-    const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
+    unvalidatedResource.image = this.image.url || "";
+
+    const validationResult: SomeResult<PendingResource> = validateResource(
+      unvalidatedResource
+    );
     if (validationResult.type === ResultType.ERROR) {
-      ToastAndroid.show(`Error saving Resource: ${validationResult.message}`, ToastAndroid.SHORT);
+      ToastAndroid.show(
+        `Error saving Resource: ${validationResult.message}`,
+        ToastAndroid.SHORT
+      );
       return;
     }
-console.log(validationResult.result)
-    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(this.appApi, this.externalApi, this.props.userId, validationResult.result);
+
+    const result: SomeResult<SaveResourceResult> = await this.props.saveResource(
+      this.appApi,
+      this.externalApi,
+      this.props.userId,
+      validationResult.result
+    );
 
     if (result.type === ResultType.ERROR) {
-      ToastAndroid.show(`Error saving Resource: ${result.message}`, ToastAndroid.SHORT);
+      ToastAndroid.show(
+        `Error saving Resource: ${result.message}`,
+        ToastAndroid.SHORT
+      );
       return;
     }
 
-    let message = new_resource_saved_dialog ;
+    let message = new_resource_saved_dialog;
     if (result.result.requiresLogin) {
-      message = new_resource_saved_dialog_warning
+      message = new_resource_saved_dialog_warning;
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
     // this.props.navigator.pop();
     this.props.navigator.dismissModal();
-  }
+  };
 
   displayDeleteModal() {
     const {
       edit_resource_delete_modal_title,
       edit_resource_delete_modal_text,
       edit_resource_delete_modal_ok,
-      edit_resource_delete_modal_cancel,
+      edit_resource_delete_modal_cancel
     } = this.props.translation.templates;
 
     Alert.alert(
-      edit_resource_delete_modal_title, 
-      edit_resource_delete_modal_text, 
+      edit_resource_delete_modal_title,
+      edit_resource_delete_modal_text,
       [
         { text: edit_resource_delete_modal_ok, onPress: this.handleDelete },
         { text: edit_resource_delete_modal_cancel, onPress: () => {} }
@@ -486,43 +578,42 @@ console.log(validationResult.result)
       { cancelable: true }
     );
   }
-  
-
 
   handleDelete() {
     if (this.props.resource) {
-      this.props.deletePendingResource(this.appApi, this.props.userId, this.props.resource.id);
+      this.props.deletePendingResource(
+        this.appApi,
+        this.props.userId,
+        this.props.resource.id
+      );
     }
     this.props.navigator.dismissModal();
   }
 
-
   /**
    * getEditableGroupField
-   * 
-   * 
+   *
+   *
    * renders special-case group fields depending on the id
    */
   getEditableGroupField(spec: GroupSpecificationType) {
-    const {
-      general_is_required_error,
-    } = this.props.translation.templates;
+    const { general_is_required_error } = this.props.translation.templates;
 
     //TODO: translate
     const country_label = "Country";
-    const pincode_invalid_message = "Pincode is not valid."
+    const pincode_invalid_message = "Pincode is not valid.";
     const labelForEditableField = (id: string) => {
-      switch(id) {
-        case 'pincode': {
+      switch (id) {
+        case "pincode": {
           return "Pincode";
         }
         default:
           return id;
       }
-    }
+    };
 
     //Change the keyboard type based on the country
-    let pincodeKeyboardType = 'default';
+    let pincodeKeyboardType = "default";
     //TODO: this doesn't get updated when it should be. Keep this to implement
     //dynamic keyboard switching later on.
     // if (this.editResourceForm.value && this.editResourceForm.value.country) {
@@ -531,9 +622,9 @@ console.log(validationResult.result)
     //   }
     // }
 
-    //TODO: change the country code for 
-    switch(spec.id) {
-      case 'country': {
+    //TODO: change the country code for
+    switch (spec.id) {
+      case "country": {
         return (
           <FieldControl
             key={spec.id}
@@ -545,13 +636,13 @@ console.log(validationResult.result)
               editable: false,
               label: country_label,
               secureTextEntry: false,
-              keyboardType: 'default',
-              defaultValue: 'IN'
+              keyboardType: "default",
+              defaultValue: "IN"
             }}
           />
-        )
+        );
       }
-      case 'pincode': {
+      case "pincode": {
         return (
           <FieldControl
             key={spec.id}
@@ -559,7 +650,9 @@ console.log(validationResult.result)
             render={TextInput}
             meta={{
               // onFocus: (event: any) => { this.scrollView && this.scrollView.scrollToEnd({ animated: false})},
-              onFocus: (event: any) => { this.scrollTo = 380 },
+              onFocus: (event: any) => {
+                this.scrollTo = 380;
+              },
               editable: true,
               label: labelForEditableField(spec.id),
               secureTextEntry: false,
@@ -567,7 +660,7 @@ console.log(validationResult.result)
               //if the country only allows numbers, then open the number pad
               keyboardType: pincodeKeyboardType,
               errorMessage: general_is_required_error,
-              asyncErrorMessage: pincode_invalid_message,
+              asyncErrorMessage: pincode_invalid_message
             }}
           />
         );
@@ -583,7 +676,7 @@ console.log(validationResult.result)
               label: labelForEditableField(spec.id),
               secureTextEntry: false,
               errorMessage: general_is_required_error,
-              keyboardType: 'default',
+              keyboardType: "default"
             }}
           />
         );
@@ -593,17 +686,18 @@ console.log(validationResult.result)
 
   /**
    * getEditableGroupsFields
-   * 
-   * Loads a list of the editable groups that can be configured in the 
+   *
+   * Loads a list of the editable groups that can be configured in the
    * remote config
    */
   getEditableGroupsFields() {
-
-    if (Object.keys(this.props.config.getAvailableGroupTypes()).length  === 0) {
+    if (Object.keys(this.props.config.getAvailableGroupTypes()).length === 0) {
       return null;
     }
 
-    const groupList: GroupSpecificationType[] = Object.keys(this.props.config.getAvailableGroupTypes())
+    const groupList: GroupSpecificationType[] = Object.keys(
+      this.props.config.getAvailableGroupTypes()
+    )
       .map(key => this.props.config.getAvailableGroupTypes()[key])
       .sort((a, b) => a.order - b.order);
 
@@ -612,18 +706,18 @@ console.log(validationResult.result)
 
   getForm() {
     const {
-      pendingSavedResourcesMeta: { loading },
+      pendingSavedResourcesMeta: { loading }
     } = this.props;
 
     const fixedButtonHeight = 100;
 
-    const { 
+    const {
       new_resource_id,
       new_resource_id_check_taken,
-      new_resource_lat, 
-      new_resource_lng, 
-      new_resource_owner_name_label, 
-      new_resource_submit_button, 
+      new_resource_lat,
+      new_resource_lng,
+      new_resource_owner_name_label,
+      new_resource_submit_button,
       new_resource_asset_type_label,
       general_is_required_error,
       new_resource_name,
@@ -631,134 +725,164 @@ console.log(validationResult.result)
       new_resource_location_name_label
     } = this.props.translation.templates;
 
-    const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
+    const localizedResourceTypes = this.props.config
+      .getAvailableResourceTypes()
       .map((t: ResourceType) => ({
         key: t,
         //TODO: translate based on language settings
-        label: t,
+        label: t
       }));
 
     return (
       <FieldGroup
         strict={false}
         control={this.editResourceForm}
-        render={({get, invalid}) => (
+        render={({ get, invalid }) => (
           <View
             style={{
-              flex: 1,
+              flex: 1
               // height: this.state.formHeight - 70,
               // backgroundColor: 'purple',
             }}
           >
             <ScrollView
-              ref={(sv) => this.scrollView = sv}
-              onScroll={(event: any) => maybeLog("scroll offset", event.nativeEvent.contentOffset.y)}
+              ref={sv => (this.scrollView = sv)}
+              onScroll={(event: any) =>
+                maybeLog("scroll offset", event.nativeEvent.contentOffset.y)
+              }
               // style={{flex: 1, height: 200}}
-              style={{ 
-                height: '100%',
-                paddingBottom: fixedButtonHeight,
+              style={{
+                height: "100%",
+                paddingBottom: fixedButtonHeight
                 // backgroundColor: 'purple',
               }}
-              contentOffset={{x: 0, y: this.state.scrollOffset}}
+              contentOffset={{ x: 0, y: this.state.scrollOffset }}
               contentContainerStyle={{ flexGrow: 1 }}
-              keyboardShouldPersistTaps={'always'}
+              keyboardShouldPersistTaps={"always"}
             >
-              {this.props.config.getEditResourceAllowCustomId() ?
+              {this.props.config.getEditResourceAllowCustomId() ? (
                 <FieldControl
                   name="id"
                   render={TextIdInput}
-                  meta={{ 
+                  meta={{
                     //Don't allow user to edit existing resource ids
-                    onFocus: (event: any) => { this.scrollTo = 0 },
-                    editable: this.props.resource ? false : true, 
-                    label: new_resource_id, 
-                    secureTextEntry: false, 
-                    keyboardType: 'default',
+                    onFocus: (event: any) => {
+                      this.scrollTo = 0;
+                    },
+                    editable: this.props.resource ? false : true,
+                    label: new_resource_id,
+                    secureTextEntry: false,
+                    keyboardType: "default",
                     errorMessage: general_is_required_error,
-                    asyncErrorMessage: new_resource_id_check_taken,
+                    asyncErrorMessage: new_resource_id_check_taken
                   }}
-                /> : null}
-              {this.props.config.getEditResourceHasResourceName() ?
+                />
+              ) : null}
+              {this.props.config.getEditResourceHasResourceName() ? (
                 <FieldControl
                   name="name"
                   render={TextInput}
-                  meta={{ 
-                    editable: true, 
-                    onFocus: (event: any) => { this.scrollTo = 0 },
-                    label: new_resource_name, 
-                    secureTextEntry: false, 
-                    keyboardType: 'default',
+                  meta={{
+                    editable: true,
+                    onFocus: (event: any) => {
+                      this.scrollTo = 0;
+                    },
+                    label: new_resource_name,
+                    secureTextEntry: false,
+                    keyboardType: "default"
                   }}
-                /> : null}
-              <View style={{
-                flexDirection: 'row',
-              }}>
-              <LoadLocationButton 
+                />
+              ) : null}
+              <View
                 style={{
-                  alignSelf: 'center',
-                }}/>
+                  flexDirection: "row"
+                }}
+              >
+                <LoadLocationButton
+                  style={{
+                    alignSelf: "center"
+                  }}
+                />
+                <FieldControl
+                  name="lat"
+                  render={TextInput}
+                  meta={{
+                    editable: true,
+                    errorMessage: general_is_required_error,
+                    label: new_resource_lat,
+                    secureTextEntry: false,
+                    keyboardType: "numeric"
+                  }}
+                />
+                <FieldControl
+                  name="lng"
+                  render={TextInput}
+                  meta={{
+                    editable: true,
+                    errorMessage: general_is_required_error,
+                    label: new_resource_lng,
+                    secureTextEntry: false,
+                    keyboardType: "numeric"
+                  }}
+                />
+              </View>
               <FieldControl
-                name="lat"
-                render={TextInput}
-                meta={{ editable: true, errorMessage: general_is_required_error, label: new_resource_lat, secureTextEntry: false, keyboardType: 'numeric' }}
-              />
-              <FieldControl
-                name="lng"
-                render={TextInput}
-                meta={{ editable: true, errorMessage: general_is_required_error, label: new_resource_lng, secureTextEntry: false, keyboardType: 'numeric' }}
-              />
-            </View>
-            <FieldControl
-              name="asset"
-              // @ts-ignore
-              render={DropdownInput}
-              meta={{
-                options: localizedResourceTypes,
-                editable: false,
-                label: new_resource_asset_type_label,
-                secureTextEntry: false,
-                keyboardType: 'default',
-                errorMessage: general_is_required_error,
-              }}
-            />
-              {this.props.config.getEditResourceHasWaterColumnHeight() ?
-              <FieldControl
-                name="waterColumnHeight"
-                render={TextInput}
-                meta={{ 
-                  editable: true,
-                  label: new_resource_water_column_height, 
-                  secureTextEntry: false, 
-                  keyboardType: 'numeric',
+                name="asset"
+                // @ts-ignore
+                render={DropdownInput}
+                meta={{
+                  options: localizedResourceTypes,
+                  editable: false,
+                  label: new_resource_asset_type_label,
+                  secureTextEntry: false,
+                  keyboardType: "default",
                   errorMessage: general_is_required_error
                 }}
-                /> : null}
+              />
+              {this.props.config.getEditResourceHasWaterColumnHeight() ? (
+                <FieldControl
+                  name="waterColumnHeight"
+                  render={TextInput}
+                  meta={{
+                    editable: true,
+                    label: new_resource_water_column_height,
+                    secureTextEntry: false,
+                    keyboardType: "numeric",
+                    errorMessage: general_is_required_error
+                  }}
+                />
+              ) : null}
 
               <FieldControl
                 name="locationName"
                 render={TextInput}
                 meta={{
-                  onFocus: (event: any) => { this.scrollTo = 187 },
+                  onFocus: (event: any) => {
+                    this.scrollTo = 187;
+                  },
                   editable: true,
                   label: new_resource_location_name_label,
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                  errorMessage: general_is_required_error,
+                  secureTextEntry: false,
+                  keyboardType: "default",
+                  errorMessage: general_is_required_error
                 }}
-              /> 
-              {this.props.config.getEditResourceShouldShowOwnerName() ?
-              <FieldControl
-                name="ownerName"
-                render={TextInput}
-                meta={{
-                  onFocus: (event: any) => { this.scrollTo = 195 },
-                  editable: true,
-                  label: new_resource_owner_name_label, 
-                  secureTextEntry: false, 
-                  keyboardType: 'default',
-                  errorMessage: general_is_required_error,
-                }}
-              /> : null }
+              />
+              {this.props.config.getEditResourceShouldShowOwnerName() ? (
+                <FieldControl
+                  name="ownerName"
+                  render={TextInput}
+                  meta={{
+                    onFocus: (event: any) => {
+                      this.scrollTo = 195;
+                    },
+                    editable: true,
+                    label: new_resource_owner_name_label,
+                    secureTextEntry: false,
+                    keyboardType: "default",
+                    errorMessage: general_is_required_error
+                  }}
+                />
+              ) : null}
               {this.getEditableGroupsFields()}
 
               <ImageComponent
@@ -772,7 +896,7 @@ console.log(validationResult.result)
               {/* Transparent footer to make the scrollview balance */}
               <View
                 style={{
-                  height: fixedButtonHeight,
+                  height: fixedButtonHeight
                 }}
               />
             </ScrollView>
@@ -792,36 +916,34 @@ console.log(validationResult.result)
   }
 
   getDeleteButton() {
-    const {
-      edit_resource_delete_button
-    } = this.props.translation.templates;
+    const { edit_resource_delete_button } = this.props.translation.templates;
 
     return (
       <Button
         style={{
           paddingBottom: 20,
-          minHeight: 50,
+          minHeight: 50
         }}
         buttonStyle={{
           backgroundColor: error1,
-          minHeight: 50,
+          minHeight: 50
         }}
         textStyle={{
           color: secondaryText,
-          fontWeight: '700',
+          fontWeight: "700"
         }}
         title={edit_resource_delete_button}
         onPress={this.displayDeleteModal}
       />
-    )
+    );
   }
 
   render() {
     return (
       <View
         style={{
-          flexDirection: 'column',
-          flex: 1,
+          flexDirection: "column",
+          flex: 1
         }}
       >
         {this.getForm()}
@@ -836,21 +958,28 @@ const mapStateToProps = (state: AppState) => {
     pendingSavedResourcesMeta: state.pendingSavedResourcesMeta,
     externalLoginDetails: state.externalLoginDetails,
     externalLoginDetailsMeta: state.externalLoginDetailsMeta,
-    location:state.location,
+    location: state.location,
     translation: state.translation,
     name: state.name,
-    userId: unwrapUserId(state.user),
-  }
-}
+    userId: unwrapUserId(state.user)
+  };
+};
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    saveResource: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource) =>
-      dispatch(appActions.saveResource(api, externalApi, userId, resource)),
-    deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) =>
-      dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
-
-  }
-}
+    saveResource: (
+      api: BaseApi,
+      externalApi: MaybeExternalServiceApi,
+      userId: string,
+      resource: AnyResource | PendingResource
+    ) => dispatch(appActions.saveResource(api, externalApi, userId, resource)),
+    deletePendingResource: (
+      api: BaseApi,
+      userId: string,
+      pendingResourceId: string
+    ) =>
+      dispatch(appActions.deletePendingResource(api, userId, pendingResourceId))
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditResourceScreen);

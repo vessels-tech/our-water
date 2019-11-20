@@ -4,13 +4,14 @@ import {
   ToastAndroid,
   Dimensions,
   TouchableNativeFeedback,
-  Linking,
+  Image
 } from 'react-native';
 import { 
   Avatar,
   Button,
   Text,
 } from 'react-native-elements';
+
 import * as moment from 'moment';
 
 import Loading from './common/Loading';
@@ -434,7 +435,8 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
     const allowEditReadings = this.props.config.getResourceDetailEditReadings();
     const allowEdit = this.props.config.getResourceDetailAllowEditing();
     const allowDownload = this.props.config.getResourceDetailAllowDownload();
-
+    const image = safeGetNested(this.props, ['resource', 'image']);
+    
     return (
         <View style={{
           flexDirection: 'column',
@@ -442,7 +444,27 @@ class ResourceDetailSection extends React.PureComponent<OwnProps & StateProps & 
           padding: 20,
           flex: 1,
         }}>
-          {this.getOwnerSection()}
+        {this.getOwnerSection()}
+        <View
+            style={{
+              backgroundColor: primaryDark,
+              flex: 1,
+              width: "100%",
+              height: 300
+            }}
+        >
+          <ContentSection>
+
+            <Image
+              style={{
+                width: "100%",
+                height: 300
+              }}
+              source={{ uri: `data:image/png;base64,${image}` }}
+              />
+              </ContentSection>
+        </View>
+        
           <View style={{ flex: 1, paddingVertical: 20 }}>
             <HeadingSection title={resource_detail_latest}/>
             <ContentSection>

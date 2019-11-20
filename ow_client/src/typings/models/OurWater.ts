@@ -138,6 +138,7 @@ export type OWUser = {
   status: UserStatus,
   type: UserType,
   newResources: CacheType<string>,
+  image: string | null
 }
 
 export type TimeSeriesReading = {

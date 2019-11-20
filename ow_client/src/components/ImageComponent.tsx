@@ -29,7 +29,9 @@ export interface StateProps {}
 
 export interface ActionProps {}
 
-export interface State {}
+export interface State {
+  image: IImage | null;
+}
 
 type Props = OwnProps;
 
@@ -42,7 +44,7 @@ class ImageComponent extends Component<Props> {
     this.onTakePictureError = this.onTakePictureError.bind(this);
     this.clearImage = this.clearImage.bind(this);
     this.state = {
-      image: { type: ImageType.NONE, url: "" }
+      image: this.props.image || { type: ImageType.NONE, url: '' }
     };
   }
 
@@ -57,13 +59,13 @@ class ImageComponent extends Component<Props> {
   clearImage() {
     this.setState({
       image: {
-        type: ImageType.NONE
+        type: ImageType.NONE,
+        url: ''
       }
     });
   }
 
   onTakePicture(dataUri: string) {
-    console.log('on took')
     this.props.navigator.dismissModal();
     const newImage: IImage = {
       type: ImageType.IMAGE,
@@ -84,7 +86,7 @@ class ImageComponent extends Component<Props> {
   }
 
   render() {
-    const { image } = (this as any).state;
+    const image = (this.state as any).image;
 
     return (
       <View

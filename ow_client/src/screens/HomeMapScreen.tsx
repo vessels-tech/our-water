@@ -74,6 +74,7 @@ export interface StateProps {
   userId: string,
   userIdMeta: ActionMeta,
   location: Location,
+  image: string | null,
   locationMeta: SyncMeta,
   resources: AnyResource[],
   pendingResources: PendingResource[],
@@ -495,6 +496,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       resourceType: 'well',
       config: this.props.config,
       userId: this.props.userId,
+      image: this.props.image
     })
   }
 
@@ -645,6 +647,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     translation: state.translation,
     favouriteResources: state.favouriteResources,
     recentResources: state.recentResources,
+    image: state.image
   }
 }
 
