@@ -243,7 +243,7 @@ export const navigateTo = (props: any, screen: any, title: any, passProps: any, 
 
 export const showModal = (props: any, screen: any, title: any, passProps: any) => {
   //TODO: only navigate if we aren't already here!
-
+console.log(props)
   props.navigator.toggleDrawer({
     side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
     animated: true, // does the toggle have transition animation or does it happen immediately (optional)

@@ -1,7 +1,6 @@
 'use strict';
 import * as React from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TouchableNativeFeedback
@@ -85,7 +84,6 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
     if (this.state.loading) {
       return;
     }
-
     this.setState({loading: true}, async () => {
       if (this.camera) {
         const options = { 
@@ -94,26 +92,17 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           fixOrientation: true,
         };
         try {
+          console.log('trying')
           const data = await this.camera.takePictureAsync(options)
+          console.log('took')
           return this.props.onTakePicture(data.base64);
         } catch (err) {
+          console.log('failed')
           return this.props.onTakePictureError(err);
         }
       }
+
       this.props.onTakePictureError('Camera was not initalized');
     });
   };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
-  },
-  preview: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
-  },
-});

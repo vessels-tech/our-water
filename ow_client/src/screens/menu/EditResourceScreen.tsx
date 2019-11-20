@@ -36,7 +36,7 @@ import { callingCountries } from 'country-data';
 import { validatePincode } from '../../utils/Pincodes';
 import SaveButton from '../../components/common/SaveButton';
 import FloatingButtonWrapper from '../../components/common/FloatingButtonWrapper';
-
+import ImageComponent, { ImageType, IImage } from '../../components/ImageComponent';
 
 export interface Props { 
   resourceId: string,
@@ -82,6 +82,7 @@ class EditResourceScreen extends Component<Props> {
   countryList: Array<{label: string, key: string, name: string}>;
   scrollView?: any;
   scrollTo: number = 0;
+  image: IImage = { type: ImageType.NONE, url: "" };
 
   constructor(props: Props) {
     super(props);
@@ -440,6 +441,9 @@ class EditResourceScreen extends Component<Props> {
     const groupTypes = this.props.config.getAvailableGroupTypes();
     Object.keys(groupTypes).forEach(k => groups[k] = this.editResourceForm.value[k]);
     unvalidatedResource.groups = groups;
+
+    /* Image */
+    unvalidatedResource.image = this.image.url || '';
     
     const validationResult: SomeResult<PendingResource> = validateResource(unvalidatedResource);
     if (validationResult.type === ResultType.ERROR) {
@@ -482,6 +486,8 @@ console.log(validationResult.result)
       { cancelable: true }
     );
   }
+  
+
 
   handleDelete() {
     if (this.props.resource) {
@@ -726,7 +732,7 @@ console.log(validationResult.result)
                   keyboardType: 'numeric',
                   errorMessage: general_is_required_error
                 }}
-              /> : null}
+                /> : null}
 
               <FieldControl
                 name="locationName"
@@ -754,6 +760,14 @@ console.log(validationResult.result)
                 }}
               /> : null }
               {this.getEditableGroupsFields()}
+
+              <ImageComponent
+                image={this.image}
+                navigator={this.props.navigator}
+                onImageUpdated={(newImage: IImage) => {
+                  this.image = newImage;
+                }}
+              />
 
               {/* Transparent footer to make the scrollview balance */}
               <View
