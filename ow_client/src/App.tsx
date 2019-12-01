@@ -18,6 +18,10 @@ import { TranslationFile } from 'ow_translations';
 import HomeMapScreen from './screens/HomeMapScreen';
 import HomeSimpleScreen from './screens/HomeSimpleScreen';
 
+//Logging and crash helpers
+import './utils/Crashlytics';
+import { ScreenVisibilityListener } from './utils/ScreenVisibilityListener';
+
 export interface OwnProps {
   navigator: any;
   config: ConfigFactory,
@@ -39,6 +43,7 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
   state: State = {};
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
+  screenListener: ScreenVisibilityListener;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -52,10 +57,18 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
     this.externalApi = props.config.getExternalServiceApi();
+
+    //Set up screen visibility listener:
+    this.screenListener = new ScreenVisibilityListener();
   }
 
   componentDidMount() {
     this.props.getGeoLocation();
+    this.screenListener.register();
+  }
+
+  componentWillUnmount() {
+    this.screenListener.unregister();
   }
   
   render() {

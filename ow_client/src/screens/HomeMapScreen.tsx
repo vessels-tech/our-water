@@ -14,6 +14,7 @@ import {
   showModal,
   maybeLog,
   renderLog,
+  unwrapUserId,
 } from '../utils';
 import {
   MapStateOption,
@@ -145,6 +146,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
     this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onEditResourcePressed = this.onEditResourcePressed.bind(this);
+    this.openLocalReadingImage = this.openLocalReadingImage.bind(this);
 
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
@@ -291,6 +293,10 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
   onMapRegionChange(region: Region) {
     this.resourceRequestId += 1;
     this.loadResourcesPaginated(region, startCursor, this.resourceRequestId);
+  }
+
+  openLocalReadingImage(fileUrl: string) {
+    //do nothing
   }
 
   /**
@@ -554,6 +560,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         onAddReadingPressed={this.onAddReadingPressed}
         onEditReadingsPressed={this.onEditReadingsPressed}
         onEditResourcePressed={this.onEditResourcePressed}
+        openLocalReadingImage={this.openLocalReadingImage}
       />
     );
   }
@@ -623,21 +630,14 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
 //If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  let userId = ''; //I don't know if this fixes the problem...
-
   //Default location
   let location: Location = { type: LocationType.LOCATION, coords: { latitude: initialLat, longitude: initialLng } };
-  if (state.user.type === UserType.USER) {
-    userId = state.user.userId;
-  }
-
-  
   if (state.location.type !== LocationType.NO_LOCATION) {
     location = state.location;
   }
 
   return {
-    userId,
+    userId: unwrapUserId(state.user),
     userIdMeta: state.userIdMeta,
     location,
     locationMeta: state.locationMeta,

@@ -562,8 +562,6 @@ export default class MyWellApi implements BaseApi, UserApi, InternalAccountApi {
       searchApi.searchByLocationName(searchQuery, { limit: 10 }),
       searchApi.searchByOwnerName(searchQuery, { limit: 10 }),
       PlaceApi.searchForPlaceName(searchQuery, { limit: 10 })
-      // #MARK Kevin - search
-      //TODO: add other searches here.
     ])
       .then(allResults => makeSuccess(allResults))
       .catch((err: Error) => {

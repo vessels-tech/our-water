@@ -3,6 +3,9 @@ import * as express from 'express';
 import * as moment from 'moment';
 import { snapshotToResourceList, enableLogging } from '../../common/utils';
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ReadingApi } from 'ow_common/lib/api';
+import { makeError, makeSuccess } from '../../common/types/dep_AppProviderTypes';
+import { safeGetNested, unsafeUnwrap } from 'ow_common/lib/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -144,6 +147,7 @@ module.exports = (functions) => {
       .then(result => res.json({ reading: result.id }))
       .catch(err => next(err));
   });
+
 
   return functions.https.onRequest(app);
 };

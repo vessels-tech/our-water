@@ -23,7 +23,8 @@ import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, se
 import * as QRCode from 'qrcode';
 import { OrgType } from '../typings/models/OrgType';
 import { ConfigFactory } from '../config/ConfigFactory';
-
+import firebase from 'react-native-firebase'
+import Base64 from './Base64';
 
 
 /**
@@ -98,14 +99,6 @@ export function imageForResourceType(type: ResourceType) {
     case ResourceType.custom:
       return require('../assets/other_pin.png')
   }
-}
-
-/**
- * Get a unique hash based on the resourceId, pincode, and date
- */
-/* tslint:disable-next-line */
-export const getHashForReading = (reading: any) => {
-  return `r:${reading.date}|${reading.resourceId}|${reading.pincode}`;
 }
 
 export const rejectRequestWithError = (status: number) => {
@@ -308,7 +301,6 @@ export const boundingBoxForCoords = (latitude: number, longitude: number , dista
     minLat, minLng, maxLat, maxLng
   };
 }
-
 
 export const randomPrettyColorForId = (resourceId: string) => {
   const idNumber = Math.abs(hashCode(resourceId))
@@ -936,9 +928,7 @@ export const getHeadingForTimeseries = (resourceType: ResourceType, name: string
 
   switch (resourceType) {
     case ResourceType.raingauge: return "Rainfall";
-    case ResourceType.quality: {
-      return capitalizeFirstLetter(name);
-    }
+    case ResourceType.quality: return name;
     case ResourceType.custom: {
       return capitalizeFirstLetter(name);
     }
@@ -1001,4 +991,20 @@ export function getUnitSuffixForPendingResource(r: PendingReading, config: Confi
   }
 
   return defaultTimeseries.unitOfMeasure;
+}
+
+
+export function crashlyticsLog(message: string) {
+  firebase.crashlytics().log(message);
+}
+
+
+/**
+ * Clone of hashReadingId in ow_common.
+ * 
+ * React Native has no Buffer, so the btoa doesn't work
+ */
+export function hashReadingId(resourceId: string, timeseriesId: string, isoDateString: string): string {
+  const input = `${resourceId}_${timeseriesId}_${isoDateString}`;
+  return Base64.btoa(input);
 }

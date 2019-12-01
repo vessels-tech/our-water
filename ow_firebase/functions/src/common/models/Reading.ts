@@ -21,6 +21,9 @@ export class Reading extends FirestoreDoc {
   value: number
   isLegacy: boolean
   timeseriesId: string
+  location: any
+  image: any
+
 
   constructor(orgId: string, resourceId: string, coords: OWGeoPoint,
     resourceType: ResourceStationType, groups, datetime: Date, value: number,
@@ -89,6 +92,14 @@ export class Reading extends FirestoreDoc {
       serialized['isLegacy'] = this.isLegacy;
     }
 
+    if (this.location) {
+      serialized['location'] = this.location;
+    }
+
+    if (this.image) {
+      serialized['image'] = this.image;
+    }
+
     return serialized;
   }
 
@@ -111,6 +122,8 @@ export class Reading extends FirestoreDoc {
       externalIds,
       coords,
       timeseriesId,
+      location,
+      image,
     } = doc.data();
 
     //nested variables
@@ -126,6 +139,8 @@ export class Reading extends FirestoreDoc {
     des.updatedAt = updatedAt;
     des.isLegacy = isLegacy;
     des.timeseriesId = timeseriesId;
+    des.location = location;
+    des.image = image
 
     return des;
   }

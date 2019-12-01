@@ -29,6 +29,7 @@ import { secondary, primary, secondaryText } from '../utils/NewColors';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
+import { safeGetNestedDefault } from 'ow_common/lib/utils';
 
 
 export interface OwnProps {
@@ -64,12 +65,12 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     super(props);
     this.appApi = props.config.getAppApi();
 
-    // this.props.getResource(this.appApi, this.props.resourceId, this.props.userId);
-
     //Binds
     this.onAddReadingPressed = this.onAddReadingPressed.bind(this);
     this.onEditReadingsPressed = this.onEditReadingsPressed.bind(this);
     this.onSyncButtonPressed = this.onSyncButtonPressed.bind(this);
+    this.showProfilePictureModal = this.showProfilePictureModal.bind(this);
+    this.openLocalReadingImage = this.openLocalReadingImage.bind(this);
   }
 
   componentDidMount() {
@@ -111,12 +112,6 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   onAddReadingPressed(resourceId: string) { 
     const { resource_detail_new } = this.props.translation.templates;
 
-    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-    //   resourceId,
-    //   resourceType: this.props.resourceType,
-    //   config: this.props.config,
-    //   userId: this.props.userId
-    // });
     navigateToNewReadingScreen(this.props, resource_detail_new, {
       navigator: this.props.navigator,
       groundwaterStationId: null, //TD for ggmn only
@@ -139,15 +134,26 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     );
   }
 
+  showProfilePictureModal(imageUrl: string) {
+
+    showModal(this.props, 'ModalImageScreen', "", {
+      imageUrl,
+    });
+  }
+
+  openLocalReadingImage(fileUrl: string) {
+    //do nothing
+    showModal(this.props, 'ModalImageScreen', "", {
+      imageUrl: fileUrl,
+    });
+  }
+
   getResourceDetailSection() {
     const { isPending } = this.props;
     const { 
       settings_pending_heading,
-      // resource_detail_sync_required,
+      resource_detail_sync_required,
     } = this.props.translation.templates;
-
-    //TODO: Translate
-    const resource_detail_sync_required = "Location needs to be synced before you can save any readings."; 
 
     return (
       <ResourceDetailSection
@@ -158,6 +164,8 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
         onEditReadingsPressed={this.onEditReadingsPressed}
         resourceId={this.props.resourceId}
         temporaryGroundwaterStationId={null}
+        showProfilePictureModal={this.showProfilePictureModal}
+        openLocalReadingImage={this.openLocalReadingImage}
       />
     );
   }
@@ -226,9 +234,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    getResource: (api: BaseApi, resourceId: string, userId: string) => {
-      return dispatch(appActions.getResource(api, resourceId, userId));
-    },
+    getResource: (api: BaseApi, resourceId: string, userId: string) => dispatch(appActions.getResource(api, resourceId, userId)),
     getShortId: (api: BaseApi, resourceId: string) => dispatch(appActions.getShortId(api, resourceId))
   }
 }

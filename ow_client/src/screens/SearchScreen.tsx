@@ -13,8 +13,8 @@ import { SearchResult as SearchResultV1} from '../typings/models/OurWater';
 import BaseApi from '../api/BaseApi';
 import Loading from '../components/common/Loading';
 import { ConfigFactory } from '../config/ConfigFactory';
-import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse } from '../utils';
-import { AppState } from '../reducers';
+import { getGroundwaterAvatar, dedupArray, getPlaceAvatar, formatShortId, formatShortIdOrElse, getShortIdOrFallback } from '../utils';
+import { AppState, CacheType } from '../reducers';
 import { connect } from 'react-redux';
 import { SearchResultsMeta } from '../typings/Reducer';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
@@ -23,7 +23,11 @@ import { TranslationFile, TranslationEnum } from 'ow_translations';
 import { AnyResource } from '../typings/models/Resource';
 import { OrgType } from '../typings/models/OrgType';
 import { SearchResult, PartialResourceResult, PlaceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
-import { isDefined, isUndefined, getOrElse } from 'ow_common/lib/utils';
+import { isDefined, isUndefined, getOrElse, safeGetNested, safeGetNestedDefault } from 'ow_common/lib/utils';
+import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
+
+import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+const ListItemEx = withPreventDoubleClick(ListItem);
 
 export interface OwnProps {
   onSearchResultPressedV1: (result: AnyResource) => void,
@@ -40,6 +44,7 @@ export interface StateProps {
   searchResults: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   searchResultsMeta: SearchResultsMeta,
   translation: TranslationFile,
+  shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
 export interface ActionProps { 
@@ -175,7 +180,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         {
           searchResultsV1.resources.map((r: AnyResource, i) => {
             return (
-              <ListItem
+              <ListItemEx
                 containerStyle={{
                   paddingLeft: 10,
                 }}
@@ -192,7 +197,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         {/* TODO: only display if we have 25 results, 
             we need to pass through the page size in the meta field */}
         {searchResultsV1.hasNextPage ?
-          <ListItem
+          <ListItemEx
             containerStyle={{
               paddingLeft: 10,
             }}
@@ -218,6 +223,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       searchResults,
       searchResultsMeta: { loading },
     } = this.props;
+    const { formatSubtitlekey } = this.props.translation.templates;
     const { page } = this.state;
 
     if (loading) {
@@ -239,10 +245,27 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       <View>
         {partialResourceResults
         .map(r => {
-          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, r.id), r.id);
+          const shortIdFromCache = () => getShortIdOrFallback(r.id, this.props.shortIdCache, r.id);
+          const shortIdFormatted = formatShortIdOrElse(getOrElse(r.shortId, shortIdFromCache()), shortIdFromCache());
+          const ownerName = safeGetNestedDefault(r, ['owner', 'name'], '');
 
+          const title = `${shortIdFormatted} - ${ownerName}`;
+          let subtitle = '';
+
+          if (r.groups) {
+            const actualGroups: CacheType<string> = getOrElse(r.groups, {});
+            subtitle = Object.keys(actualGroups).reduce((acc: string, curr: string, idx) => {
+              const value = actualGroups[curr];
+              let sep = ' | ';
+              if (idx === Object.keys(actualGroups).length - 1) {
+                sep = "";
+              }
+              return acc + `${formatSubtitlekey(curr)}:${value}${sep}`;
+            }, "");
+          };
+  
           return (
-            <ListItem
+            <ListItemEx
               containerStyle={{
                 paddingLeft: 10,
               }}
@@ -250,12 +273,13 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
               key={r.id}
               onPress={this.onSearchResultPressed.bind(this, r)}
               roundAvatar={true}
-              title={shortIdFormatted}
+              title={title}
+              subtitle={subtitle}
               avatar={getGroundwaterAvatar()}
             />
         )})}
         {placeResults.map(r => (
-          <ListItem
+          <ListItemEx
             containerStyle={{
               paddingLeft: 10,
             }}
@@ -378,7 +402,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
           {
             recentSearches.map((r, i) => {
               return (
-                <ListItem
+                <ListItemEx
                   containerStyle={{
                     paddingLeft: 0,
                     marginLeft: 0,
@@ -454,6 +478,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
     searchResults: state.searchResults,
     searchResultsMeta: state.searchResultsMeta,
     translation: state.translation,
+    shortIdCache: state.shortIdCache,
   }
 }
 

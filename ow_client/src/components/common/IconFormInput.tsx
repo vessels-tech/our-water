@@ -20,9 +20,6 @@ import { primaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations';
 import * as moment from 'moment';
 
-// const SCREEN_WIDTH = Dimensions.get('window').width;
-// const SCREEN_HEIGHT = Dimensions.get('window').height;
-
 export enum InputType {
   fieldInput,
   dateTimeInput,
@@ -109,9 +106,8 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
     const {
       calendar_input_confirm,
       calendar_input_cancel,
+      long_date_format
     } = this.props.translation.templates;
-    //TODO: translate
-    const long_date_format = "DD-MM-YYYY h:mm a"
     const { minDate, maxDate } = getMinAndMaxReadingDates(long_date_format);
 
     return (

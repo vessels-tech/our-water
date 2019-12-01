@@ -24,6 +24,8 @@ switch:
 	cp ${dir}/../env/remoteConfigConditions.${stage}.js ${dir}/functions/tools/remoteConfigConditions.js
 	@echo 'copying .serviceAccountKey.js across'
 	cp ${dir}/functions/src/common/.serviceAccountKey.${stage}.js ${dir}/functions/src/common/.serviceAccountKey.js
+	@echo 'Getting remote .runtimeconfig.json'
+	firebase functions:config:get > ${dir}/functions/.runtimeconfig.json
 
 
 switch-dev:
@@ -35,17 +37,6 @@ switch-prod:
 #
 #	Remote Config
 # ------------
-
-update-translations:
-	@echo 'pulling translations'
-	cd ${dir}/../ow_translations && make 
-
-	@make install_translations
-	@make update_remote_config
-
-install-translations:
-	@echo 'installing latest packages'
-	cd ${dir}/functions && npm install
 	
 update-remote-config:
 	@echo 'deploying remote config'
@@ -84,6 +75,7 @@ watch:
 	@cd ${dir}/functions && yarn run watch
 
 run-lt:
+	# @lt --subdomain ourwater --port 5000
 	@lt --subdomain ourwater --port 5000
 
 get-token:
@@ -108,9 +100,16 @@ install:
 # Deployment
 # ------------
 
+test-and-deploy:
+	make test-unit test-service deploy
+
 deploy:
 	@echo 'Deploying Firebase'
 	@./_deploy_fb.sh
+
+deploy-public:
+	@echo 'Deploying Hosting only'
+	@firebase deploy --only hosting
 
 
 deploy-with-tests: test-unit test-service deploy

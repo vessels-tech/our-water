@@ -12,6 +12,7 @@ import { MaybeExtendedResourceApi, ExtendedResourceApiType } from "../api/Extend
 import { MaybeInternalAccountApi, InternalAccountApiType } from "../api/InternalAccountApi";
 import { ConfigTimeseries } from "../typings/models/ConfigTimeseries";
 import { CacheType } from "../reducers";
+import { TimeseriesRange } from "../typings/models/OurWater";
 
 
 /**
@@ -60,6 +61,8 @@ export type RemoteConfig = {
   shouldUseV1Search: boolean,
   resourceDetail_allowDownload: boolean,
   readingDownloadUrl: string
+  resourceDetail_graphButtons: Array<{text: string, value: TimeseriesRange}>
+  resourceDetail_graphUsesStrictDate: boolean,
 }
 
 /**
@@ -343,6 +346,14 @@ export class ConfigFactory {
 
   getResourceDetailAllowDownload(): boolean {
     return this.remoteConfig.resourceDetail_allowDownload;
+  }
+
+  getResourceDetailGraphButtons(): Array<{ text: string, value: TimeseriesRange }> {
+    return this.remoteConfig.resourceDetail_graphButtons;
+  }
+
+  getResourceDetailGraphUsesStrictDate(): boolean {
+    return this.remoteConfig.resourceDetail_graphUsesStrictDate;
   }
 
     // getGGMNIgnoreReadingDate(): Moment {

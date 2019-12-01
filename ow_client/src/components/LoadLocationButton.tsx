@@ -2,6 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import {
   ActivityIndicator,
   View,
+  ToastAndroid,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -16,6 +17,11 @@ import { NoLocation, Location, LocationType } from '../typings/Location';
 import { SomeResult, ResultType } from '../typings/AppProviderTypes';
 import { SyncMeta } from '../typings/Reducer';
 
+import firebase from 'react-native-firebase'
+import { TranslationFile } from 'ow_translations';
+const crashlytics = firebase.crashlytics()
+
+
 export interface OwnProps {
   style?: any,
   onComplete?: (thing: any) => void,
@@ -26,6 +32,7 @@ export interface OwnProps {
 export interface StateProps {
   location: Location | NoLocation,
   locationMeta: SyncMeta,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -39,16 +46,20 @@ class LoadLocationButton extends Component<OwnProps & StateProps & ActionProps> 
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
-
   }
 
   async updateGeoLocation() {
     const result = await this.props.getGeoLocation();
-
-    //TODO: this is less than ideal
-    if (result.type === ResultType.SUCCESS) {
-      this.props.onComplete && this.props.onComplete(result.result);
+    const {
+      load_location_error_message
+    } = this.props.translation;
+    
+    if (result.type === ResultType.ERROR) {
+      ToastAndroid.show(load_location_error_message, ToastAndroid.LONG);
+      return;
     }
+    
+    this.props.onComplete && this.props.onComplete(result.result);
   }
 
   render() {
@@ -102,6 +113,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   return {
     location: state.location,
     locationMeta: state.locationMeta,
+    translation: state.translation,
   }
 }
 

@@ -31,6 +31,13 @@ import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
 import io.invertase.firebase.perf.RNFirebasePerformancePackage;
 
+//react-native-exception-handler
+import com.masteratul.exceptionhandler.ReactNativeExceptionHandlerPackage;
+
+//react-native-webview
+// import com.reactnativecommunity.webview.RNCWebViewPackage;
+
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,7 +67,9 @@ public class MainApplication extends NavigationApplication {
             new RNFirebaseRemoteConfigPackage(),
             new RNFirebaseCrashlyticsPackage(),
             new RNFirebasePerformancePackage(),
-            new RNCameraPackage()
+            new RNCameraPackage(),
+            new ReactNativeExceptionHandlerPackage()
+            // new RNCWebViewPackage()
       );
   }
 

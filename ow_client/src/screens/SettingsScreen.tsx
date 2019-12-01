@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, Button,
+  View, KeyboardAvoidingView, Button, Text,
 } from 'react-native';
 import {Button as RNEButton} from 'react-native-elements'
 import {
@@ -21,7 +21,8 @@ import { UserType, User, MaybeUser } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
-import { secondaryDark } from '../utils/NewColors';
+import { secondaryDark, surfaceText } from '../utils/NewColors';
+import { BuildNumber } from '../utils/EnvConfig';
 
 export interface OwnProps {
   navigator: any,
@@ -149,8 +150,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   pushMapScreen() {
-    //TODO: Translate
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     navigateTo(
       this.props,
@@ -380,9 +380,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       return null;
     }
 
-    //TODO: Translate
-    // const { settings_map } = this.props.translation.templates;
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     return (
       <ListItem
@@ -436,17 +434,25 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
-    const { translation: { templates: { settings_new_resource }}} = this.props;
+    const { 
+      settings_new_resource,
+      powered_by_html,
+    } = this.props.translation.templates;
 
     return (
-      <KeyboardAvoidingView style={{
+      <View style={{
         flexDirection: 'column',
         // justifyContent: 'space-around',
         backgroundColor: bgLight,
-        height: '100%',
-        width: '100%'
+        flex: 1,
+        // height: '100%',
+        // width: '100%'
+        // minWidth: '100'
       }}>
-        {Logo(this.props.config.getApplicationName())}
+        <Logo 
+          text={this.props.config.getApplicationName()} 
+          aboutHtml={powered_by_html}
+        />
         {/* 
           TD we need to put a dummy button in here as for some reason the
           first button is clickable from other views.
@@ -480,8 +486,10 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           }}
           >
           {this.getAboutButton()}
+          <Text style={{textAlign: 'center', fontSize: 10, fontWeight: '200', color: surfaceText.disabled}}>{`Build: ${BuildNumber}`}</Text>
+          {/* <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{BuildNumber}</Text> */}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 }

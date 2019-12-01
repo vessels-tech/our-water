@@ -15,6 +15,7 @@ import {
 import { SomeResult, ResultType, makeSuccess, makeError } from '../typings/AppProviderTypes';
 import { AnonymousUser, FullUser } from '../typings/api/FirebaseApi';
 import DeprecatedFirebaseApi from './DeprecatedFirebaseApi';
+import { UserApi } from 'ow_common/lib/api/UserApi';
 
 const auth = firebase.auth();
 const fs = firebase.firestore();
@@ -77,6 +78,9 @@ class FirebaseUserApi {
     let user: RNFirebase.User;
     let mobile: string;
 
+    //@ts-ignore - common firestore
+    const commonUserApi = new UserApi(fs, orgId);
+
     return confirmResult.confirm(code)
       .then(_user => {
         if (!_user) {
@@ -92,8 +96,7 @@ class FirebaseUserApi {
         //TODO: call the common update user.
         return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
       })
-      //TODO: call the common merge users
-      .then(() => DeprecatedFirebaseApi.mergeUsers(orgId, oldUserId, user.uid))
+      .then(() => commonUserApi.mergeUsers(oldUserId, user.uid))
       .then(mergeResult => {
         if (mergeResult.type === ResultType.ERROR) {
           maybeLog("Non fatal error merging users:", mergeResult.message)

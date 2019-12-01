@@ -241,6 +241,10 @@ module.exports = (functions) => {
     });
   });
 
-   
-  return functions.https.onRequest(app);
+  return functions.runWith({
+    timeoutSeconds: 540,
+    memory: '256MB',
+  })
+    .https
+    .onRequest(app);
 };

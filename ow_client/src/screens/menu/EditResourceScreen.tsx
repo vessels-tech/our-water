@@ -160,7 +160,6 @@ class EditResourceScreen extends Component<Props> {
 
     /* Listeners */
     Keyboard.addListener("keyboardDidShow", this.keyboardDidShow.bind(this));
-    Keyboard.addListener("keyboardDidHide", this.keyboardDidHide.bind(this));
 
     if (this.props.image) {
       this.image = {
@@ -172,7 +171,6 @@ class EditResourceScreen extends Component<Props> {
 
   componentWillUnmount() {
     Keyboard.removeListener("keyboardDidShow", this.keyboardDidShow);
-    Keyboard.removeListener("keyboardDidHide", this.keyboardDidHide);
   }
 
   /**
@@ -193,10 +191,15 @@ class EditResourceScreen extends Component<Props> {
     }
   }
 
-  keyboardDidHide(event: any): void {
-    // this.setState({
-    //   formHeight: Dimensions.get('window').height,
-    // });
+  /**
+   * Finished loading the location after the location button pressed
+   * Update the form to reflect the lat and lng
+   */
+  loadLocationComplete(): void {
+    if (this.props.location.type === LocationType.LOCATION) {
+      this.editResourceForm.get('lat').setValue(`${this.props.location.coords.latitude.toFixed(4)}`);
+      this.editResourceForm.get('lng').setValue(`${this.props.location.coords.longitude.toFixed(4)}`);
+    }
   }
 
   /**
@@ -317,8 +320,7 @@ class EditResourceScreen extends Component<Props> {
     }
 
     if (this.props.config.getEditResourceHasWaterColumnHeight()) {
-      //TODO: Not sure if this should be a required field
-      formBuilderGroup["waterColumnHeight"] = [""];
+      formBuilderGroup['waterColumnHeight'] = [''];
     }
 
     //Should we add pincode to the group?
@@ -498,6 +500,8 @@ class EditResourceScreen extends Component<Props> {
       )
     };
 
+
+
     if (this.props.config.getEditResourceAllowCustomId()) {
       unvalidatedResource.id = this.editResourceForm.value.id;
     }
@@ -599,15 +603,14 @@ class EditResourceScreen extends Component<Props> {
    * renders special-case group fields depending on the id
    */
   getEditableGroupField(spec: GroupSpecificationType) {
-    const { general_is_required_error } = this.props.translation.templates;
+    const { general_is_required_error,country_label,
+      pincode_invalid_message, } = this.props.translation.templates;
 
     //TODO: translate
-    const country_label = "Country";
-    const pincode_invalid_message = "Pincode is not valid.";
     const labelForEditableField = (id: string) => {
       switch (id) {
         case "pincode": {
-          return "Pincode";
+          return "Pincode *";
         }
         default:
           return id;
@@ -706,6 +709,18 @@ class EditResourceScreen extends Component<Props> {
     return groupList.map(g => this.getEditableGroupField(g));
   }
 
+  shouldShowWaterColumnHeight(assetType: ResourceType): boolean {
+    if (!this.props.config.getEditResourceHasWaterColumnHeight()) {
+      return false;
+    }
+
+    if (assetType === ResourceType.checkdam ||  assetType === ResourceType.well) {
+      return true;
+    }
+
+    return false;
+  }
+
   getForm() {
     const {
       pendingSavedResourcesMeta: { loading }
@@ -727,12 +742,22 @@ class EditResourceScreen extends Component<Props> {
       new_resource_location_name_label
     } = this.props.translation.templates;
 
-    const localizedResourceTypes = this.props.config
-      .getAvailableResourceTypes()
+
+    //TODO: Translate
+    const translate_resource_type = (type: ResourceType) => {
+      switch (type) {
+        case ResourceType.checkdam: return 'Check Dam';
+        case ResourceType.well: return 'Well';
+        case ResourceType.custom: return 'Custom';
+        case ResourceType.quality: return 'Quality';
+        case ResourceType.raingauge: return 'Raingauge';
+      }
+    }
+
+    const localizedResourceTypes = this.props.config.getAvailableResourceTypes()
       .map((t: ResourceType) => ({
         key: t,
-        //TODO: translate based on language settings
-        label: t
+        label: translate_resource_type(t),
       }));
 
     return (
@@ -800,6 +825,7 @@ class EditResourceScreen extends Component<Props> {
                   style={{
                     alignSelf: "center"
                   }}
+                  onComplete={() => this.loadLocationComplete()}
                 />
                 <FieldControl
                   name="lat"

@@ -23,7 +23,7 @@ import { connect } from 'react-redux'
 import * as appActions from '../../actions/index';
 import { AppState } from '../../reducers';
 import { SyncMeta, ActionMeta } from '../../typings/Reducer';
-import { TextInput, MobileInput } from '../../components/common/FormComponents';
+import { TextInput, MobileInput, TickHtmlInput } from '../../components/common/FormComponents';
 import { GGMNOrganisation } from '../../typings/models/GGMN';
 import { TranslationFile } from 'ow_translations';
 import { phoneNumberValidator, unwrapUserId } from '../../utils';
@@ -135,10 +135,9 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       profileStatus,
     };
 
-
-    //TODO: update form to respect this value
     this.loginForm = FormBuilder.group({
       mobile: [mobile, Validators.required, phoneNumberValidator],
+      acceptsConditions: [false, Validators.requiredTrue ],
     });
 
     this.profileForm = FormBuilder.group({
@@ -283,15 +282,18 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   getForm() {
     const {
       userIdMeta: { loading },
-      translation: { templates: {
-        connect_to_service_username_field,
-        connect_to_service_username_invalid,
-        connect_to_service_submit_button,
-        connect_to_service_description,
-        connect_to_invalid_phone_number,
-      } },
     } = this.props;
 
+    const { 
+      connect_to_service_username_field,
+      connect_to_service_username_invalid,
+      connect_to_service_submit_button,
+      connect_to_service_description,
+      connect_to_invalid_phone_number,
+      connect_to_must_accept_conditions,
+      connect_to_service_conditions,
+    } = this.props.translation.templates;
+    
     return (
       <View 
         key="loginForm"
@@ -320,6 +322,15 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
                   secureTextEntry: false,
                   errorMessage: connect_to_service_username_invalid,
                   keyboardType: 'phone-pad',
+                }}
+              />
+              <FieldControl
+                name="acceptsConditions"
+                //@ts-ignore
+                render={TickHtmlInput}
+                meta={{
+                  errorMessage: connect_to_must_accept_conditions,
+                  label: connect_to_service_conditions,
                 }}
               />
               <Button
@@ -404,14 +415,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getProfileForm() {
-    const { connect_to_service_submit_button } = this.props.translation.templates;
-
-    //TODO: translate
-    const connect_to_edit_heading = 'Tell Us More About Yourself';
-    const connect_to_name_label = 'Full Name';
-    const connect_to_nickname_label = 'Short Name';
-    const connect_to_email_label = 'Email';
-    const connect_to_invalid_message = 'is not valid.';
+    const {
+      connect_to_edit_heading,
+      connect_to_name_label,
+      connect_to_nickname_label,
+      connect_to_email_label,
+      connect_to_invalid_message,
+      connect_to_service_submit_button
+    } = this.props.translation.templates;
 
     return (
       <View 
@@ -483,15 +494,14 @@ class SignInScreen extends Component<OwnProps & StateProps & ActionProps> {
       connect_to_nickname_label,
       connect_to_email_label,
       connect_to_profile_mobile,
+      unapproved,
+      approved,
+      rejected,
+      unapproved_description,
+      approved_description,
+      rejected_description,
     } = this.props.translation.templates;
 
-    //TODO: Translate 
-    const unapproved = "unapproved";
-    const approved = "approved";
-    const rejected = "rejected";
-    const unapproved_description = "We're still waiting for an admin to verify your account.";
-    const approved_description = "Your account is approved! Feel free to sync measurements and locations now.";
-    const rejected_description = "Your account has been rejected. Reach out to ___@___ to learn more.";
 
     let statusText = unapproved;
     let statusDescription = unapproved_description;

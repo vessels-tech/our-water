@@ -10,9 +10,10 @@ import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
-import { verboseLog, projectId } from "./env";
+import { verboseLog, projectId, firebaseToken, storageBucket } from "./env"
 
 const filesystem = require("fs");
+const zipFolder = require('zip-folder');
 import serviceAccountKey from './.serviceAccountKey';
 
 
@@ -143,9 +144,7 @@ export const getLegacyMyWellResources = (orgId: string, fs): Promise<Map<string,
 
       const resourceObj = Resource.deserialize(res);
       
-      // mappedResources[res.externalIds.legacyMyWellId] = res;
       const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
-      // console.log('Key is', key);
       mappedResources.set(key, resourceObj);
     });
 
@@ -453,6 +452,7 @@ export function enableLogging(app: any): void {
 export async function loadRemoteConfig(): Promise<SomeResult<any>> {
   let config;
   try {
+    console.log("projectId is", projectId);
     const accessToken = await getAdminAccessToken(serviceAccountKey)
     const currentConfigResult = await getRemoteConfig(projectId, accessToken);
     config = JSON.parse(currentConfigResult[1]);
@@ -493,4 +493,25 @@ export async function getDefaultTimeseries(resourceType: ResourceStationType): P
   }
   
   return makeSuccess(timeseries);
+}
+
+
+export async function zipFolderAsync(folderPath: string, archivePath: string): Promise<SomeResult<any>> {
+  return new Promise((resolve, _) => {
+    zipFolder(folderPath, archivePath, function (err) {
+      if (err) {
+        resolve(makeError(err.message));
+      } else {
+        resolve(makeSuccess(archivePath))
+      }
+    });
+  })
+}
+
+export function getPublicDownloadUrl(storagePath: string): string {
+  const urlPrefix = `https://www.googleapis.com/download/storage/v1/b/${storageBucket}/o/`;
+
+
+    //eg: https://www.googleapis.com/download/storage/v1/b/tz-phone-book.appspot.com/o/tz_audio%2F015a_Voicebook_Swahili.mp3?alt=media&token=1536715274666696
+  return `${urlPrefix}${encodeURIComponent(storagePath)}?alt=media&token=${firebaseToken}`;
 }

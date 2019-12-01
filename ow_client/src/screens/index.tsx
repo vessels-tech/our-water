@@ -44,6 +44,7 @@ import { maybeLog } from '../utils';
 import PendingScreen from './menu/PendingScreen';
 import { ExternalServiceApiType } from '../api/ExternalServiceApi';
 import AboutScreen from './menu/AboutScreen';
+import ModalImageScreen from './ModalImageScreen';
 
 
 let loggerMiddleware: any = null;
@@ -220,6 +221,7 @@ export async function registerScreens(config: ConfigFactory) {
   Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
   Navigation.registerComponent('screen.PendingScreen', () => PendingScreen, store, Provider);
   Navigation.registerComponent('AboutScreen', () => AboutScreen, store, Provider);
+  Navigation.registerComponent('ModalImageScreen', () => ModalImageScreen, store, Provider);
 
   return store;
 }

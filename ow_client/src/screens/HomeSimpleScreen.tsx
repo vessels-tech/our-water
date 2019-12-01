@@ -23,6 +23,9 @@ import { AnyResource } from '../typings/models/Resource';
 import { PlaceResult, PartialResourceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
 import { getOrElse } from 'ow_common/lib/utils';
 
+import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+const IconButtonEx = withPreventDoubleClick(IconButton);
+const MenuButtonEx = withPreventDoubleClick(MenuButton);
 
 export interface OwnProps {
   navigator: any;
@@ -77,11 +80,13 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    * 
    */
   async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
+    const {
+      settings_map
+    } = this.props.translation.templates;
+
     switch(r.type) {
       case SearchResultType.PartialResourceResult: {
-        //TODO: load the resource type
-        //TODO: translate loading
-        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, "Loading..."), {
+        navigateTo(this.props, 'screen.SimpleResourceDetailScreen', getOrElse(r.shortId, ". . ."), {
           resourceId: r.id,
           config: this.props.config,
           userId: this.props.userId
@@ -89,11 +94,6 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         break;
       }
       case SearchResultType.PlaceResult: {
-        //TODO: also drop a marker?
-
-        //TODO: Translate
-        const settings_map = "Browse on Map"
-
         navigateTo(
           this.props,
           'screen.SimpleMapScreen',
@@ -124,12 +124,13 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
    */
   getMenuButtons() {
     const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props;
-
-    //TODO: Translate
-    const menu_browse_text = "Browse";
-    const menu_scan_text = "Scan";
-    const menu_search_text = "Search";
-    const menu_new_text = "New";
+    const {
+      menu_browse_text,
+      menu_scan_text,
+      menu_search_text,
+      menu_new_text,
+      settings_map,
+    } = this.props.translation.templates;
     
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
@@ -148,13 +149,11 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
           style={{flex: 2}}
           config={this.props.config}
         >
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'map'}
             onPress={() => {
-              //TODO: Translate
-              const settings_map = "Browse on Map"
 
               navigateTo(
                 this.props,
@@ -166,9 +165,9 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               )
             }}
             bottomText={menu_browse_text}
-            size={25}
+            size={17}
           />
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'crop-free'}
@@ -178,9 +177,9 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               });
             }}
             bottomText={menu_scan_text}
-            size={25}
+            size={17}
           />
-          <IconButton
+          <IconButtonEx
             textColor={primaryText.high}
             color={primaryLight}
             name={'create'}
@@ -193,7 +192,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
               })
             }}
             bottomText={menu_new_text}
-            size={25}
+            size={17}
           />
         </Toolbar>
         
@@ -209,12 +208,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             flexDirection: 'row',
             flex: 1,
           }}>
-            <MenuButton 
+            <MenuButtonEx 
               color={menuColors[0]}
               name={menu_well}
               onPress={() => presentResourceScreen('Wells', ResourceType.well)}
             />
-            <MenuButton 
+            <MenuButtonEx 
               color={menuColors[1]}
               name={menu_rainfall}
               onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}
@@ -224,12 +223,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             flexDirection: 'row',
             flex: 1,
           }}>
-            <MenuButton
+            <MenuButtonEx
               color={menuColors[2]}
               name={menu_water_quality}
               onPress={() => presentResourceScreen('Water Quality', ResourceType.quality)}
             />
-            <MenuButton
+            <MenuButtonEx
               color={menuColors[3]}
               name={menu_checkdam}
               onPress={() => presentResourceScreen('Checkdams', ResourceType.checkdam)}

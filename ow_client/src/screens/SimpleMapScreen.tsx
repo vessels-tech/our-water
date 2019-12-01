@@ -49,14 +49,12 @@ export interface ActionProps {
   loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
 }
 
-
 export interface State {
   initialRegion?: MapRegion,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
   selectedResource?: AnyResource,
 }
-
 
 class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   mapRef?: MapView;

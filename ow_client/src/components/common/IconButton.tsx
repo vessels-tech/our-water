@@ -1,8 +1,8 @@
 import * as React from 'react'; import { Component } from 'react';
 import {
-  View,
+  View, TouchableNativeFeedback,
 } from 'react-native';
-import { Icon, Text } from 'react-native-elements';
+import { Icon, Text, Button } from 'react-native-elements';
 import { primary, secondary, secondaryText } from '../../utils/Colors';
 import { getLocation } from '../../utils';
 
@@ -34,21 +34,32 @@ export default class IconButton extends Component<Props> {
         ...this.props.style,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 50,
-        // width: 45,
-        // height: 45,
+        margin: 20,
       }}>
-        <Icon
-          reverse={true}
-          raised={true}
-          size={this.props.size ? this.props.size : 20}
-          name={this.props.name}
-          onPress={() => this.props.onPress()}
-          color={this.props.color ? this.props.color : secondary}
-          iconStyle={{
-            color: this.props.textColor || secondaryText,
+        <View
+          style={{
+            backgroundColor: this.props.color ? this.props.color : secondary,
+            borderRadius: 50,
+            elevation: 5,
+            margin: 10,
           }}
-      />
+        >
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.Ripple('grey', true)}
+            onPress={() => this.props.onPress()}
+          >
+            <Icon
+              reverse={true}
+              underlayColor={'purple'}
+              size={this.props.size ? this.props.size : 20}
+              name={this.props.name}
+              color={this.props.color ? this.props.color : secondary}
+              iconStyle={{
+                color: this.props.textColor || secondaryText,
+              }}
+            />
+          </TouchableNativeFeedback>
+        </View>
       {this.props.bottomText &&
         <Text
           style={{fontWeight: '400', fontSize: 12}}

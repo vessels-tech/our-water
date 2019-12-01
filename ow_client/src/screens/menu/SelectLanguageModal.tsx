@@ -12,6 +12,7 @@ import { View, Picker, ToastAndroid } from 'react-native';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../../config/ConfigFactory';
 import { bgLight } from '../../utils/Colors';
+import { crashlyticsLog } from '../../utils';
 
 
 export interface OwnProps {
@@ -54,11 +55,20 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
     if (!translation) {
       return '';
     }
-    return `${translation.metadata.language} (${translation.metadata.region})`
+    let subtitle = "";
+    if (translation.metadata.region !== "") {
+      subtitle = `(${translation.metadata.region})`;
+    }
+
+    return `${translation.metadata.language} ${subtitle}`
   }
 
   render() {
-    const { selectedTranslation, translation: { templates: { select_language_heading }} } = this.props;
+    const { selectedTranslation } = this.props;
+    const {
+      select_language_heading,
+      select_language_popup,
+    } = this.props.translation.templates
 
     return (
       <View 
@@ -86,7 +96,8 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
           mode={'dropdown'}
           onValueChange={async (translation: TranslationEnum) => {
             await this.props.changeTranslation(this.userApi, this.props.userId, translation);
-            ToastAndroid.show(`Changed Language to: ${this.getTranslationLabel(translation)}`, ToastAndroid.SHORT);
+            crashlyticsLog(`Changed Language to: ${this.getTranslationLabel(translation)}`);
+            ToastAndroid.show(select_language_popup(this.getTranslationLabel(translation)), ToastAndroid.SHORT);
             this.props.navigator.dismissLightBox();
           }}
         >

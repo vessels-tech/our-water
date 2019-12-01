@@ -51,6 +51,7 @@ export function toBasicCoords(from: OWGeoPoint): BasicCoords {
 export type ResourceOwnerType = {
   name: string,
   createdByUserId: string | 'default' | null,
+  profileUrl: string | null,
 }
 
 
@@ -112,6 +113,7 @@ export enum TimeseriesRange {
   THREE_MONTHS = 'THREE_MONTHS',
   TWO_WEEKS = 'TWO_WEEKS',
   EXTENT = 'EXTENT',
+  THREE_YEARS = 'THREE_YEARS',
 }
 
 export enum OWUserStatus {

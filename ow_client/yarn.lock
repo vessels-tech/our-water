@@ -1224,11 +1224,8 @@
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
 "@types/btoa@^1.2.2":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@types/btoa/-/btoa-1.2.3.tgz#2c8e7093f902bf8f0e10992a731a4996aa1a5732"
-  integrity sha512-ANNCZICS/ofxhzUl8V1DniBJs+sFQ+Yg5am1ZwVEf/sxoKY/J2+h5Fuw3xUErlZ7eJLdgzukBjZwnsV6+/2Rmg==
-  dependencies:
-    "@types/node" "*"
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/btoa/-/btoa-1.2.2.tgz#cbd47d0d1bb5fa64a810e11eaa2c1c0fbbebb476"
 
 "@types/caseless@*":
   version "0.12.2"
@@ -2686,7 +2683,6 @@ bser@^2.0.0:
 btoa@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/btoa/-/btoa-1.2.1.tgz#01a9909f8b2c93f6bf680ba26131eb30f7fa3d73"
-  integrity sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g==
 
 buffer-equal-constant-time@1.0.1:
   version "1.0.1"
@@ -5006,7 +5002,7 @@ inquirer@^3.0.6:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
-invariant@^2.0.0, invariant@^2.2.2:
+invariant@2.2.4, invariant@^2.0.0, invariant@^2.2.2:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -7183,7 +7179,7 @@ osenv@^0.1.4:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@/Users/kevindoveton/dev/vessels-tech/our-water/ow_translations:
+"ow_translations@file:../ow_translations":
   version "0.1.23-beta.0"
   dependencies:
     "@babel/cli" "^7.0.0"
@@ -7197,8 +7193,8 @@ ow_translations@/Users/kevindoveton/dev/vessels-tech/our-water/ow_translations:
     request-promise "^4.2.2"
 
 "ow_translations@git://github.com/vessels-tech/ow_translations":
-  version "0.1.22"
-  resolved "git://github.com/vessels-tech/ow_translations#818e142d58bd295586e461df3b02268e2d3f3529"
+  version "0.1.15"
+  resolved "git://github.com/vessels-tech/ow_translations#27bcf5753081fc2c6f5769d95dbd1575b51a08fd"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"
@@ -7722,11 +7718,16 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha512-rPCkf/mWBtKc97aLL9/txD8DZdemK0vkA3JMLShjlJB3Pj3s+lpf1KaBzMfQrAmhMQB0n1cU/SUGgKKBCe837Q==
 
-react-native-camera@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-1.3.0.tgz#b4d8bea052ab4bd43f58576dac03def7a5ea416e"
+react-native-animatable@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-animatable/-/react-native-animatable-1.3.1.tgz#f004a7e9de6838d0fbf210d642593cff7affd9ef"
   dependencies:
-    lodash "^4.17.10"
+    prop-types "^15.5.10"
+
+react-native-camera@^1.13.1:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-1.13.1.tgz#19277ccae0a49dbf1b96049da5b95c847ea7aff2"
+  dependencies:
     prop-types "^15.6.2"
 
 react-native-config@^0.11.5:
@@ -7773,6 +7774,10 @@ react-native-elements@^0.19:
 react-native-eventemitter@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/react-native-eventemitter/-/react-native-eventemitter-0.0.1.tgz#c9250a1ae2c61a44fe731ffe1463f506294b80be"
+
+react-native-exception-handler@^2.10.7:
+  version "2.10.7"
+  resolved "https://registry.yarnpkg.com/react-native-exception-handler/-/react-native-exception-handler-2.10.7.tgz#3ce2f10d6a8add35fdc036af62c2859c4b7f505c"
 
 react-native-fetch-polyfill@^1.1.2:
   version "1.1.2"
@@ -7928,6 +7933,13 @@ react-native-vector-icons@6.1.0:
     lodash "^4.0.0"
     prop-types "^15.6.2"
     yargs "^8.0.2"
+
+react-native-webview@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-5.5.0.tgz#fd2f2999d3c1628d9d22a018189e943718410e82"
+  dependencies:
+    escape-string-regexp "1.0.5"
+    invariant "2.2.4"
 
 react-native@0.55.3:
   version "0.55.3"

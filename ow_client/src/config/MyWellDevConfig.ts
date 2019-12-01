@@ -2,6 +2,7 @@ import { RemoteConfig } from "./ConfigFactory";
 import { BaseApiType, HomeScreenType, ResourceType, ScrollDirection } from "../enums";
 import * as EnvConfig from '../utils/EnvConfig';
 import { translationsForTranslationOrg, possibleTranslationsForOrg } from "ow_translations";
+import { TimeseriesRange } from "../typings/models/OurWater";
 const orgId = EnvConfig.OrgId;
 
 const MyWellDevConfig: RemoteConfig = {
@@ -49,6 +50,12 @@ const MyWellDevConfig: RemoteConfig = {
   shouldUseV1Search: false,
   resourceDetail_allowDownload: true,
   readingDownloadUrl: "https://us-central1-our-water-dev.cloudfunctions.net/public/mywell/downloadReadings",
+  resourceDetail_graphButtons: [
+    { text: '3Y', value: TimeseriesRange.THREE_YEARS },
+    { text: '1Y', value: TimeseriesRange.ONE_YEAR },
+    { text: '3M', value: TimeseriesRange.THREE_MONTHS },
+  ],
+  resourceDetail_graphUsesStrictDate: true,
 }
 
 export default MyWellDevConfig;``
