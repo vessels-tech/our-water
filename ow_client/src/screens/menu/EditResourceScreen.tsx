@@ -62,6 +62,7 @@ import ImageComponent, {
   ImageType,
   IImage
 } from "../../components/ImageComponent";
+import { valid } from 'react-native-joi';
 
 export interface Props {
   resourceId: string;
@@ -232,7 +233,7 @@ class EditResourceScreen extends Component<Props> {
       waterColumnHeight = resource.waterColumnHeight && [
         `${resource.waterColumnHeight}`
       ];
-      locationName = [resource.locationName || "", Validators.required];
+      locationName = [resource.locationName, Validators.required];
 
       return {
         id,
@@ -252,6 +253,7 @@ class EditResourceScreen extends Component<Props> {
       asset = [resource.type, Validators.required];
       name = [resource.name];
       waterColumnHeight = [`${resource.waterColumnHeight}`];
+      locationName = ['', Validators.required];
     }
 
     if (resource.type === OrgType.MYWELL) {
@@ -289,7 +291,7 @@ class EditResourceScreen extends Component<Props> {
       lat: [lat, Validators.required],
       lng: [lng, Validators.required],
       asset: [defaultResourceType, Validators.required],
-      wellName: ["", Validators.required]
+      locationName: ["", Validators.required]
     };
 
     let ownerName = "";
@@ -350,7 +352,6 @@ class EditResourceScreen extends Component<Props> {
 
       formBuilderGroup["country"] = validators;
     }
-    console.log(formBuilderGroup);
     return formBuilderGroup;
   }
 
@@ -407,6 +408,7 @@ class EditResourceScreen extends Component<Props> {
         countryInput.value,
         pincodeInput.value
       );
+
       if (validateResult.type === ResultType.ERROR) {
         pincodeInput.setErrors({ invalid: true });
         // throw { invalid: true };
@@ -737,24 +739,20 @@ class EditResourceScreen extends Component<Props> {
       <FieldGroup
         strict={false}
         control={this.editResourceForm}
-        render={({ get, invalid }) => (
+        render={({ get, invalid, reset, value }) => (
           <View
             style={{
               flex: 1
-              // height: this.state.formHeight - 70,
-              // backgroundColor: 'purple',
             }}
           >
             <ScrollView
               ref={sv => (this.scrollView = sv)}
-              onScroll={(event: any) =>
-                maybeLog("scroll offset", event.nativeEvent.contentOffset.y)
-              }
-              // style={{flex: 1, height: 200}}
+              onScroll={(event: any) =>{
+                maybeLog("scroll offset", event.nativeEvent.contentOffset.y);
+              }}
               style={{
                 height: "100%",
                 paddingBottom: fixedButtonHeight
-                // backgroundColor: 'purple',
               }}
               contentOffset={{ x: 0, y: this.state.scrollOffset }}
               contentContainerStyle={{ flexGrow: 1 }}

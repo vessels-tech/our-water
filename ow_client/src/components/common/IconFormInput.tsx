@@ -39,7 +39,6 @@ export interface OwnProps {
   iconColor: string,
   fieldType: InputType,
 }
-
 export interface StateProps {
   translation: TranslationFile
 
