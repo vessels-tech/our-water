@@ -80,7 +80,7 @@ server:
 android:
 	@make env
 	@make update-env-dev
-	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
+	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
 android-log:
 	@react-native log-android

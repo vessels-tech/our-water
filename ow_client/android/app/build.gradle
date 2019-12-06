@@ -29,10 +29,10 @@ def enableSeparateBuildPerCPUArchitecture = false
  * Run Proguard to shrink the Java bytecode in release builds.
  */
 def enableProguardInReleaseBuilds = false
-def appVersionCode = Integer.valueOf(System.env.versionCode ?: 0)
+def appVersionCode = Integer.valueOf(System.env.versionCode ?: 1)
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     //TODO: remove this - just trying to get firebase to work
     lintOptions {
@@ -47,8 +47,9 @@ android {
         /* look in env/env.deployment */
         versionName System.getenv('versionName')
         versionCode appVersionCode
-        minSdkVersion 16
-        targetSdkVersion 26 // This needs to be 26... but breaks a whole bunch of other stuff
+        minSdkVersion 19
+        targetSdkVersion 28 // This needs to be 26... but breaks a whole bunch of other stuff
+     
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -61,15 +62,17 @@ android {
         resValue "string", "build_config_package", "com.vesselstech"
 
         missingDimensionStrategy 'react-native-camera', 'general'
+        missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57_5"
+
     }
-    splits {
-        abi {
-            reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
-        }
-    }
+    // splits {
+    //     abi {
+    //         reset()
+    //         enable enableSeparateBuildPerCPUArchitecture
+    //         universalApk false  // If true, also generate a universal APK
+    //         include "armeabi-v7a", "x86"
+    //     }
+    // }
     buildTypes {
         debug {
             debuggable true
@@ -95,17 +98,36 @@ android {
             }
         }
     }
+     compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+   }
+}
+
+subprojects { subproject ->
+    afterEvaluate {
+        if ((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
+            android {
+                variantFilter { variant ->
+                    def names = variant.flavors*.name
+                    if (names.contains("reactNative51") || names.contains("reactNative55")) {
+                        setIgnore(true)
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-    compile project(':react-native-splash-screen')
-    compile project(':react-native-maps')
-    compile project(':react-native-firebase')
-    compile project(':react-native-svg')
-    compile project(':rn-async-storage')
-    compile project(':react-native-keychain')
-    compile project(':react-native-vector-icons')
-    compile project(':react-native-config')
+    implementation project(':react-native-splash-screen')
+    implementation project(':react-native-maps')
+    implementation project(':react-native-firebase')
+    implementation project(':react-native-svg')
+    implementation project(':rn-async-storage')
+    implementation project(':react-native-keychain')
+    implementation project(':react-native-vector-icons')
+    implementation project(':react-native-config')
 
     implementation(project(':react-native-firebase')) {
         transitive = false
@@ -116,8 +138,13 @@ dependencies {
 
     //not sure which we want?
     // implementation "com.android.support:appcompat-v7:23.0.1"
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+implementation "androidx.annotation:annotation:1.1.0"
+
+
+ 
+
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
     
@@ -141,9 +168,7 @@ dependencies {
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 
     //react-native-navigation
-    implementation(project(':react-native-navigation')) {
-        // exclude module: 'support-v4'
-    }
+    implementation project(':react-native-navigation')
 
     implementation project(':react-native-camera')
 
@@ -166,8 +191,14 @@ dependencies {
     //         force = true
     //     }
     // }
+
+    // implementation 'com.google.guava:guava:27.0.1-android'
+
 }
 
+configurations {
+    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+}
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {

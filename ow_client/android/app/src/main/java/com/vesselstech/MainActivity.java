@@ -4,10 +4,10 @@ import android.graphics.Color;
 import android.view.View;
 import android.os.Bundle;
 
-import com.reactnativenavigation.controllers.SplashActivity;
+// import com.reactnativenavigation.controllers.SplashActivity;
 import org.devio.rn.splashscreen.SplashScreen;
 
-public class MainActivity extends SplashActivity {    
+public class MainActivity extends SplashActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("ggmn MainActivity onCreate() called.");
@@ -15,12 +15,12 @@ public class MainActivity extends SplashActivity {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public View createSplashLayout() {
-        System.out.println("ggmn  MainActivity createSplashLayout() called.");
-        View view = new View(this);
-        return view;
-    }
+    // @Override
+    // public View createSplashLayout() {
+    //     System.out.println("ggmn  MainActivity createSplashLayout() called.");
+    //     View view = new View(this);
+    //     return view;
+    // }
 
     @Override
     protected void onPause() {

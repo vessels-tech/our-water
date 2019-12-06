@@ -3,6 +3,8 @@ package com.vesselstech;
 import android.app.Application;
 
 import com.reactnativenavigation.NavigationApplication;
+// import com.reactnativenavigation.react.NavigationReactNativeHost;
+// import com.reactnativenavigation.react.ReactGateway;
 
 import com.facebook.react.ReactApplication;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -78,10 +80,10 @@ public class MainApplication extends NavigationApplication {
       return getPackages();
   }
 
-  @Override
-  public String getJSMainModuleName() {
-      return "index";
-  }
+  // @Override
+  // public String getJSMainModuleName() {
+  //     return "index";
+  // }
 
   // @Override
   // public ReactNativeHost getReactNativeHost() {

@@ -2,7 +2,10 @@
 
 buildscript {
     repositories {
+        google()
         mavenLocal()
+        mavenCentral()
+        jcenter()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
@@ -10,11 +13,9 @@ buildscript {
             //Crashlytics dependencies via maven
             url 'https://maven.fabric.io/public'
         }
-        google()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.3.0'
         //Allow us to read google-services.json files and use firebase
         classpath 'com.google.gms:google-services:3.2.1'
         //Crashlytics dependencies
@@ -26,12 +27,28 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
+        maven { url 'https://jitpack.io' }
         jcenter()
-        google()
+    }
+}
+
+subprojects { subproject ->
+    afterEvaluate {
+        if ((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
+            android {
+                variantFilter { variant ->
+                    def names = variant.flavors*.name
+                    if (names.contains("reactNative51") || names.contains("reactNative55")) {
+                        setIgnore(true)
+                    }
+                }
+            }
+        }
     }
 }
