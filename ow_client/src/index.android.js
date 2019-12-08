@@ -1,4 +1,4 @@
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
 import { primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
@@ -59,7 +59,7 @@ Promise.resolve(true)
   config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
   return registerScreens(config);
 })
-.then(() => {
+.then(async () => {
   // AppRegistry.registerComponent('App', () => TestApp);
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
@@ -94,42 +94,95 @@ Promise.resolve(true)
     }
   };
 
+  Navigation.setDefaultOptions({
+    layout: {
+      orientation: ['portrait']
+    }
+  })
+
+  const [menuIcon, searchIcon] = await Promise.all([
+    MaterialIcons.getImageSource('menu', 25),
+    MaterialIcons.getImageSource('search', 25),
+  ]);
+
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
-      Navigation.startSingleScreenApp({
-        screen: {
-          screen: 'screen.App',
-          title: config.getApplicationName(),
-          navigatorStyle: defaultNavigatorStyle,
-          navigatorButtons,
-        },
-        drawer,
-        animationType: 'fade',
-        passProps: { config },
-      });
+      // Navigation.startSingleScreenApp({
+      //   screen: {
+      //     screen: 'screen.App',
+      //     title: config.getApplicationName(),
+      //     navigatorStyle: defaultNavigatorStyle,
+      //     navigatorButtons,
+      //   },
+      //   drawer,
+      //   animationType: 'fade',
+      //   passProps: { config },
+      // });
 
       break;
     }
     case (HomeScreenType.Simple): {
-
-      Navigation.startSingleScreenApp({
-        screen: {
-          screen: 'screen.App',
-          title: config.getApplicationName(),
-          navigatorStyle: defaultNavigatorStyle,
-          navigatorButtons,
-        },
-        drawer,
-        animationType: 'fade',
-        passProps: { config },
-        appStyle: {
-          tabBarButtonColor: bgMed,
-          tabBarSelectedButtonColor: primaryDark,
-          orientation: 'portrait',
-          bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
-          bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
-        },
+      console.log(('simple'))
+      Navigation.setRoot({
+        root: {
+          sideMenu: {
+            options: {
+              topBar: {
+                leftButtons: [
+                  { id: 'sideMenu', icon: menuIcon }]
+              }
+            },
+            left: {
+              component: {
+                name: 'screen.MenuScreen',
+                passProps: { config },
+                options: {
+                  topBar: { title: 'MENU' }
+                }
+              }
+            },
+            center: {
+              stack: {
+                id: 'Stack',
+                children: [{
+                  component: {
+                    name: 'screen.App',
+                    passProps: { config }
+                  }
+                }],
+                options: {
+                  topBar: {
+                    // leftButtons: [{
+                    //   id: 'sideMenu'
+                    // }],
+                    title: {
+                      text: config.getApplicationName(),
+                    },
+                  },
+                }
+              }
+            }
+          }
+        }
       });
+      // Navigation.startSingleScreenApp({
+      //   screen: {
+      //     screen: 'screen.App',
+      //     title: config.getApplicationName(),
+      //     navigatorStyle: defaultNavigatorStyle,
+      //     navigatorButtons,
+      //   },
+      //   drawer,
+      //   animationType: 'fade',
+      //   passProps: { config },
+      //   appStyle: {
+      //     tabBarButtonColor: bgMed,
+      //     tabBarSelectedButtonColor: primaryDark,
+      //     orientation: 'portrait',
+      //     bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
+      //     bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
+      //   },
+      // });
       
     break;
     }

@@ -1,6 +1,6 @@
 import BaseApi, { GenericSearchResult } from "./BaseApi";
 import NetworkApi from "./NetworkApi";
-import { RNFirebase, Firebase } from "react-native-firebase";
+import { RNFirebase } from "react-native-firebase";
 import DeprecatedFirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
@@ -14,7 +14,7 @@ import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeser
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete, SyncError } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
-import { isNullOrUndefined, isNull } from "util";
+import { isNullOrUndefined } from "../utils/isNullOrUndefined";
 import * as moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType, makeSuccess, makeError, SuccessResult } from "../typings/AppProviderTypes";

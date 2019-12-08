@@ -21,9 +21,6 @@ import { AnonymousUser, FullUser } from "../typings/api/FirebaseApi";
 import { MaybeUser, UserType, MobileUser } from "../typings/UserTypes";
 import { InternalAccountApiType, MaybeInternalAccountApi, SaveUserDetailsType } from "../api/InternalAccountApi";
 import { Cursor } from "../screens/HomeMapScreen";
-import { ResourceType } from "../enums";
-import { SearchResult, PartialResourceResult, PlaceResult } from "ow_common/lib/api/SearchApi";
-import { any } from "react-native-joi";
 
 
 //Shorthand for messy dispatch response method signatures

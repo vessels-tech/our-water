@@ -62,7 +62,7 @@ import ImageComponent, {
   ImageType,
   IImage
 } from "../../components/ImageComponent";
-import { valid } from 'react-native-joi';
+import { valid } from 'joi';
 
 export interface Props {
   resourceId: string;

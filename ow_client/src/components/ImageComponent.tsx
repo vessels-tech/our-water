@@ -3,7 +3,7 @@ import { Component } from "react";
 import { View, Image } from "react-native";
 import { Button } from "react-native-elements";
 
-import { showModal, maybeLog } from "../utils";
+import { showModal, maybeLog, dismissModal } from "../utils";
 import { primary, primaryDark } from "../utils/Colors";
 import { AppState } from "../reducers";
 import { connect } from "react-redux";
@@ -36,6 +36,8 @@ export interface State {
 type Props = OwnProps;
 
 class ImageComponent extends Component<Props> {
+  private id: string;
+
   constructor(props: Props) {
     super(props);
 
@@ -46,6 +48,7 @@ class ImageComponent extends Component<Props> {
     this.state = {
       image: this.props.image || { type: ImageType.NONE, url: '' }
     };
+    this.id = String(Math.random());
   }
 
   showTakePictureScreen() {
@@ -53,7 +56,7 @@ class ImageComponent extends Component<Props> {
     showModal(this.props, "modal.TakePictureScreen", "Take Picture", {
       onTakePicture: (data: string) => this.onTakePicture(data),
       onTakePictureError: (data: string) => this.onTakePictureError
-    });
+    }, this.id);
   }
 
   clearImage() {
@@ -66,7 +69,7 @@ class ImageComponent extends Component<Props> {
   }
 
   onTakePicture(dataUri: string) {
-    this.props.navigator.dismissModal();
+    dismissModal(this.id);
     const newImage: IImage = {
       type: ImageType.IMAGE,
       url: dataUri

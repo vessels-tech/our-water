@@ -25,6 +25,7 @@ import { OrgType } from '../typings/models/OrgType';
 import { ConfigFactory } from '../config/ConfigFactory';
 import firebase from 'react-native-firebase'
 import Base64 from './Base64';
+import { Navigation } from 'react-native-navigation';
 
 
 /**
@@ -217,39 +218,75 @@ export const getSelectedPendingResourceFromCoords = (resources: PendingResource[
 
 export const navigateTo = (props: any, screen: any, title: any, passProps: any, animationType = 'slide-horizontal') => {
   //TODO: only navigate if we aren't already here!
+console.log('navigate to', props)
 
-  props.navigator.toggleDrawer({
-    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  });
+  // props.navigator.toggleDrawer({
+  //   side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
+  //   animated: true, // does the toggle have transition animation or does it happen immediately (optional)
+  //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
+  // });
 
-  props.navigator.push({
-    screen,
-    title,
-    passProps,
-    navigatorStyle: defaultNavigatorStyle,
-    navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
-    animationType
+  Navigation.push('Stack', {
+    component: {
+      name: screen,
+      passProps: props,
+      options: {
+        topBar: {
+          title: {
+            text: title
+          }
+        }
+      }
+    }
   });
+  // props.navigator.push({
+  //   screen,
+  //   title,
+  //   passProps,
+  //   navigatorStyle: defaultNavigatorStyle,
+  //   navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
+  //   animationType
+  // });
 }
 
-export const showModal = (props: any, screen: any, title: any, passProps: any) => {
+export const showModal = (props: any, screen: string, title: string, passProps: any, id?: string) => {
   //TODO: only navigate if we aren't already here!
-console.log(props)
-  props.navigator.toggleDrawer({
-    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  });
+console.log('show modal', props)
+  // props.navigator.toggleDrawer({
+  //   side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
+  //   animated: true, // does the toggle have transition animation or does it happen immediately (optional)
+  //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
+  // });
+
+  Navigation.showModal({
+    component: {
+      name: screen,
+      passProps: passProps,
+      id,
+      options: {
+        topBar: {
+          title: {
+            text: title
+          },
+          backButton: {
+            visible: true,
+          }
+        }
+      }
+    },
+  })
 
   // TODO: change left arrow to just x
-  props.navigator.showModal({
-    screen,
-    title,
-    passProps,
-    navigatorStyle: defaultNavigatorStyle,
-  });
+  // props.navigator.showModal({
+  //   screen,
+  //   title,
+  //   passProps,
+  //   navigatorStyle: defaultNavigatorStyle,
+  // });
+}
+
+export function dismissModal(id: string) {
+  Navigation.dismissModal(id);
 }
 
 export const showLighbox = (props: any, screen: any, passProps: any) => {

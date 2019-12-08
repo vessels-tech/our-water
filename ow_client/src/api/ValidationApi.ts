@@ -1,18 +1,13 @@
-
-import * as Joi from 'react-native-joi';
-import { Reading, ResourceScanResult } from '../typings/models/OurWater';
-import { SomeResult, ResultType, ErrorResult, SuccessResult, makeError, makeSuccess } from '../typings/AppProviderTypes';
+import * as Joi from 'joi-react-native';
+import { ResourceScanResult } from '../typings/models/OurWater';
+import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
 import { maybeLog } from '../utils';
-import { AnyReading, GGMNReading, MyWellReading } from '../typings/models/Reading';
 import { OrgType } from "../typings/models/OrgType";
 import { ReadingImageType } from '../typings/models/ReadingImage';
-import { string } from 'prop-types';
 import { ReadingLocationType } from '../typings/models/ReadingLocation';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
-import { join } from 'path';
-
 
 const PendingReadingSchema = {
   id: Joi.string(), //Id will probably be undefined
@@ -26,27 +21,27 @@ const PendingReadingSchema = {
   resourceType: Joi.string().required(),
 
   value: Joi.number().required(),
-  image: Joi.allow([
-    Joi.object().keys({
-      type: Joi.string().equal(ReadingImageType.NONE)
-    }),
-    Joi.object().keys({
-      type: Joi.string().equal(ReadingImageType.IMAGE),
-      url: Joi.string().required()
-    })
-  ]).required(),
-  location: Joi.allow([
-    Joi.object().keys({
-      type: Joi.string().equal(ReadingLocationType.NONE)
-    }),
-    Joi.object().keys({
-      type: Joi.string().equal(ReadingLocationType.LOCATION),
-      location: Joi.object().keys({
-        _latitude: Joi.number().required(),
-        _longitude: Joi.number().required(),
-      })
-    })
-  ]).required(),
+  // image: Joi.allow([
+  //   Joi.object().keys({
+  //     type: Joi.string().equal(ReadingImageType.NONE)
+  //   }),
+  //   Joi.object().keys({
+  //     type: Joi.string().equal(ReadingImageType.IMAGE),
+  //     url: Joi.string().required()
+  //   })
+  // ]).required(),
+  // location: Joi.allow([
+  //   Joi.object().keys({
+  //     type: Joi.string().equal(ReadingLocationType.NONE)
+  //   }),
+  //   Joi.object().keys({
+  //     type: Joi.string().equal(ReadingLocationType.LOCATION),
+  //     location: Joi.object().keys({
+  //       _latitude: Joi.number().required(),
+  //       _longitude: Joi.number().required(),
+  //     })
+  //   })
+  // ]).required(),
   groundwaterStationId: Joi.any(),
   isResourcePending: Joi.boolean().required(),
 }

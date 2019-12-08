@@ -29,7 +29,7 @@ import { ConfigTimeseries } from '../../typings/models/ConfigTimeseries';
 import { ActionMeta } from '../../typings/Reducer';
 import { surfaceLight } from '../../assets/ggmn/NewColors';
 import { surface, surfaceDark, surfaceText, secondary } from '../../utils/NewColors';
-import moment = require('moment');
+import moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { ResourceType } from '../../enums';
 import { calculateOneYearChunkedReadings } from './ChartHelpers';

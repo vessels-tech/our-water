@@ -20,7 +20,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import org.reactnative.camera.RNCameraPackage;
 
-import com.crashlytics.android.Crashlytics;
+// import com.crashlytics.android.Crashlytics;
 
 //react-native-maps
 import com.airbnb.android.react.maps.MapsPackage;

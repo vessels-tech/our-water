@@ -2,7 +2,6 @@ import { OWGeoPoint, ResourceOwnerType } from "./OurWater";
 import { ResourceType } from "../../enums";
 import { OrgType } from "./OrgType";
 import { AnyTimeseries } from "./Timeseries";
-import { description } from "react-native-joi";
 import { CacheType } from "../../reducers";
 
 export type AnyResource = MyWellResource | GGMNResource;

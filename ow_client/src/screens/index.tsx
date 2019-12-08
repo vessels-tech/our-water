@@ -203,25 +203,34 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   console.log("registering navigation components");
-  Navigation.registerComponent('screen.App', () => App, store, Provider);
-  Navigation.registerComponent('screen.MenuScreen', () => SettingsScreen, store, Provider);
-  Navigation.registerComponent('screen.SearchScreen', () => SearchScreenWithContext, store, Provider);
-  Navigation.registerComponent('screen.menu.EditResourceScreen', () => EditResourceScreen, store, Provider);
-  Navigation.registerComponent('screen.menu.ConnectToServiceScreen', () => ConnectToServiceScreen, store, Provider);
-  Navigation.registerComponent('screen.menu.SyncScreen', () => SyncScreen, store, Provider);
-  Navigation.registerComponent('screen.menu.SignInScreen', () => SignInScreen, store, Provider);
-  Navigation.registerComponent('screen.NewReadingScreen', () => NewReadingScreen, store, Provider);
-  Navigation.registerComponent('modal.SelectLanguageModal', () => SelectLanguageModal, store, Provider);
-  Navigation.registerComponent('screen.ScanScreen', () => ScanScreen, store, Provider);
-  Navigation.registerComponent('screen.SimpleMapScreen', () => SimpleMapScreen, store, Provider);
-  Navigation.registerComponent('screen.SimpleResourceScreen', () => SimpleResourceScreen, store, Provider);
-  Navigation.registerComponent('screen.SimpleResourceDetailScreen', () => SimpleResourceDetailScreen, store, Provider);
-  Navigation.registerComponent('modal.TakePictureScreen', () => TakePictureScreen, store, Provider);
-  Navigation.registerComponent('screen.GroundwaterSyncScreen', () => GroundwaterSyncScreen, store, Provider);
-  Navigation.registerComponent('screen.EditReadingsScreen', () => EditReadingsScreen, store, Provider);
-  Navigation.registerComponent('screen.PendingScreen', () => PendingScreen, store, Provider);
-  Navigation.registerComponent('AboutScreen', () => AboutScreen, store, Provider);
-  Navigation.registerComponent('ModalImageScreen', () => ModalImageScreen, store, Provider);
+  Navigation.registerComponent('screen.App', withReduxStoreWrapper(App, store));
+  Navigation.registerComponent('screen.MenuScreen', withReduxStoreWrapper(SettingsScreen, store));
+  Navigation.registerComponent('screen.SearchScreen', withReduxStoreWrapper(SearchScreenWithContext, store));
+  Navigation.registerComponent('screen.menu.EditResourceScreen', withReduxStoreWrapper(EditResourceScreen, store));
+  Navigation.registerComponent('screen.menu.ConnectToServiceScreen', withReduxStoreWrapper(ConnectToServiceScreen, store));
+  Navigation.registerComponent('screen.menu.SyncScreen', withReduxStoreWrapper(SyncScreen, store));
+  Navigation.registerComponent('screen.menu.SignInScreen', withReduxStoreWrapper(SignInScreen, store));
+  Navigation.registerComponent('screen.NewReadingScreen', withReduxStoreWrapper(NewReadingScreen, store));
+  Navigation.registerComponent('modal.SelectLanguageModal', withReduxStoreWrapper(SelectLanguageModal, store));
+  Navigation.registerComponent('screen.ScanScreen', withReduxStoreWrapper(ScanScreen, store));
+  Navigation.registerComponent('screen.SimpleMapScreen', withReduxStoreWrapper(SimpleMapScreen, store));
+  Navigation.registerComponent('screen.SimpleResourceScreen', withReduxStoreWrapper(SimpleResourceScreen, store));
+  Navigation.registerComponent('screen.SimpleResourceDetailScreen', withReduxStoreWrapper(SimpleResourceDetailScreen, store));
+  Navigation.registerComponent('modal.TakePictureScreen', withReduxStoreWrapper(TakePictureScreen, store));
+  Navigation.registerComponent('screen.GroundwaterSyncScreen', withReduxStoreWrapper(GroundwaterSyncScreen, store));
+  Navigation.registerComponent('screen.EditReadingsScreen', withReduxStoreWrapper(EditReadingsScreen, store));
+  Navigation.registerComponent('screen.PendingScreen', withReduxStoreWrapper(PendingScreen, store));
+  Navigation.registerComponent('AboutScreen', withReduxStoreWrapper(AboutScreen, store));
+  Navigation.registerComponent('ModalImageScreen', withReduxStoreWrapper(ModalImageScreen, store));
 
   return store;
 }
+
+
+const withReduxStoreWrapper = (ReduxScreen: any, reduxStore: any) => () => (props: any) => (
+  <Provider store={reduxStore}>
+    <ReduxScreen {...props} />
+  </Provider>
+);
+
+export default withReduxStoreWrapper;

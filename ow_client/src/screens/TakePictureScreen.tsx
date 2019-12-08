@@ -106,6 +106,7 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           return this.props.onTakePicture(data.base64, data.uri);
         } catch (err) {
           console.log('failed')
+          console.log(err)
           return this.props.onTakePictureError(err);
         }
       }

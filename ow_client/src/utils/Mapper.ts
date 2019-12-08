@@ -1,6 +1,5 @@
 import { AnyResource } from "../typings/models/Resource";
 import FBResource, { FBResourceBuilder, FBResourceType } from "../model/FBResource";
-import { string } from "react-native-joi";
 import { PendingTimeseries } from "../typings/models/PendingTimeseries";
 import { PendingResource } from "../typings/models/PendingResource";
 import { OWGeoPoint, BasicCoords, toBasicCoords } from "../typings/models/OurWater";
