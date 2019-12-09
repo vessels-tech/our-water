@@ -27,6 +27,8 @@ import { isDefined, isUndefined, getOrElse, safeGetNested, safeGetNestedDefault 
 import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
 import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+import { Navigation } from 'react-native-navigation';
+import { NavigationStacks } from '../enums';
 const ListItemEx = withPreventDoubleClick(ListItem);
 
 export interface OwnProps {
@@ -134,7 +136,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onSearchResultPressedV1(r: AnyResource){
-    this.props.navigator.pop();
+    Navigation.pop(NavigationStacks.Root)
     this.props.onSearchResultPressedV1(r)
   }
 

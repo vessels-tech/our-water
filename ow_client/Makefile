@@ -71,7 +71,10 @@ switch-mywell-prod:
 server: 
 	@make env
 	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
-	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot ./src/
+	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start \
+		--projectRoot ./src/ \
+		--watchFolders `pwd` \
+		--sourceExts js,ts,tsx,jsx
 
 #
 # runs on an android device.

@@ -16,7 +16,7 @@ import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
-import { HomeScreenType } from './enums';
+import { HomeScreenType, NavigationStacks, NavigationButtons } from './enums';
 import { primaryText } from './utils/NewColors';
 
 // This fixes set issues with react native
@@ -100,11 +100,6 @@ Promise.resolve(true)
     }
   })
 
-  const [menuIcon, searchIcon] = await Promise.all([
-    MaterialIcons.getImageSource('menu', 25),
-    MaterialIcons.getImageSource('search', 25),
-  ]);
-
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
       // Navigation.startSingleScreenApp({
@@ -122,16 +117,9 @@ Promise.resolve(true)
       break;
     }
     case (HomeScreenType.Simple): {
-      console.log(('simple'))
-      Navigation.setRoot({
+      await Navigation.setRoot({
         root: {
           sideMenu: {
-            options: {
-              topBar: {
-                leftButtons: [
-                  { id: 'sideMenu', icon: menuIcon }]
-              }
-            },
             left: {
               component: {
                 name: 'screen.MenuScreen',
@@ -143,7 +131,7 @@ Promise.resolve(true)
             },
             center: {
               stack: {
-                id: 'Stack',
+                id: NavigationStacks.Root,
                 children: [{
                   component: {
                     name: 'screen.App',
@@ -152,12 +140,9 @@ Promise.resolve(true)
                 }],
                 options: {
                   topBar: {
-                    // leftButtons: [{
-                    //   id: 'sideMenu'
-                    // }],
                     title: {
                       text: config.getApplicationName(),
-                    },
+                    }
                   },
                 }
               }
@@ -165,29 +150,56 @@ Promise.resolve(true)
           }
         }
       });
-      // Navigation.startSingleScreenApp({
-      //   screen: {
-      //     screen: 'screen.App',
-      //     title: config.getApplicationName(),
-      //     navigatorStyle: defaultNavigatorStyle,
-      //     navigatorButtons,
-      //   },
-      //   drawer,
-      //   animationType: 'fade',
-      //   passProps: { config },
-      //   appStyle: {
-      //     tabBarButtonColor: bgMed,
-      //     tabBarSelectedButtonColor: primaryDark,
-      //     orientation: 'portrait',
-      //     bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
-      //     bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
-      //   },
-      // });
-      
     break;
     }
     default: 
       throw new Error(`Unknown home screen type: ${config.getHomeScreenType()}`);
   }
+
+  Navigation.events().registerComponentDidAppearListener(async ev => {
+    switch (ev.componentName) {
+      case 'screen.App':
+        const [menuIcon, searchIcon] = await Promise.all([
+          MaterialIcons.getImageSource('menu', 25),
+          MaterialIcons.getImageSource('search', 25),
+        ]);
+        
+        Navigation.mergeOptions(ev.componentId, {
+          topBar: {
+            leftButtons: [
+              { id: NavigationButtons.SideMenu, icon: menuIcon }
+            ],
+            rightButtons: [
+              { id: NavigationButtons.Search, icon: searchIcon }
+            ]
+          }
+        });
+        break;
+        default:
+        break;
+    }
+  });
+
+  Navigation.events().registerNavigationButtonPressedListener(data => { 
+    console.log('button pressed')
+    console.log(data);
+
+    switch (data.buttonId) {
+      case NavigationButtons.ModalBack:
+        Navigation.dismissModal(data.componentId)
+        break;
+      case NavigationButtons.SideMenu:
+        Navigation.mergeOptions(data.componentId, {
+          sideMenu: {
+            left: {
+              visible: true
+            }
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
 })
 .catch((err: Error) => console.log('Error Launching App:', err));

@@ -23,13 +23,14 @@ import * as appActions from '../actions/index';
 import { ActionMeta } from '../typings/Reducer';
 import { AnyResource } from '../typings/models/Resource';
 import { diff } from "deep-object-diff";
-import { ResourceType } from '../enums';
+import { ResourceType, NavigationStacks } from '../enums';
 import { isNullOrUndefined } from 'util';
 import { secondary, primary, secondaryText } from '../utils/NewColors';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 import { PendingResource } from '../typings/models/PendingResource';
 import { OrgType } from '../typings/models/OrgType';
 import { safeGetNestedDefault } from 'ow_common/lib/utils';
+import { Navigation } from 'react-native-navigation';
 
 
 export interface OwnProps {
@@ -76,9 +77,9 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   componentDidMount() {
     
     if (this.props.shortId) {
-      this.props.navigator.setTitle({ title: this.props.shortId});
+      Navigation.mergeOptions(NavigationStacks.Root, {topBar: { title: { text: this.props.shortId }}})
     } else {
-      this.props.navigator.setTitle({title: "Loading..."});
+      Navigation.mergeOptions(NavigationStacks.Root, {topBar: { title: { text: "Loading..." }}})
       this.props.getShortId(this.appApi, this.props.resourceId);
     }
   }

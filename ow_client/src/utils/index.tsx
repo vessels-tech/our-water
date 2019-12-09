@@ -5,7 +5,7 @@ import { stringify } from 'query-string';
 // import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings, OWGeoPoint } from '../typings/models/OurWater';
-import { ResourceType } from '../enums';
+import { ResourceType, NavigationStacks, NavigationButtons } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
@@ -25,7 +25,8 @@ import { OrgType } from '../typings/models/OrgType';
 import { ConfigFactory } from '../config/ConfigFactory';
 import firebase from 'react-native-firebase'
 import Base64 from './Base64';
-import { Navigation } from 'react-native-navigation';
+import { Navigation, Layout } from 'react-native-navigation';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 
 /**
@@ -226,7 +227,7 @@ console.log('navigate to', props)
   //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
   // });
 
-  Navigation.push('Stack', {
+  Navigation.push(NavigationStacks.Root, {
     component: {
       name: screen,
       passProps: props,
@@ -249,7 +250,7 @@ console.log('navigate to', props)
   // });
 }
 
-export const showModal = (props: any, screen: string, title: string, passProps: any, id?: string) => {
+export const showModal = async (props: any, screen: string, title: string, passProps: any, id?: string) => {
   //TODO: only navigate if we aren't already here!
 console.log('show modal', props)
   // props.navigator.toggleDrawer({
@@ -257,25 +258,32 @@ console.log('show modal', props)
   //   animated: true, // does the toggle have transition animation or does it happen immediately (optional)
   //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
   // });
+  const backIcon = await MaterialIcons.getImageSource('arrow-back', 25);
+  console.log(backIcon)
 
-  Navigation.showModal({
-    component: {
-      name: screen,
-      passProps: passProps,
+  const modal: string = await Navigation.showModal({
+    stack: {
       id,
-      options: {
-        topBar: {
-          title: {
-            text: title
-          },
-          backButton: {
-            visible: true,
+      children: [{
+        component: {
+          name: screen,
+          passProps: passProps,
+          options: {
+            topBar: {
+              title: {
+                text: title
+              },
+              leftButtons: [
+                { id: NavigationButtons.ModalBack, icon: backIcon }
+              ]
+            }
           }
-        }
-      }
-    },
+        },
+      }]
+    }
   })
-
+  
+  console.log(modal)
   // TODO: change left arrow to just x
   // props.navigator.showModal({
   //   screen,
@@ -285,8 +293,8 @@ console.log('show modal', props)
   // });
 }
 
-export function dismissModal(id: string) {
-  Navigation.dismissModal(id);
+export async function dismissModal(id: string) {
+  await Navigation.dismissModal(id);
 }
 
 export const showLighbox = (props: any, screen: any, passProps: any) => {

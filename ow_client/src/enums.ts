@@ -34,3 +34,15 @@ export enum ScrollDirection {
   Horizontal = "Horizontal",
   Vertical = "Vertical",
 }
+
+export enum NavigationStacks {
+  Root = 'app.Root',
+  Modal = 'app.Modal'
+}
+
+export enum NavigationButtons {
+  Back = 'backButton',
+  ModalBack = 'modalBack',
+  Search = 'searchButton',
+  SideMenu = 'sideMenuButton'
+}

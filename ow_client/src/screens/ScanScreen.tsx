@@ -20,6 +20,8 @@ import { withTabWrapper } from '../components/TabWrapper';
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../typings/models/Resource';
 import * as appActions from '../actions/index';
+import { Navigation } from 'react-native-navigation';
+import { NavigationStacks } from '../enums';
 
 
 const orgId = EnvironmentConfig.OrgId;
@@ -126,7 +128,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     const shortId = getShortIdOrFallback(resourceResult.result.id, this.props.shortIdCache);
 
     //Pop to root first!
-    this.props.navigator.popToRoot({ animated: false });
+    Navigation.popToRoot(NavigationStacks.Root);
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: validationResult.result.id,
       config: this.props.config,

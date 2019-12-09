@@ -40,7 +40,7 @@ import { SyncMeta } from "../../typings/Reducer";
 import { AnyLoginDetails } from "../../typings/api/ExternalServiceApi";
 import LoadLocationButton from "../../components/LoadLocationButton";
 import { NoLocation, Location, LocationType } from "../../typings/Location";
-import * as equal from "fast-deep-equal";
+import { fastDeepEqual as equal } from "../../utils/FastDeepEqual";
 import { secondaryText, error1 } from "../../utils/Colors";
 import { PendingResource } from "../../typings/models/PendingResource";
 import { OrgType } from "../../typings/models/OrgType";
