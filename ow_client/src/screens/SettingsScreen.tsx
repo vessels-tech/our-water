@@ -25,7 +25,6 @@ import { secondaryDark, surfaceText } from '../utils/NewColors';
 import { BuildNumber } from '../utils/EnvConfig';
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
 }
 

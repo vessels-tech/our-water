@@ -16,7 +16,6 @@ import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
   resourceId: string,
   resourceType: string,
@@ -62,7 +61,6 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
     const { resource_detail_new } = this.props.translation.templates;
 
     navigateToNewReadingScreen(this.props, resource_detail_new, {
-      navigator: this.props.navigator,
       groundwaterStationId: null,
       resourceId: this.props.resourceId,
       resourceType: this.props.resourceType,

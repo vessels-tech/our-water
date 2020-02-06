@@ -2,7 +2,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
 import { primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
-import { defaultNavigatorStyle } from './utils';
+import { defaultNavigatorStyle, showModal } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
 import Config from 'react-native-config';
@@ -139,6 +139,7 @@ Promise.resolve(true)
                   }
                 }],
                 options: {
+                  layout: { backgroundColor: '#ffffff' },
                   topBar: {
                     title: {
                       text: config.getApplicationName(),
@@ -196,6 +197,9 @@ Promise.resolve(true)
             }
           }
         });
+        break;
+      case NavigationButtons.Search:
+        showModal(undefined, 'example.Search', 'Search', { text: 'Search' }, 'searchModal')
         break;
       default:
         break;

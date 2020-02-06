@@ -28,7 +28,6 @@ const IconButtonEx = withPreventDoubleClick(IconButton);
 const MenuButtonEx = withPreventDoubleClick(MenuButton);
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
 }

@@ -19,7 +19,6 @@ import { ResultType } from '../../typings/AppProviderTypes';
 import ReadingListItem from '../../components/common/ReadingListItem';
 
 export interface OwnProps {
-  navigator: any,
   userId: string,
   config: ConfigFactory,
 }

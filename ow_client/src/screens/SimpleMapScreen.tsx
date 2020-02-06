@@ -27,7 +27,6 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AnyResource } from '../typings/models/Resource';
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   initialRegion?: MapRegion
 }

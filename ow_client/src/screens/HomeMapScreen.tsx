@@ -66,7 +66,6 @@ const startCursor: Cursor = {
 };
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
 }
@@ -460,7 +459,6 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     }
 
     navigateToNewReadingScreen(this.props, resource_detail_new, {
-      navigator: this.props.navigator,
       groundwaterStationId: null,
       resourceId,
       resourceType: 'well', //TD: GGMN only

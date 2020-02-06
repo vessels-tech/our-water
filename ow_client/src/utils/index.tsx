@@ -218,19 +218,12 @@ export const getSelectedPendingResourceFromCoords = (resources: PendingResource[
 }
 
 export const navigateTo = (props: any, screen: any, title: any, passProps: any, animationType = 'slide-horizontal') => {
-  //TODO: only navigate if we aren't already here!
-console.log('navigate to', props)
-
-  // props.navigator.toggleDrawer({
-  //   side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-  //   animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-  //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  // });
-
+  // TODO: only navigate if we aren't already here!
+  
   Navigation.push(NavigationStacks.Root, {
     component: {
       name: screen,
-      passProps: props,
+      passProps,
       options: {
         topBar: {
           title: {
@@ -240,26 +233,11 @@ console.log('navigate to', props)
       }
     }
   });
-  // props.navigator.push({
-  //   screen,
-  //   title,
-  //   passProps,
-  //   navigatorStyle: defaultNavigatorStyle,
-  //   navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
-  //   animationType
-  // });
 }
 
 export const showModal = async (props: any, screen: string, title: string, passProps: any, id?: string) => {
   //TODO: only navigate if we aren't already here!
-console.log('show modal', props)
-  // props.navigator.toggleDrawer({
-  //   side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-  //   animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-  //   to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  // });
   const backIcon = await MaterialIcons.getImageSource('arrow-back', 25);
-  console.log(backIcon)
 
   const modal: string = await Navigation.showModal({
     stack: {
@@ -282,15 +260,8 @@ console.log('show modal', props)
       }]
     }
   })
-  
-  console.log(modal)
-  // TODO: change left arrow to just x
-  // props.navigator.showModal({
-  //   screen,
-  //   title,
-  //   passProps,
-  //   navigatorStyle: defaultNavigatorStyle,
-  // });
+
+  return modal;
 }
 
 export async function dismissModal(id: string) {
@@ -298,7 +269,6 @@ export async function dismissModal(id: string) {
 }
 
 export const showLighbox = (props: any, screen: any, passProps: any) => {
-
   props.navigator.showLightBox({
     screen,
     passProps,

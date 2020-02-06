@@ -40,7 +40,6 @@ import { greyMed } from '../../assets/ggmn/Colors';
 import { default as UserAdminType } from 'ow_common/lib/enums/UserType';
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
 }
 

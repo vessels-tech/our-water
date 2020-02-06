@@ -24,7 +24,6 @@ import { UserType } from '../typings/UserTypes';
 
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
   resourceType: ResourceType

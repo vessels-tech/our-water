@@ -16,7 +16,6 @@ import { crashlyticsLog } from '../../utils';
 
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
   userId: string,
 }

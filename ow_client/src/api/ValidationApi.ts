@@ -1,3 +1,4 @@
+import 'text-encoding';
 import * as Joi from '@hapi/joi';
 import { ResourceScanResult } from '../typings/models/OurWater';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';

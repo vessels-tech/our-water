@@ -77,6 +77,7 @@
     "redux-thunk": "^2.3.0",
     "rn-async-storage": "git://github.com/jzhw0130/rn-async-storage#436808845aff8c7a424062663830544af25d0d09",
     "supercluster": "^4.1.1",
+    "text-encoding": "^0.7.0",
     "util": "^0.12.1",
     "yarn": "^1.12.3"
   },

@@ -2,7 +2,8 @@
  * Main OurWater App
  * 
  */
-import * as React from 'react'; import { Component } from 'react';
+import * as React from 'react'; 
+import { Component } from 'react';
 //Disable the annoying yellow box in prod.
 console.ignoredYellowBox = ['Remote debugger'];
 import {
@@ -23,7 +24,6 @@ import './utils/Crashlytics';
 import { ScreenVisibilityListener } from './utils/ScreenVisibilityListener';
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi, 
 }
@@ -78,7 +78,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       case (HomeScreenType.Map): {
         return (
           <HomeMapScreen
-            navigator={this.props.navigator}
             config={this.props.config}
             appApi={this.props.appApi}
           />
@@ -87,7 +86,6 @@ class App extends Component<OwnProps & StateProps & ActionProps> {
       case (HomeScreenType.Simple): {
         return (
           <HomeSimpleScreen
-            navigator={this.props.navigator}
             config={this.props.config}
             appApi={this.props.appApi}
           />

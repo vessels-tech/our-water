@@ -34,7 +34,6 @@ const ListItemEx = withPreventDoubleClick(ListItem);
 export interface OwnProps {
   onSearchResultPressedV1: (result: AnyResource) => void,
   onSearchResultPressed: (result: PartialResourceResult | PlaceResult) => void,
-  navigator: any;
   userId: string,
   config: ConfigFactory,
 }

@@ -83,7 +83,9 @@ server:
 android:
 	@make env
 	@make update-env-dev
-	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
+	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android \
+		--no-packager \
+		--appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
 android-log:
 	@react-native log-android
@@ -121,7 +123,7 @@ bundle:
 		--platform android \
 		--dev false \
 		--minify true \
-		--entry-file ./src/index.js \
+		--entry-file ./src/index.android.js \
 		--bundle-output android/app/src/main/assets/index.android.bundle \
 		--reset-cache \
 		--assets-dest android/app/src/main/res/ \
@@ -136,7 +138,7 @@ build:
 	@make env
 	@make update-env-dev
 	@echo 'Building debug only'
-	source ../env/.env.deployment.sh && source /tmp/ow_env && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle assembleDebug --stacktrace
+	source ../env/.env.deployment.sh && source /tmp/ow_env && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle app:assembleDebug --stacktrace
 
 build-production:
 	@make env

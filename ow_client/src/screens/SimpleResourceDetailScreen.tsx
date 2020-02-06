@@ -34,7 +34,6 @@ import { Navigation } from 'react-native-navigation';
 
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   resourceId: string,
   isPending: boolean,
@@ -94,7 +93,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     }
 
     if (!this.props.shortId && nextProps.shortId) {
-        this.props.navigator.setTitle({ title: nextProps.shortId });
+      Navigation.mergeOptions(NavigationStacks.Root, { topBar: { title: { text: nextProps.shortId } } });
     }
   }
 
@@ -114,7 +113,6 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
     const { resource_detail_new } = this.props.translation.templates;
 
     navigateToNewReadingScreen(this.props, resource_detail_new, {
-      navigator: this.props.navigator,
       groundwaterStationId: null, //TD for ggmn only
       resourceId,
       resourceType: this.props.resourceType,

@@ -66,7 +66,6 @@ import { valid } from 'joi';
 
 export interface Props {
   resourceId: string;
-  navigator: any;
   config: ConfigFactory;
   appApi: BaseApi;
   resource?: AnyResource | PendingResource;
@@ -562,7 +561,6 @@ class EditResourceScreen extends Component<Props> {
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
-    // this.props.navigator.pop();
     this.props.navigator.dismissModal();
   };
 
@@ -911,7 +909,6 @@ class EditResourceScreen extends Component<Props> {
 
               <ImageComponent
                 image={this.image}
-                navigator={this.props.navigator}
                 onImageUpdated={(newImage: IImage) => {
                   this.image = newImage;
                 }}

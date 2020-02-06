@@ -51,7 +51,8 @@ android {
         targetSdkVersion 28 // This needs to be 26... but breaks a whole bunch of other stuff
      
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            // abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
         // use this when code gets too big
         // ref: https://github.com/wix/react-native-navigation/issues/1925
@@ -65,14 +66,24 @@ android {
         missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57_5"
 
     }
-    // splits {
-    //     abi {
-    //         reset()
-    //         enable enableSeparateBuildPerCPUArchitecture
-    //         universalApk false  // If true, also generate a universal APK
-    //         include "armeabi-v7a", "x86"
-    //     }
-    // }
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk false  // If true, also generate a universal APK
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def versionCodes = ["armeabi-v7a":1, "x86":2, "arm64-v8a": 3, "x86_64": 4]
+            def abi = output.getFilter(OutputFile.ABI)
+            if (abi != null) { 
+                output.versionCodeOverride =
+                    versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            }
+        }
+    }
     buildTypes {
         debug {
             debuggable true
@@ -85,19 +96,7 @@ android {
             // proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    // applicationVariants are e.g. debug, release
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            // For each separate APK per architecture, set a unique version code as described here:
-            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
-            def abi = output.getFilter(OutputFile.ABI)
-            if (abi != null) {  // null for the universal-debug, universal-release variants
-                output.versionCodeOverride =
-                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
-            }
-        }
-    }
+
      compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

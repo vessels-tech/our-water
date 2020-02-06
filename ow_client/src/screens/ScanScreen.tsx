@@ -26,7 +26,6 @@ import { NavigationStacks } from '../enums';
 
 const orgId = EnvironmentConfig.OrgId;
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
 }
 

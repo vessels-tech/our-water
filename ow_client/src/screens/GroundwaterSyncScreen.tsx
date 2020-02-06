@@ -21,7 +21,6 @@ import { Link } from '../components/common/Link';
 
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
 }

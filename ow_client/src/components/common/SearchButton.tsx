@@ -15,11 +15,9 @@ import { primaryText } from '../../utils/NewColors';
 
 export interface Props {
   text: string,
-  navigator: any,
 }
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
 }
 

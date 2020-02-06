@@ -21,7 +21,6 @@ export enum ImageType {
 
 export interface OwnProps {
   image: IImage;
-  navigator: any;
   onImageUpdated: (newImage: IImage) => void;
 }
 
@@ -85,7 +84,7 @@ class ImageComponent extends Component<Props> {
   onTakePictureError(message: string) {
     console.log("error");
     maybeLog("Error taking picture", message);
-    this.props.navigator.dismissModal();
+    dismissModal(this.id);
   }
 
   render() {

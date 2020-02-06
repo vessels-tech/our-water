@@ -33,7 +33,6 @@ import SaveButton from '../../components/common/SaveButton';
 import { secondaryText, surfaceText } from '../../utils/NewColors';
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
 }
 
