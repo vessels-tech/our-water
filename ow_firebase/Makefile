@@ -73,6 +73,7 @@ run-local:
 	# cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
 
+
 function-shell:
 	@echo running firebase shell
 	# EG: 

@@ -154,19 +154,13 @@ export async function getRemoteConfig(projectId: string, token: string): Promise
   .then(_currentConfig => {
     currentConfig = _currentConfig;
     return request(etagRequestOptions);
-    // console.log('rawResponse', rawResponse.headers);
-    // const parsedResponse = rawResponse.toJSON();
-    // const etag = rawResponse.headers.etag;
-    // return [ etag, parsedResponse];
   })
   .then(rawResponse => {
-     // console.log('rawResponse', rawResponse.headers);
-    // const parsedResponse = rawResponse.toJSON();
     etag = rawResponse.headers.etag;
     return [ etag, currentConfig];
   })
   .catch(err => {
-    console.log('Error', err.message);
+    console.log('getRemoteConfig: Error', err.message);
     return Promise.reject(err);
   });
 }
