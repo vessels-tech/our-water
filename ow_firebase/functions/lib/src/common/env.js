@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.digestEmailDestination = exports.shouldBackupFirebaseOnCron = exports.projectId = exports.verboseLog = exports.temporaryAdminUserId = exports.temporaryAdminAccessToken = exports.backupBucketName = exports.backupServiceAccountKeyFilename = exports.testEmailWhitelist = exports.shouldSendEmails = exports.outboundEmailPassword = exports.outboundEmailAddress = exports.mywellLegacyAccessToken = void 0;
 const functions = require("firebase-functions");
 //TODO: move these back to utils, for some reason TS doesn't like them being here.
 function getBoolean(value) {
@@ -30,4 +31,6 @@ exports.temporaryAdminAccessToken = envConfig.config.temporary_admin_access_toke
 exports.temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 exports.verboseLog = getBoolean(envConfig.config.verbose_log);
 exports.projectId = envConfig.config.project_id;
+exports.shouldBackupFirebaseOnCron = getBoolean(envConfig.config.should_backup_firebase_on_cron);
+exports.digestEmailDestination = asList(envConfig.config.digest_email_destination);
 //# sourceMappingURL=env.js.map

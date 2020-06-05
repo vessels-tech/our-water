@@ -1,6 +1,7 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.userRecordUpdated = exports.userAccountDefaults = exports.weekly_job = exports.daily_job = exports.hourly_job = void 0;
 const functions = require("firebase-functions");
 const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
 const UserType_1 = require("ow_common/lib/enums/UserType");
@@ -74,6 +75,28 @@ exports.userAccountDefaults = functions.firestore
         status: UserStatus_1.default.Unapproved,
         type: UserType_1.default.User
     }, { merge: true });
+});
+/**
+ * @function userRecordUpdated
+ *
+ * @description If a user is updated, check a number of fields to see if the user has fully signed in for the first time
+ *   If they have, add them to a list of users to the email digest
+ */
+exports.userRecordUpdated = functions.firestore
+    .document('org/mywell/user/{userId}')
+    .onUpdate((change, context) => {
+    const { userId } = context.params;
+    const newValue = change.after.data();
+    const oldValue = change.before.data();
+    /* If they already had a name, or didn't add a name we can ignore it*/
+    if (oldValue.name || !newValue.name) {
+        return;
+    }
+    const metadataDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell');
+    /* add as a dict to allow for nice merging */
+    const newSignUps = {};
+    newSignUps[userId] = true;
+    return metadataDoc.set({ metadata: { newSignUps } }, { merge: true });
 });
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});

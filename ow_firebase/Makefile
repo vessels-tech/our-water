@@ -104,6 +104,12 @@ clean-node:
 install:
 	@cd ${dir}/functions; yarn
 
+lint:
+	@cd ${dir}/functions; ./node_modules/.bin/tslint --project tsconfig.json
+
+build:
+	@cd ${dir}/functions; ./node_modules/.bin/tsc
+
 
 #
 # Deployment

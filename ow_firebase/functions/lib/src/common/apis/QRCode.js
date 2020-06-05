@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateQRCode = void 0;
 const QRCode = require("qrcode");
 const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 /**

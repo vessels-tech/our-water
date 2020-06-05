@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getNewConfig = exports.saveNewConfig = exports.getRemoteConfig = exports.getBackupAccessToken = exports.getAdminAccessToken = exports.getAuthHeader = exports.getToken = exports.arg = void 0;
 const request = require('request-promise-native');
 const ow_translations_1 = require("ow_translations");
 exports.arg = (argList => {
@@ -146,19 +148,13 @@ function getRemoteConfig(projectId, token) {
             .then(_currentConfig => {
             currentConfig = _currentConfig;
             return request(etagRequestOptions);
-            // console.log('rawResponse', rawResponse.headers);
-            // const parsedResponse = rawResponse.toJSON();
-            // const etag = rawResponse.headers.etag;
-            // return [ etag, parsedResponse];
         })
             .then(rawResponse => {
-            // console.log('rawResponse', rawResponse.headers);
-            // const parsedResponse = rawResponse.toJSON();
             etag = rawResponse.headers.etag;
             return [etag, currentConfig];
         })
             .catch(err => {
-            console.log('Error', err.message);
+            console.log('getRemoteConfig: Error', err.message);
             return Promise.reject(err);
         });
     });

@@ -8,8 +8,9 @@ const keyFilename = "./my-private-api-key-file.json"; //replace this with api ke
 const projectId = "our-water"
 const bucketName = `${projectId}.appspot.com`;
 
-const gcs = require('@google-cloud/storage')({ projectId });
-const bucket = gcs.bucket(bucketName);
+// const gcs = require('@google-cloud/storage')({ projectId });
+// const bucket = gcs.bucket(bucketName);
+const bucket = firebase.storage().bucket(bucketName)
 
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');

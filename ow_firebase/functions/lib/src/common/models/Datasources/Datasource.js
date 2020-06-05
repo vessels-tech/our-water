@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.deserializeDatasource = void 0;
 const LegacyMyWellDatasource_1 = require("./LegacyMyWellDatasource");
 const DatasourceType_1 = require("../../enums/DatasourceType");
 const FileDatasource_1 = require("./FileDatasource");

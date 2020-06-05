@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -120,7 +121,7 @@ module.exports = (functions) => {
             },
         }
     };
-    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    app.post('/:orgId/', validate(createResourceValidation), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const orgId = req.params.orgId;
         const resourceApi = new api_1.ResourceApi(FirebaseAdmin_1.firestore, orgId);
         //Ensure geopoints get added properly
@@ -132,7 +133,7 @@ module.exports = (functions) => {
         req.body.data.lastReadingDatetime = new Date(0);
         req.body.orgId = orgId;
         const timeseries = AppProviderTypes_1.unsafeUnwrap(yield utils_1.getDefaultTimeseries(req.body.data.resourceType));
-        const resource = Object.assign({}, model_1.DefaultMyWellResource, req.body.data, { timeseries });
+        const resource = Object.assign(Object.assign(Object.assign({}, model_1.DefaultMyWellResource), req.body.data), { timeseries });
         let id;
         //Ensure the orgId exists
         const orgRef = FirebaseAdmin_1.firestore.collection('org').doc(orgId);
@@ -145,7 +146,7 @@ module.exports = (functions) => {
             .then(() => {
             const ref = resourceApi.resourceRef();
             id = ref.id;
-            return ref.create(Object.assign({}, resource, { id }));
+            return ref.create(Object.assign(Object.assign({}, resource), { id }));
         })
             .then(() => res.json({ id }))
             .catch(err => next(err));
@@ -177,7 +178,7 @@ module.exports = (functions) => {
             },
         }
     };
-    app.put('/:orgId/:resourceId', validate(updateResourceValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    app.put('/:orgId/:resourceId', validate(updateResourceValidation), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, resourceId } = req.params;
         const newData = req.body.data;
         try {
@@ -205,7 +206,7 @@ module.exports = (functions) => {
             return;
         }
     }));
-    app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.post('/:orgId/ggmnResourceEmail', validate(validation_1.ggmnResourceEmailValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { subject, message } = req.body;
         const pendingResources = req.body.pendingResources;
         const pendingReadings = req.body.pendingReadings;
@@ -296,7 +297,7 @@ module.exports = (functions) => {
             distance: Joi.number().max(1).min(0).required(),
         }
     };
-    app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/nearLocation', validate(getResourceNearLocationValidation), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { latitude, longitude, distance } = req.query;
         const { orgId } = req.params;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
@@ -315,7 +316,7 @@ module.exports = (functions) => {
      * The user MUST be approved before calling this method.
      *
      */
-    app.post('/:orgId/:userId/sync', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.post('/:orgId/:userId/sync', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const userApi = new api_1.UserApi(FirebaseAdmin_1.firestore, orgId);
         const resourceApi = new api_1.ResourceApi(FirebaseAdmin_1.firestore, orgId);

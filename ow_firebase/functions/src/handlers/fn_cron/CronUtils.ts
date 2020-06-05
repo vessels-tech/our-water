@@ -8,7 +8,7 @@ import { backupBucketName, digestEmailDestination } from '../../common/env';
 import FirebaseApi from '../../common/apis/FirebaseApi';
 import EmailApi from '../../common/apis/EmailApi';
 import { User } from 'ow_common/lib/model';
-import { Firestore } from '@google-cloud/firestore';
+// import { Firestore } from '@google-cloud/firestore';
 const request = require('request-promise-native');
 
 
@@ -20,7 +20,7 @@ export default class CronUtils {
    *   For now, this is just a list of the new sign ups from yesterday
    */
   // TODO: Integration test!
-  public static async sendDailyEmail(fs: Firestore, orgId: string) {
+  public static async sendDailyEmail(fs: any, orgId: string) {
 
     /* Lookup org/mywell metadata.lastSignUps for a list of user ids*/
     const mywellDoc = await fs.collection('org').doc(orgId).get()

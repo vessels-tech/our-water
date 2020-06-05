@@ -1,6 +1,6 @@
 import SerdeXML from './SerdeXML';
 import { PointType } from './Point';
-import * as handlebars from 'handlebars';
+const handlebars = require('handlebars')
 
 
 const Template = 

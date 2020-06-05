@@ -1,5 +1,4 @@
 const request = require('request-promise-native');
-import { BaseApiType, ResourceType } from "ow_types";
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
 
 

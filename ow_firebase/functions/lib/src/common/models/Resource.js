@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Resource = void 0;
 const ResourceType_1 = require("../enums/ResourceType");
 const ResourceIdType_1 = require("../types/ResourceIdType");
 const FirestoreDoc_1 = require("./FirestoreDoc");

@@ -2,14 +2,12 @@ import { SomeResult, ResultType, makeSuccess, makeError, ErrorResult } from "ow_
 
 import { Resource } from "../models/Resource";
 import ShortId from "../models/ShortId";
-import * as sleep from 'thread-sleep';
-import { BasicAuthSecurity } from "soap";
-import { pad, resourceIdForResourceType, resultWithError } from "../utils";
+import { pad } from "../utils";
 import { isNullOrUndefined } from "util";
 import * as admin from "firebase-admin";
 import { Reading } from "../models/Reading";
 import * as moment from 'moment';
-import { DefaultReading, Reading as NewReading, ReadingType, Resource as NewResource, ResourceType } from "ow_common/lib/model";
+import { DefaultReading, Reading as NewReading, ReadingType, Resource as NewResource } from "ow_common/lib/model";
 import { ReadingApi, ResourceApi } from "ow_common/lib/api";
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
 import { safeGetNested } from "ow_common/lib/utils";
@@ -264,6 +262,7 @@ export default class FirebaseApi {
     //TODO: update the lastUsed
     try {
       const result = await this.firestore.collection('org').doc(orgId).collection(ShortId.docName).doc(shortId).get();
+      // tslint:disable-next-line
       if (isNullOrUndefined(result.data())) {
         return {
           type: ResultType.ERROR,

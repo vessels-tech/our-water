@@ -1,0 +1,674 @@
+[debug] [2020-06-05T01:38:30.039Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:38:30.041Z] Command:       /Users/ldaly/.nvm/versions/node/v10.15.3/bin/node /Users/ldaly/.nvm/versions/node/v10.15.3/bin/firebase serve --only functions
+[debug] [2020-06-05T01:38:30.041Z] CLI Version:   7.10.0
+[debug] [2020-06-05T01:38:30.041Z] Platform:      darwin
+[debug] [2020-06-05T01:38:30.041Z] Node Version:  v10.15.3
+[debug] [2020-06-05T01:38:30.042Z] Time:          Fri Jun 05 2020 09:38:30 GMT+0800 (Philippine Standard Time)
+[debug] [2020-06-05T01:38:30.043Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:38:30.043Z] 
+[debug] [2020-06-05T01:38:30.053Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-06-05T01:38:30.054Z] > authorizing via signed-in user
+[debug] [2020-06-05T01:38:30.054Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
+[debug] [2020-06-05T01:38:30.056Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
+
+[debug] [2020-06-05T01:38:31.321Z] <<< HTTP RESPONSE 200
+[debug] [2020-06-05T01:38:31.322Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/our-water-dev  
+ 
+[debug] [2020-06-05T01:38:32.345Z] <<< HTTP RESPONSE 200
+[warn] ⚠  Your functions directory does not specify a Node version.
+   - Learn more at https://firebase.google.com/docs/functions/manage-functions#set_runtime_options
+[info] ✔  functions: Emulator started at http://localhost:5000
+[info] i  functions: Watching "/Users/ldaly/developer/vessels/our-water/ow_firebase/functions" for Cloud Functions...
+[debug] [2020-06-05T01:38:32.627Z] [worker-~diagnostic~-41ede11f-f70a-41d1-b046-0f972ae71cd5]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_54235.sock
+[debug] [2020-06-05T01:38:32.627Z] [worker-~diagnostic~-41ede11f-f70a-41d1-b046-0f972ae71cd5]: BUSY
+[debug] [2020-06-05T01:38:32.930Z] [runtime-status] [54235] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:38:32.932Z] [runtime-status] [54235] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:38:32.934Z] [runtime-status] [54235] Resolved module firebase-admin {"declared":true,"installed":true,"version":"7.0.0","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[warn] ⚠  The Cloud Functions emulator requires the module "firebase-admin" to be version >8.0.0 so your version is too old. You can probably fix this by running "npm install firebase-admin@latest" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
+[debug] [2020-06-05T01:38:32.952Z] [worker-~diagnostic~-41ede11f-f70a-41d1-b046-0f972ae71cd5]: exited
+[debug] [2020-06-05T01:38:32.952Z] [worker-~diagnostic~-41ede11f-f70a-41d1-b046-0f972ae71cd5]: FINISHED
+[debug] [2020-06-05T01:45:38.040Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:45:38.043Z] Command:       /Users/ldaly/.nvm/versions/node/v10.15.3/bin/node /Users/ldaly/.nvm/versions/node/v10.15.3/bin/firebase serve --only functions
+[debug] [2020-06-05T01:45:38.043Z] CLI Version:   7.10.0
+[debug] [2020-06-05T01:45:38.044Z] Platform:      darwin
+[debug] [2020-06-05T01:45:38.044Z] Node Version:  v10.15.3
+[debug] [2020-06-05T01:45:38.045Z] Time:          Fri Jun 05 2020 09:45:38 GMT+0800 (Philippine Standard Time)
+[debug] [2020-06-05T01:45:38.045Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:45:38.045Z] 
+[debug] [2020-06-05T01:45:38.064Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-06-05T01:45:38.065Z] > authorizing via signed-in user
+[debug] [2020-06-05T01:45:38.065Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
+[debug] [2020-06-05T01:45:38.068Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
+
+[debug] [2020-06-05T01:45:39.231Z] <<< HTTP RESPONSE 200
+[debug] [2020-06-05T01:45:39.234Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/our-water-dev  
+ 
+[debug] [2020-06-05T01:45:40.374Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: Using node@10 from host.
+[info] ✔  functions: Emulator started at http://localhost:5000
+[info] i  functions: Watching "/Users/ldaly/developer/vessels/our-water/ow_firebase/functions" for Cloud Functions...
+[debug] [2020-06-05T01:45:40.690Z] [worker-~diagnostic~-1076efca-f0ac-4bc0-80e2-147d137d01d7]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_54835.sock
+[debug] [2020-06-05T01:45:40.691Z] [worker-~diagnostic~-1076efca-f0ac-4bc0-80e2-147d137d01d7]: BUSY
+[debug] [2020-06-05T01:45:41.463Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.467Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.467Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.468Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.471Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.473Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.473Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.474Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.475Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.476Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.522Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.523Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.524Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.524Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.524Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.524Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.525Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.525Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.622Z] [runtime-status] [54835] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:45:41.624Z] [runtime-status] [54835] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:45:41.641Z] [runtime-status] [54835] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.12.1","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-06-05T01:45:41.642Z] [runtime-status] [54835] Resolved module firebase-functions {"declared":true,"installed":true,"version":"2.2.0","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  The Cloud Functions emulator requires the module "firebase-functions" to be version >3.0.0 so your version is too old. You can probably fix this by running "npm install firebase-functions@latest" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
+[debug] [2020-06-05T01:45:41.667Z] [worker-~diagnostic~-1076efca-f0ac-4bc0-80e2-147d137d01d7]: exited
+[debug] [2020-06-05T01:45:41.667Z] [worker-~diagnostic~-1076efca-f0ac-4bc0-80e2-147d137d01d7]: FINISHED
+[debug] [2020-06-05T01:45:41.667Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.667Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.766Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.767Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.867Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.867Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.867Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.868Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.868Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.868Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js changed, reloading triggers
+[debug] [2020-06-05T01:45:41.868Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:41.868Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.000Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.001Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.100Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.101Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.101Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.101Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.101Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.102Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.102Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.102Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.102Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.102Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.103Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.103Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.103Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.103Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.104Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.104Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.201Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.201Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.201Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.201Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.202Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.202Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.202Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.202Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.203Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.203Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.203Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.203Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.301Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.301Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.301Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.301Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.302Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.303Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.402Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.402Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.402Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.403Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.403Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.403Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.403Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.403Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.404Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.404Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.404Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.404Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.404Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.405Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.405Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.405Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.405Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.406Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.406Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.406Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.406Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.406Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.407Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.407Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.407Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.407Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:45:42.407Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js.map changed, reloading triggers
+[debug] [2020-06-05T01:45:42.408Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js changed, reloading triggers
+[debug] [2020-06-05T01:45:43.418Z] [worker-~diagnostic~-5e50d307-a849-4425-b99a-e75be2a48703]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_54836.sock
+[debug] [2020-06-05T01:45:43.418Z] [worker-~diagnostic~-5e50d307-a849-4425-b99a-e75be2a48703]: BUSY
+[debug] [2020-06-05T01:45:43.831Z] [runtime-status] [54836] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:45:43.834Z] [runtime-status] [54836] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:45:43.836Z] [runtime-status] [54836] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.12.1","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-06-05T01:45:43.837Z] [runtime-status] [54836] Resolved module firebase-functions {"declared":true,"installed":true,"version":"2.2.0","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  The Cloud Functions emulator requires the module "firebase-functions" to be version >3.0.0 so your version is too old. You can probably fix this by running "npm install firebase-functions@latest" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
+[debug] [2020-06-05T01:45:43.856Z] [worker-~diagnostic~-5e50d307-a849-4425-b99a-e75be2a48703]: exited
+[debug] [2020-06-05T01:45:43.856Z] [worker-~diagnostic~-5e50d307-a849-4425-b99a-e75be2a48703]: FINISHED
+[debug] [2020-06-05T01:47:12.817Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.818Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.818Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.818Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.818Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.819Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FirestoreDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FirestoreDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.820Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseAdmin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.821Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseAdmin.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.821Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.821Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.821Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.821Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.822Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.823Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.823Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.823Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.823Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js changed, reloading triggers
+[debug] [2020-06-05T01:47:12.824Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:12.824Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.214Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.214Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.214Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/AppError.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.215Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/AppError.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.215Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/ErrorHandler.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.215Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/ErrorHandler.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.215Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.215Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyResource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyResource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyVillage.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyVillage.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.216Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/GroupType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/GroupType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceIdType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceIdType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.217Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Group.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/ResourceType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/ResourceType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceOwnerType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceOwnerType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.218Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.219Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.219Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Resource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyReading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyReading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncRunResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncRunResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.220Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/DatasourceType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/DatasourceType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Reading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/GroupSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/GroupSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.221Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.222Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ReadingSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.315Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ReadingSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.315Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ReadingSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.316Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDataSourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.316Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDataSourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.316Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.316Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/LegacyMyWellReading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.316Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/LegacyMyWellReading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.317Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.317Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/FileDatasourceTypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.317Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/FileDatasourceTypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.318Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/DefaultSyncRunResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.318Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/DefaultSyncRunResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.319Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FirestoreDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.319Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FirestoreDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.319Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/dep_AppProviderTypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.319Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/dep_AppProviderTypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.319Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseAdmin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseAdmin.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/ShortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/ShortId.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.320Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.321Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.322Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.322Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.322Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.322Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.323Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.323Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.323Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.425Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.426Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.426Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.426Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.426Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.427Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.427Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.428Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.526Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.527Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.527Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.527Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.527Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.527Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.528Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.628Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.629Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.729Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.730Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.730Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.730Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.730Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.731Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/AppError.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/AppError.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.732Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/ErrorHandler.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/ErrorHandler.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyResource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyResource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyVillage.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyVillage.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.733Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/GroupType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/GroupType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.734Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.735Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.736Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.736Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.736Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.736Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.737Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceIdType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.737Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceIdType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.737Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.737Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.737Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Group.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.738Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/ResourceType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/ResourceType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceOwnerType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.739Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceOwnerType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Resource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyReading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.740Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/LegacyReading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.741Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.741Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.741Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.741Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.742Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncRunResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.742Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncRunResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.742Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/DatasourceType.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.742Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/DatasourceType.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Reading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/GroupSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/GroupSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.830Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ResourceSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ReadingSaveResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/ReadingSaveResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDataSourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDataSourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/LegacyMyWellReading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.831Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/LegacyMyWellReading.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/FileDatasourceTypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/FileDatasourceTypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/DefaultSyncRunResult.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/DefaultSyncRunResult.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/dep_AppProviderTypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.832Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/dep_AppProviderTypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.833Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/ShortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.833Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/ShortId.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.937Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:13.938Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js changed, reloading triggers
+[debug] [2020-06-05T01:47:13.939Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.038Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.038Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.038Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.039Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.039Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.039Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.039Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.040Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.040Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.040Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.040Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.040Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.138Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.138Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.139Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.139Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.139Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.139Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.140Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.140Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.140Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.140Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.240Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.240Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.240Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.241Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.242Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.242Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.242Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.242Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.242Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.243Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.243Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.243Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.243Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.243Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.244Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.244Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.244Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.244Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.244Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.245Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.245Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.246Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.246Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.246Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.247Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.247Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.247Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.248Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.248Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.248Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.249Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.249Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.249Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.249Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.249Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.250Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.250Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.250Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.250Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:47:14.250Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:47:14.251Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:47:15.257Z] [worker-~diagnostic~-4d8b41c6-0f31-4e22-94a6-40334d8177fa]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_54864.sock
+[debug] [2020-06-05T01:47:15.258Z] [worker-~diagnostic~-4d8b41c6-0f31-4e22-94a6-40334d8177fa]: BUSY
+[debug] [2020-06-05T01:47:15.650Z] [runtime-status] [54864] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:47:15.652Z] [runtime-status] [54864] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:47:15.654Z] [runtime-status] [54864] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.12.1","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-06-05T01:47:15.655Z] [runtime-status] [54864] Resolved module firebase-functions {"declared":true,"installed":true,"version":"2.2.0","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[warn] ⚠  The Cloud Functions emulator requires the module "firebase-functions" to be version >3.0.0 so your version is too old. You can probably fix this by running "npm install firebase-functions@latest" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
+[debug] [2020-06-05T01:47:15.673Z] [worker-~diagnostic~-4d8b41c6-0f31-4e22-94a6-40334d8177fa]: exited
+[debug] [2020-06-05T01:47:15.673Z] [worker-~diagnostic~-4d8b41c6-0f31-4e22-94a6-40334d8177fa]: FINISHED
+[debug] [2020-06-05T01:52:09.429Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:52:09.434Z] Command:       /Users/ldaly/.nvm/versions/node/v10.15.3/bin/node /Users/ldaly/.nvm/versions/node/v10.15.3/bin/firebase serve --only functions
+[debug] [2020-06-05T01:52:09.434Z] CLI Version:   7.10.0
+[debug] [2020-06-05T01:52:09.434Z] Platform:      darwin
+[debug] [2020-06-05T01:52:09.434Z] Node Version:  v10.15.3
+[debug] [2020-06-05T01:52:09.436Z] Time:          Fri Jun 05 2020 09:52:09 GMT+0800 (Philippine Standard Time)
+[debug] [2020-06-05T01:52:09.436Z] ----------------------------------------------------------------------
+[debug] [2020-06-05T01:52:09.436Z] 
+[debug] [2020-06-05T01:52:09.455Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-06-05T01:52:09.455Z] > authorizing via signed-in user
+[debug] [2020-06-05T01:52:09.456Z] [iam] checking project our-water-dev for permissions ["firebase.projects.get"]
+[debug] [2020-06-05T01:52:09.458Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/our-water-dev:testIamPermissions  
+
+[debug] [2020-06-05T01:52:10.732Z] <<< HTTP RESPONSE 200
+[debug] [2020-06-05T01:52:10.734Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/our-water-dev  
+ 
+[debug] [2020-06-05T01:52:11.752Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: Using node@10 from host.
+[info] ✔  functions: Emulator started at http://localhost:5000
+[info] i  functions: Watching "/Users/ldaly/developer/vessels/our-water/ow_firebase/functions" for Cloud Functions...
+[debug] [2020-06-05T01:52:12.046Z] [worker-~diagnostic~-c979e1a2-e215-47d4-aaa6-177a81fa5441]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_55268.sock
+[debug] [2020-06-05T01:52:12.047Z] [worker-~diagnostic~-c979e1a2-e215-47d4-aaa6-177a81fa5441]: BUSY
+[debug] [2020-06-05T01:52:12.312Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.313Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/FirebaseApi.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.592Z] [runtime-status] [55268] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:52:12.595Z] [runtime-status] [55268] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:52:12.598Z] [runtime-status] [55268] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.12.1","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-06-05T01:52:12.600Z] [runtime-status] [55268] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.6.2","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-06-05T01:52:12.601Z] [runtime-status] [55268] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.6.2","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-06-05T01:52:12.672Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.672Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.672Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.673Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Serializable.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.673Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.673Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/FileDatasourceOptions.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.673Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.674Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/FileDatasource.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.674Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.674Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/Datasource.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.674Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.674Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncMethod.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.675Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.675Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncFrequency.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.675Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.675Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Sync.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.675Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.676Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/enums/SyncRunStatus.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.772Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.772Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SyncRun.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.873Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.873Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/tools/index.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.873Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.873Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/utils.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.873Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.874Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/middleware.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.972Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.973Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_admin/admin.js changed, reloading triggers
+[debug] [2020-06-05T01:52:12.973Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:12.973Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/EmailApi.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.074Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.074Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/CronUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.174Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.175Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_cron/cron.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.175Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.175Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/OWGeoPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.175Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.176Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_group/group.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.176Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.176Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/org.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.176Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.177Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/QRCode.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.177Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.177Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_public/public.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.274Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.275Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_reading/reading.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.275Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.275Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/validation.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.276Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.276Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/Zip.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.276Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.276Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/GGMNApi.js changed, reloading triggers
+[info] >  init for function undefined
+[debug] [2020-06-05T01:52:13.375Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.375Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_resource/resource.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.375Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.376Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_shortId/shortId.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.376Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.376Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/types/SyncDatatypes.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.376Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.376Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.377Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.377Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_sync/sync.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.377Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.377Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/index.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.476Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.476Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/SOSApiBuilder.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.476Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.476Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/apis/LegacyMyWellApi.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.477Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.477Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/interfaces/FromDoc.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.477Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.477Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.unit_dep.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.478Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.478Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensor.template.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.478Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.478Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/SerdeXML.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.478Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.479Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/DescribeSensorResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.479Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.479Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/Point.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.479Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.479Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/FOI.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.480Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.480Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilities.template.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.480Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.481Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetCapabilitiesResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.481Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.481Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetFeatureOfInterestResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.481Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.482Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservation.template.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.482Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.482Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/ObservationPoint.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.482Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.482Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/GetObservationResponse.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.483Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.483Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/SOS/template.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.483Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.483Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/Data.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.575Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.576Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/test/TestUtils.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.576Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.576Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/handlers/fn_org/validate.js changed, reloading triggers
+[debug] [2020-06-05T01:52:13.576Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js.map changed, reloading triggers
+[debug] [2020-06-05T01:52:13.576Z] File /Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/test/TestFirebase.js changed, reloading triggers
+[warn] ⚠  TypeError: Cannot read property 'mywell_legacy_access_token' of undefined
+    at Object.<anonymous> (/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js:22:52)
+    at Module._compile (internal/modules/cjs/loader.js:701:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:712:10)
+    at Module.load (internal/modules/cjs/loader.js:600:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:539:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:531:3)
+    at Module.require (internal/modules/cjs/loader.js:637:17)
+    at require (internal/modules/cjs/helpers.js:22:18)
+    at Object.<anonymous> (/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js:21:15)
+    at Module._compile (internal/modules/cjs/loader.js:701:30)
+[warn] ⚠  We were unable to load your functions code. (see above)
+   - You may be able to run "npm run build" in your functions directory to resolve this.
+[debug] [2020-06-05T01:52:14.116Z] [worker-~diagnostic~-c979e1a2-e215-47d4-aaa6-177a81fa5441]: exited
+[debug] [2020-06-05T01:52:14.116Z] [worker-~diagnostic~-c979e1a2-e215-47d4-aaa6-177a81fa5441]: FINISHED
+[debug] [2020-06-05T01:52:14.581Z] [worker-~diagnostic~-bd01ebe3-d643-4579-93c2-69918ed0d8b7]: Assigning socketPath: /var/folders/h9/_c916nqs3mzc2q5nv3lv_h6m0000gn/T/fire_emu_55269.sock
+[debug] [2020-06-05T01:52:14.581Z] [worker-~diagnostic~-bd01ebe3-d643-4579-93c2-69918ed0d8b7]: BUSY
+[debug] [2020-06-05T01:52:14.987Z] [runtime-status] [55269] Functions runtime initialized. {"cwd":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions","node_version":"10.15.3"}
+[debug] [2020-06-05T01:52:14.990Z] [runtime-status] [55269] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-06-05T01:52:14.994Z] [runtime-status] [55269] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.12.1","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-06-05T01:52:14.996Z] [runtime-status] [55269] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.6.2","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-06-05T01:52:14.997Z] [runtime-status] [55269] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.6.2","resolution":"/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/node_modules/firebase-functions/lib/index.js"}
+[info] >  init for function undefined
+[warn] ⚠  TypeError: Cannot read property 'mywell_legacy_access_token' of undefined
+    at Object.<anonymous> (/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/env.js:22:52)
+    at Module._compile (internal/modules/cjs/loader.js:701:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:712:10)
+    at Module.load (internal/modules/cjs/loader.js:600:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:539:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:531:3)
+    at Module.require (internal/modules/cjs/loader.js:637:17)
+    at require (internal/modules/cjs/helpers.js:22:18)
+    at Object.<anonymous> (/Users/ldaly/developer/vessels/our-water/ow_firebase/functions/lib/src/common/models/Datasources/LegacyMyWellDatasource.js:21:15)
+    at Module._compile (internal/modules/cjs/loader.js:701:30)
+[warn] ⚠  We were unable to load your functions code. (see above)
+   - You may be able to run "npm run build" in your functions directory to resolve this.
+[debug] [2020-06-05T01:52:15.912Z] [worker-~diagnostic~-bd01ebe3-d643-4579-93c2-69918ed0d8b7]: exited
+[debug] [2020-06-05T01:52:15.912Z] [worker-~diagnostic~-bd01ebe3-d643-4579-93c2-69918ed0d8b7]: FINISHED

@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDefaultTimeseries = exports.loadRemoteConfig = exports.enableLogging = exports.get = exports.unsafelyGetOrgId = exports.chunkArray = exports.writeFileAsync = exports.asList = exports.getBoolean = exports.pad = exports.resultWithError = exports.isNullOrEmpty = exports.hashIdToIntegerString = exports.hashCode = exports.resourceIdForResourceType = exports.resourceTypeForLegacyResourceId = exports.downloadAndParseCSV = exports.anyToMap = exports.serializeMap = exports.findGroupMembershipsForReading = exports.findResourceMembershipsForResource = exports.findGroupMembershipsForResource = exports.getLegacyMyWellResources = exports.getLegacyMyWellGroups = exports.createDiamondFromLatLng = exports.concatSaveResults = exports.snapshotToSyncRunList = exports.snapshotToSyncList = exports.snapshotToResourceList = void 0;
 const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");

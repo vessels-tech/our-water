@@ -99,7 +99,6 @@ export const userAccountDefaults = functions.firestore
  * @description If a user is updated, check a number of fields to see if the user has fully signed in for the first time
  *   If they have, add them to a list of users to the email digest
  */
-// TODO: manual test!
 export const userRecordUpdated = functions.firestore
   .document('org/mywell/user/{userId}')
   .onUpdate((change, context) => {
@@ -114,7 +113,9 @@ export const userRecordUpdated = functions.firestore
 
     const metadataDoc = firestore.collection('org').doc('mywell')
     /* add as a dict to allow for nice merging */
-    return metadataDoc.set({ metadata: { newSignUps: {`${userId}`: true}}}, {merge: true})
+    const newSignUps = {}
+    newSignUps[userId] = true
+    return metadataDoc.set({ metadata: { newSignUps }}, {merge: true})
   })
 
 // const fs = admin.firestore();

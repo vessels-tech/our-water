@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const handlebars = require("handlebars");
+const handlebars = require('handlebars');
 const Template = `
 <wml2:point>
   <wml2:MeasurementTVP>
