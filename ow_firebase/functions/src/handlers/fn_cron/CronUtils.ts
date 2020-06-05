@@ -60,6 +60,7 @@ export default class CronUtils {
 
   /**
    * Search firebase storage for backups that should be deleted
+   * Note: not currently working
    */
   public static async getBackupsToExpire(storage: any, accessToken: string, backupDate: string): Promise<SomeResult<Array<string>>> {
     //format is: gs://${backupBucketName}/2019-01-12T04:55:04_75044/

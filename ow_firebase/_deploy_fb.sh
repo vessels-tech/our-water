@@ -13,7 +13,6 @@ fi
 source /tmp/ow_firebase_env
 
 
-#DO NOT MERGE: temporarily disabled because of internet issues here...
 # # set the firebase env variables
 firebase functions:config:set \
   config.mywell_legacy_access_token=$MYWELL_LEGACY_ACCESS_TOKEN \
@@ -26,7 +25,8 @@ firebase functions:config:set \
   config.temporary_admin_access_token=$temporary_admin_access_token \
   config.temporary_admin_user_id=$temporary_admin_user_id \
   config.verbose_log=$verbose_log \
-  config.project_id=$PROJECT_ID
+  config.project_id=$PROJECT_ID \
+  config.should_backup_firebase_on_cron=false=${should_backup_firebase_on_cron}
 
 
 # deploy
