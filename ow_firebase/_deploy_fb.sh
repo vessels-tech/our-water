@@ -26,7 +26,8 @@ firebase functions:config:set \
   config.temporary_admin_user_id=$temporary_admin_user_id \
   config.verbose_log=$verbose_log \
   config.project_id=$PROJECT_ID \
-  config.should_backup_firebase_on_cron=false=${should_backup_firebase_on_cron}
+  config.should_backup_firebase_on_cron=false=${should_backup_firebase_on_cron} \
+  config.digest_email_destination=$DIGEST_EMAIL_DESTINATION
 
 
 # deploy

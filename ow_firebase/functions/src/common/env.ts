@@ -33,4 +33,8 @@ export const temporaryAdminAccessToken = envConfig.config.temporary_admin_access
 export const temporaryAdminUserId = envConfig.config.temporary_admin_user_id;
 export const verboseLog = getBoolean(envConfig.config.verbose_log);
 export const projectId = envConfig.config.project_id;
+<<<<<<< HEAD
 export const shouldBackupFirebaseOnCron = getBoolean(envConfig.config.should_backup_firebase_on_cron);
+=======
+export const digestEmailDestination = asList(envConfig.config.digest_email_destination)
+>>>>>>> d603ce23406261e0b89dce506776f8aa58b28dc6
