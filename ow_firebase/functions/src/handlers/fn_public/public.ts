@@ -9,12 +9,8 @@ import { ReadingApi, ExportApi, ExportFormat } from 'ow_common/lib/api';
 import * as moment from 'moment';
 import { firestore } from '../../common/apis/FirebaseAdmin';
 
-
-
-
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin')
 require('express-async-errors');
 
 module.exports = (functions) => {
@@ -42,7 +38,7 @@ module.exports = (functions) => {
     const { id } = req.query;
     const { orgId } = req.params;
 
-    const result = await generateQRCode(orgId, id);
+    const result = await generateQRCode(orgId, id as string);
     if (result.type === ResultType.ERROR) {
       throw new Error(result.message);
     }
@@ -55,7 +51,7 @@ module.exports = (functions) => {
     const { id } = req.query;
     const { orgId } = req.params;
 
-    const qrResult = await generateQRCode(orgId, id);
+    const qrResult = await generateQRCode(orgId, id as string);
     if (qrResult.type === ResultType.ERROR) {
       throw new Error(qrResult.message);
     }
@@ -85,17 +81,17 @@ module.exports = (functions) => {
     }
   }
   app.get('/:orgId/downloadReadings', validate(getReadingsValidation), async (req, res) => {
-
-    let { resourceIds } = req.query;
+    //@ts-ignore
+    const resourceIds: string = req.query.resourceIds;
     const { orgId } = req.params;
     const readingApi = new ReadingApi(firestore, orgId);
 
-    resourceIds = resourceIds.split(',');
+    const resourceIdList = resourceIds.split(',');
     if (resourceIds.length > 50) {
       throw new Error("Too many resourceIds. Max is 50");
     }
 
-    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
+    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceIdList, { limit: 100 }));
     if (readings.readings.length === 0) {
       const error = new Error(`No readings found for ids: ${resourceIds}`);
       return res.status(404).send(error);

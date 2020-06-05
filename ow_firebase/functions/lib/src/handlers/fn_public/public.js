@@ -21,7 +21,6 @@ const moment = require("moment");
 const FirebaseAdmin_1 = require("../../common/apis/FirebaseAdmin");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin');
 require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
@@ -80,14 +79,15 @@ module.exports = (functions) => {
         }
     };
     app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        let { resourceIds } = req.query;
+        //@ts-ignore
+        const resourceIds = req.query.resourceIds;
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
-        resourceIds = resourceIds.split(',');
+        const resourceIdList = resourceIds.split(',');
         if (resourceIds.length > 50) {
             throw new Error("Too many resourceIds. Max is 50");
         }
-        const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
+        const readings = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingsForResources(resourceIdList, { limit: 100 }));
         if (readings.readings.length === 0) {
             const error = new Error(`No readings found for ids: ${resourceIds}`);
             return res.status(404).send(error);

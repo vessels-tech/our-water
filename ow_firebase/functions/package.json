@@ -20,10 +20,6 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/register": "^7.0.0",
     "@firebase/app-types": "0.x",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.0",
-    "@types/request-promise-native": "^1.0.14",
-    "@types/xmlbuilder": "^0.0.34",
     "body-parser": "^1.18.2",
     "btoa": "^1.2.1",
     "cors": "^2.8.4",
@@ -64,7 +60,11 @@
     "xmlbuilder": "^10.1.1"
   },
   "devDependencies": {
+    "@types/node": "^14.0.11",
     "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "@types/request-promise-native": "^1.0.14",
+    "@types/xmlbuilder": "^0.0.34",
     "assert": "^1.4.1",
     "chai": "^4.1.2",
     "ts-node": "8.10.2",

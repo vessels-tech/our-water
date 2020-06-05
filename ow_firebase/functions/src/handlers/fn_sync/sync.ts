@@ -184,7 +184,7 @@ module.exports = (functions) => {
       }
 
       //TODO: put in proper email addresses
-      const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
+      const run: SyncRun = new SyncRun(orgId, syncId, method as SyncMethod, ['lewis@vesselstech.com']);
       return run.create({firestore});
     })
     .then((run: SyncRun) => {

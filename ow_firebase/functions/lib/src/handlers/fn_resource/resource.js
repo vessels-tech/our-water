@@ -56,6 +56,7 @@ module.exports = (functions) => {
         const orgId = req.params.orgId;
         const { last_createdAt, limit } = req.query;
         // const resourceRef = firestore.collection('org').doc(orgId).collection('resource');
+        //@ts-ignore
         return getOrgs(orgId, last_createdAt, limit)
             .then(snapshot => {
             const resources = [];
@@ -301,6 +302,7 @@ module.exports = (functions) => {
         const { latitude, longitude, distance } = req.query;
         const { orgId } = req.params;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
+        // @ts-ignore
         const result = yield fbApi.resourcesNearLocation(orgId, latitude, longitude, distance);
         if (result.type === AppProviderTypes_1.ResultType.ERROR) {
             next(result.message);

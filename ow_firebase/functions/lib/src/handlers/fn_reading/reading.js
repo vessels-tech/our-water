@@ -36,6 +36,7 @@ module.exports = (functions) => {
     app.get('/:orgId/:resourceId', (req, res, next) => {
         const { orgId, resourceId } = req.params;
         const { last_createdAt, limit } = req.query;
+        // @ts-ignore
         return getReading(orgId, resourceId, last_createdAt, limit)
             .then(snapshot => utils_1.snapshotToResourceList(snapshot))
             .then(resources => res.json(resources))
