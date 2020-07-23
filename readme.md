@@ -14,8 +14,6 @@ OurWater is an open source, whitelabeled version of MyWell.
 
 See the full [documentation here](./docs)
 
-## Screenshots
-
 
 
 ## Getting Started
