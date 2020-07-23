@@ -1,161 +1,98 @@
+# Firebase Cloudstore "Schema"
 
-## Firebase Cloudstore
+We use Cloud Firestore as our database. It has great realtime and offline capabilities, which make OurWater easy to use in field scenarios.
 
-We are using Firebase Cloudstore NoSQL database for our database needs.
+## Collections
 
-Proposed data structure:
+### `org`
 
-
-org
-  |- name
-  |-
-  |---- location (collection)
-         |- type
-         |- shapefile?
-  |
-  |
-  |
-  |
-  |
-  |---- resource (collection)
-          |- type
-          |- latlng
-
-
-
-const locationTypes: {
-  village
-  pincode
-
-}
-
-const resourceTypes: {
-  well
-  checkdam
-  raingauge
-  custom
-}
-
-
-const resourceMetadata: {
-  well
-}
-
-
-
-
-## Cloud Firestore evaluation:
-
-
-good:
-- easy to use
-- visual console
-- database triggers, for really serverless architecture
-- no need for a
-- cheap
-- realtime
-
-
-bad:
-- no geo queries
-- no multiple filters/composite queries
-
-
-
-Can we get around geo queries?
-- add a location id to each resource and reading?
-- only search by boxes?
-  - we can do geo queries with just squares.
-
-
-```js
-resource: {
-  id: string
-  readings: collection,
-  lastReading:
-  location: {
-    latitude:
-    longitude:
-  },
-  type: {
-    well: true,
-    checkdam: false,
-    raingauge: false
-  }
-}
-
-reading: {
-  id:
-  date:
-  value:
-  type: {
-    well: true,
-    checkdam: false,
-    raingauge: false
-  }
-  location: {
-    latitude:
-    longitude:
-  }
-}
+Org is the root collection for our water. The orgId for mywell is `mywell`.
 
 ```
+collection org: {
+  reading: ReadingCollection    
+  resource: ResourceCollection  
+  shortId: ShortIdCollection
+  user: UserCollection
+  sync: Collection              # [deprecated] Was used to sync our water with external data
+  syncRun: Collection           # [deprecated] Was used to sync our water with external data
+}
+```
 
+### `ReadingCollection`
 
-This seems like a better way to structure our data.
-```js
-{
-  org: {
-    groups: {
-      village1: {
-        type: village
+```
+collection reading: {
+  id: string                    # the ID of the reading
+  resourceId: string            # the ID of the resource         
+  value: number                 # the value of the reading. Units (mm, cm, etc. depend on the resource)
+  timeseriesId: string          # the ID of the timeseries - resources can have more than 1 timeseries
+  resourceType: string          # the type of the resource (e.g. Well, Raingauge)
+  datetime: DateTime            # When the reading was recorded
+  createdAt: DateTime           # when this reading resource was created
+  updatedAt: DateTime           # when this reading resource was last modified
+  coords: LatLng                # the geolocation of the reading
+  docName: 'reading'            # the firestore document name 
+  externalIds: {}               # a map of external Ids for legacy support
+  groups: {}                    # a map of tags or groups that this reading belongs to  
+  isLegacy: boolean             # whether or not this reading was imported from legacy MyWell
+}
+```
 
-      },
-      india: {
-        type: country
-      },
-      pincode123456: {
-        type: pincode
-      }
-    },
-    resource: {
-      one: {
-        lastReading:
-        latLng:
-        name:
-        owner:
-        average:
-        type:
-        // This is an index?
-        groups: {
-          village1: true,
-          india: true,
-        }
-      }
-    },
-    reading: {
-      r1: {
-        resourceId: one
-        value: 12.4,
-        datetime: 2018-01-01...
-        latLng:
-        groups: {
-          village1: true
-        }
-      }
+### `ResourceCollection`
+
+A Resource is a location that is monitored over time. Resources can have more than 1 timeseries, allowing for multiple readings of different types to be attached to a resource at the same time.
+
+```
+collection resource: {
+  id: string                      # the ID of the resource       
+  timeseriesId: {                 # a map of separate timeseries tracked for this resource      
+    default: {
+      id: default
     }
   }
+  resourceType: string            # the type of the resource being created
+  lastReadingDateTime: Datetime   # when the last reading was recorded for this resource
+  createdAt: DateTime             # when this reading resource was created
+  updatedAt: DateTime             # when this reading resource was last modified
+  coords: LatLng                  # the geolocation of the reading
+  docName: 'reading'              # the firestore document name 
+  externalIds: {}                 # a map of external Ids for legacy support
+  groups: {}                      # a map of tags or groups that this resource belongs to  
+  orgId: string                   # the orgId of this resource
+  owner: {
+    createdByUserId: string       # the id of the user who created this resource
+    name: string                  # the short name of the user who created this resource           
+  }
 }
-
-//Maybe instead of nesting:
-org/orgId/reading/resourceId/value/readingId, we should have a resourceId field on reading...
-
-
-
 ```
 
-challenges with this approach:
+### `ShortIdCollection`
 
-- we need to make sure that update fields properly
+A `shortId` is a simple, user-facing alias system we use to make it easy to refer to resourceIds. 
 
+To ensure global uniqueness of resources, we use the default generated ids from firebase, then attach a the shortId to make sharing ids easy.
 
+```
+collection shortId {
+  id: string[9]
+  longId: string
+}
+```
+
+### `user`
+
+The `user` collection represents a user within the system
+
+```
+collection user {
+  email: string
+  name: string
+  nickname: string
+  status: 'Approved' | 'Unapproved' | 'Rejected' 
+  type: 'User' | 'Admin'
+  recentResources: Array<Resource>                 # a list of recently viewed resources
+  favouriteResources: Array<Resource>              # a list of resources the user has 'starred'
+  newResources: Map<id, NewResource>               # a map of user added resources
+}
+```
