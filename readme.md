@@ -4,9 +4,9 @@ OurWater is an open source, whitelabeled version of MyWell.
 
 
 <div>
-  <img src="./docs/images/screenshots/01.jpg" width="350">
-  <img src="./docs/images/screenshots/02.jpg" width="350">
-  <img src="./docs/images/screenshots/03.jpg" width="350">
+  <img src="./docs/images/screenshots/01.jpg" width="250">
+  <img src="./docs/images/screenshots/02.jpg" width="250">
+  <img src="./docs/images/screenshots/03.jpg" width="250">
 </div>
 
 
