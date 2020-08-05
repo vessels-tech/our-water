@@ -3,6 +3,19 @@
 OurWater is an open source, whitelabeled version of MyWell. 
 
 
+<div>
+  <img src="./docs/images/screenshots/01.jpg" width="250">
+  <img src="./docs/images/screenshots/02.jpg" width="250">
+  <img src="./docs/images/screenshots/03.jpg" width="250">
+</div>
+
+
+## Documentation
+
+See the full [documentation here](./docs)
+
+
+
 ## Getting Started
 
 ### Env Files
@@ -14,11 +27,9 @@ Refer to `example.env.deployment.sh` and `example.env.org.stage.sh` for the .env
 `example.env.firebase.stage.sh` for the .env files for ow_firebase.
 
 
-
 ## Installing
 
 OurWater is comprised of several sub-projects, which are maintained in this repo.
-
 
 ```
 .
@@ -56,10 +67,6 @@ make install
 
 make run-local                 #run the local firebase server
 ```
-
-## Documentation
-
-The OurWater documentation is still a work in progress. We plan on releasing a gitbook and printable user reference, but until then, refer to the [docs here](./docs)
 
 
 ## Testing

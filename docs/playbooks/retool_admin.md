@@ -1,10 +1,6 @@
-#Retool Admin
+# Retool Snippets
 
-We're trying out Retool to build the admin tools quickly and easily.
-
-
-
-
+Some handy snippets for retool
 
 ## Editing a resource:
 
