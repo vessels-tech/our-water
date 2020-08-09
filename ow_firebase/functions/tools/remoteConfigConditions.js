@@ -1,19 +1,21 @@
-const conditionKeys = ['ggmn_android', 'ggmn_dev_android', 'mywell_android'];
-const conditions = [
+const conditionKeys = ['ggmn_debug_android', 'ourwater_generic', 'mywell_debug_android'];
+
+
+const conditions =  [
   {
-    "name": "ggmn_android",
-    "expression": "app.id == '1:276292750755:android:d585f9c74dcfe925' && device.os == 'android'",
+    "name": "ggmn_debug_android",
+    "expression": "app.id == '1:329144717293:android:b9afcac37667ce3e'",
+    "tagColor": "LIME"
+  },
+  {
+    "name": "ourwater_generic",
+    "expression": "app.id == '1:329144717293:android:5d80f97eab15655d'",
     "tagColor": "BLUE"
   },
   {
-    "name": "ggmn_dev_android",
-    "expression": "app.id == '1:276292750755:android:b9afcac37667ce3e' && device.os == 'android'",
-    "tagColor": "BROWN"
-  },
-  {
-    "name": "mywell_android",
-    "expression": "app.id == '1:276292750755:android:360c7a8185712f0f' && device.os == 'android'",
-    "tagColor": "GREEN"
+    "name": "mywell_debug_android",
+    "expression": "app.id == '1:329144717293:android:e99123f734af0faa'",
+    "tagColor": "TEAL"
   }
 ];
 

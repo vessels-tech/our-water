@@ -44,9 +44,9 @@ module.exports = (functions) => {
 
   /**
    * GenerateQRCode
-   * 
+   *
    * Generate a QR code for a given id.
-   * 
+   *
    */
   const generateQRCodeValidation = {
     options: {
@@ -62,8 +62,8 @@ module.exports = (functions) => {
     const { orgId } = req.params;
     const fbApi = new FirebaseApi(firestore);
 
-    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, id));
-    const buffer = unsafeUnwrap(await getWholeQR(orgId, shortId.shortId, id));
+    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, <any>id));
+    const buffer = unsafeUnwrap(await getWholeQR(orgId, shortId.shortId, <any>id));
 
     res.json(buffer.toString('base64'));
   });
@@ -75,8 +75,8 @@ module.exports = (functions) => {
 
     const fbApi = new FirebaseApi(firestore);
 
-    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, id));
-    const buffer = unsafeUnwrap(await getWholeQR(orgId, shortId.shortId, id));
+    const shortId = unsafeUnwrap(await fbApi.createShortId(orgId, <any>id));
+    const buffer = unsafeUnwrap(await getWholeQR(orgId, (<any>shortId).shortId, <any>id));
     const file = `/tmp/qr_${id}.png`;
     fs.writeFileSync(file, buffer);
 
@@ -86,10 +86,10 @@ module.exports = (functions) => {
   /**
    * Download Readings for Resources
    * GET /:orgId/downloadReadings
-   * 
+   *
    * eg: /test_12348/downloadReadings?resourceIds=00001%2C00002%2C00003
-   * 
-   * Download a list of readings for a given resource. 
+   *
+   * Download a list of readings for a given resource.
    * resourceIds must be a comma separated list of resourceIds
    */
   const getReadingsValidation = {
@@ -106,12 +106,12 @@ module.exports = (functions) => {
     const { orgId } = req.params;
     const readingApi = new ReadingApi(firestore, orgId);
 
-    resourceIds = resourceIds.split(',');
+    resourceIds = (<any>resourceIds).split(',');
     if (resourceIds.length > 50) {
       throw new Error("Too many resourceIds. Max is 50");
     }
 
-    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceIds, { limit: 100 }));
+    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(<any>resourceIds, { limit: 100 }));
     if (readings.readings.length === 0) {
       const error = new Error(`No readings found for ids: ${resourceIds}`);
       return res.status(404).send(error);
@@ -128,10 +128,10 @@ module.exports = (functions) => {
   /**
    * Download Readings images for a single resource
    * GET /:orgId/downloadReadingImages
-   * 
+   *
    * eg: /test_12348/downloadReadings?resourceIds=00001
-   * 
-   * Download a list of readings for a given resource. 
+   *
+   * Download a list of readings for a given resource.
    * resourceIds must be a comma separated list of resourceIds
    */
   const getReadingImagesValidation = {
@@ -148,7 +148,7 @@ module.exports = (functions) => {
     const { orgId } = req.params;
     const readingApi = new ReadingApi(firestore, orgId);
 
-    resourceId = resourceId.split(',');
+    resourceId = (<any>resourceId).split(',');
     if (resourceId.length > 1) {
       const error = new Error("Can only download reading images for one resource at a time");
       return res.status(400).send(error);
@@ -161,13 +161,13 @@ module.exports = (functions) => {
     console.log("resourceId is", resourceId);
 
 
-    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(resourceId, { limit: 200 }));
+    const readings = unsafeUnwrap(await readingApi.getReadingsForResources(<any>resourceId, { limit: 200 }));
     if (readings.readings.length === 0) {
       const error = new Error(`No readings found for ids: ${resourceId}`);
       return res.status(404).send(error);
     }
 
-    //Get a zip file containing all images 
+    //Get a zip file containing all images
     const readingImagesBase64: Array<{id: string, base64: string}> = ExportApi.exportReadingImages(readings.readings);
     if (readingImagesBase64.length === 0) {
       const error = new Error(`No images found for readings for resourceId: ${resourceId}`);
@@ -199,9 +199,9 @@ module.exports = (functions) => {
 
   /**
    * getReadingImage
-   * 
+   *
    * View a reading image for a given readingId. Returns a simple webpage
-   * 
+   *
    */
   app.get('/:orgId/image/:readingId', async (req, res) => {
     const { orgId, readingId } = req.params;
@@ -214,7 +214,7 @@ module.exports = (functions) => {
 
   /**
  * Upload profile image, and save to firebase
- * 
+ *
  * image should be called `image`
  */
   app.post('/:orgId/uploadImage', async function (req, res) {
@@ -253,7 +253,7 @@ module.exports = (functions) => {
   });
 
 
- 
+
   /* CORS Configuration */
   const openCors = cors({ origin: '*' });
   app.use(openCors);

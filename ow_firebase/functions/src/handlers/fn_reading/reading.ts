@@ -49,7 +49,7 @@ module.exports = (functions) => {
     const { orgId, resourceId } = req.params;
     const { last_createdAt, limit } = req.query;
 
-    return getReading(orgId, resourceId, last_createdAt, limit)
+    return getReading(orgId, resourceId, <any>last_createdAt, <any>limit)
     .then(snapshot => snapshotToResourceList(snapshot))
     .then(resources => res.json(resources))
     .catch(err => next(err));
@@ -59,7 +59,7 @@ module.exports = (functions) => {
   /**
    * saveReading
    * Records a new reading for a given orgId + resourceId
-   * 
+   *
    * Example:
    * "data" {
    *   "datetime":"2018-04-28T09:40:38.460Z",
@@ -112,7 +112,7 @@ module.exports = (functions) => {
   /**
    * legacy_saveReading
    * Records a reading from the legacy MyWell System
-   * 
+   *
    * @param {string} orgId - the organisation id
    * @param {string} legacyResourceId - a lecacy resourceId, of the format `pincode.resourceId`, eg 313603.1120
    */
@@ -130,7 +130,7 @@ module.exports = (functions) => {
           const error = new Error(`No legacy resource found for legacyResourceId: ${legacyResourceId}`);
           return Promise.reject(error);
         }
-        
+
         if (resources.length > 1) {
           console.error(`Found ${resources.length} resources for legacyResourceId: ${legacyResourceId}. Expected 1.`);
         }
