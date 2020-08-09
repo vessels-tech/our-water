@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LineChart } from 'react-native-svg-charts';
 import { TimeseriesRange } from '../../typings/models/OurWater';
 import { View, StyleSheet, StyleProp, TextStyle } from 'react-native';
-import * as moment from 'moment';
+import moment from 'moment';
 import { PendingReading } from '../../typings/models/PendingReading';
 import { AnyOrPendingReading } from '../../reducers';
 //@ts-ignore

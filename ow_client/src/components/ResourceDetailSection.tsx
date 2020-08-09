@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Avatar, Button, Text } from 'react-native-elements';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 import Loading from './common/Loading';
 import StatCard from './common/StatCard';

@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
+import { View, TouchableNativeFeedback, ToastAndroid, EmitterSubscription } from 'react-native';
 import { randomPrettyColorForId, navigateTo, getShortIdOrFallback, unwrapUserId } from '../utils';
 //@ts-ignore
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -52,7 +52,8 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State = {
     isScreenFocussed: true,
   };
-  navigationListener: any;
+  navigationListenerDidAppear: EmitterSubscription;
+  navigationListenerDidDisappear: EmitterSubscription;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -60,7 +61,13 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
 
-    this.navigationListener = this.props.navigator.addOnNavigatorEvent((event: any) => this.onNavigationEvent(event));
+    this.navigationListenerDidAppear = Navigation.events().registerComponentDidAppearListener(() => {
+      this.setState({isScreenFocussed: true});
+    });
+    
+    this.navigationListenerDidDisappear = Navigation.events().registerComponentDidDisappearListener(() => {
+      this.setState({isScreenFocussed: false});
+    });
 
     /* binds */
     this.onScan = this.onScan.bind(this);
@@ -68,18 +75,8 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   componentWillUnmount() {
     //Remove the listener. For some reason this still causes setState issues
-    this.navigationListener();
-  }
-
-  onNavigationEvent(event: any) {
-    switch(event.id) {
-      case 'willAppear': 
-        this.setState({isScreenFocussed: true});
-      break;
-      case 'willDisappear':
-        this.setState({ isScreenFocussed: false });
-      break;
-    }
+    this.navigationListenerDidAppear.remove();
+    this.navigationListenerDidDisappear.remove();
   }
 
   handleScanError() {

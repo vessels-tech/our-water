@@ -14,10 +14,9 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { bgLight } from '../../utils/Colors';
 import { crashlyticsLog } from '../../utils';
 
-
 export interface OwnProps {
   config: ConfigFactory,
-  userId: string,
+  userId: string
 }
 
 export interface StateProps {
@@ -70,7 +69,7 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props.translation.templates
 
     return (
-      <View 
+      <View
         style={{
           flexDirection: 'column',
           height: '50%',
@@ -97,7 +96,6 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
             await this.props.changeTranslation(this.userApi, this.props.userId, translation);
             crashlyticsLog(`Changed Language to: ${this.getTranslationLabel(translation)}`);
             ToastAndroid.show(select_language_popup(this.getTranslationLabel(translation)), ToastAndroid.SHORT);
-            this.props.navigator.dismissLightBox();
           }}
         >
           {this.props.translationOptions.map(tr => <Picker.Item key={tr} label={this.getTranslationLabel(tr)} value={tr} />)}
@@ -108,7 +106,7 @@ class ClassName extends Component<OwnProps & StateProps & ActionProps> {
 }
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  
+
   return {
     selectedTranslation: state.language,
     translation: state.translation,
@@ -119,7 +117,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    changeTranslation: (api: UserApi, userId: string, translation: TranslationEnum) => 
+    changeTranslation: (api: UserApi, userId: string, translation: TranslationEnum) =>
       dispatch(appActions.changeTranslation(api, userId, translation))
   }
 }

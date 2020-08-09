@@ -6,7 +6,7 @@ $(shell touch /tmp/ow_env)
 PATH := node_modules/.bin:$(PATH)
 PROJECT = "OW_CLIENT"
 include .ow_config
-include /tmp/ow_env 
+include /tmp/ow_env
 dir = $(shell pwd)
 devBuildNumber = $(shell date +%s)
 buildNumber= $(shell cat ${dir}/../env/buildnumber)
@@ -68,7 +68,7 @@ switch-mywell-prod:
 #
 # runs the local bundler server
 #
-server: 
+server:
 	@make env
 	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
 	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start \
@@ -152,7 +152,7 @@ build-production:
 	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -c -v 4 app-release-signed-aligned.apk
 
 install-android:
-	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
+	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install -r app-debug.apk
 
 install-android-production:
 	cd ${dir}/android/app/build/outputs/apk/release/ && adb install -r app-release-signed-aligned.apk
@@ -179,4 +179,4 @@ hockey:
 		fastlane upload_hockey
 
 
-.PHONY: server android clean 
+.PHONY: server android clean

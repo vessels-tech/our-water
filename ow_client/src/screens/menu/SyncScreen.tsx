@@ -11,7 +11,6 @@ import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, getUnitSuffixForPendingResource } from '../../utils';
 import { error1, primary, primaryDark, bgLight, secondaryLight, secondaryText, primaryText } from '../../utils/Colors';
-import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
@@ -101,11 +100,11 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 
   getSyncSection() {
-    const { 
-      externalLoginDetails, 
-      externalSyncStatus, 
+    const {
+      externalLoginDetails,
+      externalSyncStatus,
       pendingSavedResources,
-      pendingSavedReadings, 
+      pendingSavedReadings,
       translation: { templates: {
         settings_sync_heading,
         sync_login_message,
@@ -231,7 +230,7 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
       edit_resource_delete_modal_ok,
       edit_resource_delete_modal_cancel,
     } = this.props.translation.templates;
-    
+
     Alert.alert(
       edit_resource_delete_modal_title,
       edit_resource_delete_modal_text,
@@ -266,13 +265,13 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getResourcesSection() {
-    const { 
-      pendingSavedResources, 
+    const {
+      pendingSavedResources,
       externalSyncStatus,
-      translation: { 
+      translation: {
         templates: {
           sync_section_resources,
-        } 
+        }
       }
     } = this.props;
     const {
@@ -306,15 +305,15 @@ class SyncScreen extends Component<OwnProps & StateProps & ActionProps> {
             }
             return this.resourceListItem(resource, idx, message);
           }) }
-         
+
       </View>
     )
   }
 
   getReadingsSection() {
-    const { 
-      pendingSavedReadings, 
-      translation: { 
+    const {
+      pendingSavedReadings,
+      translation: {
         templates: {
           sync_section_resources,
           sync_section_readings,
@@ -407,9 +406,9 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    startExternalSync: (appApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) => 
+    startExternalSync: (appApi: BaseApi, api: MaybeExternalServiceApi, userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]) =>
       dispatch(appActions.startExternalSync(appApi, api, userId, pendingResources, pendingReadings)),
-    deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) => 
+    deletePendingResource: (api: BaseApi, userId: string, pendingResourceId: string) =>
       dispatch(appActions.deletePendingResource(api, userId, pendingResourceId)),
     deletePendingReading: (api: BaseApi, userId: string, pendingReadingId: string, resourceId: string) =>
       dispatch(appActions.deletePendingReading(api, userId, pendingReadingId, resourceId))

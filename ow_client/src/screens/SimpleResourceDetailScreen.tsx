@@ -1,6 +1,6 @@
 /**
  * SimpleResourceScreen
- * 
+ *
  * Displays a list of the recent and favourite resources for the user's selected
  * resource type. If there are no recent or favourites, presents some text with an explanation
  * of how to find resources using the search or QR Code (and maybe map?)
@@ -74,7 +74,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
   }
 
   componentDidMount() {
-    
+
     if (this.props.shortId) {
       Navigation.mergeOptions(NavigationStacks.Root, {topBar: { title: { text: this.props.shortId }}})
     } else {
@@ -106,18 +106,20 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
       resourceId,
       config: this.props.config,
       resourceType: this.props.resourceType
-    })
+    }).then(id => console.log(id))
   }
 
-  onAddReadingPressed(resourceId: string) { 
+  onAddReadingPressed(resourceId: string) {
     const { resource_detail_new } = this.props.translation.templates;
 
-    navigateToNewReadingScreen(this.props, resource_detail_new, {
+    showModal(this.props, 'screen.NewReadingScreen', resource_detail_new, {
       groundwaterStationId: null, //TD for ggmn only
       resourceId,
       resourceType: this.props.resourceType,
       config: this.props.config,
-    });
+    }, );
+
+
   }
 
   onSyncButtonPressed() {
@@ -149,7 +151,7 @@ class SimpleResourceDetailScreen extends React.PureComponent<OwnProps & StatePro
 
   getResourceDetailSection() {
     const { isPending } = this.props;
-    const { 
+    const {
       settings_pending_heading,
       resource_detail_sync_required,
     } = this.props.translation.templates;
@@ -194,7 +196,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
   if (!meta) {
     meta = { loading: false, error: true, errorMessage: 'Something went wrong.' };
   }
-  
+
 
   maybeResource = state.resources.find((r) => r.id === ownProps.resourceId);
   if (!maybeResource) {maybeResource = state.pendingSavedResources.find((r) => r.id === ownProps.resourceId);}

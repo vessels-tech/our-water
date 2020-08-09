@@ -150,7 +150,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     //Listen to events from the navigator
     EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
   }
-  
+
   componentWillUpdate(nextProps: OwnProps & StateProps & ActionProps & DebugProps, nextState: State, nextContext: any) {
     renderLog("HomeMapScreen componentWillUpdate():");
     renderLog("     - ", diff(this.props, nextProps));
@@ -178,7 +178,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
     //Update the initial region if applicable:
     if (this.state.initialRegion) {
-     if (this.state.initialRegion.latitude === initialLat && 
+     if (this.state.initialRegion.latitude === initialLat &&
       this.state.initialRegion.longitude === initialLng) {
         const initialRegion = {
           ...this.state.initialRegion,
@@ -208,7 +208,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         }
       });
 
-      //Also check to see if its in the favourites or recents - this is a little hacky as it will technically be 
+      //Also check to see if its in the favourites or recents - this is a little hacky as it will technically be
       //hard/impossible to a well from being visible even though it may be deleted
       //
       // TD - store selected resource globally, instead of implying it like this.
@@ -226,7 +226,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
         });
       }
 
-      
+
       if (!this.state.selectedResource.pending && !updatedSelectedResource) {
         this.setState({ selectedResource: null, hasSelectedResource: false });
         return;
@@ -300,9 +300,9 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
   /**
    * loadResourcesPaginated
-   * 
+   *
    * Recursively calls itself with the resulting cursor.
-   * Loads all of the resources a given region. 
+   * Loads all of the resources a given region.
    * We should probably have a max limit or something.
    */
   async loadResourcesPaginated(region: Region, cursor: Cursor, currentRequestId: number): Promise<any> {
@@ -379,7 +379,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
 
   /**
    * Handle when a user clicks a result from the search screen.
-   * 
+   *
    */
   async onSearchResultPressed(r: AnyResource): Promise<void> {
     const { translation: { templates: { app_resource_not_found } } } = this.props;
@@ -458,23 +458,17 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
       groundwaterStationId = selectedResource.groundwaterStationId;
     }
 
-    navigateToNewReadingScreen(this.props, resource_detail_new, {
-      groundwaterStationId: null,
-      resourceId,
-      resourceType: 'well', //TD: GGMN only
-      // isResourcePending: false, //TD: Set to false as it's not important for MyWell
-      config: this.props.config,
-    });
-
-
-    // navigateTo(this.props, 'screen.NewReadingScreen', resource_detail_new, {
-    //   resourceId,
-    //   groundwaterStationId,
-    //   //TODO: fix
-    //   resourceType: 'well',
-    //   config: this.props.config,
-    //   userId: this.props.userId
-    // });
+    showModal(
+      this.props,
+      'screen.NewReadingScreen',
+      resource_detail_new,
+      {
+        groundwaterStationId: null,
+        resourceId,
+        resourceType: 'well', //TD: GGMN only
+        // isResourcePending: false, //TD: Set to false as it's not important for MyWell
+        config: this.props.config,
+      });
   }
 
   onEditReadingsPressed(resourceId: string) {
@@ -515,7 +509,7 @@ class HomeMapScreen extends Component<OwnProps & StateProps & ActionProps & Debu
     if (loadingSearchResult) {
       return <PassiveLoadingIndicator />
     }
-    
+
     return null;
   }
 

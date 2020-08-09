@@ -51,7 +51,7 @@ import {
 } from "../../api/ExtendedResourceApi";
 import { TranslationFile } from "ow_translations/src/Types";
 import { AnyResource } from "../../typings/models/Resource";
-import { unwrapUserId, debounced, maybeLog } from "../../utils";
+import { unwrapUserId, debounced, maybeLog, dismissModal } from '../../utils';
 import { isNullOrUndefined } from "util";
 //@ts-ignore
 import { callingCountries } from "country-data";
@@ -561,7 +561,7 @@ class EditResourceScreen extends Component<Props> {
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
-    this.props.navigator.dismissModal();
+    await dismissModal() // dismisses last shown modal
   };
 
   displayDeleteModal() {
@@ -583,7 +583,7 @@ class EditResourceScreen extends Component<Props> {
     );
   }
 
-  handleDelete() {
+  async handleDelete() {
     if (this.props.resource) {
       this.props.deletePendingResource(
         this.appApi,
@@ -591,7 +591,8 @@ class EditResourceScreen extends Component<Props> {
         this.props.resource.id
       );
     }
-    this.props.navigator.dismissModal();
+
+    await dismissModal() // dismisses last shown modal
   }
 
   /**
@@ -770,9 +771,6 @@ class EditResourceScreen extends Component<Props> {
           >
             <ScrollView
               ref={sv => (this.scrollView = sv)}
-              onScroll={(event: any) =>{
-                maybeLog("scroll offset", event.nativeEvent.contentOffset.y);
-              }}
               style={{
                 height: "100%",
                 paddingBottom: fixedButtonHeight
