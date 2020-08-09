@@ -167,12 +167,9 @@ Promise.resolve(true)
 
         Navigation.mergeOptions(ev.componentId, {
           topBar: {
-            leftButtons: [
-              { id: NavigationButtons.SideMenu, icon: menuIcon }
-            ],
-            rightButtons: [
-              { id: NavigationButtons.Search, icon: searchIcon }
-            ]
+            leftButtons: [{ id: NavigationButtons.SideMenu, icon: menuIcon }],
+            rightButtons: [{ id: NavigationButtons.Search, icon: searchIcon }],
+            title: { text: config.getApplicationName() }
           }
         });
         break;
