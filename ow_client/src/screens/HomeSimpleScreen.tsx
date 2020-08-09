@@ -70,13 +70,14 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
         userId: this.props.userId,
         // TODO: AnyResource needs to be something else
         onSearchResultPressed: this.onSearchResultPressed,
+        onSearchResultPressedV1: this.onSearchResultPressed
       });
     }
   }
 
   /**
    * Handle when a user clicks a result from the search screen.
-   * 
+   *
    */
   async onSearchResultPressed(r: PartialResourceResult | PlaceResult): Promise<void> {
     const {
@@ -102,7 +103,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             initialRegion: {
               latitude: r.coords.latitude,
               longitude: r.coords.longitude,
-              //TODO: improve this calculation to make more accurate to the 
+              //TODO: improve this calculation to make more accurate to the
               // latitudeDelta: Math.abs(r.boundingBox[0] - r.boundingBox[2]) / 2,
               // longitudeDelta: Math.abs(r.boundingBox[1] - r.boundingBox[3]) / 2,
               latitudeDelta: 10,
@@ -118,8 +119,8 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   /**
    * A list of the reading options: Groundwater, Rainfall, Checkdam and Water Quality
-   * 
-   * //TODO: Load only the icons based on user's settings 
+   *
+   * //TODO: Load only the icons based on user's settings
    */
   getMenuButtons() {
     const { menu_well, menu_rainfall, menu_water_quality, menu_checkdam } = this.props;
@@ -130,7 +131,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
       menu_new_text,
       settings_map,
     } = this.props.translation.templates;
-    
+
     const presentResourceScreen = (pluralResourceName: string, resourceType: ResourceType): void => {
       navigateTo(this.props, 'screen.SimpleResourceScreen', pluralResourceName, {
         config: this.props.config,
@@ -194,7 +195,7 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             size={17}
           />
         </Toolbar>
-        
+
 
         {/* Menu Buttons */}
         <View style={{
@@ -207,12 +208,12 @@ class HomeSimpleScreen extends Component<OwnProps & StateProps & ActionProps> {
             flexDirection: 'row',
             flex: 1,
           }}>
-            <MenuButtonEx 
+            <MenuButtonEx
               color={menuColors[0]}
               name={menu_well}
               onPress={() => presentResourceScreen('Wells', ResourceType.well)}
             />
-            <MenuButtonEx 
+            <MenuButtonEx
               color={menuColors[1]}
               name={menu_rainfall}
               onPress={() => presentResourceScreen('Raingauges', ResourceType.raingauge)}

@@ -44,14 +44,14 @@ function addFavouriteRequest(resource: AnyResource): AddFavouriteActionRequest {
   return {
     type: ActionType.ADD_FAVOURITE_REQUEST,
     resource,
-  } 
+  }
 }
 
 function addFavouriteResponse(result: SomeResult<void>): AddFavouriteActionResponse {
   return {
     type: ActionType.ADD_FAVOURITE_RESPONSE,
     result,
-  } 
+  }
 }
 
 
@@ -62,7 +62,7 @@ export function addRecent(api: BaseApi, userId: string, resource: AnyResource): 
   return async function (dispatch: any) {
     dispatch(addRecentRequest(resource));
     const result = await api.addRecentResource(resource, userId);
-    await 
+    await
     dispatch(addRecentResponse(result));
   }
 }
@@ -119,7 +119,7 @@ export function connectToExternalService(api: MaybeExternalServiceApi, username:
       return;
     }
 
-    let result: SomeResult < LoginDetails | EmptyLoginDetails>; 
+    let result: SomeResult < LoginDetails | EmptyLoginDetails>;
     const details = await api.connectToService(username, password);
     if (details.status === ConnectionStatus.SIGN_IN_ERROR) {
       ToastAndroid.show(tempErrorMessage, ToastAndroid.SHORT);
@@ -132,7 +132,7 @@ export function connectToExternalService(api: MaybeExternalServiceApi, username:
         type: ResultType.SUCCESS,
         result: details
       }
-    }    
+    }
     dispatch(connectToExternalServiceResponse(result));
 
     //Load the needed organisations
@@ -208,17 +208,17 @@ function deletePendingReadingResponse(result: SomeResult<void>, resourceId: stri
     resourceId,
     pendingReadingId,
   }
-} 
+}
 
 
 /**
- * Async delete pending resources. 
- * 
+ * Async delete pending resources.
+ *
  * If there are pending readings associated with the resource, these will be deleted as well.
  */
 export function deletePendingResource(api: BaseApi, userId: string, pendingResourceId: string): any {
   return async function(dispatch: any) {
-    dispatch(deletePendingResourceRequest()); 
+    dispatch(deletePendingResourceRequest());
     const result = await api.deletePendingResource(userId, pendingResourceId);
     dispatch(deletePendingResourceResponse(result));
   }
@@ -242,7 +242,7 @@ function deletePendingResourceResponse(result: SomeResult<void>): DeletePendingR
  */
  export function getBulkPendingReadings(result: SomeResult<Array<PendingReading>>) {
    return async function(dispatch: any) {
-    //For each pending reading's resourceId, call update readings  
+    //For each pending reading's resourceId, call update readings
     dispatch(getPendingReadingsResponse(result));
     if (result.type === ResultType.ERROR) {
       return;
@@ -347,7 +347,7 @@ function getGeoLocationResponse(result: SomeResult<Location>): GetLocationAction
 
 /**
  * Get pending readings callback
- * 
+ *
  * triggered by a firebase listener
  */
 export function getPendingReadingsResponse(result: SomeResult<PendingReading[]>): GetPendingReadingsResponse {
@@ -359,7 +359,7 @@ export function getPendingReadingsResponse(result: SomeResult<PendingReading[]>)
 
 /**
  * Get pending readings callback
- * 
+ *
  * triggered by a firebase listener
  */
 export function getPendingResourcesResponse(result: SomeResult<PendingResource[]>): GetPendingResourcesResponse {
@@ -464,7 +464,7 @@ export function getResources(api: BaseApi, userId: string, region: Region): (dis
 
 
     const result = await api.getResourcesWithinRegion(region);
-    
+
     //Load the shortIds for each resource in the response
     //TD - check the cache first
     //TD - if just one of the loads fails, none of the others will end up in the cache
@@ -507,7 +507,7 @@ export function getResourcesPaginated(api: BaseApi, userId: string, region: Regi
   return async (dispatch: any) => {
     dispatch(getResourcesRequest());
     const result = await api.getResourcesWithinRegionPaginated(region, cursor);
-    
+
     //Load the shortIds for each resource in the response
     //TD - check the cache first
     //TD - if just one of the loads fails, none of the others will end up in the cache
@@ -647,7 +647,7 @@ export function passOnUserSubscription(unsubscribe: () => void): any {
 
 /**
  * Async search for resources
- * 
+ *
  * TD: Code smell, boolean switches are bad
  */
 export function performSearch(api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean): any {
@@ -658,17 +658,19 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
       //TODO: figure out pagination
       const searchResult = await api.performSearchV2(searchQuery);
       dispatch(performSearchResponseV2(searchResult))
-      
+
       if (searchResult.type !== ResultType.ERROR) {
         const allResultsCount = searchResult.result.reduce((acc, curr) => {
           if (curr.type === ResultType.ERROR) {
             return acc;
           }
-          
+
           return acc + curr.result.results.length;
         }, 0);
         if (allResultsCount > 0) {
-          await api.saveRecentSearch(userId, searchQuery);
+          if (userId) {
+            await api.saveRecentSearch(userId, searchQuery);
+          }
         }
       }
       return searchResult;
@@ -680,7 +682,9 @@ export function performSearch(api: BaseApi, userId: string, searchQuery: string,
 
     if (searchResult.type !== ResultType.ERROR) {
       if (searchResult.result.resources.length > 0) {
-        await api.saveRecentSearch(userId, searchQuery);
+        if (userId) {
+          await api.saveRecentSearch(userId, searchQuery);
+        }
       }
     }
     return searchResult;
@@ -736,14 +740,14 @@ export function removeFavourite(api: BaseApi, userId: string, resourceId: string
 function removeFavouriteRequest(): RemoveFavouriteActionRequest {
   return {
     type: ActionType.REMOVE_FAVOURITE_REQUEST,
-  } 
+  }
 }
 
 function removeFavouriteResponse(result: SomeResult<void>): RemoveFavouriteActionResponse {
   return {
     type: ActionType.REMOVE_FAVOURITE_RESPONSE,
     result,
-  } 
+  }
 }
 
 /**
@@ -790,13 +794,13 @@ function saveReadingResponse(result: SomeResult<SaveReadingResult>, pendingReadi
 /**
  * Async save resource
  */
-export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource ): 
+export function saveResource(api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resource: AnyResource | PendingResource ):
   (dispatch: any) => Promise<SomeResult<SaveResourceResult>> {
   return async (dispatch: any) => {
     dispatch(saveResourceRequest());
     const result = await api.saveResource(userId, resource);
 
-    dispatch(saveResourceResponse(result));    
+    dispatch(saveResourceResponse(result));
 
     //Attempt to do a sync, only this resource
     if (externalApi.externalServiceApiType === ExternalServiceApiType.Has && resource.pending === true){
@@ -858,7 +862,7 @@ export function setExternalOrganisation(api: MaybeExternalServiceApi, organisati
 
 /**
  * Get the user's email and trigger a resource creation email
- * 
+ *
  * //TODO: should we pass in pending resources?
  */
 export function sendResourceEmail(api: MaybeExternalServiceApi, user: MaybeUser, username: string, pendingResources: PendingResource[], pendingReadings: PendingReading[], translation: TranslationFile): (dispatch: any) => Promise<SomeResult<void>> {
@@ -984,7 +988,7 @@ console.log('run external sync')
     // result = makeError<ExternalSyncStatusComplete>("nothing");
 
     /*
-      TODO: 
+      TODO:
       - update runExternalSync to return an updated resource after the sync
       - make actions and handlers for an updated resource, which updates the state:
         resources, resourceCache, favouriteResources, recentResources and readings
@@ -996,7 +1000,7 @@ console.log('run external sync')
 
       if (result.result.newResources.length === 0) {
         return;
-      } 
+      }
 
       //This is just a random guess. //TD: Make this calcualtion smarter
       const safeArea = safeAreaFromPoint(result.result.newResources[0].coords)
@@ -1024,8 +1028,8 @@ function externalSyncResponse(result: SomeResult<ExternalSyncStatusComplete>): S
 
 /**
  * Useful to mock out responses and load loading indicators
- * 
- * eg: 
+ *
+ * eg:
  * const result = await wait<SomeResult<ExternalSyncStatusComplete>>(makeError<ExternalSyncStatusComplete>("OH NO!"));
  */
 function wait<T>(output: T): Promise<T> {
@@ -1038,13 +1042,13 @@ function wait<T>(output: T): Promise<T> {
 
 /**
  * startInternalSync
- * 
+ *
  * Run a sync where we save Resources and Readings from the user's private collections to
  * the public
  */
 export function startInternalSync(api: BaseApi, userId: string): (dispatch: any) => Promise<SomeResult<ExternalSyncStatusComplete>> {
   return async function (dispatch: any) {
-   
+
     dispatch(internalSyncRequest());
     const result = await api.runInternalSync(userId);
     dispatch(internalSyncResponse(result));

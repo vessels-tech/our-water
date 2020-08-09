@@ -42,7 +42,7 @@ Promise.resolve(true)
 .catch(err => {
   console.log("Error getting remote config", err);
   console.log("Defaulting to local config.");
-  
+
   switch (Config.CONFIG_TYPE) {
     case 'GGMNDevConfig':
       return GGMNDevConfig;
@@ -153,7 +153,7 @@ Promise.resolve(true)
       });
     break;
     }
-    default: 
+    default:
       throw new Error(`Unknown home screen type: ${config.getHomeScreenType()}`);
   }
 
@@ -164,7 +164,7 @@ Promise.resolve(true)
           MaterialIcons.getImageSource('menu', 25),
           MaterialIcons.getImageSource('search', 25),
         ]);
-        
+
         Navigation.mergeOptions(ev.componentId, {
           topBar: {
             leftButtons: [
@@ -177,31 +177,6 @@ Promise.resolve(true)
         });
         break;
         default:
-        break;
-    }
-  });
-
-  Navigation.events().registerNavigationButtonPressedListener(data => { 
-    console.log('button pressed')
-    console.log(data);
-
-    switch (data.buttonId) {
-      case NavigationButtons.ModalBack:
-        Navigation.dismissModal(data.componentId)
-        break;
-      case NavigationButtons.SideMenu:
-        Navigation.mergeOptions(data.componentId, {
-          sideMenu: {
-            left: {
-              visible: true
-            }
-          }
-        });
-        break;
-      case NavigationButtons.Search:
-        showModal(undefined, 'example.Search', 'Search', { text: 'Search' }, 'searchModal')
-        break;
-      default:
         break;
     }
   });

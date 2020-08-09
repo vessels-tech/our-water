@@ -3,6 +3,9 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/ow_client/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/ow_client/android/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/ow_client/android/app/build" />
       <excludeFolder url="file://$MODULE_DIR$/ow_client/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />

@@ -8105,7 +8105,7 @@ osenv@^0.1.4:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-"ow_translations@file:../ow_translations":
+ow_translations@/Users/kevindoveton/dev/vessels-tech/our-water/ow_translations:
   version "0.1.23-beta.0"
   dependencies:
     "@babel/cli" "^7.0.0"

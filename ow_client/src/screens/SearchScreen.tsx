@@ -135,12 +135,12 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   onSearchResultPressedV1(r: AnyResource){
-    Navigation.pop(NavigationStacks.Root)
+    // Navigation.pop(NavigationStacks.Root)
     this.props.onSearchResultPressedV1(r)
   }
 
   onSearchResultPressed(r: PartialResourceResult | PlaceResult){
-    Navigation.pop(NavigationStacks.Root)
+    // Navigation.pop(NavigationStacks.Root)
     this.props.onSearchResultPressed(r)
   }
 
@@ -439,6 +439,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
+    console.log('search render called')
     /*
       no search + no recent searches         =>  Search Hint
       no search + recent searches            =>  Recent Searches
