@@ -977,7 +977,7 @@ export function startExternalSync(baseApi: BaseApi, api: MaybeExternalServiceApi
     }
 
     dispatch(externalSyncRequest());
-console.log('run external sync')
+
     let result: SomeResult<ExternalSyncStatusComplete>;
     try {
       result = await api.runExternalSync(userId, pendingResources, pendingReadings)

@@ -8,8 +8,9 @@ import {
   Alert,
   Dimensions
 } from "react-native";
+import { Navigation } from 'react-native-navigation';
 import { Button } from "react-native-elements";
-import { ResourceType } from "../../enums";
+import { NavigationStacks, ResourceType } from '../../enums';
 import {
   ConfigFactory,
   GroupSpecificationType
@@ -561,7 +562,7 @@ class EditResourceScreen extends Component<Props> {
     }
 
     ToastAndroid.show(message, ToastAndroid.SHORT);
-    await dismissModal() // dismisses last shown modal
+    await dismissModal();
   };
 
   displayDeleteModal() {

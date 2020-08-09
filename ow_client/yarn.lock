@@ -8087,9 +8087,9 @@ osenv@^0.1.4:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
 
-"ow_common@git://github.com/kevindoveton/ow_common#feature/email":
+"ow_common@git://github.com/kevindoveton/ow_common#master":
   version "0.1.38-beta.1"
-  resolved "git://github.com/kevindoveton/ow_common#ed926de412dc7f451a3b826877ca27ae7cbef671"
+  resolved "git://github.com/kevindoveton/ow_common#793dd3c0fcee79e9d442c39962f718dfe930ca5b"
   dependencies:
     "@babel/plugin-transform-regenerator" "^7.0.0"
     "@babel/polyfill" "^7.2.5"
@@ -8105,8 +8105,9 @@ osenv@^0.1.4:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-ow_translations@/Users/kevindoveton/dev/vessels-tech/our-water/ow_translations:
+"ow_translations@git://github.com/kevindoveton/ow_translations#master":
   version "0.1.23-beta.0"
+  resolved "git://github.com/kevindoveton/ow_translations#e86188125eea11ecafa835d04386c0f9703c3238"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

@@ -308,7 +308,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       message,
       [
         { text: new_reading_dialog_one_more, onPress: () => { } },
-        { text: new_reading_dialog_done, onPress: () => {dismissModal(); console.log('modal should dismiss damnit') }},
+        { text: new_reading_dialog_done, onPress: () => { dismissModal(); }},
       ]
     );
   }

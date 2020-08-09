@@ -265,7 +265,9 @@ export default class FBResource extends FirestoreDoc {
           //@ts-ignore
           lastValue: this.lastValue,
           //@ts-ignore
-          lastReadingDatetime: this.lastReadingDatetime
+          lastReadingDatetime: this.lastReadingDatetime,
+          //@ts-ignore
+          locationName: this.locationName
         };
 
         return resource;

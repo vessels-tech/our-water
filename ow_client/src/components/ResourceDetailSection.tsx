@@ -540,25 +540,21 @@ class ResourceDetailSection extends React.PureComponent<
       return null;
     }
     const image = safeGetNested(this.props, ['resource', 'image']);
-
+    const locationName = safeGetNested(this.props, ['resource', 'locationName']);
     const {
       resource_detail_owner_section,
       resource_detail_owner_name,
-      resource_detail_placeholder_url
+      resource_detail_name_label
     } = this.props.translation.templates;
 
-    const uri = safeGetNestedDefault(
-      this.props,
-      ['resource', 'owner', 'profileUrl'],
-      resource_detail_placeholder_url
-    );
+    const uri = `data:image/png;base64,${image}`
 
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
         <Avatar
           large={true}
           rounded={true}
-          source={{ uri: `data:image/png;base64,${image}` }}
+          source={{ uri }}
           onPress={() => this.props.showProfilePictureModal(uri)}
           containerStyle={{
             elevation: 3
@@ -571,6 +567,14 @@ class ResourceDetailSection extends React.PureComponent<
           }}
         >
           <HeadingSection title={resource_detail_owner_section} />
+          { locationName &&
+            <ContentSection>
+              <HeadingText
+                heading={resource_detail_name_label}
+                content={locationName || ''}
+              />
+            </ContentSection>
+          }
           <ContentSection>
             <HeadingText
               heading={resource_detail_owner_name}
