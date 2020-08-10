@@ -90,7 +90,7 @@ class FirebaseUserApi {
           return Promise.reject(new Error('User logged in, but no phone number found'));
         }
 
-        console.log(user);
+        // update in background, if it fails it's not a huge deal.
         (async () => {
           try {
             console.log('trying really hard')
@@ -106,7 +106,7 @@ class FirebaseUserApi {
               await doc.set({metadata: { newSignUps: { [user.uid]: true}}}, {merge: true});
               console.log('Updated newUserSignups')
             }
-            
+
           console.log('lambda')
           } catch (e) {
             console.log('lambda threw exception')
@@ -116,6 +116,7 @@ class FirebaseUserApi {
 
         //Save the user's phone number!
         mobile = user.phoneNumber;
+
         //TODO: call the common update user.
         return this.userDoc(orgId, user.uid).set({ mobile }, { merge: true });
       })
