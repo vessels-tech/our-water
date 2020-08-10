@@ -742,6 +742,7 @@ class EditResourceScreen extends Component<Props> {
       new_resource_location_name_label
     } = this.props.translation.templates;
 
+    console.log(this.props.translation)
 
     //TODO: Translate
     const translate_resource_type = (type: ResourceType) => {

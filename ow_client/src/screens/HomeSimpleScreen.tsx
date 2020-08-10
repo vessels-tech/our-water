@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback } from 'react-native';
-import { randomPrettyColorForId, navigateTo, showModal } from '../utils';
+import { View } from 'react-native';
+import { navigateTo, showModal } from '../utils';
 import { ResourceType } from '../enums';
 import { connect } from 'react-redux'
 import { AppState } from '../reducers';
 import { UserType } from '../typings/UserTypes';
-import { withTabWrapper } from '../components/TabWrapper';
-import { compose } from 'redux';
 import { TranslationFile } from 'ow_translations';
 import MenuButton from '../components/common/MenuButton';
 import { menuColors, primaryText, primaryLight } from '../utils/NewColors';
@@ -19,11 +16,11 @@ import IconButton from '../components/common/IconButton';
 //@ts-ignore
 import EventEmitter from "react-native-eventemitter";
 import { SearchButtonPressedEvent } from '../utils/Events';
-import { AnyResource } from '../typings/models/Resource';
 import { PlaceResult, PartialResourceResult, SearchResultType } from 'ow_common/lib/api/SearchApi';
 import { getOrElse } from 'ow_common/lib/utils';
 
 import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+
 const IconButtonEx = withPreventDoubleClick(IconButton);
 const MenuButtonEx = withPreventDoubleClick(MenuButton);
 

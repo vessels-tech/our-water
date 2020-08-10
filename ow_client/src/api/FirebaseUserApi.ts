@@ -1,9 +1,9 @@
 /**
  * FirebaseUserApi.ts
- * 
- * A platform specific API for interacting with the firebase users and 
+ *
+ * A platform specific API for interacting with the firebase users and
  * authentication
- * 
+ *
  */
 
 import firebase, { Firebase, RNFirebase } from 'react-native-firebase';
@@ -25,12 +25,11 @@ class FirebaseUserApi {
 
   /**
    * Sign in anonymously to firebase and get the user's Id token
-   * 
+   *
    * Can't be moved into common
    */
   static async signIn(): Promise<SomeResult<AnonymousUser>> {
     let userId: string;
-
     return auth.signInAnonymouslyAndRetrieveData()
       .then(userCredential => {
         userId = userCredential.user.uid;
@@ -42,7 +41,7 @@ class FirebaseUserApi {
 
   /**
    * Get the JWT token of the user
-   * 
+   *
    * Can't be moved into common
    */
   static async getIdToken(): Promise<SomeResult<string>> {
@@ -59,7 +58,7 @@ class FirebaseUserApi {
 
   /**
    * Send the code to the given user.
-   * 
+   *
    * Can't be moved into common
    */
   static async sendVerifyCode(mobile: string): Promise<SomeResult<RNFirebase.ConfirmationResult>> {
@@ -70,7 +69,7 @@ class FirebaseUserApi {
 
   /**
    * Verify the code and get the access token.
-   * 
+   *
    * Can't be moved into common
    */
   static async verifyCodeAndLogin(orgId: string, confirmResult: RNFirebase.ConfirmationResult, code: string, oldUserId: string): Promise<SomeResult<FullUser>> {
@@ -82,7 +81,7 @@ class FirebaseUserApi {
     const commonUserApi = new UserApi(fs, orgId);
 
     return confirmResult.confirm(code)
-      .then(_user => {
+      .then(async _user => {
         if (!_user) {
           return Promise.reject(new Error('No user found'));
         }
@@ -90,6 +89,30 @@ class FirebaseUserApi {
         if (!user.phoneNumber) {
           return Promise.reject(new Error('User logged in, but no phone number found'));
         }
+
+        console.log(user);
+        (async () => {
+          try {
+            console.log('trying really hard')
+            const userRef = await this.userDoc(orgId, user.uid).get();
+            const details: any = userRef.data();
+
+            if (!details) {
+              return;
+            }
+
+            if (!details.status || details.status.toLowerCase() === 'unapproved') {
+              const doc = fs.collection('org').doc(orgId);
+              await doc.set({metadata: { newSignUps: { [user.uid]: true}}}, {merge: true});
+              console.log('Updated newUserSignups')
+            }
+            
+          console.log('lambda')
+          } catch (e) {
+            console.log('lambda threw exception')
+            console.log(e);
+          }
+        })()
 
         //Save the user's phone number!
         mobile = user.phoneNumber;
@@ -119,7 +142,7 @@ class FirebaseUserApi {
 
   /**
    * Authenticaion Callback
-   * 
+   *
    * Can't be moved into common
    */
   static onAuthStateChanged(listener: (user: RNFirebase.User) => void): () => void {
@@ -127,9 +150,9 @@ class FirebaseUserApi {
   }
 
 
-  static userDoc(orgId: string, userId: string): any {
+  static userDoc(orgId: string, userId: string) {
     return fs.collection('org').doc(orgId).collection('user').doc(userId)
-  } 
+  }
 }
 
 export default FirebaseUserApi;

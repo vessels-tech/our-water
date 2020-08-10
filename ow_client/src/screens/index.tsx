@@ -97,7 +97,7 @@ export async function registerScreens(config: ConfigFactory) {
   const persistMiddleware = () => {
     return (next: any) => (action: AnyAction) => {
       const returnValue = next(action);
-      
+
       if (action.type === ActionType.GET_RESOURCES_RESPONSE) {
         if (action.result.type === ResultType.SUCCESS) {
           const state = store.getState();
@@ -147,7 +147,7 @@ export async function registerScreens(config: ConfigFactory) {
   }
 
   const store = createStore(
-    OWApp, 
+    OWApp,
     initialState,
     compose(
       middleware,
@@ -163,7 +163,7 @@ export async function registerScreens(config: ConfigFactory) {
       await store.dispatch(appActions.silentLogin(config.appApi));
       return;
     }
-    
+
     //Get the token
     let token;
     try {
