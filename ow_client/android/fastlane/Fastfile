@@ -22,7 +22,7 @@ platform :android do
 
     appcenter_upload(
       api_token: ENV["APPCENTER_API_KEY"],
-      owner_name: "Lewis",
+      owner_name: "lewis-vesselstech.com",
       owner_type: "user", # Default is user - set to organization for appcenter organizations
       app_name: "MyWell-Dev",
       file: ENV["APK_PATH"],
