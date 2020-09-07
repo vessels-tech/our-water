@@ -115,14 +115,6 @@ exports.testOnCreateDocument = functions.https.onRequest(async (req, res) => {
  * @description If a user is updated, check a number of fields to see if the user has fully signed in for the first time
  *   If they have, add them to a list of users to the email digest
  */
-<<<<<<< HEAD
-=======
-// TODO: manual test!
-// #MARK - #2103 KEVIN
-// Email Notifications
-// - Add an email alert to info@marvi.org.in email address when a new account is created
-// - Email should include basic information about the user so we can contact them if needed, and easily find them in the Admin system
->>>>>>> mywell/development
 export const userRecordUpdated = functions.firestore
   .document('org/mywell/user/{userId}')
   .onUpdate(async (change, context) => {
@@ -139,12 +131,6 @@ export const userRecordUpdated = functions.firestore
 
     const metadataDoc = firestore.collection('org').doc('mywell');
     /* add as a dict to allow for nice merging */
-<<<<<<< HEAD
-    const newSignUps = {}
-    newSignUps[userId] = true
-    return metadataDoc.set({ metadata: { newSignUps }}, {merge: true})
-  })
-=======
     return metadataDoc.set(
       {
         metadata: {
@@ -158,7 +144,6 @@ export const userRecordUpdated = functions.firestore
       }
     );
   });
->>>>>>> mywell/development
 
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});
