@@ -36,13 +36,12 @@ class EmailApi {
      * @param users - A list of the users who signed up since the last time this email was sent. Note: the email
      *     will still be sent if the users array is empty
      */
-    // TODO: Integration test!
     static sendUserDigestEmail(email, users) {
         return __awaiter(this, void 0, void 0, function* () {
             const date = (new Date()).toString();
             const subject = `MyWell user digest for: ${date}`;
             const mailOptions = {
-                from: `${APP_NAME} <admin@vessels.tech>`,
+                from: `MyWell <admin@vessels.tech>`,
                 to: email,
                 subject,
                 html: this.getUserDigestTemplate(users)
