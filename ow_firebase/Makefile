@@ -3,6 +3,7 @@
 #
 
 PROJECT = "OW_FIREBASE"
+$(shell touch .ow_firebase_config; touch /tmp/ow_firebase_env )
 include .ow_firebase_config
 include /tmp/ow_firebase_env 
 dir = $(shell pwd)
