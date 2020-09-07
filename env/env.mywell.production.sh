@@ -29,4 +29,4 @@ export KEYSTORE_ALIAS=mywell
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.json"
 
 # Config for App Center
-export APPCENTER_APP_NAME="MyWell"
+export APPCENTER_APP_NAME=MyWell

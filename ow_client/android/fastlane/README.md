@@ -25,7 +25,7 @@ Runs all the tests
 ```
 fastlane android upload_app_center
 ```
-Submit a new beta build to hockeyapp
+Submit a new beta build to appcenter
 ### android deploy
 ```
 fastlane android deploy

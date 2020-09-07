@@ -14,12 +14,9 @@ all: env server
 install:
 	yarn
 
-
-
 #
 #	Env Setup
 # ------------
-
 env:
 	cat ../env/.env.${orgId}.${stage}.sh ../env/env.${orgId}.${stage}.sh > /tmp/ow_env
 

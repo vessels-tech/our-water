@@ -33,4 +33,4 @@ export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.development.json"
 export versionCode=`date +%s` #for running locally only. This value is overriden in .env.deployment.sh
 
 # Config for App Center
-export APPCENTER_APP_NAME="MyWell-Dev"
+export APPCENTER_APP_NAME=MyWell-Dev
