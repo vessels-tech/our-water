@@ -7,7 +7,7 @@ import com.android.build.OutputFile
 project.ext.react = [
     root: "../../",
     bundleAssetName: "index.android.bundle",
-    entryFile: "src/index.js",
+    entryFile: "src/index.android.js",
     bundleInDebug: false,
     bundleInRelease: true,
     extraPackagerArgs: [ "--sourcemap-output", file("$buildDir/../../../sourcemap.android.js")]
@@ -88,12 +88,10 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-        //     proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             debuggable false
             minifyEnabled false
-            // proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 
@@ -107,6 +105,9 @@ subprojects { subproject ->
     afterEvaluate {
         if ((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
             android {
+                // Try forcing the buildtools version
+                compileSdkVersion = 28 
+                buildToolsVersion = "28.0.3"
                 variantFilter { variant ->
                     def names = variant.flavors*.name
                     if (names.contains("reactNative51") || names.contains("reactNative55")) {
@@ -130,20 +131,14 @@ dependencies {
 
     implementation(project(':react-native-firebase')) {
         transitive = false
-        // exclude module: 'support-v4'
     }
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     //not sure which we want?
-    // implementation "com.android.support:appcompat-v7:23.0.1"
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation "androidx.annotation:annotation:1.1.0"
-
-
- 
-
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
     
@@ -157,8 +152,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:15.0.2"
 
     //react-native-firebase
-    // implementation "com.google.android.gms:play-services-base:16.1.0"
-    // implementation "com.google.firebase:firebase-core:16.0.9"
     implementation "com.google.firebase:firebase-core:15.0.2"
     implementation "com.google.firebase:firebase-config:15.0.0"
     implementation "com.google.firebase:firebase-firestore:16.0.0"
@@ -170,34 +163,10 @@ dependencies {
       transitive = true
     }
 
-
     //react-native-navigation
     implementation project(':react-native-navigation')
-
     implementation project(':react-native-camera')
-
     implementation project(':react-native-exception-handler')
-    //     exclude group: "com.android.support"
-    // }
-    // implementation "com.android.support:exifinterface:+"
-    // implementation "com.android.support:support-annotations:+"
-    // implementation "com.android.support:support-v4:+"
-
-    //react-native-webview
-    // implementation project(':react-native-webview')
-
-
-    //react-native-camera
-    // compile (project(':react-native-camera')) {
-    //    exclude group: "com.google.android.gms"
-    //     compile 'com.android.support:exifinterface:27.+'
-    //     compile ('com.google.android.gms:play-services-vision:15.0.1') {
-    //         force = true
-    //     }
-    // }
-
-    // implementation 'com.google.guava:guava:27.0.1-android'
-
 }
 
 configurations {
