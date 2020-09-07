@@ -38,12 +38,14 @@ module.exports = (functions) => {
     },
     body: {
       status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
+      shouldSync: Joi.boolean(),
     },
   }
 
   app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), async (req, res) => {
     const { orgId, userId } = req.params;
     const { status } = req.body;
+    const shouldSync = req.body.shouldSync || false;
     const fbApi = new FirebaseApi(firestore);
     const userApi = new UserApi(firestore, orgId);
 
@@ -56,7 +58,7 @@ module.exports = (functions) => {
       throw new Error(statusResult.message);
     }
 
-    if (status === "Approved") {
+    if (status === "Approved" && shouldSync) {
       const syncResult = await fbApi.syncPendingForUser(orgId, userId);
       if (syncResult.type === ResultType.ERROR) {
         throw new Error(syncResult.message);
@@ -138,5 +140,10 @@ module.exports = (functions) => {
   /*Error Handling - must be at bottom!*/
   app.use(ErrorHandler);
 
-  return functions.https.onRequest(app);
+  return functions .runWith({
+      timeoutSeconds: 150,
+      memory: '256MB',
+    })
+    .https
+    .onRequest(app);
 };

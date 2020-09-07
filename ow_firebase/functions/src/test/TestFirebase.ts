@@ -19,9 +19,7 @@ if (admin.apps.length === 0) {
     // storageBucket: 'our-water-dev'
   });
   firestore = admin.firestore();
-  // const settings = { timestampsInSnapshots: true };
   const settings = { };
-  console.log("TestFirebase calling firestore.settings");
   firestore.settings(settings);
 }
 

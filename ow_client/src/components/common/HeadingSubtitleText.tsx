@@ -10,7 +10,7 @@ export interface Props {
   onPress?: () => void
 }
 
-export default class HeadingText extends React.PureComponent<Props> {
+export default class HeadingSubtitleText extends React.PureComponent<Props> {
 
   render() {
     const { heading, content, subtitle, content_subtitle} = this.props;
@@ -24,6 +24,7 @@ export default class HeadingText extends React.PureComponent<Props> {
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 5,
+            flex: 1,
           }}
         >
           <View

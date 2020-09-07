@@ -272,7 +272,7 @@ class FirebaseApi {
     /**
      * CreateShortId
      *
-     * Test of CreateShortId with Firebase Transactions
+     * If shortId already exists, just returns the existing one. Otherwise it creates a new ShortId
      */
     createShortId(orgId, longId) {
         return __awaiter(this, void 0, void 0, function* () {

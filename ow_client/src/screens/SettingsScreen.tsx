@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {
-  View, KeyboardAvoidingView, Button,
+  View, KeyboardAvoidingView, Button, Text,
 } from 'react-native';
 import {Button as RNEButton} from 'react-native-elements'
 import {
   ListItem,
 } from 'react-native-elements';
 import {
- showModal, showLighbox, maybeLog, navigateTo,
+ showModal, maybeLog, navigateTo,
 } from '../utils';
 import { error1, secondary, secondaryText, bgLight, } from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
@@ -21,10 +21,10 @@ import { UserType, User, MaybeUser } from '../typings/UserTypes';
 import { SyncMeta } from '../typings/Reducer';
 import { TranslationFile } from 'ow_translations';
 import Logo from '../components/common/Logo';
-import { secondaryDark } from '../utils/NewColors';
+import { secondaryDark, surfaceText } from '../utils/NewColors';
+import { BuildNumber } from '../utils/EnvConfig';
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
 }
 
@@ -49,6 +49,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   state: State = {
 
   }
+  private selectLanguageModalId?: string;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -137,20 +138,18 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     )
   }
 
-  showSelectLanguageModal() {
-    showLighbox(
+  async showSelectLanguageModal() {
+    const {select_language_heading} = this.props.translation.templates
+    this.selectLanguageModalId = await showModal(
       this.props,
       'modal.SelectLanguageModal',
-      {
-        config: this.props.config,
-        userId: this.props.userId,
-      }
-    );
+      select_language_heading,
+      { config: this.props.config, userId: this.props.userId }
+    )
   }
 
   pushMapScreen() {
-    //TODO: Translate
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     navigateTo(
       this.props,
@@ -197,29 +196,29 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
           margin: 0,
           backgroundColor: secondaryDark,
         }}
-        
+
         onPress={() => this.showDummyConnectToServiceScreen()}
         hideChevron={true}
       />
     );
   }
-  
+
  /**
   * Connect to button is only available for variants which connect to external services
   *
   * if already connected, displays a button that says "Connected to XYZ"
   */
   getConnectToButton() {
-    const { 
+    const {
       externalLoginDetails,
       externalLoginDetailsMeta: { loading },
-      translation: { 
-        templates: { 
+      translation: {
+        templates: {
           settings_connect_to_pending_title,
           settings_connect_to_connected_title,
           settings_connect_to_subtitle_error,
           connect_to_service_logout_button,
-        } 
+        }
       }
     } = this.props;
 
@@ -281,7 +280,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     }
 
     const {
-      user, 
+      user,
       externalLoginDetailsMeta: { loading },
       translation: {
         templates: {
@@ -354,7 +353,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
     }
 
     const { settings_pending_heading } = this.props.translation.templates;
-    
+
     let leftIcon: any = {
       name: 'sync',
       color: secondaryText,
@@ -380,9 +379,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
       return null;
     }
 
-    //TODO: Translate
-    // const { settings_map } = this.props.translation.templates;
-    const settings_map = "Browse on Map"
+    const { settings_map } = this.props.translation.templates;
 
     return (
       <ListItem
@@ -394,7 +391,7 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         }}
         hideChevron={true}
       />
-    );    
+    );
   }
 
   getLanguageButton() {
@@ -436,24 +433,32 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
   }
 
   render() {
-    const { translation: { templates: { settings_new_resource }}} = this.props;
+    const {
+      settings_new_resource,
+      powered_by_html,
+    } = this.props.translation.templates;
 
     return (
-      <KeyboardAvoidingView style={{
+      <View style={{
         flexDirection: 'column',
         // justifyContent: 'space-around',
         backgroundColor: bgLight,
-        height: '100%',
-        width: '100%'
+        flex: 1,
+        // height: '100%',
+        // width: '100%'
+        // minWidth: '100'
       }}>
-        {Logo(this.props.config.getApplicationName())}
-        {/* 
+        <Logo
+          text={this.props.config.getApplicationName()}
+          aboutHtml={powered_by_html}
+        />
+        {/*
           TD we need to put a dummy button in here as for some reason the
           first button is clickable from other views.
         */}
-        {this.getDummyConnectToButton()} 
+        {this.getDummyConnectToButton()}
         {/* For connecting to external service */}
-        {this.getConnectToButton()} 
+        {this.getConnectToButton()}
         {/* For connecting to default service */}
         {this.getSignInButton()}
         {/* For syncing to an external service */}
@@ -473,15 +478,17 @@ class SettingsScreen extends React.Component<OwnProps & StateProps & ActionProps
         {this.getMapButton()}
 
         {this.getLanguageButton()}
-        <View 
+        <View
           style={{
-            flex: 1, 
+            flex: 1,
             flexDirection: 'column-reverse',
           }}
           >
           {this.getAboutButton()}
+          <Text style={{textAlign: 'center', fontSize: 10, fontWeight: '200', color: surfaceText.disabled}}>{`Build: ${BuildNumber}`}</Text>
+          {/* <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{BuildNumber}</Text> */}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 }

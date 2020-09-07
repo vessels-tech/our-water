@@ -62,6 +62,12 @@ class Reading extends FirestoreDoc_1.default {
         if (this.isLegacy) {
             serialized['isLegacy'] = this.isLegacy;
         }
+        if (this.location) {
+            serialized['location'] = this.location;
+        }
+        if (this.image) {
+            serialized['image'] = this.image;
+        }
         return serialized;
     }
     /**
@@ -69,7 +75,7 @@ class Reading extends FirestoreDoc_1.default {
       * @param sn
       */
     static deserialize(doc, docId) {
-        const { docName, orgId, createdAt, updatedAt, datetime, value, resourceId, groups, isLegacy, resourceType, externalIds, coords, timeseriesId, } = doc.data();
+        const { docName, orgId, createdAt, updatedAt, datetime, value, resourceId, groups, isLegacy, resourceType, externalIds, coords, timeseriesId, location, image, } = doc.data();
         //nested variables
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
@@ -81,6 +87,8 @@ class Reading extends FirestoreDoc_1.default {
         des.updatedAt = updatedAt;
         des.isLegacy = isLegacy;
         des.timeseriesId = timeseriesId;
+        des.location = location;
+        des.image = image;
         return des;
     }
 }

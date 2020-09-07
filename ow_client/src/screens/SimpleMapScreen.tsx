@@ -27,7 +27,6 @@ import { PendingResource } from '../typings/models/PendingResource';
 import { AnyResource } from '../typings/models/Resource';
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   initialRegion?: MapRegion
 }
@@ -49,14 +48,12 @@ export interface ActionProps {
   loadResourcesForRegion: (api: BaseApi, userId: string, region: Region) => SomeResult<void>,
 }
 
-
 export interface State {
   initialRegion?: MapRegion,
   mapState: MapStateOption,
   hasSelectedResource: boolean,
   selectedResource?: AnyResource,
 }
-
 
 class SimpleMapScreen extends Component<OwnProps & StateProps & ActionProps> {
   mapRef?: MapView;

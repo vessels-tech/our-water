@@ -9,7 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+<<<<<<< HEAD
 exports.getDefaultTimeseries = exports.loadRemoteConfig = exports.enableLogging = exports.get = exports.unsafelyGetOrgId = exports.chunkArray = exports.writeFileAsync = exports.asList = exports.getBoolean = exports.pad = exports.resultWithError = exports.isNullOrEmpty = exports.hashIdToIntegerString = exports.hashCode = exports.resourceIdForResourceType = exports.resourceTypeForLegacyResourceId = exports.downloadAndParseCSV = exports.anyToMap = exports.serializeMap = exports.findGroupMembershipsForReading = exports.findResourceMembershipsForResource = exports.findGroupMembershipsForResource = exports.getLegacyMyWellResources = exports.getLegacyMyWellGroups = exports.createDiamondFromLatLng = exports.concatSaveResults = exports.snapshotToSyncRunList = exports.snapshotToSyncList = exports.snapshotToResourceList = void 0;
+=======
+exports.getPublicDownloadUrl = exports.zipFolderAsync = exports.getDefaultTimeseries = exports.loadRemoteConfig = exports.enableLogging = exports.get = exports.unsafelyGetOrgId = exports.chunkArray = exports.writeFileAsync = exports.asList = exports.getBoolean = exports.pad = exports.resultWithError = exports.isNullOrEmpty = exports.hashIdToIntegerString = exports.hashCode = exports.resourceIdForResourceType = exports.resourceTypeForLegacyResourceId = exports.downloadAndParseCSV = exports.anyToMap = exports.serializeMap = exports.findGroupMembershipsForReading = exports.findResourceMembershipsForResource = exports.findGroupMembershipsForResource = exports.getLegacyMyWellResources = exports.getLegacyMyWellGroups = exports.createDiamondFromLatLng = exports.concatSaveResults = exports.snapshotToSyncRunList = exports.snapshotToSyncList = exports.snapshotToResourceList = void 0;
+>>>>>>> mywell/development
 const Resource_1 = require("./models/Resource");
 const Papa = require("papaparse");
 const request = require("request-promise-native");
@@ -19,6 +23,7 @@ const ow_types_1 = require("ow_types");
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const env_1 = require("./env");
 const filesystem = require("fs");
+const zipFolder = require('zip-folder');
 const _serviceAccountKey_1 = require("./.serviceAccountKey");
 /**
  * From a snapshot [eg. fs.collection('org').doc(orgId).collection('resource').get()]
@@ -123,9 +128,7 @@ exports.getLegacyMyWellResources = (orgId, fs) => {
                 return;
             }
             const resourceObj = Resource_1.Resource.deserialize(res);
-            // mappedResources[res.externalIds.legacyMyWellId] = res;
             const key = `${resourceObj.externalIds.getPostcode()}.${resourceObj.externalIds.getResourceId()}`;
-            // console.log('Key is', key);
             mappedResources.set(key, resourceObj);
         });
         console.log(`found ${mappedResources.size} getLegacyMyWellResources:`);
@@ -388,6 +391,7 @@ function loadRemoteConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         let config;
         try {
+            console.log("projectId is", env_1.projectId);
             const accessToken = yield tools_1.getAdminAccessToken(_serviceAccountKey_1.default);
             const currentConfigResult = yield tools_1.getRemoteConfig(env_1.projectId, accessToken);
             config = JSON.parse(currentConfigResult[1]);
@@ -427,4 +431,25 @@ function getDefaultTimeseries(resourceType) {
     });
 }
 exports.getDefaultTimeseries = getDefaultTimeseries;
+function zipFolderAsync(folderPath, archivePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, _) => {
+            zipFolder(folderPath, archivePath, function (err) {
+                if (err) {
+                    resolve(utils_1.makeError(err.message));
+                }
+                else {
+                    resolve(dep_AppProviderTypes_1.makeSuccess(archivePath));
+                }
+            });
+        });
+    });
+}
+exports.zipFolderAsync = zipFolderAsync;
+function getPublicDownloadUrl(storagePath) {
+    const urlPrefix = `https://www.googleapis.com/download/storage/v1/b/${env_1.storageBucket}/o/`;
+    //eg: https://www.googleapis.com/download/storage/v1/b/tz-phone-book.appspot.com/o/tz_audio%2F015a_Voicebook_Swahili.mp3?alt=media&token=1536715274666696
+    return `${urlPrefix}${encodeURIComponent(storagePath)}?alt=media&token=${env_1.firebaseToken}`;
+}
+exports.getPublicDownloadUrl = getPublicDownloadUrl;
 //# sourceMappingURL=utils.js.map

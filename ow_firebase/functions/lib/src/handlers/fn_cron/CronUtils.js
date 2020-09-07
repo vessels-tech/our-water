@@ -14,7 +14,10 @@ const AppProviderTypes_1 = require("ow_common/lib/utils/AppProviderTypes");
 const api_1 = require("ow_common/lib/api");
 const env_1 = require("../../common/env");
 const EmailApi_1 = require("../../common/apis/EmailApi");
+<<<<<<< HEAD
 // import { Firestore } from '@google-cloud/firestore';
+=======
+>>>>>>> mywell/development
 const request = require('request-promise-native');
 class CronUtils {
     /**

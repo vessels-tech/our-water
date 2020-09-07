@@ -24,4 +24,6 @@ export type PendingResource = {
   timeseries: PendingTimeseries[],
   waterColumnHeight: number,
   groups: CacheType<string>,
+  locationName?: string,
+  image?: string
 }

@@ -24,17 +24,21 @@ service cloud.firestore {
     }
 
     //Only allow user to manipulate their own data
+    //Other users need to be able to read for sync to work
     match /org/{orgId}/user/{userId} {
-      allow read, update, delete: if request.auth.uid == userId;
+      allow read: if true;
+      allow update, delete: if request.auth.uid == userId;
       allow create: if request.auth.uid != null;
 
       match /pendingResources/{id} {
-        allow read, update, delete: if request.auth.uid == userId;
+        allow read: if true;
+        allow update, delete: if request.auth.uid == userId;
         allow create: if request.auth.uid != null;
       }
 
       match /pendingReadings/{id} {
-        allow read, update, delete: if request.auth.uid == userId;
+        allow read: if true;
+        allow update, delete: if request.auth.uid == userId;
         allow create: if request.auth.uid != null;
       }
 

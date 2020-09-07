@@ -8,6 +8,7 @@ export enum ReadingImageType {
 export type ReadingImage = {
   type: ReadingImageType.IMAGE,
   url: string, //base64
+  fileUrl: string, //local file
 }
 
 export type NoReadingImage = {

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNewConfig = exports.saveNewConfig = exports.getRemoteConfig = exports.getBackupAccessToken = exports.getAdminAccessToken = exports.getAuthHeader = exports.getToken = exports.arg = void 0;
 const request = require('request-promise-native');
 const ow_translations_1 = require("ow_translations");
+const mywellConfig_1 = require("./mywellConfig");
 exports.arg = (argList => {
     const myArg = {};
     let a, opt, thisOpt, curOpt;
@@ -65,11 +66,6 @@ function getAuthHeader(admin) {
 }
 exports.getAuthHeader = getAuthHeader;
 const { JWT } = require('google-auth-library');
-//TODO: make the user specify the key
-// const key = {
-//   client_email: '12345',
-//   private_key: '12345',
-// };
 /**
  * getAdminAccessToken
  *
@@ -251,16 +247,7 @@ function getNewConfig() {
                 ['well'],
                 ['well', 'raingauge', 'quality', 'checkdam'],
             ]),
-            editResource_defaultTypes: buildParameter({
-                well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-                raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-                quality: [
-                    { name: 'salinity', parameter: 'salinity', readings: [] },
-                    { name: 'ph', parameter: 'ph', readings: [] },
-                    { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
-                ],
-                checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-            }, 'The default resource timeseries types', conditionKeys, [
+            editResource_defaultTypes: buildParameter(mywellConfig_1.MyWellResourceTypes, 'The default resource timeseries types', conditionKeys, [
                 //GGMN
                 {
                     well: [
@@ -276,20 +263,10 @@ function getNewConfig() {
                     ]
                 },
                 //MyWell
-                {
-                    //TODO: I'm not sure what the parameter should be - default?
-                    well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-                    raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-                    quality: [
-                        { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
-                        { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
-                        { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
-                    ],
-                    checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-                }
+                mywellConfig_1.MyWellResourceTypes
             ]),
             editResource_allowCustomId: buildParameter(false, 'When creating a resource, is the user allowed to enter a custom id?', conditionKeys, [true, true, false]),
-            editResource_hasWaterColumnHeight: buildParameter(false, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, false]),
+            editResource_hasWaterColumnHeight: buildParameter(true, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, true, true]),
             favouriteResource_scrollDirection: buildParameter('Vertical', 'What direction does the favourite resource section scroll in?', conditionKeys, ['Horizontal', 'Horizontal', 'Vertical']),
             usesShortId: buildParameter(true, 'the application name', conditionKeys, ['GGMN', 'GGMN', 'MyWell']),
             allowsUserRegistration: buildParameter(true, 'Should we allow users to sign up?', conditionKeys, [false, false, true]),
@@ -313,7 +290,7 @@ function getNewConfig() {
                 '500',
                 '1000',
             ]),
-            showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+            showMapInSidebar: buildParameter(false, 'Should we display the map in the sidebar?', conditionKeys, [false, false, false]),
             resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
             resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
             favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
@@ -332,6 +309,30 @@ function getNewConfig() {
             resourceDetail_allowDownload: buildParameter(true, "Allow user to download readings from the resourceDetail?", conditionKeys, [false, false, true]),
             readingDownloadUrl: buildParameter(`${process.env.firebase_base_url}/public/mywell/downloadReadings`, "Download readings for resourceId url", conditionKeys, ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
             ]),
+            resourceDetail_graphButtons: buildParameter(JSON.stringify([
+                { text: '3Y', value: 'THREE_YEARS' },
+                { text: '1Y', value: 'ONE_YEAR' },
+                { text: '3M', value: 'THREE_MONTHS' },
+            ]), 'the graph and table buttons', conditionKeys, [
+                JSON.stringify([
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                    { text: '2W', value: 'TWO_WEEKS' },
+                    { text: 'EXTENT', value: 'EXTENT' },
+                ]),
+                JSON.stringify([
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                    { text: '2W', value: 'TWO_WEEKS' },
+                    { text: 'EXTENT', value: 'EXTENT' },
+                ]),
+                JSON.stringify([
+                    { text: '3Y', value: 'THREE_YEARS' },
+                    { text: '1Y', value: 'ONE_YEAR' },
+                    { text: '3M', value: 'THREE_MONTHS' },
+                ]),
+            ]),
+            resourceDetail_graphUsesStrictDate: buildParameter(true, "Does the graph only display strict dates?", conditionKeys, [false, false, true]),
         };
         return Promise.resolve({
             conditions,

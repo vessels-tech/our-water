@@ -1,6 +1,6 @@
 import BaseApi, { GenericSearchResult } from "./BaseApi";
 import NetworkApi from "./NetworkApi";
-import { RNFirebase, Firebase } from "react-native-firebase";
+import { RNFirebase } from "react-native-firebase";
 import DeprecatedFirebaseApi, { SendResourceEmailOptions } from "./DeprecatedFirebaseApi";
 import * as Keychain from 'react-native-keychain';
 //@ts-ignore
@@ -14,8 +14,8 @@ import { DeprecatedResource, SearchResult, Reading, SaveReadingResult, OWTimeser
 import ExternalServiceApi, { ExternalServiceApiType } from "./ExternalServiceApi";
 import { OptionalAuthHeaders, LoginDetails, EmptyLoginDetails, LoginDetailsType, ConnectionStatus, AnyLoginDetails, ExternalSyncStatusType, ExternalSyncStatusComplete, SyncError } from "../typings/api/ExternalServiceApi";
 import { Region } from "react-native-maps";
-import { isNullOrUndefined, isNull } from "util";
-import * as moment from 'moment';
+import { isNullOrUndefined } from "../utils/isNullOrUndefined";
+import moment from 'moment';
 import { SyncStatus } from "../typings/enums";
 import { SomeResult, ResultType, makeSuccess, makeError, SuccessResult } from "../typings/AppProviderTypes";
 import UserApi from "./UserApi";
@@ -26,15 +26,13 @@ import ExtendedResourceApi, { ExtendedResourceApiType, CheckNewIdResult } from "
 import { PendingReading } from "../typings/models/PendingReading";
 import { AnyReading, GGMNReading } from "../typings/models/Reading";
 import { PendingResource } from "../typings/models/PendingResource";
-import { GGMNTimeseries, AnyTimeseries } from "../typings/models/Timeseries";
+import { GGMNTimeseries } from "../typings/models/Timeseries";
 import { AnonymousUser } from "../typings/api/FirebaseApi";
-import { SignInStatus } from "../screens/menu/SignInScreen";
 import { CacheType } from "../reducers";
-import { RemoteConfig } from "../config/ConfigFactory";
 import { Cursor } from "../screens/HomeMapScreen";
 import FirebaseUserApi from "./FirebaseUserApi";
 import { SearchResult as SearchResultV2, PartialResourceResult, PlaceResult } from 'ow_common/lib/api/SearchApi';
-
+import Base64 from '../utils/Base64';
 
 // TODO: make configurable
 const timeout = 1000 * 30; //30 seconds
@@ -53,9 +51,14 @@ export interface GGMNApiOptions {
 }
 
 
+const buildAuthHeader = (username: string, password: string): string => {
+  const encoded = Base64.btoa(`${username}:${password}`);
+  return `Basic ${encoded}`;
+}
+
 /**
  * The GGMN Api.
- * 
+ *
  * TODO: make an interface, and share components with BaseApi.js
  */
 class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceApi {
@@ -75,9 +78,9 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * initialize with options
-   * 
+   *
    * If options.auth is present then the user will be considered logged in
-   * TODO: how to we pass this in with 
+   * TODO: how to we pass this in with
    */
   constructor(networkApi: NetworkApi, orgId: string, options: GGMNApiOptions) {
     this.baseUrl = options.baseUrl;
@@ -106,7 +109,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   /**
   * Connect to an external ser  vice.
   * This is really just a check to see that the login credentials provided work.
-  * 
+  *
   * Maybe we don't need to save the sessionId. It should be handled
   * automatically by our cookies
   */
@@ -128,23 +131,26 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       timeout,
       method: 'GET',
       headers: {
+        Authorization: buildAuthHeader(username, password),
         'Content-Type': 'application/json',
-        username,
-        password,
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
-  
+
     return ftch(url, options)
       .then((response: any) => naiveParseFetchResponse<GGMNOrganisationResponse>(response))
       .then((r: SomeResult<GGMNOrganisationResponse>) => {
         if (r.type === ResultType.ERROR) {
+          console.log("login error", r.message);
+
           return {
-            type: LoginDetailsType.FULL,
             status: ConnectionStatus.SIGN_IN_ERROR,
+            type: LoginDetailsType.FULL,
             username,
           }
         }
+
+        console.log("result", r.result);
 
         if (r.result.results.length === 0) {
           throw new Error('Logged in user, but no organisations found.');
@@ -169,7 +175,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
           externalOrg: resolvedExternalOrg,
         }
 
-        if (_signInResponse.type === LoginDetailsType.FULL 
+        if (_signInResponse.type === LoginDetailsType.FULL
           && _signInResponse.status === ConnectionStatus.SIGN_IN_SUCCESS
           ) {
             return this.saveExternalServiceLoginDetails(user, password)
@@ -184,6 +190,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       })
       .then(() => signInResponse)
       .catch((err: Error) => {
+        console.log("Err", err);
         maybeLog("connectToService caught error: " + err.message);
 
         return {
@@ -200,7 +207,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   async saveExternalServiceLoginDetails(user: KeychainLoginDetails, password: string): Promise<any> {
     await Keychain.setGenericPassword(encodeURIComponent(JSON.stringify(user)), password);
 
-    return true 
+    return true
   }
 
 
@@ -256,9 +263,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       timeout,
       method: 'GET',
       headers: {
+        Authorization: buildAuthHeader(username, password),
         'Content-Type': 'application/json',
-        username,
-        password,
       },
       credentials: 'include' //make sure fetch sets the cookie for us.
     };
@@ -277,7 +283,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   private async getCredentials(): Promise<SomeResult<{user: KeychainLoginDetails, password: string}>> {
     const credentials = await Keychain.getGenericPassword();
-  
+
     if (credentials === false) {
       return {
         type: ResultType.ERROR,
@@ -291,7 +297,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         message: "Error with Keychain API",
       }
     }
-    
+
     let user;
     try {
       user = JSON.parse(decodeURIComponent(credentials.username));
@@ -367,7 +373,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   /**
-   * If the Keychain has credentials, then return the 
+   * If the Keychain has credentials, then return the
    * auth headers. Otherwise, return an empty dict
    */
   private async getOptionalAuthHeaders(): Promise<SomeResult<OptionalAuthHeaders>> {
@@ -376,14 +382,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return credentialsResult;
     }
 
+    const authHeader = buildAuthHeader(credentialsResult.result.user.username, credentialsResult.result.password);
+
     const headers: OptionalAuthHeaders = {
-      username: credentialsResult.result.user.username,
-      password: credentialsResult.result.password,
-    } 
+      // username: credentialsResult.result.user.username,
+      // password: credentialsResult.result.password,
+      Authorization: authHeader,
+    }
 
     return {
-      type: ResultType.SUCCESS,
       result: headers,
+      type: ResultType.SUCCESS,
     }
   }
 
@@ -422,7 +431,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * GET resources
-   * 
+   *
    * Gets the resources and recent readings from GGMN api.
    * TODO: figure out pagination and whatnot!
    * Maybe we can sort by updatedAt
@@ -436,7 +445,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       page_size: 100,
     });
     maybeLog("getResources URL is", url);
-    
+
     const options = {
       timeout,
       method: 'GET',
@@ -452,7 +461,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       return response.results.map(from => GGMNApi.ggmnStationToResource(from));
     });
   }
-  
+
   async getResourcesWithinRegion(region: Region, cursor?: Cursor): Promise<SomeResult<AnyResource[]>> {
     if (!cursor) {
       cursor = {
@@ -501,11 +510,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         ...authHeaders,
       }
     };
-    
+
     return ftch(url, options)
       .then((response: any) => deprecated_naiveParseFetchResponse<GGMNGroundwaterStationResponse>(response))
       .then((response: GGMNGroundwaterStationResponse) => {
-        
+
         return response.results.map(from => GGMNApi.ggmnStationToResource(from))
       })
       .then((resources: AnyResource[]) => ({type: ResultType.SUCCESS, result: resources}))
@@ -600,7 +609,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * GetShortId
-   * 
+   *
    * GGMN doesn't use shortened ids.
    */
   getShortId(resourceId: string): Promise<SomeResult<string>> {
@@ -610,10 +619,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * PreloadShortIds
-   * 
+   *
    * Given an array of long ids, optimistically load short ids. If there are new ids, they
    * will be created
-   * 
+   *
    * GGMN doesn't use shortened ids.
    */
   preloadShortIds(ids: string[]): Promise<SomeResult<Array<string>>> {
@@ -632,17 +641,17 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   //----------------------------------------------------------------------
 
   /**
-   * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN, 
+   * Get the readings for a given timeseries. Timeseries is a concept borrowed from GGMN,
    * and a unique for a series of readings
-   * 
-   * @param resourceId: string -> The id of the resource. Not strictly required for the 
+   *
+   * @param resourceId: string -> The id of the resource. Not strictly required for the
    *    GGMN api, but required to refer to the reading later on.
    * @param timeseriesName: string -> Name of the timeseries (eg. GWmMSL, not used here)
    * @param timeseriesId: string  -> The id of the timeseries
    * @param range: TimeseriesRange -> the range of the selected query
-   * 
+   *
    * //TD - update to return a SomeResult
-   * 
+   *
    * Example url: https://ggmn.lizard.net/api/v3/timeseries/?end=1304208000000&min_points=320&start=1012915200000&uuid=fb82081d-d16a-400e-98da-20f1bf2f5433
    */
   async getReadingsForTimeseries(resourceId: string, timeseriesName: string, timeseriesId: string, range: TimeseriesRange): Promise<AnyReading[]> {
@@ -723,7 +732,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
       const timeseries: OWTimeseries = response.results[0];
       return timeseries.events
-      .filter(e => 
+      .filter(e =>
         //Filter out the readings hidden in ggmn_ignoreReading
         // moment(e.timestamp).toISOString() !== this.remoteConfig.ggmn_ignoreReading.date &&
         // e.value !== this.remoteConfig.ggmn_ignoreReading.value)
@@ -748,16 +757,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   /**
-   * Save the reading 
-   * 
+   * Save the reading
+   *
    * This saves the reading only to the user's object in Firebase. We will sync with GGMN later on
    *  1. First, we save to our user's object in firebase
    *  2. Then we persist the reading actually to GGMN
-   * 
-   * That way, we can get the benefits of local caching and offline mode, 
-   * as well as the actual syncing with GGMN. 
-   * 
-   * TODO: figure out how to trigger #2, can trigger now, and then if it fails, 
+   *
+   * That way, we can get the benefits of local caching and offline mode,
+   * as well as the actual syncing with GGMN.
+   *
+   * TODO: figure out how to trigger #2, can trigger now, and then if it fails,
    * put it on a timer/user click banner
    */
   async saveReading(resourceId: string, userId: string, reading: AnyReading | PendingReading): Promise<SomeResult<SaveReadingResult>> {
@@ -789,7 +798,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
   }
 
   async saveResource(userId: string, resource: AnyResource | PendingResource): Promise<SomeResult<SaveResourceResult>> {
-    resource.type = OrgType.GGMN;    
+    resource.type = OrgType.GGMN;
     const saveResult = await DeprecatedFirebaseApi.saveResourceToUser(this.orgId, userId, resource);
     if (saveResult.type === ResultType.ERROR) {
       return {
@@ -857,7 +866,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * Delete pending resource
-   * 
+   *
    * Returns immediately
    */
   deletePendingResource(userId: string, pendingResourceId: string): Promise<SomeResult<void>> {
@@ -869,7 +878,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * Delete pending reading.
-   * 
+   *
    * Returns immediately
    */
   deletePendingReading(userId: string, pendingReadingId: string): Promise<SomeResult<void>> {
@@ -880,15 +889,15 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
 
   /**
-   * A listener function which combines callback events from the FirebaseApi and 
+   * A listener function which combines callback events from the FirebaseApi and
    * GGMN api to inform the PendingChangesBanner of any updates it needs to make
-   * 
+   *
    * We are using this subscription to also subscribe to pending readings
    * but this is an assumption which holds only for GGMN. We will need to
    * fix this later on.
    */
   subscribeToUser(userId: string, callback: any): () => void {
-    return DeprecatedFirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));  
+    return DeprecatedFirebaseApi.listenForUpdatedUser(this.orgId, userId, (sn: Snapshot) => callback(sn));
   }
 
   subscribeToPendingReadings(userId: string, callback: (resources: PendingReading[]) => void): void {
@@ -950,12 +959,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * Perform a search using the GGMN Api
-   * 
+   *
    * The Search on the Lizard/GGMN site also uses the mapbox api to load locations, but
    * for now I think searching by just ids is ok.
-   * 
+   *
    * For example:
-   * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25   
+   * https://ggmn.lizard.net/api/v3/search/?q=GW03&page_size=25
    */
   async performSearch(searchQuery: string, page: number): Promise<SomeResult<SearchResult>> {
     const searchUrl = `${this.baseUrl}/api/v3/search/`;
@@ -1015,8 +1024,8 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * deprecated_getResourceFromSearchEntityId
-   * 
-   * For some reason, the GGMN API returns a 404 for this for some entityIds. 
+   *
+   * For some reason, the GGMN API returns a 404 for this for some entityIds.
    */
   async deprecated_getResourceFromSearchEntityId(userId: string, entityId: string): Promise<SomeResult<AnyResource>> {
     const url = `${this.baseUrl}/api/v3/groundwaterstations/${entityId}/`;
@@ -1059,11 +1068,11 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * GetEmail
-   * 
+   *
    * Get user email address from GGMN username
-   * 
+   *
    * example url: https://ggmn.lizard.net/api/v3/users/?username=lewis_daly
-   * 
+   *
    * User must be logged in.
    * GGMN only
    */
@@ -1123,7 +1132,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * getNewResourcesForIds
-   * 
+   *
    * Given a list of resourceIds, load a list of resources
    */
   async getNewResourcesForIds(ids: string[]): Promise<Array<SomeResult<AnyResource>>> {
@@ -1135,16 +1144,16 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * StartExternalSync
-   * 
+   *
    * Sync the locally saved resources and readings with the external service
    * User must be logged in
-   * 
+   *
    * Calls dispatch with an app action when sync is done.
    */
   async runExternalSync(userId: string, pendingResources: PendingResource[], pendingReadings: PendingReading[]): Promise<SomeResult<ExternalSyncStatusComplete>> {
     const savedResourceIds: string[] = [];
     let newResources: AnyResource[] = [];
-    
+
     /* For each resource, see if it has been added to GGMN. If so, we can remove it from the user's pendingResources*/
     const checkResourcesResults: Array<SomeResult<AnyResource>> = await Promise.all(
       pendingResources
@@ -1163,7 +1172,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       }
     });
 
-    const removePendingResults: Array<SomeResult<any>> = await Promise.all(  
+    const removePendingResults: Array<SomeResult<any>> = await Promise.all(
       checkResourcesResults.map(async (result, idx) => {
         if (result.type === ResultType.ERROR) {
           return makeError<void>(SyncError.StationNotCreated);
@@ -1179,10 +1188,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         }
       })
     );
-   
 
-    /* 
-      For each reading, make sure the resource has been saved first.    
+
+    /*
+      For each reading, make sure the resource has been saved first.
       find the timeseriesId associated with the reading, and save it using the GGMN api.
     */
     const timeseriesIdResults: Array<SomeResult<string>> = await Promise.all(
@@ -1214,12 +1223,12 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
         return await DeprecatedFirebaseApi.deletePendingReadingFromUser(this.orgId, userId, reading.id);
       })
     );
-      
+
     maybeLog(`RemovePendingReadingsResults: `, removePendingReadingsResults);
 
     const pendingResourcesResults: CacheType<SomeResult<AnyResource>> = {};
     const pendingReadingsResults: CacheType<SomeResult<any>> = {};
-    
+
     removePendingResults.forEach((result, idx) => {
       const id = pendingResources[idx].id;
       const resourceResult = checkResourcesResults[idx];
@@ -1233,7 +1242,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
       pendingReadingsResults[id] = result;
     });
 
-    
+
     //For each reading we made, reload the resource in case we created a new timeseries
     const updatedResourceIds = dedupArray(pendingReadings.map(r => r.groundwaterStationId), (any: string) => any);
     const resources = await this.getNewResourcesForIds(updatedResourceIds);
@@ -1276,10 +1285,10 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * checkNewId
-   * 
-   * Check with the GGMN system that the new Id is valid. Uses a basic search, 
+   *
+   * Check with the GGMN system that the new Id is valid. Uses a basic search,
    * as GGMN doesn't provide an easy way for us to check the ids
-   * 
+   *
    * If someResult.type is error, something went wrong
    * if someResult.result is true, id is valid, otherwise, id is invalid.
    */
@@ -1348,13 +1357,13 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * getTimeseriesId
-   * 
+   *
    * Gets the Id of the timeseries from the location and and timeseries code.
    * The GGMN api is rather inconsistent, so locationName is most likely the
    * title or description of a groundwater station, and code is `GWmBGS` or `GWmMSL`
-   * 
+   *
    * example url: `https://ggmn.lizard.net/api/v3/timeseries/?location__name=85570`
-   * 
+   *
    */
   private async getTimeseriesId(locationName: string, code: string): Promise<SomeResult<string>> {
     const url = appendUrlParameters(`${this.baseUrl}/api/v3/timeseries/`, {
@@ -1394,7 +1403,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
     if (searchResponse.result.results.length > 2) {
       maybeLog(`Found too many timeseries for location name: ${locationName}`)
       return makeError(SyncError.GetTimeseriesIdTooMany)
-    } 
+    }
 
     if (searchResponse.result.results.length < 1) {
       maybeLog(`Could not find any timeseries for location name: ${locationName}`);
@@ -1419,7 +1428,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * resourceFromPendingId
-   * 
+   *
    * Get Resource from pendingId, by performing a search and using the entity_id
    */
   private async getResourceFromPendingId(id: string): Promise<SomeResult<AnyResource>> {
@@ -1476,7 +1485,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   /**
    * saveReadingToGGMN
-   * 
+   *
    * Save the reading to ggmn
    */
   private async saveReadingToGGMN(reading: PendingReading, timeseriesId: string): Promise<SomeResult<void>> {
@@ -1558,7 +1567,7 @@ class GGMNApi implements BaseApi, ExternalServiceApi, UserApi, ExtendedResourceA
 
   //TODO: make a partial resource type that doesn't need all these fake fields
   static ggmnSearchEntityToResource(from: GGMNSearchEntity): GGMNResource {
-  
+
     const to: GGMNResource = {
       type: OrgType.GGMN,
       pending: false,

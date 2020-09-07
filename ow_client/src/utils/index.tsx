@@ -1,11 +1,11 @@
 import { Alert, Linking, ToastAndroid } from 'react-native';
 import * as React from 'react';
-import * as moment from 'moment';
+import moment from 'moment';
 import { stringify } from 'query-string';
 // import { bgLight, primaryLight, primaryText, primaryDark, primary, prettyColors } from './Colors';
 import { Location, LocationType } from '../typings/Location';
 import { BasicCoords, TimeseriesRange, Reading, TimeseriesRangeReadings, OWGeoPoint } from '../typings/models/OurWater';
-import { ResourceType } from '../enums';
+import { ResourceType, NavigationStacks, NavigationButtons } from '../enums';
 import { Region } from 'react-native-maps';
 import { Avatar } from 'react-native-elements';
 import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
@@ -23,12 +23,15 @@ import { prettyColors, primaryText, primary, surface, surfaceDark, secondary, se
 import * as QRCode from 'qrcode';
 import { OrgType } from '../typings/models/OrgType';
 import { ConfigFactory } from '../config/ConfigFactory';
-
+import firebase from 'react-native-firebase'
+import Base64 from './Base64';
+import { Navigation, Layout } from 'react-native-navigation';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 
 /**
  * Convert a region to a bounding box
- * 
+ *
  * @returns array, region tuple: [
  *  min Longitude,
  *  min Latitude,
@@ -47,7 +50,7 @@ export function calculateBBox(region: Region){
 
 /**
  * Naively Parse the response from Fetch api, and handle errors etc.
- * Use this for small requests with well formed responses. Otherwise you 
+ * Use this for small requests with well formed responses. Otherwise you
  * may have to do it manually.
  */
 export function deprecated_naiveParseFetchResponse<T>(response: any): Promise<T> {
@@ -100,14 +103,6 @@ export function imageForResourceType(type: ResourceType) {
   }
 }
 
-/**
- * Get a unique hash based on the resourceId, pincode, and date
- */
-/* tslint:disable-next-line */
-export const getHashForReading = (reading: any) => {
-  return `r:${reading.date}|${reading.resourceId}|${reading.pincode}`;
-}
-
 export const rejectRequestWithError = (status: number) => {
   const error: any = new Error(`Request failed with status ${status}`);
   error['status'] = status;
@@ -138,9 +133,9 @@ export const formatCoords = (fbCoords: any) => {
 
 /**
  * getLocation
- * 
+ *
  * Get's the location or times out.
- * 
+ *
  * TD: For some reason, when the user denies location access getCurrentPosition()
  * never returns. So we implement our own timeout using Promise.race()
  */
@@ -188,7 +183,7 @@ export const pinColorForResourceType = (resourceType: any) => {
 
 export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: BasicCoords): AnyResource | null => {
   const filtered = resources.filter((res: any) => {
-    return coords.latitude === res.coords._latitude && 
+    return coords.latitude === res.coords._latitude &&
       coords.longitude === res.coords._longitude;
   });
 
@@ -206,7 +201,7 @@ export const getSelectedResourceFromCoords = (resources: AnyResource[], coords: 
 
 export const getSelectedPendingResourceFromCoords = (resources: PendingResource[], coords: BasicCoords): PendingResource | null => {
   const filtered = resources.filter((res: PendingResource) => {
-    return coords.latitude === res.coords.latitude && 
+    return coords.latitude === res.coords.latitude &&
       coords.longitude === res.coords.longitude;
   });
 
@@ -223,53 +218,64 @@ export const getSelectedPendingResourceFromCoords = (resources: PendingResource[
 }
 
 export const navigateTo = (props: any, screen: any, title: any, passProps: any, animationType = 'slide-horizontal') => {
-  //TODO: only navigate if we aren't already here!
+  // TODO: only navigate if we aren't already here!
 
-  props.navigator.toggleDrawer({
-    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  });
-
-  props.navigator.push({
-    screen,
-    title,
-    passProps,
-    navigatorStyle: defaultNavigatorStyle,
-    navigatorButtons: {}, // override the nav buttons for the screen, see "Adding buttons to the navigator" below (optional)
-    animationType
-  });
-}
-
-export const showModal = (props: any, screen: any, title: any, passProps: any) => {
-  //TODO: only navigate if we aren't already here!
-
-  props.navigator.toggleDrawer({
-    side: 'left', // the side of the drawer since you can have two, 'left' / 'right'
-    animated: true, // does the toggle have transition animation or does it happen immediately (optional)
-    to: 'closed' // optional, 'open' = open the drawer, 'closed' = close it, missing = the opposite of current state
-  });
-
-  // TODO: change left arrow to just x
-  props.navigator.showModal({
-    screen,
-    title,
-    passProps,
-    navigatorStyle: defaultNavigatorStyle,
-  });
-}
-
-export const showLighbox = (props: any, screen: any, passProps: any) => {
-
-  props.navigator.showLightBox({
-    screen,
-    passProps,
-    style: {
-      backgroundBlur: 'dark', // 'dark' / 'light' / 'xlight' / 'none' - the type of blur on the background
-      // backgroundColor: '#ff000080', // tint color for the background, you can specify alpha here (optional)
-      tapBackgroundToDismiss: true // dismisses LightBox on background taps (optional)
+  Navigation.push(NavigationStacks.Root, {
+    component: {
+      name: screen,
+      passProps,
+      options: {
+        topBar: {
+          title: {
+            text: title
+          }
+        }
+      }
     }
   });
+}
+
+let lastVisibleModal: string;
+export const showModal = async (props: any, screen: string, title: string, passProps: any, id?: string) => {
+  //TODO: only navigate if we aren't already here!
+  const backIcon = await MaterialIcons.getImageSource('arrow-back', 25);
+
+  const modal: string = await Navigation.showModal({
+    stack: {
+      id,
+      children: [{
+        component: {
+          name: screen,
+          passProps: passProps,
+          options: {
+            topBar: {
+              title: {
+                text: title
+              },
+              leftButtons: [
+                { id: NavigationButtons.ModalBack, icon: backIcon }
+              ]
+            }
+          }
+        },
+      }]
+    }
+  })
+
+  lastVisibleModal = modal;
+  return modal;
+}
+
+export async function dismissModal(id?: string) {
+  if (!id) {
+    if (lastVisibleModal) {
+      await Navigation.dismissModal(lastVisibleModal);
+    }
+
+    return;
+  }
+
+  await Navigation.dismissModal(id);
 }
 
 export const getMinAndMaxReadingDates = (momentFormat: string): {minDate: string, maxDate: string} => {
@@ -291,7 +297,7 @@ export const displayAlert = (title: string, message: string, buttons: any) => {
 /**
  * Create a bounding box from lat, lng and distance multiplier
  * distance must be a float between 0-1
- * @param {*} param0 
+ * @param {*} param0
  */
 export const boundingBoxForCoords = (latitude: number, longitude: number , distance: number) => {
   if (distance < 0 || distance > 1) {
@@ -308,7 +314,6 @@ export const boundingBoxForCoords = (latitude: number, longitude: number , dista
     minLat, minLng, maxLat, maxLng
   };
 }
-
 
 export const randomPrettyColorForId = (resourceId: string) => {
   const idNumber = Math.abs(hashCode(resourceId))
@@ -345,7 +350,7 @@ export const defaultNavigatorStyle = {
 
   statusBarColor: statusBarColor,
   statusBarTextColorScheme: statusBarTextColorScheme,
-  
+
   screenBackgroundColor: surface,
   navBarButtonColor: primaryText.high,
   drawUnderStatusBar: false,
@@ -452,7 +457,7 @@ export function newTsRangeReadings(): TimeseriesRangeReadings {
 }
 
 /**
- * Helper function to modify deeply nested data inside the metadata for a 
+ * Helper function to modify deeply nested data inside the metadata for a
  * timeseries range reading
  */
 export function setLoading(timeseriesReadings: CacheType<TimeseriesRangeReadings>, timeseriesId: string, range: TimeseriesRange, loading: boolean) {
@@ -684,7 +689,7 @@ export function splitInternationalNumber(intNumber: string): SomeResult<{regionC
 
 /**
  * filterAndSort
- * 
+ *
  * Filter the array by the given date range
  */
 export function filterAndSort(readings: AnyOrPendingReading[], range: TimeseriesRange ): AnyOrPendingReading[] {
@@ -712,7 +717,7 @@ export function filterAndSort(readings: AnyOrPendingReading[], range: Timeseries
 
 /**
  * Deduplicate an array of items based on an accessor.
- * 
+ *
  * Note: This doesn't appear to preserve order.
  * @returns Array<T> - the modified array
  */
@@ -800,7 +805,7 @@ export function arrayLowest<T>(array: Array<T>, accessor: (item: T) => string | 
 }
 
 /**
- * Expire earlier elements from array. 
+ * Expire earlier elements from array.
  * This requires array to be FIFO, where new elements are added
  * to the end of the array
  */
@@ -817,7 +822,7 @@ export function arrayExpire<T>(array: Array<T>, maxElements: number): Array<T> {
 /**
  * Expire earlier elements from array.
  * If elements are in the safe region, then we don't expire them.
- * 
+ *
  * @param maxElements - approx number of elements we want. Result may be over this number if there are too many
  *   resources in the safeArea
  */
@@ -846,8 +851,8 @@ export function arrayExpireRegionAware(array: Array<AnyResource>, maxElements: n
 
 /**
  * Calculates whether or not a given coordinate is in a given region.
- * @param region 
- * @param coords 
+ * @param region
+ * @param coords
  */
 export function isInRegion(region: Region, coords: OWGeoPoint) {
   const boundingBox = calculateBBox(region);
@@ -901,7 +906,7 @@ export function pinColorForOrgAndResource(resource: AnyResource) {
 
 /**
  * safeAreaFromPoint
- * 
+ *
  * Given a point, calculate an implicit safe area by adding a generous delta.
  */
 export function safeAreaFromPoint(coords: OWGeoPoint): Region {
@@ -916,7 +921,7 @@ export function safeAreaFromPoint(coords: OWGeoPoint): Region {
 
 /**
  * Saftely get things and check if null
- * 
+ *
  * @example:
  *   const userId = get(req, ['user', 'uid']);
  */
@@ -927,18 +932,16 @@ export const get = (o: any, p: string[]) =>
 
 /**
 * getHeadingForTimeseries
-* 
+*
 * Convert the "default" string to sometime meaningful
-* 
+*
 * TODO: move to a translation function
 */
 export const getHeadingForTimeseries = (resourceType: ResourceType, name: string) => {
 
   switch (resourceType) {
     case ResourceType.raingauge: return "Rainfall";
-    case ResourceType.quality: {
-      return capitalizeFirstLetter(name);
-    }
+    case ResourceType.quality: return name;
     case ResourceType.custom: {
       return capitalizeFirstLetter(name);
     }
@@ -980,7 +983,7 @@ export function openUrlOrToastError(url: string, errorMessage: string) {
 
 /**
  * getUnitSuffixForPendingResource
- * 
+ *
  * For a pending resource, get the unit suffix.
  * If anything goes wrong, defaults to 'm'
  */
@@ -1001,4 +1004,20 @@ export function getUnitSuffixForPendingResource(r: PendingReading, config: Confi
   }
 
   return defaultTimeseries.unitOfMeasure;
+}
+
+
+export function crashlyticsLog(message: string) {
+  firebase.crashlytics().log(message);
+}
+
+
+/**
+ * Clone of hashReadingId in ow_common.
+ *
+ * React Native has no Buffer, so the btoa doesn't work
+ */
+export function hashReadingId(resourceId: string, timeseriesId: string, isoDateString: string): string {
+  const input = `${resourceId}_${timeseriesId}_${isoDateString}`;
+  return Base64.btoa(input);
 }

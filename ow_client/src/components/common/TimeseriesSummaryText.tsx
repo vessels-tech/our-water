@@ -2,6 +2,7 @@ import * as React from 'react'; import { Component } from 'react';
 import { View, TouchableNativeFeedback } from "react-native";
 import { Text, Icon } from 'react-native-elements';
 import { primary } from '../../utils/Colors';
+import { surfaceText } from '../../utils/NewColors';
 
 export interface Props {
   heading: string,
@@ -40,7 +41,7 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
               justifyContent: 'space-evenly',
             }}
           >
-            <Text style={{ fontSize: 17, fontWeight: '700' }}>{heading}</Text>
+            <Text style={{ fontSize: 17, fontWeight: '700', color: surfaceText.high, }}>{heading}</Text>
             <Text style={{ fontSize: 10, fontWeight: '100', fontStyle: "italic" }}>{subtitle}</Text>
           </View>
 
@@ -53,7 +54,7 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
                 justifyContent: 'space-evenly',
               }}
             >
-              <Text style={{ fontSize: 10, fontWeight: '100' }}>{timeStart}</Text>
+              <Text style={{ fontSize: 10, fontWeight: '100', color: surfaceText.high, }}>{timeStart}</Text>
               <Icon
                 size={10}
                 name={'arrow-downward'}
@@ -68,12 +69,11 @@ export default class TimeseriesSummaryText extends React.PureComponent<Props> {
           <View
             key={'right_side'}
             style={{
-              flex: 2,
               flexDirection: 'column',
               justifyContent: 'space-evenly',
             }}
           >
-            <Text style={{ fontSize: 17, fontWeight: '500', textAlign: 'right'}}>{content}</Text>
+            <Text style={{ fontSize: 17, fontWeight: '500', textAlign: 'right', color: surfaceText.high,}}>{content}</Text>
             {content_subtitle ?
               <Text
                 style={{

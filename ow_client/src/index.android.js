@@ -1,8 +1,8 @@
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { Navigation } from 'react-native-navigation';
 import { registerScreens } from './screens';
 import { primaryDark, secondaryLight, secondaryDark, primaryLight, secondaryText, bgMed } from './utils/Colors';
-import { defaultNavigatorStyle } from './utils';
+import { defaultNavigatorStyle, showModal } from './utils';
 import { ConfigFactory, EnvConfig } from './config/ConfigFactory';
 import { FirebaseConfig } from './config/FirebaseConfig';
 import Config from 'react-native-config';
@@ -16,13 +16,12 @@ import { SearchButtonPressedEvent, SearchEventValue } from './utils/Events';
 import EventEmitter from "react-native-eventemitter";
 import { AppRegistry } from 'react-native';
 import TestApp from './TestApp';
-import { HomeScreenType } from './enums';
+import { HomeScreenType, NavigationStacks, NavigationButtons } from './enums';
 import { primaryText } from './utils/NewColors';
-
 
 // This fixes set issues with react native
 // ref: https://github.com/facebook/react-native/issues/3223
-require('core-js/es6/array')
+require('core-js/es6/array');
 
 let config: ConfigFactory;
 const orgId = EnvironmentConfig.OrgId;
@@ -43,7 +42,7 @@ Promise.resolve(true)
 .catch(err => {
   console.log("Error getting remote config", err);
   console.log("Defaulting to local config.");
-  
+
   switch (Config.CONFIG_TYPE) {
     case 'GGMNDevConfig':
       return GGMNDevConfig;
@@ -60,7 +59,7 @@ Promise.resolve(true)
   config = new ConfigFactory(_remoteConfig, envConfig, networkApi);
   return registerScreens(config);
 })
-.then(() => {
+.then(async () => {
   // AppRegistry.registerComponent('App', () => TestApp);
   Navigation.registerComponent('example.SearchButton', () => SearchButton);
 
@@ -95,47 +94,88 @@ Promise.resolve(true)
     }
   };
 
+  Navigation.setDefaultOptions({
+    layout: {
+      orientation: ['portrait']
+    }
+  })
+
   switch(config.getHomeScreenType()) {
     case (HomeScreenType.Map): {
-      Navigation.startSingleScreenApp({
-        screen: {
-          screen: 'screen.App',
-          title: config.getApplicationName(),
-          navigatorStyle: defaultNavigatorStyle,
-          navigatorButtons,
-        },
-        drawer,
-        animationType: 'fade',
-        passProps: { config },
-      });
+      // Navigation.startSingleScreenApp({
+      //   screen: {
+      //     screen: 'screen.App',
+      //     title: config.getApplicationName(),
+      //     navigatorStyle: defaultNavigatorStyle,
+      //     navigatorButtons,
+      //   },
+      //   drawer,
+      //   animationType: 'fade',
+      //   passProps: { config },
+      // });
 
       break;
     }
     case (HomeScreenType.Simple): {
-
-      Navigation.startSingleScreenApp({
-        screen: {
-          screen: 'screen.App',
-          title: config.getApplicationName(),
-          navigatorStyle: defaultNavigatorStyle,
-          navigatorButtons,
-        },
-        drawer,
-        animationType: 'fade',
-        passProps: { config },
-        appStyle: {
-          tabBarButtonColor: bgMed,
-          tabBarSelectedButtonColor: primaryDark,
-          orientation: 'portrait',
-          bottomTabBadgeTextColor: 'red', // Optional, change badge text color. Android only
-          bottomTabBadgeBackgroundColor: 'green', // Optional, change badge background color. Android only
-        },
+      await Navigation.setRoot({
+        root: {
+          sideMenu: {
+            left: {
+              component: {
+                name: 'screen.MenuScreen',
+                passProps: { config },
+                options: {
+                  topBar: { title: 'MENU' }
+                }
+              }
+            },
+            center: {
+              stack: {
+                id: NavigationStacks.Root,
+                children: [{
+                  component: {
+                    name: 'screen.App',
+                    passProps: { config }
+                  }
+                }],
+                options: {
+                  layout: { backgroundColor: '#ffffff' },
+                  topBar: {
+                    title: {
+                      text: config.getApplicationName(),
+                    }
+                  },
+                }
+              }
+            }
+          }
+        }
       });
-      
     break;
     }
-    default: 
+    default:
       throw new Error(`Unknown home screen type: ${config.getHomeScreenType()}`);
   }
+
+  Navigation.events().registerComponentDidAppearListener(async ev => {
+    switch (ev.componentName) {
+      case 'screen.App':
+        const [menuIcon, searchIcon] = await Promise.all([
+          MaterialIcons.getImageSource('menu', 25),
+          MaterialIcons.getImageSource('search', 25),
+        ]);
+
+        Navigation.mergeOptions(ev.componentId, {
+          topBar: {
+            leftButtons: [{ id: NavigationButtons.SideMenu, icon: menuIcon }],
+            rightButtons: [{ id: NavigationButtons.Search, icon: searchIcon }],
+            title: { text: config.getApplicationName() }
+          }
+        });
+        break;
+        default:
+        break;
+    }
+  });
 })
 .catch((err: Error) => console.log('Error Launching App:', err));

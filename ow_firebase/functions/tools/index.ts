@@ -1,5 +1,6 @@
 const request = require('request-promise-native');
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
+import { MyWellResourceTypes } from './mywellConfig';
 
 
 export const arg: any = (argList => {
@@ -55,11 +56,6 @@ export async function getAuthHeader(admin: any): Promise<{Authorization: string}
 }
 
 const { JWT } = require('google-auth-library');
-//TODO: make the user specify the key
-// const key = {
-//   client_email: '12345',
-//   private_key: '12345',
-// };
 
 /**
  * getAdminAccessToken
@@ -358,17 +354,7 @@ export async function getNewConfig(): Promise<any> {
       ]
     ),
     editResource_defaultTypes: buildParameter(
-      {
-        well: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-        raingauge: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-        quality: [
-          { name: 'salinity', parameter: 'salinity', readings: [] },
-          { name: 'ph', parameter: 'ph', readings: [] },
-          { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
-        ],
-        checkdam: [{ name: 'default', parameter: 'gwmbgs', readings: [] }],
-      }
-      , 
+      MyWellResourceTypes,
       'The default resource timeseries types', 
       conditionKeys, 
       [
@@ -387,17 +373,7 @@ export async function getNewConfig(): Promise<any> {
           ]
         }, 
         //MyWell
-        {
-          //TODO: I'm not sure what the parameter should be - default?
-          well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-          raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-          quality: [
-            { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
-          ],
-          checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-        }
+        MyWellResourceTypes
       ]),
     editResource_allowCustomId: buildParameter(
       false, 
@@ -405,7 +381,7 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       [true, true, false]
     ),
-    editResource_hasWaterColumnHeight: buildParameter(false, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, false]),
+    editResource_hasWaterColumnHeight: buildParameter(true, "When creating/editing a resource, should the user specify water column height?", conditionKeys, [true, true, true]),
     favouriteResource_scrollDirection: buildParameter(
       'Vertical', 
       'What direction does the favourite resource section scroll in?', 
@@ -463,7 +439,7 @@ export async function getNewConfig(): Promise<any> {
         '1000',
       ]
     ),
-    showMapInSidebar: buildParameter(true, 'Should we display the map in the sidebar?', conditionKeys, [false, false, true]),
+    showMapInSidebar: buildParameter(false, 'Should we display the map in the sidebar?', conditionKeys, [false, false, false]),
     resourceDetail_shouldShowTable: buildParameter(true, 'Show the readings table?', conditionKeys, [false, false, true]),
     resourceDetail_shouldShowQRCode: buildParameter(true, 'Show the QR code in ResourceDetailSection?', conditionKeys, [false, false, true]),
     favouriteResource_showPendingResources: buildParameter(true, 'Show the pending resources in the Favourites?', conditionKeys, [false, false, true]),
@@ -490,6 +466,34 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
     ]),
+    resourceDetail_graphButtons: buildParameter(
+        JSON.stringify([
+          { text: '3Y', value: 'THREE_YEARS' },
+          { text: '1Y', value: 'ONE_YEAR' },
+          { text: '3M', value: 'THREE_MONTHS' },
+        ]),
+        'the graph and table buttons',
+        conditionKeys, [
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '3Y', value: 'THREE_YEARS' },
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+          ]),
+        ]
+    ),
+    resourceDetail_graphUsesStrictDate: buildParameter(true, "Does the graph only display strict dates?", conditionKeys, [false, false, true]),
   };
 
   return Promise.resolve({

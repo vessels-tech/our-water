@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { Text } from "react-native-elements";
-import {  TextStyle, Linking } from "react-native";
+import {  TextStyle, Linking, ToastAndroid } from "react-native";
 import { maybeLog } from '../../utils';
 
 export interface Props {
@@ -10,13 +10,14 @@ export interface Props {
   url: string,
 }
 
-function goToURL(url: string) {
+export function goToURL(url: string) {
   Linking.canOpenURL(url)
   .then(supported => {
     if (supported) {
       Linking.openURL(url);
     } else {
       maybeLog("Cannot open url:", url);
+      ToastAndroid.show('Sorry, cannot open url', ToastAndroid.SHORT);
     }
   });
 }

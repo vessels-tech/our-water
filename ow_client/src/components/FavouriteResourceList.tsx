@@ -87,8 +87,7 @@ class FavouriteResourceList extends React.PureComponent<OwnProps & StateProps & 
       return null;
     }
 
-    //TODO: translate
-    const pending_resource_heading = "Pending Resources";
+    const { pending_resource_heading } = this.props.translation.templates;
     const { pendingResources } = this.props;
 
     if (pendingResources.length === 0) {

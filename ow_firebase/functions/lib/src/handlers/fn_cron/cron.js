@@ -9,7 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+<<<<<<< HEAD
 exports.trigger_backup_job = exports.weekly_job = exports.daily_job = exports.hourly_job = void 0;
+=======
+exports.weekly_job = exports.daily_job = exports.hourly_job = void 0;
+>>>>>>> mywell/development
 const functions = require("firebase-functions");
 const tools_1 = require("../../../tools");
 const CronUtils_1 = require("./CronUtils");
@@ -24,6 +28,7 @@ const hourly_job = functions.pubsub.topic('hourly-tick').onPublish((event) => {
 });
 exports.hourly_job = hourly_job;
 const daily_job = functions.pubsub.topic('daily-tick').onPublish((event) => __awaiter(void 0, void 0, void 0, function* () {
+<<<<<<< HEAD
     console.log("daily job");
     CronUtils_1.default.sendDailyEmail(FirebaseAdmin_1.firestore, 'mywell')
         .catch((err) => console.warn("Error sending daily email ", err));
@@ -38,6 +43,8 @@ const trigger_backup_job = functions.pubsub.topic('trigger-backup').onPublish((e
     if (!env_1.shouldBackupFirebaseOnCron) {
         console.log('should_backup_firebase_on_cron is false. Not backing up the database.');
     }
+=======
+>>>>>>> mywell/development
     let backupKey = _backupServiceAccountKey_1.default;
     if (env_1.backupServiceAccountKeyFilename.indexOf('development') > -1) {
         backupKey = _backupServiceAccountKey_development_1.default;
@@ -47,6 +54,8 @@ const trigger_backup_job = functions.pubsub.topic('trigger-backup').onPublish((e
     return Promise.all([
         CronUtils_1.default.backupDatabase(accessToken)
             .catch((err) => console.warn("Error backing up db", err)),
+        CronUtils_1.default.sendDailyEmail(FirebaseAdmin_1.firestore, 'mywell')
+            .catch((err) => console.warn("Error sending daily email ", err)),
     ]);
 }));
 exports.trigger_backup_job = trigger_backup_job;

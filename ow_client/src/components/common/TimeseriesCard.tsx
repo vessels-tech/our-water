@@ -164,7 +164,8 @@ class TimeseriesCard extends Component<OwnProps & StateProps & ActionProps> {
                 }
 
                 this.setState({ currentRange: b.value });
-                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.name, timeseriesId, b.value);
+                //TODO: ts.name or ts.parameter??
+                this.props.getReadings(this.appApi, this.props.resourceId, this.props.timeseries.parameter, timeseriesId, b.value);
               }}
             />
           ))}

@@ -3,8 +3,8 @@ import { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
-import { View, TouchableNativeFeedback, ToastAndroid } from 'react-native';
-import { randomPrettyColorForId, navigateTo, getShortIdOrFallback } from '../utils';
+import { View, TouchableNativeFeedback, ToastAndroid, EmitterSubscription } from 'react-native';
+import { randomPrettyColorForId, navigateTo, getShortIdOrFallback, unwrapUserId } from '../utils';
 //@ts-ignore
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { bgMed } from '../utils/Colors';
@@ -20,11 +20,12 @@ import { withTabWrapper } from '../components/TabWrapper';
 import { TranslationFile } from 'ow_translations/src/Types';
 import { AnyResource } from '../typings/models/Resource';
 import * as appActions from '../actions/index';
+import { Navigation } from 'react-native-navigation';
+import { NavigationStacks } from '../enums';
 
 
 const orgId = EnvironmentConfig.OrgId;
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
 }
 
@@ -40,7 +41,7 @@ export interface ActionProps {
   addRecent: (api: BaseApi, userId: string, resource: AnyResource) => any,
 }
 
-export interface State { 
+export interface State {
   isScreenFocussed: boolean,
 }
 
@@ -51,7 +52,8 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
   state: State = {
     isScreenFocussed: true,
   };
-  navigationListener: any;
+  // navigationListenerDidAppear: EmitterSubscription;
+  // navigationListenerDidDisappear: EmitterSubscription;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -59,48 +61,44 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     //@ts-ignore
     this.appApi = props.config.getAppApi();
 
-    this.navigationListener = this.props.navigator.addOnNavigatorEvent((event: any) => this.onNavigationEvent(event));
+    console.log('scan screen showing')
+    // this.setState({isScreenFocussed: true})
+
+    // this.navigationListenerDidAppear = Navigation.events().registerComponentDidAppearListener(() => {
+    //   this.setState({isScreenFocussed: true});
+    // });
+    //
+    // this.navigationListenerDidDisappear = Navigation.events().registerComponentDidDisappearListener(() => {
+    //   this.setState({isScreenFocussed: false});
+    // });
 
     /* binds */
     this.onScan = this.onScan.bind(this);
   }
 
   componentWillUnmount() {
-    
     //Remove the listener. For some reason this still causes setState issues
-    this.navigationListener();
-  }
-
-  onNavigationEvent(event: any) {
-    switch(event.id) {
-      case 'willAppear': 
-        this.setState({isScreenFocussed: true});
-      break;
-      case 'willDisappear':
-        this.setState({ isScreenFocussed: false });
-      break;
-    }
+    // this.navigationListenerDidAppear.remove();
+    // this.navigationListenerDidDisappear.remove();
   }
 
   handleScanError() {
     const { qr_code_not_found } = this.props.translation.templates;
+
     ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
-    //TODO: reset scanner
-    return;
   }
 
   handleResourceLookupError() {
     const { qr_code_not_found } = this.props.translation.templates;
+
     ToastAndroid.show(qr_code_not_found, ToastAndroid.LONG);
-    //TODO: reset scanner
-    return;
   }
 
   /**
    * The scanner can scan any type of barcode or qr code.
-   * we need to verify that it is an OurWater QR code, 
+   * we need to verify that it is an OurWater QR code,
    * and that the orgId matches this app's org id
-   * 
+   *
    * //TODO: eventally handle this with deep linking. For now, don't worry about it.
    */
   async onScan(result: any) {
@@ -115,7 +113,7 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
       return this.handleScanError();
     }
 
-    const validationResult: SomeResult<ResourceScanResult> = validateScanResult(parsedData, orgId);    
+    const validationResult: SomeResult<ResourceScanResult> = validateScanResult(parsedData, orgId);
     if (validationResult.type === ResultType.ERROR) {
       return this.handleScanError();
     }
@@ -124,10 +122,12 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (resourceResult.type === ResultType.ERROR) {
       return this.handleResourceLookupError();
     }
+
     this.props.addRecent(this.appApi, this.props.userId, resourceResult.result);
     const shortId = getShortIdOrFallback(resourceResult.result.id, this.props.shortIdCache);
 
-    //Navigate to a standalone resource view
+    //Pop to root first!
+    Navigation.popToRoot(NavigationStacks.Root);
     navigateTo(this.props, 'screen.SimpleResourceDetailScreen', shortId, {
       resourceId: validationResult.result.id,
       config: this.props.config,
@@ -137,7 +137,6 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   render() {
     const { scan_hint } = this.props.translation.templates;
-
     return (
       <View style={{
         width: '100%',
@@ -145,8 +144,11 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
         backgroundColor: bgMed,
         alignContent: 'center',
       }}>
-        {this.state.isScreenFocussed ? 
+        {this.state.isScreenFocussed ?
         <QRCodeScanner
+          cameraProps={{
+            captureAudio: false,
+          }}
           reactivate={true}
           showMarker={true}
           reactivateTimeout={1000 * 10}
@@ -161,19 +163,11 @@ class ScanScreen extends Component<OwnProps & StateProps & ActionProps> {
       </View>
     )
   }
-
 }
 
-//If we don't have a user id, we should load a different app I think.
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  let userId = ''; //I don't know if this fixes the problem...
-
-  if (state.user.type === UserType.USER) {
-    userId = state.user.userId;
-  }
-
   return {
-    userId,
+    userId: unwrapUserId(state.user),
     translation: state.translation,
     shortIdCache: state.shortIdCache,
   }
@@ -190,14 +184,7 @@ const mapDispatchToProps = (dispatch: any): ActionProps => {
   }
 }
 
-// export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
-// const connected = connect(mapStateToProps, mapDispatchToProps)(ScanScreen);
-
-// export default wrapTabComponent(connected, {});
-
-
 const enhance = compose(
-  withTabWrapper,
   connect(mapStateToProps, mapDispatchToProps),
 )
 

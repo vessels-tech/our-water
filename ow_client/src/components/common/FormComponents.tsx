@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { Component } from "react";
-import { View, Picker } from "react-native";
-import { FormValidationMessage, FormLabel, FormInput, Text } from "react-native-elements";
+import { View, Picker, StyleSheet } from "react-native";
+import { FormValidationMessage, FormLabel, FormInput, Text, CheckBox } from "react-native-elements";
 import { bgLightHighlight } from '../../utils/Colors';
 // @ts-ignore
 import PhoneInput from 'react-native-phone-input'
 import PhoneNumberEntry, { CallingCountry } from './PhoneNumberEntry';
 import { rightPad } from 'ow_common/lib/utils';
+import HTMLView from 'react-native-htmlview';
 
 
 export enum InputParams {
   Text = 'Text',
   Dropdown = 'Dropdown',
   Mobile = 'Mobile',
+  TickHtml = 'TickHtml',
 }
 
 export type TextInputParams = {
@@ -62,6 +64,19 @@ export type MobileInputParams = {
     asyncErrorMessage: string,
     //key is the actual value, label for translations
     options: { key: string, label: string }[],
+  },
+  hasError: (key: string) => boolean
+  errorMessage: string,
+}
+
+
+export type TickHtmlInputParams = {
+  type: InputParams.TickHtml,
+  handler: any,
+  touched: boolean,
+  meta: {
+    label: string,
+    errorMessage: string,
   },
   hasError: (key: string) => boolean
   errorMessage: string,
@@ -186,6 +201,50 @@ export const MobileInput = (params: MobileInputParams) => {
       <FormValidationMessage>
         {touched && hasError("required") && `${label} ${errorMessage}`}
         {touched && hasError('invalidPhoneNumber') && asyncErrorMessage}
+      </FormValidationMessage>
+    </View>
+  );
+}
+
+export const TickHtmlInput = (params: TickHtmlInputParams) => {
+  const { touched, type, handler, meta: { errorMessage, label }, hasError } = params;
+  const value = handler().value;
+  
+  const styles = StyleSheet.create({
+    p: {
+      flex: 5,
+      textAlign: 'left',
+      fontWeight: '300',
+      alignSelf: 'center',
+      // fontSize: 12,
+    },
+  });
+
+  return (
+    <View>
+      <View style={{
+          flexDirection: 'row', 
+          flex: 1,
+          justifyContent: 'space-between',
+        }}>
+        <HTMLView stylesheet={styles} value={label} />
+        <CheckBox
+          // iconRight={true}
+          textStyle={{
+            width: 0,
+          }}
+          checked={value}
+          //Some mad hacking to get this looking ok.
+          containerStyle={{
+            maxWidth: 45,
+            flex: 1,
+            marginLeft: 2,
+          }}
+          onPress={() => handler().onChange(!value)}
+        />
+      </View>
+      <FormValidationMessage>
+        {touched && hasError("required") && `${errorMessage}`}
       </FormValidationMessage>
     </View>
   );

@@ -3,7 +3,7 @@ import { PointType } from './Point';
 const handlebars = require('handlebars')
 
 
-const Template = 
+const Template =
 `
 <wml2:point>
   <wml2:MeasurementTVP>
@@ -29,7 +29,7 @@ export default class ObservationPoint implements SerdeXML, ObservationPointType 
   }
 
   serialize(): string {
-    const template = handlebars.serialize(Template);
+    const template = (<any>handlebars).serialize(Template);
     return template(this);
   }
 }

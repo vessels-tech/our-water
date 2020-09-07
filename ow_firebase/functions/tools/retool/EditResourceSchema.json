@@ -10,7 +10,13 @@
       "type:": "string",
       "title": "Resource Type",
       "description": "Warning: Editing this field can make past readings invalid",
-      "enum": ["well", "checkdam", "raingauge", "custom", "quality"]
+      "enum": [
+        "well",
+        "checkdam",
+        "raingauge",
+        "custom",
+        "quality"
+      ]
     },
     "coords": {
       "title": "Coordinates",
@@ -52,6 +58,9 @@
           "type": "string"
         },
         "createdByUserId": {
+          "type": "string"
+        },
+        "profileUrl": {
           "type": "string"
         }
       }

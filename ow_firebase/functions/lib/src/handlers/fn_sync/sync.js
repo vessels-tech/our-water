@@ -13,6 +13,7 @@ const validate = require("express-validation");
 const express = require("express");
 const cors = require("cors");
 const moment = require("moment");
+<<<<<<< HEAD
 const firebase = require("firebase-admin");
 const keyFilename = "./my-private-api-key-file.json"; //replace this with api key file
 const projectId = "our-water";
@@ -20,6 +21,14 @@ const bucketName = `${projectId}.appspot.com`;
 // const gcs = require('@google-cloud/storage')({ projectId });
 // const bucket = gcs.bucket(bucketName);
 const bucket = firebase.storage().bucket(bucketName);
+=======
+const storage_1 = require("@google-cloud/storage");
+const keyFilename = "./my-private-api-key-file.json"; //replace this with api key file
+const projectId = "our-water";
+const bucketName = `${projectId}.appspot.com`;
+const gcs = new storage_1.Storage({ projectId });
+const bucket = gcs.bucket(bucketName);
+>>>>>>> mywell/development
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const SyncMethod_1 = require("../../common/enums/SyncMethod");
@@ -214,6 +223,11 @@ module.exports = (functions) => {
             return;
         });
     });
-    return functions.https.onRequest(app);
+    return functions.runWith({
+        timeoutSeconds: 540,
+        memory: '256MB',
+    })
+        .https
+        .onRequest(app);
 };
 //# sourceMappingURL=sync.js.map

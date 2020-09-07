@@ -18,8 +18,8 @@ import BaseApi from '../../api/BaseApi';
 import { AppState, AnyOrPendingReading } from '../../reducers';
 import * as appActions from '../../actions/index';
 import { connect } from 'react-redux'
-import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries } from '../../utils';
-import SimpleChart from './SimpleChart';
+import { getTimeseriesReadingKey, filterAndSort, getHeadingForTimeseries, hashReadingId } from '../../utils';
+import SimpleChart, { SpecificChart } from './SimpleChart';
 import { isNullOrUndefined, isNull } from 'util';
 import { AnyTimeseries } from '../../typings/models/Timeseries';
 import { PendingReading } from '../../typings/models/PendingReading';
@@ -28,10 +28,17 @@ import { AnyReading } from '../../typings/models/Reading';
 import { ConfigTimeseries } from '../../typings/models/ConfigTimeseries';
 import { ActionMeta } from '../../typings/Reducer';
 import { surfaceLight } from '../../assets/ggmn/NewColors';
-import { surface, surfaceDark, surfaceText } from '../../utils/NewColors';
-import moment = require('moment');
+import { surface, surfaceDark, surfaceText, secondary } from '../../utils/NewColors';
+import moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { ResourceType } from '../../enums';
+import { calculateOneYearChunkedReadings } from './ChartHelpers';
+import { ReadingImageType } from '../../typings/models/ReadingImage';
+import { safeGetNestedDefault, safeGetNested } from 'ow_common/lib/utils';
+import { ReadingApi } from 'ow_common/lib/api';
+import FlatIconButton from './FlatIconButton';
+import { goToURL } from './Link';
+
 
 export enum TimeseriesCardType {
   default = 'graph',
@@ -48,6 +55,7 @@ export interface OwnProps {
   cardType: TimeseriesCardType,
   resourceType: ResourceType,
   children?: React.ReactChild,
+  openLocalReadingImage: (fileUrl: string) => void,
 }
 
 export interface StateProps {
@@ -65,21 +73,97 @@ export interface State {
   currentRange: TimeseriesRange,
 }
 
+export enum ViewImageButtonType {
+  None='None',
+  Local='Local',
+  Remote='Remote',
+}
+
+export const ViewImageButton = ({ 
+  reading, 
+  openLocalReadingImage, 
+  readingImageUrlBuilder 
+}: { reading: AnyOrPendingReading, openLocalReadingImage: (fileUrl: string) => void, readingImageUrlBuilder: (id: string) => string}) => {
+  let buttonType: ViewImageButtonType = ViewImageButtonType.None;
+
+  const fileUrl = safeGetNestedDefault(reading, ['image', 'fileUrl'], null);
+  if (fileUrl) {
+    if (safeGetNested(reading, ['isResourcePending'])) {
+      buttonType = ViewImageButtonType.Local;
+   } else {
+     //This will have fileUrl, but we have no guarantees about it
+     buttonType = ViewImageButtonType.Remote;
+   }
+  } 
+
+  const readingId = hashReadingId(reading.resourceId, reading.timeseriesId, reading.date);
+  const openUrl = readingImageUrlBuilder(readingId);
+  const buttonStyle = {};
+
+  return (
+    <View
+      style={{
+        width: 25,
+      }}
+    >
+      {buttonType === ViewImageButtonType.Remote && 
+        <FlatIconButton 
+          style={{
+            ...buttonStyle,
+          }}
+          name={'open-in-new'}
+          onPress={() => goToURL(openUrl)}
+          color={secondary}
+          isLoading={false}
+          // size={32}
+        />
+      }
+      {buttonType === ViewImageButtonType.Local && 
+        <FlatIconButton 
+          style={{
+           ...buttonStyle,
+          }}
+          name={'open-in-new'}
+          onPress={() => openLocalReadingImage(fileUrl)}
+          color={secondary}
+          isLoading={false}
+          // size={32}
+        />
+      }
+    </View>
+  );
+}
+
 /**
  *  TimeseriesCard is a card that displays a timeseries graph,
  *  along with some basic controls for changing the time scale
  */
 class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
-  state: State = {
-    currentRange: TimeseriesRange.EXTENT,
-  }
+  state: State;
+  chunkedReadings: Array<Array<AnyOrPendingReading>> = [[]];
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
 
+    /* Set the default buttons */
+    const buttons = props.config.getResourceDetailGraphButtons();
+    const currentRange = buttons[buttons.length - 1].value;
+    this.state = {
+      currentRange,
+    }
+
+    /* calcualte the chunked readings */
+    this.chunkedReadings = calculateOneYearChunkedReadings(filterAndSort(props.tsReadings, TimeseriesRange.THREE_YEARS));
+
     //@ts-ignore
     this.appApi = this.props.config.getAppApi();
+  }
+
+  componentWillReceiveProps(nextProps: OwnProps & StateProps & ActionProps, nextContext: any) {
+    if (this.props.tsReadings.length !== nextProps.tsReadings.length) {
+      this.chunkedReadings = calculateOneYearChunkedReadings(filterAndSort(nextProps.tsReadings, TimeseriesRange.THREE_YEARS));
+    }
   }
 
   getNotEnoughReadingsDialog() {
@@ -96,10 +180,11 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
 
   getGraphView() {
     const { currentRange } = this.state;
-    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { name }, resourceId } = this.props;
+    const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure }} = this.props;
     if (cardType !== TimeseriesCardType.graph) {
       return null;
     }
+    const strictDateMode = this.props.config.getResourceDetailGraphUsesStrictDate();
 
     if (newTsReadingsMeta.loading) {
       return <Loading/>
@@ -110,16 +195,22 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
     if (filteredReadings.length === 0) {
       return this.getNotEnoughReadingsDialog();
     }
-    
+
     return (
       <View style={{
         flex: 5,
         justifyContent: 'center'
       }}>
-        <SimpleChart
-          pendingReadings={[]}
+        {/* SpecificChart is a wrapper around SimpleChart that does some nice configration */}
+        <SpecificChart
           readings={filteredReadings}
+          //An array of readings to be used for multi-range graphs
+          chunkedReadings={this.chunkedReadings}
+          resourceType={this.props.resourceType}
           timeseriesRange={currentRange} 
+          strictDateMode={strictDateMode}
+          translation={this.props.translation}
+          unitOfMeasure={unitOfMeasure}
         />
       </View>
     );
@@ -128,9 +219,11 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   getTableView() {
     const { currentRange } = this.state;
     const { cardType, tsReadings, newTsReadingsMeta, timeseries: { unitOfMeasure } } = this.props;
-    // const { default_datetime_format } = this.props.translation.templates;
-    //TODO: Translate!
-    const default_datetime_format = "HH:MM DD/MM/YY";
+    const { 
+      default_datetime_format,
+      reading_image_url_builder
+    } = this.props.translation.templates;
+
     if (cardType !== TimeseriesCardType.table) {
       return null;
     }
@@ -173,6 +266,11 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
                 <Text
                   style={{ flex: 1}}
                 >{`${item.value} ${unitOfMeasure}`}</Text>
+                <ViewImageButton 
+                  reading={item}
+                  openLocalReadingImage={(fileUrl: string) => this.props.openLocalReadingImage(fileUrl)}
+                  readingImageUrlBuilder={reading_image_url_builder}
+                />
               </View> 
             )
           }}
@@ -182,12 +280,7 @@ class TimeseriesCardSimple extends Component<OwnProps & StateProps & ActionProps
   }
 
   getBottomButtons() {
-    const buttons: { text: string, value: TimeseriesRange }[] = [
-      { text: '1Y', value: TimeseriesRange.ONE_YEAR},
-      { text: '3M', value: TimeseriesRange.THREE_MONTHS},
-      { text: '2W', value: TimeseriesRange.TWO_WEEKS},
-      { text: 'EXTENT', value: TimeseriesRange.EXTENT},
-    ];
+    const buttons = this.props.config.getResourceDetailGraphButtons();
 
     return (
       <View style={{

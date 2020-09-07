@@ -323,7 +323,7 @@ export default class FirebaseApi {
   /**
    * CreateShortId
    * 
-   * Test of CreateShortId with Firebase Transactions
+   * If shortId already exists, just returns the existing one. Otherwise it creates a new ShortId
    */
   public async createShortId(orgId: string, longId: string): Promise<SomeResult<ShortId>> {
     const existingShortIdResult = await this.getShortId(orgId, longId);
