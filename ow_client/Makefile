@@ -117,12 +117,14 @@ bundle:
 	rm -f ${dir}/android/app/src/main/res/drawable-mdpi/src*
 	rm -f ${dir}/android/app/src/main/res/drawable-mdpi/node*
 
+# Builds without signing - useful for dev builds
 build:
 	@make env
 	@echo 'Building debug only'
 	../env/increment_build.sh
 	source ../env/.env.deployment.sh && source /tmp/ow_env  && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleDebug --stacktrace
 
+# Builds and then signs the .apk
 build-production:
 	@make env
 	@echo 'Building production only'
