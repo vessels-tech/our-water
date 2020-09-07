@@ -3,6 +3,7 @@
 #
 
 PATH := node_modules/.bin:$(PATH)
+$(shell touch .ow_config; touch /tmp/ow_env )
 PROJECT = "OW_CLIENT"
 include .ow_config
 include /tmp/ow_env 
