@@ -18,10 +18,6 @@ all: env server
 install:
 	yarn
 
-<<<<<<< HEAD
-=======
-
->>>>>>> mywell/development
 #
 #	Env Setup
 # ------------

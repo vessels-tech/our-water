@@ -97,7 +97,8 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "tslint-react-recommended": "^1.0.15",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.1",
+    "jetifier": "1.6.6"
   },
   "jest": {
     "preset": "react-native"
