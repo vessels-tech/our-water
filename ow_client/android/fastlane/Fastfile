@@ -6,33 +6,17 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit a new beta build to hockeyapp"
+  desc "Submit a new beta build to appcenter"
   lane :upload_app_center do
-    # ref: https://docs.fastlane.tools/actions/hockey/
-    # hockey(
-    #   api_token: ENV["HOCKEY_APP_API_KEY"],
-    #   apk: ENV["APK_PATH"],
-    #   # public_identifier: ENV["public_identifier"],
-    #   # bundle_short_version: ENV["bundle_short_version"],
-    #   # bundle_version: ENV["bundle_version"],
-    #   notes: "Changelog",
-    #   strategy: "replace" # Replace existing builds with the same build number
-    #   # create_update: true,
-    # )
-
     appcenter_upload(
       api_token: ENV["APPCENTER_API_KEY"],
       owner_name: "lewis-vesselstech.com",
       owner_type: "user", # Default is user - set to organization for appcenter organizations
-      app_name: "MyWell-Dev",
+      app_name: ENV["APPCENTER_APP_NAME"],
       file: ENV["APK_PATH"],
       notify_testers: false # Set to false if you don't want to notify testers of your new release (default: `false`)
     )
-
   end
-
- 
-
 
   desc "Deploy a new version to the Google Play"
   lane :deploy do
