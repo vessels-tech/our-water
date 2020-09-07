@@ -152,10 +152,10 @@ build-and-install-production:
 #	Deployment
 # ------------
 
-hockey:
+upload-test:
 	source ../env/.env.deployment.sh && \
 		cd ${dir}/android/fastlane && \
-		fastlane upload_hockey
+		bundle exec fastlane upload_app_center
 
 
 .PHONY: server android clean 
