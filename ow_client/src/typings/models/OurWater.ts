@@ -5,8 +5,6 @@ import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
-import { string } from "react-native-joi";
-import { AnyARecord } from "dns";
 import { UserStatus } from "../UserTypes";
 import UserType from "ow_common/lib/enums/UserType";
 import { CacheType } from "../../reducers";
@@ -140,6 +138,7 @@ export type OWUser = {
   status: UserStatus,
   type: UserType,
   newResources: CacheType<string>,
+  image: string | null
 }
 
 export type TimeSeriesReading = {

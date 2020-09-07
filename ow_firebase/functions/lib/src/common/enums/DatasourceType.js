@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DatasourceType = void 0;
 var DatasourceType;
 (function (DatasourceType) {
     DatasourceType["LegacyMyWellDatasource"] = "LegacyMyWellDatasource";

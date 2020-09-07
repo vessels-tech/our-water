@@ -1,18 +1,19 @@
-import * as admin from 'firebase-admin';
+import * as admin from "firebase-admin";
 
-let firestore;
-import serviceAccountKey from '../.serviceAccountKey';
-import { storageBucket } from '../env';
-
+let firestore: FirebaseFirestore.Firestore;
+import serviceAccountKey from "../.serviceAccountKey";
+import { storageBucket } from "../env";
 
 if (admin.apps.length === 0) {
   admin.initializeApp({
     //@ts-ignore
     credential: admin.credential.cert(serviceAccountKey),
-    storageBucket,
+    storageBucket
   });
   firestore = admin.firestore();
-  const settings = { };
+  // const settings = { timestampsInSnapshots: true };
+  const settings = {};
+  // console.log("FirebaseAdmin calling firestore.settings");
   firestore.settings(settings);
 }
 
@@ -23,9 +24,4 @@ if (!firestore) {
 
 const storage = admin.storage();
 
-export {
-  admin,
-  auth,
-  firestore,
-  storage,
-}
+export { admin, auth, firestore, storage };

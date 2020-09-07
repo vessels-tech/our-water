@@ -1,20 +1,16 @@
-
-import * as Joi from 'react-native-joi';
-import { Reading, ResourceScanResult } from '../typings/models/OurWater';
-import { SomeResult, ResultType, ErrorResult, SuccessResult, makeError, makeSuccess } from '../typings/AppProviderTypes';
+import 'text-encoding';
+import * as Joi from '@hapi/joi';
+import { ResourceScanResult } from '../typings/models/OurWater';
+import { SomeResult, ResultType, makeError, makeSuccess } from '../typings/AppProviderTypes';
 import { ResourceType } from '../enums';
 import { maybeLog } from '../utils';
-import { AnyReading, GGMNReading, MyWellReading } from '../typings/models/Reading';
 import { OrgType } from "../typings/models/OrgType";
 import { ReadingImageType } from '../typings/models/ReadingImage';
-import { string } from 'prop-types';
 import { ReadingLocationType } from '../typings/models/ReadingLocation';
 import { PendingResource } from '../typings/models/PendingResource';
 import { PendingReading } from '../typings/models/PendingReading';
-import { join } from 'path';
 
-
-const PendingReadingSchema = {
+const PendingReadingSchema = Joi.object({
   id: Joi.string(), //Id will probably be undefined
   pending: Joi.boolean().required(),
   resourceId: Joi.string().required(),
@@ -26,7 +22,7 @@ const PendingReadingSchema = {
   resourceType: Joi.string().required(),
 
   value: Joi.number().required(),
-  image: Joi.allow([
+  image: Joi.allow(
     Joi.object().keys({
       type: Joi.string().equal(ReadingImageType.NONE)
     }),
@@ -34,8 +30,8 @@ const PendingReadingSchema = {
       type: Joi.string().equal(ReadingImageType.IMAGE),
       url: Joi.string().required()
     })
-  ]).required(),
-  location: Joi.allow([
+  ).required(),
+  location: Joi.allow(
     Joi.object().keys({
       type: Joi.string().equal(ReadingLocationType.NONE)
     }),
@@ -46,20 +42,20 @@ const PendingReadingSchema = {
         _longitude: Joi.number().required(),
       })
     })
-  ]).required(),
+  ).required(),
   groundwaterStationId: Joi.any(),
   isResourcePending: Joi.boolean().required(),
-}
+});
 
 
 export function validateReading(orgType: OrgType, reading: any): SomeResult<PendingReading> {
-  const schema: Joi.SchemaLike = PendingReadingSchema;
+  const schema: Joi.Schema = PendingReadingSchema;
   const options = {
     stripUnknown: true,
   };
 
-  const result: Joi.ValidationResult<PendingReading> = Joi.validate(reading, schema, options);
-  if (result.error !== null) {
+  const result: Joi.ValidationResult = schema.validate(reading, options);
+  if (typeof result.error !== 'undefined') {
     return makeError(result.error.message);
   }
 
@@ -74,7 +70,7 @@ export function validateReading(orgType: OrgType, reading: any): SomeResult<Pend
  * https://github.com/hapijs/joi/blob/v14.3.1/API.md
  */
 export function validateResource(resource: any): SomeResult<PendingResource> {
-  const schema: Joi.SchemaLike = Joi.object().keys({
+  const schema: Joi.Schema = Joi.object().keys({
     id: Joi.string(),
     name: Joi.string(),
     pending: Joi.boolean().allow(true).required(),
@@ -83,7 +79,7 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
       longitude: Joi.number(),
     }).required(),
     //TODO: make one of ResourceType
-    resourceType: Joi.valid(Object.keys(ResourceType)).required(),
+    resourceType: Joi.valid.apply(Joi, Object.keys(ResourceType)).required(),
     owner: Joi.object().keys({
       name: Joi.string().required(),
       createdByUserId: Joi.string().optional(),
@@ -98,11 +94,13 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
     })).required(),
     waterColumnHeight: Joi.number(),
     groups: Joi.object().required(),
+    locationName: Joi.string().required(),
+    image: Joi.string().allow('')
   });
 
-  const result = Joi.validate(resource, schema);
+  const result = schema.validate(resource);
 
-  if (result.error !== null) {
+  if (typeof result.error !== 'undefined') {
     maybeLog("validation error: " + result.error);
     return makeError(result.error.message);
   }
@@ -117,13 +115,13 @@ export function validateResource(resource: any): SomeResult<PendingResource> {
  * 
  */
 export function validateScanResult(scanResult: any, orgId: string): SomeResult<ResourceScanResult> {
-  const schema: Joi.SchemaLike = Joi.object().keys({
+  const schema: Joi.Schema = Joi.object().keys({
     orgId: Joi.string().valid(orgId),
     assetType: Joi.string().valid('resource'),
     id: Joi.string(),
   });
 
-  const result = Joi.validate(scanResult, schema);
+  const result = schema.validate(scanResult);
   if (result.error) {
     maybeLog('validateScanResult error: ', result.error);
     return {

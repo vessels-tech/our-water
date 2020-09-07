@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -22,7 +23,6 @@ const UserType_1 = require("ow_common/lib/enums/UserType");
 const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin');
 require('express-async-errors');
 module.exports = (functions) => {
     const app = express();
@@ -31,11 +31,11 @@ module.exports = (functions) => {
     app.use(middleware_1.validateFirebaseIdToken);
     app.use(middleware_1.validateUserIsAdmin);
     /**
-     * ChangeUserStatus
+     * @function ChangeUserStatus
      * PATCH /:orgId/:userId/status
      *
-     * Change the user's status to either Approved or Rejected.
-     * If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
+     * @description Change the user's status to either Approved or Rejected.
+     *     If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
      */
     const changeUserStatusValidation = {
         options: {
@@ -46,7 +46,7 @@ module.exports = (functions) => {
             shouldSync: Joi.boolean(),
         },
     };
-    app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const { status } = req.body;
         const shouldSync = req.body.shouldSync || false;
@@ -66,7 +66,6 @@ module.exports = (functions) => {
         }
         res.status(204).send("true");
     }));
-    //       status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
     /**
      * ChangeUserType
      * PATCH /:orgId/:userId/type
@@ -81,7 +80,7 @@ module.exports = (functions) => {
             type: Joi.string().valid(Object.keys(UserType_1.default)),
         },
     };
-    app.patch('/:orgId/:userId/type', validate(changeUserTypeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.patch('/:orgId/:userId/type', validate(changeUserTypeValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const { type } = req.body;
         //TODO: how to make sure only Admin can call this endpoint? 
@@ -103,7 +102,7 @@ module.exports = (functions) => {
             readings: Joi.array().min(1).required(),
         }
     };
-    app.post('/:orgId/:userId/bulk_upload_readings', validate(bulkUploadReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.post('/:orgId/:userId/bulk_upload_readings', validate(bulkUploadReadingsValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, userId } = req.params;
         const { readings } = req.body;
         const { validateOnly } = req.query;

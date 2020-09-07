@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["es6"],
+    "lib": [
+      "es6"
+    ],
     "module": "commonjs",
-    //TODO: disable this eventually, 
+    //TODO: disable this eventually,
     "noImplicitReturns": false,
     "outDir": "lib",
     "sourceMap": true,
@@ -10,9 +12,10 @@
     "allowJs": true,
     "jsx": "react",
     "types": [
-      "node", 
+      "node",
       "mocha"
     ],
+    "skipLibCheck": true
   },
   "compileOnSave": true,
   "include": [

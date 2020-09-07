@@ -18,7 +18,7 @@ import { AppState } from '../../reducers';
 import { connect } from 'react-redux';
 import { primaryText } from '../../utils/Colors';
 import { TranslationFile } from 'ow_translations';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export enum InputType {
   fieldInput,
@@ -36,7 +36,6 @@ export interface OwnProps {
   iconColor: string,
   fieldType: InputType,
 }
-
 export interface StateProps {
   translation: TranslationFile
 
@@ -48,7 +47,7 @@ export interface ActionProps {
 
 
 class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
-  
+
   shouldDisplayErrorMessage() {
     const { errorMessage } = this.props;
     if (!errorMessage || errorMessage === '') {
@@ -70,11 +69,11 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
   /**
    * This is a button which looks like a form input. It displays a date time picker
    * instead of a keyboard
-   * 
+   *
    */
   dep_getFormInputCalendar() {
     const {
-      value 
+      value
     } = this.props;
 
     return (
@@ -86,7 +85,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
           loading={false}
           buttonStyle={{
             // width: '100%',
-            backgroundColor: 'transparent', 
+            backgroundColor: 'transparent',
           }}
           // titleStyle={{ fontWeight: 'bold', fontSize: 23 }}
           // containerStyle={{
@@ -102,7 +101,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
       </View>
     );
   }
-  
+
   getFormInputCalendar() {
     const {
       calendar_input_confirm,
@@ -113,8 +112,8 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
 
     return (
       <DatePicker
-        style={{ 
-          // width: 200 
+        style={{
+          // width: 200
           flex: 5,
           borderWidth: 0,
           marginBottom: 10,
@@ -139,7 +138,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
         }}
         onDateChange={(date) => {
           this.props.onChangeText(moment(date, long_date_format));
-          // this.setState({ date: date }) 
+          // this.setState({ date: date })
         }}
         onOpenModal={() => {
           return false;
@@ -149,7 +148,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getFormInputField() {
-    const { 
+    const {
       placeholder,
       onChangeText,
       onSubmitEditing,
@@ -194,7 +193,7 @@ class IconFormInput extends Component<OwnProps & StateProps & ActionProps> {
     } = this.props;
 
     return (
-      <View 
+      <View
         style={{}}
       >
         <View style={{

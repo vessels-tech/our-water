@@ -1,27 +1,24 @@
 //@ts-ignore
-import {ScreenVisibilityListener as RNNScreenVisibilityListener} from 'react-native-navigation';
+import { Navigation } from 'react-native-navigation';
 import { crashlyticsLog } from '.';
+import { EmitterSubscription } from 'react-native';
 
 
 export class ScreenVisibilityListener {
-  listener: RNNScreenVisibilityListener;
-
-  constructor() {
-    this.listener = new RNNScreenVisibilityListener({
-      didAppear: ({screen, startTime, endTime, commandType}: any) => {
-        crashlyticsLog(`screenVisibility: Screen ${screen} displayed in ${endTime - startTime} millis after [${commandType}]`);
-      }
-    });
-  }
+  listener?: EmitterSubscription;
 
   register() {
-    this.listener.register();
+    if (typeof this.listener === 'undefined') {
+      this.listener = Navigation.events().registerComponentDidAppearListener((payload) => {
+        
+      });
+    }
   }
 
   unregister() {
-    if (this.listener) {
-      this.listener.unregister();
-      this.listener = null;
+    if (typeof this.listener !== 'undefined') {
+      this.listener.remove();
+      this.listener = undefined;
     }
   }
 }

@@ -27,12 +27,13 @@ import { isDefined, isUndefined, getOrElse, safeGetNested, safeGetNestedDefault 
 import { statusBarTextColorScheme } from '../assets/mywell/NewColors';
 
 import withPreventDoubleClick from '../components/common/withPreventDoubleClick';
+import { Navigation } from 'react-native-navigation';
+import { NavigationStacks } from '../enums';
 const ListItemEx = withPreventDoubleClick(ListItem);
 
 export interface OwnProps {
   onSearchResultPressedV1: (result: AnyResource) => void,
   onSearchResultPressed: (result: PartialResourceResult | PlaceResult) => void,
-  navigator: any;
   userId: string,
   config: ConfigFactory,
 }
@@ -47,7 +48,7 @@ export interface StateProps {
   shortIdCache: CacheType<string>, //resourceId => shortId
 }
 
-export interface ActionProps { 
+export interface ActionProps {
   performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => SomeResult<void>
 }
 
@@ -112,7 +113,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
     this.setState({hasSearched: true});
     const result = await this.props.performSearch(this.appApi, this.props.userId, searchQuery, pageOverride || this.state.page, this.props.config.getShouldUseV1Search());
-       
+
     if (result.type === ResultType.ERROR) {
       ToastAndroid.showWithGravity(search_error, ToastAndroid.SHORT, ToastAndroid.CENTER);
     }
@@ -122,24 +123,24 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.setState({ searchQuery, hasSearched: false });
   }
 
-  searchFirstPage() { 
+  searchFirstPage() {
     this.performSearch(1);
   }
 
   loadMore() {
     const { page } = this.state;
-    this.setState({page: page + 1}, 
+    this.setState({page: page + 1},
       () => this.performSearch()
     );
   }
 
   onSearchResultPressedV1(r: AnyResource){
-    this.props.navigator.pop();
+    // Navigation.pop(NavigationStacks.Root)
     this.props.onSearchResultPressedV1(r)
   }
 
   onSearchResultPressed(r: PartialResourceResult | PlaceResult){
-    this.props.navigator.pop();
+    // Navigation.pop(NavigationStacks.Root)
     this.props.onSearchResultPressed(r)
   }
 
@@ -152,9 +153,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
    * similar to google maps.
    */
   getSearchResultsV1() {
-    const { 
-      searchResultsV1, 
-      searchResultsMeta: { loading }, 
+    const {
+      searchResultsV1,
+      searchResultsMeta: { loading },
       translation: { templates: { search_more } },
     } = this.props;
     const { page } = this.state;
@@ -192,9 +193,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
                 avatar={getGroundwaterAvatar()}
               />
             );
-          })  
+          })
         }
-        {/* TODO: only display if we have 25 results, 
+        {/* TODO: only display if we have 25 results,
             we need to pass through the page size in the meta field */}
         {searchResultsV1.hasNextPage ?
           <ListItemEx
@@ -214,7 +215,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   /**
    * getSearchResults
-   * 
+   *
    * Display the search results, divided by category
    * Currently only resource and place
    */
@@ -263,7 +264,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
               return acc + `${formatSubtitlekey(curr)}:${value}${sep}`;
             }, "");
           };
-  
+
           return (
             <ListItemEx
               containerStyle={{
@@ -297,14 +298,14 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getNoResultsFoundText() {
     const { hasSearched } = this.state;
-    const { 
+    const {
       searchResultsV1,
       searchResults,
       searchResultsMeta: { loading },
       translation: { templates: { search_no_results } },
     } = this.props;
 
-    if (loading) { 
+    if (loading) {
       return null;
     }
 
@@ -339,8 +340,8 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
   getSearchHint() {
     const { searchQuery } = this.state;
-    const { 
-      recentSearches, 
+    const {
+      recentSearches,
       searchResultsV1,
       searchResultsMeta: { loading },
       translation: { templates: { search_hint } },
@@ -371,9 +372,9 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getRecentSearches() {
-    const { 
-      recentSearches, 
-      searchResultsMeta: {loading}, 
+    const {
+      recentSearches,
+      searchResultsMeta: {loading},
       searchResultsV1,
       searchResults,
       translation: { templates: { search_recent_searches } },
@@ -395,7 +396,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (recentSearches.length === 0) {
       return null;
     }
-  
+
     return (
       <View>
         <Card title={search_recent_searches}>
@@ -438,6 +439,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   render() {
+    console.log('search render called')
     /*
       no search + no recent searches         =>  Search Hint
       no search + recent searches            =>  Recent Searches
@@ -445,7 +447,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
       search no results + no recent searches =>  No Results Found
       search no results + recent searches    =>  No Results Found + Recent Searches
     */
-    
+
     //TODO: add 'showing offline results only. Connect to mobile or wifi to get more accurate results'
     return (
       <View style={{
@@ -453,7 +455,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
         height: '100%'
       }}>
         {this.getSearchBar()}
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps={'always'}
         >
@@ -471,7 +473,7 @@ class SearchScreen extends Component<OwnProps & StateProps & ActionProps> {
 
 
 const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
-  return { 
+  return {
     isConnected: state.isConnected,
     recentSearches: state.recentSearches,
     searchResultsV1: state.searchResultsV1,
@@ -484,10 +486,10 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) => 
+    performSearch: (api: BaseApi, userId: string, searchQuery: string, page: number, v1: boolean) =>
       dispatch(appActions.performSearch(api, userId, searchQuery, page, v1))
   }
-} 
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
 
@@ -499,7 +501,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
 function mapAndDedupSearchResults<T>(
   results: Array<SearchResult<Array<PartialResourceResult | PlaceResult>>>,
   type: SearchResultType,
-  dedupFunction: (item: T) => string): Array<T> 
+  dedupFunction: (item: T) => string): Array<T>
 {
   const resultsDup: Array<T> = results
     .filter(sr => sr.type === type)

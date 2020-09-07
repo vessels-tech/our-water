@@ -11,7 +11,6 @@ import BaseApi from '../api/BaseApi';
 
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
   // children: any,
@@ -35,9 +34,9 @@ export function withTabWrapper(WrappedComponent: any) {
       EventEmitter.addListener(SearchButtonPressedEvent, this.onNavigatorEvent.bind(this));
     }
 
-    async onNavigatorEvent(event: any) {      
+    async onNavigatorEvent(event: any) {
       //TODO: push only when this screen is visible
-      const isVisible = await this.props.navigator.screenIsCurrentlyVisible();
+      const isVisible = false // TODO KEVIN
       if (!isVisible) {
         return;
       }

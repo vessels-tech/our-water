@@ -19,7 +19,6 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export interface OwnProps {
-  navigator: any;
   config: ConfigFactory,
   appApi: BaseApi,
 }

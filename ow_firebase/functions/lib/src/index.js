@@ -1,10 +1,21 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.userRecordUpdated = exports.userAccountDefaults = exports.weekly_job = exports.daily_job = exports.hourly_job = void 0;
 const functions = require("firebase-functions");
 const FirebaseAdmin_1 = require("./common/apis/FirebaseAdmin");
 const UserType_1 = require("ow_common/lib/enums/UserType");
 const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
+const EmailApi_1 = require("./common/apis/EmailApi");
 // const admin = require('firebase-admin');
 // admin.initializeApp();
 /**
@@ -13,7 +24,7 @@ const UserStatus_1 = require("ow_common/lib/enums/UserStatus");
  * the imports for firebase functions
  */
 const functionName = process.env.FUNCTION_NAME;
-console.log("init for function", functionName);
+console.log('init for function', functionName);
 //Admin Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
     exports.admin = require('./handlers/fn_admin/admin')(functions);
@@ -68,13 +79,59 @@ exports.userAccountDefaults = functions.firestore
     .document('org/mywell/user/{userId}')
     .onCreate((snapshot, context) => {
     const { userId } = context.params;
-    console.log("user id is", userId);
-    const userDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell').collection('user').doc(userId);
+    console.log('user id is', userId);
+    const userDoc = FirebaseAdmin_1.firestore
+        .collection('org')
+        .doc('mywell')
+        .collection('user')
+        .doc(userId);
     return userDoc.set({
         status: UserStatus_1.default.Unapproved,
         type: UserType_1.default.User
     }, { merge: true });
 });
+exports.testOnCreateDocument = functions.https.onRequest((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    FirebaseAdmin_1.firestore
+        .collection('org')
+        .doc('mywell')
+        .collection('user')
+        .add({ User: 'kevin-test' });
+    res.json({ status: 'ok' });
+}));
+/**
+ * @function userRecordUpdated
+ *
+ * @description If a user is updated, check a number of fields to see if the user has fully signed in for the first time
+ *   If they have, add them to a list of users to the email digest
+ */
+// TODO: manual test!
+// #MARK - #2103 KEVIN
+// Email Notifications
+// - Add an email alert to info@marvi.org.in email address when a new account is created
+// - Email should include basic information about the user so we can contact them if needed, and easily find them in the Admin system
+exports.userRecordUpdated = functions.firestore
+    .document('org/mywell/user/{userId}')
+    .onUpdate((change, context) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = context.params;
+    const newValue = change.after.data();
+    const oldValue = change.before.data();
+    /* If they already had a name, or didn't add a name we can ignore it*/
+    if (oldValue.name || !newValue.name) {
+        return;
+    }
+    const email = yield EmailApi_1.default.sendUserSignupEmail('kevindoveton@me.com', { name: 'kevin', email: 'kevin@ME.COM' });
+    const metadataDoc = FirebaseAdmin_1.firestore.collection('org').doc('mywell');
+    /* add as a dict to allow for nice merging */
+    return metadataDoc.set({
+        metadata: {
+            newSignUps: {
+                [userId]: true
+            }
+        }
+    }, {
+        merge: true
+    });
+}));
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});
 //TODO: move these functions to new doc
@@ -122,7 +179,7 @@ exports.userAccountDefaults = functions.firestore
 //   return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).get()
 //     .then(doc => {
 //       const res = doc.data();
-//       if (res.lastReadingDatetime 
+//       if (res.lastReadingDatetime
 //         && res.lastReadingDatetime > newReading.datetime) {
 //         console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
 //         return true;

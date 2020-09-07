@@ -4,18 +4,18 @@ import { UserBuilder } from 'firebase-functions/lib/providers/auth';
 import { firestore } from './common/apis/FirebaseAdmin';
 import UserType from 'ow_common/lib/enums/UserType';
 import UserStatus from 'ow_common/lib/enums/UserStatus';
-
+import EmailApi from './common/apis/EmailApi';
 
 // const admin = require('firebase-admin');
 // admin.initializeApp();
 
 /**
- * This file works better in JS, 
+ * This file works better in JS,
  * When it is in TS, it gets compiled to JS and this breaks
  * the imports for firebase functions
  */
 const functionName = process.env.FUNCTION_NAME;
-console.log("init for function", functionName);
+console.log('init for function', functionName);
 
 //Admin Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
@@ -23,7 +23,11 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'admin') {
 }
 
 //Cron Api
-export const { hourly_job, daily_job, weekly_job } = require('./handlers/fn_cron/cron');
+export const {
+  hourly_job,
+  daily_job,
+  weekly_job
+} = require('./handlers/fn_cron/cron');
 
 //Group Api
 if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'group') {
@@ -65,32 +69,86 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'public') {
   exports.public = require('./handlers/fn_public/public')(functions);
 }
 
-
-
 /**
  * userAccountDefaults
- * 
+ *
  * When a user account is first created, set the defaults:
  * - status: "Unapproved"
  * - type: "User"
- * 
+ *
  * //TD: how to define for only some environments?
  * //For now, this is mywell only.
- * 
+ *
  * //TD: Use the properly defined types here.
  */
 export const userAccountDefaults = functions.firestore
   .document('org/mywell/user/{userId}')
   .onCreate((snapshot, context) => {
     const { userId } = context.params;
-    console.log("user id is", userId);
-    const userDoc = firestore.collection('org').doc('mywell').collection('user').doc(userId);
-    return userDoc.set({ 
-      status: UserStatus.Unapproved,
-      type: UserType.User
-    }, { merge: true });
+    console.log('user id is', userId);
+    const userDoc = firestore
+      .collection('org')
+      .doc('mywell')
+      .collection('user')
+      .doc(userId);
+    return userDoc.set(
+      {
+        status: UserStatus.Unapproved,
+        type: UserType.User
+      },
+      { merge: true }
+    );
   });
 
+exports.testOnCreateDocument = functions.https.onRequest(async (req, res) => {
+  firestore
+    .collection('org')
+    .doc('mywell')
+    .collection('user')
+    .add({ User: 'kevin-test' });
+  res.json({ status: 'ok' });
+});
+
+/**
+ * @function userRecordUpdated
+ *
+ * @description If a user is updated, check a number of fields to see if the user has fully signed in for the first time
+ *   If they have, add them to a list of users to the email digest
+ */
+// TODO: manual test!
+// #MARK - #2103 KEVIN
+// Email Notifications
+// - Add an email alert to info@marvi.org.in email address when a new account is created
+// - Email should include basic information about the user so we can contact them if needed, and easily find them in the Admin system
+export const userRecordUpdated = functions.firestore
+  .document('org/mywell/user/{userId}')
+  .onUpdate(async (change, context) => {
+    const { userId } = context.params;
+    const newValue = change.after.data();
+    const oldValue = change.before.data();
+
+    /* If they already had a name, or didn't add a name we can ignore it*/
+    if (oldValue.name || !newValue.name) {
+      return;
+    }
+
+    const email = await EmailApi.sendUserSignupEmail('kevindoveton@me.com', {name: 'kevin', email: 'kevin@ME.COM'});
+
+    const metadataDoc = firestore.collection('org').doc('mywell');
+    /* add as a dict to allow for nice merging */
+    return metadataDoc.set(
+      {
+        metadata: {
+          newSignUps: {
+            [userId]: true
+          }
+        }
+      },
+      {
+        merge: true
+      }
+    );
+  });
 
 // const fs = admin.firestore();
 // fs.settings({timestampsInSnapshots: true});
@@ -125,10 +183,9 @@ export const userAccountDefaults = functions.firestore
 //     .then(() => console.log(`added metadata to /org/${orgId}/reading/${readingId}`))
 //   });
 
-
 /**
  * Update the last value on resource when there is a new reading
- * 
+ *
  * when doing bulk uploads, add a field: `isLegacy:true` to the readings, which will bypass this function
  */
 // export const updateLastValue = functions.firestore
@@ -149,7 +206,7 @@ export const userAccountDefaults = functions.firestore
 //     .then(doc => {
 //       const res = doc.data();
 
-//       if (res.lastReadingDatetime 
+//       if (res.lastReadingDatetime
 //         && res.lastReadingDatetime > newReading.datetime) {
 //         console.log(`newer reading for /org/${orgId}/resource/${resourceId} already exists`);
 //         return true;
@@ -162,7 +219,6 @@ export const userAccountDefaults = functions.firestore
 //       return fs.collection('org').doc(orgId).collection('resource').doc(resourceId).update(latestReadingMetadata);
 //     });
 // });
-
 
 /*
 
@@ -177,9 +233,6 @@ TODO: watches for SyncRuns:
 - when a SyncRun changes state to failed, send error to subscribers
 
 */
-
-
-
 
 //TODO: on creation of a resource, send an email or sms
 //These aren't so pressing...

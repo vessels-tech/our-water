@@ -2,10 +2,11 @@
 # OW Client
 #
 
+$(shell touch /tmp/ow_env)
 PATH := node_modules/.bin:$(PATH)
 PROJECT = "OW_CLIENT"
 include .ow_config
-include /tmp/ow_env 
+include /tmp/ow_env
 dir = $(shell pwd)
 devBuildNumber = $(shell date +%s)
 buildNumber= $(shell cat ${dir}/../env/buildnumber)
@@ -67,10 +68,13 @@ switch-mywell-prod:
 #
 # runs the local bundler server
 #
-server: 
+server:
 	@make env
-	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
-	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --projectRoot ./src/
+	# ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start --root ./src/
+	ENVFILE=/tmp/ow_env node node_modules/react-native/local-cli/cli.js start \
+		--projectRoot ./src/ \
+		--watchFolders `pwd` \
+		--sourceExts js,ts,tsx,jsx
 
 #
 # runs on an android device.
@@ -79,7 +83,9 @@ server:
 android:
 	@make env
 	@make update-env-dev
-	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android --config ${dir}/rn-cli.config.js --no-packager --appIdSuffix ${PACKAGE_NAME_SUFFIX}
+	source /tmp/ow_env && ENVFILE=/tmp/ow_env react-native run-android \
+		--no-packager \
+		--appIdSuffix ${PACKAGE_NAME_SUFFIX}
 
 android-log:
 	@react-native log-android
@@ -117,7 +123,7 @@ bundle:
 		--platform android \
 		--dev false \
 		--minify true \
-		--entry-file ./src/index.js \
+		--entry-file ./src/index.android.js \
 		--bundle-output android/app/src/main/assets/index.android.bundle \
 		--reset-cache \
 		--assets-dest android/app/src/main/res/ \
@@ -132,21 +138,21 @@ build:
 	@make env
 	@make update-env-dev
 	@echo 'Building debug only'
-	source ../env/.env.deployment.sh && source /tmp/ow_env  && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle assembleDebug --stacktrace
+	source ../env/.env.deployment.sh && source /tmp/ow_env && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle app:assembleDebug --stacktrace
 
 build-production:
 	@make env
 	@make update-env-prod
 	@echo 'Building production only'
 	../env/increment_build.sh
-	source /tmp/ow_env &&  source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle assembleRelease --stacktrace
+	source /tmp/ow_env && source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
 	@echo "signing with key: '${KEYSTORE_PATH}'"
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ${KEYSTORE_PATH} app-release-unsigned.apk -storepass ${KEYSTORE_PASSWORD} ${KEYSTORE_ALIAS}
 	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -f -v 4 app-release-unsigned.apk app-release-signed-aligned.apk
 	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -c -v 4 app-release-signed-aligned.apk
 
 install-android:
-	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install app-debug.apk
+	cd ${dir}/android/app/build/outputs/apk/debug/ && adb install -r app-debug.apk
 
 install-android-production:
 	cd ${dir}/android/app/build/outputs/apk/release/ && adb install -r app-release-signed-aligned.apk
@@ -173,4 +179,4 @@ hockey:
 		fastlane upload_hockey
 
 
-.PHONY: server android clean 
+.PHONY: server android clean

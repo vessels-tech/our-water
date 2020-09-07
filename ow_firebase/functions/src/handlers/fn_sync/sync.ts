@@ -2,13 +2,12 @@ import * as validate from 'express-validation';
 import * as express from 'express';
 import * as cors from 'cors';
 import * as moment from 'moment';
-import * as firebase from 'firebase-admin';
+import { Storage } from '@google-cloud/storage'
 
 const keyFilename = "./my-private-api-key-file.json"; //replace this with api key file
 const projectId = "our-water"
 const bucketName = `${projectId}.appspot.com`;
-
-const gcs = require('@google-cloud/storage')({ projectId });
+const gcs = new Storage({ projectId });
 const bucket = gcs.bucket(bucketName);
 
 const bodyParser = require('body-parser');
@@ -50,7 +49,7 @@ module.exports = (functions) => {
 
   /**
    * GET Syncs
-   * 
+   *
    * Gets all the syncs for an orgId
    */
   app.get('/:orgId', async (req, res, next) => {
@@ -70,7 +69,7 @@ module.exports = (functions) => {
 
   /**
    * GET syncRunsForSync
-   * 
+   *
    * Gets the sync runs for a given sync run
    */
   app.get('/:orgId/syncRuns/:syncId', async (req, res, next) => {
@@ -90,7 +89,7 @@ module.exports = (functions) => {
 
   /**
    * DELETE sync
-   * 
+   *
    * Delete the sync for an id
    */
   app.delete('/:orgId/:id', async (req, res, next) => {
@@ -109,15 +108,15 @@ module.exports = (functions) => {
 
   /**
    * createSync
-   * 
+   *
    * Creates a new sync with the given settings
-   */ 
+   */
   const initDatasourceWithOptions = (datasource): Datasource => {
     console.log("datasource", datasource);
     switch(datasource.type) {
       case DatasourceType.LegacyMyWellDatasource:
         return new LegacyMyWellDatasource(datasource.url, datasource.selectedDatatypes);
-        
+
       case DatasourceType.FileDatasource:
         const {fileUrl, dataType, fileFormat, options} = datasource;
 
@@ -134,7 +133,7 @@ module.exports = (functions) => {
 
     const ds = initDatasourceWithOptions(datasource);
     const sync: Sync = new Sync(isOneTime, ds, orgId, [SyncMethod.validate], frequency);
-    
+
     return sync.create({firestore})
     .then((createdSync: Sync) => {
       return res.json({data:{syncId: createdSync.id}});
@@ -149,13 +148,13 @@ module.exports = (functions) => {
 
   /**
    * runSync(orgId, syncId)
-   * 
+   *
    * runs the sync of the given id.
    * Syncs each have a number of methods:
    * - validate
    * - pushTo
    * - pullFrom
-   * 
+   *
    * later on
    * - get (returns the given data for the sync)
    * - post (updates the given data for ths sync)
@@ -183,7 +182,7 @@ module.exports = (functions) => {
       }
 
       //TODO: put in proper email addresses
-      const run: SyncRun = new SyncRun(orgId, syncId, method, ['lewis@vesselstech.com']);
+      const run: SyncRun = new SyncRun(orgId, syncId, <any>method, ['lewis@vesselstech.com']);
       return run.create({firestore});
     })
     .then((run: SyncRun) => {
@@ -232,12 +231,12 @@ module.exports = (functions) => {
           contentType: readingsFile.mimetype,
         },
       })
-    })    
+    })
     .then(sn => res.json({ fileUrl: `http://storage.googleapis.com/${bucketName}/${destination}`}))
     .catch(err => {
       console.log('POST uploadFile err', err);
       next(err);
-      
+
       return;
     });
   });

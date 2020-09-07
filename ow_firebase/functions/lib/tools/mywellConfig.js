@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MyWellResourceTypes = void 0;
 const MyWellResourceTypes = {
     well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
     raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],

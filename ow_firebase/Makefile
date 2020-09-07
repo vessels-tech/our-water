@@ -1,7 +1,7 @@
 #
 # OW Firebase
 #
-
+$(shell touch /tmp/ow_firebase_env)
 PROJECT = "OW_FIREBASE"
 include .ow_firebase_config
 include /tmp/ow_firebase_env 

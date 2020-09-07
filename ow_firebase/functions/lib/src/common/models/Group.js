@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Group = void 0;
 const util_1 = require("util");
 const admin = require('firebase-admin');
 const GeoPoint = admin.firestore.GeoPoint;

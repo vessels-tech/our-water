@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -59,7 +60,7 @@ module.exports = (functions) => {
             id: Joi.string().required(),
         }
     };
-    app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/qrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
@@ -67,7 +68,7 @@ module.exports = (functions) => {
         const buffer = AppProviderTypes_1.unsafeUnwrap(yield QRCode_1.getWholeQR(orgId, shortId.shortId, id));
         res.json(buffer.toString('base64'));
     }));
-    app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadQrCode', validate(generateQRCodeValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = req.query;
         const { orgId } = req.params;
         const fbApi = new FirebaseApi_1.default(FirebaseAdmin_1.firestore);
@@ -94,7 +95,7 @@ module.exports = (functions) => {
             resourceIds: Joi.string().required(),
         }
     };
-    app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadReadings', validate(getReadingsValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let { resourceIds } = req.query;
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
@@ -129,7 +130,7 @@ module.exports = (functions) => {
             resourceId: Joi.string().required(),
         }
     };
-    app.get('/:orgId/downloadReadingImages', validate(getReadingImagesValidation), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/downloadReadingImages', validate(getReadingImagesValidation), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let { resourceId } = req.query;
         const { orgId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
@@ -147,7 +148,7 @@ module.exports = (functions) => {
             const error = new Error(`No readings found for ids: ${resourceId}`);
             return res.status(404).send(error);
         }
-        //Get a zip file containing all images 
+        //Get a zip file containing all images
         const readingImagesBase64 = api_1.ExportApi.exportReadingImages(readings.readings);
         if (readingImagesBase64.length === 0) {
             const error = new Error(`No images found for readings for resourceId: ${resourceId}`);
@@ -158,7 +159,7 @@ module.exports = (functions) => {
             fs.mkdirSync(dirName);
         }
         //Write each image to a file
-        yield readingImagesBase64.reduce((acc, curr) => __awaiter(this, void 0, void 0, function* () {
+        yield readingImagesBase64.reduce((acc, curr) => __awaiter(void 0, void 0, void 0, function* () {
             yield acc;
             const file = `${dirName}/${curr.id}.png`;
             //TODO: figure out how to save a png
@@ -174,7 +175,7 @@ module.exports = (functions) => {
      * View a reading image for a given readingId. Returns a simple webpage
      *
      */
-    app.get('/:orgId/image/:readingId', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get('/:orgId/image/:readingId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { orgId, readingId } = req.params;
         const readingApi = new api_1.ReadingApi(FirebaseAdmin_1.firestore, orgId);
         const readingImage = AppProviderTypes_1.unsafeUnwrap(yield readingApi.getReadingImage(readingId));

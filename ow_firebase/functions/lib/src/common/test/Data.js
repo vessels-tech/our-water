@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.pendingResourcesData = exports.basicReading = exports.basicResource = void 0;
 const Resource_1 = require("../models/Resource");
 const ResourceIdType_1 = require("../types/ResourceIdType");
 const Reading_1 = require("../models/Reading");

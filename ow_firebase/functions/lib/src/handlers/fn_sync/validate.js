@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createSyncValidation = void 0;
 const SyncDatatypes_1 = require("../../common/types/SyncDatatypes");
 const SyncFrequency_1 = require("../../common/enums/SyncFrequency");
 const Joi = require('joi');

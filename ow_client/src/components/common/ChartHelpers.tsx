@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { AnyOrPendingReading } from "../../reducers";
 import Svg, { Circle, Line, Rect, Text, G } from 'react-native-svg'
-import * as moment from 'moment';
+import moment from 'moment';
 import { surfaceText, secondaryDark, secondaryPallette } from '../../utils/NewColors';
 //@ts-ignore
 import { YAxis } from 'react-native-svg-charts'
@@ -20,7 +20,7 @@ export type ContentInsetType = {
 
 export interface GenericProps {
   x: any,
-  y: any, 
+  y: any,
   data: AnyOrPendingReading[],
   timeseriesRange: TimeseriesRange,
   strictMode: boolean,
@@ -31,15 +31,15 @@ export interface YAxisProps {
 }
 
 export interface DateTicksProps {
-  dateOption: ChartDateOption, 
+  dateOption: ChartDateOption,
 }
 
 export interface VerticalGridProps {
-  dateOption: ChartDateOption, 
+  dateOption: ChartDateOption,
 }
 
 export interface DateLabelProps {
-  dateOption: ChartDateOption, 
+  dateOption: ChartDateOption,
 }
 
 
@@ -68,7 +68,7 @@ export const calculateOneYearChunkedReadings = (readings: AnyOrPendingReading[])
 
 /**
  * getMinAndMaxValues
- * 
+ *
  * Get the minimum and maximum values for the set of readings.
  */
 export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: number, max: number} => {
@@ -105,8 +105,8 @@ export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: numbe
   });
 
 
-  return { 
-    min, 
+  return {
+    min,
     max
   };
 }
@@ -114,14 +114,14 @@ export const getMinAndMaxValues = (readings: AnyOrPendingReading[]): {min: numbe
 
 /**
  * getDatesForDataAndDistribution
- * @param data 
- * @param dateOption 
+ * @param data
+ * @param dateOption
  * @param timeseriesRange - TimeseriesRange the timeseries range for the dates. Ignored if strictMode is false
  * @param strictMode - boolean. If true, then will return strictly the dates for the given timeseries range, relative to now
  */
 export const getDatesForDataAndDistribution = (
-  data: AnyOrPendingReading[], 
-  dateOption: ChartDateOption, 
+  data: AnyOrPendingReading[],
+  dateOption: ChartDateOption,
   timeseriesRange: TimeseriesRange,
   strictMode: boolean): Date[] => {
 
@@ -182,7 +182,7 @@ export const getValuesForDataAndDistribution = (data: AnyOrPendingReading[], tic
   for (let i = min; i <= max; i += step) {
     values.push(i);
   }
-  
+
   return values
 }
 
@@ -297,7 +297,7 @@ export const YAxisLabels = (props: GenericProps & YAxisProps) => {
 }
 
 /**
- * Custom horizontal grid 
+ * Custom horizontal grid
  */
 export const HorizontalGrid = (props: GenericProps) => {
   const { y, data } = props;
