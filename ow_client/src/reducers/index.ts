@@ -7,7 +7,7 @@ import { MaybeUser, UserType, MobileUser, UserStatus } from "../typings/UserType
 import { ActionType } from "../actions/ActionType";
 import { AnyAction } from "../actions/AnyAction";
 import { Location, NoLocation, LocationType } from "../typings/Location";
-import { getTimeseriesReadingKey, maybeLog, dedupArray, arrayExpire, arrayExpireRegionAware, dedupArrayPreserveOrder } from "../utils";
+import { getTimeseriesReadingKey, maybeLog, dedupArray, arrayExpire, arrayExpireRegionAware, dedupArrayPreserveOrder, crashlyticsLog } from "../utils";
 import { ActionMeta, SyncMeta, SearchResultsMeta } from "../typings/Reducer";
 import { GGMNOrganisation } from "../typings/models/GGMN";
 import { TranslationEnum, TranslationFile, TranslationFiles, possibleTranslationsForOrg } from "ow_translations";
@@ -40,7 +40,7 @@ export type AnyOrPendingReading = AnyReading | PendingReading;
 export type AppState = {
   //Session based
   isConnected: boolean,
-  
+
   //Local
   externalLoginDetails: AnyLoginDetails,
   externalLoginDetailsMeta: SyncMeta,
@@ -54,6 +54,7 @@ export type AppState = {
   email: string | null,
   name: string | null,
   nickname: string | null,
+  image: string | null,
 
   //Api
   resources: AnyResource[],
@@ -65,20 +66,20 @@ export type AppState = {
   externalOrgsMeta: ActionMeta,
   tsReadings: TimeseriesReadings, //simple map: key: `resourceId+timeseriesName+range` => TimeseriesReading
   //Even simpler version. We just have a list of readings for the associated resourceId.
-  newTsReadings: CacheType<Array<AnyOrPendingReading>>, 
+  newTsReadings: CacheType<Array<AnyOrPendingReading>>,
   newTsReadingsMeta: CacheType<ActionMeta>,
 
   shortIdMeta: CacheType<ActionMeta>,
   shortIdCache: CacheType<string>,
   unsubscribeFromUser: () => void,
-  
+
   //Firebase
   favouriteResources: AnyResource[],
   favouriteResourcesMeta: ActionMeta,
   pendingSavedReadings: PendingReading[],
   pendingSavedReadingsMeta: SyncMeta,
   pendingSavedResources: PendingResource[],
-  pendingSavedResourcesMeta: SyncMeta, 
+  pendingSavedResourcesMeta: SyncMeta,
   recentResources: AnyResource[],
   recentResourcesMeta: ActionMeta,
   recentSearches: string[],
@@ -96,7 +97,7 @@ export type AppState = {
 export const initialState: AppState = {
   //Session
   isConnected: true,
-  
+
   //Local
   externalLoginDetails: {
     type: LoginDetailsType.EMPTY,
@@ -113,14 +114,15 @@ export const initialState: AppState = {
   email: null,
   name: null,
   nickname: null,
+  image: null,
 
   //Api
   resources: [],
   resourcesMeta: { loading: false, error: false, errorMessage: '' },
   resourceMeta: {},
-  // resourcesCache: {}, 
+  // resourcesCache: {},
   resourcesCache: [],
-  externalSyncStatus: { 
+  externalSyncStatus: {
     status: ExternalSyncStatusType.COMPLETE,
     pendingResourcesResults: {},
     pendingReadingsResults: {},
@@ -136,7 +138,7 @@ export const initialState: AppState = {
   unsubscribeFromUser: () => console.log("no user to unsubscribe from"),
 
   //Firebase
-  user: {type: UserType.NO_USER}, 
+  user: {type: UserType.NO_USER},
   userIdMeta: { loading: false, error: false, errorMessage: '' },
   userStatus: UserStatus.Unapproved,
   syncStatus: SyncStatus.none,
@@ -172,7 +174,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       return Object.assign({}, state, { externalLoginDetailsMeta })
     }
-    case ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE: 
+    case ActionType.CONNECT_TO_EXTERNAL_SERVICE_RESPONSE:
     case ActionType.GET_EXTERNAL_LOGIN_DETAILS_RESPONSE: {
       const externalLoginDetailsMeta = { loading: false };
 
@@ -311,7 +313,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         }
         return `${r.date}+${r.resourceId}+${r.timeseriesId}`
       });
-      
+
       //Update the values
       newTsReadings[action.resourceId] = dedup;
       newTsReadingsMeta[action.resourceId] = meta;
@@ -322,7 +324,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       //start loading
       const resourceMeta = state.resourceMeta;
       resourceMeta[action.resourceId] = { loading: true, error: false, errorMessage: '' };
-      
+
       return Object.assign({}, state, { resourceMeta });
     }
     case ActionType.GET_RESOURCE_RESPONSE: {
@@ -366,7 +368,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         resourcesMeta = {loading: false, error: true, errorMessage: action.result.message}
         return Object.assign({}, state, { resourcesMeta, resources});
       }
-      
+
       resources = [];
       const newResources = action.result.result;
       /* Save to cache */
@@ -438,7 +440,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let userStatus = state.userStatus;
       let userType = state.userType;
       let newResources = state.newResources;
-      
+      let image = state.image;
+
       if (action.result.type !== ResultType.ERROR) {
         favouriteResources = action.result.result.favouriteResources;
         recentResources = action.result.result.recentResources;
@@ -453,8 +456,11 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userStatus = action.result.result.status;
         userType = action.result.result.type;
         newResources = action.result.result.newResources;
+        image = action.result.result.image;
+
+        crashlyticsLog(`redux GET_USER_RESPONSE, language is: ${language}`);
       }
-      
+
       //TODO: error handling?
       return Object.assign({}, state, {
         favouriteResources,
@@ -471,6 +477,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         userStatus,
         userType,
         newResources,
+        image
       });
     }
     case ActionType.GOT_SHORT_IDS: {
@@ -493,6 +500,8 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
         return Object.assign({}, state, { userIdMeta });
       }
+
+      crashlyticsLog(`redux LOGIN_CALLBACK, userId is: ${result.result.userId}`);
 
       return Object.assign({}, state, {
         user: result.result,
@@ -528,7 +537,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       let lastSearchResultsMeta: SearchResultsMeta = state.searchResultsMeta;
       let searchResultsMeta: SearchResultsMeta = { loading: false, error: false, errorMessage: '', searchQuery: lastSearchResultsMeta.searchQuery};
       let searchResultsV1 = state.searchResultsV1;
-      
+
       const result = action.result;
       if (result.type === ResultType.ERROR) {
         searchResultsMeta = { loading: false, error: true, errorMessage: 'Could not load search. Please try again.', searchQuery: lastSearchResultsMeta.searchQuery };
@@ -537,7 +546,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       const resources: AnyResource[] = searchResultsV1.resources.concat(result.result.resources);
       searchResultsV1 = { resources, hasNextPage: result.result.hasNextPage };
-      
+
       return Object.assign({}, state, { searchResultsV1, searchResultsMeta});
     }
     case ActionType.PERFORM_SEARCH_RESPONSE_V2: {
@@ -558,13 +567,13 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
           searchResults.push(r.result)
         }
       });
-    
+
       return Object.assign({}, state, { searchResultsMeta, searchResults });
     }
     case ActionType.REFRESH_READINGS: {
       const newTsReadings: CacheType<AnyOrPendingReading[]> = state.newTsReadings;
 
-      /* 
+      /*
         If force is true, refresh everything and merge with the action's resourceIds
       */
       let resourceIds = action.resourceIds;
@@ -588,12 +597,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
         });
         newTsReadings[id] = dedup;
       });
-      
+
       return Object.assign({}, state, { newTsReadings });
     }
     case ActionType.SILENT_LOGIN_REQUEST: {
       const userIdMeta = {loading: true, error: false, errorMessage: ''};
-      
+
       return Object.assign({}, state, { userIdMeta });
     }
     case ActionType.SILENT_LOGIN_RESPONSE: {
@@ -616,12 +625,12 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
     case ActionType.ADD_RECENT_REQUEST: {
       //Set the recent resource meta to loading: true
       const recentResourcesMeta = {loading: true};
-      
+
       return Object.assign({}, state, { recentResourcesMeta })
     }
 
     case ActionType.ADD_RECENT_RESPONSE: {
-      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };  
+      let recentResourcesMeta: ActionMeta = { loading: false, error: false, errorMessage: '' };
 
       if (action.result.type === ResultType.ERROR) {
         console.log("ADD_RECENT_RESPONSE error", action.result);
@@ -679,11 +688,11 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { externalSyncStatus })
     }
 
-    case ActionType.START_EXTERNAL_SYNC_RESPONSE: {      
+    case ActionType.START_EXTERNAL_SYNC_RESPONSE: {
       //If this errored out, then something serious went wrong
       if (action.result.type === ResultType.ERROR) {
-        const externalSyncStatus: ExternalSyncStatusComplete = { 
-          status: ExternalSyncStatusType.COMPLETE,  
+        const externalSyncStatus: ExternalSyncStatusComplete = {
+          status: ExternalSyncStatusType.COMPLETE,
           pendingResourcesResults: {},
           pendingReadingsResults: {},
           newResources: [],
@@ -703,11 +712,11 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       return Object.assign({}, state, { externalSyncStatus })
     }
 
-    case ActionType.START_INTERNAL_SYNC_RESPONSE: {      
+    case ActionType.START_INTERNAL_SYNC_RESPONSE: {
       //If this errored out, then something serious went wrong
       if (action.result.type === ResultType.ERROR) {
-        const externalSyncStatus: ExternalSyncStatusComplete = { 
-          status: ExternalSyncStatusType.COMPLETE,  
+        const externalSyncStatus: ExternalSyncStatusComplete = {
+          status: ExternalSyncStatusType.COMPLETE,
           pendingResourcesResults: {},
           pendingReadingsResults: {},
           newResources: [],
@@ -725,7 +734,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
       if (currentExternalLoginDetails.type === LoginDetailsType.FULL &&
         currentExternalLoginDetails.status === ConnectionStatus.SIGN_IN_SUCCESS) {
-        
+
           const newExternalLoginDetails: AnyLoginDetails = {
             externalOrg: action.organisation,
             type: LoginDetailsType.FULL,
@@ -735,7 +744,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
           return Object.assign({}, state, { externalLoginDetails: newExternalLoginDetails });
       }
-      
+
       return state;
     }
     case ActionType.UPDATED_TRANSLATION: {
@@ -774,15 +783,15 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
 
         return Object.assign({}, state, { userIdMeta });
       }
-      
+
       //Unsubscrbe, to old user. Actions handle the new subscription
       state.unsubscribeFromUser();
 
       //Update the user and token
       const user: MobileUser = {
-        type: UserType.MOBILE_USER, 
-        userId: result.result.userId, 
-        token: result.result.token, 
+        type: UserType.MOBILE_USER,
+        userId: result.result.userId,
+        token: result.result.token,
         mobile: result.result.mobile,
       };
       return Object.assign({}, state, {
@@ -791,7 +800,7 @@ export default function OWApp(state: AppState | undefined, action: AnyAction): A
       });
     }
 
-    default: 
+    default:
       return state;
   }
 }

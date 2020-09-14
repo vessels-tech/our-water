@@ -3,6 +3,8 @@ package com.vesselstech;
 import android.app.Application;
 
 import com.reactnativenavigation.NavigationApplication;
+// import com.reactnativenavigation.react.NavigationReactNativeHost;
+// import com.reactnativenavigation.react.ReactGateway;
 
 import com.facebook.react.ReactApplication;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -18,7 +20,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import org.reactnative.camera.RNCameraPackage;
 
-import com.crashlytics.android.Crashlytics;
+// import com.crashlytics.android.Crashlytics;
 
 //react-native-maps
 import com.airbnb.android.react.maps.MapsPackage;
@@ -30,6 +32,13 @@ import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
 import io.invertase.firebase.perf.RNFirebasePerformancePackage;
+
+//react-native-exception-handler
+import com.masteratul.exceptionhandler.ReactNativeExceptionHandlerPackage;
+
+//react-native-webview
+// import com.reactnativecommunity.webview.RNCWebViewPackage;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +69,9 @@ public class MainApplication extends NavigationApplication {
             new RNFirebaseRemoteConfigPackage(),
             new RNFirebaseCrashlyticsPackage(),
             new RNFirebasePerformancePackage(),
-            new RNCameraPackage()
+            new RNCameraPackage(),
+            new ReactNativeExceptionHandlerPackage()
+            // new RNCWebViewPackage()
       );
   }
 
@@ -69,10 +80,10 @@ public class MainApplication extends NavigationApplication {
       return getPackages();
   }
 
-  @Override
-  public String getJSMainModuleName() {
-      return "index";
-  }
+  // @Override
+  // public String getJSMainModuleName() {
+  //     return "index";
+  // }
 
   // @Override
   // public ReactNativeHost getReactNativeHost() {

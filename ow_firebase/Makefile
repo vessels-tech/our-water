@@ -1,8 +1,9 @@
 #
 # OW Firebase
 #
-
+$(shell touch /tmp/ow_firebase_env)
 PROJECT = "OW_FIREBASE"
+$(shell touch .ow_firebase_config; touch /tmp/ow_firebase_env )
 include .ow_firebase_config
 include /tmp/ow_firebase_env 
 dir = $(shell pwd)
@@ -37,17 +38,6 @@ switch-prod:
 #
 #	Remote Config
 # ------------
-
-update-translations:
-	@echo 'pulling translations'
-	cd ${dir}/../ow_translations && make 
-
-	@make install-translations
-	@make update-remote-config
-
-install-translations:
-	@echo 'installing latest packages'
-	cd ${dir}/functions && npm install
 	
 update-remote-config:
 	@echo 'deploying remote config'
@@ -74,6 +64,7 @@ run-local:
 	@echo 'running local firebase'	
 	# cd ${dir}/functions && NODE_ENV=local firebase functions:config:get > .runtimeconfig.json
 	cd ${dir}/functions && yarn watch & firebase serve --only functions
+
 
 function-shell:
 	@echo running firebase shell
@@ -106,14 +97,27 @@ clean-node:
 install:
 	@cd ${dir}/functions; yarn
 
+lint:
+	@cd ${dir}/functions; ./node_modules/.bin/tslint --project tsconfig.json
+
+build:
+	@cd ${dir}/functions; ./node_modules/.bin/tsc
+
 
 #
 # Deployment
 # ------------
 
+test-and-deploy:
+	make test-unit test-service deploy
+
 deploy:
 	@echo 'Deploying Firebase'
 	@./_deploy_fb.sh
+
+deploy-public:
+	@echo 'Deploying Hosting only'
+	@firebase deploy --only hosting
 
 
 deploy-with-tests: test-unit test-service deploy

@@ -1,7 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import { randomPrettyColorForId, formatShortId } from '../../utils';
-import { View, Dimensions } from 'react-native';
-import { Button, Badge } from 'react-native-elements';
+import { View, TouchableNativeFeedback } from 'react-native';
+import { Button, Badge, Text } from 'react-native-elements';
 import { secondaryText } from '../../utils/Colors';
 import { ActionMeta } from '../../typings/Reducer';
 import { connect } from 'react-redux'
@@ -12,12 +12,14 @@ import { ConfigFactory } from '../../config/ConfigFactory';
 import { ResultType } from '../../typings/AppProviderTypes';
 import { AnyResource } from '../../typings/models/Resource';
 import { OrgType } from '../../typings/models/OrgType';
-import { primaryText } from '../../assets/ggmn/Colors';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { isNullOrUndefined } from 'util';
+import * as Animatable from 'react-native-animatable';
 
 import withPreventDoubleClick from './withPreventDoubleClick';
-const ButtonEx = withPreventDoubleClick(Button);
+import { surfaceText } from '../../utils/NewColors';
+import { TranslationFile } from 'ow_translations/src/Types';
+const TouchableNativeFeedbackEx = withPreventDoubleClick(TouchableNativeFeedback);
 
 export interface OwnProps {
   config: ConfigFactory,
@@ -31,6 +33,7 @@ export interface StateProps {
   shortIdMeta?: ActionMeta,
   shortId?: string,
   isNew: boolean,
+  translation: TranslationFile,
 }
 
 export interface ActionProps {
@@ -72,48 +75,84 @@ class ResourceCell extends Component<OwnProps & StateProps & ActionProps> {
     return titleResult.result;
   }
 
+  getTitleOrAnimation() {
+    if (!this.props.config.getUsesShortId() || (this.props.shortIdMeta && !this.props.shortIdMeta.loading)) {
+      return (
+        <Text
+          style={{
+            fontSize: 17,
+            fontWeight: 'bold',
+            color: surfaceText.high
+          }}
+        >
+          {this.getTitle()}
+        </Text>
+      );
+    }
+
+    return (
+      <Animatable.View 
+        animation="flash" 
+        iterationCount="infinite" 
+        easing='linear' 
+        direction="reverse"
+        duration={2500}
+      >
+        <View style={{
+          backgroundColor: 'black',
+          opacity: 0.5,
+          marginVertical: 5,
+          marginHorizontal: 12,
+          width: 60,
+          height: 20,
+        }}
+        />
+      </Animatable.View>
+    )
+  }
+
   render() {
     const { resource, isNew } = this.props;
-
+    const {
+      new_label,
+    } = this.props.translation.templates;
     const backgroundColor = randomPrettyColorForId(resource.id);
 
     return (
       <View style={{
-        marginVertical: 10,
-        // margin: 0,
-        ...this.props.style,
       }}
         key={resource.id}
       >
         <View
           style={{
-            height: 50,
             zIndex: 1,
           }}
         >
-          <ButtonEx
-            borderRadius={5}
-            raised={true}
-            key={resource.id}
-            title={this.getTitle()}
-            color={secondaryText}
-            buttonStyle={{
-              backgroundColor,
-            }}
-            textStyle={{
-              color: secondaryText,
-              fontWeight: '600'
-            }}
+          <TouchableNativeFeedbackEx
             onPress={() => this.props.onResourceCellPressed(this.props.resource)}
-            underlayColor="transparent"
-          />
-        
+          >
+            <View
+              style={{
+                borderRadius: 5,
+                padding: 10,
+                margin: 10,
+                height: 50,
+                width: 88,
+                backgroundColor,
+                alignItems: 'center',
+                justifyContent: 'center',
+                elevation: 3,
+              }}
+            >
+            {this.getTitleOrAnimation()}
+          </View>
+          </TouchableNativeFeedbackEx>
         </View>
         {
           isNew &&
           <Badge
-            containerStyle={{ marginBottom: 20, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 20, right: 0 }}
-            value={"New!"}
+            containerStyle={{ marginBottom: 25, zIndex: 2, backgroundColor: 'orange', position: 'absolute', bottom: 25, right: 0 }}
+            value={new_label}
             textStyle={{ fontSize: 8, fontWeight: '300' }}
           />
         }
@@ -133,6 +172,7 @@ const mapStateToProps = (state: AppState, props: OwnProps) => {
     shortIdMeta,
     shortId,
     isNew,
+    translation: state.translation,
   }
 }
 

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.firestore = exports.auth = exports.admin = void 0;
 const admin = require("firebase-admin");
 exports.admin = admin;
 const Maybe_1 = require("ow_common/lib/utils/Maybe");

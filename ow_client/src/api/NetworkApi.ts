@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { NetInfo } from 'react-native';
 
 export type CallbackMap = {

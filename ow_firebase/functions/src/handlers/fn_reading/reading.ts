@@ -3,6 +3,9 @@ import * as express from 'express';
 import * as moment from 'moment';
 import { snapshotToResourceList, enableLogging } from '../../common/utils';
 import { firestore } from '../../common/apis/FirebaseAdmin';
+import { ReadingApi } from 'ow_common/lib/api';
+import { makeError, makeSuccess } from '../../common/types/dep_AppProviderTypes';
+import { safeGetNested, unsafeUnwrap } from 'ow_common/lib/utils';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
@@ -46,7 +49,12 @@ module.exports = (functions) => {
     const { orgId, resourceId } = req.params;
     const { last_createdAt, limit } = req.query;
 
+<<<<<<< HEAD
+    // @ts-ignore
     return getReading(orgId, resourceId, last_createdAt, limit)
+=======
+    return getReading(orgId, resourceId, <any>last_createdAt, <any>limit)
+>>>>>>> mywell/development
     .then(snapshot => snapshotToResourceList(snapshot))
     .then(resources => res.json(resources))
     .catch(err => next(err));
@@ -56,7 +64,7 @@ module.exports = (functions) => {
   /**
    * saveReading
    * Records a new reading for a given orgId + resourceId
-   * 
+   *
    * Example:
    * "data" {
    *   "datetime":"2018-04-28T09:40:38.460Z",
@@ -109,7 +117,7 @@ module.exports = (functions) => {
   /**
    * legacy_saveReading
    * Records a reading from the legacy MyWell System
-   * 
+   *
    * @param {string} orgId - the organisation id
    * @param {string} legacyResourceId - a lecacy resourceId, of the format `pincode.resourceId`, eg 313603.1120
    */
@@ -127,7 +135,7 @@ module.exports = (functions) => {
           const error = new Error(`No legacy resource found for legacyResourceId: ${legacyResourceId}`);
           return Promise.reject(error);
         }
-        
+
         if (resources.length > 1) {
           console.error(`Found ${resources.length} resources for legacyResourceId: ${legacyResourceId}. Expected 1.`);
         }
@@ -144,6 +152,7 @@ module.exports = (functions) => {
       .then(result => res.json({ reading: result.id }))
       .catch(err => next(err));
   });
+
 
   return functions.https.onRequest(app);
 };

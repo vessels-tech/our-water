@@ -16,7 +16,7 @@ export default function FloatingButtonWrapper(props: Props) {
         backgroundColor: 'transparent'
       }}
     >
-    {...props.children}
+    {props.children}
     </View>
   );
 }

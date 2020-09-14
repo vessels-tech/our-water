@@ -72,3 +72,11 @@
 
 
 -keep class com.vesselstech.ggmn.BuildConfig { *; }
+
+-keep class io.invertase.firebase.** { *; }
+-dontwarn io.invertase.firebase.**
+
+-keep,includedescriptorclasses class com.google.common.**
+-keepnames class com.google.common.**
+-keep class com.google.common.**
+-dontwarn com.google.common.**

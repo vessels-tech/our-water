@@ -27,3 +27,6 @@ export PACKAGE_NAME_SUFFIX="mywell"
 export KEYSTORE_PATH="/Users/ldaly/developer/vessels/our-water/env/mywell_release.keystore"
 export KEYSTORE_ALIAS=mywell
 export SERVICE_ACCOUNT_KEY_FILENAME=".service_account.json"
+
+# Config for App Center
+export APPCENTER_APP_NAME=MyWell

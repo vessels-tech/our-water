@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateDatatypes = exports.validateDatatype = exports.SyncDatatypeList = exports.SyncDatatypes = void 0;
 exports.SyncDatatypes = {
     reading: 'reading',
     resource: 'resource',

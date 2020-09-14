@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Resource = void 0;
 const ResourceType_1 = require("../enums/ResourceType");
 const ResourceIdType_1 = require("../types/ResourceIdType");
 const FirestoreDoc_1 = require("./FirestoreDoc");
 const utils_1 = require("../utils");
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 const GeoPoint = admin.firestore.GeoPoint;
 class Resource extends FirestoreDoc_1.default {
-    constructor(orgId, externalIds, coords, resourceType, owner, groups, timeseries) {
+    constructor(orgId, externalIds, coords, resourceType, owner, groups, timeseries, locationName, image) {
         super();
-        this.docName = 'resource';
+        this.docName = "resource";
         this.lastValue = 0;
         this.lastReadingDatetime = new Date(0);
         this.orgId = orgId;
@@ -19,9 +20,11 @@ class Resource extends FirestoreDoc_1.default {
         this.owner = owner;
         this.groups = groups;
         this.timeseries = timeseries;
+        this.locationName = locationName;
+        this.image = image;
     }
     static build(builder) {
-        return new Resource(builder.orgId, builder.externalIds, builder.coords, builder.resourceType, builder.owner, builder.groups, builder.timeseries);
+        return new Resource(builder.orgId, builder.externalIds, builder.coords, builder.resourceType, builder.owner, builder.groups, builder.timeseries, builder.locationName, builder.image);
     }
     serialize() {
         return {
@@ -37,17 +40,19 @@ class Resource extends FirestoreDoc_1.default {
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             timeseries: this.timeseries,
+            locationName: this.locationName || null,
+            image: this.image || null
         };
     }
     /**
      * Deserialize from a json object
      */
     static deserialize(data, deserId) {
-        const { id, orgId, externalIds, coords, resourceType, owner, groups, lastValue, lastReadingDatetime, createdAt, updatedAt, timeseries, } = data;
+        const { id, orgId, externalIds, coords, resourceType, owner, groups, lastValue, lastReadingDatetime, createdAt, updatedAt, timeseries, locationName, image } = data;
         //Deserialize objects
         const resourceTypeObj = ResourceType_1.resourceTypeFromString(resourceType);
         const externalIdsObj = ResourceIdType_1.default.deserialize(externalIds);
-        const des = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries);
+        const des = new Resource(orgId, externalIdsObj, coords, resourceTypeObj, owner, groups, timeseries, locationName, image);
         //private vars
         des.id = id || deserId;
         des.lastValue = lastValue;
@@ -69,7 +74,11 @@ class Resource extends FirestoreDoc_1.default {
      */
     static getResource({ orgId, id, firestore }) {
         //TODO: make sure orgId is valid first
-        return firestore.collection('org').doc(orgId).collection('resource').doc(id)
+        return firestore
+            .collection("org")
+            .doc(orgId)
+            .collection("resource")
+            .doc(id)
             .get()
             .then(doc => Resource.fromDoc(doc));
     }

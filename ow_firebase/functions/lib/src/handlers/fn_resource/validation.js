@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ggmnResourceEmailValidation = void 0;
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 const Joi = require('joi');
 const pendingResourceValidation = Joi.object().keys({

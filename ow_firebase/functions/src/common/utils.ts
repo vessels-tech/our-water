@@ -10,9 +10,10 @@ import { Sync } from './models/Sync';
 import { SyncRun } from './models/SyncRun';
 import { OWGeoPoint } from 'ow_types';
 import ResourceStationType from "ow_common/lib/enums/ResourceStationType";
-import { verboseLog, projectId } from "./env";
+import { verboseLog, projectId, firebaseToken, storageBucket } from "./env"
 
 const filesystem = require("fs");
+const zipFolder = require('zip-folder');
 import serviceAccountKey from './.serviceAccountKey';
 
 
@@ -492,4 +493,25 @@ export async function getDefaultTimeseries(resourceType: ResourceStationType): P
   }
   
   return makeSuccess(timeseries);
+}
+
+
+export async function zipFolderAsync(folderPath: string, archivePath: string): Promise<SomeResult<any>> {
+  return new Promise((resolve, _) => {
+    zipFolder(folderPath, archivePath, function (err) {
+      if (err) {
+        resolve(makeError(err.message));
+      } else {
+        resolve(makeSuccess(archivePath))
+      }
+    });
+  })
+}
+
+export function getPublicDownloadUrl(storagePath: string): string {
+  const urlPrefix = `https://www.googleapis.com/download/storage/v1/b/${storageBucket}/o/`;
+
+
+    //eg: https://www.googleapis.com/download/storage/v1/b/tz-phone-book.appspot.com/o/tz_audio%2F015a_Voicebook_Swahili.mp3?alt=media&token=1536715274666696
+  return `${urlPrefix}${encodeURIComponent(storagePath)}?alt=media&token=${firebaseToken}`;
 }

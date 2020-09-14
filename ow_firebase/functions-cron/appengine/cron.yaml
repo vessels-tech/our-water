@@ -7,6 +7,10 @@ cron:
   url: /publish/daily-tick
   schedule: every 24 hours
 
+- description: Tell firebase to backup the database
+  url: /publish/trigger-backup
+  schedule: every 48 hours
+
 - description: Push a "tick" onto pubsub every week
   url: /publish/weekly-tick
   schedule: every saturday 00:00

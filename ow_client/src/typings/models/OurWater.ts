@@ -5,8 +5,6 @@ import { PendingResource } from "./PendingResource";
 import { PendingReading } from "./PendingReading";
 import { AnyResource } from "./Resource";
 import { AnyReading } from "./Reading";
-import { string } from "react-native-joi";
-import { AnyARecord } from "dns";
 import { UserStatus } from "../UserTypes";
 import UserType from "ow_common/lib/enums/UserType";
 import { CacheType } from "../../reducers";
@@ -51,6 +49,7 @@ export function toBasicCoords(from: OWGeoPoint): BasicCoords {
 export type ResourceOwnerType = {
   name: string,
   createdByUserId: string | 'default' | null,
+  profileUrl: string | null,
 }
 
 
@@ -112,6 +111,7 @@ export enum TimeseriesRange {
   THREE_MONTHS = 'THREE_MONTHS',
   TWO_WEEKS = 'TWO_WEEKS',
   EXTENT = 'EXTENT',
+  THREE_YEARS = 'THREE_YEARS',
 }
 
 export enum OWUserStatus {
@@ -138,6 +138,7 @@ export type OWUser = {
   status: UserStatus,
   type: UserType,
   newResources: CacheType<string>,
+  image: string | null
 }
 
 export type TimeSeriesReading = {

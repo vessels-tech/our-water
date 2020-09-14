@@ -11,12 +11,11 @@ import { View, ScrollView, Button } from 'react-native';
 import { Text } from 'react-native-elements';
 import { bgLight, primaryDark } from '../utils/Colors';
 import ReadingListItem from '../components/common/ReadingListItem';
-import {  unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../utils';
+import { unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource, showModal } from '../utils';
 import { navigateToNewReadingScreen } from '../utils/NavigationHelper';
 
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
   resourceId: string,
   resourceType: string,
@@ -29,7 +28,7 @@ export interface StateProps {
   pendingReadingsMeta: SyncMeta,
   translation: TranslationFile,
   shortIdCache: CacheType<string>,
-  
+
 }
 
 export interface ActionProps {
@@ -61,16 +60,19 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
   onAddReadingPressed() {
     const { resource_detail_new } = this.props.translation.templates;
 
-    navigateToNewReadingScreen(this.props, resource_detail_new, {
-      navigator: this.props.navigator,
-      groundwaterStationId: null,
-      resourceId: this.props.resourceId,
-      resourceType: this.props.resourceType,
-      // isResourcePending: this.props.isResourcePending,
-      config: this.props.config,
-    });
+    showModal(
+      this.props,
+      'screen.NewReadingScreen',
+      resource_detail_new,
+      {
+        groundwaterStationId: null,
+        resourceId: this.props.resourceId,
+        resourceType: this.props.resourceType,
+        // isResourcePending: this.props.isResourcePending,
+        config: this.props.config,
+      })
   }
-  
+
   getReadingsSection() {
     const {
       pendingReadings,
@@ -98,7 +100,7 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
             color: primaryDark,
           }}
         >{sync_section_readings}</Text>
-        {pendingReadings.map((reading, idx) => 
+        {pendingReadings.map((reading, idx) =>
           <ReadingListItem
             key={idx}
             deletePendingReading={this.deletePendingReading}
@@ -114,13 +116,10 @@ class EditReadingsScreen extends Component<OwnProps & StateProps & ActionProps> 
 
   render() {
     const { pendingReadings } = this.props;
-    const { 
-      edit_readings_no_readings
-      // edit_readings_new_reading
+    const {
+      edit_readings_no_readings,
+      edit_readings_new_reading
     } = this.props.translation.templates;
-
-    //TODO: translate
-    const edit_readings_new_reading = "New Reading";
 
     if (pendingReadings.length === 0) {
       return (

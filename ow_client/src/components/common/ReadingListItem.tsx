@@ -4,8 +4,8 @@ import { ListItem, Icon } from "react-native-elements";
 import { TouchableNativeFeedback } from "react-native";
 import { PendingReading } from '../../typings/models/PendingReading';
 import { error1, primaryDark } from '../../utils/Colors';
-import moment = require('moment');
-import { getReadingAvatar, hashCode } from '../../utils';
+import moment from 'moment';
+import { getReadingAvatar } from '../../utils';
 
 export interface Props {
   deletePendingReading: (id: string) => any,

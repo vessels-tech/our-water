@@ -15,7 +15,6 @@ import UserStatus from 'ow_common/lib/enums/UserStatus';
 
 const bodyParser = require('body-parser');
 const Joi = require('joi');
-const fb = require('firebase-admin')
 require('express-async-errors');
 
 module.exports = (functions) => {
@@ -27,11 +26,11 @@ module.exports = (functions) => {
 
 
   /**
-   * ChangeUserStatus
+   * @function ChangeUserStatus
    * PATCH /:orgId/:userId/status
    * 
-   * Change the user's status to either Approved or Rejected.
-   * If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
+   * @description Change the user's status to either Approved or Rejected.
+   *     If ther user's new status is 'Approved', and has pending resources or readings, they will be saved and deleted
    */
   const changeUserStatusValidation = {
     options: {
@@ -39,12 +38,14 @@ module.exports = (functions) => {
     },
     body: {
       status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
+      shouldSync: Joi.boolean(),
     },
   }
 
   app.patch('/:orgId/:userId/status', validate(changeUserStatusValidation), async (req, res) => {
     const { orgId, userId } = req.params;
     const { status } = req.body;
+    const shouldSync = req.body.shouldSync || false;
     const fbApi = new FirebaseApi(firestore);
     const userApi = new UserApi(firestore, orgId);
 
@@ -57,7 +58,7 @@ module.exports = (functions) => {
       throw new Error(statusResult.message);
     }
 
-    if (status === "Approved") {
+    if (status === "Approved" && shouldSync) {
       const syncResult = await fbApi.syncPendingForUser(orgId, userId);
       if (syncResult.type === ResultType.ERROR) {
         throw new Error(syncResult.message);
@@ -67,7 +68,6 @@ module.exports = (functions) => {
     res.status(204).send("true");
   });
 
-  //       status: Joi.string().valid(UserStatus.Approved, UserStatus.Rejected),
 
   /**
    * ChangeUserType

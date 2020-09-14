@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Sync = void 0;
 const Datasource_1 = require("./Datasources/Datasource");
 const utils_1 = require("../utils");
 class Sync {

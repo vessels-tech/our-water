@@ -1,13 +1,13 @@
 /**
  * PendingScreen
- * 
+ *
  * This is a screen where users can view and delete pending readings and resources.
  * It is different from the SyncScreen as users are not saving resources to an external
  * service, rather the internal service.
- * 
+ *
  * This is only for when users are Unapproved or Rejected.
  * If the user is already approved, then their readings will save directly.
- * 
+ *
  */
 import * as React from 'react';
 import { Component } from "react";
@@ -22,7 +22,6 @@ import BaseApi from '../../api/BaseApi';
 import { Text, Button, ListItem, Icon } from 'react-native-elements';
 import { getGroundwaterAvatar, getReadingAvatar, showModal, navigateTo, unwrapUserId, getShortIdOrFallback, getUnitSuffixForPendingResource } from '../../utils';
 import { error1, primary, primaryDark, bgLight, primaryText } from '../../utils/Colors';
-import * as moment from 'moment';
 import { TranslationFile } from 'ow_translations';
 import { PendingResource } from '../../typings/models/PendingResource';
 import { PendingReading } from '../../typings/models/PendingReading';
@@ -33,7 +32,6 @@ import SaveButton from '../../components/common/SaveButton';
 import { secondaryText, surfaceText } from '../../utils/NewColors';
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
 }
 
@@ -98,10 +96,13 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   async startInternalSync() {
+    const {
+      sync_error_message
+    } = this.props.translation;
+
     const result = await this.props.startInternalSync(this.appApi, this.props.userId);
     if (result.type === ResultType.ERROR) {
-      //TODO: Translate
-      ToastAndroid.show(result.message, ToastAndroid.LONG);
+      ToastAndroid.show(sync_error_message, ToastAndroid.LONG);
     }
   }
 
@@ -169,7 +170,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
         <Text style={{ padding: 20 }}>
           {statusText}
         </Text>
-        { approved && 
+        { approved &&
           <SaveButton
             loading={syncing}
             icon={syncing ? undefined : { name: 'cached', color: secondaryText.high }}
@@ -212,7 +213,7 @@ class PendingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   displayDeleteResourceModal(resourceId: string): void {
-    const { 
+    const {
       edit_resource_delete_modal_title,
       edit_resource_delete_modal_text,
       edit_resource_delete_modal_ok,

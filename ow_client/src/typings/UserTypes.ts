@@ -20,6 +20,7 @@ export type MobileUser = {
   userId: string,
   token: string,
   mobile: string,
+  image?: string
 }
 
 export type NoUser = {

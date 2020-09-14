@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Point = exports.allowedValues = exports.contents = exports.filterCapabilities = exports.parameters = exports.ParameterType = exports.dcp = exports.operations = exports.operationsMetadata = exports.serviceProvider = exports.serviceIdentification = void 0;
 function serviceIdentification(node, title, abstract) {
     const open = node.ele('ows:ServiceIdentification');
     open.ele('ows:Title', {}, 'OurWater SOS').up();

@@ -4,17 +4,21 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source /tmp/ow_firebase_env
 
-export BASE_URL="http://localhost:5000/our-water/us-central1"
+#note: make sure to look in `.runtimeconfig.json` to configure these tests
+
+# export BASE_URL="http://localhost:5000/our-water/us-central1"
 # export MYWELL_LEGACY_BASE_URL="http://localhost:3000"
 
 export MYWELL_LEGACY_BASE_URL="https://mywell-server.vessels.tech"
 # export BASE_URL="https://us-central1-our-water.cloudfunctions.net"
+export BASE_URL="https://us-central1-our-water-dev.cloudfunctions.net"
 DATE=`date '+%Y%m%dT%H%M%S'`
 # export ORG_ID="test_$DATE"
 export ORG_ID="test_12348"
 # export ORG_ID="mywell"
 #TODO: change to a test project
-export GOOGLE_CLOUD_PROJECT='our-water'
+# export GOOGLE_CLOUD_PROJECT='our-water'
+export GOOGLE_CLOUD_PROJECT='our-water-dev'
 export SKIP_CLEANUP='true'
 
 #make sure the server is up

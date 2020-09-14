@@ -21,11 +21,11 @@ or alternatively using `brew cask install fastlane`
 fastlane android test
 ```
 Runs all the tests
-### android upload_hockey
+### android upload_app_center
 ```
-fastlane android upload_hockey
+fastlane android upload_app_center
 ```
-Submit a new beta build to hockeyapp
+Submit a new beta build to appcenter
 ### android deploy
 ```
 fastlane android deploy

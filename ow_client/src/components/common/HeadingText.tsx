@@ -1,6 +1,7 @@
 import * as React from 'react'; import { Component } from 'react';
 import { View, TouchableNativeFeedback } from "react-native";
 import { Text } from 'react-native-elements';
+import { surfaceText } from '../../utils/NewColors';
 
 export interface Props {
   heading: string,
@@ -21,10 +22,21 @@ export default class HeadingText extends React.PureComponent<Props> {
           flexDirection: 'row',
           justifyContent: 'space-between',
           paddingVertical: 5,
+          flexGrow: 1,
         }}>
           <Text style={{
-            fontSize: 17, fontWeight: '700' }}>{heading}</Text>
-          <Text style={{ fontSize: 17, fontWeight: '100', paddingLeft: 50 }}>{content}</Text>
+            fontSize: 17,
+            fontWeight: '700',
+            color: surfaceText.high,
+          }}>{heading}</Text>
+          <Text style={{
+            flex: 1,
+            fontSize: 17,
+            fontWeight: '100',
+            paddingLeft: 50,
+            color: surfaceText.high,
+            flexWrap: 'wrap',
+          }}>{content}</Text>
         </View>
       </TouchableNativeFeedback>
     );

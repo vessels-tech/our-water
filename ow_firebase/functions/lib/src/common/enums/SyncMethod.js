@@ -1,6 +1,7 @@
 "use strict";
 // import * as Joi from 'joi';
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SyncMethodValidation = exports.SyncMethod = void 0;
 const Joi = require('joi');
 var SyncMethod;
 (function (SyncMethod) {

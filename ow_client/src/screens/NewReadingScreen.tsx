@@ -9,13 +9,14 @@ import {
   Image,
   ToastAndroid,
 } from 'react-native';
-import { 
-  Button, Text 
+import {
+  Button, Text
 } from 'react-native-elements';
-import * as moment from 'moment';
+import moment, * as MomentTypes from 'moment';
+import { Navigation, Layout } from 'react-native-navigation';
 
 import IconFormInput,{ InputType } from '../components/common/IconFormInput';
-import { displayAlert, maybeLog, showModal, unwrapUserId, renderLog } from '../utils';
+import { displayAlert, maybeLog, showModal, unwrapUserId, renderLog, dismissModal } from '../utils';
 import { bgLight, primary, primaryDark, secondary, secondaryText, primaryText} from '../utils/Colors';
 import { ConfigFactory } from '../config/ConfigFactory';
 import BaseApi from '../api/BaseApi';
@@ -48,8 +49,6 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface OwnProps {
-  navigator: any,
-
   groundwaterStationId: string | null,
   resourceId: string,
   resourceType: string,
@@ -76,7 +75,7 @@ export interface State {
   measurementString: string,
   timeseries: ConfigTimeseries,
   enableSubmitButton: boolean,
-  date: moment.Moment,
+  date: MomentTypes.Moment,
   shouldShowCamera: boolean,
   readingImage: MaybeReadingImage,
   formHeight: number,
@@ -87,6 +86,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   appApi: BaseApi;
   externalApi: MaybeExternalServiceApi;
   camera: any;
+  private takePictureModalId?: string;
 
   constructor(props: OwnProps & StateProps & ActionProps) {
     super(props);
@@ -96,6 +96,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     this.externalApi = props.config.getExternalServiceApi();
 
     const timeseriesList: Array<ConfigTimeseries> = this.props.config.getDefaultTimeseries(props.resourceType);
+
     this.state = {
       enableSubmitButton: false,
       date: moment(),
@@ -156,15 +157,18 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     });
   }
 
-  showTakePictureScreen() {
-    showModal(this.props, 'modal.TakePictureScreen', 'Take Picture', {
+  async showTakePictureScreen() {
+    this.takePictureModalId = await showModal(this.props, 'modal.TakePictureScreen', 'Take Picture', {
       onTakePicture: this.onTakePicture,
       onTakePictureError: this.onTakePictureError,
     });
   }
 
-  onTakePicture(dataUri: string, fileUrl: string) {
-    this.props.navigator.dismissModal();
+  async onTakePicture(dataUri: string, fileUrl: string) {
+    if (!this.takePictureModalId) {
+      return;
+    }
+
     this.setState({
       readingImage: {
         type: ReadingImageType.IMAGE,
@@ -172,14 +176,19 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
         fileUrl,
       }
     });
+
+    await dismissModal(this.takePictureModalId);
   }
 
-  onTakePictureError(message: string) {
-    //TODO: translate
-    const take_picture_error_message = 'There was a problem taking the picture. Make sure you have enabled photo permissions and try again';
+  async onTakePictureError(message: string) {
+    const {
+      take_picture_error_message
+    } = this.props.translation.templates
+
     ToastAndroid.show(take_picture_error_message, ToastAndroid.LONG);
     maybeLog('Error taking picture', message);
-    this.props.navigator.dismissModal();
+
+    await dismissModal(this.takePictureModalId);
   }
 
   clearReadingImage() {
@@ -193,10 +202,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   async saveReading() {
     Keyboard.dismiss();
     const { date, measurementString, timeseries, readingImage} = this.state;
-    const { 
+    const {
       pendingSavedReadingsMeta: { loading },
       isResourcePending,
-      location, 
+      location,
     } = this.props;
 
     const {
@@ -222,7 +231,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     if (this.props.groundwaterStationId) {
       groundwaterStationId = this.props.groundwaterStationId;
     }
-    
+
     if (loading) {
       //Don't allow a double button press!
       return;
@@ -299,7 +308,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
       message,
       [
         { text: new_reading_dialog_one_more, onPress: () => { } },
-        { text: new_reading_dialog_done, onPress: () => this.props.navigator.pop() },
+        { text: new_reading_dialog_done, onPress: () => { dismissModal(); }},
       ]
     );
   }
@@ -313,7 +322,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const { measurementString } = this.state;
 
     let isValid = true;
-    
+
     try {
       let measurement = parseFloat(measurementString);
 
@@ -325,7 +334,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     //TODO: custom validation, eg. well depth
-  
+
     return isValid;
   }
 
@@ -341,12 +350,14 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   getImageSection() {
     const { readingImage } = this.state;
 
+    const {
+      add_image_text
+    } = this.props.translation.templates;
+
     if (!this.props.config.getNewReadingShouldShowImageUpload()) {
       return null;
     }
 
-    //TODO: Translate
-    const add_image_text = "Add an Image";
     return (
       <View style={{
         height: 300,
@@ -354,7 +365,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        { readingImage.type === ReadingImageType.NONE ? 
+        { readingImage.type === ReadingImageType.NONE ?
           <Button
             title={add_image_text}
             raised={true}
@@ -366,8 +377,8 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
             underlayColor="transparent"
           /> : null
         }
-        { readingImage.type === ReadingImageType.IMAGE ? 
-          <View 
+        { readingImage.type === ReadingImageType.IMAGE ?
+          <View
             style={{
               backgroundColor: primaryDark,
               flex: 1,
@@ -375,7 +386,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
               height: 300,
             }}
           >
-            <View 
+            <View
               style={{
                 position: 'absolute',
                 zIndex: 10,
@@ -394,7 +405,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
                 height: 300,
               }}
               source={{ uri: readingImage.fileUrl }}
-            /> 
+            />
           </View> : null
         }
       </View>
@@ -418,7 +429,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     const timeseriesList: ConfigTimeseries[] = this.props.config.getDefaultTimeseries(resourceType);
 
     return (
-      <ScrollView 
+      <ScrollView
         keyboardShouldPersistTaps='handled'
         style={{
           flex: 1,
@@ -433,7 +444,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           iconColor={primaryDark}
           placeholder={new_reading_date_field}
           errorMessage={this.isDateValid() ? null : new_reading_date_field_invalid}
-          onChangeText={(date: moment.Moment) => {
+          onChangeText={(date: MomentTypes.Moment) => {
             this.setState({date});
           }}
           fieldType={InputType.dateTimeInput}
@@ -444,7 +455,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           iconColor={primaryDark}
           placeholder={new_reading_value_field(timeseries.unitOfMeasure)}
           errorMessage={
-            measurementString.length > 0 && !this.isMeasurementValid() ? 
+            measurementString.length > 0 && !this.isMeasurementValid() ?
               new_reading_value_field_invalid : null
           }
           onChangeText={(measurementString: string) => this.setState({ measurementString})}
@@ -452,35 +463,39 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
           fieldType={InputType.fieldInput}
           value={measurementString}
         />
-        <View style={{
-          flexDirection: "row",
-          borderBottomColor: primaryText,
-          borderBottomWidth: 1,
-        }}>
-          <Text 
-          style={{
-            alignSelf:'center',
-            paddingRight: 10,
-            fontSize: 15,
-            fontWeight: '600', 
-            flex: 1,
+        {
+          //Only show the timeseries selector if there is more than one to pick from
+          timeseriesList.length > 1 &&
+          <View style={{
+            flexDirection: "row",
+            borderBottomColor: primaryText,
+            borderBottomWidth: 1,
           }}>
-            {`${new_reading_timeseries}:`}
-          </Text>
-          <Picker
-            selectedValue={this.state.timeseries.parameter}
+            <Text
             style={{
-              flex: 2
-            }}
-            mode={'dropdown'}
-            onValueChange={(_, idx) => {
-              const ts = timeseriesList[idx];
-              this.setState({ timeseries: ts });
-            }}
-          >
-            {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
-          </Picker>
-        </View>
+              alignSelf:'center',
+              paddingRight: 10,
+              fontSize: 15,
+              fontWeight: '600',
+              flex: 1,
+            }}>
+              {`${new_reading_timeseries}:`}
+            </Text>
+              <Picker
+                selectedValue={this.state.timeseries.parameter}
+                style={{
+                  flex: 2
+                }}
+                mode={'dropdown'}
+                onValueChange={(_, idx) => {
+                  const ts = timeseriesList[idx];
+                  this.setState({ timeseries: ts });
+                }}
+              >
+                {timeseriesList.map(ts => <Picker.Item key={ts.parameter} label={ts.name} value={ts.parameter} />)}
+              </Picker>
+          </View>
+          }
         {this.getImageSection()}
         {/* Transparent footer to make the scrollview balance */}
         <View
@@ -500,7 +515,7 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
   }
 
   getButton() {
-    const { 
+    const {
       pendingSavedReadingsMeta: { loading },
       translation: { templates: {
         new_reading_save_button
@@ -556,10 +571,10 @@ class NewReadingScreen extends Component<OwnProps & StateProps & ActionProps> {
     }
 
     return (
-      // <TouchableWithoutFeedback 
+      // <TouchableWithoutFeedback
       //   style={{
       //     flex: 1,
-      //     flexDirection: 'column',  
+      //     flexDirection: 'column',
       //     width: '100%',
       //   }}
       //   onPress={() => {
@@ -605,7 +620,7 @@ const mapStateToProps = (state: AppState, ownProps: OwnProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): ActionProps => {
   return {
-    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) => 
+    saveReading: (api: BaseApi, externalApi: MaybeExternalServiceApi, userId: string, resourceId: string, reading: PendingReading) =>
       { return dispatch(appActions.saveReading(api, externalApi, userId, resourceId, reading))},
     getGeolocation: () => dispatch(appActions.getGeolocation())
   }

@@ -57,14 +57,19 @@ module.exports = (functions) => {
     const { last_createdAt, limit } = req.query;
 
     // const resourceRef = firestore.collection('org').doc(orgId).collection('resource');
+<<<<<<< HEAD
+    //@ts-ignore
     return getOrgs(orgId, last_createdAt, limit)
+=======
+    return getOrgs(orgId, <any>last_createdAt, <any>limit)
+>>>>>>> mywell/development
       .then(snapshot => {
 
         const resources = [];
         snapshot.forEach(function (doc) {
           resources.push(doc.data());
         });
-      
+
         //Sadly this doesn't give us the nested reading.
         //It also doesn't give us the document containing the resources...
         //One way to do this would be to store readings in an array on this object, but I'm worried about performance issues
@@ -90,9 +95,9 @@ module.exports = (functions) => {
 
   /**
    * createResource
-   * 
+   *
    * Creates a new resource for a given org
-   * 
+   *
    *  Example:
    *  {
    *    "coords": {"latitude":13.2, "longitude":45.4},
@@ -172,7 +177,7 @@ module.exports = (functions) => {
   /**
    * updateResource
    * TD: this is outdated, Don't use until it's fixed.
-   * 
+   *
    * PUT /:orgId/:resourceId
    */
   const updateResourceValidation = {
@@ -210,7 +215,7 @@ module.exports = (functions) => {
         if (isNullOrUndefined(newValue)) {
           return;
         }
-        
+
         if (key === 'externalIds') {
           newValue = ResourceIdType.deserialize(newValue);
         }
@@ -234,7 +239,7 @@ module.exports = (functions) => {
     const { subject, message } = req.body;
     const pendingResources: PendingResource[] = req.body.pendingResources;
     const pendingReadings: PendingReading[] = req.body.pendingReadings;
-    
+
     const attachments = [];
 
     console.log("pre resources");
@@ -242,7 +247,7 @@ module.exports = (functions) => {
     /* only add the pending resouces if the user is trying to save new resources */
     if (pendingResources.length > 0) {
       const generateZipResult = await GGMNApi.pendingResourcesToZip(pendingResources);
-      
+
       if (generateZipResult.type === ResultType.ERROR) {
         console.log("ggmnResourceEmail generateZipResult error", generateZipResult.message);
         throw new Error(generateZipResult.message);
@@ -274,9 +279,9 @@ module.exports = (functions) => {
 
   /**
    * getReadingsForResource
-   * 
+   *
    * Returns all the readings for a given resource, optionally filtering by type.
-   * May need 
+   * May need
    */
   const getReadingsForResourceValidation = {
     options: {
@@ -311,19 +316,19 @@ module.exports = (functions) => {
 
   /**
    * getResourceNearLocation
-   * 
+   *
    * Returns all the resources near a given location.
    * Basic geoquery, creates a square bounding box (sorry, nothing too fancy here).
-   * 
+   *
    * Currently, the cloudstore database only filters by latitude, and not longitude.
    * So this endpoint queries based on latitude, and then manually filters.
-   * See: https://github.com/invertase/react-native-firebase/issues/561, 
+   * See: https://github.com/invertase/react-native-firebase/issues/561,
    *  and https://gist.github.com/zirinisp/e5cf5d9c33cb0bd815993900618eafe0
-   * 
+   *
    * It seems if we want more advanced geo queries, we will have to implement that ourselves. Some people sync
-   * their data to Algolia, which allows them to peform these complex queries. That could work in the future, 
+   * their data to Algolia, which allows them to peform these complex queries. That could work in the future,
    * but for now, this will do.
-   * 
+   *
    * @param {number} latitude  - the Latitude of the centre point
    * @param {number} longitude - the Longitude of the centre point
    * @param {float}  distance  - between 0 & 1, how far the search should go. Min x m, Max 10km (approximate)
@@ -345,7 +350,12 @@ module.exports = (functions) => {
     const { orgId } = req.params;
     const fbApi = new FirebaseApi(firestore);
 
-    const result = await fbApi.resourcesNearLocation(orgId, latitude,longitude, distance);
+<<<<<<< HEAD
+    // @ts-ignore
+    const result = await fbApi.resourcesNearLocation(orgId, latitude, longitude, distance);
+=======
+    const result = await fbApi.resourcesNearLocation(orgId, <any>latitude, <any>longitude, <any>distance);
+>>>>>>> mywell/development
     if (result.type === ResultType.ERROR) {
       next(result.message);
       return;
@@ -357,9 +367,9 @@ module.exports = (functions) => {
   /**
    * SyncUserData
    * POST /:orgId/:userId/sync
-   * 
+   *
    * Synchronises the user's pendingResources and pendingReadings, and cleans them up
-   * The user MUST be approved before calling this method. 
+   * The user MUST be approved before calling this method.
    *
    */
   app.post('/:orgId/:userId/sync', async (req, res) => {
@@ -377,13 +387,13 @@ module.exports = (functions) => {
     }
 
     const resourceIds = unsafeUnwrap(await fbApi.syncPendingForUser(orgId, userId));
-   
+
     /* Get a list of resources */
     const resources = unsafeUnwrap(await resourceApi.getResourcesForIds(resourceIds));
-   
+
     /* Add to the user's favourites */
     unsafeUnwrap(await userApi.addFavouriteResources(userId, resources));
-    
+
     /* Add to the user's new resources */
     //This is non critical - we don't care if it fails.
     await userApi.markAsNewResources(userId, resourceIds);

@@ -13,7 +13,6 @@ export REACT_APP_REMOTE_CONFIG_TIMEOUT=10
 export REMOTE_CONFIG_DEVELOPER_MODE=true
 export ENABLE_LOGGING='true'
 export ENABLE_RENDER_LOGGING='false'
-export ENABLE_REDUX_LOGGING='false'
 export ENABLE_CACHE='true'
 export RESOURCE_CACHE_MAX_SIZE=500
 export PLACE_API_BASE_URL="https://nominatim.openstreetmap.org/search"

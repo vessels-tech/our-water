@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.zipGeoJson = void 0;
 const geojson = require('shp-write/src/geojson');
 const prj = require('shp-write/src/prj');
 const write = require('shp-write/src/write');

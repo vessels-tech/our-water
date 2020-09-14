@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resourceTypeFromString = exports.DepResourceType = void 0;
 const ResourceStationType_1 = require("ow_common/lib/enums/ResourceStationType");
 var DepResourceType;
 (function (DepResourceType) {

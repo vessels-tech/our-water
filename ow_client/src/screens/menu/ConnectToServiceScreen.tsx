@@ -26,7 +26,6 @@ import Logo from '../../components/common/Logo';
 
 
 export interface OwnProps {
-  navigator: any,
   config: ConfigFactory,
   userId: string,
 }

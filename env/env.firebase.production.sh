@@ -6,3 +6,4 @@ export backup_bucket_name=our-water-backup
 export PROJECT_ID=our-water
 export verbose_log=true
 export firebase_base_url=https://us-central1-our-water.cloudfunctions.net
+export should_backup_firebase_on_cron=true

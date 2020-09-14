@@ -1,7 +1,6 @@
 'use strict';
 import * as React from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TouchableNativeFeedback,
@@ -63,7 +62,7 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
-        /> 
+        />
         <TouchableNativeFeedback
           onPress={this.takePicture}
           style={{ flex: 1, }}
@@ -71,7 +70,7 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           <View style={{
             justifyContent: 'center',
             flex: 1,
-           }}>   
+           }}>
             <Icon
               containerStyle={{
                 flex: 1,
@@ -93,13 +92,13 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
     if (this.state.loading || !this.camera) {
       return;
     }
-
     this.setState({loading: true}, async () => {
       if (this.camera) {
-        const options = { 
-          quality: 0.1, 
+        const options = {
+          quality: 0.25,
           base64: true,
           fixOrientation: true,
+          width: 500
         };
         try {
           const data = await this.camera.takePictureAsync(options);
@@ -107,23 +106,13 @@ export default class TakePictureScreen extends React.PureComponent<Props> {
           this.setState({image: data.base64});
           return this.props.onTakePicture(data.base64, data.uri);
         } catch (err) {
+          console.log('failed')
+          console.log(err)
           return this.props.onTakePictureError(err);
         }
       }
+
       this.props.onTakePictureError('Camera was not initalized');
     });
   };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
-  },
-  preview: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
-  },
-});

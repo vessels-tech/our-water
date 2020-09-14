@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
-import { BaseApiType, ResourceType } from "ow_types";
 import { possibleTranslationsForOrg, TranslationOrg, translationsForTranslationOrg, TranslationFiles, functionReplacer } from 'ow_translations';
+import { MyWellResourceTypes } from './mywellConfig';
 
 
 export const arg: any = (argList => {
@@ -149,19 +149,13 @@ export async function getRemoteConfig(projectId: string, token: string): Promise
   .then(_currentConfig => {
     currentConfig = _currentConfig;
     return request(etagRequestOptions);
-    // console.log('rawResponse', rawResponse.headers);
-    // const parsedResponse = rawResponse.toJSON();
-    // const etag = rawResponse.headers.etag;
-    // return [ etag, parsedResponse];
   })
   .then(rawResponse => {
-     // console.log('rawResponse', rawResponse.headers);
-    // const parsedResponse = rawResponse.toJSON();
     etag = rawResponse.headers.etag;
     return [ etag, currentConfig];
   })
   .catch(err => {
-    console.log('Error', err.message);
+    console.log('getRemoteConfig: Error', err.message);
     return Promise.reject(err);
   });
 }
@@ -360,17 +354,7 @@ export async function getNewConfig(): Promise<any> {
       ]
     ),
     editResource_defaultTypes: buildParameter(
-      {
-        well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-        raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-        quality: [
-          { name: 'salinity', parameter: 'salinity', readings: [] },
-          { name: 'ph', parameter: 'ph', readings: [] },
-          { name: 'nitrogen', parameter: 'nitrogen', readings: [] },
-        ],
-        checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-      }
-      , 
+      MyWellResourceTypes,
       'The default resource timeseries types', 
       conditionKeys, 
       [
@@ -389,17 +373,7 @@ export async function getNewConfig(): Promise<any> {
           ]
         }, 
         //MyWell
-        {
-          //TODO: I'm not sure what the parameter should be - default?
-          well: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-          raingauge: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'mm' }],
-          quality: [
-            { name: 'salinity', parameter: 'salinity', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'ph', parameter: 'ph', readings: [], unitOfMeasure: 'ppm' },
-            { name: 'nitrogen', parameter: 'nitrogen', readings: [], unitOfMeasure: 'ppm' },
-          ],
-          checkdam: [{ name: 'default', parameter: 'default', readings: [], unitOfMeasure: 'm' }],
-        }
+        MyWellResourceTypes
       ]),
     editResource_allowCustomId: buildParameter(
       false, 
@@ -492,6 +466,34 @@ export async function getNewConfig(): Promise<any> {
       conditionKeys, 
       ["", "", `${process.env.firebase_base_url}/public/mywell/downloadReadings`
     ]),
+    resourceDetail_graphButtons: buildParameter(
+        JSON.stringify([
+          { text: '3Y', value: 'THREE_YEARS' },
+          { text: '1Y', value: 'ONE_YEAR' },
+          { text: '3M', value: 'THREE_MONTHS' },
+        ]),
+        'the graph and table buttons',
+        conditionKeys, [
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+            { text: '2W', value: 'TWO_WEEKS' },
+            { text: 'EXTENT', value: 'EXTENT' },
+          ]),
+          JSON.stringify([
+            { text: '3Y', value: 'THREE_YEARS' },
+            { text: '1Y', value: 'ONE_YEAR' },
+            { text: '3M', value: 'THREE_MONTHS' },
+          ]),
+        ]
+    ),
+    resourceDetail_graphUsesStrictDate: buildParameter(true, "Does the graph only display strict dates?", conditionKeys, [false, false, true]),
   };
 
   return Promise.resolve({

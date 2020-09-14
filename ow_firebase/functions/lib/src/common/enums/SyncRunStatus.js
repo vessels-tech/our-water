@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SyncRunStatus = void 0;
 var SyncRunStatus;
 (function (SyncRunStatus) {
     SyncRunStatus["pending"] = "pending";

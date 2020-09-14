@@ -2411,9 +2411,9 @@ ow_common@^0.1.20:
     ow_translations "git://github.com/vessels-tech/ow_translations"
     ts-mocha "^2.0.0"
 
-"ow_translations@git://github.com/vessels-tech/ow_translations.git":
-  version "0.1.1"
-  resolved "git://github.com/vessels-tech/ow_translations.git#a062a14490fbcfa186bf1c5703f2e616b14881c4"
+"ow_translations@git://github.com/vessels-tech/ow_translations":
+  version "0.1.22"
+  resolved "git://github.com/vessels-tech/ow_translations#818e142d58bd295586e461df3b02268e2d3f3529"
   dependencies:
     "@babel/cli" "^7.0.0"
     "@babel/core" "^7.0.0"

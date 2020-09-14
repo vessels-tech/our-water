@@ -35,8 +35,9 @@ export type LoginRequest = {
 }
 
 export type OptionalAuthHeaders = {
-  username?: string,
-  password?: string,
+  Authorization?: string,
+  // username?: string,
+  // password?: string,
 };
 
 

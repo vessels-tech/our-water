@@ -1,6 +1,5 @@
 import { AnyResource } from "../typings/models/Resource";
 import FBResource, { FBResourceBuilder, FBResourceType } from "../model/FBResource";
-import { string } from "react-native-joi";
 import { PendingTimeseries } from "../typings/models/PendingTimeseries";
 import { PendingResource } from "../typings/models/PendingResource";
 import { OWGeoPoint, BasicCoords, toBasicCoords } from "../typings/models/OurWater";
@@ -47,16 +46,17 @@ export function fromCommonResourceToFBResoureBuilder(orgId: string, resource: An
       resourceType: fromCommonResourceTypeToFBResourceType(resource.resourceType),
       lastValue: resource.lastValue,
       lastReadingDatetime: resource.lastReadingDatetime,
+      locationName: resource.locationName
     }
   }
-
+  
   if (resource.type === OrgType.GGMN) {
     options = {
       description: resource.description,
       title: resource.title
     }
   }
-
+console.log('fromCommonResourceToFBResoureBuilder')
   return {
     orgId,
     type: resource.type,

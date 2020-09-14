@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DefaultSyncRunResult = void 0;
 class DefaultSyncRunResult {
     constructor() {
         this.results = [];

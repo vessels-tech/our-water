@@ -34,11 +34,14 @@ export default class IconButton extends Component<Props> {
         ...this.props.style,
         justifyContent: 'center',
         alignItems: 'center',
+        margin: 20,
       }}>
         <View
-          style={{ 
+          style={{
+            backgroundColor: this.props.color ? this.props.color : secondary,
             borderRadius: 50,
-            elevation: 1,
+            elevation: 5,
+            margin: 10,
           }}
         >
           <TouchableNativeFeedback
@@ -47,16 +50,9 @@ export default class IconButton extends Component<Props> {
           >
             <Icon
               reverse={true}
-              // raised={true}
               underlayColor={'purple'}
-              // containerStyle={{
-              //   shadowOffset: { width: 10, height: 10, },
-              //   shadowColor: 'black',
-              //   shadowOpacity: 1.0,
-              // }}
               size={this.props.size ? this.props.size : 20}
               name={this.props.name}
-              // onPress={() => this.props.onPress()}
               color={this.props.color ? this.props.color : secondary}
               iconStyle={{
                 color: this.props.textColor || secondaryText,
