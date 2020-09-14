@@ -138,7 +138,7 @@ build:
 	@make env
 	@make update-env-dev
 	@echo 'Building debug only'
-	source ../env/.env.deployment.sh && source /tmp/ow_env && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew --init-script init.gradle app:assembleDebug --stacktrace
+	source ../env/.env.deployment.sh && source /tmp/ow_env  && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew app:assembleDebug --stacktrace
 
 # Builds and then signs the .apk
 build-production:
@@ -146,7 +146,7 @@ build-production:
 	@make update-env-prod
 	@echo 'Building production only'
 	../env/increment_build.sh
-	source /tmp/ow_env && source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew assembleRelease --stacktrace
+	source /tmp/ow_env && source ../env/.env.deployment.sh && cd ${dir}/android/ && ENVFILE=/tmp/ow_env ./gradlew app:assembleRelease --stacktrace
 	@echo "signing with key: '${KEYSTORE_PATH}'"
 	cd ${dir}/android/app/build/outputs/apk/release/ && jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ${KEYSTORE_PATH} app-release-unsigned.apk -storepass ${KEYSTORE_PASSWORD} ${KEYSTORE_ALIAS}
 	cd ${dir}/android/app/build/outputs/apk/release/ && $(ANDROID_HOME)/build-tools/27.0.3/zipalign -f -v 4 app-release-unsigned.apk app-release-signed-aligned.apk
